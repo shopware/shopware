@@ -3,7 +3,7 @@ import { LineItemType } from '../../order.types';
 import './sw-order-line-items-grid.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Utils } = Shopware;
@@ -158,10 +158,6 @@ export default {
             return this.$refs.dataGrid?.currentColumns
                 .find(item => item.property === 'payload.productNumber')?.visible;
         },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
-        },
     },
     methods: {
         onInlineEditSave(item) {
@@ -264,12 +260,7 @@ export default {
 
             Object.values(this.selectedItems).forEach((item) => {
                 if (item.isNew()) {
-                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem?.id);
-                    if (this.feature.isActive('VUE3')) {
-                        this.order.lineItems.splice(itemIndex, 1);
-                        return;
-                    }
-
+                    const itemIndex = this.order.lineItems.findIndex(lineItem => item.id === lineItem.id);
                     this.$delete(this.order.lineItems, itemIndex);
                     return;
                 }
@@ -292,10 +283,6 @@ export default {
 
         onDeleteItem(item, itemIndex) {
             if (item.isNew()) {
-                if (this.feature.isActive('VUE3')) {
-                    this.order.lineItems.splice(itemIndex, 1);
-                    return;
-                }
                 this.$delete(this.order.lineItems, itemIndex);
                 return;
             }

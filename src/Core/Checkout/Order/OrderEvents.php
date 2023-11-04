@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Order;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderEvents
 {
     /**
@@ -312,6 +312,4 @@ class OrderEvents
      * @Event("Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent")
      */
     final public const ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
-
-    final public const ORDER_CUSTOMER_WRITTEN_EVENT = 'order_customer.written';
 }

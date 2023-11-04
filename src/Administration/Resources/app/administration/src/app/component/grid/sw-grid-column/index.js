@@ -11,8 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-grid-column', {
     template,
 
-    inject: ['feature'],
-
     props: {
         label: {
             type: String,
@@ -56,25 +54,13 @@ Component.register('sw-grid-column', {
         },
     },
 
-    computed: {
-        parentGrid() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$parent.$parent.$parent.$parent;
-            }
-
-            return this.$parent.$parent;
-        },
-    },
-
     watch: {
         label(newLabel, oldLabel) {
-            const index = this.parentGrid.columns.findIndex((col) => col.label === oldLabel);
+            const index = this.$parent.columns.findIndex((col) => col.label === oldLabel);
 
-            if (index === -1 || !newLabel) {
-                return;
+            if (index !== -1 && newLabel) {
+                this.$parent.columns[index].label = newLabel;
             }
-
-            this.parentGrid.columns[index].label = newLabel;
         },
     },
 
@@ -88,13 +74,13 @@ Component.register('sw-grid-column', {
         },
 
         registerColumn() {
-            const hasColumn = this.parentGrid.columns.findIndex((column) => column.label === this.label);
+            const hasColumn = this.$parent.columns.findIndex((column) => column.label === this.label);
 
             if (hasColumn !== -1 && this.label) {
                 return;
             }
 
-            this.parentGrid.columns.push({
+            this.$parent.columns.push({
                 label: this.label,
                 iconLabel: this.iconLabel,
                 flex: this.flex,

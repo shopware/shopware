@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;

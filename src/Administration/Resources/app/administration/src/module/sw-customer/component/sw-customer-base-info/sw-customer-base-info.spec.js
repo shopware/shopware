@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swCustomerBaseInfo from 'src/module/sw-customer/component/sw-customer-base-info';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-customer-base-info', swCustomerBaseInfo);

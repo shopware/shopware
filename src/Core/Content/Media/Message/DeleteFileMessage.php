@@ -6,7 +6,7 @@ use League\Flysystem\Visibility;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class DeleteFileMessage implements AsyncMessageInterface
 {
     public function __construct(

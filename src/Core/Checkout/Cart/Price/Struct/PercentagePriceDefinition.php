@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
-use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -15,7 +14,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * price. This can be used for percentual discounts.
  */
 #[Package('checkout')]
-class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface, FilterableInterface
+class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
 {
     final public const TYPE = 'percentage';
     final public const SORTING_PRIORITY = 50;
@@ -68,9 +67,6 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
         return $data;
     }
 
-    /**
-     * @return array<string, Constraint[]>
-     */
     public static function getConstraints(): array
     {
         return [

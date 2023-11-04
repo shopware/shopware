@@ -78,14 +78,6 @@ export default {
                 },
             ];
         },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
-        },
-
-        stockColorVariantFilter() {
-            return Shopware.Filter.getByName('stockColorVariant');
-        },
     },
 
     created() {

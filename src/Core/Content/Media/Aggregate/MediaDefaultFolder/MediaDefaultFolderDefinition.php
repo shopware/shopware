@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class MediaDefaultFolderDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media_default_folder';

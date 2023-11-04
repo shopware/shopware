@@ -2,7 +2,7 @@ import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Mixin } = Shopware;
@@ -171,10 +171,6 @@ export default {
 
         listFilters() {
             return this.filterFactory.create('customer', this.listFilterOptions);
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

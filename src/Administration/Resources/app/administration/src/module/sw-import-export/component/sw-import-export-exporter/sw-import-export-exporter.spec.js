@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swImportExportExporter from 'src/module/sw-import-export/component/sw-import-export-exporter';
@@ -67,7 +67,7 @@ describe('components/sw-import-export-exporter', () => {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-loader': true,
                 'sw-icon': true,
-                'sw-switch-field': true,
+                'sw-field': true,
                 'sw-field-error': true,
                 'sw-import-export-progress': true,
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),

@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1635230747UpdateProductExportTemplate extends MigrationStep

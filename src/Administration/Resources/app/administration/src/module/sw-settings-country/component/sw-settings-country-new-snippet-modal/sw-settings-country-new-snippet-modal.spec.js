@@ -14,7 +14,7 @@ import 'src/app/component/utils/sw-vnode-renderer';
 import 'src/app/component/form/field-base/sw-contextual-field';
 
 /**
- * @package buyers-experience
+ * @package customer-order
  */
 async function createWrapper(customPropsData = {}) {
     const localVue = createLocalVue();

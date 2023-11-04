@@ -1,11 +1,12 @@
-/// <reference types="Cypress" />
-/**
- * @package buyers-experience
- */
+// / <reference types="Cypress" />
 
 import elements from '../../../../support/pages/sw-general.page-object';
 
-describe('Theme: Test ACL privileges', { tags: ['VUE3']}, () => {
+/**
+ * @package sales-channel
+ */
+
+describe('Theme: Test ACL privileges', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -165,7 +166,7 @@ describe('Theme: Test ACL privileges', { tags: ['VUE3']}, () => {
 
         // Check modal and confirm theme name
         cy.get('.sw_theme_manager__duplicate-modal').should('be.visible');
-        cy.get('[name="sw-field--duplicate-theme-name"]').typeAndCheck('New Theme');
+        cy.get('#sw-field--newThemeName').typeAndCheck('New Theme');
         cy.get('.sw_theme_manager__duplicate-modal .sw-button--primary').click();
         cy.get('.sw_theme_manager__duplicate-modal').should('not.exist');
 

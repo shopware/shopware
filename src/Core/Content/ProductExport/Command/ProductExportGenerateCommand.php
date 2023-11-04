@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'product-export:generate',
     description: 'Generates a product export file',
 )]
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportGenerateCommand extends Command
 {
     /**

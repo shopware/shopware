@@ -8,7 +8,7 @@ const { mapGetters, mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,
@@ -68,11 +68,7 @@ export default {
             }
 
             return this.sequences.some(sequence => {
-                const { actionName, _isNew, ruleId } = sequence;
-                if (!actionName && ruleId) {
-                    return false;
-                }
-
+                const { actionName, _isNew } = sequence;
                 return !_isNew && !this.hasAvailableAction(actionName);
             });
         },

@@ -65,10 +65,6 @@ export default Shopware.Component.wrapComponentConfig({
             return new Criteria(1, 10)
                 .addSorting(Criteria.sort('cmsAwareTitle', 'ASC'));
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     created(): void {

@@ -2,19 +2,27 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
-class CustomerWishlistNotFoundException extends CustomerException
+#[Package('customer-order')]
+class CustomerWishlistNotFoundException extends ShopwareHttpException
 {
     public function __construct()
     {
         parent::__construct(
-            Response::HTTP_NOT_FOUND,
-            self::WISHLIST_NOT_FOUND,
             'Wishlist for this customer was not found.'
         );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__WISHLIST_NOT_FOUND';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_NOT_FOUND;
     }
 }

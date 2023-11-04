@@ -63,6 +63,7 @@ class Tooltip {
 
     private _timeout?: ReturnType<typeof setTimeout>;
 
+
     constructor({
         id = utils.createId(),
         placement = 'top',
@@ -163,9 +164,7 @@ class Tooltip {
 
             this._vue?.$destroy();
             this._vue = new Vue({
-                name: `sw-tooltip-${this._id || 'undefined'}`,
                 el: this._DOMElement!,
-                // @ts-expect-error
                 parent: this._vue?.$parent,
                 template: this._DOMElement?.outerHTML,
             });
@@ -240,7 +239,6 @@ class Tooltip {
         }
 
         this._vue = new Vue({
-            name: `sw-tooltip-${this._id || 'undefined'}`,
             el: element,
             parent: node.context,
             template: element.outerHTML,
@@ -317,8 +315,8 @@ class Tooltip {
         if (this._disabled) {
             return;
         }
-        this._vue!.$destroy();
         this._DOMElement!.remove();
+        this._vue!.$destroy();
         this._isShown = false;
     }
 
@@ -533,25 +531,30 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
  * *Note that the position variable has a higher priority as the modifier
  */
 Directive.register('tooltip', {
-    bind: (el: HTMLElement, binding) => {
+    bind: (el, binding) => {
+        // @ts-expect-error - tooltip binding has some other required properties
         createOrUpdateTooltip(el, binding);
     },
 
-    unbind: (el: HTMLElement) => {
+    unbind: (el) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
             tooltip!.hideTooltip();
         }
     },
 
-    update: (el: HTMLElement, binding) => {
+    update: (el, binding) => {
+        // @ts-expect-error - tooltip binding has some other required properties
         createOrUpdateTooltip(el, binding);
     },
 
     /**
      * Initialize the tooltip once it has been inserted to the DOM.
+     * @param el
+     * @param binding
+     * @param node
      */
-    inserted: (el: HTMLElement, binding, node) => {
+    inserted: (el, binding, node) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
             tooltip!.init(node);

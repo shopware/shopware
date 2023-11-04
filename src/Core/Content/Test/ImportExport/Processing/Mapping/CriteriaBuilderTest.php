@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class CriteriaBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

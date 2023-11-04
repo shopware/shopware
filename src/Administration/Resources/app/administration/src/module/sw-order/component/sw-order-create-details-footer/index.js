@@ -1,7 +1,7 @@
 import template from './sw-order-create-details-footer.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { State, Service } = Shopware;

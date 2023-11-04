@@ -104,17 +104,9 @@ export default {
 
             return this.sourceMultiselect.length <= 1;
         },
-
-        mediaNameFilter() {
-            return Shopware.Filter.getByName('mediaName');
-        },
     },
 
     methods: {
-        closeModal() {
-            this.mediaModalIsOpen = false;
-        },
-
         onModalClosed(selection) {
             this.$emit('selection-change', selection, this.uploadTag);
         },

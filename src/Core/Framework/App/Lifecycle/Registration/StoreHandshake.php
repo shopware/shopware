@@ -6,7 +6,8 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
-use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\App\Exception\AppLicenseCouldNotBeVerifiedException;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 
@@ -69,13 +70,17 @@ class StoreHandshake implements AppHandshakeInterface
                 $response = \json_decode($e->getResponse()->getBody()->getContents(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
 
                 if ($response['code'] === self::SBP_EXCEPTION_UNAUTHORIZED || $response['code'] === self::SBP_EXCEPTION_NO_LICENSE) {
-                    throw AppException::licenseCouldNotBeVerified($this->appName, $e);
+                    throw new AppLicenseCouldNotBeVerifiedException(
+                        'The license for the app "{{appName}}" could not be verified',
+                        ['appName' => $this->appName],
+                        $e
+                    );
                 }
             }
 
-            throw AppException::registrationFailed(
-                $this->appName,
-                'Could not sign payload with store secret',
+            throw new AppRegistrationException(
+                'Could not sign payload with store secret for app: "{{appName}}"',
+                ['appName' => $this->appName],
                 $e
             );
         }

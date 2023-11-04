@@ -2,27 +2,43 @@
 
 namespace Shopware\Core\Content\Test\Rule;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
-use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
-use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
+use Shopware\Core\Content\Rule\RuleValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class RuleValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var RuleValidator
+     */
+    private $ruleValidator;
+
     private Context $context;
+
+    /**
+     * @var RuleConditionRegistry|MockObject
+     */
+    private $conditionRegistry;
+
+    /**
+     * @var RuleConditionDefinition
+     */
+    private $ruleConditionDefinition;
 
     /**
      * @var EntityRepository
@@ -41,34 +57,35 @@ class RuleValidatorTest extends TestCase
         $this->ruleConditionRepository = $this->getContainer()->get('rule_condition.repository');
     }
 
-    /**
-     * @dataProvider providerRuleCases
-     *
-     * @param array<array<string, string|array<string, mixed>>> $conditions
-     */
-    public function testItCanCreateRulesOnValidInput(string $conditionId, array $conditions): void
+    public function testItCanCreateRulesOnValidInput(): void
     {
         $ruleId = Uuid::randomHex();
+        $conditionId = Uuid::randomHex();
 
         $this->ruleRepository->create([
             [
                 'id' => $ruleId,
                 'name' => 'super rule',
                 'priority' => 15,
-                'conditions' => $conditions,
+                'conditions' => [
+                    [
+                        'id' => $conditionId,
+                        'type' => 'customerOrderCount',
+                        'value' => [
+                            'operator' => '=',
+                            'count' => 6,
+                        ],
+                    ],
+                ],
             ],
         ], $this->context);
 
         $criteria = new Criteria([$ruleId]);
         $criteria->addAssociation('conditions');
 
-        /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search($criteria, $this->context)->getEntities()->get($ruleId);
-
-        /** @var RuleConditionCollection $ruleConditions */
-        $ruleConditions = $rule->getConditions();
-        static::assertEquals(1, $ruleConditions->count());
-        static::assertNotNull($ruleConditions->get($conditionId));
+        static::assertEquals(1, $rule->getConditions()->count());
+        static::assertNotNull($rule->getConditions()->get($conditionId));
     }
 
     public function testItThrowsIfTypeIsMissing(): void
@@ -255,7 +272,6 @@ class RuleValidatorTest extends TestCase
             ],
         ], $this->context);
 
-        /** @var RuleConditionEntity $updatedCondition */
         $updatedCondition = $this->ruleConditionRepository->search(new Criteria([$customerOderCountId]), $this->context)
             ->getEntities()->get($customerOderCountId);
 
@@ -299,55 +315,5 @@ class RuleValidatorTest extends TestCase
             static::assertContains('/0/value/count', $pointer);
             static::assertContains('/0/value/operator', $pointer);
         }
-    }
-
-    /**
-     * @return iterable<string, array{string, array<array<string, string|array<string, mixed>>>}>
-     */
-    public static function providerRuleCases(): iterable
-    {
-        $conditionId = Uuid::randomHex();
-        yield 'customerOrderCount rule' => [$conditionId, [
-            [
-                'id' => $conditionId,
-                'type' => 'customerOrderCount',
-                'value' => [
-                    'operator' => '=',
-                    'count' => 6,
-                ],
-            ],
-        ]];
-
-        yield 'orderCustomField rule' => [$conditionId, [
-            [
-                'id' => $conditionId,
-                'type' => 'orderCustomField',
-                'value' => [
-                    'operator' => '=',
-                    'selectedField' => Uuid::randomHex(),
-                    'selectedFieldSet' => Uuid::randomHex(),
-                    'renderedFieldValue' => 'string',
-                    'renderedField' => [
-                        'type' => 'text',
-                    ],
-                ],
-            ],
-        ]];
-
-        yield 'customerCustomField rule' => [$conditionId, [
-            [
-                'id' => $conditionId,
-                'type' => 'orderCustomField',
-                'value' => [
-                    'operator' => '=',
-                    'selectedField' => Uuid::randomHex(),
-                    'selectedFieldSet' => Uuid::randomHex(),
-                    'renderedFieldValue' => 'string',
-                    'renderedField' => [
-                        'type' => 'text',
-                    ],
-                ],
-            ],
-        ]];
     }
 }

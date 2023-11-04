@@ -4,11 +4,9 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 
 use Shopware\Core\Checkout\Customer\Service\ProductReviewCountService;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -29,55 +27,30 @@ class ProductReviewSubscriber implements EventSubscriberInterface
     {
         return [
             'product_review.written' => 'createReview',
-            EntityDeleteEvent::class => 'detectChangeset',
-            'product_review.deleted' => 'onReviewDeleted',
+            BeforeDeleteEvent::class => 'deleteReview',
         ];
     }
 
-    public function detectChangeset(EntityDeleteEvent $event): void
+    public function deleteReview(BeforeDeleteEvent $event): void
     {
-        foreach ($event->getCommands() as $command) {
-            if (!$command instanceof DeleteCommand) {
-                continue;
-            }
+        $ids = $event->getIds(ProductReviewDefinition::ENTITY_NAME);
 
-            if ($command->getDefinition()->getEntityName() !== ProductReviewDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            $command->requestChangeSet();
+        if (empty($ids)) {
+            return;
         }
-    }
 
-    public function onReviewDeleted(EntityDeletedEvent $event): void
-    {
-        foreach ($event->getWriteResults() as $result) {
-            if ($result->getEntityName() !== ProductReviewDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            $changeset = $result->getChangeSet();
-            \assert($changeset instanceof ChangeSet);
-
-            $id = $changeset->getBefore('customer_id');
-
-            if (!\is_string($id)) {
-                continue;
-            }
-
-            $this->productReviewCountService->updateReviewCountForCustomer($id);
-        }
+        $this->productReviewCountService->updateReviewCount($ids, true);
     }
 
     public function createReview(EntityWrittenEvent $reviewEvent): void
     {
-        if ($reviewEvent->getEntityName() !== ProductReviewDefinition::ENTITY_NAME) {
+        if (
+            $reviewEvent->getEntityName() !== ProductReviewDefinition::ENTITY_NAME
+            || $reviewEvent->getContext()->getVersionId() !== Defaults::LIVE_VERSION
+        ) {
             return;
         }
 
-        /** @var list<string> $ids */
-        $ids = $reviewEvent->getIds();
-
-        $this->productReviewCountService->updateReviewCount($ids);
+        $this->productReviewCountService->updateReviewCount($reviewEvent->getIds());
     }
 }

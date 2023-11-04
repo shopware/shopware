@@ -5,7 +5,7 @@ const { Mixin, Context, Utils } = Shopware;
 const { dom, format } = Utils;
 
 /**
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

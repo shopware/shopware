@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';

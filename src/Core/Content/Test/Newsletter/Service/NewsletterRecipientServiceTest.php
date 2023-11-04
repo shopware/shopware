@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
-use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,15 +25,13 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class NewsletterRecipientServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
      * @dataProvider dataProvider_testSubscribeNewsletterExpectsConstraintViolationException
-     *
-     * @param array<int, array<int, array<string, string|null>>> $testData
      */
     public function testSubscribeNewsletterExpectsConstraintViolationException(array $testData): void
     {
@@ -51,9 +47,6 @@ class NewsletterRecipientServiceTest extends TestCase
             ->subscribe($dataBag, $context, false);
     }
 
-    /**
-     * @return array<int, array<int, array<string, string|null>>>
-     */
     public static function dataProvider_testSubscribeNewsletterExpectsConstraintViolationException(): array
     {
         $testData1 = ['email' => null, 'salutationId' => null, 'option' => null];
@@ -158,11 +151,7 @@ class NewsletterRecipientServiceTest extends TestCase
     {
         $dataBag = new RequestDataBag(['hash' => 'notExistentHash']);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            self::expectException(NewsletterException::class);
-        } else {
-            self::expectException(NewsletterRecipientNotFoundException::class);
-        }
+        self::expectException(NewsletterRecipientNotFoundException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -228,11 +217,7 @@ class NewsletterRecipientServiceTest extends TestCase
             'option' => 'unsubscribe',
         ]);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            self::expectException(NewsletterException::class);
-        } else {
-            self::expectException(NewsletterRecipientNotFoundException::class);
-        }
+        self::expectException(NewsletterRecipientNotFoundException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -273,13 +258,10 @@ class NewsletterRecipientServiceTest extends TestCase
         static::assertSame((new \DateTime())->format('y-m-d'), $result->getUpdatedAt()->format('y-m-d'));
     }
 
-    private function getRandomId(string $table): string
+    private function getRandomId(string $table)
     {
-        /** @var string $id */
-        $id = $this->getContainer()->get(Connection::class)
+        return $this->getContainer()->get(Connection::class)
             ->fetchOne('SELECT LOWER(HEX(id)) FROM ' . $table);
-
-        return $id;
     }
 
     private function installTestData(): void

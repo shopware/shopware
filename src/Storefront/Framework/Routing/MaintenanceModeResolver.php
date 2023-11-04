@@ -3,10 +3,8 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
-use Shopware\Core\Framework\Util\Json;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -19,17 +17,11 @@ class MaintenanceModeResolver
     protected $requestStack;
 
     /**
-     * @var CoreMaintenanceModeResolver
-     */
-    protected $maintenanceModeResolver;
-
-    /**
      * @internal
      */
-    public function __construct(RequestStack $requestStack, CoreMaintenanceModeResolver $maintenanceModeResolver)
+    public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
     }
 
     /**
@@ -39,8 +31,8 @@ class MaintenanceModeResolver
      */
     public function shouldRedirect(Request $request): bool
     {
-        return $this->isSalesChannelRequest()
-            && !$request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE)
+        return $this->isSalesChannelRequest($this->requestStack->getMainRequest())
+            && !$this->isMaintenancePageRequest($request)
             && !$this->isXmlHttpRequest($request)
             && !$this->isErrorControllerRequest($request)
             && $this->isMaintenanceRequest($request);
@@ -60,7 +52,7 @@ class MaintenanceModeResolver
 
     public function shouldBeCached(Request $request): bool
     {
-        return !$this->isMaintenanceModeActive() || !$this->isClientAllowed($request);
+        return !$this->isMaintenanceModeActive($request) || !$this->isClientAllowed($request);
     }
 
     /**
@@ -69,14 +61,25 @@ class MaintenanceModeResolver
      */
     public function isMaintenanceRequest(Request $request): bool
     {
-        return $this->isMaintenanceModeActive() && !$this->isClientAllowed($request);
+        return $this->isMaintenanceModeActive($request) && !$this->isClientAllowed($request);
     }
 
-    private function isSalesChannelRequest(): bool
+    private function isSalesChannelRequest(?Request $master): bool
     {
-        $main = $this->requestStack->getMainRequest();
+        if (!$master) {
+            return false;
+        }
 
-        return (bool) $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
+        return (bool) $master->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
+    }
+
+    private function isMaintenancePageRequest(Request $request): bool
+    {
+        if ($request->attributes->getBoolean(SalesChannelRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function isXmlHttpRequest(Request $request): bool
@@ -90,21 +93,35 @@ class MaintenanceModeResolver
             && $request->attributes->get('_controller') === 'error_controller';
     }
 
-    private function isMaintenanceModeActive(): bool
+    private function isMaintenanceModeActive(?Request $master): bool
     {
-        $main = $this->requestStack->getMainRequest();
+        if (!$master) {
+            return false;
+        }
 
-        return (bool) $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
+        return (bool) $master->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
     }
 
     private function isClientAllowed(Request $request): bool
     {
-        $main = $this->requestStack->getMainRequest();
-        $whitelist = $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST) ?? '';
+        return IpUtils::checkIp(
+            (string) $request->getClientIp(),
+            $this->getMaintenanceWhitelist($this->requestStack->getMainRequest())
+        );
+    }
 
-        /** @var string[] $allowedIps */
-        $allowedIps = Json::decodeToList((string) $whitelist);
+    private function getMaintenanceWhitelist(?Request $master): array
+    {
+        if (!$master) {
+            return [];
+        }
 
-        return $this->maintenanceModeResolver->isClientAllowed($request, $allowedIps);
+        $whitelist = $master->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST);
+
+        if (!$whitelist) {
+            return [];
+        }
+
+        return json_decode((string) $whitelist, true, 512, \JSON_THROW_ON_ERROR) ?? [];
     }
 }

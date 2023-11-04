@@ -2,7 +2,7 @@ import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Component, State } = Shopware;

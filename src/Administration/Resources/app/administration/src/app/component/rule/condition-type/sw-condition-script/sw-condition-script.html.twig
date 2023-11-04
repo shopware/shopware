@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-v-for-template-key -->
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_condition_value_content %}
 <div
@@ -7,14 +6,12 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_script_fields %}
-    <template
+    <sw-arrow-field
         v-for="(field, index) in config"
-        {% if VUE3 %}
         :key="index"
-        {% endif %}
+        :disabled="disabled"
     >
         <sw-form-field-renderer
-            {% if not VUE3 %} :key="index" {% endif %}
             v-bind="getBind(field)"
             :disabled="disabled"
             :value="values[field.name]"
@@ -23,7 +20,7 @@
             @input="updateFieldValue(field.name, $event)"
             @change="updateFieldValue(field.name, $event)"
         />
-    </template>
+    </sw-arrow-field>
     {% endblock %}
 </div>
 {% endblock %}

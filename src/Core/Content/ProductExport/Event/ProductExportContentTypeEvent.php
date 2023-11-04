@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ProductExport\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportContentTypeEvent extends Event
 {
     public function __construct(

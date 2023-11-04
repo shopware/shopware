@@ -7,17 +7,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
 
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class SalutationRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult<SalutationCollection>
+     * @var EntitySearchResult
      */
     protected $object;
 
-    /**
-     * @param EntitySearchResult<SalutationCollection> $object
-     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -25,6 +22,9 @@ class SalutationRouteResponse extends StoreApiResponse
 
     public function getSalutations(): SalutationCollection
     {
-        return $this->object->getEntities();
+        /** @var SalutationCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

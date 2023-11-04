@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
@@ -18,7 +17,6 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,7 +25,6 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
-use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Profiling\Profiler;
@@ -146,8 +143,6 @@ class WebhookDispatcher implements EventDispatcherInterface
         /** @var WebhookCollection $webhooksForEvent */
         $webhooksForEvent = $this->getWebhooks()->filterForEvent($event->getName());
 
-        $webhooksForEvent = $this->filterWebhooksByLiveVersion($webhooksForEvent, $event);
-
         if ($webhooksForEvent->count() === 0) {
             return;
         }
@@ -169,31 +164,6 @@ class WebhookDispatcher implements EventDispatcherInterface
         Profiler::trace('webhook::dispatch-async', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
             $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
         });
-    }
-
-    private function filterWebhooksByLiveVersion(WebhookCollection $webhooksForEvent, Hookable $event): WebhookCollection
-    {
-        if (!$event instanceof HookableEntityWrittenEvent) {
-            return $webhooksForEvent;
-        }
-
-        return $webhooksForEvent->filter(
-            static function (Entity $struct) use ($event): bool {
-                $onlyLiveVersion = $struct->get('onlyLiveVersion');
-
-                if (!$onlyLiveVersion) {
-                    return true;
-                }
-
-                foreach ($event->getWebhookPayload() as $writeResult) {
-                    if (isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        );
     }
 
     private function getWebhooks(): WebhookCollection
@@ -270,6 +240,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             $timestamp = time();
             $webhookData['timestamp'] = $timestamp;
 
+            /** @var string $jsonPayload */
             $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
 
             $headers = [
@@ -377,7 +348,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         $data = [
-            'payload' => $this->filterPayloadByLiveVersion($event->getWebhookPayload(), $webhook, $event),
+            'payload' => $event->getWebhookPayload($webhook->getApp()),
             'event' => $event->getName(),
         ];
 
@@ -385,22 +356,6 @@ class WebhookDispatcher implements EventDispatcherInterface
             'data' => $data,
             'source' => $source,
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     *
-     * @return array<string, mixed>
-     */
-    private function filterPayloadByLiveVersion(array $payload, WebhookEntity $webhook, Hookable $event): array
-    {
-        if (!$event instanceof HookableEntityWrittenEvent || !$webhook->getOnlyLiveVersion()) {
-            return $payload;
-        }
-
-        return array_filter($payload, function ($writeResult) {
-            return isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION;
-        });
     }
 
     private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
@@ -417,7 +372,6 @@ class WebhookDispatcher implements EventDispatcherInterface
                 'eventName' => $webhook->getEventName(),
                 'appVersion' => $webhook->getApp()?->getVersion(),
                 'url' => $webhook->getUrl(),
-                'onlyLiveVersion' => $webhook->getOnlyLiveVersion(),
                 'serializedWebhookMessage' => serialize($webhookEventMessage),
             ],
         ], Context::createDefaultContext());

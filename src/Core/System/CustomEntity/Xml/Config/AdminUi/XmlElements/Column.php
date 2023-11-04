@@ -16,9 +16,19 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[Package('content')]
 final class Column extends ConfigXmlElement
 {
-    protected string $ref;
+    private function __construct(
+        protected readonly string $ref,
+        protected readonly bool $hidden
+    ) {
+    }
 
-    protected bool $hidden;
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(
+            XmlUtils::phpize($element->getAttribute('ref')),
+            $element->getAttribute('hidden') === 'true',
+        );
+    }
 
     public function getRef(): string
     {
@@ -28,13 +38,5 @@ final class Column extends ConfigXmlElement
     public function isHidden(): bool
     {
         return $this->hidden;
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        return [
-            'ref' => XmlUtils::phpize($element->getAttribute('ref')),
-            'hidden' => $element->getAttribute('hidden') === 'true',
-        ];
     }
 }

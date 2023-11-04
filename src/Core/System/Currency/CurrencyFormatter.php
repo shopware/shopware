@@ -7,10 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
-use Symfony\Contracts\Service\ResetInterface;
 
-#[Package('buyers-experience')]
-class CurrencyFormatter implements ResetInterface
+#[Package('inventory')]
+class CurrencyFormatter
 {
     /**
      * @var \NumberFormatter[]
@@ -32,25 +31,21 @@ class CurrencyFormatter implements ResetInterface
     {
         $decimals ??= $context->getRounding()->getDecimals();
 
-        $formatter = $this->getFormatter(
-            $this->languageLocaleProvider->getLocaleForLanguageId($languageId)
-        );
+        $locale = $this->languageLocaleProvider->getLocaleForLanguageId($languageId);
+        $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
         return (string) $formatter->formatCurrency($price, $currency);
     }
 
-    public function reset(): void
+    private function getFormatter(string $locale, int $format): \NumberFormatter
     {
-        $this->formatter = [];
-    }
+        $hash = md5(json_encode([$locale, $format], \JSON_THROW_ON_ERROR));
 
-    private function getFormatter(string $locale): \NumberFormatter
-    {
-        if (isset($this->formatter[$locale])) {
-            return $this->formatter[$locale];
+        if (isset($this->formatter[$hash])) {
+            return $this->formatter[$hash];
         }
 
-        return $this->formatter[$locale] = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
+        return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
     }
 }

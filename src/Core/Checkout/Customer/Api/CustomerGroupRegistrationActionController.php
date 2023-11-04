@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerGroupRegistrationActionController
 {
     /**
@@ -114,7 +114,7 @@ class CustomerGroupRegistrationActionController
             $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if ($customerRequestedGroup === null) {
-                throw CustomerException::customerGroupNotFound($customer->getGroupId());
+                throw new \RuntimeException('customer group not found');
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
@@ -139,7 +139,7 @@ class CustomerGroupRegistrationActionController
         }
 
         if (empty($customerIds)) {
-            throw CustomerException::customerIdsParameterIsMissing();
+            throw new \InvalidArgumentException('customerId or customerIds parameter are missing');
         }
 
         return $customerIds;
@@ -162,7 +162,7 @@ class CustomerGroupRegistrationActionController
             foreach ($result->getElements() as $customer) {
                 if ($customer->getRequestedGroupId() === null) {
                     if ($silentError === false) {
-                        throw CustomerException::groupRequestNotFound($customer->getId());
+                        throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
                     }
 
                     continue;
@@ -174,6 +174,6 @@ class CustomerGroupRegistrationActionController
             return $customers;
         }
 
-        throw CustomerException::customersNotFound($customerIds);
+        throw new \RuntimeException('Cannot find Customers');
     }
 }

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swImportExportViewProfiles from 'src/module/sw-import-export/view/sw-import-export-view-profiles';

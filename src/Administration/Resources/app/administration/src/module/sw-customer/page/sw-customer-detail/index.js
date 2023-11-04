@@ -4,7 +4,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Mixin } = Shopware;
@@ -143,18 +143,6 @@ export default {
                 this.customer.company?.trim().length : true;
         },
 
-        salutationRepository() {
-            return this.repositoryFactory.create('salutation');
-        },
-
-        salutationCriteria() {
-            const criteria = new Criteria(1, 1);
-
-            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
-
-            return criteria;
-        },
-
         ...mapPageErrors(errorConfig),
     },
 
@@ -169,9 +157,7 @@ export default {
     },
 
     methods: {
-        async loadCustomer() {
-            const defaultSalutationId = await this.getDefaultSalutation();
-
+        createdComponent() {
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
                 path: 'customer',
@@ -185,24 +171,8 @@ export default {
                 this.defaultCriteria,
             ).then((customer) => {
                 this.customer = customer;
-                if (!this.customer?.salutationId) {
-                    this.customer.salutationId = defaultSalutationId;
-                }
-
-                this.customer.addresses?.map((address) => {
-                    if (!address.salutationId) {
-                        address.salutationId = defaultSalutationId;
-                    }
-
-                    return address;
-                });
-
                 this.isLoading = false;
             });
-        },
-
-        async createdComponent() {
-            await this.loadCustomer();
         },
 
         saveFinish() {
@@ -306,10 +276,9 @@ export default {
             });
         },
 
-        async onAbortButtonClick() {
+        onAbortButtonClick() {
             this.discardChanges();
             this.editMode = false;
-            await this.loadCustomer();
         },
 
         onActivateCustomerEditMode() {
@@ -389,12 +358,6 @@ export default {
                     },
                 ),
             });
-        },
-
-        async getDefaultSalutation() {
-            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
-
-            return res.data?.[0];
         },
     },
 };

@@ -17,11 +17,26 @@ use Symfony\Component\Config\Util\XmlUtils;
 final class Card extends ConfigXmlElement
 {
     /**
-     * @var list<CardField>
+     * @param list<CardField> $fields
      */
-    protected array $fields;
+    private function __construct(
+        protected readonly array $fields,
+        protected readonly string $name
+    ) {
+    }
 
-    protected string $name;
+    public static function fromXml(\DOMElement $element): self
+    {
+        $fields = [];
+        foreach ($element->getElementsByTagName('field') as $field) {
+            $fields[] = CardField::fromXml($field);
+        }
+
+        return new self(
+            $fields,
+            XmlUtils::phpize($element->getAttribute('name'))
+        );
+    }
 
     public function getName(): string
     {
@@ -34,18 +49,5 @@ final class Card extends ConfigXmlElement
     public function getFields(): array
     {
         return $this->fields;
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        $fields = [];
-        foreach ($element->getElementsByTagName('field') as $field) {
-            $fields[] = CardField::fromXml($field);
-        }
-
-        return [
-            'fields' => $fields,
-            'name' => XmlUtils::phpize($element->getAttribute('name')),
-        ];
     }
 }

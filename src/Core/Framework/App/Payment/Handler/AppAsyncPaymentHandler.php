@@ -6,7 +6,9 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\AsyncFinalizePayload;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\AsyncPayPayload;
 use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
@@ -29,30 +31,32 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
     {
         $this->transactionStateHandler->processUnconfirmed($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
 
-        $payload = $this->buildPayPayload($transaction, $dataBag->all());
+        $requestData = $dataBag->all();
+        unset($requestData['_csrf_token']);
 
+        $payload = $this->buildPayPayload($transaction, $requestData);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
-            throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');
+            throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'App not defined');
         }
 
         $url = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getPayUrl();
         if ($url === null) {
-            throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), 'Pay URL not defined');
+            throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), 'Pay URL not defined');
         }
 
         try {
             $response = $this->payloadService->request($url, $payload, $app, AsyncPayResponse::class, $salesChannelContext->getContext());
         } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
+            throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
 
         if (!$response instanceof AsyncPayResponse) {
-            throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'Invalid app response');
+            throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'Invalid app response');
         }
 
         if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'Error during payment initialization: ' . $response->getMessage());
+            throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'Error during payment initialization: ' . $response->getMessage());
         }
 
         if ($response->getStatus() !== StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED) {
@@ -78,30 +82,30 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
         $payload = $this->buildFinalizePayload($transaction, $queryParameters);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
-            throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');
+            throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), 'App not defined');
         }
 
         $url = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getFinalizeUrl();
         if ($url === null) {
-            throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), 'Finalize URL not defined');
+            throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), 'Finalize URL not defined');
         }
 
         try {
             $response = $this->payloadService->request($url, $payload, $app, AsyncFinalizeResponse::class, $salesChannelContext->getContext());
         } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
+            throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
 
         if (!$response instanceof AsyncFinalizeResponse) {
-            throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), 'Invalid app response');
+            throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), 'Invalid app response');
         }
 
         if ($response->getStatus() === StateMachineTransitionActions::ACTION_CANCEL) {
-            throw PaymentException::customerCanceled($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? '');
+            throw new CustomerCanceledAsyncPaymentException($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? '');
         }
 
         if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw PaymentException::asyncFinalizeInterrupted($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
+            throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
         }
 
         $this->stateMachineRegistry->transition(
@@ -124,8 +128,7 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
             $transaction->getOrderTransaction(),
             $transaction->getOrder(),
             $transaction->getReturnUrl(),
-            $requestData,
-            $transaction->getRecurring()
+            $requestData
         );
     }
 
@@ -136,8 +139,7 @@ class AppAsyncPaymentHandler extends AppPaymentHandler implements AsynchronousPa
     {
         return new AsyncFinalizePayload(
             $transaction->getOrderTransaction(),
-            $queryParameters,
-            $transaction->getRecurring()
+            $queryParameters
         );
     }
 }

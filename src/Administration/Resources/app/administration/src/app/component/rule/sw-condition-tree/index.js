@@ -15,11 +15,6 @@ Component.register('sw-condition-tree', {
         'feature',
     ],
 
-    emits: [
-        'conditions-changed',
-        'initial-loading-done',
-    ],
-
     provide() {
         return {
             availableTypes: this.availableTypes,
@@ -121,27 +116,31 @@ Component.register('sw-condition-tree', {
                 condition.translatedLabel = this.$tc(condition.label);
             });
 
-            conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
+            if (this.availableGroups) {
+                conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
 
-            const groupedConditions = [];
-            this.availableGroups.forEach((group) => {
-                conditions.forEach((condition) => {
-                    if (condition.group === group.id) {
-                        groupedConditions.push(condition);
-                    }
+                const groupedConditions = [];
+                this.availableGroups.forEach((group) => {
+                    conditions.forEach((condition) => {
+                        if (condition.group === group.id) {
+                            groupedConditions.push(condition);
+                        }
 
-                    if (!condition.group && group.id === 'misc') {
-                        groupedConditions.push(condition);
-                        condition.group = 'misc';
-                    }
+                        if (!condition.group && group.id === 'misc') {
+                            groupedConditions.push(condition);
+                            condition.group = 'misc';
+                        }
+                    });
                 });
-            });
 
-            return groupedConditions;
+                return groupedConditions;
+            }
+
+            return conditions;
         },
 
         rootId() {
-            return this.rootCondition?.id ?? null;
+            return this.rootCondition !== null ? this.rootCondition.id : null;
         },
 
         availableGroups() {
@@ -155,12 +154,15 @@ Component.register('sw-condition-tree', {
                 group.label = this.$tc(group.name);
             });
 
-            groups.sort((a, b) => {
-                if (a.id === 'misc') { return 1; }
+            groups.sort((a, b) => a.label.localeCompare(b.label));
 
-                if (b.id === 'misc') { return -1; }
+            groups.map((group, index) => {
+                if (group.id === 'misc') {
+                    groups.splice(index, 1);
+                    groups.push(group);
+                }
 
-                return a.label.localeCompare(b.label);
+                return groups;
             });
 
             return groups;
@@ -176,41 +178,31 @@ Component.register('sw-condition-tree', {
     },
 
     watch: {
-        initialConditions: {
-            immediate: true,
-            deep: false,
-            handler(newVal, oldVal) {
-                // ignore deep changes
-                if (newVal === oldVal) {
-                    return;
-                }
+        initialConditions(newVal) {
+            if (this.isNotDefined(newVal)) {
+                this.conditionTree = null;
+                return;
+            }
 
-                if (newVal === null || newVal === undefined) {
-                    this.conditionTree = null;
-                    return;
-                }
-
-                this.buildTree();
-            },
+            this.buildTree();
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        buildTree() {
-            let rootConditions = this.getRootNodes(this.initialConditions, this.rootId);
-
-            if (this.needsRootOrContainer(rootConditions)) {
-                const newRoot = this.applyRoot(rootConditions);
-
-                // eslint-disable-next-line vue/no-mutating-props
-                this.initialConditions.push(newRoot);
-                rootConditions = [newRoot];
+        createdComponent() {
+            if (!this.isNotDefined(this.initialConditions)) {
+                this.buildTree();
             }
+        },
 
-            // At this point we know that rootConditions has only one element. We can use it to build the tree.
-            this.conditionTree = this.createTreeRecursive(rootConditions[0], this.initialConditions);
+        buildTree() {
+            const rootCondition = this.applyRootIfNecessary();
+            this.conditionTree = this.createTreeRecursive(rootCondition, this.initialConditions);
             this.emitChange([]);
-
             if (!this.initialLoadingDone) {
                 this.$emit('initial-loading-done');
                 this.initialLoadingDone = true;
@@ -233,25 +225,25 @@ Component.register('sw-condition-tree', {
             return condition;
         },
 
-        getRootNodes(conditions, rootId) {
-            return conditions.filter((condition) => {
-                return condition.parentId === rootId;
+        applyRootIfNecessary() {
+            const rootNodes = this.initialConditions.filter((condition) => {
+                return condition.parentId === this.rootId;
             });
-        },
 
-        needsRootOrContainer(rootNodes) {
-            return rootNodes.length !== 1 || !this.conditionDataProviderService.isOrContainer(rootNodes[0]);
-        },
+            if (rootNodes.length === 1 && this.conditionDataProviderService.isOrContainer(rootNodes[0])) {
+                return rootNodes[0];
+            }
 
-        applyRoot(rootNodes) {
             const rootContainer = this.createCondition(
                 this.conditionDataProviderService.getOrContainerData(),
                 this.rootId,
                 0,
             );
 
-            rootNodes.forEach(root => { root.parentId = rootContainer.id; });
+            // eslint-disable-next-line vue/no-mutating-props
+            this.initialConditions.push(rootContainer);
 
+            rootNodes.forEach(root => { root.parentId = rootContainer.id; });
             return rootContainer;
         },
 
@@ -339,6 +331,10 @@ Component.register('sw-condition-tree', {
                 conditions,
                 deletedIds,
             });
+        },
+
+        isNotDefined(val) {
+            return val === null || typeof val === 'undefined';
         },
     },
 });

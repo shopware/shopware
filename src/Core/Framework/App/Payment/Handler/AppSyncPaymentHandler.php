@@ -6,7 +6,8 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\PaymentException;
+use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\SyncPayPayload;
 use Shopware\Core\Framework\App\Payment\Response\SyncPayResponse;
 use Shopware\Core\Framework\Log\Package;
@@ -28,25 +29,24 @@ class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaym
             return;
         }
 
-        $payload = $this->buildPayload($transaction, $dataBag->all());
-
+        $payload = $this->buildPayload($transaction);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
-            throw PaymentException::syncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'App not defined');
+            throw new SyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'App not defined');
         }
 
         try {
             $response = $this->payloadService->request($payUrl, $payload, $app, SyncPayResponse::class, $salesChannelContext->getContext());
         } catch (ClientExceptionInterface $exception) {
-            throw PaymentException::asyncProcessInterrupted($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
+            throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
 
         if (!$response instanceof SyncPayResponse) {
-            throw PaymentException::syncProcessInterrupted($transaction->getOrderTransaction()->getId(), 'Invalid app response');
+            throw new SyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'Invalid app response');
         }
 
         if ($response->getMessage() || $response->getStatus() === StateMachineTransitionActions::ACTION_FAIL) {
-            throw PaymentException::syncProcessInterrupted($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
+            throw new SyncPaymentProcessException($transaction->getOrderTransaction()->getId(), $response->getMessage() ?? 'Payment was reported as failed.');
         }
 
         if (empty($response->getStatus())) {
@@ -64,16 +64,11 @@ class AppSyncPaymentHandler extends AppPaymentHandler implements SynchronousPaym
         );
     }
 
-    /**
-     * @param array<string|int, mixed> $requestData
-     */
-    private function buildPayload(SyncPaymentTransactionStruct $transaction, array $requestData): SyncPayPayload
+    private function buildPayload(SyncPaymentTransactionStruct $transaction): SyncPayPayload
     {
         return new SyncPayPayload(
             $transaction->getOrderTransaction(),
-            $transaction->getOrder(),
-            $requestData,
-            $transaction->getRecurring()
+            $transaction->getOrder()
         );
     }
 }

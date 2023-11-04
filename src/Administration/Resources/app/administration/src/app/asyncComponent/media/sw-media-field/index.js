@@ -24,32 +24,17 @@ export default {
     },
 
     props: {
-        // need to be "value" instead of "modelValue" because of the compat build
-        value: {
-            type: String,
-            required: false,
-            default: null,
-        },
-
         disabled: {
             type: Boolean,
             default: false,
             required: false,
         },
 
-        ...(() => {
-            if (window._features_.vue3) {
-                return {};
-            }
-
-            return {
-                mediaId: {
-                    type: String,
-                    required: false,
-                    default: null,
-                },
-            };
-        })(),
+        mediaId: {
+            type: String,
+            required: false,
+            default: null,
+        },
 
         label: {
             type: String,
@@ -87,22 +72,6 @@ export default {
     },
 
     computed: {
-        ...(() => {
-            if (window._features_.vue3) {
-                return {
-                    mediaId: {
-                        get() {
-                            return this.value;
-                        },
-                        set(newValue) {
-                            this.$emit('update:value', newValue);
-                        },
-                    },
-                };
-            }
-            return {};
-        })(),
-
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },
@@ -147,11 +116,7 @@ export default {
     watch: {
         mediaId(newValue) {
             this.fetchItem(newValue);
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', newValue);
-            } else {
-                this.$emit('media-id-change', newValue);
-            }
+            this.$emit('media-id-change', newValue);
         },
     },
 
@@ -200,20 +165,12 @@ export default {
         },
 
         mediaItemChanged(newMediaId) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', newMediaId);
-            } else {
-                this.$emit('media-id-change', newMediaId);
-            }
+            this.$emit('media-id-change', newMediaId);
             this.onTogglePicker();
         },
 
         removeLink() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', null);
-            } else {
-                this.$emit('media-id-change', null);
-            }
+            this.$emit('media-id-change', null);
         },
 
         computePickerPositionAndStyle() {
@@ -233,11 +190,7 @@ export default {
         },
 
         exposeNewId({ targetId }) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', targetId);
-            } else {
-                this.$emit('media-id-change', targetId);
-            }
+            this.$emit('media-id-change', targetId);
             this.showUploadField = false;
             this.showPicker = false;
         },

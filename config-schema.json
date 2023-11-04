@@ -92,12 +92,6 @@
                 },
                 "dompdf": {
                     "$ref": "#/definitions/dompdf"
-                },
-                "stock": {
-                    "$ref": "#/definitions/stock"
-                },
-                "usage_data": {
-                  "$ref": "#/definitions/usage_data"
                 }
             },
             "title": "Shopware"
@@ -124,25 +118,6 @@
             },
             "title": "Enabled profiler, available since 6.4.11.0"
         },
-        "usage_data": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "gateway": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "base_uri": {
-                            "type": "string"
-                        },
-                        "batch_size": {
-                            "type": "integer"
-                        }
-                    }
-                }
-            },
-            "title": "Usage data"
-        },
         "twig": {
             "type": "object",
             "additionalProperties": false,
@@ -163,16 +138,6 @@
                 "options": {
                     "type": "object",
                     "additionalProperties": true
-                }
-            }
-        },
-        "stock": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "enable_stock_management": {
-                    "type": "boolean",
-                    "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
                 }
             }
         },
@@ -217,8 +182,7 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": ["integer", "null"],
-                    "default": 100
+                    "type": "integer"
                 },
                 "access_token_ttl": {
                     "type": "string"
@@ -313,10 +277,6 @@
             "properties": {
                 "context_lifetime": {
                     "type": "string"
-                },
-                "max_limit": {
-                    "type": ["integer", "null"],
-                    "default": 100
                 }
             },
             "title": "API store"
@@ -363,33 +323,9 @@
                 },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
-                },
-                "tagging": {
-                    "$ref": "#/definitions/cache_tags"
                 }
             },
             "title": "Cache"
-        },
-        "cache_tags": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "each_snippet": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If enabled, each snippet will be cached with a unique tag. This allows to invalidate a single snippet. If disabled, the whole page will be invalidated on each snippet change."
-                },
-                "each_config": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If enabled, each config will be cached with a unique tag. This allows to invalidate a single config. If disabled, the whole page will be invalidated on each config change."
-                },
-                "each_theme_config": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "If enabled, each theme config will be cached with a unique tag. This allows to invalidate a single theme config. If disabled, the whole page will be invalidated on each theme config change."
-                }
-            }
         },
         "cache_invalidation": {
             "type": "object",
@@ -397,24 +333,6 @@
             "properties": {
                 "delay": {
                     "type": "integer"
-                },
-                "delay_options": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "storage": {
-                            "type": "string",
-                            "default": "cache",
-                            "enum": [
-                                "cache",
-                                "redis"
-                            ]
-                        },
-                        "dsn": {
-                            "type": "string",
-                            "default": "redis://localhost"
-                        }
-                    }
                 },
                 "count": {
                     "type": "integer"
@@ -569,10 +487,7 @@
             "additionalProperties": false,
             "properties": {
                 "blue_green": {
-                    "type": "boolean"
-                },
-                "cluster_setup": {
-                    "type": "boolean"
+                    "type": "string"
                 }
             },
             "title": "Deployment"
@@ -633,9 +548,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "enabled": {
-                    "type": "boolean"
-                },
                 "cache_dir": {
                     "type": "string"
                 },

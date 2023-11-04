@@ -7,17 +7,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('inventory')]
+#[Package('content')]
 class CategoryListRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult<CategoryCollection>
+     * @var EntitySearchResult
      */
     protected $object;
 
-    /**
-     * @param EntitySearchResult<CategoryCollection> $object
-     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
@@ -25,6 +22,9 @@ class CategoryListRouteResponse extends StoreApiResponse
 
     public function getCategories(): CategoryCollection
     {
-        return $this->object->getEntities();
+        /** @var CategoryCollection $categories */
+        $categories = $this->object->getEntities();
+
+        return $categories;
     }
 }

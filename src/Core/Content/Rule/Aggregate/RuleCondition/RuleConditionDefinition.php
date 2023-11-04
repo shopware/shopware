@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class RuleConditionDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'rule_condition';

@@ -2,7 +2,7 @@ import template from './sw-order-select-document-type-modal.html.twig';
 import './sw-order-select-document-type-modal.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Criteria } = Shopware.Data;
@@ -11,10 +11,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory'],
 
     model: {
         prop: 'value',
@@ -95,7 +92,7 @@ export default {
                     this.documentTypes = response.map((documentType) => {
                         const option = {
                             value: documentType.id,
-                            name: documentType.translated.name,
+                            name: documentType.name,
                             disabled: !this.documentTypeAvailable(documentType),
                         };
 
@@ -141,12 +138,6 @@ export default {
         },
 
         onRadioFieldChange() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.documentTypeCollection.get(this.documentType));
-
-                return;
-            }
-
             this.$emit('change', this.documentTypeCollection.get(this.documentType));
         },
     },

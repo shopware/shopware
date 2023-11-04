@@ -31,7 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class EntitySerializerTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;

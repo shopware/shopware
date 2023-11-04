@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 /* eslint-disable max-len */
 import { shallowMount } from '@vue/test-utils';
 import swSettingsPriceRounding from 'src/module/sw-settings-currency/component/sw-settings-price-rounding';

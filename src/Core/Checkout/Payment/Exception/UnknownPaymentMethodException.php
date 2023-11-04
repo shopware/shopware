@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-/**
- * @decrecated tag:v6.6.0 - use PaymentException::unknownPaymentMethod instead
- */
-class UnknownPaymentMethodException extends PaymentException
+class UnknownPaymentMethodException extends ShopwareHttpException
 {
     public function __construct(
         string $paymentMethodId,
         ?\Throwable $e = null
     ) {
         parent::__construct(
-            Response::HTTP_NOT_FOUND,
-            'CHECKOUT__UNKNOWN_PAYMENT_METHOD',
             'The payment method {{ paymentMethodId }} could not be found.',
             ['paymentMethodId' => $paymentMethodId],
             $e

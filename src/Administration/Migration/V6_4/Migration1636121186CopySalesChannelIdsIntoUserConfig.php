@@ -13,8 +13,6 @@ use Shopware\Core\System\User\UserDefinition;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep

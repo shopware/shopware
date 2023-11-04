@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
+use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -24,7 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class LoginRoute extends AbstractLoginRoute
 {
     /**
@@ -51,7 +52,7 @@ class LoginRoute extends AbstractLoginRoute
         $email = $data->get('email', $data->get('username'));
 
         if (empty($email) || empty($data->get('password'))) {
-            throw CustomerException::badCredentials();
+            throw new BadCredentialsException();
         }
 
         $event = new CustomerBeforeLoginEvent($context, $email);
@@ -63,7 +64,7 @@ class LoginRoute extends AbstractLoginRoute
             try {
                 $this->rateLimiter->ensureAccepted(RateLimiter::LOGIN_ROUTE, $cacheKey);
             } catch (RateLimitExceededException $exception) {
-                throw CustomerException::customerAuthThrottledException($exception->getWaitTime(), $exception);
+                throw new CustomerAuthThrottledException($exception->getWaitTime(), $exception);
             }
         }
 
@@ -77,7 +78,7 @@ class LoginRoute extends AbstractLoginRoute
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         } catch (CustomerOptinNotCompletedException $exception) {
             if (!Feature::isActive('v6.6.0.0')) {
-                throw CustomerException::inactiveCustomer($exception->getParameters()['customerId']);
+                throw new InactiveCustomerException($exception->getParameters()['customerId']);
             }
 
             throw $exception;

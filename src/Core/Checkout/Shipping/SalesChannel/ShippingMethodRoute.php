@@ -19,8 +19,6 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 {
     /**
      * @internal
-     *
-     * @param SalesChannelRepository<ShippingMethodCollection> $shippingMethodRepository
      */
     public function __construct(private readonly SalesChannelRepository $shippingMethodRepository)
     {
@@ -44,6 +42,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $result = $this->shippingMethodRepository->search($criteria, $context);
 
+        /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $result->getEntities();
 
         if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {

@@ -4,7 +4,7 @@ import './sw-settings-shopware-updates-wizard.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @package services-settings
+ * @package system-settings
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

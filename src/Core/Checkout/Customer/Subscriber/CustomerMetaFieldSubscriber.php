@@ -18,7 +18,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
     /**

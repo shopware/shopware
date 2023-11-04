@@ -161,10 +161,4 @@ describe('sw-app-wrong-app-url-modal', () => {
         expect(notificationMock).toHaveBeenCalledTimes(1);
         expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
-
-    it('should return filters from filter registry', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-    });
 });

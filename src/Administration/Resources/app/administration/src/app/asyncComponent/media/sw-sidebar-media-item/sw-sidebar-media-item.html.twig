@@ -24,11 +24,7 @@
         {% block sw_sidebar_media_item_folder_navigation %}
         <sw-media-breadcrumbs
             v-if="!term.length"
-            {% if VUE3 %}
-            v-model:currentFolderId="mediaFolderId"
-            {% else %}
             v-model="mediaFolderId"
-            {% endif %}
             small
         />
         {% endblock %}
@@ -70,7 +66,7 @@
             {% block sw_sidebar_media_item_context_items %}
             <slot
                 name="context-menu-items"
-                :media-item="mediaItem"
+                :mediaItem="mediaItem"
             ></slot>
         {% endblock %}
         </sw-media-media-item>

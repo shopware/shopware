@@ -16,4 +16,12 @@ class FloatField extends Field
     use TranslatableTrait;
 
     protected string $type = 'float';
+
+    /**
+     * @internal
+     */
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
 }

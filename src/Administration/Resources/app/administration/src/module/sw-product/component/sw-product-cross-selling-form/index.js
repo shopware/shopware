@@ -75,7 +75,7 @@ export default {
         },
 
         productStreamFilterRepository() {
-            if (!this.productStream || !this.productStream.filters) {
+            if (!this.productStream) {
                 return null;
             }
 
@@ -101,10 +101,10 @@ export default {
         sortingTypes() {
             return [{
                 label: this.$tc('sw-product.crossselling.priceDescendingSortingType'),
-                value: 'cheapestPrice:DESC',
+                value: 'price:DESC',
             }, {
                 label: this.$tc('sw-product.crossselling.priceAscendingSortingType'),
-                value: 'cheapestPrice:ASC',
+                value: 'price:ASC',
             }, {
                 label: this.$tc('sw-product.crossselling.nameSortingType'),
                 value: 'name:ASC',

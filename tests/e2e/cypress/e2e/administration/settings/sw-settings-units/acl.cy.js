@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
-/**
- * @package inventory
- */
+
 import SettingsPageObject from '../../../../support/pages/module/sw-settings.page-object';
 
 describe('Unit: Test acl privileges', () => {
@@ -12,7 +10,7 @@ describe('Unit: Test acl privileges', () => {
             });
     });
 
-    it('@settings @unit: has no access to scale unit module', { tags: ['pa-inventory', 'VUE3'] }, () => {
+    it('@settings @unit: has no access to scale unit module', { tags: ['pa-system-settings'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -33,7 +31,7 @@ describe('Unit: Test acl privileges', () => {
         cy.get('.sw-admin-menu__item--sw-settings').should('not.exist');
     });
 
-    it('@settings @unit: create and read unit', { tags: ['pa-inventory', 'VUE3'] }, () => {
+    it('@settings @unit: create and read unit', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -93,7 +91,7 @@ describe('Unit: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings @unit: update and read scale unit', { tags: ['pa-inventory', 'VUE3'] }, () => {
+    it('@settings @unit: update and read scale unit', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -150,7 +148,7 @@ describe('Unit: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings @unit: delete scale unit', { tags: ['pa-inventory', 'VUE3'] }, () => {
+    it('@settings @unit: delete scale unit', { tags: ['pa-system-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

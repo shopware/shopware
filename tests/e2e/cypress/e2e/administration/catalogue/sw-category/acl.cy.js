@@ -18,12 +18,13 @@ describe('Category: Test ACL privileges', () => {
             })
             .then(() => {
                 return cy.createDefaultFixture('product-stream', {}, 'product-stream-valid');
-            }).then(() => {
-                return cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
 
-    it('@base @catalogue: can view category', { tags: ['pa-content-management', 'quarantined', 'VUE3'] }, () => {
+    it('@base @catalogue: can view category', { tags: ['pa-content-management', 'quarantined'] }, () => {
         const page = new CategoryPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -59,21 +60,21 @@ describe('Category: Test ACL privileges', () => {
         // sales channel switch should still work (to view different configurations)
         cy.get('.sw-category-entry-point-modal__sales-channel-selection')
             .should('not.be.disabled');
-        cy.get('.sw-category-entry-point-modal__show-in-main-navigation input')
+        cy.get('input[name=sw-field--selectedSalesChannel-homeEnabled]')
             .should('be.disabled');
-        cy.get('.sw-category-entry-point-modal__name-in-main-navigation input')
+        cy.get('#sw-field--selectedSalesChannel-homeName')
             .scrollIntoView()
             .should('be.disabled');
         cy.get('.sw-category-detail-layout__change-layout-action')
             .scrollIntoView()
             .should('be.disabled');
-        cy.get('.sw-category-entry-point-modal__meta-title input')
+        cy.get('#sw-field--selectedSalesChannel-homeMetaTitle')
             .scrollIntoView()
             .should('be.disabled');
-        cy.get('.sw-category-entry-point-modal__meta-description textarea')
+        cy.get('#sw-field--selectedSalesChannel-homeMetaDescription')
             .scrollIntoView()
             .should('be.disabled');
-        cy.get('.sw-category-entry-point-modal__seo-keywords input')
+        cy.get('#sw-field--selectedSalesChannel-homeKeywords')
             .scrollIntoView()
             .should('be.disabled');
 
@@ -86,7 +87,7 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-cms-page-form').should('not.exist');
     });
 
-    it('@catalogue: can edit category', { tags: ['pa-content-management', 'VUE3'] }, () => {
+    it('@catalogue: can edit category', { tags: ['pa-content-management'] }, () => {
         const page = new CategoryPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -122,7 +123,7 @@ describe('Category: Test ACL privileges', () => {
         // Check if content tab works
         cy.get('.sw-category-detail__tab-cms').click();
         cy.get('.sw-category-detail-layout__change-layout-action').should('not.be.disabled');
-        cy.get('input[label="Minimum height"]').should('have.value', '320px');
+        cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
 
         // Save the category
         cy.get('.sw-category-detail__save-action').click();
@@ -132,7 +133,7 @@ describe('Category: Test ACL privileges', () => {
             .its('response.statusCode').should('equal', 204);
     });
 
-    it('@catalogue: can create category', { tags: ['pa-content-management', 'VUE3'] }, () => {
+    it('@catalogue: can create category', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',
@@ -170,11 +171,17 @@ describe('Category: Test ACL privileges', () => {
         // Verify category
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-
-        cy.get(page.elements.categoryTreeItemInner).should('contain', 'Categorian');
+        cy.get('.sw-category-tree__inner .sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
+            }
+        });
+        cy.contains(`${page.elements.categoryTreeItemInner}:nth-child(2)`, 'Categorian');
     });
 
-    it('@catalogue: can delete category', { tags: ['pa-content-management', 'VUE3'] }, () => {
+    it('@catalogue: can delete category', { tags: ['pa-content-management'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'category',

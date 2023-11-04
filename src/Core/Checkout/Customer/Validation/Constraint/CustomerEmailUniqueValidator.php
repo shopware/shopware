@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
  *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerEmailUniqueValidator extends ConstraintValidator
 {
     /**

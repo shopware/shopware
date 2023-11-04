@@ -24,12 +24,6 @@ Component.register('sw-condition-base', {
         'availableGroups',
     ],
 
-    emits: [
-        'create-before',
-        'create-after',
-        'condition-delete',
-    ],
-
     props: {
         condition: {
             type: Object,

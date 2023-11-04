@@ -1,13 +1,13 @@
 const { Module } = Shopware;
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 Shopware.Component.register('sw-settings-usage-data', () => import('./page/sw-settings-usage-data'));
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 Module.register('sw-settings-usage-data', {
@@ -42,7 +42,7 @@ Module.register('sw-settings-usage-data', {
 });
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export {};

@@ -3,7 +3,7 @@ import { LineItemType, PriceType } from '../../order.types';
 import './sw-order-product-select.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Service } = Shopware;

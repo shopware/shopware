@@ -10,8 +10,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-notification-center', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -28,10 +26,6 @@ Component.register('sw-notification-center', {
 
     computed: {
         notifications() {
-            if (this.feature.isActive('VUE3')) {
-                return Object.values(Shopware.State.getters['notification/getNotificationsObject']).reverse();
-            }
-
             return Shopware.State.getters['notification/getNotifications'];
         },
 

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
@@ -82,10 +82,6 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
                     sortable: false,
                 },
             ];
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

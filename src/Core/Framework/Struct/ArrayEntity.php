@@ -150,27 +150,6 @@ class ArrayEntity extends Entity implements \ArrayAccess
         return $this->data;
     }
 
-    public function addTranslated(string $key, mixed $value): void
-    {
-        $this->data['translated'][$key] = $value;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function getTranslation(string $field)
-    {
-        return $this->data['translated'][$field] ?? null;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getTranslated(): array
-    {
-        return $this->data['translated'] ?? [];
-    }
-
     /**
      * @return array<string, mixed>
      */

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Doctrine\DBAL\Connection;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
@@ -12,13 +12,11 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 #[Package('core')]
 class CacheIdLoader
 {
-    private const CONFIG_KEY = 'cache-id';
-
     /**
      * @internal
      */
     public function __construct(
-        private readonly AbstractKeyValueStorage $keyValueStorage,
+        private readonly Connection $connection,
         private readonly ?CacheItemPoolInterface $restartSignalCachePool = null
     ) {
     }
@@ -31,7 +29,11 @@ class CacheIdLoader
         }
 
         try {
-            $cacheId = $this->keyValueStorage->get(self::CONFIG_KEY);
+            $cacheId = $this->connection->fetchOne(
+                '# cache-id-loader
+                SELECT `value` FROM app_config WHERE `key` = :key',
+                ['key' => 'cache-id']
+            );
         } catch (\Exception) {
             $cacheId = null;
         }
@@ -53,7 +55,10 @@ class CacheIdLoader
 
     public function write(string $cacheId): void
     {
-        $this->keyValueStorage->set(self::CONFIG_KEY, $cacheId);
+        $this->connection->executeStatement(
+            'REPLACE INTO app_config (`key`, `value`) VALUES (:key, :cacheId)',
+            ['cacheId' => $cacheId, 'key' => 'cache-id']
+        );
 
         if ($this->restartSignalCachePool) {
             $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);

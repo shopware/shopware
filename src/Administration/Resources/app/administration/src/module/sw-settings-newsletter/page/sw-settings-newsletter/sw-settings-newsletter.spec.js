@@ -14,7 +14,7 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-help-text';
 
 /**
- * @package buyers-experience
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-settings-newsletter', swSettingsNewsletter);

@@ -2,7 +2,7 @@ import template from './sw-customer-create.html.twig';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -88,22 +88,6 @@ export default {
         languageId() {
             return this.loadLanguage(this.customer?.salesChannelId);
         },
-
-        salutationRepository() {
-            return this.repositoryFactory.create('salutation');
-        },
-
-        salutationCriteria() {
-            const criteria = new Criteria(1, 1);
-
-            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
-
-            return criteria;
-        },
-
-        salutationFilter() {
-            return Shopware.Filter.getByName('salutation');
-        },
     },
 
     watch: {
@@ -135,10 +119,9 @@ export default {
     },
 
     methods: {
-        async createdComponent() {
-            const defaultSalutationId = await this.getDefaultSalutation();
-
+        createdComponent() {
             Shopware.State.commit('context/resetLanguageToDefault');
+
             this.customer = this.customerRepository.create();
 
             const addressRepository = this.repositoryFactory.create(
@@ -154,8 +137,6 @@ export default {
             this.customer.defaultShippingAddressId = this.address.id;
             this.customer.password = '';
             this.customer.vatIds = [];
-            this.customer.salutationId = defaultSalutationId;
-            this.address.salutationId = defaultSalutationId;
         },
 
         saveFinish() {
@@ -284,12 +265,6 @@ export default {
             }
 
             return res.data[0];
-        },
-
-        async getDefaultSalutation() {
-            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
-
-            return res.data?.[0];
         },
     },
 };

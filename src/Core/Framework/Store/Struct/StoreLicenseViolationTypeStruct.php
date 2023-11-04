@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class StoreLicenseViolationTypeStruct extends Struct
 {
     final public const LEVEL_VIOLATION = 'violation';

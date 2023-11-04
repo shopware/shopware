@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
@@ -13,10 +12,8 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnMemoryLimitListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use Symfony\Component\Messenger\EventListener\StopWorkerOnTimeLimitListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
@@ -38,9 +35,7 @@ class ConsumeMessagesController extends AbstractController
         private readonly EarlyReturnMessagesListener $earlyReturnListener,
         private readonly MessageQueueStatsSubscriber $statsSubscriber,
         private readonly string $defaultTransportName,
-        private readonly string $memoryLimit,
-        private readonly int $pollInterval,
-        private readonly LockFactory $lockFactory
+        private readonly string $memoryLimit
     ) {
     }
 
@@ -50,20 +45,13 @@ class ConsumeMessagesController extends AbstractController
         $receiverName = $request->get('receiver');
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
-            throw MessageQueueException::validReceiverNameNotProvided();
-        }
-
-        $consumerLock = $this->lockFactory->createLock('message_queue_consume_' . $receiverName);
-
-        if (!$consumerLock->acquire()) {
-            throw MessageQueueException::workerIsLocked($receiverName);
+            throw new \RuntimeException('No receiver name provided.');
         }
 
         $receiver = $this->receiverLocator->get($receiverName);
 
         $workerDispatcher = new EventDispatcher();
         $listener = new CountHandledMessagesListener();
-        $workerDispatcher->addSubscriber(new StopWorkerOnTimeLimitListener($this->pollInterval));
         $workerDispatcher->addSubscriber($listener);
         $workerDispatcher->addSubscriber($this->statsSubscriber);
         $workerDispatcher->addSubscriber($this->stopWorkerOnRestartSignalListener);
@@ -77,9 +65,7 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run(['sleep' => 50]);
-
-        $consumerLock->release();
+        $worker->run();
 
         return new JsonResponse(['handledMessages' => $listener->getHandledMessages()]);
     }

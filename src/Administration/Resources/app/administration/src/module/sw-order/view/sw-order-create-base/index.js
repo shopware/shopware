@@ -1,7 +1,7 @@
 import template from './sw-order-create-base.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Component, State, Utils, Data, Service, Mixin } = Shopware;
@@ -199,10 +199,6 @@ export default {
             }
 
             return this.cartPrice.totalPrice;
-        },
-
-        currencyFilter() {
-            return Shopware.Filter.getByName('currency');
         },
     },
 

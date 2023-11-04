@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App\Payment\Payload\Struct;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Payment\Cart\Recurring\RecurringDataStruct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\CloneTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
@@ -22,13 +21,9 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
-    /**
-     * @param mixed[] $queryParameters
-     */
     public function __construct(
         OrderTransactionEntity $orderTransaction,
-        protected array $queryParameters,
-        protected ?RecurringDataStruct $recurring = null,
+        protected array $queryParameters
     ) {
         $this->orderTransaction = $this->removeApp($orderTransaction);
     }
@@ -48,16 +43,8 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
         return $this->orderTransaction;
     }
 
-    /**
-     * @return mixed[]
-     */
     public function getQueryParameters(): array
     {
         return $this->queryParameters;
-    }
-
-    public function getRecurring(): ?RecurringDataStruct
-    {
-        return $this->recurring;
     }
 }

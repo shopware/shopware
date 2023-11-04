@@ -10,12 +10,11 @@
     {% block sw_order_saveable_field_input %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block  sw_order_saveable_field_input_field%}
-    <component
-        :is="component"
-        ref="edit-field"
+    <sw-field ref="edit-field"
+        :type="type"
         :value="value"
-        :placeholder="placeholder"
-    />
+        :placeholder="placeholder">
+    </sw-field>
     {% endblock %}
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -48,12 +47,10 @@
     {%  endblock %}
     {% endblock %}
 </sw-container>
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     v-else
-    role="button"
-    tabindex="0"
     @click="onClick"
-    @keydown.enter="onClick"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_saveable_field_content %}

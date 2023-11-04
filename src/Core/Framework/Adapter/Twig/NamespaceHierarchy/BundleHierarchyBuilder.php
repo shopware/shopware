@@ -42,7 +42,7 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
         $bundles = array_reverse($bundles);
         $apps = $this->getAppTemplateNamespaces();
 
-        /** @var array<int, array<string, mixed>> $combinedApps */
+        /** @var array $combinedApps */
         $combinedApps = array_combine(array_keys($apps), array_column($apps, 'template_load_priority'));
 
         $extensions = array_merge($combinedApps, $bundles);
@@ -58,9 +58,6 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
         );
     }
 
-    /**
-     * @return array<mixed, array<string, mixed>>
-     */
     private function getAppTemplateNamespaces(): array
     {
         return $this->connection->fetchAllAssociativeIndexed(

@@ -451,8 +451,4 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
 
         wrapper.vm.$router.push.mockRestore();
     });
-
-    it('should return filters from filter registry', async () => {
-        expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
-    });
 });

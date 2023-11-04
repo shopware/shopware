@@ -1,5 +1,5 @@
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const ACCOUNT_TYPE_PRIVATE = 'private';

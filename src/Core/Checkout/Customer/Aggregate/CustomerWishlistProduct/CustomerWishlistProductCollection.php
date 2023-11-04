@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CustomerWishlistProductEntity>
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerWishlistProductCollection extends EntityCollection
 {
     public function getApiAlias(): string

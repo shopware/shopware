@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Category\Tree;
 
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('inventory')]
+#[Package('content')]
 class TreeItem extends Struct
 {
     /**
@@ -16,7 +15,7 @@ class TreeItem extends Struct
     public ?string $afterId;
 
     /**
-     * @var CategoryEntity|null
+     * @var CategoryEntity
      */
     protected $category;
 
@@ -25,9 +24,6 @@ class TreeItem extends Struct
      */
     protected $children;
 
-    /**
-     * @param TreeItem[] $children
-     */
     public function __construct(
         ?CategoryEntity $category,
         array $children
@@ -39,7 +35,7 @@ class TreeItem extends Struct
 
     public function getId(): string
     {
-        return $this->getCategory()->getId();
+        return $this->category->getId();
     }
 
     public function setCategory(CategoryEntity $category): void
@@ -50,16 +46,9 @@ class TreeItem extends Struct
 
     public function getCategory(): CategoryEntity
     {
-        if (!$this->category) {
-            throw CategoryException::categoryNotFound('treeItem');
-        }
-
         return $this->category;
     }
 
-    /**
-     * @return TreeItem[]
-     */
     public function getChildren(): array
     {
         return $this->children;
@@ -72,9 +61,6 @@ class TreeItem extends Struct
         }
     }
 
-    /**
-     * @param TreeItem[] $children
-     */
     public function setChildren(array $children): void
     {
         $this->children = $children;

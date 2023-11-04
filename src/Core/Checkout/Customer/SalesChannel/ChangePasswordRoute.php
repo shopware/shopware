@@ -27,7 +27,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class ChangePasswordRoute extends AbstractChangePasswordRoute
 {
     /**

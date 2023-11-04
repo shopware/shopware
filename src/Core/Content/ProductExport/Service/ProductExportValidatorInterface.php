@@ -2,15 +2,11 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
-use Shopware\Core\Content\ProductExport\Error\Error;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 interface ProductExportValidatorInterface
 {
-    /**
-     * @return list<Error>
-     */
     public function validate(ProductExportEntity $productExportEntity, string $productExportContent): array;
 }

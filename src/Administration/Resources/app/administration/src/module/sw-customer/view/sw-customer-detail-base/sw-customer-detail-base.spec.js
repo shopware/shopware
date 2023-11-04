@@ -7,7 +7,7 @@ import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-customer-detail-base', swCustomerDetailBase);

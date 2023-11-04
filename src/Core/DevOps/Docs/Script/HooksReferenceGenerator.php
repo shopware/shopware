@@ -7,7 +7,6 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
-use phpDocumentor\Reflection\DocBlockFactoryInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
@@ -44,7 +43,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/hook-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/script-hooks-reference.md';
 
-    private readonly DocBlockFactoryInterface $docFactory;
+    private readonly DocBlockFactory $docFactory;
 
     public function __construct(
         private readonly ContainerInterface $container,

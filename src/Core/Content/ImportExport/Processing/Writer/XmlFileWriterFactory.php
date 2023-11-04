@@ -6,7 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class XmlFileWriterFactory extends AbstractWriterFactory
 {
     public function __construct(private readonly FilesystemOperator $filesystem)

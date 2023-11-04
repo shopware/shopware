@@ -662,7 +662,7 @@ class EntityRepositoryTest extends TestCase
             'defaultPaymentMethodId' => $paymentMethod,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'not12345',
             'lastName' => 'not',
             'firstName' => $matchTerm,
             'salutationId' => $salutation,

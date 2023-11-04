@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 /* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-mailer-smtp', () => import('./component/sw-settings-mailer-smtp'));

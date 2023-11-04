@@ -3,7 +3,7 @@ import './sw-cms-stage-add-block.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

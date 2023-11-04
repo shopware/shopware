@@ -1,5 +1,4 @@
 import type { PropType } from 'vue';
-import type { ExtensionType } from 'src/module/sw-extension/service/extension-store-action.service';
 import template from './sw-plugin-card.html.twig';
 import './sw-plugin-card.scss';
 
@@ -15,22 +14,17 @@ type RecommendedPlugin = {
     label: string,
     manufacturer: string,
     shortDescription: string,
-    type: ExtensionType,
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'cacheApiService',
-        'extensionHelperService',
-        'shopwareExtensionService',
-    ],
+    inject: ['cacheApiService', 'extensionHelperService'],
 
     mixins: [Shopware.Mixin.getByName('sw-extension-error')],
 
@@ -59,10 +53,6 @@ export default Shopware.Component.wrapComponentConfig({
         pluginIsNotActive(): boolean {
             return !this.plugin.active;
         },
-
-        truncateFilter() {
-            return Shopware.Filter.getByName('truncate');
-        },
     },
 
     methods: {
@@ -70,15 +60,12 @@ export default Shopware.Component.wrapComponentConfig({
             void this.setupPlugin();
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - Will emit hypernated event only.
-         */
         async setupPlugin(): Promise<void> {
             this.pluginIsLoading = true;
             this.pluginIsSaveSuccessful = false;
 
             try {
-                await this.extensionHelperService.downloadAndActivateExtension(this.plugin.name, this.plugin.type);
+                await this.extensionHelperService.downloadAndActivateExtension(this.plugin.name);
                 this.pluginIsSaveSuccessful = true;
                 this.$emit('extension-activated');
             } catch (error: unknown) {
@@ -89,16 +76,11 @@ export default Shopware.Component.wrapComponentConfig({
             } finally {
                 this.pluginIsLoading = false;
 
-                if (this.plugin.type === 'plugin') {
-                    // wait until cacheApiService is transpiled to ts
-                    // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
-                    this.cacheApiService.clear();
-                }
+                // wait until cacheApiService is transpiled to ts
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
+                this.cacheApiService.clear();
 
-                await this.shopwareExtensionService.updateExtensionData();
-
-                this.$emit('on-plugin-installed', this.plugin.name);
                 this.$emit('onPluginInstalled', this.plugin.name);
             }
         },

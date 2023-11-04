@@ -6,7 +6,7 @@ Shopware.Component.register('sw-extension-review', swExtensionReview);
 Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () => {
     /** @type Wrapper */

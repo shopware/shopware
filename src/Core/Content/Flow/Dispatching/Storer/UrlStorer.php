@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - Will be removed, use ScalarValuesStorer/ScalarValuesAware instead
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class UrlStorer extends FlowStorer
 {
     /**

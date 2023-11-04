@@ -1,11 +1,12 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
+
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 const uuid = require('uuid/v4');
 
-describe('Theme: Test Inheritance', { tags: ['VUE3']}, () => {
+describe('Theme: Test Inheritance', () => {
     beforeEach(() => {
         cy.createDefaultSalesChannel().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#`);

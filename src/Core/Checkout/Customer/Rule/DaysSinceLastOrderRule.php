@@ -7,12 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class DaysSinceLastOrderRule extends DaysSinceRule
 {
     final public const RULE_NAME = 'customerDaysSinceLastOrder';
-
-    public int $count;
 
     protected function getDate(RuleScope $scope): ?\DateTimeInterface
     {

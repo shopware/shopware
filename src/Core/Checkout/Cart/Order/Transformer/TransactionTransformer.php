@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Order\Transformer;
 
-use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
@@ -11,9 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class TransactionTransformer
 {
-    /**
-     * @return array<int, array<string, string|CalculatedPrice>>
-     */
     public static function transformCollection(
         TransactionCollection $transactions,
         string $stateId,
@@ -27,9 +23,6 @@ class TransactionTransformer
         return $output;
     }
 
-    /**
-     * @return array<string, string|CalculatedPrice>
-     */
     public static function transform(
         Transaction $transaction,
         string $stateId,

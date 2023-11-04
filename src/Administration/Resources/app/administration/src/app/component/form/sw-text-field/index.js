@@ -17,8 +17,6 @@ Component.register('sw-text-field', {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
@@ -92,30 +90,14 @@ Component.register('sw-text-field', {
 
     methods: {
         onChange(event) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', event.target.value || '');
-
-                return;
-            }
-
             this.$emit('change', event.target.value || '');
         },
 
         onInput(event) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', event.target.value);
-                return;
-            }
-
             this.$emit('input', event.target.value);
         },
 
         restoreInheritance() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', null);
-                return;
-            }
-
             this.$emit('input', null);
         },
 

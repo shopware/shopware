@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ExportController
 {
     /**
@@ -55,7 +55,7 @@ class ExportController
 
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
-            $this->logException(Context::createDefaultContext(), $exportNotFoundException, Level::Warning);
+            $this->logException(Context::createDefaultContext(), $exportNotFoundException);
 
             throw $exportNotFoundException;
         }
@@ -107,13 +107,12 @@ class ExportController
 
     private function logException(
         Context $context,
-        \Exception $exception,
-        Level $logLevel = Level::Error
+        \Exception $exception
     ): void {
         $loggingEvent = new ProductExportLoggingEvent(
             $context,
             $exception->getMessage(),
-            $logLevel,
+            Level::Error,
             $exception
         );
 

@@ -3,13 +3,11 @@ import swOrderNestedLineItemsModal from 'src/module/sw-order/component/sw-order-
 import swOrderNestedLineItemsRow from 'src/module/sw-order/component/sw-order-nested-line-items-row';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-order-nested-line-items-modal', swOrderNestedLineItemsModal);
 Shopware.Component.register('sw-order-nested-line-items-row', swOrderNestedLineItemsRow);
-
-const localCurrency = 'EUR';
 
 function getMockChild(id, parentId) {
     const mockValue = id.split('.').join('');
@@ -69,12 +67,14 @@ const mockChildrenCollection = [
 async function createWrapper() {
     const localVue = createLocalVue();
 
+    localVue.filter('currency', value => value);
+
     return shallowMount(await Shopware.Component.build('sw-order-nested-line-items-modal'), {
         localVue,
         propsData: {
             order: {
                 currency: {
-                    shortName: localCurrency,
+                    shortName: 'EUR',
                 },
             },
             lineItem: mockParent,
@@ -138,7 +138,6 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
     it('should render the items in the correct order with correct indentation class and properties', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
-        const currencyFilter = Shopware.Filter.getByName('currency');
 
         const content = wrapper.findAll('.sw-order-nested-line-items-row__content');
 
@@ -228,9 +227,9 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
 
             expect(currentNestingLevels).toHaveLength(data.nestingLevel - 1);
             expect(currentLabel.text()).toContain(data.label);
-            expect(currentUnitPrice.text()).toContain(currencyFilter(data.unitPrice, localCurrency));
+            expect(currentUnitPrice.text()).toContain(`${data.unitPrice}`);
             expect(currentQuantity.text()).toContain(`${data.quantity}`);
-            expect(currentTotalPrice.text()).toContain(currencyFilter(data.totalPrice, localCurrency));
+            expect(currentTotalPrice.text()).toContain(`${data.totalPrice}`);
             expect(currentTax.text()).toContain(`${data.taxRate} %`);
         });
     });

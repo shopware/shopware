@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import template from './sw-sales-channel-list.html.twig';
@@ -109,9 +109,6 @@ export default {
             return Shopware.Service('salesChannelFavorites');
         },
 
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
     },
 
     methods: {

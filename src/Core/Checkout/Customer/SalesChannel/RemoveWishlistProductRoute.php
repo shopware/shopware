@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
+use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
 {
     /**
@@ -42,7 +44,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     public function delete(string $productId, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannel()->getId())) {
-            throw CustomerException::customerWishlistNotActivated();
+            throw new CustomerWishlistNotActivatedException();
         }
 
         $wishlistId = $this->getWishlistId($context, $customer->getId());
@@ -72,7 +74,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());
 
         if ($wishlistIds->firstId() === null) {
-            throw CustomerException::customerWishlistNotFound();
+            throw new CustomerWishlistNotFoundException();
         }
 
         return $wishlistIds->firstId();
@@ -90,7 +92,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
         $wishlistProductIds = $this->productRepository->searchIds($criteria, $context->getContext());
 
         if ($wishlistProductIds->firstId() === null) {
-            throw CustomerException::wishlistProductNotFound($productId);
+            throw new WishlistProductNotFoundException($productId);
         }
 
         return $wishlistProductIds->firstId();

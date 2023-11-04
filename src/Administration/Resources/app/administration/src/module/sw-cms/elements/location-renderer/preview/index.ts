@@ -6,7 +6,7 @@ const { Component } = Shopware;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Component.register('sw-cms-el-preview-location-renderer', {
     template,

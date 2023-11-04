@@ -12,8 +12,6 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1654839361ProductDownloadDelivery extends MigrationStep

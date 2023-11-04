@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -25,8 +26,6 @@ class SearchKeywordUpdaterTest extends TestCase
 
     private EntityRepository $productRepository;
 
-    private EntityRepository $salesChannelLanguageRepository;
-
     private EntityRepository $searchKeywordRepository;
 
     private Connection $connection;
@@ -34,9 +33,22 @@ class SearchKeywordUpdaterTest extends TestCase
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
-        $this->salesChannelLanguageRepository = $this->getContainer()->get('sales_channel_language.repository');
         $this->searchKeywordRepository = $this->getContainer()->get('product_search_keyword.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+
+        $this->getContainer()->get('language.repository')->upsert([
+            [
+                'id' => $this->getDeDeLanguageId(),
+                'salesChannelDomains' => [
+                    [
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
+                        'url' => $_SERVER['APP_URL'] . '/de',
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
     }
 
     /**
@@ -55,39 +67,6 @@ class SearchKeywordUpdaterTest extends TestCase
         $expectedDictionary = array_merge($germanKeywords, $additionalDictionaries);
         sort($expectedDictionary);
         $this->assertDictionary($this->getDeDeLanguageId(), $expectedDictionary);
-    }
-
-    /**
-     * @param array<mixed> $productData
-     * @param string[] $englishKeywords
-     * @param string[] $germanKeywords
-     * @param string[] $additionalDictionaries
-     *
-     * @dataProvider productKeywordProvider
-     */
-    public function testItUpdatesKeywordsForAvailableLanguagesOnly(array $productData, IdsCollection $ids, array $englishKeywords, array $germanKeywords, array $additionalDictionaries = []): void
-    {
-        $context = Context::createDefaultContext();
-
-        $criteria = new Criteria();
-
-        // Delete sales channel de-DE language associations to ensure only default language is used to create keywords.
-        $criteria->addFilter(new EqualsFilter('languageId', $this->getDeDeLanguageId()));
-
-        /** @var list<array<string, string>> $salesChannalLanguageIds */
-        $salesChannalLanguageIds = $this->salesChannelLanguageRepository->searchIds($criteria, $context)->getIds();
-        $this->salesChannelLanguageRepository->delete($salesChannalLanguageIds, $context);
-
-        $this->productRepository->create([$productData], Context::createDefaultContext());
-
-        $this->assertKeywords($ids->get('1000'), Defaults::LANGUAGE_SYSTEM, $englishKeywords);
-
-        $expectedDictionary = array_merge($englishKeywords, $additionalDictionaries);
-        sort($expectedDictionary);
-        $this->assertDictionary(Defaults::LANGUAGE_SYSTEM, $expectedDictionary);
-
-        $this->assertLanguageHasNoKeywords($this->getDeDeLanguageId());
-        $this->assertLanguageHasNoDictionary($this->getDeDeLanguageId());
     }
 
     public function testCustomFields(): void
@@ -288,21 +267,6 @@ class SearchKeywordUpdaterTest extends TestCase
         static::assertEquals($expectedKeywords, $keywords);
     }
 
-    private function assertLanguageHasNoKeywords(string $languageId): void
-    {
-        $keywords = $this->connection->fetchFirstColumn(
-            'SELECT `keyword`
-            FROM `product_search_keyword`
-            WHERE language_id = :languageId
-            ORDER BY `keyword` ASC',
-            [
-                'languageId' => Uuid::fromHexToBytes($languageId),
-            ]
-        );
-
-        static::assertCount(0, $keywords);
-    }
-
     private function assertDictionary(string $languageId, array $expectedKeywords): void
     {
         $dictionary = $this->connection->fetchFirstColumn(
@@ -316,21 +280,6 @@ class SearchKeywordUpdaterTest extends TestCase
         );
 
         static::assertEquals($expectedKeywords, $dictionary);
-    }
-
-    private function assertLanguageHasNoDictionary(string $languageId): void
-    {
-        $dictionary = $this->connection->fetchFirstColumn(
-            'SELECT `keyword`
-            FROM `product_keyword_dictionary`
-            WHERE language_id = :languageId
-            ORDER BY `keyword` ASC',
-            [
-                'languageId' => Uuid::fromHexToBytes($languageId),
-            ]
-        );
-
-        static::assertCount(0, $dictionary);
     }
 
     private function getLocaleIdByIsoCode(string $iso): string

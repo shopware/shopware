@@ -3,12 +3,12 @@
  */
 
 /* @private */
-import { defineComponent } from 'vue';
+export {};
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('user-settings', defineComponent({
+Shopware.Mixin.register('user-settings', {
     inject: [
         'acl',
     ],
@@ -127,4 +127,4 @@ export default Shopware.Mixin.register('user-settings', defineComponent({
             return criteria;
         },
     },
-}));
+});

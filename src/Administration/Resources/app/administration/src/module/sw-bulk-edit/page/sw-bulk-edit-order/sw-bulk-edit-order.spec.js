@@ -40,7 +40,6 @@ import swBulkEditSaveModalError from 'src/module/sw-bulk-edit/component/sw-bulk-
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
-import 'src/app/component/utils/sw-inherit-wrapper';
 
 Shopware.Component.register('sw-bulk-edit-order', swBulkEditOrder);
 Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', swBulkEditCustomFields);
@@ -132,7 +131,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 'sw-bulk-edit-order-documents-generate-credit-note': true,
                 'sw-bulk-edit-order-documents-download-documents': true,
                 'sw-entity-tag-select': true,
-                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+                'sw-inherit-wrapper': true,
                 'sw-error-summary': true,
             },
             props: {

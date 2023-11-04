@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;

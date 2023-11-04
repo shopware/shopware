@@ -63,6 +63,7 @@ class EntitySearcher implements EntitySearcherInterface
             }
         }
 
+        /** @var StorageAware $field */
         foreach ($fields as $field) {
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
@@ -154,9 +155,6 @@ class EntitySearcher implements EntitySearcherInterface
         $query->setMaxResults($criteria->getLimit() * 6 + 1);
     }
 
-    /**
-     * @param list<array<string, mixed>> $data
-     */
     private function getTotalCount(Criteria $criteria, QueryBuilder $query, array $data): int
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
@@ -194,12 +192,6 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
-    /**
-     * @param array<string>|array<array<string, string>> $ids
-     * @param array<string, mixed> $data
-     *
-     * @return array<string, array<string, mixed>>
-     */
     private function sortByIdArray(array $ids, array $data): array
     {
         $sorted = [];

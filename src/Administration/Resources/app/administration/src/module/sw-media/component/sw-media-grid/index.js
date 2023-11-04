@@ -3,7 +3,7 @@ import './sw-media-grid.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

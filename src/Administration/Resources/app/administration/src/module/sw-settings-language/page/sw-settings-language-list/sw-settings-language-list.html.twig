@@ -102,13 +102,9 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_language_list_content_list_column_name %}
             <template #column-name="{ item, column, compact, isInlineEdit }">
-                <sw-text-field
+                <sw-field
                     v-if="isInlineEdit"
-                    {% if VUE3 %}
-                    v-model:value="item.name"
-                    {% else %}
                     v-model="item.name"
-                    {% endif %}
                     :size="compact ? 'small' : 'default'"
                 />
                 <router-link
@@ -210,9 +206,7 @@
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_expanded %}
                             <sw-icon
                                 v-if="expanded"
-                                {% if VUE2 %}
                                 key="filter-collapse-expanded-indicator"
-                                {% endif %}
                                 class="sw-media-collapse__button"
                                 name="regular-chevron-down-xxs"
                                 size="12px"
@@ -223,9 +217,7 @@
                             {% block sw_settings_language_list_grid_sidebar_filter_header_icon_not_expanded %}
                             <sw-icon
                                 v-else
-                                {% if VUE2 %}
                                 key="filter-collapse-expanded-indicator"
-                                {% endif %}
                                 class="sw-media-collapse__button"
                                 name="regular-chevron-right-xxs"
                                 size="12px"
@@ -243,12 +235,9 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_root_languages %}
-                        <sw-switch-field
-                            {% if VUE3 %}
-                            v-model:value="filterRootLanguages"
-                            {% else %}
+                        <sw-field
                             v-model="filterRootLanguages"
-                            {% endif %}
+                            type="switch"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterRootLanguages')"
                         />
@@ -256,12 +245,9 @@
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_language_list_grid_sidebar_filter_content_inherited_languages %}
-                        <sw-switch-field
-                            {% if VUE3 %}
-                            v-model:value="filterInheritedLanguages"
-                            {% else %}
+                        <sw-field
                             v-model="filterInheritedLanguages"
-                            {% endif %}
+                            type="switch"
                             class="sw-settings-language-list__filterField"
                             :label="$tc('sw-settings-language.list.textFilterInheritedLanguages')"
                         />

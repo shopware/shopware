@@ -19,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ContactFormDataAware is deprecated and will be removed in v6.6.0
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 final class ContactFormEvent extends Event implements SalesChannelAware, MailAware, ContactFormDataAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'contact_form.send';

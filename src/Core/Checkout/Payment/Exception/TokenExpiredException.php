@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
-use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-/**
- * @decrecated tag:v6.6.0 - use PaymentException::syncProcessInterrupted instead
- */
-class TokenExpiredException extends PaymentException
+class TokenExpiredException extends ShopwareHttpException
 {
     public function __construct(
         string $token,
         ?\Throwable $e = null
     ) {
         parent::__construct(
-            Response::HTTP_GONE,
-            'CHECKOUT__PAYMENT_TOKEN_EXPIRED',
             'The provided token {{ token }} is expired and the payment could not be processed.',
             ['token' => $token],
             $e

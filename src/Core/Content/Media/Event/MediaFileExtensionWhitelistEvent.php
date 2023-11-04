@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Media\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class MediaFileExtensionWhitelistEvent extends Event
 {
     public function __construct(private array $whitelist)

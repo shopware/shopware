@@ -7,7 +7,7 @@ https://getbootstrap.com/docs/5.2/components/buttons
 */
 
 .btn {
-    --#{$prefix}btn-disabled-color: #{$btn-link-disabled-color};
+    font-weight: $font-weight-semibold;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -17,7 +17,10 @@ https://getbootstrap.com/docs/5.2/components/buttons
 .btn-buy {
     @extend .btn-lg;
     @include button-variant($buy-btn-bg, $buy-btn-bg, $buy-btn-color);
+}
 
+.btn,
+.btn-buy {
     &.disabled,
     &:disabled {
         opacity: 1;
@@ -28,5 +31,9 @@ https://getbootstrap.com/docs/5.2/components/buttons
 }
 
 .btn-link {
-    --#{$prefix}btn-font-weight: #{$font-weight-semibold};
+    &.disabled,
+    &:disabled {
+        border: 0 none;
+        background: transparent;
+    }
 }

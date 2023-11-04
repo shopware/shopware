@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class PermissionCollection extends StoreCollection
 {
     public function __construct(iterable $elements = [])

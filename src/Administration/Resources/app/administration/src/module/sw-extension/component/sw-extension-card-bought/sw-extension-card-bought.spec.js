@@ -106,7 +106,7 @@ async function createWrapper(extension) {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
     beforeAll(() => {

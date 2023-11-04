@@ -7,6 +7,7 @@ import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-snippet-field';
+import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -50,8 +51,8 @@ async function createWrapper() {
             ]),
         },
         stubs: {
-            'sw-text-field': {
-                template: '<input class="sw-text-field"></input>',
+            'sw-field': {
+                template: '<input class="sw-field"></input>',
                 props: ['value', 'disabled'],
             },
             'sw-loader': true,

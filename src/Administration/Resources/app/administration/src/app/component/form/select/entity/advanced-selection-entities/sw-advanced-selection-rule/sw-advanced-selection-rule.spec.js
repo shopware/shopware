@@ -165,8 +165,4 @@ describe('components/sw-advanced-selection-product', () => {
 
         expect(counts.productPrices).toBe(100);
     });
-
-    it('should return filters from filter registry', async () => {
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
-    });
 });

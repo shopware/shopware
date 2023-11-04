@@ -6,30 +6,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 class CompiledFieldCollection extends FieldCollection
 {
     /**
-     * @var array<string, Field>
+     * @var Field[]
      */
     protected array $mappedByStorageName = [];
 
     private ?ChildrenAssociationField $childrenAssociationField = null;
 
     /**
-     * @var array<string, TranslatedField>
+     * @var TranslatedField[]
      */
     private array $translatedFields = [];
 
     /**
-     * @var array<string, Field>
+     * @var Field[]
      */
     private array $extensionFields = [];
 
@@ -80,17 +78,11 @@ class CompiledFieldCollection extends FieldCollection
         }
     }
 
-    /**
-     * @return array<string, TranslatedField>
-     */
     public function getTranslatedFields(): array
     {
         return $this->translatedFields;
     }
 
-    /**
-     * @return array<string, Field>
-     */
     public function getExtensionFields(): array
     {
         return $this->extensionFields;
@@ -128,15 +120,8 @@ class CompiledFieldCollection extends FieldCollection
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement as it is unused
-     *
-     * @return list<string>
-     */
     public function getMappedByStorageName()
     {
-        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
         return array_keys($this->mappedByStorageName);
     }
 
@@ -145,9 +130,6 @@ class CompiledFieldCollection extends FieldCollection
         return $this->mappedByStorageName[$storageName] ?? null;
     }
 
-    /**
-     * @param class-string<Flag> $flagClass
-     */
     public function filterByFlag(string $flagClass): self
     {
         return $this->filter(static fn (Field $field) => $field->is($flagClass));

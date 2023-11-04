@@ -4,7 +4,7 @@ import swSettingsTaxList from 'src/module/sw-settings-tax/page/sw-settings-tax-l
 Shopware.Component.register('sw-settings-tax-list', swSettingsTaxList);
 
 /**
- * @package checkout
+ * @package customer-order
  */
 async function createWrapper(privileges = [], additionalOptions = {}) {
     const localVue = createLocalVue();

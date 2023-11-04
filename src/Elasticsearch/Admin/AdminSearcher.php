@@ -23,9 +23,7 @@ class AdminSearcher
     public function __construct(
         private readonly Client $client,
         private readonly AdminSearchRegistry $registry,
-        private readonly AdminElasticsearchHelper $adminEsHelper,
-        private readonly string $timeout = '5s',
-        private readonly int $termMaxLength = 300,
+        private readonly AdminElasticsearchHelper $adminEsHelper
     ) {
     }
 
@@ -36,8 +34,6 @@ class AdminSearcher
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
-        $term = mb_substr(trim($term), 0, $this->termMaxLength);
-
         $index = [];
         $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
         $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
@@ -51,10 +47,8 @@ class AdminSearcher
             $indexer = $this->registry->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
             $index[] = ['index' => $alias];
-            $query = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
-            $query['timeout'] = $this->timeout;
 
-            $index[] = $query;
+            $index[] = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
         }
 
         $responses = $this->client->msearch(['body' => $index]);

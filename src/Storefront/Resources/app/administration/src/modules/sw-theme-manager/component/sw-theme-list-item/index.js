@@ -45,10 +45,7 @@ Component.register('sw-theme-list-item', {
         },
 
         defaultThemeAsset() {
-            const assetFilter = Shopware.Filter.getByName('asset');
-            const previewUrl = assetFilter('administration/static/img/theme/default_theme_preview.jpg');
-
-            return `url(${previewUrl})`;
+            return `url('${Shopware.Context.api.assetsPath}/administration/static/img/theme/default_theme_preview.jpg')`;
         },
 
         lockToolTip() {

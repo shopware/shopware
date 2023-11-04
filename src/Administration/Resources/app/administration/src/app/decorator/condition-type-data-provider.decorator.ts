@@ -561,57 +561,50 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('orderTag', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTagRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('orderTrackingCode', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTrackingCodeRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('orderDeliveryStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderDeliveryStatusRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('orderTransactionStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderTransactionStatusRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('orderStatus', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderStatusRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('orderCreatedByAdmin', {
         component: 'sw-condition-generic',
         label: 'global.sw-condition.condition.orderCreatedByAdminRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('orderCustomField', {
         component: 'sw-condition-order-custom-field',
         label: 'global.sw-condition.condition.orderCustomFieldRule',
-        scopes: ['order'],
-        group: 'order',
-    });
-
-    ruleConditionService.addCondition('orderDocumentType', {
-        component: 'sw-condition-generic',
-        label: 'global.sw-condition.condition.orderDocumentTypeRule',
-        scopes: ['order'],
-        group: 'order',
+        scopes: ['flow'],
+        group: 'flow',
     });
 
     ruleConditionService.addCondition('cartLineItemPropertyValue', {

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Validator\Constraint;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 abstract class Rule extends Struct
 {
     public const RULE_NAME = null;
@@ -26,8 +26,6 @@ abstract class Rule extends Struct
     public const OPERATOR_EMPTY = 'empty';
 
     protected string $_name;
-
-    protected string $operator;
 
     public function __construct()
     {

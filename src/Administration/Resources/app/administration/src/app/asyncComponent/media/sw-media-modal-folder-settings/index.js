@@ -74,10 +74,6 @@ export default {
                 this.$tc('global.sw-media-modal-folder-settings.labelEditList');
         },
 
-        thumbnailSizeFilter() {
-            return Shopware.Filter.getByName('thumbnailSize');
-        },
-
         ...mapPropertyErrors('mediaFolder', ['name']),
     },
 

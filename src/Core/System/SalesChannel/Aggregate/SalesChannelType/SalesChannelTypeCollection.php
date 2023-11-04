@@ -9,7 +9,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @extends EntityCollection<SalesChannelTypeEntity>
  */
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SalesChannelTypeCollection extends EntityCollection
 {
     public function getSalesChannels(): SalesChannelCollection

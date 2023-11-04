@@ -10,9 +10,6 @@ abstract class SalutationMissingError extends Error
 {
     protected const KEY = 'salutation-missing';
 
-    /**
-     * @var array<string, string>
-     */
     protected array $parameters;
 
     abstract public function getId(): string;
@@ -32,9 +29,6 @@ abstract class SalutationMissingError extends Error
         return true;
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function getParameters(): array
     {
         return $this->parameters;

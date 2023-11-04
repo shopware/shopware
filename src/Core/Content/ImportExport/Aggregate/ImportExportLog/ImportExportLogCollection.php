@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<ImportExportLogEntity>
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportLogCollection extends EntityCollection
 {
     public function getApiAlias(): string

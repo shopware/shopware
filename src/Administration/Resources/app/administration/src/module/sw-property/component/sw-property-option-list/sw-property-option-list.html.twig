@@ -90,23 +90,17 @@
 
             <template #column-name="{ item, isInlineEdit }">
                 <template v-if="isInlineEdit">
-                    <sw-text-field
-                        {% if VUE3 %}
-                        v-model:value="item.name"
-                        {% else %}
+                    <sw-field
                         v-model="item.name"
-                        {% endif %}
                         size="small"
                     />
                 </template>
 
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
                     v-else
                     class="sw-settings-option-detail__link"
-                    role="button"
-                    tabindex="0"
                     @click="onOptionEdit(item)"
-                    @keydown.enter="onOptionEdit(item)"
                 >
                     {{ item.translated.name }}
                 </a>

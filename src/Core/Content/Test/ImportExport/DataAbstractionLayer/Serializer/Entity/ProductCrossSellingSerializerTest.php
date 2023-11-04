@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ProductCrossSellingSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;

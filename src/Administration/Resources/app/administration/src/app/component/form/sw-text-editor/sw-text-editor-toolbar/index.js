@@ -298,9 +298,6 @@ Component.register('sw-text-editor-toolbar', {
             this.keepSelection();
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - Will emit hypernated `remove-link` event only.
-         */
         onButtonClick(button, parent = null) {
             if (button.type === 'link') {
                 this.handleTextStyleChangeLink(button);
@@ -308,7 +305,6 @@ Component.register('sw-text-editor-toolbar', {
             }
 
             if (button.type === 'linkRemove') {
-                this.$emit('remove-link');
                 this.$emit('removeLink');
             }
 

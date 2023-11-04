@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import template from './sw-sales-channel-detail-products.html.twig';
@@ -86,10 +86,6 @@ export default {
                     allowResize: true,
                 },
             ];
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

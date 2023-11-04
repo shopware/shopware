@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Event\Hooks\AppActivatedHook;
 use Shopware\Core\Framework\App\Event\Hooks\AppDeactivatedHook;
+use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
@@ -43,7 +44,7 @@ class AppStateService
         $app = $this->appRepo->search(new Criteria([$appId]), $context)->first();
 
         if (!$app) {
-            throw AppException::notFound($appId);
+            throw new AppNotFoundException($appId);
         }
         if ($app->isActive()) {
             return;
@@ -69,7 +70,7 @@ class AppStateService
         $app = $this->appRepo->search(new Criteria([$appId]), $context)->first();
 
         if (!$app) {
-            throw AppException::notFound($appId);
+            throw new AppNotFoundException($appId);
         }
         if (!$app->isActive()) {
             return;

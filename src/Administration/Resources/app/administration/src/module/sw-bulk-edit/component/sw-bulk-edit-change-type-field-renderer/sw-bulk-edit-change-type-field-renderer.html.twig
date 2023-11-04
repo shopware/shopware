@@ -1,19 +1,12 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_bulk_edit_change_type_field_renderer %}
 <div class="sw-bulk-edit-change-field-renderer">
-    <template
-        v-for="(formField, index) in formFields"
-        {% if VUE3 %}
-        :key="`formField-${index}`"
-        {% endif %}
-    >
+    <template v-for="(formField, index) in formFields">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_change_type_field_renderer_container %}
         <sw-container
             v-if="formField && bulkEditData[formField.name]"
-            {% if VUE2 %}
             :key="`formField-${index}`"
-            {% endif %}
             columns="240px 1fr"
             gap="32px"
             :class="`sw-bulk-edit-change-field__container sw-bulk-edit-change-field-${formField.name}`"
@@ -24,20 +17,12 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_bulk_edit_change_type_field_renderer_change_field_title %}
                 <sw-checkbox-field
-                    {% if VUE3 %}
-                    v-model:value="bulkEditData[formField.name].isChanged"
-                    {% else %}
                     v-model="bulkEditData[formField.name].isChanged"
-                    {% endif %}
                     class="sw-bulk-edit-change-field__change"
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
-                    {% if VUE3 %}
-                    @update:value="onChangeValue($event, formField.name)"
-                    {% else %}
                     @change="onChangeValue($event, formField.name)"
-                    {% endif %}
                 />
                 {% endblock %}
 
@@ -54,11 +39,7 @@
             {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field %}
             <sw-bulk-edit-change-type
                 v-if="showSelectBoxType(formField)"
-                {% if VUE3 %}
-                v-model:value="bulkEditData[formField.name].type"
-                {% else %}
                 v-model="bulkEditData[formField.name].type"
-                {% endif %}
                 :allow-overwrite="getConfigValue(formField, 'allowOverwrite')"
                 :allow-clear="getConfigValue(formField, 'allowClear')"
                 :allow-add="getConfigValue(formField, 'allowAdd')"

@@ -7,13 +7,15 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
@@ -24,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class AccountOrderPageLoader
 {
     /**
@@ -38,6 +40,14 @@ class AccountOrderPageLoader
     ) {
     }
 
+    /**
+     * @throws CategoryNotFoundException
+     * @throws CustomerNotLoggedInException
+     * @throws GuestNotAuthenticatedException
+     * @throws InconsistentCriteriaIdsException
+     * @throws RoutingException
+     * @throws WrongGuestCredentialsException
+     */
     public function load(Request $request, SalesChannelContext $salesChannelContext): AccountOrderPage
     {
         if (!$salesChannelContext->getCustomer() && $request->get('deepLinkCode', false) === false) {
@@ -48,17 +58,17 @@ class AccountOrderPageLoader
 
         $page = AccountOrderPage::createFrom($page);
 
-        $page->getMetaInformation()?->setRobots('noindex,follow');
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
-        $firstOrder = $page->getOrders()->getEntities()->first();
-        $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
-        if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
+        if ($request->get('deepLinkCode') && $page->getOrders()->first() !== null) {
             $this->accountService->loginById(
-                $orderCustomerId,
+                $page->getOrders()->first()->getOrderCustomer()->getCustomer()->getId(),
                 $salesChannelContext
             );
         }
@@ -74,8 +84,6 @@ class AccountOrderPageLoader
      * @throws CustomerNotLoggedInException
      * @throws GuestNotAuthenticatedException
      * @throws WrongGuestCredentialsException
-     *
-     * @return EntitySearchResult<OrderCollection>
      */
     private function getOrders(Request $request, SalesChannelContext $context): EntitySearchResult
     {

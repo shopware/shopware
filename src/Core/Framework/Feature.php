@@ -38,12 +38,9 @@ class Feature
     }
 
     /**
-     * @template TReturn of mixed
-     *
      * @param array<string> $features
-     * @param \Closure(): TReturn $closure
      *
-     * @return TReturn
+     * @return mixed|null
      */
     public static function fake(array $features, \Closure $closure)
     {
@@ -114,11 +111,6 @@ class Feature
         self::isActive($flagName) && $closure();
     }
 
-    public static function ifNotActive(string $flagName, \Closure $closure): void
-    {
-        !self::isActive($flagName) && $closure();
-    }
-
     public static function callSilentIfInactive(string $flagName, \Closure $closure): void
     {
         $before = isset(self::$silent[$flagName]);
@@ -135,13 +127,6 @@ class Feature
         }
     }
 
-    /**
-     * @template TReturn of mixed
-     *
-     * @param \Closure(): TReturn $closure
-     *
-     * @return TReturn
-     */
     public static function silent(string $flagName, \Closure $closure): mixed
     {
         $before = isset(self::$silent[$flagName]);
@@ -193,7 +178,7 @@ class Feature
             throw new \RuntimeException('Tried to access deprecated functionality: ' . $message);
         }
 
-        if (empty(self::$silent[$majorFlag])) {
+        if (!isset(self::$silent[$majorFlag]) || !self::$silent[$majorFlag]) {
             if (\PHP_SAPI !== 'cli') {
                 ScriptTraces::addDeprecationNotice($message);
             }
@@ -271,7 +256,7 @@ class Feature
 
         // merge with existing data
 
-        /** @var FeatureFlagConfig $metaData */
+        /** @var array{name?: string, default?: boolean, major?: boolean, description?: string} $metaData */
         $metaData = array_merge(
             self::$registeredFeatures[$name] ?? [],
             $metaData
@@ -286,7 +271,7 @@ class Feature
     }
 
     /**
-     * @param array<string, FeatureFlagConfig>|list<string> $registeredFeatures
+     * @param array<string, FeatureFlagConfig>|string[] $registeredFeatures
      *
      * @internal
      */
@@ -299,7 +284,7 @@ class Feature
                 $data = [];
             }
 
-            self::registerFeature((string) $flag, $data);
+            self::registerFeature($flag, $data);
         }
     }
 
@@ -323,7 +308,10 @@ class Feature
 
     private static function isTrue(string $value): bool
     {
-        return $value && $value !== 'false';
+        return $value
+            && $value !== 'false'
+            && $value !== '0'
+            && $value !== '';
     }
 
     private static function denormalize(string $name): string

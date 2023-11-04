@@ -38,7 +38,7 @@ describe('SDK Tests: Component section', ()=> {
             });
     });
 
-    it('@sdk: add a component section', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: add a component section', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')
@@ -51,7 +51,7 @@ describe('SDK Tests: Component section', ()=> {
             .should('be.visible');
     });
 
-    it('@sdk: add a component section with tabs', { tags: ['ct-admin', 'VUE3'] }, ()=> {
+    it('@sdk: add a component section with tabs', { tags: ['ct-admin'] }, ()=> {
         cy.log('Go to specifications tab');
 
         cy.contains('.sw-tabs-item', 'Specifications')

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import template from './sw-sales-channel-detail-domains.html.twig';
@@ -65,7 +65,7 @@ export default {
             }
 
             return this.$t('sw-sales-channel.detail.titleEditDomain', 0, {
-                name: this.unicodeUriFilter(this.currentDomainBackup.url),
+                name: this.$options.filters.unicodeUri(this.currentDomainBackup.url),
             });
         },
 
@@ -138,11 +138,6 @@ export default {
                 this.sortBy = column.dataIndex;
                 this.sortDirection = 'ASC';
             }
-        },
-
-        unicodeUriFilter(uri) {
-            const unicodeUriFilter = Shopware.Filter.getByName('unicodeUri');
-            return unicodeUriFilter(uri);
         },
 
         localSortDomains(domains) {

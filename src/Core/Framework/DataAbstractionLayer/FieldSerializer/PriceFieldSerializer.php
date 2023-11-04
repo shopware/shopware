@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -41,6 +42,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
         $value = $data->getValue();
 
+        /** @var JsonField $field */
         if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             if ($value !== null) {
                 foreach ($value as &$row) {
@@ -204,9 +206,6 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         return $constraints;
     }
 
-    /**
-     * @param array<array<string, mixed>> $prices
-     */
     private function ensureDefaultPrice(WriteParameterBag $parameters, array $prices): void
     {
         foreach ($prices as $price) {

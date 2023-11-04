@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class FlowLoader extends AbstractFlowLoader
 {
     public function __construct(

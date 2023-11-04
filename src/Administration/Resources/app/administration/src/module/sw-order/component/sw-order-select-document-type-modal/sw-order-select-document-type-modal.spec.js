@@ -6,7 +6,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-order-select-document-type-modal', swOrderSelectDocumentTypeModal);
@@ -28,9 +28,6 @@ const documentFixture = {
     documentType: {
         id: '1',
         name: 'Invoice',
-        translated: {
-            name: 'Invoice',
-        },
         technicalName: 'invoice',
     },
     config: {
@@ -69,7 +66,7 @@ const documentTypeFixture = [
     },
     {
         id: '2',
-        name: null,
+        name: 'Cancellation invoice',
         technicalName: 'storno',
         translated: {
             name: 'Cancellation invoice',
@@ -77,7 +74,7 @@ const documentTypeFixture = [
     },
     {
         id: '3',
-        name: null,
+        name: 'Credit note',
         technicalName: 'credit_note',
         translated: {
             name: 'Credit note',
@@ -165,22 +162,18 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
         expect(documentTypeRadioOptions.wrappers).toHaveLength(4);
 
         // Delivery note
-        expect(documentTypeRadioOptions.at(0).find('label').text()).toBe('Delivery note');
         expect(documentTypeRadioOptions.at(0).find('input')
             .attributes().disabled).toBeUndefined();
 
         // Invoice
-        expect(documentTypeRadioOptions.at(1).find('label').text()).toBe('Invoice');
         expect(documentTypeRadioOptions.at(1).find('input')
             .attributes().disabled).toBeUndefined();
 
         // Cancellation invoice
-        expect(documentTypeRadioOptions.at(2).find('label').text()).toBe('Cancellation invoice');
         expect(documentTypeRadioOptions.at(2).find('input')
             .attributes().disabled).toBeUndefined();
 
         // Credit note
-        expect(documentTypeRadioOptions.at(3).find('label').text()).toBe('Credit note');
         expect(documentTypeRadioOptions.at(3).find('input')
             .attributes().disabled).toBe('disabled');
     });

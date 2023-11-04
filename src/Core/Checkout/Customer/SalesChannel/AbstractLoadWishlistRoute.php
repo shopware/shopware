@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 abstract class AbstractLoadWishlistRoute
 {
     abstract public function getDecorated(): AbstractLoadWishlistRoute;

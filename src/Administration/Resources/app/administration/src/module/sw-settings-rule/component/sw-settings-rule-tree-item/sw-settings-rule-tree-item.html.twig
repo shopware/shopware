@@ -1,7 +1,6 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks, vue/no-multi-spaces -->
+<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_tree_item_element_actions %}
 <span v-if="hideActions"></span>
-<!-- eslint-disable-next-line vue/no-multi-spaces -->
 <span v-else>{% parent %}</span>
 {% endblock %}
 
@@ -12,11 +11,7 @@
         :disabled="hasItemAssociation(item)"
         :ghost-value="checkedGhost"
         :value="checked || hasItemAssociation(item)"
-        {% if VUE3 %}
-        @update:value="toggleItemCheck($event, item)"
-        {% else %}
         @change="toggleItemCheck($event, item)"
-        {% endif %}
     />
 </div>
 {% endblock %}

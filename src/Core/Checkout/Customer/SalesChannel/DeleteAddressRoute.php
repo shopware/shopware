@@ -3,7 +3,8 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -12,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('checkout')]
+#[Package('customer-order')]
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
     use CustomerAddressValidationTrait;
@@ -44,7 +45,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             $addressId === $customer->getDefaultBillingAddressId()
             || $addressId === $customer->getDefaultShippingAddressId()
         ) {
-            throw CustomerException::cannotDeleteDefaultAddress($addressId);
+            throw new CannotDeleteDefaultAddressException($addressId);
         }
 
         $activeBillingAddress = $customer->getActiveBillingAddress();
@@ -54,7 +55,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             ($activeBillingAddress && $addressId === $activeBillingAddress->getId())
             || ($activeShippingAddress && $addressId === $activeShippingAddress->getId())
         ) {
-            throw CustomerException::cannotDeleteActiveAddress($addressId);
+            throw new CannotDeleteActiveAddressException($addressId);
         }
 
         $this->addressRepository->delete([['id' => $addressId]], $context->getContext());

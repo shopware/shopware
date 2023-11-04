@@ -31,7 +31,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;

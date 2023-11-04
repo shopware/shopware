@@ -1,9 +1,5 @@
 <sw-single-select
-    {% if VUE3 %}
-    v-model:value="addressId"
-    {% else %}
     v-model="addressId"
-    {% endif %}
     v-bind="$attrs"
     class="sw-order-customer-address-select"
     value-property="id"
@@ -19,7 +15,8 @@
     </template>
 
     <template #result-item="{ item, index, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
-        <sw-select-result
+        <li
+            is="sw-select-result"
             :selected="isSelected(item)"
             v-bind="{ item, index }"
             @item-select="setValue"
@@ -33,6 +30,6 @@
             <template v-else>
                 {{ getCustomerAddress(item) }}
             </template>
-        </sw-select-result>
+        </li>
     </template>
 </sw-single-select>

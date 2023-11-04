@@ -58,27 +58,27 @@ const conversions: {
         mm: (value) => value * 1_609_344,
     },
     // time units
-    d: {
-        yr: (value) => value / 365,
-        mth: (value) => value / 30,
-        wk: (value) => value / 7,
-        hr: (value) => value * 24,
-        min: (value) => value * 1440,
+    hr: {
+        yr: (value) => value / 8760,
+        mth: (value) => value / 730,
+        wk: (value) => value / 168,
+        d: (value) => value / 24,
+        min: (value) => value * 60,
     },
     yr: {
-        d: (value) => value * 365,
+        hr: (value) => value * 8760,
     },
     mth: {
-        d: (value) => value * 30,
+        hr: (value) => value * 730,
     },
     wk: {
-        d: (value) => value * 7,
+        hr: (value) => value * 168,
     },
-    hr: {
-        d: (value) => value / 24,
+    d: {
+        hr: (value) => value * 24,
     },
     min: {
-        d: (value) => value / 1440,
+        hr: (value) => value / 60,
     },
     // volume units
     m3: {
@@ -135,12 +135,12 @@ type Options =
     to: 'm3',
 }
     | {
-    from: 'd',
-    to: 'yr'|'mth'|'wk'|'hr'|'min',
+    from: 'hr',
+    to: 'yr'|'mth'|'wk'|'d'|'min',
 }
     | {
-    from: 'yr'|'mth'|'wk'|'hr'|'min',
-    to: 'd',
+    from: 'yr'|'mth'|'wk'|'d'|'min',
+    to: 'hr',
 }
 
 /**
@@ -149,7 +149,7 @@ type Options =
 export const baseUnits = {
     weight: 'kg',
     dimension: 'mm',
-    time: 'd',
+    time: 'hr',
     volume: 'm3',
 };
 

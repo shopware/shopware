@@ -1,7 +1,4 @@
-/// <reference types="Cypress" />
-/**
- * @package buyers-experience
- */
+// / <reference types="Cypress" />
 
 describe('Language: Visual testing', () => {
     beforeEach(() => {
@@ -13,7 +10,7 @@ describe('Language: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of language module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@base @visual: check appearance of language module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
             method: 'POST',

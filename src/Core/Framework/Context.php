@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\SalesChannel\Exception\ContextRulesLockedException;
-use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[Package('core')]
 class Context extends Struct
@@ -33,9 +32,6 @@ class Context extends Struct
     protected string $scope = self::USER_SCOPE;
 
     protected bool $rulesLocked = false;
-
-    #[Ignore]
-    protected $extensions = [];
 
     /**
      * @param array<string> $languageIdChain
@@ -142,11 +138,9 @@ class Context extends Struct
     }
 
     /**
-     * @template TReturn of mixed
+     * @param callable(Context): mixed $callback
      *
-     * @param callable(Context): TReturn $callback
-     *
-     * @return TReturn the return value of the provided callback function
+     * @return mixed the return value of the provided callback function
      */
     public function scope(string $scope, callable $callback)
     {
@@ -209,11 +203,9 @@ class Context extends Struct
     }
 
     /**
-     * @template TReturn of mixed
+     * @param callable(Context): mixed $function
      *
-     * @param callable(Context): TReturn $function
-     *
-     * @return TReturn
+     * @return mixed
      */
     public function enableInheritance(callable $function)
     {
@@ -226,11 +218,9 @@ class Context extends Struct
     }
 
     /**
-     * @template TReturn of mixed
+     * @param callable(Context): mixed $function
      *
-     * @param callable(Context): TReturn $function
-     *
-     * @return TReturn
+     * @return mixed
      */
     public function disableInheritance(callable $function)
     {

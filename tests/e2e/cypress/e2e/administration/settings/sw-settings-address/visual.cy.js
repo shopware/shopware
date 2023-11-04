@@ -8,7 +8,7 @@ describe('Address settings: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of address settings module', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
+    it('@visual: check appearance of address settings module', { tags: ['pa-customers-orders'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.address`,
             method: 'GET',

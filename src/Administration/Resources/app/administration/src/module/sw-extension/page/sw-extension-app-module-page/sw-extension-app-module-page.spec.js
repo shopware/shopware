@@ -9,7 +9,7 @@ Shopware.Component.register('sw-extension-app-module-page', SwExtensionsAppModul
 Shopware.Component.register('sw-extension-my-apps-error-page', SwExtensionsAppModuleErrorPage);
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', () => {
     beforeEach(() => {

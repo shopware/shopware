@@ -1,6 +1,6 @@
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 Shopware.State.registerModule('cmsPageState', {
     namespaced: true,

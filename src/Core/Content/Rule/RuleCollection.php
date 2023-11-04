@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @extends EntityCollection<RuleEntity>
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class RuleCollection extends EntityCollection
 {
     /**

@@ -1,14 +1,11 @@
 @import "~scss/variables";
 
 .sw-settings-usage-data {
-    & .sw-usage-data-consent-banner__footer {
-        display: flex;
-        justify-content: space-between;
+    .sw-field--switch {
+        margin: 16px 0;
+    }
 
-        & .sw-usage-data-consent-banner__list-item-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .sw-alert {
+        margin-bottom: 0;
     }
 }

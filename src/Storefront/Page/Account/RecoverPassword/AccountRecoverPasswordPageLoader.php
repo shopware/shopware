@@ -2,8 +2,7 @@
 
 namespace Shopware\Storefront\Page\Account\RecoverPassword;
 
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRecoveryIsExpiredRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class AccountRecoverPasswordPageLoader
 {
     /**
@@ -29,7 +28,7 @@ class AccountRecoverPasswordPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractCustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
+        private readonly CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
     ) {
     }
 
@@ -38,7 +37,6 @@ class AccountRecoverPasswordPageLoader
      * @throws InconsistentCriteriaIdsException
      * @throws RoutingException
      * @throws ConstraintViolationException
-     * @throws CustomerNotFoundByHashException
      */
     public function load(Request $request, SalesChannelContext $context, string $hash): AccountRecoverPasswordPage
     {

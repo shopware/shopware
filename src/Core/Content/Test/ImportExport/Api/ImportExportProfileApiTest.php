@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportProfileApiTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

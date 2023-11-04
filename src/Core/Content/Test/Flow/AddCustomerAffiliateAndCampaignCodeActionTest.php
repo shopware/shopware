@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -50,7 +50,8 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     public function testAddAffiliateAndCampaignCodeForCustomer(array $existedData, array $updateData, array $expectData): void
     {
         $email = 'thuy@gmail.com';
-        $this->prepareCustomer($email, $existedData);
+        $password = '12345678';
+        $this->prepareCustomer($password, $email, $existedData);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -70,7 +71,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, 'shopware');
+        $this->login($email, $password);
 
         static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */

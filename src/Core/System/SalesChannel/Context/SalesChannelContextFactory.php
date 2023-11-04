@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -28,7 +28,7 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
     /**
@@ -78,7 +78,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         if ($customer) {
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setTitle('context-factory::customer-group');
-            /** @var CustomerGroupEntity $customerGroup */
             $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->first() ?? $customerGroup;
         }
 
@@ -151,19 +150,10 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
                 return false;
             });
+            $taxRules->sortByTypePosition();
+            $taxRule = $taxRules->first();
 
             $matchingRules = new TaxRuleCollection();
-            $taxRule = $taxRules->highestTypePosition();
-
-            if (!$taxRule) {
-                $tax->setRules($matchingRules);
-
-                continue;
-            }
-
-            $taxRules = $taxRules->filterByTypePosition($taxRule->getType()->getPosition());
-            $taxRule = $taxRules->latestActivationDate();
-
             if ($taxRule) {
                 $matchingRules->add($taxRule);
             }
@@ -196,14 +186,12 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media');
         $criteria->setTitle('context-factory::payment-method');
-        $criteria->addFilter(new EqualsFilter('active', 1));
-        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));
 
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->get($id);
 
         if (!$paymentMethod) {
-            return $context->getPaymentMethod();
+            throw new UnknownPaymentMethodException($id);
         }
 
         return $paymentMethod;

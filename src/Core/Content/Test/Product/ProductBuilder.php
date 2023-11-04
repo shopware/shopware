@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Product;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
-use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -152,11 +151,6 @@ class ProductBuilder
     protected array $tags = [];
 
     protected null|string $createdAt;
-
-    /**
-     * @var array<array{salesChannelId: string, languageId: string, routeName: TestProductSeoUrlRoute::ROUTE_NAME, pathInfo: string, seoPathInfo: string}>
-     */
-    protected array $seoUrls = [];
 
     /**
      * @var array<string, array<array<mixed>>>
@@ -595,23 +589,6 @@ class ProductBuilder
         $container->get('product.repository')->create([$this->build()], Context::createDefaultContext());
 
         $this->writeDependencies($container);
-    }
-
-    public function seoUrl(
-        string $pathInfo,
-        string $seoPathInfo,
-        string $salesChannelId = TestDefaults::SALES_CHANNEL,
-        string $languageId = Defaults::LANGUAGE_SYSTEM,
-    ): self {
-        $this->seoUrls[] = [
-            'salesChannelId' => $salesChannelId,
-            'languageId' => $languageId,
-            'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
-            'pathInfo' => $pathInfo,
-            'seoPathInfo' => $seoPathInfo,
-        ];
-
-        return $this;
     }
 
     public function writeDependencies(ContainerInterface $container): void

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @deprecated tag:v6.6.0 - Will be removed, use ScalarValuesStorer/ScalarValuesAware instead
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 interface ContactFormDataAware extends FlowEventAware
 {
     public const CONTACT_FORM_DATA = FlowMailVariables::CONTACT_FORM_DATA;

@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
- * @internal
- *
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
  */
@@ -54,7 +52,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
 
-    public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
+    public function generate(array $definitions, string $api, string $apiType): array
     {
         $openApi = new OpenApi([]);
         $this->openApiBuilder->enrich($openApi, $api);
@@ -86,12 +84,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
-
-        if (!empty($bundleName)) {
-            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        } else {
-            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-        }
+        $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
 
         $loader = new OpenApiFileLoader($schemaPaths);
 
@@ -104,7 +97,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      *
-     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
+     * @param list<EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return never
      */

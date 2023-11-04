@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportProfileTranslationEntity extends TranslationEntity
 {
     /**

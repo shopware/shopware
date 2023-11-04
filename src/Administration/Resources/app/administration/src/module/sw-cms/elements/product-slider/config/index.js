@@ -6,7 +6,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

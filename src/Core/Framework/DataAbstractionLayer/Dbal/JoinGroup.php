@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 class JoinGroup extends Filter
 {
     /**
-     * @param list<SingleFieldFilter> $queries
+     * @param SingleFieldFilter[] $queries
      */
     public function __construct(
         private readonly array $queries,
@@ -56,7 +56,7 @@ class JoinGroup extends Filter
     }
 
     /**
-     * @return list<SingleFieldFilter>
+     * @return SingleFieldFilter[]
      */
     public function getQueries(): array
     {

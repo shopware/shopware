@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Promotion\Service;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 interface PromotionDateTimeServiceInterface
 {
     public function getNow(): string;

@@ -108,10 +108,8 @@ class ManyToManyAssociationFieldResolver extends AbstractFieldResolver
             return EntityDefinitionQueryHelper::escape($field->getReferenceField());
         }
 
+        /** @var ReverseInherited $flag */
         $flag = $field->getFlag(ReverseInherited::class);
-        if ($flag === null) {
-            return EntityDefinitionQueryHelper::escape($field->getReferenceField());
-        }
 
         return EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
     }

@@ -3,39 +3,27 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Notification\NotificationService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
-use Shopware\Storefront\Theme\Exception\ThemeException;
-use Shopware\Storefront\Theme\Message\CompileThemeMessage;
+use Shopware\Storefront\Theme\Exception\InvalidThemeException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('storefront')]
-class ThemeService implements ResetInterface
+class ThemeService
 {
-    public const CONFIG_THEME_COMPILE_ASYNC = 'core.storefrontSettings.asyncThemeCompilation';
-    public const STATE_NO_QUEUE = 'state-no-queue';
-
-    private bool $notified = false;
-
     /**
      * @internal
-     *
-     * @param EntityRepository<ThemeCollection> $themeRepository
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $extensionRegistry,
@@ -44,10 +32,7 @@ class ThemeService implements ResetInterface
         private readonly ThemeCompilerInterface $themeCompiler,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly AbstractConfigLoader $configLoader,
-        private readonly Connection $connection,
-        private readonly SystemConfigService $configService,
-        private readonly MessageBusInterface $messageBus,
-        private readonly NotificationService $notificationService,
+        private readonly Connection $connection
     ) {
     }
 
@@ -62,11 +47,6 @@ class ThemeService implements ResetInterface
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
         bool $withAssets = true
     ): void {
-        if ($this->isAsyncCompilation($context)) {
-            $this->handleAsync($salesChannelId, $themeId, $withAssets, $context);
-
-            return;
-        }
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
@@ -89,14 +69,17 @@ class ThemeService implements ResetInterface
         bool $withAssets = true
     ): array {
         $mappings = $this->getThemeDependencyMapping($themeId);
+
         $compiledThemeIds = [];
+        /** @var ThemeSalesChannel $mapping */
         foreach ($mappings as $mapping) {
-            $this->compileTheme(
+            $this->themeCompiler->compileTheme(
                 $mapping->getSalesChannelId(),
                 $mapping->getThemeId(),
-                $context,
+                $this->configLoader->load($mapping->getThemeId(), $context),
                 $configurationCollection ?? $this->extensionRegistry->getConfigurations(),
-                $withAssets
+                $withAssets,
+                $context
             );
 
             $compiledThemeIds[] = $mapping->getThemeId();
@@ -112,10 +95,11 @@ class ThemeService implements ResetInterface
     {
         $criteria = new Criteria([$themeId]);
         $criteria->addAssociation('salesChannels');
-        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->get($themeId);
+        /** @var ThemeEntity|null $theme */
+        $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
 
-        if ($theme === null) {
-            throw ThemeException::couldNotFindThemeById($themeId);
+        if (!$theme) {
+            throw new InvalidThemeException($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -176,7 +160,7 @@ class ThemeService implements ResetInterface
         $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
 
         if (!$theme) {
-            throw ThemeException::couldNotFindThemeById($themeId);
+            throw new InvalidThemeException($themeId);
         }
 
         $data = ['id' => $themeId];
@@ -189,7 +173,7 @@ class ThemeService implements ResetInterface
 
     /**
      * @throws InvalidThemeConfigException
-     * @throws ThemeException
+     * @throws InvalidThemeException
      * @throws InconsistentCriteriaIdsException
      *
      * @return array<string, mixed>
@@ -199,18 +183,17 @@ class ThemeService implements ResetInterface
         $criteria = new Criteria();
         $criteria->setTitle('theme-service::load-config');
 
-        $themes = $this->themeRepository->search($criteria, $context)->getEntities();
+        $themes = $this->themeRepository->search($criteria, $context);
 
         $theme = $themes->get($themeId);
 
-        if ($theme === null) {
-            throw ThemeException::couldNotFindThemeById($themeId);
+        /** @var ThemeEntity|null $theme */
+        if (!$theme) {
+            throw new InvalidThemeException($themeId);
         }
 
+        /** @var ThemeEntity $baseTheme */
         $baseTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === StorefrontPluginRegistry::BASE_THEME_NAME)->first();
-        if ($baseTheme === null) {
-            throw ThemeException::couldNotFindThemeByName(StorefrontPluginRegistry::BASE_THEME_NAME);
-        }
 
         $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
 
@@ -220,7 +203,9 @@ class ThemeService implements ResetInterface
         $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
 
         if ($theme->getParentThemeId()) {
-            foreach ($this->getParentThemes($themes, $theme) as $parentTheme) {
+            $parentThemes = $this->getParentThemeIds($themes, $theme);
+
+            foreach ($parentThemes as $parentTheme) {
                 $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
                 $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
                 $labels = array_replace_recursive($labels, $parentTheme->getLabels() ?? []);
@@ -231,10 +216,11 @@ class ThemeService implements ResetInterface
         $configuredTheme = $this->mergeStaticConfig($theme);
         $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
 
-        foreach ($themeConfig['fields'] ?? [] as $name => $item) {
+        foreach ($themeConfig['fields'] ?? [] as $name => &$item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
             if (
-                isset($item['value'], $configuredTheme['fields'])
+                isset($item['value'])
+                && isset($configuredTheme['fields'])
                 && \is_array($item['value'])
                 && \array_key_exists($name, $configuredTheme['fields'])
             ) {
@@ -350,46 +336,12 @@ class ThemeService implements ResetInterface
         return $mappings;
     }
 
-    public function reset(): void
-    {
-        $this->notified = false;
-    }
-
-    private function handleAsync(
-        string $salesChannelId,
-        string $themeId,
-        bool $withAssets,
-        Context $context
-    ): void {
-        $this->messageBus->dispatch(
-            new CompileThemeMessage(
-                $salesChannelId,
-                $themeId,
-                $withAssets,
-                $context
-            )
-        );
-
-        if ($this->notified !== true && $context->getScope() === Context::USER_SCOPE) {
-            $this->notificationService->createNotification(
-                [
-                    'id' => Uuid::randomHex(),
-                    'status' => 'info',
-                    'message' => 'The compilation of the changes will be started in the background. You may see the changes with delay (approx. 1 minute). You will receive a notification if the compilation is done.',
-                    'requiredPrivileges' => [],
-                ],
-                $context
-            );
-            $this->notified = true;
-        }
-    }
-
     /**
-     * @param array<string, ThemeEntity> $parentThemes
+     * @param array<string, mixed> $parentThemes
      *
-     * @return array<string, ThemeEntity>
+     * @return array<string, mixed>
      */
-    private function getParentThemes(ThemeCollection $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
+    private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
     {
         foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
             $parentTheme = $themes->filter(fn (ThemeEntity $themeEntry) => $themeEntry->getTechnicalName() === str_replace('@', '', (string) $parentThemeName))->first();
@@ -398,7 +350,7 @@ class ThemeService implements ResetInterface
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
 
                 if ($parentTheme->getParentThemeId()) {
-                    $parentThemes = $this->getParentThemes($themes, $mainTheme, $parentThemes);
+                    $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
                 }
             }
         }
@@ -409,7 +361,7 @@ class ThemeService implements ResetInterface
             if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
                 $parentThemes[$parentTheme->getId()] = $parentTheme;
                 if ($parentTheme->getParentThemeId()) {
-                    $parentThemes = $this->getParentThemes($themes, $mainTheme, $parentThemes);
+                    $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
                 }
             }
         }
@@ -577,19 +529,18 @@ class ThemeService implements ResetInterface
      */
     private function getTranslations(string $themeId, Context $context): array
     {
-        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->get($themeId);
-        if ($theme === null) {
-            throw ThemeException::couldNotFindThemeById($themeId);
-        }
-
+        /** @var ThemeEntity $theme */
+        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
         $translations = $theme->getLabels() ?: [];
 
         if ($theme->getParentThemeId()) {
             $criteria = new Criteria();
             $criteria->setTitle('theme-service::load-translations');
 
-            $themes = $this->themeRepository->search($criteria, $context)->getEntities();
-            foreach ($this->getParentThemes($themes, $theme) as $parentTheme) {
+            $themes = $this->themeRepository->search($criteria, $context);
+            $parentThemes = $this->getParentThemeIds($themes, $theme);
+
+            foreach ($parentThemes as $parentTheme) {
                 $parentTranslations = $parentTheme->getLabels() ?: [];
                 $translations = array_replace_recursive($parentTranslations, $translations);
             }
@@ -616,19 +567,5 @@ class ThemeService implements ResetInterface
         }
 
         return false;
-    }
-
-    /**
-     * @experimental stableVersion:v6.6.0 feature:ASYNC_THEME_COMPILATION
-     *
-     *  The way to toggle async compilation is experimental. It may be changed in the future without announcement.
-     */
-    private function isAsyncCompilation(Context $context): bool
-    {
-        if (!Feature::isActive('ASYNC_THEME_COMPILATION')) {
-            return false;
-        }
-
-        return $this->configService->get(self::CONFIG_THEME_COMPILE_ASYNC) && !$context->hasState(self::STATE_NO_QUEUE);
     }
 }

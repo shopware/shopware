@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -20,6 +21,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('checkout')]
@@ -45,7 +47,7 @@ class CartRuleLoader implements ResetInterface
         private readonly AbstractRuleLoader $ruleLoader,
         private readonly TaxDetector $taxDetector,
         private readonly Connection $connection,
-        private readonly CartFactory $cartFactory,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 
@@ -56,7 +58,8 @@ class CartRuleLoader implements ResetInterface
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), false);
         } catch (CartTokenNotFoundException) {
-            $cart = $this->cartFactory->createNew($cartToken);
+            $cart = new Cart($cartToken);
+            $this->dispatcher->dispatch(new CartCreatedEvent($cart));
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), true);
         }
@@ -191,7 +194,6 @@ class CartRuleLoader implements ResetInterface
 
         $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
         $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
-
         if ($isReachedCustomerTaxFreeAmount || $isReachedCompanyTaxFreeAmount) {
             return CartPrice::TAX_STATE_FREE;
         }

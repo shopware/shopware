@@ -1,7 +1,6 @@
 /**
  * @package admin
  */
-import { defineComponent } from 'vue';
 
 const { Mixin } = Shopware;
 
@@ -20,9 +19,9 @@ interface notification {
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Mixin.register('notification', defineComponent({
+Mixin.register('notification', {
     methods: {
-        createNotification(notification: notification): Promise<unknown> {
+        createNotification(notification: notification) {
             return Shopware.State.dispatch('notification/createNotification', notification);
         },
 
@@ -112,4 +111,4 @@ export default Mixin.register('notification', defineComponent({
             void this.createNotification(notification);
         },
     },
-}));
+});

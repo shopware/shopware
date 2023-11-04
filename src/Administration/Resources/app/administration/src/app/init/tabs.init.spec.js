@@ -8,7 +8,6 @@ describe('src/app/init/tabs.init', () => {
 
     beforeAll(() => {
         global.allowedErrors = [
-            ...global.allowedErrors,
             {
                 msg: "[vue-router] Route with name 'sw.category.index.route-example-component-section-id' does not exist",
                 method: 'warn',

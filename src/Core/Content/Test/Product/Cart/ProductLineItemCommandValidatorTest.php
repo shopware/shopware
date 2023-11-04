@@ -229,7 +229,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

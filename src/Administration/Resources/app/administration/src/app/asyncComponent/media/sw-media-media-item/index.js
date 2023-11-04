@@ -54,18 +54,6 @@ export default {
                 'sw-context-menu__group': this.$slots.default,
             };
         },
-
-        mediaNameFilter() {
-            return Shopware.Filter.getByName('mediaName');
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
-
-        fileSizeFilter() {
-            return Shopware.Filter.getByName('fileSize');
-        },
     },
 
     methods: {

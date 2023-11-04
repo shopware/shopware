@@ -4,7 +4,7 @@ import './sw-cms-el-preview-buy-box.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,

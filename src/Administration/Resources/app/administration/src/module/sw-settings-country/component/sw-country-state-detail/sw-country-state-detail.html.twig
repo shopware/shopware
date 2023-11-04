@@ -11,15 +11,11 @@
         columns="1fr 1fr"
         gap="20px"
     >
-        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_technical_name %}
-        <sw-text-field
-            {% if VUE3 %}
-            v-model:value="countryState.name"
-            name="sw-field--countryState-name"
-            {% else %}
+        <sw-field
             v-model="countryState.name"
-            {% endif %}
+            type="text"
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelName')"
             :placeholder="placeholder(countryState, 'name')"
@@ -28,13 +24,9 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_shortcode %}
-        <sw-text-field
-            {% if VUE3 %}
-            v-model:value="countryState.shortCode"
-            name="sw-field--countryState-shortCode"
-            {% else %}
+        <sw-field
             v-model="countryState.shortCode"
-            {% endif %}
+            type="text"
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelShortCode')"
         />
@@ -42,13 +34,9 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_position %}
-        <sw-number-field
-            {% if VUE3 %}
-            v-model:value="countryState.position"
-            name="sw-field--countryState-position"
-            {% else %}
+        <sw-field
             v-model="countryState.position"
-            {% endif %}
+            type="number"
             :disabled="!acl.can('country.editor')"
             :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"
             number-type="int"

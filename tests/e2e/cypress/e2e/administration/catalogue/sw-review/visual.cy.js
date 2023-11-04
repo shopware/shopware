@@ -1,7 +1,8 @@
-// / <reference types="Cypress" />
 /**
- * @package inventory
+ * @package content
  */
+// / <reference types="Cypress" />
+
 describe('Administration: Check module navigation', () => {
     // eslint-disable-next-line no-undef
     beforeEach(() => {

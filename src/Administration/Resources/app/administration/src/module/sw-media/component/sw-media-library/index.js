@@ -5,18 +5,13 @@ const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'searchRankingService',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'acl', 'searchRankingService'],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),
@@ -202,10 +197,6 @@ export default {
 
             return criteria;
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     watch: {
@@ -217,12 +208,6 @@ export default {
         },
 
         selectedItems() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:selection', this.selectedItems);
-
-                return;
-            }
-
             this.$emit('media-selection-change', this.selectedItems);
         },
 

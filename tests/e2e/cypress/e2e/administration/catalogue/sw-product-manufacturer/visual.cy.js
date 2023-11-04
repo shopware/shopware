@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
-/**
- * @package inventory
- */
+
 import ManufacturerPageObject from '../../../../support/pages/module/sw-manufacturer.page-object';
 
 describe('Manufacturer: Visual tests', () => {
@@ -14,7 +12,7 @@ describe('Manufacturer: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic manufacturer workflow', { tags: ['pa-inventory', 'VUE3'] }, () => {
+    it('@visual: check appearance of basic manufacturer workflow', { tags: ['pa-inventory'] }, () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later

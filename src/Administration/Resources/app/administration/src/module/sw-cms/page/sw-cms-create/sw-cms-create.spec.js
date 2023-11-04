@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
@@ -97,7 +97,7 @@ async function createWrapper(routeParams = {}) {
 }
 
 /**
- * @package buyers-experience
+ * @package content
  */
 describe('module/sw-cms/page/sw-cms-create', () => {
     beforeEach(() => {

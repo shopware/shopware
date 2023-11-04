@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport\EventListener;
 
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -15,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportEventListener implements EventSubscriberInterface
 {
     /**
@@ -56,7 +55,6 @@ class ProductExportEventListener implements EventSubscriberInterface
             );
             $productExportResult = $this->productExportRepository->search(new Criteria([$primaryKey]), $event->getContext());
             if ($productExportResult->getTotal() !== 0) {
-                /** @var ProductExportEntity $productExport */
                 $productExport = $productExportResult->first();
 
                 $filePath = $this->productExportFileHandler->getFilePath($productExport);

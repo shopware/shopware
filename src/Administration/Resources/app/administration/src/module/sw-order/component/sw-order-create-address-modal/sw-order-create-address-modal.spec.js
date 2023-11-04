@@ -6,7 +6,7 @@ import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-card';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-order-create-address-modal', swOrderCreateAddressModal);

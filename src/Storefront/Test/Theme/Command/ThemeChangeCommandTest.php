@@ -206,13 +206,13 @@ class ThemeChangeCommandTest extends TestCase
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
-            'any' => 'expectedConfig',
+            'expectedConfig',
         ]);
         $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
-            'any' => 'unexpectedConfig',
+            'unexpectedConfig',
         ]);
         $storePluginConfiguration2->setBasePath('');
 
@@ -228,9 +228,6 @@ class ThemeChangeCommandTest extends TestCase
         return $mock;
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     private function getSalesChannelData(): array
     {
         return [
@@ -259,9 +256,6 @@ class ThemeChangeCommandTest extends TestCase
         ];
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     private function getThemeData(): array
     {
         return [

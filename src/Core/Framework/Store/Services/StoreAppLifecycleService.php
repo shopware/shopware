@@ -16,13 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\StoreException;
+use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
+use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 
 /**
  * @internal - only for use by the app-system
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     public function __construct(
@@ -42,7 +44,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $manifests = $this->appLoader->load();
 
         if (!isset($manifests[$technicalName])) {
-            throw StoreException::extensionInstallException(sprintf('Cannot find app by name %s', $technicalName));
+            throw new ExtensionInstallException(sprintf('Cannot find app by name %s', $technicalName));
         }
 
         $this->appLifecycle->install($manifests[$technicalName], false, $context);
@@ -91,7 +93,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $manifests = $this->appLoader->load();
 
         if (!\array_key_exists($technicalName, $manifests)) {
-            throw StoreException::extensionInstallException('Cannot find extension');
+            throw new ExtensionInstallException('Cannot find extension');
         }
 
         $app = $this->getAppByName($technicalName, $context);
@@ -106,7 +108,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
                 $app
             );
 
-            throw StoreException::extensionUpdateRequiresConsentAffirmationException($technicalName, $deltas);
+            throw ExtensionUpdateRequiresConsentAffirmationException::fromDelta($technicalName, $deltas);
         }
 
         $this->appLifecycle->update(
@@ -133,8 +135,8 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $criteria = (new Criteria())->addFilter(new EqualsFilter('name', $technicalName));
         $app = $this->appRepository->search($criteria, $context)->first();
 
-        if (!$app instanceof AppEntity) {
-            throw StoreException::extensionNotFoundFromTechnicalName($technicalName);
+        if ($app === null) {
+            throw ExtensionNotFoundException::fromTechnicalName($technicalName);
         }
 
         return $app;
@@ -186,7 +188,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         $assignedChildren = $aggregates->get('assigned_children');
 
         if (!empty($directlyAssigned->getKeys()) || !empty($assignedChildren->getKeys())) {
-            throw StoreException::extensionThemeStillInUse($id);
+            throw new ExtensionThemeStillInUseException($id);
         }
     }
 

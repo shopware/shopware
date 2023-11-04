@@ -14,4 +14,12 @@ class OneToOneField extends AssociationField
     use RequiredTrait;
 
     protected string $type = 'one-to-one';
+
+    /**
+     * @internal
+     */
+    public static function fromXml(\DOMElement $element): Field
+    {
+        return new self(self::parse($element));
+    }
 }

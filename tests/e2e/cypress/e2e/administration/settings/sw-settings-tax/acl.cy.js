@@ -10,7 +10,7 @@ describe('Tax: Test acl privileges', () => {
             });
     });
 
-    it('@settings: create and read tax', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
+    it('@settings: create and read tax', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -57,7 +57,7 @@ describe('Tax: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: update and read tax', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
+    it('@settings: update and read tax', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -100,7 +100,7 @@ describe('Tax: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: delete tax', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
+    it('@settings: delete tax', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

@@ -7,11 +7,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\StateMachineException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
+use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundStateHandler
 {
     /**
@@ -23,8 +25,10 @@ class OrderTransactionCaptureRefundStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineException
+     * @throws StateMachineNotFoundException
      * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function complete(string $transactionCaptureRefundId, Context $context): void
     {
@@ -41,8 +45,10 @@ class OrderTransactionCaptureRefundStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineException
+     * @throws StateMachineNotFoundException
      * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function process(string $transactionCaptureRefundId, Context $context): void
     {
@@ -59,8 +65,10 @@ class OrderTransactionCaptureRefundStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineException
+     * @throws StateMachineNotFoundException
      * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function cancel(string $transactionCaptureRefundId, Context $context): void
     {
@@ -77,8 +85,10 @@ class OrderTransactionCaptureRefundStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineException
+     * @throws StateMachineNotFoundException
      * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function fail(string $transactionCaptureRefundId, Context $context): void
     {
@@ -95,8 +105,10 @@ class OrderTransactionCaptureRefundStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineException
+     * @throws StateMachineNotFoundException
      * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
      */
     public function reopen(string $transactionCaptureRefundId, Context $context): void
     {

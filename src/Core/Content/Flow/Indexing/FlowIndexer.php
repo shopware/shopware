@@ -16,7 +16,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class FlowIndexer extends EntityIndexer
 {
     public const NAME = 'flow.indexer';

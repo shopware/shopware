@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -78,7 +77,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
                 'id' => $userId,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => 'foobar',
-                'password' => TestDefaults::HASHED_PASSWORD,
+                'password' => 'asdasdasdasd',
                 'firstName' => 'Foo',
                 'lastName' => 'Bar',
                 'email' => 'foo@bar.com',

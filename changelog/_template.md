@@ -23,6 +23,3 @@ ___
 ### Topic 1a
 ### Topic 1b
 ## Topic 2
-___
-# Next Major Version Changes
-## Topic 1

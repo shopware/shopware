@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -53,7 +52,7 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'password',
             'username' => 'foobar',
             'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
@@ -87,7 +86,7 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'password12345',
             'username' => 'foobar',
             'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [
@@ -125,7 +124,7 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'password',
             'username' => 'foobar',
             'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],
@@ -171,7 +170,7 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'password',
             'username' => 'foobar',
             'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
         ];
@@ -250,7 +249,7 @@ class UserControllerTest extends TestCase
             'email' => 'foo@bar.com',
             'firstName' => 'Firstname',
             'lastName' => 'Lastname',
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => 'password',
             'username' => 'foobar',
             'localeId' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
             'aclRoles' => [],

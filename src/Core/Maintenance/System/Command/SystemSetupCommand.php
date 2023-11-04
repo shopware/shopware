@@ -285,19 +285,8 @@ class SystemSetupCommand extends Command
             return;
         }
 
-        $application = $this->getApplication();
-
-        \assert($application !== null);
-
-        $application->doRun(
-            new ArrayInput(
-                [
-                    'command' => $this->dumpEnvCommand->getName(),
-                    'env' => $input->getOption('app-env'),
-                ],
-            ),
-            $output
-        );
+        $dumpInput = new ArrayInput(['env' => $input->getOption('app-env')], $this->dumpEnvCommand->getDefinition());
+        $this->dumpEnvCommand->run($dumpInput, $output);
     }
 
     private function generateJwt(InputInterface $input, OutputStyle $io): int

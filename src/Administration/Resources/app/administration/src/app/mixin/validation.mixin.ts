@@ -1,14 +1,13 @@
 /* @private */
-import { defineComponent } from 'vue';
+export {};
 
 /**
- * @private
  * @package admin
  *
  * @deprecated tag:v6.6.0 - Will be private
  * @module app/mixin/validation
  */
-export default Shopware.Mixin.register('validation', defineComponent({
+Shopware.Mixin.register('validation', {
     inject: ['validationService'],
 
     props: {
@@ -47,7 +46,7 @@ export default Shopware.Mixin.register('validation', defineComponent({
                     validation = validationList;
                 } else {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument
-                    valid = this.validateRule(value, this.validation as string);
+                    valid = this.validateRule(value, this.validation);
                 }
             }
 
@@ -78,4 +77,4 @@ export default Shopware.Mixin.register('validation', defineComponent({
             return this.validationService[rule](value);
         },
     },
-}));
+});

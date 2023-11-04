@@ -10,7 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class TaxEntity extends Entity
 {
     use EntityCustomFieldsTrait;

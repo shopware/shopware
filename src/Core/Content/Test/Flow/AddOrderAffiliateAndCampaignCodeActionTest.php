@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {
     use OrderActionTrait;

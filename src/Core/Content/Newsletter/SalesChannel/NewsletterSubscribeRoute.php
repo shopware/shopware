@@ -6,16 +6,14 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
-use Shopware\Core\Content\Newsletter\NewsletterException;
+use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -39,7 +37,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @phpstan-type SubscribeRequest array{email: string, storefrontUrl: string, option: string, firstName?: string, lastName?: string, zipCode?: string, city?: string, street?: string, salutationId?: string}
  */
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
 {
     final public const STATUS_NOT_SET = 'notSet';
@@ -107,15 +105,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $this->validator->validate($dataBag->all(), $validator);
 
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
-            try {
-                $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
-            } catch (RateLimitExceededException $e) {
-                if (!Feature::isActive('v6.6.0.0')) {
-                    throw $e;
-                }
-
-                throw NewsletterException::newsletterThrottled($e->getWaitTime());
-            }
+            $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
         }
 
         /** @var SubscribeRequest $data */
@@ -264,11 +254,10 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
 
-        if (!$newsletterRecipient) {
-            throw NewsletterException::recipientNotFound($identifier, $value);
+        if (empty($newsletterRecipient)) {
+            throw new NewsletterRecipientNotFoundException($identifier, $value);
         }
 
         return $newsletterRecipient;

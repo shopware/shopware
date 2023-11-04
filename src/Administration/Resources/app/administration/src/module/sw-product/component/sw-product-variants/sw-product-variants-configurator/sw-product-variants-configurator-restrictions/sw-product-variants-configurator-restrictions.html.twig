@@ -48,16 +48,9 @@
             <template
                 #column-id="{ item, isInlineEdit, compact }"
             >
-                <template
-                    v-for="restriction in getRestrictionsWithNaming(item.id).values"
-                    {% if VUE3 %}
-                    :key="restriction.id"
-                    {% endif %}
-                >
+                <template v-for="restriction in getRestrictionsWithNaming(item.id).values">
                     <span
-                        {% if VUE2 %}
                         :key="restriction.id"
-                        {% endif %}
                         class="sw-product-variants-configurator-restrictions__group-name"
                     >
                         {{ restriction.group }}:

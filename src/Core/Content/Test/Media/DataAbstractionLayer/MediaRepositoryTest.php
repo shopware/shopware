@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
@@ -25,7 +26,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -80,6 +80,7 @@ class MediaRepositoryTest extends TestCase
             $this->context
         );
         $mediaRepository = $this->mediaRepository;
+        /** @var EntitySearchResult|null $media */
         $media = null;
         $this->context->scope(Context::USER_SCOPE, function () use ($mediaId, &$media, $mediaRepository): void {
             $media = $mediaRepository->search(new Criteria([$mediaId]), $this->context);
@@ -125,8 +126,7 @@ class MediaRepositoryTest extends TestCase
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
-        $path = $media->getPath();
-
+        $path = $urlGenerator->getRelativeMediaUrl($media);
         // simulate file
         $fileSystem->write($path, 'foo');
 
@@ -200,6 +200,7 @@ class MediaRepositoryTest extends TestCase
         static::assertEquals(0, $media->count());
 
         $documentRepository = $this->documentRepository;
+        /** @var EntitySearchResult|null $document */
         $document = null;
         $this->context->scope(Context::USER_SCOPE, function (Context $context) use (&$document, $documentId, $documentRepository): void {
             $criteria = new Criteria([$documentId]);
@@ -262,7 +263,7 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $mediaPath = $media->getPath();
+        $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -302,11 +303,9 @@ class MediaRepositoryTest extends TestCase
         $media = $this->mediaRepository->search(new Criteria([$mediaId]), $this->context)->get($mediaId);
         static::assertInstanceOf(MediaEntity::class, $media);
 
-        $mediaPath = $media->getPath();
-
-        static::assertNotNull($media->getThumbnails());
-        static::assertNotNull($media->getThumbnails()->first());
-        $thumbnailPath = $media->getThumbnails()->first()->getPath();
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $mediaPath = $urlGenerator->getRelativeMediaUrl($media);
+        $thumbnailPath = $urlGenerator->getRelativeThumbnailUrl($media, (new MediaThumbnailEntity())->assign(['width' => 100, 'height' => 200]));
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -321,13 +320,8 @@ class MediaRepositoryTest extends TestCase
 
         $this->runWorker();
 
-        static::assertFalse($this->getPublicFilesystem()->has((string) $mediaPath));
-
-        if (Feature::isActive('v6.6.0.0') || Feature::isActive('MEDIA_PATH')) {
-            static::assertFalse($this->getPublicFilesystem()->has((string) $thumbnailPath));
-        } else {
-            static::assertTrue($this->getPublicFilesystem()->has((string) $thumbnailPath));
-        }
+        static::assertFalse($this->getPublicFilesystem()->has($mediaPath));
+        static::assertFalse($this->getPublicFilesystem()->has($thumbnailPath));
     }
 
     public function testDeleteMediaDeletesOnlyFilesForGivenMediaId(): void
@@ -342,7 +336,6 @@ class MediaRepositoryTest extends TestCase
                     'name' => 'test media',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
-                    'path' => 'media/test_media.png',
                     'fileName' => $firstId . '-' . (new \DateTime())->getTimestamp(),
                 ],
                 [
@@ -350,7 +343,6 @@ class MediaRepositoryTest extends TestCase
                     'name' => 'test media',
                     'mimeType' => 'image/png',
                     'fileExtension' => 'png',
-                    'path' => 'media/test_media_2.png',
                     'fileName' => $secondId . '-' . (new \DateTime())->getTimestamp(),
                 ],
             ],
@@ -371,8 +363,9 @@ class MediaRepositoryTest extends TestCase
         $secondMedia = $read->get($secondId);
         static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
-        $firstPath = $firstMedia->getPath();
-        $secondPath = $secondMedia->getPath();
+        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
+        $firstPath = $urlGenerator->getRelativeMediaUrl($firstMedia);
+        $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -425,8 +418,7 @@ class MediaRepositoryTest extends TestCase
         static::assertInstanceOf(MediaEntity::class, $secondMedia);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
-        $secondPath = $secondMedia->getPath();
+        $secondPath = $urlGenerator->getRelativeMediaUrl($secondMedia);
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);
@@ -517,8 +509,7 @@ class MediaRepositoryTest extends TestCase
         static::assertInstanceOf(MediaEntity::class, $media);
 
         $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
-
-        $mediaUrl = $media->getPath();
+        $mediaUrl = $urlGenerator->getRelativeMediaUrl($media);
 
         $resource = fopen(self::FIXTURE_FILE, 'rb');
         static::assertNotFalse($resource);

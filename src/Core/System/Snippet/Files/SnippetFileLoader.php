@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
@@ -14,6 +13,11 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[Package('system-settings')]
 class SnippetFileLoader implements SnippetFileLoaderInterface
 {
+    /**
+     * @var array<string, string>
+     */
+    private array $pluginAuthors = [];
+
     /**
      * @internal
      */
@@ -76,17 +80,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             ->files()
             ->name('*.json');
 
-        try {
-            /** @var array<string, string> $authors */
-            $authors = $this->connection->fetchAllKeyValue('
-                SELECT `base_class` AS `baseClass`, `author`
-                FROM `plugin`
-            ');
-        } catch (Exception) {
-            // to get it working in setup without a database connection
-            $authors = [];
-        }
-
         $snippetFiles = [];
 
         foreach ($finder->getIterator() as $fileInfo) {
@@ -99,7 +92,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         implode('.', $nameParts),
                         $fileInfo->getPathname(),
                         $nameParts[1],
-                        $this->getAuthorFromBundle($bundle, $authors),
+                        $this->getAuthorFromBundle($bundle),
                         false,
                         $bundle->getName()
                     );
@@ -110,7 +103,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                         implode('.', [$nameParts[0], $nameParts[1]]),
                         $fileInfo->getPathname(),
                         $nameParts[1],
-                        $this->getAuthorFromBundle($bundle, $authors),
+                        $this->getAuthorFromBundle($bundle),
                         $nameParts[2] === 'base',
                         $bundle->getName()
                     );
@@ -126,15 +119,30 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         return $snippetFiles;
     }
 
-    /**
-     * @param array<string, string> $authors
-     */
-    private function getAuthorFromBundle(Bundle $bundle, array $authors): string
+    private function getAuthorFromBundle(Bundle $bundle): string
     {
         if (!$bundle instanceof Plugin) {
             return 'Shopware';
         }
 
-        return $authors[$bundle::class] ?? '';
+        return $this->getPluginAuthors()[$bundle::class] ?? '';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getPluginAuthors(): array
+    {
+        if (!$this->pluginAuthors) {
+            /** @var array<string, string> $authors */
+            $authors = $this->connection->fetchAllKeyValue('
+                SELECT `base_class` AS `baseClass`, `author`
+                FROM `plugin`
+            ');
+
+            $this->pluginAuthors = $authors;
+        }
+
+        return $this->pluginAuthors;
     }
 }

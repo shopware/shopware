@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-grid-listener.mixin';
@@ -351,11 +351,5 @@ describe('src/module/sw-media/component/sw-media-library/index', () => {
             sort: [{ field: 'name', order: 'asc', naturalSorting: false }],
             'total-count-mode': 1,
         });
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 });

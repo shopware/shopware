@@ -57,7 +57,7 @@ export default {
         return {
             loadedLandingPages: {},
             translationContext: 'sw-landing-page',
-            linkContext: 'sw.category.landingPageDetail',
+            linkContext: 'sw.category.landingPage',
             isLoadingInitialData: true,
         };
     },
@@ -170,11 +170,7 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - will emit hypernated event only.
-         */
         checkedElementsCount(count) {
-            this.$emit('landing-page-checked-elements-count', count);
             this.$emit('landingPage-checked-elements-count', count);
         },
 
@@ -272,29 +268,17 @@ export default {
                 return;
             }
 
-            this.loadedLandingPages = {
-                ...this.loadedLandingPages,
-                [landingPage.id]: landingPage,
-            };
+            this.$set(this.loadedLandingPages, landingPage.id, landingPage);
         },
 
         addLandingPages(landingPages) {
-            if (!landingPages) {
-                return;
-            }
-
-            const existingLandingPageEntries = Object.entries(this.loadedLandingPages || {});
-            const newLandingPageEntries = landingPages.map((landingPage) => {
-                return [landingPage.id, landingPage];
+            landingPages.forEach((landingPage) => {
+                this.$set(this.loadedLandingPages, landingPage.id, landingPage);
             });
-
-            this.loadedLandingPages = Object.fromEntries([...existingLandingPageEntries, ...newLandingPageEntries]);
         },
 
         removeFromStore(id) {
-            this.loadedLandingPages = Object.fromEntries(Object.entries(this.loadedLandingPages || {}).filter(([key]) => {
-                return key !== id;
-            }));
+            this.$delete(this.loadedLandingPages, id);
         },
 
         getLandingPageUrl(landingPage) {

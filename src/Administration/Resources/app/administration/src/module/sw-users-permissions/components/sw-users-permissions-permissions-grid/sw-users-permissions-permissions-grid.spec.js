@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';

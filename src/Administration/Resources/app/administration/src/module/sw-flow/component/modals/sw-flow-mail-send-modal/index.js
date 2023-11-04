@@ -8,7 +8,7 @@ const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,

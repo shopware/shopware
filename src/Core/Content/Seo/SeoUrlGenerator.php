@@ -2,9 +2,7 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\LandingPage\LandingPageCollection;
-use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -29,7 +27,7 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
@@ -68,8 +66,8 @@ class SeoUrlGenerator
 
         $criteria->setLimit(50);
 
-        /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
-        $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
+        /** @var RepositoryIterator $iterator */
+        $iterator = $context->enableInheritance(static fn (Context $context) => new RepositoryIterator($repository, $context, $criteria));
 
         $this->setTwigTemplate($config, $template);
 
@@ -89,6 +87,7 @@ class SeoUrlGenerator
 
         $basePath = $request ? $request->getBasePath() : '';
 
+        /** @var Entity $entity */
         foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());
@@ -126,7 +125,7 @@ class SeoUrlGenerator
             return trim($this->twig->render('template', $mapping->getSeoPathInfoContext()));
         } catch (\Throwable $error) {
             if (!$config->getSkipInvalid()) {
-                throw SeoException::invalidTemplate('Error: ' . $error->getMessage());
+                throw $error;
             }
 
             return null;
@@ -142,7 +141,7 @@ class SeoUrlGenerator
             $this->twig->loadTemplate($this->twig->getTemplateClass('template'), 'template');
         } catch (SyntaxError $syntaxError) {
             if (!$config->getSkipInvalid()) {
-                throw SeoException::invalidTemplate('Syntax error: ' . $syntaxError->getMessage());
+                throw new InvalidTemplateException('Syntax error: ' . $syntaxError->getMessage());
             }
         }
     }
@@ -157,14 +156,16 @@ class SeoUrlGenerator
     }
 
     /**
-     * @return array<mixed>
+     * @return list<string>
      */
     private function getAssociations(string $template, EntityDefinition $definition): array
     {
         try {
             $variables = $this->twigVariableParser->parse($template);
         } catch (\Exception $e) {
-            throw SeoException::invalidTemplate($e->getMessage());
+            $e = new InvalidTemplateException($e->getMessage());
+
+            throw $e;
         }
 
         $associations = [];

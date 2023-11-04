@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Page\Checkout\Register;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractListAddressRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -97,7 +96,7 @@ class CheckoutRegisterPageLoader
         $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
 
         if (!$address) {
-            throw CustomerException::addressNotFound($addressId);
+            throw new AddressNotFoundException($addressId);
         }
 
         return $address;

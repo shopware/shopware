@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CustomerTransformer;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
@@ -174,13 +173,15 @@ class AddressController extends StorefrontController
         $params = [];
 
         try {
-            $page = $this->addressListingPageLoader->load($request, $context, $customer);
-            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
-            $viewData->setPage($page);
-
             $this->handleChangeableAddresses($viewData, $dataBag, $context, $customer);
             $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
             $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
+
+            $page = $this->addressListingPageLoader->load($request, $context, $customer);
+
+            $this->hook(new AddressBookWidgetLoadedHook($page, $context));
+
+            $viewData->setPage($page);
             $this->handleCustomerVatIds($dataBag, $context, $customer);
         } catch (ConstraintViolationException $formViolations) {
             $params['formViolations'] = $formViolations;
@@ -259,7 +260,7 @@ class AddressController extends StorefrontController
     ): void {
         $changeableAddresses = $dataBag->get('changeableAddresses');
 
-        if (!$changeableAddresses instanceof DataBag) {
+        if ($changeableAddresses === null) {
             return;
         }
 
@@ -286,7 +287,8 @@ class AddressController extends StorefrontController
         CustomerEntity $customer
     ): void {
         $selectedAddress = $dataBag->get('selectAddress');
-        if (!$selectedAddress instanceof DataBag) {
+
+        if ($selectedAddress === null) {
             return;
         }
 
@@ -337,7 +339,7 @@ class AddressController extends StorefrontController
         $address = $this->listAddressRoute->load($criteria, $context, $customer)->getAddressCollection()->get($addressId);
 
         if (!$address) {
-            throw CustomerException::addressNotFound($addressId);
+            throw new AddressNotFoundException($addressId);
         }
 
         return $address;
@@ -345,12 +347,11 @@ class AddressController extends StorefrontController
 
     private function handleCustomerVatIds(RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): void
     {
-        $dataBagVatIds = $dataBag->get('vatIds');
-        if (!$dataBagVatIds instanceof DataBag) {
+        if (!$dataBag->has('vatIds')) {
             return;
         }
 
-        $newVatIds = $dataBagVatIds->all();
+        $newVatIds = $dataBag->get('vatIds')->all();
         $oldVatIds = $customer->getVatIds() ?? [];
         if (!array_diff($newVatIds, $oldVatIds) && !array_diff($oldVatIds, $newVatIds)) {
             return;

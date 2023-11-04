@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import template from './sw-users-permissions-configuration.html.twig';
 import './sw-users-permissions-configuration.scss';

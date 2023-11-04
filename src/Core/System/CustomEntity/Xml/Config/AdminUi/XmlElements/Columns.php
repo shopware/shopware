@@ -16,12 +16,25 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 final class Columns extends ConfigXmlElement
 {
     /**
-     * @var list<Column>
+     * @param list<Column> $content
      */
-    protected array $content;
+    private function __construct(
+        protected readonly array $content
+    ) {
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        $columns = [];
+        foreach ($element->getElementsByTagName('column') as $column) {
+            $columns[] = Column::fromXml($column);
+        }
+
+        return new self($columns);
+    }
 
     /**
-     * @return list<Column>
+     * @return  list<Column>
      */
     public function getContent(): array
     {
@@ -36,15 +49,5 @@ final class Columns extends ConfigXmlElement
         $data = parent::jsonSerialize();
 
         return $data['content'];
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        $columns = [];
-        foreach ($element->getElementsByTagName('column') as $column) {
-            $columns[] = Column::fromXml($column);
-        }
-
-        return ['content' => $columns];
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Exception\VerificationHashNotConfiguredException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,10 +28,13 @@ class VerificationHashController extends AbstractController
     public function load(): Response
     {
         $verificationHash = $this->systemConfigService->getString('core.store.verificationHash');
+        if ($verificationHash === '') {
+            throw new VerificationHashNotConfiguredException();
+        }
 
         return new Response(
             $verificationHash,
-            ($verificationHash === '') ? Response::HTTP_NOT_FOUND : Response::HTTP_OK,
+            Response::HTTP_OK,
             ['Content-Type' => 'text/plain']
         );
     }

@@ -18,23 +18,21 @@ class PropertySortTest extends TestCase
     /**
      * @var array<string>
      */
-    private array $notShuffledName = [];
+    private static array $notShuffledName = [];
 
     /**
      * @var array<string>
      */
-    private array $notShuffledPosition = [];
+    private static array $notShuffledPosition = [];
 
     /**
      * Expected: [0,1,2,3,4,5,6...]
      */
     public function testAlphaNumericSortingNumbersOnly(): void
     {
-        $propertyGroups = $this->getPropertyGroupAlphaNumericOnlyNumbers();
-        $propertyGroups->sortByConfig();
-        $propertyGroup = $propertyGroups->first();
-        static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyGroup = $this->getPropertyGroupAlphaNumericOnlyNumbers();
+        $propertyGroup->sortByConfig();
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         $equalsArray = [];
         for ($x = 0; $x < 50; ++$x) {
@@ -52,16 +50,35 @@ class PropertySortTest extends TestCase
      */
     public function testAlphaNumericSortingNumbersOnlyLetters(): void
     {
-        $propertyGroups = $this->getPropertyGroupAlphaNumericOnlyLetters();
-        $propertyGroups->sortByConfig();
-        $propertyGroup = $propertyGroups->first();
-        static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyGroup = $this->getPropertyGroupAlphaNumericOnlyLetters();
+        $propertyGroup->sortByConfig();
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         $equalsArray = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-        for ($x = 0; $x < 10; ++$x) {
-            $equalsArray[] = $letterArray[$x];
+        for ($x = 0; $x < 490; ++$x) {
+            $equalsArray[] = $letterArray[(int) ($x / 49)];
+        }
+
+        static::assertEquals(
+            $equalsArray,
+            array_column($propertyOptionsArray, 'name')
+        );
+    }
+
+    /**
+     * Expected: [0 => 1a, 1 => 1b, ... 50 => 6a, 60 => 7a, 297 => 30h, 489 => 49j]
+     */
+    public function testAlphaNumericSortingNumbersFirstThenLetters(): void
+    {
+        $propertyGroup = $this->getPropertyGroupAlphaNumericNumbersFirstThenLetters();
+        $propertyGroup->sortByConfig();
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+
+        $equalsArray = [];
+        $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+        for ($x = 10; $x < 500; ++$x) {
+            $equalsArray[] = (string) ((int) ($x / 10)) . $letterArray[$x % 10];
         }
 
         static::assertEquals(
@@ -75,15 +92,13 @@ class PropertySortTest extends TestCase
      */
     public function testPositionSorting(): void
     {
-        $propertyGroups = $this->getPropertyGroupPosition();
-        $propertyGroups->sortByConfig();
-        $propertyGroup = $propertyGroups->first();
-        static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyGroup = $this->getPropertyGroupPosition();
+        $propertyGroup->sortByConfig();
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         $equalsArray = [];
-        for ($x = 10; $x < 20; ++$x) {
-            $equalsArray[] = $x;
+        for ($x = 10; $x < 500; ++$x) {
+            $equalsArray[] = (int) ($x / 10);
         }
 
         static::assertEquals(
@@ -97,14 +112,12 @@ class PropertySortTest extends TestCase
      */
     public function testPositionSortingMixed(): void
     {
-        $propertyGroups = $this->getPropertyGroupPositionMixed();
-        $propertyGroups->sortByConfig();
-        $propertyGroup = $propertyGroups->first();
-        static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyGroup = $this->getPropertyGroupPositionMixed();
+        $propertyGroup->sortByConfig();
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            $this->notShuffledPosition,
+            self::$notShuffledPosition,
             array_column($propertyOptionsArray, 'position')
         );
     }
@@ -114,14 +127,12 @@ class PropertySortTest extends TestCase
      */
     public function testAlphaNumericSortingMixed(): void
     {
-        $propertyGroups = $this->getPropertyGroupAlphaNumericMixed();
-        $propertyGroups->sortByConfig();
-        $propertyGroup = $propertyGroups->first();
-        static::assertNotNull($propertyGroup);
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
+        $propertyGroup = $this->getPropertyGroupAlphaNumericMixed();
+        $propertyGroup->sortByConfig();
+        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(
-            $this->notShuffledName,
+            self::$notShuffledName,
             array_column($propertyOptionsArray, 'name')
         );
     }
@@ -135,6 +146,19 @@ class PropertySortTest extends TestCase
         $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
         $propertyGroup->setPosition(1);
         $propertyGroup->setOptions($this->getPropertyOptionsOnlyNumbers());
+
+        return new PropertyGroupCollection([$propertyGroup]);
+    }
+
+    private function getPropertyGroupAlphaNumericNumbersFirstThenLetters(): PropertyGroupCollection
+    {
+        $propertyGroup = new PropertyGroupEntity();
+        $propertyGroup->setId(Uuid::randomHex());
+        $propertyGroup->setName('Alphanumeric numbers first then letters');
+        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC);
+        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
+        $propertyGroup->setPosition(1);
+        $propertyGroup->setOptions($this->getPropertyOptionsNumbersFirstThenLetters());
 
         return new PropertyGroupCollection([$propertyGroup]);
     }
@@ -212,17 +236,39 @@ class PropertySortTest extends TestCase
         return new PropertyGroupOptionCollection($propertyOptions);
     }
 
+    private function getPropertyOptionsNumbersFirstThenLetters(): PropertyGroupOptionCollection
+    {
+        $propertyOptions = [];
+        $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+        for ($x = 10; $x < 500; ++$x) {
+            $propertyOption = new PropertyGroupOptionEntity();
+            $propertyOption->setId(Uuid::randomHex());
+            $propertyOption->setPosition(1);
+            $propertyOption->setName((string) ((int) ($x / 10)) . $letterArray[$x % 10]);
+            $propertyOption->setTranslated([
+                'name' => (string) ((int) ($x / 10)) . $letterArray[$x % 10],
+                'description' => '',
+                'position' => 1,
+                'customFields' => [],
+            ]);
+            $propertyOptions[] = $propertyOption;
+        }
+        shuffle($propertyOptions);
+
+        return new PropertyGroupOptionCollection($propertyOptions);
+    }
+
     private function getPropertyOptionsOnlyLetters(): PropertyGroupOptionCollection
     {
         $propertyOptions = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-        for ($x = 0; $x < 10; ++$x) {
+        for ($x = 10; $x < 500; ++$x) {
             $propertyOption = new PropertyGroupOptionEntity();
             $propertyOption->setId(Uuid::randomHex());
             $propertyOption->setPosition(1);
             $propertyOption->setName($letterArray[$x % 10]);
             $propertyOption->setTranslated([
-                'name' => $letterArray[$x],
+                'name' => $letterArray[$x % 10],
                 'description' => '',
                 'position' => 1,
                 'customFields' => [],
@@ -238,16 +284,16 @@ class PropertySortTest extends TestCase
     {
         $propertyOptions = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
-        for ($x = 10; $x < 20; ++$x) {
+        for ($x = 10; $x < 500; ++$x) {
             $propertyOption = new PropertyGroupOptionEntity();
             $propertyOption->setId(Uuid::randomHex());
-            $propertyOption->setPosition((int) $x);
+            $propertyOption->setPosition((int) ($x / 10));
             $name = $letterArray[array_rand($letterArray)];
             $propertyOption->setName($name);
             $propertyOption->setTranslated([
                 'name' => $name,
                 'description' => '',
-                'position' => (int) $x,
+                'position' => (int) ($x / 10),
                 'customFields' => [],
             ]);
             $propertyOptions[] = $propertyOption;
@@ -275,8 +321,8 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        $this->notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
-        $this->notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
+        self::$notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
+        self::$notShuffledPosition = array_column(json_decode(json_encode($propertyOptions, \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR), 'position');
         shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);

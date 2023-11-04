@@ -50,7 +50,7 @@ async function createWrapper(userConfig = {}) {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     /** @type Wrapper */

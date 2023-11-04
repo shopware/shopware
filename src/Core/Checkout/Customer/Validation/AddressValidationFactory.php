@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class AddressValidationFactory implements DataValidationFactoryInterface
 {
     /**
@@ -57,6 +57,7 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('street', new NotBlank())
+            ->add('zipcode', new NotBlank())
             ->add('city', new NotBlank())
             ->add('countryId', new NotBlank(), new EntityExists(['entity' => 'country', 'context' => $frameworkContext]));
 

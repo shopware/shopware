@@ -8,7 +8,7 @@ use Dompdf\Options;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 final class PdfRenderer
 {
     public const FILE_EXTENSION = 'pdf';

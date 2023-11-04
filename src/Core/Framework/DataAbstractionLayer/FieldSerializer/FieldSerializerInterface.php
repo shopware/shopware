@@ -15,11 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 interface FieldSerializerInterface
 {
-    /**
-     * @param array<string, mixed> $data
-     *
-     * @return array<string, mixed>
-     */
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array;
 
     /**

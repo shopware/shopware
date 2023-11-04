@@ -7,7 +7,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 #[Package('core')]
 class FallbackUrlPackage extends UrlPackage
@@ -19,40 +18,28 @@ class FallbackUrlPackage extends UrlPackage
      */
     public function __construct(
         string|array $baseUrls,
-        VersionStrategyInterface $versionStrategy,
-        private readonly ?RequestStack $requestStack = null
+        VersionStrategyInterface $versionStrategy
     ) {
-        if (!\is_array($baseUrls)) {
-            $baseUrls = (array) $baseUrls;
-        }
-
-        parent::__construct($this->applyFallback($baseUrls), $versionStrategy);
+        $baseUrls = iterator_to_array($this->applyFallback($baseUrls), false);
+        parent::__construct($baseUrls, $versionStrategy);
     }
 
-    /**
-     * @param string[] $baseUrls
-     *
-     * @return string[]
-     */
-    private function applyFallback(array $baseUrls): array
+    private function applyFallback(array $baseUrls): \Generator
     {
-        $request = $this->requestStack?->getMainRequest() ?? new Request([], [], [], [], [], $_SERVER);
-
+        $request = Request::createFromGlobals();
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
         $requestUrl = rtrim($basePath, '/') . '/';
 
-        if ($request->getHost() === '' && EnvironmentHelper::hasVariable('APP_URL')) {
+        if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
             $requestUrl = EnvironmentHelper::getVariable('APP_URL');
         }
 
-        foreach ($baseUrls as &$url) {
+        foreach ($baseUrls as $url) {
             if ($url === '') {
-                $url = $requestUrl;
+                yield $requestUrl;
+            } else {
+                yield $url;
             }
         }
-
-        unset($url);
-
-        return $baseUrls;
     }
 }

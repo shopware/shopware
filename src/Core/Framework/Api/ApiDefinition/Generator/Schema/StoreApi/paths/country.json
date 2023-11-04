@@ -11,6 +11,7 @@
                 "summary": "Fetch countries",
                 "description": "Perform a filtered search for countries",
                 "operationId": "readCountry",
+                "parameters": [],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -31,6 +32,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
                                     "allOf": [
                                         {
                                             "properties": {

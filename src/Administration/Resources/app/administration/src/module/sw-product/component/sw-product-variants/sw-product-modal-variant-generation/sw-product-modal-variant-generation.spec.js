@@ -184,7 +184,6 @@ async function createWrapper() {
             'sw-switch-field': true,
             'sw-data-grid': true,
             'sw-card-filter': true,
-            'sw-pagination': true,
         },
         provide: {
             shortcutService: {

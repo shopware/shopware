@@ -26,10 +26,8 @@ class ThemeConfigValueAccessor
     /**
      * @internal
      */
-    public function __construct(
-        private readonly AbstractResolvedConfigLoader $themeConfigLoader,
-        private readonly bool $fineGrainedCache
-    ) {
+    public function __construct(private readonly AbstractResolvedConfigLoader $themeConfigLoader)
+    {
     }
 
     public static function buildName(string $key): string
@@ -42,14 +40,8 @@ class ThemeConfigValueAccessor
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
-        if ($this->fineGrainedCache) {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace][self::buildName($key)] = true;
-            }
-        } else {
-            foreach (array_keys($this->keys) as $trace) {
-                $this->traces[$trace]['shopware.theme'] = true;
-            }
+        foreach (array_keys($this->keys) as $trace) {
+            $this->traces[$trace][self::buildName($key)] = true;
         }
 
         $config = $this->getThemeConfig($context, $themeId);
@@ -62,11 +54,7 @@ class ThemeConfigValueAccessor
     }
 
     /**
-     * @template TReturn of mixed
-     *
-     * @param \Closure(): TReturn $param
-     *
-     * @return TReturn All kind of data could be cached
+     * @return mixed|null All kind of data could be cached
      */
     public function trace(string $key, \Closure $param)
     {

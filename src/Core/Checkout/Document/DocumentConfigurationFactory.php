@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class DocumentConfigurationFactory
 {
     private function __construct()

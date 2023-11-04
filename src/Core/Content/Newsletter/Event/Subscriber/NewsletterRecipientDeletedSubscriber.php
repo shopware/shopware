@@ -12,7 +12,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class NewsletterRecipientDeletedSubscriber implements EventSubscriberInterface
 {
     /**

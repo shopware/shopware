@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-cms-section-actions.html.twig';
 import './sw-cms-section-actions.scss';
 
@@ -21,8 +18,6 @@ export default {
         },
     },
 
-    inject: ['feature'],
-
     data() {
         return {
             cmsPageState: Shopware.State.get('cmsPageState'),
@@ -37,28 +32,13 @@ export default {
         },
     },
 
-    created() {
-        this.createdComponent();
-    },
-
     methods: {
-        createdComponent() {
-            if (this.cmsPageState.selectedSection) {
-                this.$store.dispatch('cmsPageState/setSection', this.section);
-            }
-        },
-
         selectSection() {
             if (this.disabled) {
                 return;
             }
 
             this.$store.dispatch('cmsPageState/setSection', this.section);
-
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$emit('page-config-open', 'itemConfig');
-                return;
-            }
             this.$parent.$emit('page-config-open', 'itemConfig');
         },
     },

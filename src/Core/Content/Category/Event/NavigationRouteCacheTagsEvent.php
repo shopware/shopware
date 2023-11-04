@@ -9,12 +9,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('inventory')]
+#[Package('content')]
 class NavigationRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    /**
-     * @param array<string> $tags
-     */
     public function __construct(
         array $tags,
         protected string $active,

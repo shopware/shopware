@@ -20,7 +20,7 @@ class BenchExtension implements ExtensionInterface
 
     public function load(Container $container): void
     {
-        if (!$this->resolver instanceof OptionsResolver) {
+        if ($this->resolver === null) {
             throw new \Exception(self::class . '::configure must be called before running the load method');
         }
 
@@ -95,13 +95,12 @@ class BenchExtension implements ExtensionInterface
         if (is_file($fixturePath) && preg_match('/\.php$/', basename($fixturePath))) {
             yield $fixturePath;
         } elseif (is_dir($fixturePath)) {
+            /** @var string[] $directory */
             $directory = scandir($fixturePath);
-            if (\is_array($directory)) {
-                foreach ($directory as $subName) {
-                    if (!preg_match('/^\.+$/', $subName)) {
-                        foreach ($this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName) as $fixture) {
-                            yield $fixture;
-                        }
+            foreach ($directory as $subName) {
+                if (!preg_match('/^\.+$/', $subName)) {
+                    foreach ($this->findFixtures($fixturePath . \DIRECTORY_SEPARATOR . $subName) as $fixture) {
+                        yield $fixture;
                     }
                 }
             }

@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1567431050ContactFormTemplate extends MigrationStep
@@ -33,10 +31,14 @@ class Migration1567431050ContactFormTemplate extends MigrationStep
         $contactTemplateTypeId = Uuid::fromHexToBytes($config['mail_template_type_id']);
 
         $update = false;
-        if (!\is_string($contactTemplateId)) {
+        if (!$contactTemplateId) {
             $contactTemplateId = Uuid::randomBytes();
         } else {
             $update = true;
+        }
+
+        if (!\is_string($contactTemplateId)) {
+            return;
         }
 
         if ($update === true) {

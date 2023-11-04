@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
-use Shopware\Core\Content\Newsletter\NewsletterException;
+use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('customer-order')]
 class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
 {
     /**
@@ -72,11 +72,10 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();
 
-        if (!$newsletterRecipient) {
-            throw NewsletterException::recipientNotFound($identifier, $value);
+        if (empty($newsletterRecipient)) {
+            throw new NewsletterRecipientNotFoundException($identifier, $value);
         }
 
         return $newsletterRecipient;

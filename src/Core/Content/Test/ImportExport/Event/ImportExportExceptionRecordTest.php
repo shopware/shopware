@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportExceptionRecordTest extends TestCase
 {
     private ImportExportExceptionImportRecordEvent $exceptionRecord;

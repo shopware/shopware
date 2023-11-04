@@ -1,7 +1,5 @@
 // / <reference types="Cypress" />
-/**
- * @package inventory
- */
+
 import PropertyPageObject from '../../../../support/pages/module/sw-property.page-object';
 
 describe('Property: Test ACL privileges', () => {

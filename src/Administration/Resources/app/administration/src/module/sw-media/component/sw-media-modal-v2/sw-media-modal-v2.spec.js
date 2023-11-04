@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount } from '@vue/test-utils';
 import swMediaModalV2 from 'src/module/sw-media/component/sw-media-modal-v2';

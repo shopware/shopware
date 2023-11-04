@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
 

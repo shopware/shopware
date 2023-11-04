@@ -3,12 +3,12 @@
  */
 
 /* @private */
-import { defineComponent } from 'vue';
+export {};
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('sw-inline-snippet', defineComponent({
+Shopware.Mixin.register('sw-inline-snippet', {
     computed: {
         swInlineSnippetLocale(): string {
             return Shopware.State.get('session').currentLocale as unknown as string;
@@ -44,4 +44,4 @@ export default Shopware.Mixin.register('sw-inline-snippet', defineComponent({
             return value;
         },
     },
-}));
+});

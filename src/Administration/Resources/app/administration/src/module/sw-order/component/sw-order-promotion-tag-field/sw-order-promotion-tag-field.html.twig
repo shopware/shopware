@@ -13,13 +13,11 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_tagged_field_inner %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <ul
             class="sw-tagged-field__tag-list"
             :class="taggedFieldListClasses"
-            role="listbox"
-            tabindex="0"
             @click="setFocus(true)"
-            @keydown.enter="setFocus(true)"
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -33,9 +31,7 @@
                 {% block sw_order_promotion_tag_field_tag_item %}
                 <sw-label
                     v-if="item.isInvalid"
-                    {% if VUE2 %}
                     :key="item.code + item.isInvalid"
-                    {% endif %}
                     :size="size"
                     :dismissable="!disabled"
                     variant="danger"
@@ -47,9 +43,7 @@
 
                 <sw-label
                     v-else
-                    {% if VUE2 %}
                     :key="item.code + item.isInvalid"
-                    {% endif %}
                     v-tooltip="{
                         message: getPromotionCodeDescription(item),
                         width: 220

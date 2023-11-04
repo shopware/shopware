@@ -16,19 +16,29 @@ use Symfony\Component\Config\Util\XmlUtils;
 #[Package('content')]
 final class Entity extends ConfigXmlElement
 {
-    protected Listing $listing;
+    private function __construct(
+        protected readonly Listing $listing,
+        protected readonly Detail $detail,
+        protected readonly string $name,
+        protected readonly string $icon,
+        protected readonly string $color,
+        protected readonly int $position,
+        protected readonly string $navigationParent,
+    ) {
+    }
 
-    protected Detail $detail;
-
-    protected string $name;
-
-    protected string $icon;
-
-    protected string $color;
-
-    protected int $position;
-
-    protected string $navigationParent;
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(
+            Listing::fromXml($element),
+            Detail::fromXml($element),
+            XmlUtils::phpize($element->getAttribute('name')),
+            XmlUtils::phpize($element->getAttribute('icon')),
+            XmlUtils::phpize($element->getAttribute('color')),
+            XmlUtils::phpize($element->getAttribute('position')),
+            XmlUtils::phpize($element->getAttribute('navigation-parent')),
+        );
+    }
 
     public function getDetail(): Detail
     {
@@ -43,18 +53,5 @@ final class Entity extends ConfigXmlElement
     public function getListing(): Listing
     {
         return $this->listing;
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        return [
-            'listing' => Listing::fromXml($element),
-            'detail' => Detail::fromXml($element),
-            'name' => XmlUtils::phpize($element->getAttribute('name')),
-            'icon' => XmlUtils::phpize($element->getAttribute('icon')),
-            'color' => XmlUtils::phpize($element->getAttribute('color')),
-            'position' => XmlUtils::phpize($element->getAttribute('position')),
-            'navigationParent' => XmlUtils::phpize($element->getAttribute('navigation-parent')),
-        ];
     }
 }

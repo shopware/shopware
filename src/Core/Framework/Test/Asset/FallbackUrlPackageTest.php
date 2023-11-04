@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\Test\Asset;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
@@ -37,19 +35,5 @@ class FallbackUrlPackageTest extends TestCase
 
         static::assertSame('http://test.de/test', $url);
         unset($_SERVER['HTTP_HOST']);
-    }
-
-    public function testGetFromRequestStack(): void
-    {
-        $stack = new RequestStack();
-        $request = new Request();
-        $request->headers->set('HOST', 'test.de');
-        $stack->push($request);
-
-        $package = new FallbackUrlPackage([''], new EmptyVersionStrategy(), $stack);
-
-        $url = $package->getUrl('test');
-
-        static::assertSame('http://test.de/test', $url);
     }
 }

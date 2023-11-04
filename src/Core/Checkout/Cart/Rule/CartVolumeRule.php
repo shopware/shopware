@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -11,7 +12,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class CartVolumeRule extends Rule
 {
     final public const RULE_NAME = 'cartVolume';
@@ -59,7 +60,9 @@ class CartVolumeRule extends Rule
         $volume = 0.0;
 
         foreach ($cart->getDeliveries() as $delivery) {
-            $volume += $delivery->getPositions()->getVolume();
+            if ($delivery instanceof Delivery) {
+                $volume += $delivery->getPositions()->getVolume();
+            }
         }
 
         return $volume;

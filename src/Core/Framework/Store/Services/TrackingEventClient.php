@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class TrackingEventClient
 {
     public function __construct(

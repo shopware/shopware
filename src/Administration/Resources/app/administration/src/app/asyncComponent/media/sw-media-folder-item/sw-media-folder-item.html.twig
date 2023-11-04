@@ -15,10 +15,8 @@
         {% block sw_media_folder_parent_icon%}
         <img
             v-if="isParent"
-            {% if VUE2 %}
+            :src="'/administration/static/img/media/folder--back.svg' | asset"
             key="sw-media-folder-preview"
-            {% endif %}
-            :src="assetFilter('/administration/static/img/media/folder--back.svg')"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder back"
         >
@@ -28,12 +26,10 @@
         {% block sw_media_folder_default_icon%}
         <span
             v-else-if="!!item.defaultFolderId"
-            {% if VUE2 %}
             key="sw-media-folder-preview"
-            {% endif %}
         >
             <img
-                :src="assetFilter('/administration/static/img/media/' + iconName + '.svg')"
+                :src="'/administration/static/img/media/' + iconName + '.svg' | asset"
                 class="sw-media-folder-item__folder-thumbnails"
                 :alt="iconName"
             >
@@ -49,10 +45,8 @@
         {% block sw_media_folder_folder_icon%}
         <img
             v-else
-            {% if VUE2 %}
             key="sw-media-folder-preview"
-            {% endif %}
-            :src="assetFilter('/administration/static/img/media/folder-thumbnail--large.svg')"
+            :src="'/administration/static/img/media/folder-thumbnail--large.svg' | asset"
             class="sw-media-folder-item__folder-thumbnails"
             alt="Folder thumbnail"
         >
@@ -65,7 +59,7 @@
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_base_item_name %}
-        <sw-text-field
+        <sw-field
             v-if="!isParent && (isInlineEdit || item.isNew())"
             v-autofocus
             class="sw-media-base-item__name-field"
@@ -74,9 +68,6 @@
             @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop
-            {% if VUE3 %}
-            @keydown.enter.stop
-            {% endif %}
             @keyup.esc="endInlineEdit"
         />
         <div
@@ -95,7 +86,7 @@
     {% block sw_media_folder_meta_data %}
     <template #metadata="{ item }">
         <div class="sw-media-folder-item__metadata">
-            {{ dateFilter(item.createdAt) }}
+            {{ item.createdAt| date() }}
         </div>
     </template>
     {% endblock %}

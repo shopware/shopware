@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
 import { createLocalVue, mount } from '@vue/test-utils';

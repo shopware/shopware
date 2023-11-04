@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomer extends MigrationStep

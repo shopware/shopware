@@ -67,11 +67,7 @@ Component.register('sw-theme-manager-list', {
                 showDelay: 100,
                 message: this.$tc('sw-theme-manager.general.lockedToolTip')
             };
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
-        },
+        }
     },
 
     methods: {

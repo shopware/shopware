@@ -179,9 +179,9 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertArrayNotHasKey('sales_channel', $affected);
     }
 
-    private function getStateId(string $state, string $machine): string
+    private function getStateId(string $state, string $machine)
     {
-        $stateId = $this->getContainer()->get(Connection::class)
+        return $this->getContainer()->get(Connection::class)
             ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
@@ -193,10 +193,6 @@ class EntityForeignKeyResolverTest extends TestCase
                 'state' => $state,
                 'machine' => $machine,
             ]);
-
-        static::assertIsString($stateId);
-
-        return $stateId;
     }
 
     private function createOrder(IdsCollection $ids, int $i): void
@@ -287,7 +283,6 @@ class EntityForeignKeyResolverTest extends TestCase
             'id' => $ids->create('shipping-method'),
             'type' => 0,
             'name' => 'Test shipping method',
-            'technicalName' => 'shipping_test',
             'bindShippingfree' => false,
             'active' => true,
             'prices' => [

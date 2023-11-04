@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('inventory')]
+#[Package('business-ops')]
 class ProductStreamFilterHydrator extends EntityHydrator
 {
     protected function assign(EntityDefinition $definition, Entity $entity, string $root, array $row, Context $context): Entity

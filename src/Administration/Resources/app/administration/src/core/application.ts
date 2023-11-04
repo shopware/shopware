@@ -519,7 +519,7 @@ class ApplicationBootstrapper {
             'baseComponents',
             'locale',
             'apiServices',
-            'coreDirectives',
+            'svgIcons',
         ];
 
         const initContainer = this.getContainer('init');

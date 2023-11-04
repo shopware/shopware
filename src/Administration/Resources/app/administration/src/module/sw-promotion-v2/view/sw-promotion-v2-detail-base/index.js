@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-promotion-v2-detail-base.html.twig';
 
 const { Mixin } = Shopware;
@@ -32,7 +29,11 @@ export default {
         isLoading: {
             type: Boolean,
             required: false,
-            default: false,
+            // TODO: Boolean props should only be opt in and therefore default to false
+            // eslint-disable-next-line vue/no-boolean-default
+            default() {
+                return false;
+            },
         },
 
         isCreateMode: {

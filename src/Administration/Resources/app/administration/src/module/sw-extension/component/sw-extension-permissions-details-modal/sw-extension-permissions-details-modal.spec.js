@@ -37,7 +37,7 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('sw-extension-permissions-details-modal', () => {
     it('should be a Vue.JS component', async () => {

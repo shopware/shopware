@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,7 +23,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -240,7 +240,8 @@ class SalesChannelRequestContextResolverTest extends TestCase
     private function loginCustomer(bool $isGuest): string
     {
         $email = Uuid::randomHex() . '@example.com';
-        $customerId = $this->createCustomer($email, $isGuest);
+        $password = 'shopware';
+        $customerId = $this->createCustomer($password, $email, $isGuest);
 
         $token = Random::getAlphanumericString(32);
         $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);

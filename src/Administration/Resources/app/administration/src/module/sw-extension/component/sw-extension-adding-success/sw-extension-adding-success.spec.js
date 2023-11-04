@@ -7,7 +7,7 @@ import 'src/app/component/base/sw-label';
 Shopware.Component.register('sw-extension-adding-success', swExtensionAddingSuccess);
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-adding-success', () => {
     let wrapper;

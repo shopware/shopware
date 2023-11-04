@@ -1,6 +1,3 @@
-/**
- * @package inventory
- */
 import { shallowMount } from '@vue/test-utils';
 
 import swSettingsProductFeatureSetsValuesCard from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';

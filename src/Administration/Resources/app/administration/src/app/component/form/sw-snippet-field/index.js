@@ -66,14 +66,6 @@ Component.register('sw-snippet-field', {
 
             return criteria;
         },
-
-        textField() {
-            return this.fieldType === 'text';
-        },
-
-        textareaField() {
-            return this.fieldType === 'textarea';
-        },
     },
 
     created() {

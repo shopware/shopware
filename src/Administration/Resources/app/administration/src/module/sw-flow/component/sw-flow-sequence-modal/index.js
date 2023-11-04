@@ -2,7 +2,7 @@ import template from './sw-flow-sequence-modal.html.twig';
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,

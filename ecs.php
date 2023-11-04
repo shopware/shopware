@@ -125,7 +125,7 @@ return static function (ECSConfig $ecsConfig): void {
 
     $ecsConfig->skip([
         // Fixture
-        'src/WebInstaller/Tests/_fixtures/Options.php',
+        'src/WebInstaller/tests/_fixtures/Options.php',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,

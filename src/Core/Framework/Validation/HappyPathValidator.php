@@ -152,11 +152,11 @@ class HappyPathValidator implements ValidatorInterface
                     $ctypeFunction = 'ctype_' . $type;
 
                     if (\function_exists($isFunction)) {
-                        if (!$isFunction($value)) {
+                        if (\is_callable($isFunction) && !$isFunction($value)) { /* @phpstan-ignore-line */
                             return false;
                         }
                     } elseif (\function_exists($ctypeFunction)) {
-                        if (!$ctypeFunction($value)) {
+                        if (\is_callable($ctypeFunction) && !$ctypeFunction($value)) { /* @phpstan-ignore-line */
                             return false;
                         }
                     } elseif (!$value instanceof $type) {

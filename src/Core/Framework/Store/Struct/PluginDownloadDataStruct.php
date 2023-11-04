@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Struct;
 /**
  * @codeCoverageIgnore
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 class PluginDownloadDataStruct extends Struct
 {
     /**
@@ -20,14 +20,6 @@ class PluginDownloadDataStruct extends Struct
      * @var string
      */
     protected $type;
-
-    protected ?int $size = null;
-
-    protected ?string $sha1 = null;
-
-    protected ?string $binaryVersion = null;
-
-    protected ?string $manifestLocation = null;
 
     public function getLocation(): string
     {

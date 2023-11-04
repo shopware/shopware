@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -95,6 +96,7 @@ class VersionManager
      */
     public function insert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
+        /** @var array<string, array<EntityWriteResult>> $result */
         $result = $this->entityWriter->insert($definition, $rawData, $writeContext);
 
         $this->writeAuditLog($result, $writeContext);
@@ -109,6 +111,7 @@ class VersionManager
      */
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
     {
+        /** @var array<string, array<EntityWriteResult>> $result */
         $result = $this->entityWriter->update($definition, $rawData, $writeContext);
 
         $this->writeAuditLog($result, $writeContext);
@@ -159,11 +162,7 @@ class VersionManager
         $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
 
         if (!$lock->acquire()) {
-            throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
-        }
-
-        if (!$this->versionExists($versionId)) {
-            throw DataAbstractionLayerException::versionNotExists($versionId);
+            throw new VersionMergeAlreadyLockedException($versionId);
         }
 
         // load all commits of the provided version
@@ -237,7 +236,7 @@ class VersionManager
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
-            throw DataAbstractionLayerException::cannotCreateNewVersion($definition->getEntityName(), $id);
+            throw new \RuntimeException(sprintf('Cannot create new version. %s by id (%s) not found.', $definition->getEntityName(), $id));
         }
 
         $data = json_decode($this->serializer->serialize($detail, 'json'), true, 512, \JSON_THROW_ON_ERROR);
@@ -269,7 +268,6 @@ class VersionManager
         $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);
         });
-        \assert(\is_array($result));
 
         if ($writeAuditLog) {
             $this->writeAuditLog($result, $versionContext);
@@ -291,6 +289,7 @@ class VersionManager
         $fields = $definition->getFields();
 
         foreach ($fields as $field) {
+            /** @var WriteProtected|null $writeProtection */
             $writeProtection = $field->getFlag(WriteProtected::class);
             if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
                 continue;
@@ -310,8 +309,11 @@ class VersionManager
                 $payloadCursor = &$extensions;
                 if (isset($dataCursor['foreignKeys'])) {
                     $fields = $definition->getFields();
+                    /**
+                     * @var string $key
+                     * @var string $value
+                     */
                     foreach ($dataCursor['foreignKeys'] as $key => $value) {
-                        \assert(\is_string($key));
                         // Clone FK extension and add it to payload
                         if (\is_string($value) && Uuid::isValid($value) && $fields->has($key) && $fields->get($key) instanceof FkField) {
                             $payload[$key] = $value;
@@ -351,6 +353,7 @@ class VersionManager
                 continue;
             }
 
+            /** @var CascadeDelete|null $flag */
             $flag = $field->getFlag(CascadeDelete::class);
             if (!$flag || !$flag->isCloneRelevant()) {
                 continue;
@@ -473,6 +476,7 @@ class VersionManager
                 continue;
             }
 
+            /** @var EntityWriteResult $item */
             foreach ($items as $item) {
                 $payload = $item->getPayload();
 
@@ -516,9 +520,9 @@ class VersionManager
     }
 
     /**
-     * @param array<string, string> $payload
+     * @param array<string, array<string, mixed>|string|null> $payload
      *
-     * @return array<string, string>
+     * @return array<string, array<string, mixed>|string|null>
      */
     private function addVersionToPayload(array $payload, EntityDefinition $definition, string $versionId): array
     {
@@ -546,14 +550,11 @@ class VersionManager
              * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
              * has to be unset, so that its set by the parent, resulting in a valid primary key.
              */
-            if (
-                $field instanceof TranslationsAssociationField
-                && $pkField instanceof StorageAware
-                && $pkField->getStorageName() === $field->getLanguageField()
-            ) {
+            /** @var StorageAware $pkField */
+            if ($field instanceof TranslationsAssociationField && $pkField->getStorageName() === $field->getLanguageField()) {
                 continue;
             }
-
+            /** @var Field $pkField */
             if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);
             }
@@ -570,11 +571,13 @@ class VersionManager
     ): void {
         // add all cascade delete associations
         $cascades = $definition->getFields()->filter(function (Field $field) {
+            /** @var CascadeDelete|null $flag */
             $flag = $field->getFlag(CascadeDelete::class);
 
             return $flag ? $flag->isCloneRelevant() : false;
         });
 
+        /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
             $nested = $criteria->getAssociation($cascade->getPropertyName());
 
@@ -584,10 +587,6 @@ class VersionManager
 
             // many to one shouldn't be cascaded
             if ($cascade instanceof ManyToOneAssociationField) {
-                continue;
-            }
-
-            if (!$cascade instanceof AssociationField) {
                 continue;
             }
 
@@ -621,16 +620,15 @@ class VersionManager
 
     private function translationHasParent(VersionCommitEntity $commit, VersionCommitDataEntity $translationData): bool
     {
+        /** @var EntityTranslationDefinition $translationDefinition */
         $translationDefinition = $this->registry->getByEntityName($translationData->getEntityName());
-        $parentDefinition = $translationDefinition->getParentDefinition();
-        \assert($parentDefinition !== null);
 
-        $parentEntity = $parentDefinition->getEntityName();
+        $parentEntity = $translationDefinition->getParentDefinition()->getEntityName();
 
         $parentPropertyName = $this->getEntityForeignKeyName($parentEntity);
 
+        /** @var array<string, string> $payload */
         $payload = $translationData->getPayload();
-        \assert(\is_array($payload));
         $parentId = $payload[$parentPropertyName];
 
         foreach ($commit->getData() as $data) {
@@ -712,19 +710,19 @@ class VersionManager
         $criteria->addSorting(new FieldSorting('version_commit.autoIncrement'));
         $commitIds = $this->entitySearcher->search($this->versionCommitDefinition, $criteria, $writeContext->getContext());
 
-        if ($commitIds->getTotal() <= 0) {
-            throw DataAbstractionLayerException::noCommitsFound($versionId);
+        $readCriteria = new Criteria();
+        if ($commitIds->getTotal() > 0) {
+            $readCriteria = new Criteria($commitIds->getIds());
         }
 
-        $readCriteria = new Criteria($commitIds->getIds());
         $readCriteria->addAssociation('data');
 
         $readCriteria
             ->getAssociation('data')
             ->addSorting(new FieldSorting('autoIncrement'));
 
+        /** @var VersionCommitCollection $commits */
         $commits = $this->entityReader->read($this->versionCommitDefinition, $readCriteria, $writeContext->getContext());
-        \assert($commits instanceof VersionCommitCollection);
 
         return $commits;
     }
@@ -862,16 +860,5 @@ class VersionManager
                 $this->entityWriter->delete($definition, [$primary], $versionContext);
             }
         }
-    }
-
-    private function versionExists(string $versionId): bool
-    {
-        $exists = $this->entitySearcher->search(
-            $this->versionDefinition,
-            new Criteria([$versionId]),
-            Context::createDefaultContext()
-        );
-
-        return $exists->has($versionId);
     }
 }

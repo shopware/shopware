@@ -129,10 +129,6 @@ export default {
                         ${this.$tc('sw-category.base.products.dynamicProductGroupHelpText.videoLink')}
                     </sw-external-link>`;
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     watch: {

@@ -4,7 +4,7 @@ import './sw-media-sidebar.scss';
 const { Filter, Context } = Shopware;
 
 /**
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -89,10 +89,6 @@ export default {
 
         firstEntity() {
             return this.items[0];
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

@@ -41,7 +41,6 @@
       "from": "From",
       "to": "To",
       "bulkEdit": "Bulk edit",
-      "back": "Back",
       "discard": "Discard"
     },
     "notification": {
@@ -588,23 +587,23 @@
       "addNewEntity": "Add new {entity}",
       "shortcuts": {
         "product": "G P | A P",
-        "category": "G C | &nbsp;",
+        "category": "G C | ",
         "customers": "G U | A U",
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
         "sales-channel": " | A S",
         "cms": "G E | A E",
-        "dashboard": "G H | &nbsp;",
-        "product-stream": "G D | &nbsp;",
-        "order": "G O | &nbsp;",
-        "media": "G M E | &nbsp;",
-        "promotion-v2": "G P O | &nbsp;",
-        "settings": "G S | &nbsp;",
-        "newsletter-recipient": "G N | &nbsp;",
-        "settings-snippet": "G S | &nbsp;",
-        "settings-payment": "G S P | &nbsp;",
-        "settings-shipping": "G S S | &nbsp;"
+        "dashboard": "G H | ",
+        "product-stream": "G D | ",
+        "order": "G O | ",
+        "media": "G M E | ",
+        "promotion-v2": "G P O | ",
+        "settings": "G S | ",
+        "newsletter-recipient": "G N | ",
+        "settings-snippet": "G S | ",
+        "settings-payment": "G S P | ",
+        "settings-shipping": "G S S | "
       }
     },
     "sw-search-more-results": {
@@ -665,7 +664,7 @@
         },
         "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
-        "daysSinceLastOrderRule": "Time since last order",
+        "daysSinceLastOrderRule": "Days since last order",
         "shippingCountryRule": "Shipping address: Country",
         "shippingCityRule": "Shipping address: City",
         "shippingStreetRule": "Shipping address: Street",
@@ -673,8 +672,8 @@
         "shippingZipCodeRule": "Shipping address: Postal code",
         "customerLoggedInRule": "Customer logged in",
         "customerAgeRule": "Customer age",
-        "customerDaysSinceLastLogin": "Time since last login",
-        "customerDaysSinceFirstLogin": "Time since first login",
+        "customerDaysSinceLastLogin": "Days since last login",
+        "customerDaysSinceFirstLogin": "Days since first login",
         "customerAffiliateCodeRule": "Affiliate code",
         "customerCampaignCodeRule": "Campaign code",
         "cartAmountRule": "Grand total",
@@ -700,7 +699,6 @@
         "orderTransactionStatusRule": "Payment status",
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
-        "orderDocumentTypeRule": "Order with document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -1030,8 +1028,7 @@
       "flow": "Flow Builder",
       "module": "Module",
       "frequently_used": "Frequently used",
-      "recently_searched": "Recently searched",
-      "flow_sequence": "Flow"
+      "recently_searched": "Recently searched"
     },
     "day-of-week": {
       "monday": "Monday",
@@ -1572,7 +1569,13 @@
       "headline": "Improving Shopware collectively",
       "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
       "learnMore": "Learn more",
-      "learnMoreUrl": "https://shopware.com/en/privacy/"
+      "learnMoreUrl": "https://shopware.com"
+    },
+    "sw-settings-usage-data-modal": {
+      "alertText": "This setting will affect all Shopware Administration users. You can change it at any time in {settings-path}",
+      "alertTextSettingsPath": "Settings -> System -> Usage data",
+      "decline": "Decline",
+      "accept": "Accept"
     }
   }
 }

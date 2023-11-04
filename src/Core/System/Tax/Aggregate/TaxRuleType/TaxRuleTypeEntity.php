@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationCollection;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class TaxRuleTypeEntity extends Entity
 {
     use EntityIdTrait;

@@ -19,7 +19,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class ImageSliderTypeDataResolver extends AbstractCmsElementResolver
 {
     /**

@@ -18,7 +18,15 @@ class Parameter extends XmlElement
 
     protected string $value;
 
-    protected string $id;
+    /**
+     * @param array<int|string, mixed> $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
 
     public function getType(): string
     {
@@ -35,14 +43,23 @@ class Parameter extends XmlElement
         return $this->value;
     }
 
-    protected static function parse(\DOMElement $element): array
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parse($element));
+    }
+
+    /**
+     * @return array<int|string, mixed>
+     */
+    private static function parse(\DOMElement $element): array
     {
         $values = [];
 
-        foreach ($element->attributes as $item) {
-            if (!$item instanceof \DOMAttr) {
-                continue;
-            }
+        /** @var \DOMNamedNodeMap $attributes */
+        $attributes = $element->attributes;
+
+        foreach ($attributes as $item) {
+            \assert($item instanceof \DOMAttr);
             $values[$item->name] = XmlUtils::phpize($item->value);
         }
 

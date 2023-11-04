@@ -118,10 +118,6 @@ Component.register('sw-select-selection-list', {
             }
         },
 
-        onKeyDownEnter() {
-            this.$emit('key-down-enter');
-        },
-
         onClickDismiss(item) {
             this.$emit('item-remove', item);
         },

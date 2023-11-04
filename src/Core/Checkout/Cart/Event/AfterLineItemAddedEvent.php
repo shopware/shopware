@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -13,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class AfterLineItemAddedEvent implements ShopwareSalesChannelEvent
 {
     /**
-     * @var LineItem[]
+     * @var array
      */
     protected $lineItems;
 
@@ -27,9 +26,6 @@ class AfterLineItemAddedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    /**
-     * @param LineItem[] $lineItems
-     */
     public function __construct(
         array $lineItems,
         Cart $cart,
@@ -40,9 +36,6 @@ class AfterLineItemAddedEvent implements ShopwareSalesChannelEvent
         $this->salesChannelContext = $salesChannelContext;
     }
 
-    /**
-     * @return LineItem[]
-     */
     public function getLineItems(): array
     {
         return $this->lineItems;

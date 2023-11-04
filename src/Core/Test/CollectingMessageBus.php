@@ -7,8 +7,6 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.6.0 - Use \Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus instead
  */
 class CollectingMessageBus implements MessageBusInterface
 {

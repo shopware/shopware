@@ -28,7 +28,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     protected $single = false;
 
     /**
-     * @var array<string, mixed>
+     * @var array<mixed>
      */
     protected $metaData = [];
 
@@ -137,7 +137,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @param array<string, mixed> $metaData
+     * @param array<mixed> $metaData
      */
     public function setMetaData(array $metaData): void
     {
@@ -145,7 +145,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<mixed>
      */
     public function getMetaData(): array
     {

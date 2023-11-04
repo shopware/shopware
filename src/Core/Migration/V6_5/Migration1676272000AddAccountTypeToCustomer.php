@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class Migration1676272000AddAccountTypeToCustomer extends MigrationStep
 {
     private const CHUNK_SIZE = 5000;

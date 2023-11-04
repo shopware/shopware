@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MediaEntity>
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class MediaCollection extends EntityCollection
 {
     /**

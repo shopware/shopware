@@ -3,7 +3,7 @@
  */
 
 /* @private */
-import { defineComponent } from 'vue';
+export {};
 
 type SalutationFilterEntityType = {
     salutation: {
@@ -20,7 +20,7 @@ type SalutationFilterEntityType = {
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('salutation', defineComponent({
+Shopware.Mixin.register('salutation', {
     computed: {
         salutationFilter(): (entity: SalutationFilterEntityType, fallbackSnippet: string) => string {
             return Shopware.Filter.getByName('salutation');
@@ -32,4 +32,4 @@ export default Shopware.Mixin.register('salutation', defineComponent({
             return this.salutationFilter(entity, fallbackSnippet);
         },
     },
-}));
+});

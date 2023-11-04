@@ -24,8 +24,7 @@
                                 "properties": {
                                     "salutationId": {
                                         "description": "Identifier of the salutation. Use `/api/salutation` endpoint to fetch possible values.",
-                                        "type": "string",
-                                        "pattern": "^[0-9a-f]{32}$"
+                                        "type": "string"
                                     },
                                     "firstName": {
                                         "description": "Firstname. This field may be required depending on the system settings.",
@@ -53,13 +52,11 @@
                                     },
                                     "navigationId": {
                                         "description": "Identifier of the navigation page. Can be used to override the configuration.\nTake a look at the settings of a category containing a concact form in the administration.",
-                                        "type": "string",
-                                        "pattern": "^[0-9a-f]{32}$"
+                                        "type": "string"
                                     },
                                     "slotId": {
                                         "description": "Identifier of the cms element",
-                                        "type": "string",
-                                        "pattern": "^[0-9a-f]{32}$"
+                                        "type": "string"
                                     },
                                     "cmsPageType": {
                                         "description": "Type of the content management page",

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
@@ -13,15 +12,10 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class OrderTransactionStatusRule extends FlowRule
 {
     public const RULE_NAME = 'orderTransactionStatus';
-
-    /**
-     * @var array<string>
-     */
-    protected array $salutationIds = [];
 
     /**
      * @internal
@@ -53,9 +47,7 @@ class OrderTransactionStatusRule extends FlowRule
             return false;
         }
 
-        /** @var OrderTransactionEntity $last */
-        $last = $transactions->last();
-        $paymentMethodId = $last->getStateId();
+        $paymentMethodId = $transactions->last()->getStateId();
 
         foreach ($transactions->getElements() as $transaction) {
             $technicalName = $transaction->getStateMachineState()?->getTechnicalName();

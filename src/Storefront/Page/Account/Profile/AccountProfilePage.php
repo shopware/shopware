@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class AccountProfilePage extends Page
 {
     /**

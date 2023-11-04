@@ -72,8 +72,7 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
             },
             'sw-alert': true,
             'sw-container': true,
-            'sw-switch-field': true,
-            'sw-number-field': true,
+            'sw-field': true,
             'sw-select-rule-create': true,
             'sw-extension-component-section': true,
         },
@@ -109,10 +108,10 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         );
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');
@@ -134,10 +133,10 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
         );
 
         const taxProviderPriority = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelPriority"]',
         );
         const taxProviderActive = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
+            'sw-field-stub[label="sw-settings-tax.taxProviderDetail.labelActive"]',
         );
 
         const taxProviderAvailability = wrapper.find('.sw-settings-tax-tax-provider-detail__field-availability-rule');

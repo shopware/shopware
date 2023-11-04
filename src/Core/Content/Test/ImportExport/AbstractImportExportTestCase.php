@@ -45,7 +45,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 abstract class AbstractImportExportTestCase extends TestCase
 {
     use BasicTestDataBehaviour;

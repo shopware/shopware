@@ -29,11 +29,6 @@ export default {
         },
     },
 
-    emits: [
-        'cancel-option-edit',
-        'save-option-edit',
-    ],
-
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');

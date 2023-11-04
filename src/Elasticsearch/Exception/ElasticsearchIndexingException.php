@@ -2,16 +2,11 @@
 
 namespace Shopware\Elasticsearch\Exception;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\ElasticsearchException;
-use Symfony\Component\HttpFoundation\Response;
+use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @deprecated tag:v6.6.0 - will be removed, use ElasticsearchException::indexingError instead
- */
 #[Package('core')]
-class ElasticsearchIndexingException extends ElasticsearchException
+class ElasticsearchIndexingException extends ShopwareHttpException
 {
     final public const CODE = 'ELASTICSEARCH_INDEXING';
 
@@ -20,18 +15,15 @@ class ElasticsearchIndexingException extends ElasticsearchException
      */
     public function __construct(array $items)
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'ElasticsearchException::indexingError')
-        );
-
         $message = \PHP_EOL . implode(\PHP_EOL . '#', array_column($items, 'reason'));
 
         parent::__construct(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            self::INDEXING_ERROR,
-            'Following errors occurred while indexing: {{ messages }}',
-            ['messages' => $message]
+            sprintf('Following errors occurred while indexing: %s', $message)
         );
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::CODE;
     }
 }

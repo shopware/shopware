@@ -22,7 +22,7 @@ async function createWrapper(propsData) {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension/component/sw-extension-domains-modal', () => {
     it('should not show any domains: null', async () => {

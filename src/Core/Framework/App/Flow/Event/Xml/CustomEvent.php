@@ -20,9 +20,21 @@ class CustomEvent extends XmlElement
     protected string $name;
 
     /**
-     * @var list<string>
+     * @var array<string>
      */
     protected array $aware = [];
+
+    /**
+     * @param array<int|string, mixed> $data
+     */
+    private function __construct(array $data)
+    {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
+
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
 
     public function getName(): string
     {
@@ -30,15 +42,32 @@ class CustomEvent extends XmlElement
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getAware(): array
     {
         return $this->aware;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(string $defaultLocale): array
     {
+        return parent::toArray($defaultLocale);
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(self::parse($element));
+    }
+
+    /**
+     * @return CustomEventArrayType
+     */
+    private static function parse(\DOMElement $element): array
+    {
+        /** @var CustomEventArrayType $values */
         $values = [];
 
         foreach ($element->childNodes as $child) {

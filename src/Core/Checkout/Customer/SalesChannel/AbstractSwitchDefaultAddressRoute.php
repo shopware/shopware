@@ -10,7 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * This route can be to switch the current default shipping or billing address
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 abstract class AbstractSwitchDefaultAddressRoute
 {
     final public const TYPE_BILLING = 'billing';

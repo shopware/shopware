@@ -50,6 +50,16 @@ class InputField extends XmlElement
 
     protected ?string $type = null;
 
+    /**
+     * @param array<int|string, mixed> $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
     public function getName(): ?string
     {
         Feature::triggerDeprecationOrThrow(
@@ -142,23 +152,21 @@ class InputField extends XmlElement
         return $this->type;
     }
 
-    public static function fromXml(\DOMElement $element): static
+    public static function fromXml(\DOMElement $element): self
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\InputField')
         );
 
-        return parent::fromXml($element);
+        return new self(self::parse($element));
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return array<int|string, mixed>
+     */
+    private static function parse(\DOMElement $element): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\InputField')
-        );
-
         $values = [];
 
         $values['type'] = $element->getAttribute('type') ?: 'text';

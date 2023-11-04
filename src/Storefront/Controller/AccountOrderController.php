@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -149,17 +148,11 @@ class AccountOrderController extends StorefrontController
         $deliveriesCriteria = $criteria->getAssociation('deliveries');
         $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 
-        try {
-            /** @var OrderEntity|null $order */
-            $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
-        } catch (InvalidUuidException) {
-            $order = null;
-        }
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
 
         if ($order === null) {
-            $this->addFlash(self::DANGER, $this->trans('error.' . OrderException::ORDER_ORDER_NOT_FOUND_CODE));
-
-            return $this->redirectToRoute('frontend.account.order.page');
+            throw OrderException::orderNotFound($orderId);
         }
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
@@ -261,7 +254,7 @@ class AccountOrderController extends StorefrontController
 
         $setPaymentRequest = new Request();
         $setPaymentRequest->request->set('orderId', $orderId);
-        $setPaymentRequest->request->add($request->request->all());
+        $setPaymentRequest->request->set('paymentMethodId', $request->get('paymentMethodId'));
 
         $setPaymentOrderRouteRequestEvent = new SetPaymentOrderRouteRequestEvent($request, $setPaymentRequest, $context);
         $this->eventDispatcher->dispatch($setPaymentOrderRouteRequestEvent);
@@ -272,7 +265,6 @@ class AccountOrderController extends StorefrontController
         $handlePaymentRequest->request->set('orderId', $orderId);
         $handlePaymentRequest->request->set('finishUrl', $finishUrl);
         $handlePaymentRequest->request->set('errorUrl', $errorUrl);
-        $handlePaymentRequest->request->add($request->request->all());
 
         $handlePaymentMethodRouteRequestEvent = new HandlePaymentMethodRouteRequestEvent($request, $handlePaymentRequest, $context);
         $this->eventDispatcher->dispatch($handlePaymentMethodRouteRequestEvent);

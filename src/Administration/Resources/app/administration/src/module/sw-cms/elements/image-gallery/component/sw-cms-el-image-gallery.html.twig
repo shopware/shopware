@@ -18,24 +18,16 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_image_gallery_selection %}
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                <template
+                <sw-media-list-selection-item-v2
                     v-for="(sliderItem, index) in mediaUrls"
-                    {% if VUE3 %}
+                    v-if="index < galleryLimit"
                     :key="index"
-                    {% endif %}
-                >
-                    <sw-media-list-selection-item-v2
-                        v-if="index < galleryLimit"
-                        {% if VUE2 %}
-                        :key="index"
-                        {% endif %}
-                        :item="sliderItem.media"
-                        :class="activeMediaClass(sliderItem.media)"
-                        hide-actions
-                        hide-tooltip
-                        @click="onChangeGalleryImage(sliderItem.media, index)"
-                    />
-                </template>
+                    :item="sliderItem.media"
+                    :class="activeMediaClass(sliderItem.media)"
+                    hide-actions
+                    hide-tooltip
+                    @click="onChangeGalleryImage(sliderItem.media, index)"
+                />
                 {% endblock %}
             </div>
         </template>

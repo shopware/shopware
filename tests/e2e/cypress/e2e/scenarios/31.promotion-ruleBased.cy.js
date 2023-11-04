@@ -1,7 +1,7 @@
-/// <reference types="Cypress" />
 /**
- * @package buyers-experience
+ * @package checkout
  */
+/// <reference types="Cypress" />
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import CheckoutPageObject from '../../support/pages/checkout.page-object';
 
@@ -27,7 +27,7 @@ describe('Promotions: rule based conditions & Rule Builder', () => {
         });
     });
 
-    it('@package: should set a rule based conditions to the promotion and check it in the storefront', { tags: ['pa-checkout', 'quarantined'] }, () => {
+    it('@package: should set a rule based conditions to the promotion and check it in the storefront', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST',

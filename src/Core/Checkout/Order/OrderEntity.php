@@ -23,7 +23,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderEntity extends Entity
 {
     use EntityCustomFieldsTrait;
@@ -80,7 +80,7 @@ class OrderEntity extends Entity
     protected $amountTotal;
 
     /**
-     * @var float
+     * @var float|null
      */
     protected $amountNet;
 
@@ -233,8 +233,6 @@ class OrderEntity extends Entity
      * @var CashRoundingConfig|null
      */
     protected $totalRounding;
-
-    protected ?string $source = null;
 
     public function getCurrencyId(): string
     {
@@ -572,19 +570,6 @@ class OrderEntity extends Entity
         $this->customerComment = $customerComment;
     }
 
-    public function getSource(): ?string
-    {
-        return $this->source;
-    }
-
-    public function setSource(?string $source): void
-    {
-        $this->source = $source;
-    }
-
-    /**
-     * @return array<string>|null
-     */
     public function getRuleIds(): ?array
     {
         return $this->ruleIds;

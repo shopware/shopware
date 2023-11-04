@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerIndexingMessage extends EntityIndexingMessage
 {
     /**

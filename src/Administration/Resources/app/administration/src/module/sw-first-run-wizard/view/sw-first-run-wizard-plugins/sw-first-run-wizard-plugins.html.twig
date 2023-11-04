@@ -70,7 +70,8 @@
             v-for="plugin in categoryLead"
             :key="plugin.name"
             :plugin="plugin"
-            @on-plugin-installed="reloadRecommendations"
+            @onPluginInstalled="reloadRecommendations"
+            @onPluginRemoved="reloadRecommendations"
             @extension-activated="$emit('extension-activated', $event)"
         />
     </div>
@@ -101,7 +102,6 @@
                 :key="plugin.name"
                 :plugin="plugin"
                 :show-description="false"
-                @on-plugin-installed="reloadRecommendations"
                 @extension-activated="$emit('extension-activated', $event)"
             />
         </sw-container>

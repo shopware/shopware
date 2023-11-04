@@ -2,7 +2,7 @@ import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
 /**
- * @package buyers-experience
+ * @package customer-order
  */
 
 const { Mixin, Data: { Criteria, EntityCollection } } = Shopware;
@@ -52,10 +52,6 @@ export default {
 
         tagRepository() {
             return this.repositoryFactory.create('tag');
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
         },
     },
 

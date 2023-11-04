@@ -12,10 +12,7 @@ Component.register('sw-entity-many-to-many-select', {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: { repositoryFactory: 'repositoryFactory' },
 
     model: {
         prop: 'entityCollection',
@@ -317,12 +314,6 @@ Component.register('sw-entity-many-to-many-select', {
 
                 newEntityCollection.push(deepCopyObject(entity));
             });
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:entityCollection', newEntityCollection);
-
-                return;
-            }
 
             this.$emit('change', newEntityCollection);
         },

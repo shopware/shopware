@@ -36,7 +36,7 @@ let TwigTemplates = null;
 Twig.extend(TwigCore => {
     /**
      * Remove tokens output_whitespace_pre, output_whitespace_post, output_whitespace_both and output.
-     * These tokens are used for functions and data output.
+     * This tokens are used for functions and data output.
      * Since the data binding is done in Vue this could lead to syntax issues.
      * We are only using the block system for template inheritance.
      *
@@ -259,16 +259,12 @@ function resolveTemplates() {
 
 function applyTemplateOverrides(name) {
     const item = normalizedTemplateRegistry.get(name);
-    const templateVars = {
-        VUE3: !!window._features_?.VUE3,
-        VUE2: !window._features_?.VUE3,
-    };
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = item.template.render(templateVars);
+        const finalHtml = item.template.render({});
 
-        // Update item which will be written to the registry
+        // Update item which will written to the registry
         const updatedTemplate = {
             ...item,
             html: finalHtml,
@@ -300,7 +296,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = updatedTemplate.template.render(templateVars);
+    const finalHtml = updatedTemplate.template.render({});
 
     // Update item which will written to the registry
     updatedTemplate = {
@@ -461,12 +457,6 @@ function findBlock(blockName, tokens) {
 function resolveToken(token, itemTokens, name) {
     // plain html - just return the token
     if (token.type !== 'logic') {
-        return token;
-    }
-
-    // Vue 3 - if/else token support
-    const ifElseTokenTypes = ['Twig.logic.type.if', 'Twig.logic.type.else', 'Twig.logic.type.endif'];
-    if (token.type === 'logic' && ifElseTokenTypes.includes(token.token.type)) {
         return token;
     }
 

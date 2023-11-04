@@ -17,9 +17,6 @@ abstract class AbstractResponse extends Struct
 
     abstract public function validate(string $transactionId): void;
 
-    /**
-     * @param array<string, mixed> $data
-     */
     public static function create(?string $transactionId, array $data): self
     {
         $response = new static();
@@ -29,21 +26,5 @@ abstract class AbstractResponse extends Struct
         }
 
         return $response;
-    }
-
-    /**
-     * @param array<string, mixed> $options
-     *
-     * @return $this
-     */
-    public function assign(array $options)
-    {
-        foreach ($options as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;  /* @phpstan-ignore-line */
-            }
-        }
-
-        return $this;
     }
 }

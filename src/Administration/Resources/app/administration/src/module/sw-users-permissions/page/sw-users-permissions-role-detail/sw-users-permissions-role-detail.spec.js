@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swUsersPermissionsRoleDetail from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
@@ -64,7 +64,6 @@ async function createWrapper(
             'sw-users-permissions-additional-permissions': true,
             'sw-verify-user-modal': true,
             'sw-tabs': true,
-            'sw-tabs-item': true,
             'router-view': true,
             'sw-skeleton': true,
             'sw-loader': true,

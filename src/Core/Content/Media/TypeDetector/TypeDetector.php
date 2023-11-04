@@ -13,7 +13,7 @@ use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
  *     handlerInterface="TypeDetectorInterface"
  * )
  */
-#[Package('buyers-experience')]
+#[Package('content')]
 class TypeDetector implements TypeDetectorInterface
 {
     /**

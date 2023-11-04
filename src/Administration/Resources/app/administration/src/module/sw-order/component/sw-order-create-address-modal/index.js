@@ -2,7 +2,7 @@ import template from './sw-order-create-address-modal.html.twig';
 import './sw-order-create-address-modal.scss';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Mixin, State, Service } = Shopware;

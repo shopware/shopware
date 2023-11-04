@@ -6,7 +6,6 @@
 import type { Dictionary } from 'vue-router/types/router';
 import type { RawLocation } from 'vue-router';
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
-import { defineComponent } from 'vue';
 
 /* @private */
 export {};
@@ -17,7 +16,7 @@ export {};
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('listing', defineComponent({
+Shopware.Mixin.register('listing', {
     inject: ['searchRankingService', 'feature'],
 
     data(): {
@@ -33,7 +32,6 @@ export default Shopware.Mixin.register('listing', defineComponent({
         searchConfigEntity: string|null,
         entitySearchable: boolean,
         freshSearchTerm: boolean,
-        previousRouteName: string,
         } {
         return {
             page: 1,
@@ -48,7 +46,6 @@ export default Shopware.Mixin.register('listing', defineComponent({
             searchConfigEntity: null,
             entitySearchable: true,
             freshSearchTerm: false,
-            previousRouteName: '',
         };
     },
 
@@ -90,10 +87,6 @@ export default Shopware.Mixin.register('listing', defineComponent({
     },
 
     created() {
-        if (this.feature.isActive('VUE3')) {
-            this.previousRouteName = this.$route.name as string;
-        }
-
         if (this.disableRouteParams) {
             this.getList();
             return;
@@ -123,7 +116,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
     watch: {
         // Watch for changes in query parameters and update listing
         '$route'(newRoute, oldRoute) {
-            if (this.disableRouteParams || (this.feature.isActive('VUE3') && this.previousRouteName !== newRoute.name)) {
+            if (this.disableRouteParams) {
                 return;
             }
 
@@ -136,7 +129,6 @@ export default Shopware.Mixin.register('listing', defineComponent({
             // Update data information from the url
             this.updateData(query);
 
-            // @ts-expect-error - properties are defined in base component
             if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
                 // @ts-expect-error - filterCriteria is defined in base component
                 this.filterCriteria = [];
@@ -379,4 +371,4 @@ export default Shopware.Mixin.register('listing', defineComponent({
             );
         },
     },
-}));
+});

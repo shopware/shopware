@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipeFactory;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
@@ -21,13 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportFactory
 {
     /**
      * @internal
      *
-     * @param EntityRepository<ImportExportLogCollection> $logRepository
      * @param \IteratorAggregate<mixed, AbstractReaderFactory> $readerFactories
      * @param \IteratorAggregate<mixed, AbstractWriterFactory> $writerFactories
      * @param \IteratorAggregate<mixed, AbstractPipeFactory> $pipeFactories
@@ -73,10 +72,10 @@ class ImportExportFactory
         $criteria->addAssociation('profile');
         $criteria->addAssociation('file');
         $criteria->addAssociation('invalidRecordsLog.file');
-        $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($logEntity === null) {
-            throw ImportExportException::processingError('LogEntity not found');
+            throw new ProcessingException('LogEntity not found');
         }
 
         return $logEntity;
@@ -84,11 +83,8 @@ class ImportExportFactory
 
     private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
+        /** @var ImportExportProfileEntity $profile */
         $profile = $logEntity->getProfile();
-
-        if ($profile === null) {
-            throw ImportExportException::profileNotFound($logEntity->getProfileId() ?? 'null');
-        }
 
         return $this->definitionInstanceRegistry->getRepository($profile->getSourceEntity());
     }
@@ -101,7 +97,7 @@ class ImportExportFactory
             }
         }
 
-        throw ImportExportException::processingError('No pipe factory found');
+        throw new \RuntimeException('No pipe factory found');
     }
 
     private function getReader(ImportExportLogEntity $logEntity): AbstractReader
@@ -112,7 +108,7 @@ class ImportExportFactory
             }
         }
 
-        throw ImportExportException::processingError('No reader factory found');
+        throw new \RuntimeException('No reader factory found');
     }
 
     private function getWriter(ImportExportLogEntity $logEntity): AbstractWriter
@@ -123,6 +119,6 @@ class ImportExportFactory
             }
         }
 
-        throw ImportExportException::processingError('No writer factory found');
+        throw new \RuntimeException('No writer factory found');
     }
 }

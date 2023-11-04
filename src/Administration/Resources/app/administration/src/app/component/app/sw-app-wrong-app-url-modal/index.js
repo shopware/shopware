@@ -44,10 +44,6 @@ Component.register('sw-app-wrong-app-url-modal', {
         display() {
             return !this.isAppUrlReachable && this.hasAppsThatRequireAppUrl && !this.wasModalAlreadyShown;
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     created() {

@@ -11,14 +11,6 @@ const { Component } = Shopware;
 Component.register('sw-data-grid-inline-edit', {
     template,
 
-    inject: [
-        'feature',
-    ],
-
-    emits: [
-        'input',
-    ],
-
     props: {
         column: {
             type: Object,
@@ -69,20 +61,10 @@ Component.register('sw-data-grid-inline-edit', {
         createdComponent() {
             this.currentValue = this.value;
 
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$on('inline-edit-assign', this.emitInput);
-                return;
-            }
-
             this.$parent.$on('inline-edit-assign', this.emitInput);
         },
 
         beforeDestroyComponent() {
-            if (this.feature.isActive('VUE3')) {
-                this.$parent.$parent.$off('inline-edit-assign', this.emitInput);
-                return;
-            }
-
             this.$parent.$off('inline-edit-assign', this.emitInput);
         },
 

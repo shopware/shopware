@@ -12,8 +12,6 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1580746806AddPaymentStates extends MigrationStep

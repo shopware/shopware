@@ -17,7 +17,6 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
@@ -34,15 +33,11 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     private const LANGUAGE_ID = SalesChannelContextService::LANGUAGE_ID;
 
     /**
-     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
-     *
      * @var SalesChannelContextPersister
      */
     protected $contextPersister;
 
     /**
-     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
-     *
      * @var DataValidator
      */
     protected $validator;
@@ -79,20 +74,6 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             self::CURRENCY_ID,
             self::LANGUAGE_ID
         );
-
-        // pre validate to ensure correct data type. Existence of entities is checked later
-        $definition
-            ->add(self::LANGUAGE_ID, new Type('string'))
-            ->add(self::CURRENCY_ID, new Type('string'))
-            ->add(self::SHIPPING_METHOD_ID, new Type('string'))
-            ->add(self::PAYMENT_METHOD_ID, new Type('string'))
-            ->add(self::BILLING_ADDRESS_ID, new Type('string'))
-            ->add(self::SHIPPING_ADDRESS_ID, new Type('string'))
-            ->add(self::COUNTRY_ID, new Type('string'))
-            ->add(self::STATE_ID, new Type('string'))
-        ;
-
-        $this->validator->validate($parameters, $definition);
 
         $addressCriteria = new Criteria();
         if ($context->getCustomer()) {

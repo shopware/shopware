@@ -109,7 +109,7 @@ class SnippetService
 
         $snippets = [];
 
-        $snippetFileCollection = $this->snippetFileCollection;
+        $snippetFileCollection = clone $this->snippetFileCollection;
 
         $usingThemes = $this->getUsedThemes($salesChannelId);
         $unusedThemes = $this->getUnusedThemes($usingThemes);
@@ -228,7 +228,6 @@ class SnippetService
         if ($salesChannelDomain === null) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('iso', $locale));
-            /** @var SnippetSetEntity|null $snippetSet */
             $snippetSet = $this->snippetSetRepository->search($criteria, $context)->first();
         } else {
             $snippetSet = $salesChannelDomain->getSnippetSet();
@@ -335,10 +334,6 @@ class SnippetService
      */
     private function getUsedThemes(?string $salesChannelId = null): array
     {
-        if (!$this->container->has(StorefrontPluginRegistry::class)) {
-            return [];
-        }
-
         if (!$salesChannelId || $this->salesChannelThemeLoader === null) {
             return [StorefrontPluginRegistry::BASE_THEME_NAME];
         }

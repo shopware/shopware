@@ -43,8 +43,6 @@ class WebhookEventLogEntity extends Entity
 
     protected string $url;
 
-    protected bool $onlyLiveVersion;
-
     /**
      * @internal
      */
@@ -180,16 +178,6 @@ class WebhookEventLogEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
-    }
-
-    public function getOnlyLiveVersion(): bool
-    {
-        return $this->onlyLiveVersion;
-    }
-
-    public function setOnlyLiveVersion(bool $onlyLiveVersion): void
-    {
-        $this->onlyLiveVersion = $onlyLiveVersion;
     }
 
     /**

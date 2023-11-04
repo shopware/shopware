@@ -2,7 +2,7 @@ import template from './sw-extension-permissions-modal.html.twig';
 import './sw-extension-permissions-modal.scss';
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default {
@@ -111,10 +111,6 @@ export default {
                 1,
                 { extensionLabel: this.extensionLabel },
             );
-        },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
         },
     },
 

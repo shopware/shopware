@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import template from './sw-settings-currency-detail.html.twig';
 import './sw-settings-currency-detail.scss';
 
@@ -189,9 +186,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.currencyId) {
-                if (!this.feature.isActive('VUE3')) {
-                    this.currencyId = this.$route.params.id;
-                }
+                this.currencyId = this.$route.params.id;
                 return Promise.all([
                     this.loadEntityData(),
                     this.loadCustomFieldSets(),

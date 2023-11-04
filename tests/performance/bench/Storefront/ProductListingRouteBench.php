@@ -4,7 +4,6 @@ namespace Shopware\Tests\Bench\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PhpBench\Attributes as Bench;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,7 +34,7 @@ class ProductListingRouteBench extends AbstractBenchCase
         $this->context = Fixtures::context([
             SalesChannelContextService::CUSTOMER_ID => $this->ids->get(self::SUBJECT_CUSTOMER),
         ]);
-        if (!$this->context->getCustomer() instanceof CustomerEntity) {
+        if (!$this->context->getCustomer()) {
             throw new \Exception('Customer not logged in for bench tests which require it!');
         }
 

@@ -11,15 +11,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class OrderTransactionCaptureRefundEntity extends Entity
 {
     use EntityCustomFieldsTrait;
     use EntityIdTrait;
 
     protected string $captureId;
-
-    protected string $captureVersionId;
 
     protected string $stateId;
 
@@ -113,15 +111,5 @@ class OrderTransactionCaptureRefundEntity extends Entity
     public function setPositions(OrderTransactionCaptureRefundPositionCollection $positions): void
     {
         $this->positions = $positions;
-    }
-
-    public function getCaptureVersionId(): string
-    {
-        return $this->captureVersionId;
-    }
-
-    public function setCaptureVersionId(string $captureVersionId): void
-    {
-        $this->captureVersionId = $captureVersionId;
     }
 }

@@ -34,6 +34,7 @@ const createWrapper = async () => {
     const localVue = createLocalVue();
 
     localVue.use(VueRouter);
+    localVue.filter('asset', key => key);
 
     return shallowMount(await Shopware.Component.build('sw-product-detail-context-prices'), {
         localVue,
@@ -114,12 +115,6 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             getters: {
                 isSystemDefaultLanguage() {
                     return true;
-                },
-            },
-
-            state: {
-                api: {
-                    assetsPath: '/',
                 },
             },
         });

@@ -1,9 +1,10 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
+
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
-describe('Theme: Test common editing of theme', { tags: ['VUE3']}, () => {
+describe('Theme: Test common editing of theme', () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
@@ -79,29 +80,7 @@ describe('Theme: Test common editing of theme', { tags: ['VUE3']}, () => {
             .should('have.css', 'color', 'rgb(0, 0, 0)');
     });
 
-    it('@base @content: filter not allowed values', { tags: ['pa-sales-channels'] }, () => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'PATCH',
-        }).as('saveData');
-
-        cy.get('.sw-theme-list-item')
-            .contains('.sw-theme-list-item__title', 'Shopware default theme')
-            .click();
-
-        cy.get('.sw-theme-manager-detail__area');
-
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif').blur()
-            .should('have.value', '\'Inter\', sans-serif');
-
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif`').blur()
-            .should('have.value', '\'Inter\', sans-serif');
-
-        cy.get('.sw-field-id-sw-font-family-base input').first().clear().type('\'Inter\', sans-serif´').blur()
-            .should('have.value', '\'Inter\', sans-serif');
-    });
-
-    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
+    it('@base @media @content: change theme logo image by sidebar', { tags: ['pa-sales-channels'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',

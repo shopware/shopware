@@ -2,11 +2,11 @@ import template from './sw-dashboard-index.html.twig';
 import './sw-dashboard-index.scss';
 
 /**
- * @package services-settings
+ * @package merchant-services
  *
  * @private
  */
-export default Shopware.Component.wrapComponentConfig({
+export default {
     template,
 
     data() {
@@ -116,4 +116,4 @@ export default Shopware.Component.wrapComponentConfig({
             return localeGreetings ?? fallbackGreetings;
         },
     },
-});
+};

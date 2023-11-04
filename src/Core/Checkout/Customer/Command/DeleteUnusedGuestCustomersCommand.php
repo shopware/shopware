@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'customer:delete-unused-guests',
     description: 'Delete unused guest customers',
 )]
-#[Package('checkout')]
+#[Package('customer-order')]
 class DeleteUnusedGuestCustomersCommand extends Command
 {
     /**

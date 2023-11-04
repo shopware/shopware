@@ -92,6 +92,8 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
 
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
+
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
 
@@ -134,6 +136,8 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
 
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
+
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
 
@@ -175,6 +179,8 @@ class DatabaseConfigLoaderTest extends TestCase
         );
 
         $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
+
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
@@ -248,6 +254,8 @@ class DatabaseConfigLoaderTest extends TestCase
         );
 
         $config = $service->load($this->ids->get($key), Context::createDefaultContext());
+
+        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);

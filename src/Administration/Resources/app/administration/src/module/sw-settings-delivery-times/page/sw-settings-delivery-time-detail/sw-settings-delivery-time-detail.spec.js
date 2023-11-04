@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsDeliveryTimeDetail from 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-settings-delivery-time-detail', swSettingsDeliveryTimeDetail);
@@ -85,7 +85,7 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-card': true,
             'sw-container': true,
-            'sw-text-field': true,
+            'sw-field': true,
             'sw-number-field': true,
             'sw-language-info': true,
             'sw-single-select': true,
@@ -101,7 +101,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('sw-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
@@ -128,7 +128,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('sw-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
@@ -160,7 +160,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('sw-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');

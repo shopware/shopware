@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerRecoveryDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'customer_recovery';

@@ -79,7 +79,7 @@
             <template #before-item-list>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_entity_many_to_many_select_base_results_list_before_advanced_selection %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-if="isAdvancedSelectionActive"
                     class="sw-many-to-many-select-filtering__advanced-selection sw-select-result"
@@ -103,7 +103,8 @@
                     name="result-item"
                     v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }"
                 >
-                    <sw-select-result
+                    <li
+                        is="sw-select-result"
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
                         @item-select="addItem"
@@ -124,7 +125,7 @@
                             </template>
                         </slot>
                         {% endblock %}
-                    </sw-select-result>
+                    </li>
                 </slot>
             </template>
             {% endblock %}

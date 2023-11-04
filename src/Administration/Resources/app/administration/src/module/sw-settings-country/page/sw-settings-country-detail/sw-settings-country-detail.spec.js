@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsCountryDetail from 'src/module/sw-settings-country/page/sw-settings-country-detail';

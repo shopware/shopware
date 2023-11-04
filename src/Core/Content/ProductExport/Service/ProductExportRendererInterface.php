@@ -6,7 +6,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 interface ProductExportRendererInterface
 {
     public function renderHeader(
@@ -19,9 +19,6 @@ interface ProductExportRendererInterface
         SalesChannelContext $salesChannelContext
     ): string;
 
-    /**
-     * @param array<string, mixed> $data
-     */
     public function renderBody(
         ProductExportEntity $productExport,
         SalesChannelContext $salesChannelContext,

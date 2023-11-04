@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import { createLocalVue, mount } from '@vue/test-utils';
 import swNewsletterRecipientDetail from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
 
@@ -68,7 +65,7 @@ async function createWrapper(privileges = []) {
                 template: '<div class="sw-field"></div>',
                 props: ['disabled'],
             },
-            'sw-text-field': {
+            'sw-field': {
                 template: '<div class="sw-field"></div>',
                 props: ['disabled'],
             },

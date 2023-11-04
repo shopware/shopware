@@ -2,7 +2,7 @@ import template from './sw-cms-sidebar-nav-element.html.twig';
 import './sw-cms-sidebar-nav-element.scss';
 
 /**
- * @package buyers-experience
+ * @package content
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
 import ProductIndexService from '../service/productIndex.api.service';
 import LiveSearchApiService from '../service/livesearch.api.service';

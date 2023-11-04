@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Language;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class LanguageEvents
 {
     /**

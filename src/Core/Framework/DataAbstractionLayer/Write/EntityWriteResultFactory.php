@@ -41,30 +41,17 @@ class EntityWriteResultFactory
     ) {
     }
 
-    /**
-     * @return array<string, list<EntityWriteResult>>
-     */
     public function build(WriteCommandQueue $queue): array
     {
         return $this->buildQueueResults($queue);
     }
 
-    /**
-     * @param array<array<string, string>> $ids
-     *
-     * @return array<string, array<string>>
-     */
     public function resolveDelete(EntityDefinition $definition, array $ids): array
     {
         // resolves mapping relations, inheritance and sub domain entities
         return $this->resolveParents($definition, $ids, true);
     }
 
-    /**
-     * @param array<string, array<string, mixed>> $rawData
-     *
-     * @return array<string, array<string>>
-     */
     public function resolveWrite(EntityDefinition $definition, array $rawData): array
     {
         // resolve domain parent (order_delivery > order | product_price > product),
@@ -73,15 +60,11 @@ class EntityWriteResultFactory
         return $this->resolveParents($definition, $rawData);
     }
 
-    /**
-     * @param array<string, list<EntityWriteResult>> $results
-     *
-     * @return array<string, array<string>>
-     */
     public function resolveMappings(array $results): array
     {
         $mappings = [];
 
+        /** @var EntityWriteResult[] $result */
         foreach ($results as $entity => $result) {
             $definition = $this->registry->getByEntityName($entity);
 
@@ -96,14 +79,13 @@ class EntityWriteResultFactory
             }
 
             $fkFields = $definition->getFields()->filterInstance(FkField::class);
+
             if ($fkFields->count() <= 0) {
                 continue;
             }
 
+            /** @var FkField $field */
             foreach ($fkFields as $field) {
-                if (!$field instanceof FkField) {
-                    continue;
-                }
                 $reference = $field->getReferenceDefinition()->getEntityName();
 
                 $mappings[$reference] = array_merge($mappings[$reference] ?? [], array_column($ids, $field->getPropertyName()));
@@ -113,12 +95,6 @@ class EntityWriteResultFactory
         return $mappings;
     }
 
-    /**
-     * @param array<string, array<EntityWriteResult>> $writeResults
-     * @param array<string, array<string>|array<array<string, string>>> $parents
-     *
-     * @return array<string, array<EntityWriteResult>>
-     */
     public function addParentResults(array $writeResults, array $parents): array
     {
         foreach ($parents as $entity => $primaryKeys) {
@@ -138,11 +114,6 @@ class EntityWriteResultFactory
         return $writeResults;
     }
 
-    /**
-     * @param array<string, array<EntityWriteResult>> $identifiers
-     * @param array<string, list<EntityWriteResult>> $notFound
-     * @param array<string, array<string>|array<array<string, string>>> $parents
-     */
     public function addDeleteResults(array $identifiers, array $notFound, array $parents): WriteResult
     {
         $results = $this->splitResultsByOperation($identifiers);
@@ -152,6 +123,7 @@ class EntityWriteResultFactory
         $mapped = [];
         $updates = [];
         foreach ($deleted as $entity => $nested) {
+            /** @var EntityWriteResult $result */
             foreach ($nested as $result) {
                 if ($result->getOperation() === EntityWriteResult::OPERATION_UPDATE) {
                     $updates[$entity][] = $result;
@@ -166,11 +138,6 @@ class EntityWriteResultFactory
         return new WriteResult($mapped, $notFound, array_filter($updates));
     }
 
-    /**
-     * @param array<array<string, string>> $ids
-     *
-     * @return array<string, array<string>>
-     */
     private function resolveParents(EntityDefinition $definition, array $ids, bool $delete = false): array
     {
         if ($definition instanceof MappingEntityDefinition) {
@@ -221,11 +188,6 @@ class EntityWriteResultFactory
         return $nested;
     }
 
-    /**
-     * @param array<string, array<EntityWriteResult>> $identifiers
-     *
-     * @return array{deleted: array<string, array<EntityWriteResult>>, updated: array<string, array<EntityWriteResult>>}
-     */
     private function splitResultsByOperation(array $identifiers): array
     {
         $deleted = [];
@@ -246,21 +208,14 @@ class EntityWriteResultFactory
         return ['deleted' => $deleted, 'updated' => $updated];
     }
 
-    /**
-     * @param array<array<string, string>> $rawData
-     *
-     * @return array<array<string>>
-     */
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
     {
         $fkFields = $definition->getFields()->filter(fn (Field $field) => $field instanceof FkField && !$field instanceof ReferenceVersionField);
 
         $mapping = [];
 
+        /** @var FkField $fkField */
         foreach ($fkFields as $fkField) {
-            if (!$fkField instanceof FkField) {
-                continue;
-            }
             $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
 
             $entity = $fkField->getReferenceDefinition()->getEntityName();
@@ -279,11 +234,6 @@ class EntityWriteResultFactory
         return $mapping;
     }
 
-    /**
-     * @param array<array<string, string>> $rawData
-     *
-     * @return array<string, array<string>>
-     */
     private function fetchParentIds(EntityDefinition $definition, array $rawData): array
     {
         $fetchQuery = sprintf(
@@ -307,8 +257,7 @@ class EntityWriteResultFactory
     }
 
     /**
-     * @param array<string, string>|string $primaryKey
-     * @param array<string, array<EntityWriteResult>> $results
+     * @param EntityWriteResult[][] $results
      */
     private function hasResult(string $entity, string|array $primaryKey, array $results): bool
     {
@@ -325,9 +274,6 @@ class EntityWriteResultFactory
         return false;
     }
 
-    /**
-     * @return array<string, list<EntityWriteResult>>
-     */
     private function buildQueueResults(WriteCommandQueue $queue): array
     {
         $identifiers = [];
@@ -408,13 +354,18 @@ class EntityWriteResultFactory
                 );
                 $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
 
+                $changeSet = [];
+                if ($command instanceof ChangeSetAware) {
+                    $changeSet = $command->getChangeSet();
+                }
+
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
                     $command->getDefinition()->getEntityName(),
                     EntityWriteResult::OPERATION_UPDATE,
                     $command->getEntityExistence(),
-                    $command->getChangeSet()
+                    $changeSet
                 );
             }
 
@@ -424,9 +375,6 @@ class EntityWriteResultFactory
         return $identifiers;
     }
 
-    /**
-     * @return array<string, string>|string
-     */
     private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields): array|string
     {
         $primaryKey = $command->getPrimaryKey();
@@ -434,26 +382,20 @@ class EntityWriteResultFactory
         $data = [];
 
         if ($fields->count() === 1) {
+            /** @var StorageAware&Field $field */
             $field = $fields->first();
 
-            if ($field instanceof StorageAware) {
-                return $field->getSerializer()->decode($field, $primaryKey[$field->getStorageName()]);
-            }
+            return $field->getSerializer()->decode($field, $primaryKey[$field->getStorageName()]);
         }
 
+        /** @var StorageAware&Field $field */
         foreach ($fields as $field) {
-            if (!$field instanceof StorageAware) {
-                continue;
-            }
             $data[$field->getPropertyName()] = $field->getSerializer()->decode($field, $primaryKey[$field->getStorageName()]);
         }
 
         return $data;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function getCommandPayload(WriteCommand $command): array
     {
         $payload = [];
@@ -476,10 +418,8 @@ class EntityWriteResultFactory
 
         $primaryKeys = $command->getDefinition()->getPrimaryKeys();
 
+        /** @var Field&StorageAware $primaryKey */
         foreach ($primaryKeys as $primaryKey) {
-            if (!$primaryKey instanceof StorageAware) {
-                continue;
-            }
             if (\array_key_exists($primaryKey->getPropertyName(), $payload)) {
                 continue;
             }
@@ -502,11 +442,6 @@ class EntityWriteResultFactory
         return $convertedPayload;
     }
 
-    /**
-     * @param array<array<string, string>> $rawData
-     *
-     * @return list<string>
-     */
     private function getPrimaryKeysOfFkField(EntityDefinition $definition, array $rawData, FkField $fkField): array
     {
         $parent = $fkField->getReferenceDefinition();
@@ -536,9 +471,6 @@ class EntityWriteResultFactory
         return $primaryKeys;
     }
 
-    /**
-     * @param array<string, string> $rawData
-     */
     private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): string
     {
         $query = $this->connection->createQueryBuilder();
@@ -554,6 +486,7 @@ class EntityWriteResultFactory
                 continue;
             }
 
+            /* @var Field|StorageAware $primaryKey */
             if (!isset($rawData[$property])) {
                 $required = $definition->getPrimaryKeys()->filter(fn (Field $field) => !$field instanceof ReferenceVersionField && !$field instanceof VersionField);
 

@@ -92,10 +92,8 @@ class ShopConfigurationController extends InstallerController
             try {
                 $this->envConfigWriter->writeConfig($connectionInfo, $shop);
 
-                // create admin user first, if there is a validation error we don't need to update shop
-                // and create sales channel
-                $this->adminConfigurationService->createAdmin($adminUser, $connection);
                 $this->shopConfigurationService->updateShop($shop, $connection);
+                $this->adminConfigurationService->createAdmin($adminUser, $connection);
 
                 $session->remove(DatabaseConnectionInformation::class);
                 $session->set('ADMIN_USER', $adminUser);

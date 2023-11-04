@@ -7,7 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 final class DocumentGenerateOperation extends Struct
 {
     protected ?string $documentId = null;

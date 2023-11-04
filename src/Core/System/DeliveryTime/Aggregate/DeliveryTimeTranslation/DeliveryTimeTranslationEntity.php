@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class DeliveryTimeTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

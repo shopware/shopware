@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('business-ops')]
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
     /**

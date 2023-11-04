@@ -10,18 +10,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('inventory')]
 class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
 {
-    /**
-     * @param list<string> $ids
-     */
     public function __construct(
         protected array $ids,
         protected Context $context
     ) {
     }
 
-    /**
-     * @return list<string>
-     */
     public function getIds(): array
     {
         return $this->ids;

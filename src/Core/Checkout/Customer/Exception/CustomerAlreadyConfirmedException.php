@@ -2,20 +2,28 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('checkout')]
-class CustomerAlreadyConfirmedException extends CustomerException
+#[Package('customer-order')]
+class CustomerAlreadyConfirmedException extends ShopwareHttpException
 {
     public function __construct(string $id)
     {
         parent::__construct(
-            Response::HTTP_PRECONDITION_FAILED,
-            self::CUSTOMER_IS_ALREADY_CONFIRMED,
             'The customer with the id "{{ customerId }}" is already confirmed.',
             ['customerId' => $id]
         );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'CHECKOUT__CUSTOMER_IS_ALREADY_CONFIRMED';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_PRECONDITION_FAILED;
     }
 }

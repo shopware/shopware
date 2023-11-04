@@ -9,15 +9,12 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class CustomerCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'customerCustomField';
 
-    /**
-     * @var array<string>|string|int|bool|float|null
-     */
-    protected array|string|int|bool|null|float $renderedFieldValue = null;
+    protected string|int|bool|null|float $renderedFieldValue = null;
 
     /**
      * @param array<string, string> $renderedField

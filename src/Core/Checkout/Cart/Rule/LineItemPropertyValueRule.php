@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 class LineItemPropertyValueRule extends Rule
 {
     public const RULE_NAME = 'cartLineItemPropertyValue';

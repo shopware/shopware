@@ -1,7 +1,7 @@
 import template from './sw-settings-tax-rule-type-individual-states.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Context } = Shopware;

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -22,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'media:generate-media-types',
     description: 'Generates media types for all media files',
 )]
-#[Package('buyers-experience')]
+#[Package('content')]
 class GenerateMediaTypesCommand extends Command
 {
     private ShopwareStyle $io;
@@ -76,7 +74,7 @@ class GenerateMediaTypesCommand extends Command
         }
 
         if (!is_numeric($batchSize)) {
-            throw MediaException::invalidBatchSize();
+            throw new \RuntimeException('BatchSize is not numeric');
         }
 
         return (int) $batchSize;
@@ -98,10 +96,7 @@ class GenerateMediaTypesCommand extends Command
 
         do {
             $result = $this->mediaRepository->search($criteria, $context);
-
-            /** @var MediaCollection $medias */
-            $medias = $result->getEntities();
-            foreach ($medias as $media) {
+            foreach ($result->getEntities() as $media) {
                 $this->detectMediaType($context, $media);
             }
             $this->io->progressAdvance($result->count());
@@ -117,9 +112,9 @@ class GenerateMediaTypesCommand extends Command
 
         $file = new MediaFile(
             $media->getUrl(),
-            $media->getMimeType() ?? '',
-            $media->getFileExtension() ?? '',
-            $media->getFileSize() ?? 0
+            $media->getMimeType(),
+            $media->getFileExtension(),
+            $media->getFileSize()
         );
 
         $type = $this->typeDetector->detect($file);

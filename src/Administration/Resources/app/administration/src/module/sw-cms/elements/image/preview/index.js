@@ -4,14 +4,8 @@ import './sw-cms-el-preview-image.scss';
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
-
-    computed: {
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
-    },
 };

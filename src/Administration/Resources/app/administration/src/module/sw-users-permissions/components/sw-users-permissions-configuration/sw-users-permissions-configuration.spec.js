@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swUsersPermissionsConfiguration from 'src/module/sw-users-permissions/components/sw-users-permissions-configuration';

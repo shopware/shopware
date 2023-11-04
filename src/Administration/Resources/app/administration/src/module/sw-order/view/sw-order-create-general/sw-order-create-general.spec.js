@@ -4,7 +4,7 @@ import swOrderCreateGeneral from 'src/module/sw-order/view/sw-order-create-gener
 import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 Shopware.Component.register('sw-order-create-general', swOrderCreateGeneral);
@@ -26,7 +26,6 @@ async function createWrapper() {
             'sw-card-section': true,
             'sw-description-list': true,
             'sw-order-line-items-grid-sales-channel': true,
-            'sw-extension-component-section': true,
         },
     });
 }

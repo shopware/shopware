@@ -4,7 +4,7 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 function createCustomSnippetApiService() {

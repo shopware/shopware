@@ -1,25 +1,9 @@
-/**
- * @package buyers-experience
- */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swPromotionV2CartConditionForm from 'src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form';
 
 Shopware.Component.register('sw-promotion-v2-cart-condition-form', swPromotionV2CartConditionForm);
 
-Shopware.Service().register('syncService', () => {
-    return {
-        httpClient: {
-            get() {
-                return Promise.resolve({});
-            },
-        },
-        getBasicHeaders() {
-            return {};
-        },
-    };
-});
-
-async function createWrapper() {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -41,6 +25,14 @@ async function createWrapper() {
             'sw-promotion-v2-rule-select': true,
         },
         provide: {
+            acl: {
+                can: (key) => {
+                    if (!key) { return true; }
+
+                    return privileges.includes(key);
+                },
+            },
+
             promotionSyncService: {
                 loadPackagers: () => Promise.resolve(),
                 loadSorters: () => Promise.resolve(),
@@ -102,8 +94,22 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form', () => {
+    beforeAll(() => {
+        Shopware.Service().register('syncService', () => {
+            return {
+                httpClient: {
+                    get() {
+                        return Promise.resolve({});
+                    },
+                },
+                getBasicHeaders() {
+                    return {};
+                },
+            };
+        });
+    });
+
     it('should have disabled form fields', async () => {
-        global.activeAclRoles = [];
         const wrapper = await createWrapper();
 
         const elements = wrapper.findAll('.sw-switch-field');
@@ -116,9 +122,9 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
     });
 
     it('should not have disabled form fields', async () => {
-        global.activeAclRoles = ['promotion.editor'];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([
+            'promotion.editor',
+        ]);
 
         const elements = wrapper.findAll('.sw-switch-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);

@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
 /**
  * @final
  *
- * @template TEntityCollection of EntityCollection
- *
  * @extends EntityCollection<Entity>
  */
 #[Package('core')]
@@ -44,7 +42,7 @@ class EntitySearchResult extends EntityCollection
     protected $limit;
 
     /**
-     * @param TEntityCollection $entities
+     * @phpstan-ignore-next-line -> we can't generalize the type of EntityCollection here
      */
     final public function __construct(
         protected string $entity,
@@ -79,7 +77,7 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @return TEntityCollection
+     * @return EntityCollection<Entity>
      */
     public function getEntities(): EntityCollection
     {

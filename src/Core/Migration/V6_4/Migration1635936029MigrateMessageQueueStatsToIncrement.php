@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1635936029MigrateMessageQueueStatsToIncrement extends MigrationStep

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerIndexer extends EntityIndexer
 {
     final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
@@ -41,7 +41,7 @@ class CustomerIndexer extends EntityIndexer
     }
 
     /**
-     * @param array{offset: int|null}|null $offset
+     * @param array<string, string>|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {

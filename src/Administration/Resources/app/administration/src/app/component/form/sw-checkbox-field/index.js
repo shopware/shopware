@@ -19,8 +19,6 @@ Component.register('sw-checkbox-field', {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
@@ -36,12 +34,6 @@ Component.register('sw-checkbox-field', {
             type: Boolean,
             required: false,
             default: false,
-        },
-
-        label: {
-            type: String,
-            required: false,
-            default: undefined,
         },
 
         value: {
@@ -85,12 +77,6 @@ Component.register('sw-checkbox-field', {
             required: false,
             default: false,
         },
-
-        partlyChecked: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     data() {
@@ -106,7 +92,6 @@ Component.register('sw-checkbox-field', {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
-                'is--partly-checked': this.isPartlyChecked,
                 'sw-field__checkbox--ghost': this.ghostValue,
             };
         },
@@ -143,14 +128,6 @@ Component.register('sw-checkbox-field', {
             }
             return this.isInheritanceField && this.currentValue === null;
         },
-
-        isPartlyChecked() {
-            return this.partlyChecked && !this.inputState;
-        },
-
-        iconName() {
-            return this.isPartlyChecked ? 'regular-minus-xxs' : 'regular-checkmark-xxs';
-        },
     },
 
     watch: {
@@ -159,12 +136,6 @@ Component.register('sw-checkbox-field', {
 
     methods: {
         onChange(changeEvent) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', changeEvent.target.checked);
-
-                return;
-            }
-
             this.$emit('change', changeEvent.target.checked);
         },
     },

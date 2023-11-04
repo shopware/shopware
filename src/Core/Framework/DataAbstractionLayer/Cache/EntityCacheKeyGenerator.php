@@ -38,8 +38,6 @@ class EntityCacheKeyGenerator
             $context->getLanguageIdChain(),
             $context->getVersionId(),
             $context->getCurrencyId(),
-            $context->getTaxState(),
-            $context->getItemRounding(),
             $ruleIds,
         ], \JSON_THROW_ON_ERROR));
     }

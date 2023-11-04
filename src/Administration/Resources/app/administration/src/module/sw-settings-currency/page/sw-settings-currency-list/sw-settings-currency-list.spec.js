@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import { shallowMount } from '@vue/test-utils';
 import swSettingsCurrencyList from 'src/module/sw-settings-currency/page/sw-settings-currency-list';
 

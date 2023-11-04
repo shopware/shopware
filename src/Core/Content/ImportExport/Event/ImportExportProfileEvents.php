@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\ImportExport\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportExportProfileEvents
 {
     /**

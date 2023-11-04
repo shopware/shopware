@@ -10,7 +10,7 @@ use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('inventory')]
+#[Package('sales-channel')]
 class ProductExportEntity extends Entity
 {
     use EntityIdTrait;

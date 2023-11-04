@@ -43,7 +43,9 @@ class ToOneSerializer extends FieldSerializer
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
 
         $result = $entitySerializer->serialize($config, $definition, $record);
-        yield $toOne->getPropertyName() => iterator_to_array($result);
+        if ($record !== null) {
+            yield $toOne->getPropertyName() => iterator_to_array($result);
+        }
     }
 
     /**

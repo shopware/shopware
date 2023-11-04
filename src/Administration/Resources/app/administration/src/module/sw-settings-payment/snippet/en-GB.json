@@ -44,7 +44,6 @@
       "messageSaveSuccess": "Payment method \"{name}\" has been saved.",
       "messageSaveError": "Payment method \"{name}\" could not be saved.",
       "labelName": "Name",
-      "labelTechnicalName": "Technical name",
       "labelPosition": "Position",
       "labelActive": "Active",
       "labelAfterOrderEnabled": "Allow payment change after checkout",
@@ -55,13 +54,11 @@
       },
       "topRule": "Availability rule",
       "placeholderName": "Enter name...",
-      "placeholderTechnicalName": "Enter technical name...",
       "placeholderPosition": "Enter position...",
       "placeholderDescription": "Enter description...",
       "placeholderAvailabilityRule": "Choose availability rule...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save",
-      "helpTextTechnicalName": "The technical name is used to reference the payment method. It is unique and required for all payment and shipping methods from version 6.7.0.0 onwards. Changing the technical name can break existing payment integrations."
+      "buttonSave": "Save"
     }
   },
   "sw-plugin-box": {

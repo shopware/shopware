@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class RulePayloadSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

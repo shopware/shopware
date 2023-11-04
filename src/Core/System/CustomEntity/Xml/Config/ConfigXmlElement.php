@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('content')]
 abstract class ConfigXmlElement extends XmlElement
 {
+    abstract public static function fromXml(\DOMElement $element): self;
+
     /**
      * @return array<string, mixed>
      */

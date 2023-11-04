@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class CustomerPasswordMatchesValidator extends ConstraintValidator
 {
     /**

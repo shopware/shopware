@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class CmsSlotEntity extends Entity
 {
     use EntityCustomFieldsTrait;

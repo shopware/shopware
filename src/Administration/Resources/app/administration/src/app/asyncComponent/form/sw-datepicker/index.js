@@ -48,8 +48,6 @@ export default {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
@@ -112,9 +110,6 @@ export default {
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed, use `this.$refs.flatpickrInput` instead.
-         */
         flatpickrInputRef() {
             return this.$refs.flatpickrInput;
         },
@@ -198,21 +193,11 @@ export default {
             },
             set(newValue) {
                 if (newValue === null) {
-                    if (this.feature.isActive('VUE3')) {
-                        this.$emit('update:value', null);
-                        return;
-                    }
-
                     this.$emit('input', null);
                     return;
                 }
 
                 if (['time', 'date'].includes(this.dateType)) {
-                    if (this.feature.isActive('VUE3')) {
-                        this.$emit('update:value', newValue);
-                        return;
-                    }
-
                     this.$emit('input', newValue);
                     return;
                 }
@@ -221,11 +206,6 @@ export default {
                 const utcDate = zonedTimeToUtc(new Date(newValue), this.userTimeZone);
 
                 // emit the UTC time so that the v-model value always work in UTC time (which is needed for the server)
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', utcDate.toISOString());
-                    return;
-                }
-
                 this.$emit('input', utcDate.toISOString());
             },
         },
@@ -406,7 +386,7 @@ export default {
             });
 
             // Init flatpickr only if it is not already loaded.
-            this.flatpickrInstance = new Flatpickr(this.$refs.flatpickrInput, mergedConfig);
+            this.flatpickrInstance = new Flatpickr(this.flatpickrInputRef, mergedConfig);
             this.flatpickrInstance.config.onOpen.push(() => {
                 this.isDatepickerOpen = true;
             });

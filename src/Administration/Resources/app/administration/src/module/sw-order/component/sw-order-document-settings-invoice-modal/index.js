@@ -1,7 +1,7 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 const { Mixin } = Shopware;

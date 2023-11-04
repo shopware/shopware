@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('merchant-services')]
 abstract class AbstractExtensionLifecycle
 {
     abstract public function install(string $type, string $technicalName, Context $context): void;

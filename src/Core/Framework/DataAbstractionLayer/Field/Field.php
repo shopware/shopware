@@ -17,9 +17,11 @@ use Shopware\Core\Framework\Struct\Struct;
 abstract class Field extends Struct
 {
     /**
-     * @var array<class-string<Flag>, Flag>
+     * @var array<string, Flag>
      */
     protected array $flags = [];
+
+    protected string $propertyName;
 
     private ?FieldSerializerInterface $serializer = null;
 
@@ -29,8 +31,9 @@ abstract class Field extends Struct
 
     private ?DefinitionInstanceRegistry $registry = null;
 
-    public function __construct(protected string $propertyName)
+    public function __construct(string $propertyName)
     {
+        $this->propertyName = $propertyName;
         $this->addFlags(new ApiAware(AdminApiSource::class));
     }
 
@@ -71,9 +74,6 @@ abstract class Field extends Struct
         return $this;
     }
 
-    /**
-     * @param class-string<Flag> $class
-     */
     public function removeFlag(string $class): self
     {
         unset($this->flags[$class]);
@@ -81,21 +81,11 @@ abstract class Field extends Struct
         return $this;
     }
 
-    /**
-     * @param class-string<Flag> $class
-     */
     public function is(string $class): bool
     {
         return $this->getFlag($class) !== null;
     }
 
-    /**
-     * @template TFlag of Flag
-     *
-     * @param class-string<TFlag> $class
-     *
-     * @return TFlag|null
-     */
     public function getFlag(string $class): ?Flag
     {
         return $this->flags[$class] ?? null;
@@ -135,30 +125,18 @@ abstract class Field extends Struct
         return $this->accessorBuilder;
     }
 
-    /**
-     * @phpstan-assert-if-true !null $this->registry
-     */
     public function isCompiled(): bool
     {
         return $this->registry !== null;
     }
 
-    /**
-     * @return class-string<FieldSerializerInterface>
-     */
     abstract protected function getSerializerClass(): string;
 
-    /**
-     * @return class-string<AbstractFieldResolver>|null
-     */
     protected function getResolverClass(): ?string
     {
         return null;
     }
 
-    /**
-     * @return class-string<FieldAccessorBuilderInterface>|null
-     */
     protected function getAccessorBuilderClass(): ?string
     {
         if ($this instanceof StorageAware) {

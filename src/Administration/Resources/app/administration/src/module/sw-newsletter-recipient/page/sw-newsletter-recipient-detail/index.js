@@ -2,7 +2,7 @@ import template from './sw-newsletter-recipient-detail.html.twig';
 import './sw-newsletter-recipient-detail.scss';
 
 /**
- * @package buyers-experience
+ * @package customer-order
  */
 
 const { Mixin } = Shopware;

@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swSettingsMailer from 'src/module/sw-settings-mailer/page/sw-settings-mailer';

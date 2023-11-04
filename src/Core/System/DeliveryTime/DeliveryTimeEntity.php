@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\Aggregate\DeliveryTimeTranslation\DeliveryTimeTranslationCollection;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 class DeliveryTimeEntity extends Entity
 {
     use EntityCustomFieldsTrait;

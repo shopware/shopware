@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class TimeRangeRuleTest extends TestCase
 {
     use IntegrationTestBehaviour;

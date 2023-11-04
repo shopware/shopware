@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('inventory')]
+#[Package('business-ops')]
 class ProductStreamFilterDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'product_stream_filter';

@@ -13,7 +13,7 @@ const debounceTimeout = 800;
 
 /**
  * @private
- * @package buyers-experience
+ * @package content
  */
 export default {
     template,
@@ -1157,14 +1157,6 @@ export default {
 
         onChangeDontRemindCheckbox() {
             this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
-        },
-
-        async onClickBack() {
-            if (window.history.length > 2) {
-                await this.$router.back();
-            } else {
-                await this.$router.push({ name: 'sw.cms.index' });
-            }
         },
     },
 };

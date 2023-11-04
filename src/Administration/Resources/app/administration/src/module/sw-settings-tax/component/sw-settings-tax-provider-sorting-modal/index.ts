@@ -68,11 +68,15 @@ export default Component.wrapComponentConfig({
                     this.$emit('modal-close');
                     this.$emit('modal-save');
 
+                    // @ts-expect-error
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationSuccess({
                         message: this.$tc('sw-settings-tax.list.taxProvider.sorting-modal.saveSuccessful'),
                     });
                 })
                 .catch(() => {
+                    // @ts-expect-error
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
                         message: this.$tc('sw-settings-tax.list.taxProvider.sorting-modal.errorMessage'),
                     });

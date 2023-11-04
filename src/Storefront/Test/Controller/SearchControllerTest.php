@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -14,7 +13,6 @@ use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 /**
  * @internal
  */
-#[Package('buyers-experience')]
 class SearchControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;

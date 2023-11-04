@@ -25,8 +25,6 @@ const debounce = Shopware.Utils.debounce;
 Component.register('sw-colorpicker', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('sw-form-field'),
         Mixin.getByName('remove-api-error'),
@@ -348,12 +346,6 @@ Component.register('sw-colorpicker', {
         },
 
         debounceEmitColorValue: debounce(function emitValue() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.colorValue);
-
-                return;
-            }
-
             this.$emit('input', this.colorValue);
         }, 50),
 

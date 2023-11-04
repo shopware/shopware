@@ -7,7 +7,6 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -15,6 +14,7 @@ use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundExceptio
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
@@ -54,11 +54,11 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
-        $type = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
 
-        $apiType = $this->definitionService->toApiType($type);
+        $apiType = $this->definitionService->toApiType($apiType);
         if ($apiType === null) {
-            throw ApiException::invalidApiType($type);
+            throw throw RoutingException::invalidRequestParameter('type');
         }
 
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
@@ -146,13 +146,12 @@ class InfoController extends AbstractController
                 'enableNotificationWorker' => $this->params->get('shopware.admin_worker.enable_notification_worker'),
                 'transports' => $this->params->get('shopware.admin_worker.transports'),
             ],
-            'bundles' => $this->getBundles(),
+            'bundles' => $this->getBundles($context),
             'settings' => [
                 'enableUrlFeature' => $this->enableUrlFeature,
                 'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
                 'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
                 'private_allowed_extensions' => $this->params->get('shopware.filesystem.private_allowed_extensions'),
-                'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
             ],
         ]);
     }
@@ -181,7 +180,7 @@ class InfoController extends AbstractController
     /**
      * @return array<string, array{type: 'plugin', css: string[], js: string[], baseUrl: ?string }|array{type: 'app', name: string, active: bool, integrationId: string, baseUrl: string, version: string, permissions: array<string, string[]>}>
      */
-    private function getBundles(): array
+    private function getBundles(Context $context): array
     {
         $assets = [];
         $package = $this->packages->getPackage('asset');
@@ -193,7 +192,7 @@ class InfoController extends AbstractController
 
             $bundleDirectoryName = preg_replace('/bundle$/', '', mb_strtolower($bundle->getName()));
             if ($bundleDirectoryName === null) {
-                throw ApiException::unableGenerateBundle($bundle->getName());
+                throw new \RuntimeException(sprintf('Unable to generate bundle directory for bundle "%s"', $bundle->getName()));
             }
 
             $styles = array_map(static function (string $filename) use ($package, $bundleDirectoryName) {

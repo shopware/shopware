@@ -36,7 +36,6 @@ class Processor
             $cart->setCustomerComment($original->getCustomerComment());
             $cart->setAffiliateCode($original->getAffiliateCode());
             $cart->setCampaignCode($original->getCampaignCode());
-            $cart->setSource($original->getSource());
             $cart->setBehavior($behavior);
             $cart->addState(...$original->getStates());
 

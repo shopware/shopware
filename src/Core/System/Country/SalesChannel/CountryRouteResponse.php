@@ -7,25 +7,19 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class CountryRouteResponse extends StoreApiResponse
 {
     /**
-     * @var EntitySearchResult<CountryCollection>
+     * @var EntitySearchResult
      */
     protected $object;
 
-    /**
-     * @param EntitySearchResult<CountryCollection> $object
-     */
     public function __construct(EntitySearchResult $object)
     {
         parent::__construct($object);
     }
 
-    /**
-     * @return EntitySearchResult<CountryCollection>
-     */
     public function getResult(): EntitySearchResult
     {
         return $this->object;
@@ -33,6 +27,9 @@ class CountryRouteResponse extends StoreApiResponse
 
     public function getCountries(): CountryCollection
     {
-        return $this->object->getEntities();
+        /** @var CountryCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

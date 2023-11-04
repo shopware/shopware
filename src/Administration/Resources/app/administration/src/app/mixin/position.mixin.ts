@@ -7,12 +7,8 @@
 import type Repository from 'src/core/data/repository.data';
 import Criteria from 'src/core/data/criteria.data';
 import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
-import { defineComponent } from 'vue';
 
-/**
- * @private
- */
-export default Shopware.Mixin.register('position', defineComponent({
+Shopware.Mixin.register('position', {
     methods: {
         /**
          * Returns a new position value using the the current max position + 1
@@ -206,4 +202,4 @@ export default Shopware.Mixin.register('position', defineComponent({
             return collection;
         },
     },
-}));
+});

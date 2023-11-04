@@ -1,9 +1,10 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
+
 /**
- * @package buyers-experience
+ * @package sales-channel
  */
 
-describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
+describe('Theme: Test sales channel assignment', () => {
     beforeEach(() => {
         cy.createDefaultSalesChannel().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
@@ -130,7 +131,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
+        cy.get('#sw-field--newThemeName').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');
@@ -179,7 +180,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
+        cy.get('#sw-field--newThemeName').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');
@@ -211,7 +212,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
+        cy.get('#sw-field--newThemeName').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');
@@ -259,7 +260,7 @@ describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
+        cy.get('#sw-field--newThemeName').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');

@@ -31,7 +31,9 @@ final class InvalidateCacheTaskHandler extends ScheduledTaskHandler
                 return;
             }
 
-            $this->cacheInvalidator->invalidateExpired();
+            $time = new \DateTime();
+            $time->modify(sprintf('-%d second', $this->delay));
+            $this->cacheInvalidator->invalidateExpired($time);
         } catch (\Throwable) {
         }
     }

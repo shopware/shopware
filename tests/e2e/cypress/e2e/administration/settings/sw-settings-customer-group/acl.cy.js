@@ -10,7 +10,7 @@ describe('Customer groups: Test acl privileges', () => {
             });
     });
 
-    it.only('@settings: can view customer groups', { tags: ['pa-customers-orders', 'VUE3_SKIP'] }, () => {
+    it('@settings: can view customer groups', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -36,7 +36,7 @@ describe('Customer groups: Test acl privileges', () => {
         cy.get('input[name="sw-field--customerGroup-registrationActive"]').should('not.be.checked');
     });
 
-    it('@settings: can edit customer group', { tags: ['pa-customers-orders', 'VUE3_SKIP'] }, () => {
+    it('@settings: can edit customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -97,7 +97,7 @@ describe('Customer groups: Test acl privileges', () => {
             .should('be.visible');
     });
 
-    it('@settings: can create customer group', { tags: ['pa-customers-orders', 'VUE3_SKIP'] }, () => {
+    it('@settings: can create customer group', { tags: ['pa-customers-orders'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

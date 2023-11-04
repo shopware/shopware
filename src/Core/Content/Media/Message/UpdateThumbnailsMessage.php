@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Media\Message;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('buyers-experience')]
+#[Package('content')]
 class UpdateThumbnailsMessage extends GenerateThumbnailsMessage
 {
     private bool $isStrict = false;

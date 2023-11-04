@@ -10,12 +10,12 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('services-settings')]
+#[Package('business-ops')]
 abstract class DaysSinceRule extends Rule
 {
     protected string $operator = Rule::OPERATOR_EQ;
 
-    protected ?float $daysPassed = null;
+    protected ?int $daysPassed = null;
 
     public function match(RuleScope $scope): bool
     {
@@ -37,12 +37,11 @@ abstract class DaysSinceRule extends Rule
             return false;
         }
 
-        $dateTime = (new \DateTime())
-            ->setTimestamp($date->getTimestamp())
-            ->setTime(0, 0);
-
+        if (method_exists($date, 'setTime')) {
+            $date = $date->setTime(0, 0, 0, 0);
+        }
         /** @var \DateInterval $interval */
-        $interval = $dateTime->diff($currentDate);
+        $interval = $date->diff($currentDate);
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return false;
@@ -61,7 +60,7 @@ abstract class DaysSinceRule extends Rule
             return $constraints;
         }
 
-        $constraints['daysPassed'] = RuleConstraints::float();
+        $constraints['daysPassed'] = RuleConstraints::int();
 
         return $constraints;
     }
@@ -70,7 +69,7 @@ abstract class DaysSinceRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
-            ->numberField('daysPassed', ['unit' => RuleConfig::UNIT_TIME]);
+            ->intField('daysPassed');
     }
 
     abstract protected function getDate(RuleScope $scope): ?\DateTimeInterface;

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<SeoUrlTemplateEntity>
  */
-#[Package('buyers-experience')]
+#[Package('sales-channel')]
 class SeoUrlTemplateCollection extends EntityCollection
 {
     public function getApiAlias(): string

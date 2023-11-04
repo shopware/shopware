@@ -10,7 +10,7 @@ const { Component } = Shopware;
 Component.register('sw-admin', {
     template,
 
-    inject: ['userActivityService', 'loginService', 'feature'],
+    inject: ['userActivityService', 'loginService'],
 
     metaInfo() {
         return {
@@ -41,11 +41,8 @@ Component.register('sw-admin', {
                 return;
             }
 
-            // @ts-expect-error
-            // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
-            const currentRouteName = (this.feature.isActive('VUE3') ? this.$router.currentRoute.value.name : this.$router.currentRoute.name) as string;
             const routeBlocklist = ['sw.inactivity.login.index', 'sw.login.index.login'];
-            if (!data.inactive || routeBlocklist.includes(currentRouteName || '')) {
+            if (!data.inactive || routeBlocklist.includes(this.$router.currentRoute.name || '')) {
                 return;
             }
 

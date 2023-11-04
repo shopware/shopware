@@ -208,10 +208,4 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         const listing = wrapper.find('#mailTemplateGrid');
         expect(listing.exists()).toBe(false);
     });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-    });
 });

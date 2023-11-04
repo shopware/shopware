@@ -18,7 +18,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('checkout')]
+#[Package('customer-order')]
 final class InvoiceRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'invoice';
@@ -59,7 +59,7 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
             $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode);
             $context = $context->assign([
-                'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+                'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
             ]);
 
             // TODO: future implementation (only fetch required data and associations)

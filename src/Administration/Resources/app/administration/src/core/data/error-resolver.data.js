@@ -155,13 +155,9 @@ export default class ErrorResolver {
             return;
         }
 
-        if (!(error instanceof this.ShopwareError)) {
-            error = new this.ShopwareError(error);
-        }
-
         Shopware.State.dispatch('error/addApiError', {
             expression: this.getErrorPath(entity, fieldName),
-            error: error,
+            error: new this.ShopwareError(error),
         });
     }
 

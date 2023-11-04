@@ -15,15 +15,20 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 #[Package('content')]
 final class Listing extends ConfigXmlElement
 {
-    protected Columns $columns;
+    private function __construct(
+        protected readonly Columns $columns
+    ) {
+    }
+
+    public static function fromXml(\DOMElement $element): self
+    {
+        return new self(
+            Columns::fromXml($element)
+        );
+    }
 
     public function getColumns(): Columns
     {
         return $this->columns;
-    }
-
-    protected static function parse(\DOMElement $element): array
-    {
-        return ['columns' => Columns::fromXml($element)];
     }
 }

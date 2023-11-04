@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

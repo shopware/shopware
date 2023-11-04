@@ -18,13 +18,9 @@
         :disabled="disabled"
         :entity-collection="options"
         :criteria="optionCriteria"
+        @change="setOptions"
         @select-collapsed="onSelectCollapsed"
         @search-term-change="setSearchTerm"
-        {% if VUE3 %}
-        @update:entity-collection="setOptions"
-        {% else %}
-        @change="setOptions"
-        {% endif %}
     >
 
         <template #selection-label-property="{ item }">

@@ -1,14 +1,12 @@
 import template from './sw-customer-address-form-options.html.twig';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    emits: ['default-address-change'],
 
     props: {
         customer: {

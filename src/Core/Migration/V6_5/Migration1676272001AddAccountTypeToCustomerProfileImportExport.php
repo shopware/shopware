@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('customer-order')]
 class Migration1676272001AddAccountTypeToCustomerProfileImportExport extends MigrationStep
 {
     public function getCreationTimestamp(): int

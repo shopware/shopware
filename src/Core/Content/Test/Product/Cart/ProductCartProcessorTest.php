@@ -679,6 +679,9 @@ class ProductCartProcessorTest extends TestCase
         $product->setPriceDefinition($definition);
         $product->setLabel('My test product');
         $product->setQuantity(5);
+        $product->setExtensions([
+            ProductCartProcessor::CUSTOM_PRICE => true,
+        ]);
 
         $cart = $this->cartService->getCart($token, $context);
         $this->cartService->add($cart, $product, $context);

@@ -2,7 +2,7 @@ import template from './sw-extension-store-landing-page.html.twig';
 import './sw-extension-store-landing-page.scss';
 
 /**
- * @package services-settings
+ * @package merchant-services
  * @private
  */
 export default {
@@ -22,13 +22,10 @@ export default {
         extensionName() {
             return 'SwagExtensionStore';
         },
-
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
-        },
     },
 
     methods: {
+
         activateStore() {
             this.isLoading = true;
             this.activationStatus = null;

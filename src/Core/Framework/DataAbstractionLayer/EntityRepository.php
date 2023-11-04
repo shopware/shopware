@@ -28,8 +28,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @final
- *
- * @template TEntityCollection of EntityCollection
  */
 #[Package('core')]
 class EntityRepository
@@ -53,9 +51,6 @@ class EntityRepository
         return $this->definition;
     }
 
-    /**
-     * @return EntitySearchResult<TEntityCollection>
-     */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         if (!$criteria->getTitle()) {
@@ -202,13 +197,12 @@ class EntityRepository
     }
 
     /**
-     * @return TEntityCollection
+     * @return EntityCollection<Entity>
      */
     private function read(Criteria $criteria, Context $context): EntityCollection
     {
         $criteria = clone $criteria;
 
-        /** @var TEntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
         if ($criteria->getFields() === []) {
@@ -222,9 +216,6 @@ class EntityRepository
         return $entities;
     }
 
-    /**
-     * @return EntitySearchResult<TEntityCollection>
-     */
     private function _search(Criteria $criteria, Context $context): EntitySearchResult
     {
         $criteria = clone $criteria;
@@ -245,7 +236,7 @@ class EntityRepository
         $ids = $this->searchIds($criteria, $context);
 
         if (empty($ids->getIds())) {
-            /** @var TEntityCollection $collection */
+            /** @var EntityCollection<Entity> $collection */
             $collection = $this->definition->getCollectionClass();
 
             return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $context);
@@ -257,6 +248,7 @@ class EntityRepository
 
         $search = $ids->getData();
 
+        /** @var Entity $element */
         foreach ($entities as $element) {
             if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;

@@ -30,7 +30,7 @@ async function createWrapper() {
 }
 
 /**
- * @package services-settings
+ * @package merchant-services
  */
 describe('src/module/sw-extension-component/sw-extension-adding-failed', () => {
     it('passes correct props to sw-circle-icon', async () => {

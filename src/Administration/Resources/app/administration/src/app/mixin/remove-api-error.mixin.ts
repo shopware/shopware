@@ -3,7 +3,6 @@
  */
 
 import type Vue from 'vue';
-import { defineComponent } from 'vue';
 
 /* @private */
 export {};
@@ -11,14 +10,17 @@ export {};
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-export default Shopware.Mixin.register('remove-api-error', defineComponent({
+Shopware.Mixin.register('remove-api-error', {
     created() {
+        // @ts-expect-error
         if (typeof this.$options.$apiErrorHandler === 'function') {
+            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.$options.$apiErrorHandler(this);
         }
     },
 
+    // @ts-expect-error
     $apiErrorHandler($vm: Vue) {
         let property = 'value';
         if ($vm.$options.model?.prop) {
@@ -41,4 +43,4 @@ export default Shopware.Mixin.register('remove-api-error', defineComponent({
             },
         );
     },
-}));
+});

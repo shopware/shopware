@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelPaymentMethod\SalesChannelPaymentMethodDefinition;
@@ -63,7 +62,7 @@ class PaymentMethodDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             new FkField('plugin_id', 'pluginId', PluginDefinition::class),
             new StringField('handler_identifier', 'handlerIdentifier'),
@@ -81,7 +80,6 @@ class PaymentMethodDefinition extends EntityDefinition
             (new BoolField('asynchronous', 'asynchronous'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
             (new BoolField('prepared', 'prepared'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
             (new BoolField('refundable', 'refundable'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
-            (new BoolField('recurring', 'recurring'))->addFlags(new ApiAware(), new WriteProtected(), new Runtime()),
 
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new ApiAware(), new Required()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
@@ -98,16 +96,6 @@ class PaymentMethodDefinition extends EntityDefinition
 
             // runtime fields
             (new StringField('short_name', 'shortName'))->addFlags(new ApiAware(), new Runtime()),
-            /** @deprecated tag:v6.7.0 - will be required */
-            (new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()),
         ]);
-
-        if (Feature::isActive('v6.7.0.0')) {
-            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware(), new Required()));
-        } else {
-            $fields->add((new StringField('technical_name', 'technicalName'))->addFlags(new ApiAware()));
-        }
-
-        return $fields;
     }
 }

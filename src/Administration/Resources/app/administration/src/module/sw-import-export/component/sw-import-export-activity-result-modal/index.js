@@ -1,5 +1,5 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import template from './sw-import-export-activity-result-modal.html.twig';
 import './sw-import-export-activity-result-modal.scss';
@@ -46,10 +46,6 @@ export default {
 
         logTypeText() {
             return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
         },
     },
 

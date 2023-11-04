@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Doctrine\DBAL\ConnectionException;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -36,6 +38,12 @@ class SyncService implements SyncServiceInterface
     ) {
     }
 
+    /**
+     * @param SyncOperation[] $operations
+     *
+     * @throws ConnectionException
+     * @throws InvalidSyncOperationException
+     */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
         ReplicaConnection::ensurePrimary();
@@ -121,7 +129,7 @@ class SyncService implements SyncServiceInterface
     /**
      * Function to loop through all operations and provide some special handling for wildcard operations, or other short hands
      *
-     * @param list<SyncOperation> $operations
+     * @param SyncOperation[] $operations
      */
     private function loopOperations(array $operations, Context $context): void
     {

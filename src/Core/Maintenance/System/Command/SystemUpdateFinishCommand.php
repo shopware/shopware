@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -96,7 +95,6 @@ class SystemUpdateFinishCommand extends Command
         $eventDispatcher = $this->container->get('event_dispatcher');
         $updateEvent = new UpdatePostFinishEvent($context, $oldVersion, $newVersion);
         $eventDispatcher->dispatch($updateEvent);
-        $output->writeln($updateEvent->getPostUpdateMessage());
 
         $this->installAssets($output);
 
@@ -113,10 +111,13 @@ class SystemUpdateFinishCommand extends Command
         }
         $command = $application->find('database:migrate');
 
-        return $this->runCommand($application, $command, [
+        $arguments = [
             'identifier' => 'core',
             '--all' => true,
-        ], $output);
+        ];
+        $arrayInput = new ArrayInput($arguments, $command->getDefinition());
+
+        return $command->run($arrayInput, $output);
     }
 
     private function installAssets(OutputInterface $output): int
@@ -127,7 +128,7 @@ class SystemUpdateFinishCommand extends Command
         }
         $command = $application->find('assets:install');
 
-        return $this->runCommand($application, $command, [], $output);
+        return $command->run(new ArrayInput([], $command->getDefinition()), $output);
     }
 
     private function rebootKernelWithoutPlugins(): ContainerInterface
@@ -139,18 +140,5 @@ class SystemUpdateFinishCommand extends Command
         $kernel->reboot(null, new StaticKernelPluginLoader($classLoad));
 
         return $kernel->getContainer();
-    }
-
-    /**
-     * @param array<string, string|bool|null> $arguments
-     */
-    private function runCommand(Application $application, Command $command, array $arguments, OutputInterface $output): int
-    {
-        \array_unshift($arguments, $command->getName());
-
-        return $application->doRun(
-            new ArrayInput($arguments),
-            $output
-        );
     }
 }

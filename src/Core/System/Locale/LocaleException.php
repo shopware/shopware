@@ -2,17 +2,14 @@
 
 namespace Shopware\Core\System\Locale;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class LocaleException extends HttpException
 {
     final public const LOCALE_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__LOCALE_DOES_NOT_EXISTS';
-    final public const LANGUAGE_NOT_FOUND = 'SYSTEM__LANGUAGE_NOT_FOUND';
 
     public static function localeDoesNotExists(string $locale): self
     {
@@ -21,23 +18,6 @@ class LocaleException extends HttpException
             self::LOCALE_DOES_NOT_EXISTS_EXCEPTION,
             'The locale {{ locale }} does not exists.',
             ['locale' => $locale]
-        );
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
-     */
-    public static function languageNotFound(?string $languageId): HttpException
-    {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new LanguageNotFoundException($languageId);
-        }
-
-        return new self(
-            Response::HTTP_PRECONDITION_FAILED,
-            self::LANGUAGE_NOT_FOUND,
-            self::$couldNotFindMessage,
-            ['entity' => 'language', 'field' => 'id', 'value' => $languageId]
         );
     }
 }

@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('buyers-experience')]
+#[Package('system-settings')]
 class CachedCountryRoute extends AbstractCountryRoute
 {
     final public const ALL_TAG = 'country-route';

@@ -9,13 +9,10 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
-use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Twig\Error\LoaderError;
 
 /**
  * @internal
@@ -30,15 +27,6 @@ class DomainExceptionRule implements Rule
     private const VALID_EXCEPTION_CLASSES = [
         DecorationPatternException::class,
         ConstraintViolationException::class,
-        PermissionDeniedException::class,
-        LoaderError::class, // Twig
-        ServiceNotFoundException::class, // Symfony
-    ];
-
-    private const VALID_SUB_DOMAINS = [
-        'Cart',
-        'Payment',
-        'Order',
     ];
 
     public function __construct(
@@ -96,7 +84,7 @@ class DomainExceptionRule implements Rule
         $exception = $this->reflectionProvider->getClass($exceptionClass);
         if (!$exception->isSubclassOf(HttpException::class)) {
             return [
-                RuleErrorBuilder::message(\sprintf('Domain exception class %s has to extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))->build(),
+                RuleErrorBuilder::message(\sprintf('Domain exception class %s has extend the \Shopware\Core\Framework\HttpException class', $exceptionClass))->build(),
             ];
         }
 
@@ -109,15 +97,7 @@ class DomainExceptionRule implements Rule
 
         $expected = \sprintf('Shopware\\Core\\%s\\%s\\%sException', $parts[2], $parts[3], $parts[3]);
 
-        if ($exceptionClass !== $expected && !$exception->isSubclassOf($expected)) {
-            // Is it in a subdomain?
-            if (isset($parts[5]) && \in_array($parts[4], self::VALID_SUB_DOMAINS, true)) {
-                $expectedSub = \sprintf('\\%s\\%sException', $parts[4], $parts[4]);
-                if (\str_starts_with(strrev($exceptionClass), strrev($expectedSub))) {
-                    return [];
-                }
-            }
-
+        if ($exceptionClass !== $expected) {
             return [
                 RuleErrorBuilder::message(\sprintf('Expected domain exception class %s, got %s', $expected, $exceptionClass))->build(),
             ];

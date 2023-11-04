@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
  *
  * @group slow
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;

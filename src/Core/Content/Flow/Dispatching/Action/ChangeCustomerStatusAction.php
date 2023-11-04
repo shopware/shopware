@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('business-ops')]
 class ChangeCustomerStatusAction extends FlowAction implements DelayableAction
 {
     /**

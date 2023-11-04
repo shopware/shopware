@@ -1,6 +1,6 @@
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
 

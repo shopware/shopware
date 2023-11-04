@@ -1,6 +1,3 @@
-/**
- * @package buyers-experience
- */
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const defaultSearchConfiguration = {

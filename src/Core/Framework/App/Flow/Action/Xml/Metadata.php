@@ -11,26 +11,27 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class Metadata extends XmlElement
 {
-    protected const REQUIRED_FIELDS = [
-        'label',
-        'name',
-        'url',
-    ];
-    private const TRANSLATABLE_FIELDS = [
+    final public const TRANSLATABLE_FIELDS = [
         'label',
         'description',
         'headline',
     ];
 
+    final public const REQUIRED_FIELDS = [
+        'label',
+        'name',
+        'url',
+    ];
+
     private const BOOLEAN_FIELD = ['delayable'];
 
     /**
-     * @var array<string, string>
+     * @var array<string, mixed>
      */
     protected array $label;
 
     /**
-     * @var array<string, string>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $description = null;
 
@@ -39,7 +40,7 @@ class Metadata extends XmlElement
     protected string $url;
 
     /**
-     * @var list<string>
+     * @var array<string, mixed>
      */
     protected array $requirements = [];
 
@@ -48,16 +49,26 @@ class Metadata extends XmlElement
     protected ?string $swIcon = null;
 
     /**
-     * @var array<string, string>|null
+     * @var array<string, mixed>|null
      */
     protected ?array $headline = null;
 
     protected bool $delayable = false;
 
-    protected ?string $badge = null;
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function __construct(array $data)
+    {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
+
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function getLabel(): array
     {
@@ -65,7 +76,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array<string, mixed>|null
      */
     public function getDescription(): ?array
     {
@@ -83,7 +94,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return list<string>
+     * @return array<string, mixed>
      */
     public function getRequirements(): array
     {
@@ -101,7 +112,7 @@ class Metadata extends XmlElement
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array<string, mixed>|null
      */
     public function getHeadline(): ?array
     {
@@ -118,9 +129,9 @@ class Metadata extends XmlElement
         $this->delayable = $delayable;
     }
 
-    public function getBadge(): ?string
+    public static function fromXml(\DOMElement $element): self
     {
-        return $this->badge;
+        return new self(self::parse($element));
     }
 
     /**
@@ -142,7 +153,10 @@ class Metadata extends XmlElement
         return $data;
     }
 
-    protected static function parse(\DOMElement $element): array
+    /**
+     * @return array<mixed>
+     */
+    private static function parse(\DOMElement $element): array
     {
         $values = [];
 

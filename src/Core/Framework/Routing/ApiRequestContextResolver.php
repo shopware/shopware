@@ -11,9 +11,11 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
@@ -98,9 +100,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return $params;
     }
 
-    /**
-     * @return array{languageId?: string, currencyId?: string, considerInheritance?: true}
-     */
     private function getRuntimeParameters(Request $request): array
     {
         $parameters = [];
@@ -195,7 +194,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getParentLanguageId(?string $languageId): ?string
     {
         if ($languageId === null || !Uuid::isValid($languageId)) {
-            throw RoutingException::languageNotFound($languageId);
+            throw new LanguageNotFoundException($languageId);
         }
         $data = $this->connection->createQueryBuilder()
             ->select(['LOWER(HEX(language.parent_id))'])
@@ -206,7 +205,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ->fetchFirstColumn();
 
         if (empty($data)) {
-            throw RoutingException::languageNotFound($languageId);
+            throw new LanguageNotFoundException($languageId);
         }
 
         return $data[0];
@@ -297,9 +296,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         );
     }
 
-    /**
-     * @return string[]
-     */
     private function fetchPermissions(string $userId): array
     {
         $permissions = $this->connection->createQueryBuilder()
@@ -339,9 +335,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         );
     }
 
-    /**
-     * @return string[]|null
-     */
     private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
     {
         if (!$integrationId) {
@@ -362,9 +355,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @return string[]
-     */
     private function fetchIntegrationPermissions(string $integrationId): array
     {
         $permissions = $this->connection->createQueryBuilder()
@@ -406,7 +396,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     /**
      * @throws MissingPrivilegeException
-     * @throws RoutingException
+     * @throws AppNotFoundException
      */
     private function userAppIntegrationHeaderPrivileged(string $userId, ?string $appIntegrationId): bool
     {
@@ -416,10 +406,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $appName = $this->fetchAppNameByIntegrationId($appIntegrationId);
         if ($appName === null) {
-            throw RoutingException::appIntegrationNotFound($appIntegrationId);
+            throw new AppNotFoundException($appIntegrationId);
         }
 
-        if ($this->isAdmin($userId)) {
+        $isAdmin = $this->isAdmin($userId);
+        if ($isAdmin) {
             return true;
         }
 

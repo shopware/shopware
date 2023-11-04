@@ -21,8 +21,6 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
 
     inheritAttrs: false,
 
-    inject: ['feature'],
-
     model: {
         prop: 'value',
         event: 'change',
@@ -52,12 +50,6 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
 
             if (Number.isNaN(this.currentValue)) {
                 this.currentValue = null;
-            }
-
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
             }
 
             this.$emit('change', this.currentValue);

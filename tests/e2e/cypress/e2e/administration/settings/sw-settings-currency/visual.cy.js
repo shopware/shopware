@@ -1,7 +1,4 @@
-/// <reference types="Cypress" />
-/**
- * @package buyers-experience
- */
+// / <reference types="Cypress" />
 
 describe('Currency: Visual testing', () => {
     beforeEach(() => {
@@ -13,7 +10,7 @@ describe('Currency: Visual testing', () => {
             });
     });
 
-    it('@visual: check appearance of  currency module', { tags: ['pa-system-settings', 'VUE3'] }, () => {
+    it('@visual: check appearance of  currency module', { tags: ['pa-system-settings'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/currency`,
             method: 'POST',

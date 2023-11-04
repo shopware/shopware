@@ -3,23 +3,18 @@
 namespace Shopware\Core\System\StateMachine\Exception;
 
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\StateMachine\StateMachineException;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-class IllegalTransitionException extends StateMachineException
+class IllegalTransitionException extends ShopwareHttpException
 {
-    /**
-     * @param array<mixed> $possibleTransitions
-     */
     public function __construct(
         string $currentState,
         string $transition,
         array $possibleTransitions
     ) {
         parent::__construct(
-            Response::HTTP_BAD_REQUEST,
-            self::ILLEGAL_STATE_TRANSITION,
             'Illegal transition "{{ transition }}" from state "{{ currentState }}". Possible transitions are: {{ possibleTransitionsString }}',
             [
                 'transition' => $transition,
@@ -28,5 +23,15 @@ class IllegalTransitionException extends StateMachineException
                 'possibleTransitions' => $possibleTransitions,
             ]
         );
+    }
+
+    public function getErrorCode(): string
+    {
+        return 'SYSTEM__ILLEGAL_STATE_TRANSITION';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

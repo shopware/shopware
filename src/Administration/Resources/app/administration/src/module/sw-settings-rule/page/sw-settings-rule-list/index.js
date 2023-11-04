@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,
@@ -168,10 +168,6 @@ export default {
             });
 
             return properties;
-        },
-
-        dateFilter() {
-            return Shopware.Filter.getByName('date');
         },
     },
 

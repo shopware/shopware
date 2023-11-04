@@ -61,7 +61,6 @@ async function createWrapper(privileges = []) {
             'sw-context-menu-item': true,
             'sw-modal': true,
             'sw-skeleton': true,
-            'sw-button': true,
         },
     });
 }
@@ -196,12 +195,5 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         expect(wrapper.vm.limit).toBe(10);
         expect(wrapper.vm.getReviews).toHaveBeenCalled();
         wrapper.vm.getReviews.mockRestore();
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

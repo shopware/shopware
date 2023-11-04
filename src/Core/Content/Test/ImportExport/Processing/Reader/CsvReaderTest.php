@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('services-settings')]
+#[Package('system-settings')]
 class CsvReaderTest extends TestCase
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";

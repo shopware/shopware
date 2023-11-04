@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('buyers-experience')]
+#[Package('checkout')]
 class UnknownPromotionDiscountTypeException extends ShopwareHttpException
 {
     public function __construct(PromotionDiscountEntity $discount)

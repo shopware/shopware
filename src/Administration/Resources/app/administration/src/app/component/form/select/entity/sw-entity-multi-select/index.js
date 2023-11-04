@@ -12,10 +12,7 @@ Component.register('sw-entity-multi-select', {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: { repositoryFactory: 'repositoryFactory' },
 
     mixins: [
         Mixin.getByName('remove-api-error'),
@@ -91,19 +88,16 @@ Component.register('sw-entity-multi-select', {
                 return Shopware.Context.api;
             },
         },
-
         hideLabels: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         selectionDisablingMethod: {
             type: Function,
             required: false,
             default: () => false,
         },
-
         descriptionPosition: {
             type: String,
             required: false,
@@ -113,7 +107,6 @@ Component.register('sw-entity-multi-select', {
                 return ['bottom', 'right'].includes(value);
             },
         },
-
         advancedSelectionComponent: {
             type: String,
             required: false,
@@ -121,7 +114,6 @@ Component.register('sw-entity-multi-select', {
                 return '';
             },
         },
-
         advancedSelectionParameters: {
             type: Object,
             required: false,
@@ -200,9 +192,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         refreshCurrentCollection() {
-            if (this.entityCollection) {
-                this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
-            }
+            this.currentCollection = EntityCollection.fromCollection(this.entityCollection);
         },
 
         createEmptyCollection() {
@@ -297,12 +287,6 @@ Component.register('sw-entity-multi-select', {
         },
 
         emitChanges(newCollection) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:entityCollection', newCollection);
-
-                return;
-            }
-
             this.$emit('change', newCollection);
         },
 
@@ -418,12 +402,6 @@ Component.register('sw-entity-multi-select', {
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();
-        },
-
-        clearSelection() {
-            this.emitChanges(this.createEmptyCollection());
-            this.searchTerm = '';
-            this.$refs.selectionList.blur();
         },
     },
 });

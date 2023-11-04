@@ -1,5 +1,5 @@
 /**
- * @package buyers-experience
+ * @package content
  */
 import { shallowMount } from '@vue/test-utils';
 import swMediaIndex from 'src/module/sw-media/page/sw-media-index';
@@ -90,11 +90,5 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         const createButton = wrapper.find('sw-media-upload-v2-stub');
 
         expect(createButton.attributes().disabled).toBeFalsy();
-    });
-
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 });

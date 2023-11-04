@@ -5,7 +5,7 @@ const { Mixin, Classes: { ShopwareError } } = Shopware;
 
 /**
  * @private
- * @package services-settings
+ * @package business-ops
  */
 export default {
     template,

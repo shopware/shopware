@@ -17,8 +17,8 @@ use Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token\JWTMock\TestKey;
-use Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token\JWTMock\TestSigner;
+use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestKey;
+use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 
 /**
  * @internal

@@ -54,13 +54,13 @@ class PriceFieldSerializer extends AbstractFieldSerializer
             }
 
             $constraints = $this->getCachedConstraints($field);
-            $pricePath = $parameters->getPath() . '/price';
+            $pricePath = $parameters->getPath() . '/' . $field->getPropertyName();
 
             foreach ($data->getValue() as $index => $price) {
                 $this->validate($constraints, new KeyValuePair((string) $index, $price, true), $pricePath);
             }
 
-            $this->ensureDefaultPrice($parameters, $data->getValue());
+            $this->ensureDefaultPrice($parameters, $data->getValue(), $field->getPropertyName());
 
             $converted = [];
 
@@ -207,7 +207,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     /**
      * @param array<array<string, mixed>> $prices
      */
-    private function ensureDefaultPrice(WriteParameterBag $parameters, array $prices): void
+    private function ensureDefaultPrice(WriteParameterBag $parameters, array $prices, string $propertyName): void
     {
         foreach ($prices as $price) {
             if ($price['currencyId'] === Defaults::CURRENCY) {
@@ -222,7 +222,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 'No price for default currency defined',
                 [],
                 '',
-                '/price',
+                '/' . $propertyName,
                 $prices
             )
         );

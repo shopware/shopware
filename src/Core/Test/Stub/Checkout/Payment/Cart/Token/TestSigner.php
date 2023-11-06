@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart\Token\JWTMock;
+namespace Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token;
 
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;

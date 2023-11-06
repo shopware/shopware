@@ -31,6 +31,11 @@ class FilterAggregation extends BucketAggregation
         return $this->filter;
     }
 
+    public function getField(): string
+    {
+        return $this->aggregation?->getField() ?? '';
+    }
+
     public function getFields(): array
     {
         $fields = $this->aggregation?->getFields() ?? [];

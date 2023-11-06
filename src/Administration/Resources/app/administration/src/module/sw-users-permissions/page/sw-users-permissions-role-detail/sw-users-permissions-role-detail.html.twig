@@ -90,11 +90,24 @@
                 <sw-skeleton />
             </template>
 
-            <router-view
-                v-else
-                :role="role"
-                :detailed-privileges="detailedPrivileges"
-            />
+            <template v-else>
+                {% if VUE3 %}
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        :role="role"
+                        :detailed-privileges="detailedPrivileges"
+                    />
+                </router-view>
+                {% else %}
+                <router-view
+                    :role="role"
+                    :detailed-privileges="detailedPrivileges"
+                />
+                {% endif %}
+            </template>
         </sw-card-view>
         {% endblock %}
 

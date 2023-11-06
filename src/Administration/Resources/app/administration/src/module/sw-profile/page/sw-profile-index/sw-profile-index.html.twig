@@ -72,26 +72,54 @@
                 <sw-skeleton />
             </template>
 
-            <router-view
-                v-else
-                v-bind="{
-                    user,
-                    timezoneOptions,
-                    languages,
-                    newPassword,
-                    newPasswordConfirm,
-                    avatarMediaItem,
-                    isUserLoading,
-                    languageId,
-                    isDisabled,
-                    userRepository,
-                }"
-                @new-password-change="onChangeNewPassword"
-                @new-password-confirm-change="onChangeNewPasswordConfirm"
-                @media-upload="setMediaItem"
-                @media-remove="onUnlinkAvatar"
-                @media-open="openMediaModal"
-            />
+            <template v-else>
+                {% if VUE3 %}
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        v-bind="{
+                            user,
+                            timezoneOptions,
+                            languages,
+                            newPassword,
+                            newPasswordConfirm,
+                            avatarMediaItem,
+                            isUserLoading,
+                            languageId,
+                            isDisabled,
+                            userRepository,
+                        }"
+                        @new-password-change="onChangeNewPassword"
+                        @new-password-confirm-change="onChangeNewPasswordConfirm"
+                        @media-upload="setMediaItem"
+                        @media-remove="onUnlinkAvatar"
+                        @media-open="openMediaModal"
+                    />
+                </router-view>
+                {% else %}
+                <router-view
+                    v-bind="{
+                        user,
+                        timezoneOptions,
+                        languages,
+                        newPassword,
+                        newPasswordConfirm,
+                        avatarMediaItem,
+                        isUserLoading,
+                        languageId,
+                        isDisabled,
+                        userRepository,
+                    }"
+                    @new-password-change="onChangeNewPassword"
+                    @new-password-confirm-change="onChangeNewPasswordConfirm"
+                    @media-upload="setMediaItem"
+                    @media-remove="onUnlinkAvatar"
+                    @media-open="openMediaModal"
+                />
+                {% endif %}
+            </template>
             {% endblock %}
         </sw-card-view>
 

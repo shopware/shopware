@@ -450,6 +450,20 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_product_save_modal %}
+        {% if VUE3 %}
+        <router-view
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="selectedIds.length"
+                :is-loading="isLoading"
+                :process-status="processStatus"
+                @modal-close="closeModal"
+                @bulk-save="onSave"
+            />
+        </router-view>
+        {% else %}
         <router-view
             :item-total="selectedIds.length"
             :is-loading="isLoading"
@@ -457,6 +471,7 @@
             @modal-close="closeModal"
             @bulk-save="onSave"
         />
+        {% endif %}
         {% endblock %}
     </template>
     {% endblock %}

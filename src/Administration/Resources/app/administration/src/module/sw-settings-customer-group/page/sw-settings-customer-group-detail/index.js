@@ -196,7 +196,7 @@ export default {
         },
 
         async loadSeoUrls() {
-            if (!this.customerGroup?.registrationSalesChannels.length) {
+            if (!this.customerGroup?.registrationSalesChannels?.length) {
                 this.seoUrls = [];
                 return;
             }

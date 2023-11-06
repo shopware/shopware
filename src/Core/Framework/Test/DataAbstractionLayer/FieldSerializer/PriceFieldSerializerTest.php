@@ -61,6 +61,7 @@ class PriceFieldSerializerTest extends TestCase
         } catch (WriteConstraintViolationException $e) {
             static::assertCount(1, $e->getViolations());
             static::assertSame('No price for default currency defined', $e->getViolations()->get(0)->getMessage());
+            static::assertSame('/test', $e->getViolations()->get(0)->getPropertyPath());
         }
 
         static::assertNotNull($e);

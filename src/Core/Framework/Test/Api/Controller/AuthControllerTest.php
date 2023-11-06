@@ -704,10 +704,7 @@ class AuthControllerTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
 
-        /** @var AppEntity|null $app */
-        $app = $appRepository->search($criteria, Context::createDefaultContext())->first();
-
-        return $app;
+        return $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
     }
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void

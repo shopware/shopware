@@ -92,13 +92,28 @@
                 <sw-skeleton />
             </template>
 
-            <router-view
-                v-else
-                :is-loading="isLoading"
-                :is-new-flow="isNewFlow"
-                :is-template="isTemplate"
-                :is-unknown-trigger="isUnknownTrigger"
-            />
+            <template v-else>
+                {% if VUE3 %}
+                <router-view
+                    v-slot="{ Component }"
+                >
+                    <component
+                        :is="Component"
+                        :is-loading="isLoading"
+                        :is-new-flow="isNewFlow"
+                        :is-template="isTemplate"
+                        :is-unknown-trigger="isUnknownTrigger"
+                    />
+                </router-view>
+                {% else %}
+                <router-view
+                    :is-loading="isLoading"
+                    :is-new-flow="isNewFlow"
+                    :is-template="isTemplate"
+                    :is-unknown-trigger="isUnknownTrigger"
+                />
+                {% endif %}
+            </template>
             {% endblock %}
         </sw-card-view>
 

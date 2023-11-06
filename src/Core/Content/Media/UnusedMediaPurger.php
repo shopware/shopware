@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
@@ -71,7 +72,7 @@ class UnusedMediaPurger
             return yield $this->searchMedia($ids, $context);
         }
 
-        // otherwise, we need iterate over the entire result set in batches
+        // otherwise, we need to iterate over the entire result set in batches
         $iterator = new RepositoryIterator($this->mediaRepo, $context, $criteria);
         while (($ids = $iterator->fetchIds()) !== null) {
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays);
@@ -95,7 +96,17 @@ class UnusedMediaPurger
         $gracePeriodDays ??= 0;
         $deletedTotal = 0;
 
-        foreach ($this->getUnusedMediaIds($limit, $offset, $folderEntity) as $idBatch) {
+        $context = Context::createDefaultContext();
+
+        $totalMedia = $this->getTotal(new Criteria(), $context);
+        $totalCandidates = $this->getTotal($this->createFilterForNotUsedMedia($folderEntity), $context);
+
+        $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
+
+        $generator = $this->getUnusedMediaIds($limit, $offset, $folderEntity);
+
+        while ($generator->valid()) {
+            $idBatch = $generator->current();
             $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays);
 
             $this->mediaRepo->delete(
@@ -103,7 +114,11 @@ class UnusedMediaPurger
                 Context::createDefaultContext()
             );
 
-            $deletedTotal += \count($idBatch);
+            $deletedFromBatch = \count($idBatch);
+
+            $deletedTotal += $deletedFromBatch;
+
+            $generator->send($deletedFromBatch);
         }
 
         return $deletedTotal;
@@ -119,6 +134,14 @@ class UnusedMediaPurger
         $media = $this->mediaRepo->search(new Criteria($ids), $context)->getEntities()->getElements();
 
         return array_values($media);
+    }
+
+    private function getTotal(Criteria $criteria, Context $context): int
+    {
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        return $this->mediaRepo->search($criteria, $context)->getTotal();
     }
 
     /**
@@ -173,11 +196,12 @@ class UnusedMediaPurger
             /** @var array<string> $ids */
             $unusedIds = $this->dispatchEvent($ids);
 
+            $deleted = 0;
             if (!empty($unusedIds)) {
-                yield $unusedIds;
+                $deleted = yield $unusedIds;
             }
 
-            $criteria->setOffset(($criteria->getOffset() + $limit) - \count($unusedIds));
+            $criteria->setOffset(($criteria->getOffset() + $limit) - $deleted);
         }
     }
 

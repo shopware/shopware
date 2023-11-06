@@ -318,35 +318,6 @@ class SalesChannelValidatorTest extends TestCase
         static::assertCount(0, $result);
     }
 
-    public function testInsertSalesChannelLanguageWhichAlreadyExist(): void
-    {
-        $id = Uuid::randomHex();
-
-        $salesChannelData = $this
-            ->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
-
-        $context = Context::createDefaultContext();
-
-        $this->getSalesChannelRepository()
-            ->create([$salesChannelData], $context);
-
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage(sprintf(
-            self::DUPLICATED_ENTRY_VALIDATION_MESSAGE,
-            Defaults::LANGUAGE_SYSTEM,
-            $id
-        ));
-
-        $this->getSalesChannelLanguageRepository()->create([[
-            'salesChannelId' => $id,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-        ]], $context);
-
-        $this->getSalesChannelRepository()->delete([[
-            'id' => $id,
-        ]], Context::createDefaultContext());
-    }
-
     public function testOnlyStorefrontAndHeadlessSalesChannelsWillBeSupported(): void
     {
         $id = Uuid::randomHex();

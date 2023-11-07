@@ -575,8 +575,19 @@ const coreConfig = {
                     host: process.env.HOST,
                     port: process.env.PORT,
                     disableHostCheck: true,
-                    sockHost: process.env.SOCKHOST ?? null,
-                    sockPort: process.env.SOCKPORT ?? null,
+                    ...(() => {
+                        const config = {};
+
+                        if (process.env.SOCKHOST) {
+                            config.sockHost = process.env.SOCKHOST;
+                        }
+
+                        if (process.env.SOCKPORT) {
+                            config.sockPort = process.env.SOCKPORT;
+                        }
+
+                        return config;
+                    })(),
                     open: openBrowserForWatch,
                     proxy: {
                         '/api': {

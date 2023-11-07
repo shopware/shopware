@@ -119,7 +119,8 @@ phpstan.neon
 ###< symfony/framework-bundle ###
 
 config/jwt/
-config/packages/
+config/packages/*
+!config/packages/test/
 config/routes*
 !config/routes/
 config/routes/*

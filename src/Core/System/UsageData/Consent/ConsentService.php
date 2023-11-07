@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\Consent;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,9 +29,11 @@ class ConsentService
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $systemConfigRepository,
         private readonly EntityRepository $userConfigRepository,
         private readonly EntityRepository $integrationRepository,
         private readonly ConsentReporter $consentReporter,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -63,6 +66,25 @@ class ConsentService
         $this->deleteIntegration();
 
         $this->storeAndReportConsentState(ConsentState::REVOKED);
+    }
+
+    /**
+     * Returns the last date when we still had the consent.
+     * If we never had the consent before, null is returned.
+     */
+    public function getLastConsentIsAcceptedDate(): ?\DateTimeInterface
+    {
+        if ($this->isConsentAccepted()) {
+            return $this->clock->now();
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('configurationKey', self::SYSTEM_CONFIG_KEY_CONSENT_STATE));
+        $criteria->setLimit(1);
+        $entitySearchResult = $this->systemConfigRepository->search($criteria, Context::createDefaultContext());
+        $config = $entitySearchResult->first();
+
+        return $config?->getUpdatedAt();
     }
 
     public function hasConsentState(): bool

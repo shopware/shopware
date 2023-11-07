@@ -5,7 +5,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition" >
+        <service id="Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
@@ -13,7 +13,7 @@
             <tag name="shopware.sales_channel.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition" >
+        <service id="Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 

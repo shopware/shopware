@@ -534,15 +534,15 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition">
-            <tag name="shopware.entity.definition" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\FlowActionTranslation\AppFlowActionTranslationDefinition">
-            <tag name="shopware.entity.definition" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventDefinition">
-            <tag name="shopware.entity.definition" />
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodDefinition">

@@ -434,7 +434,7 @@ class EntityWriteGatewayTest extends TestCase
      */
     public function testEntityDeleteEventErrorCallbacksCalled(string $eventClass): void
     {
-        $delete = [['id' => Uuid::randomHex()]];
+        $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
 
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -575,7 +575,7 @@ class EntityWriteGatewayTest extends TestCase
     {
         $id = $this->ids->get('product');
 
-        $delete = [['id' => $id]];
+        $delete = [['id' => $id, 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
 
         $successSpy1 = $this->callbackSpy();
         $successSpy2 = $this->callbackSpy();
@@ -597,7 +597,7 @@ class EntityWriteGatewayTest extends TestCase
 
     public function testEntityWriteEventErrorCallbacksCalled(): void
     {
-        $delete = [['id' => Uuid::randomHex()]];
+        $delete = [['id' => Uuid::randomBytes(), 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]];
 
         $connection = $this->getContainer()->get(Connection::class);
 

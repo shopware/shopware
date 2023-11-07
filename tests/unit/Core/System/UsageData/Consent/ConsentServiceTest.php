@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigEntity;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
@@ -18,6 +20,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -37,7 +40,9 @@ class ConsentServiceTest extends TestCase
             $systemConfig,
             new StaticEntityRepository([]),
             new StaticEntityRepository([]),
+            new StaticEntityRepository([]),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::assertTrue($consentService->isConsentAccepted());
@@ -53,7 +58,9 @@ class ConsentServiceTest extends TestCase
             new StaticSystemConfigService(),
             new StaticEntityRepository([]),
             new StaticEntityRepository([]),
+            new StaticEntityRepository([]),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::assertFalse($consentService->isConsentAccepted());
@@ -71,7 +78,9 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $consentReporter,
+            new MockClock(),
         );
 
         static::expectException(ConsentAlreadyRequestedException::class);
@@ -91,7 +100,9 @@ class ConsentServiceTest extends TestCase
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $consentReporter,
+            new MockClock(),
         );
 
         $consentService->requestConsent();
@@ -128,8 +139,10 @@ class ConsentServiceTest extends TestCase
         $consentService = new ConsentService(
             $systemConfigService,
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $integrationRepository,
             $consentReporter,
+            new MockClock(),
         );
 
         $consentService->acceptConsent();
@@ -159,8 +172,10 @@ class ConsentServiceTest extends TestCase
         $consentService = new ConsentService(
             $systemConfigService,
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $integrationRepository,
             $consentReporter,
+            new MockClock(),
         );
 
         $consentService->revokeConsent();
@@ -185,7 +200,9 @@ class ConsentServiceTest extends TestCase
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $consentReporter,
+            new MockClock(),
         );
 
         static::expectException(ConsentAlreadyAcceptedException::class);
@@ -207,7 +224,9 @@ class ConsentServiceTest extends TestCase
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $consentReporter,
+            new MockClock(),
         );
 
         $consentService->revokeConsent();
@@ -224,7 +243,9 @@ class ConsentServiceTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::assertFalse($consentService->hasConsentState());
@@ -239,7 +260,9 @@ class ConsentServiceTest extends TestCase
                 ]),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
+                $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
+                new MockClock(),
             );
 
             static::assertTrue($consentService->hasConsentState());
@@ -254,7 +277,9 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::assertTrue($consentService->isConsentAccepted());
@@ -271,9 +296,11 @@ class ConsentServiceTest extends TestCase
 
         $consentService = new ConsentService(
             new StaticSystemConfigService(),
+            $this->createMock(EntityRepository::class),
             $userConfigRepository,
             $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::assertFalse($consentService->hasUserHiddenConsentBanner($userId, $context));
@@ -298,9 +325,11 @@ class ConsentServiceTest extends TestCase
 
         $consentService = new ConsentService(
             new StaticSystemConfigService(),
+            $this->createMock(EntityRepository::class),
             $userConfigRepository,
             $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::assertTrue($consentService->hasUserHiddenConsentBanner($userId, $context));
@@ -314,7 +343,9 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         static::expectException(ConsentAlreadyRevokedException::class);
@@ -334,10 +365,88 @@ class ConsentServiceTest extends TestCase
                 ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION_ID => 'id',
             ]),
             $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
             $integrationRepository,
             $this->createMock(ConsentReporter::class),
+            new MockClock(),
         );
 
         $consentService->revokeConsent();
+    }
+
+    public function testGetLastApprovalDateReturnsCurrentDateTime(): void
+    {
+        $systemConfig = new StaticSystemConfigService([
+            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
+        ]);
+
+        $currentTime = new \DateTimeImmutable();
+
+        $consentService = new ConsentService(
+            $systemConfig,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ConsentReporter::class),
+            new MockClock($currentTime),
+        );
+
+        static::assertEquals($currentTime, $consentService->getLastConsentIsAcceptedDate());
+    }
+
+    public function testGetLastApprovalDateReturnsNullWhenApprovalWasNeverGiven(): void
+    {
+        $systemConfig = new StaticSystemConfigService([
+            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REQUESTED->value,
+        ]);
+
+        $entitySearchResult = $this->createMock(EntitySearchResult::class);
+        $entitySearchResult->method('first')
+            ->willReturn(null);
+
+        $systemConfigRepository = $this->createMock(EntityRepository::class);
+        $systemConfigRepository->method('search')
+            ->willReturn($entitySearchResult);
+
+        $consentService = new ConsentService(
+            $systemConfig,
+            $systemConfigRepository,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ConsentReporter::class),
+            new MockClock(),
+        );
+
+        static::assertNull($consentService->getLastConsentIsAcceptedDate());
+    }
+
+    public function testGetLastApprovalDateReturnsLastSystemConfigUpdatedAtDateTime(): void
+    {
+        $systemConfig = new StaticSystemConfigService([
+            ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REVOKED->value,
+        ]);
+
+        $updatedAt = new \DateTimeImmutable('2021-01-01 00:00:00');
+        $systemConfigEntity = new SystemConfigEntity();
+        $systemConfigEntity->setUpdatedAt($updatedAt);
+
+        $entitySearchResult = $this->createMock(EntitySearchResult::class);
+        $entitySearchResult->method('first')
+            ->willReturn($systemConfigEntity);
+
+        $systemConfigRepository = $this->createMock(EntityRepository::class);
+        $systemConfigRepository->method('search')
+            ->willReturn($entitySearchResult);
+
+        $consentService = new ConsentService(
+            $systemConfig,
+            $systemConfigRepository,
+            $this->createMock(EntityRepository::class),
+            $this->createMock(EntityRepository::class),
+            $this->createMock(ConsentReporter::class),
+            new MockClock(),
+        );
+
+        static::assertEquals($updatedAt, $consentService->getLastConsentIsAcceptedDate());
     }
 }

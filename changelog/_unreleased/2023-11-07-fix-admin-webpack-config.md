@@ -6,4 +6,4 @@ author_email: s.seggewiss@shopware.com
 author_github: @seggewiss
 ---
 # Administration
-* Changed `webpack.config.js` after a bug was introduced by a github pr
+* Changed `webpack.config.js` contained a bug configuring socketHost and socketPort

@@ -218,7 +218,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertSame(
             $this->queryHelper,
-            $this->queryHelper->withLastApprovalDateConstraint($message, new \DateTimeImmutable()),
+            $this->queryHelper->withLastApprovalDateConstraint($message, $runDate),
         );
 
         static::assertEquals(

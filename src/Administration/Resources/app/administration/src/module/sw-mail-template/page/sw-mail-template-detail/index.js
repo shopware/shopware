@@ -241,8 +241,12 @@ export default {
 
                 // Not needed because the autocompletion method is passed as property to editor
                 if (!this.feature.isActive('VUE3')) {
-                    this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
-                    this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
+                    if (this.$refs.htmlEditor) {
+                        this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
+                    }
+                    if (this.$refs.plainEditor) {
+                        this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
+                    }
                 }
             });
         },

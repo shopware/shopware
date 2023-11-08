@@ -488,8 +488,7 @@
     "afterListPrice": "",
     "cheapestPriceLabel": "Variants from",
     "addToWishlist": "Add to wishlist",
-    "removeFromWishlist": "Remove from wishlist",
-    "toggleWishlist": "Toggle wishlist"
+    "removeFromWishlist": "Remove from wishlist"
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",

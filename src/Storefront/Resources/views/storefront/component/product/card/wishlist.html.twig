@@ -9,7 +9,11 @@
             remove: {
                 path: path('frontend.wishlist.product.remove', { productId: productId }),
             }
-        }
+        },
+        texts: {
+            add: "listing.addToWishlist"|trans|sw_sanitize,
+            remove: "listing.removeFromWishlist"|trans|sw_sanitize
+        },
     } %}
 
     {% set size = size ?? 'md' %}
@@ -18,7 +22,7 @@
         {% block component_product_wishlist_button %}
             <button
                 class="product-wishlist-{{ productId }} product-wishlist-action{% if appearance == 'circle' %}-circle{% endif %} product-wishlist-not-added product-wishlist-loading"
-                title="{{ "listing.toggleWishlist"|trans|sw_sanitize }}"
+                title="{{ "listing.addToWishlist"|trans|sw_sanitize }}"
                 data-add-to-wishlist="true"
                 data-add-to-wishlist-options="{{ addToWishlistOptions|json_encode }}"
             >
@@ -27,11 +31,8 @@
                     {% sw_icon 'heart' style {'class': 'wishlist icon-wishlist-not-added', 'size': size } %}
 
                     {% if showText %}
-                        <span class="product-wishlist-btn-content text-wishlist-not-added product-wishlist-btn-content-{{ size }}">
+                        <span class="product-wishlist-btn-content product-wishlist-btn-content-{{ size }}">
                             {{ "listing.addToWishlist"|trans|sw_sanitize }}
-                        </span>
-                        <span class="product-wishlist-btn-content text-wishlist-remove product-wishlist-btn-content-{{ size }}">
-                            {{ "listing.removeFromWishlist"|trans|sw_sanitize }}
                         </span>
                     {% endif %}
                 {% endblock %}

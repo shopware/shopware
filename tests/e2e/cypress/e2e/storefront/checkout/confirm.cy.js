@@ -317,7 +317,7 @@ describe('Test payment and shipping methods selection', () => {
         cy.get('.offcanvas-cart-actions [href="/checkout/confirm"]').click();
 
         cy.get('.line-item .product-wishlist-action').scrollIntoView();
-        cy.get('.line-item .product-wishlist-action .text-wishlist-not-added')
+        cy.get('.line-item .product-wishlist-action.product-wishlist-not-added')
             .should('be.visible')
             .contains('Add to wishlist');
 
@@ -327,7 +327,7 @@ describe('Test payment and shipping methods selection', () => {
 
         cy.wait('@wishlistAdd').its('response.statusCode').should('equal', 200);
 
-        cy.get('.line-item .product-wishlist-action .text-wishlist-remove')
+        cy.get('.line-item .product-wishlist-action.product-wishlist-added')
             .should('be.visible')
             .contains('Remove from wishlist');
 
@@ -335,7 +335,7 @@ describe('Test payment and shipping methods selection', () => {
 
         cy.wait('@wishlistRemove').its('response.statusCode').should('equal', 200);
 
-        cy.get('.line-item .product-wishlist-action .text-wishlist-not-added')
+        cy.get('.line-item .product-wishlist-action.product-wishlist-not-added')
             .should('be.visible')
             .contains('Add to wishlist');
 

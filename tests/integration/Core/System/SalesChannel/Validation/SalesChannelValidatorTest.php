@@ -276,8 +276,8 @@ class SalesChannelValidatorTest extends TestCase
                     'id' => $id1,
                     'languageId' => 'de-DE',
                     'languages' => [
-                         ['id' => 'de-DE'],
-                         ['id' => Defaults::LANGUAGE_SYSTEM]],
+                        ['id' => 'de-DE'],
+                        ['id' => Defaults::LANGUAGE_SYSTEM]],
                 ],
             ],
             [],

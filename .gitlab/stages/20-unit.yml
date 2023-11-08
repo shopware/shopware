@@ -250,7 +250,7 @@ PHP Full:
         -   name: redis
             alias: redis
     variables:
-        TEST_SUITES: "administration storefront content framework profiling system elasticsearch unit integration migration migration-tests"
+        TEST_SUITES: "administration storefront content framework profiling system unit integration migration migration-tests"
         APP_ENV: test
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         ALLOW_FAILURE: "false"
@@ -274,7 +274,7 @@ PHP Full:
             - .gitlab/stages/02-unit.yml
     parallel:
         matrix:
-            -   MYSQL_IMAGE: mysql:8.0.33
+            -   MYSQL_IMAGE: mysql:8
                 CI_IMAGE_TAG:
                   - "php8.1"
                   - "latest"
@@ -284,7 +284,7 @@ PHP Full:
             # TODO: remove after fix and add version to array above
             -   CI_IMAGE_TAG: "php8.3"
                 ALLOW_FAILURE: 'true'
-                MYSQL_IMAGE: mysql:8.0.33
+                MYSQL_IMAGE: mysql:8
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
             -   MYSQL_IMAGE: mariadb:10.4
             -   MYSQL_IMAGE: mariadb:10.5

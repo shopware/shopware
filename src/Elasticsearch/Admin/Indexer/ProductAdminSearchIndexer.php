@@ -126,7 +126,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

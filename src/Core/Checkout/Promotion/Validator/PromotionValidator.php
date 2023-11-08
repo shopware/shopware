@@ -168,7 +168,7 @@ class PromotionValidator implements EventSubscriberInterface
             $promotionQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
                 ['ids' => $promotionIds],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->databasePromotions = $promotionQuery->fetchAllAssociative();
@@ -179,7 +179,7 @@ class PromotionValidator implements EventSubscriberInterface
             $discountQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
                 ['ids' => $discountIds],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->databaseDiscounts = $discountQuery->fetchAllAssociative();

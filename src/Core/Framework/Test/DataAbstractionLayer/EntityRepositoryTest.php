@@ -842,7 +842,7 @@ class EntityRepositoryTest extends TestCase
             ->fetchAllAssociative(
                 'SELECT id FROM category WHERE parent_id IN (:ids)',
                 ['ids' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($newId)]],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         static::assertCount(4, $childrenIds);

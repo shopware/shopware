@@ -51,7 +51,7 @@ class MediaPathPostUpdater extends PostUpdateIndexer
         $thumbnails = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM media_thumbnail WHERE media_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($message->getData())],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $this->updater->updateThumbnails($thumbnails);

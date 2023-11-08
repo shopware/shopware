@@ -1144,10 +1144,10 @@ class EntityReaderTest extends TestCase
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(2, $mapping);
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(8, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1240,10 +1240,10 @@ class EntityReaderTest extends TestCase
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(2, $mapping);
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(6, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1478,7 +1478,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
         // test many to many not loaded automatically
@@ -1599,7 +1599,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
         // test that we can add the association and all products are fetched
@@ -1679,7 +1679,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1754,7 +1754,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::STRING]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);

@@ -1146,7 +1146,7 @@ class ProductRepositoryTest extends TestCase
         $raw = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList([$id, $child])],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertCount(2, $raw);
 

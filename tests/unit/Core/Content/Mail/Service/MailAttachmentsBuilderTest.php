@@ -128,7 +128,7 @@ class MailAttachmentsBuilderTest extends TestCase
             ->with(
                 static::anything(),
                 ['orderId' => Uuid::fromHexToBytes($orderId), 'documentTypeIds' => Uuid::fromHexToBytesList($eventConfig['documentTypeIds'])],
-                ['documentTypeIds' => ArrayParameterType::STRING]
+                ['documentTypeIds' => ArrayParameterType::BINARY]
             )
             ->willReturn([
                 ['doc_type' => 'foo', 'doc_id' => '1'],

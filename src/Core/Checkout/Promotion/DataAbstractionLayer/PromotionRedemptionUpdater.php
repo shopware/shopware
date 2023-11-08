@@ -65,7 +65,7 @@ SQL;
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
             ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($promotions)) {
@@ -166,7 +166,7 @@ SQL;
         $countResult = $this->connection->fetchAllAssociative(
             'SELECT `id`, `orders_per_customer_count` FROM `promotion` WHERE `id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($promotionIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         foreach ($countResult as $row) {

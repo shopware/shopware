@@ -33,7 +33,7 @@ class Migration1691662140MigrateAvailableStock extends MigrationStep
             $connection->executeStatement(
                 'UPDATE product SET stock = available_stock WHERE id IN (:ids)',
                 ['ids' => $ids],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         } while (!empty($ids));
     }

@@ -56,7 +56,7 @@ trait AdminApiTestBehaviour
             $connection->executeStatement(
                 'DELETE FROM integration WHERE id IN (:ids)',
                 ['ids' => $this->apiIntegrations],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         } catch (\Exception) {
             // nth

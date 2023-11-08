@@ -134,7 +134,7 @@ class CategoryUrlProvider extends AbstractUrlProvider
         $excludedCategoryIds = $this->getExcludedCategoryIds($context);
         if (!empty($excludedCategoryIds)) {
             $query->andWhere('`category`.id NOT IN (:categoryIds)');
-            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::STRING);
+            $query->setParameter('categoryIds', Uuid::fromHexToBytesList($excludedCategoryIds), ArrayParameterType::BINARY);
         }
 
         $query->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));

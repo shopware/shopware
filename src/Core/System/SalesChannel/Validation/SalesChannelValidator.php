@@ -363,7 +363,7 @@ class SalesChannelValidator implements EventSubscriberInterface
                 ON mapping.sales_channel_id = sales_channel.id
                 WHERE sales_channel.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($salesChannelIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return $result;

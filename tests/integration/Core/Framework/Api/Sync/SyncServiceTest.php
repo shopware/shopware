@@ -152,21 +152,21 @@ class SyncServiceTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM product_manufacturer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['m1', 'm2', 'm3', 'm4']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertCount(4, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM tax WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
     }
@@ -281,7 +281,7 @@ class SyncServiceTest extends TestCase
         $existing = $this->connection->fetchFirstColumn(
             'SELECT CONCAT(LOWER(HEX(product_id)), \'-\', LOWER(HEX(category_id))) FROM product_category WHERE product_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['p1', 'p2', 'p3']))],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(3, $existing);

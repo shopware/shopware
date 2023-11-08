@@ -188,7 +188,7 @@ class CheapestPriceUpdater
 
         $ids = Uuid::fromHexToBytesList($ids);
 
-        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
+        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
         $data = $query->executeQuery()->fetchAllAssociative();
@@ -220,7 +220,7 @@ class CheapestPriceUpdater
         $query->andWhere('product.version_id = :version');
         $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
 
-        $query->setParameter('ids', $ids, ArrayParameterType::STRING);
+        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
         $defaults = $query->executeQuery()->fetchAllAssociative();

@@ -172,7 +172,7 @@ class HreflangLoader implements HreflangLoaderInterface
             WHERE `path_info` = :pathInfo AND `is_canonical` = 1 AND
                   `sales_channel_id` = :salesChannelId AND `language_id` IN (:languageIds)',
             ['pathInfo' => $pathInfo, 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId), 'languageIds' => $languageIds],
-            ['languageIds' => ArrayParameterType::STRING]
+            ['languageIds' => ArrayParameterType::BINARY]
         );
 
         return $result;

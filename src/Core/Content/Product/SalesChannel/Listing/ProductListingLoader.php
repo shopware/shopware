@@ -169,7 +169,7 @@ class ProductListingLoader
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
                 'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
             ],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $mapping = [];

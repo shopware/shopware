@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -241,5 +242,24 @@ class LineItemTest extends TestCase
         $lineItem->setPayloadValue('test', 2);
 
         static::assertEquals(2, $lineItem->getPayloadValue('test'));
+    }
+
+    public function testReplacePayloadNonRecursively(): void
+    {
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
+
+        $lineItem = new LineItem('abc', 'type', null, 5);
+        $lineItem->setPayload([
+            'test' => 5,
+            'categoryIds' => ['a', 'b'],
+        ]);
+
+        $lineItem->replacePayload([
+            'test' => 2,
+            'categoryIds' => ['a'],
+        ]);
+
+        static::assertSame(2, $lineItem->getPayloadValue('test'));
+        static::assertSame(['a'], $lineItem->getPayloadValue('categoryIds'));
     }
 }

@@ -79,4 +79,48 @@ class ProductCartProcessorTest extends TestCase
 
         $processor->collect($data, $cart, $context, new CartBehavior());
     }
+
+    public function testPayloadIsReplacedCorrectly(): void
+    {
+        $cart = new Cart('test');
+        $lineItem = new LineItem('A', 'product', 'A');
+
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+            'categoryTree' => ['a', 'b'],
+        ]);
+
+        $calculator = $this->createMock(ProductPriceCalculator::class);
+        $calculator->expects(static::exactly(2))
+            ->method('calculate')
+            ->with([$product]);
+
+        $processor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $this->createMock(ProductFeatureBuilder::class),
+            $calculator,
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class)
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, $context, new CartBehavior());
+        static::assertSame($lineItem->getPayloadValue('categoryIds'), ['a', 'b']);
+
+        $product->setCategoryTree(['a']);
+        $processor->collect($data, $cart, $context, new CartBehavior());
+        static::assertSame($lineItem->getPayloadValue('categoryIds'), ['a']);
+    }
 }

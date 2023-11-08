@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -11,12 +12,9 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -33,6 +31,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
@@ -127,16 +126,10 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $customerRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'customer',
-                1,
-                new EntityCollection([$customerEntity]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ], new CustomerDefinition());
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
 
         $definition = new DataValidationDefinition('address.create');
 
@@ -204,16 +197,10 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $customerRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'customer',
-                1,
-                new EntityCollection([$customerEntity]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ], new CustomerDefinition());
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
 
         $definition = new DataValidationDefinition('address.create');
 
@@ -281,10 +268,10 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $customerRepository = new StaticEntityRepository([
-            new EntityCollection([$customerEntity]),
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
-        ]);
+        );
 
         $definition = new DataValidationDefinition('address.create');
 
@@ -434,13 +421,7 @@ class RegisterRouteTest extends TestCase
         $result->method('first')->willReturn($customerEntity);
 
         $salutationId = Uuid::randomHex();
-
-        $idSearchResult = new IdSearchResult(
-            1,
-            [['data' => $salutationId, 'primaryKey' => $salutationId]],
-            new Criteria(),
-            Context::createDefaultContext(),
-        );
+        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -454,9 +435,6 @@ class RegisterRouteTest extends TestCase
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
-
-        $salutationRepository = $this->createMock(EntityRepository::class);
-        $salutationRepository->method('searchIds')->willReturn($idSearchResult);
 
         $register = new RegisterRoute(
             new EventDispatcher(),
@@ -500,16 +478,16 @@ class RegisterRouteTest extends TestCase
             'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
         ]);
 
-        $result = $this->createMock(EntitySearchResult::class);
         $customerEntity = new CustomerEntity();
         $customerEntity->setDoubleOptInRegistration(true);
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
         $customerEntity->setEmail('test@test.de');
-        $result->method('first')->willReturn($customerEntity);
 
-        $customerRepository = $this->createMock(EntityRepository::class);
-        $customerRepository->method('search')->willReturn($result);
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher

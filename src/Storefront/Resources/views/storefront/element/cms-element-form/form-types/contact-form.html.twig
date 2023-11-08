@@ -56,9 +56,8 @@
             {% endblock %}
 
             {% block cms_form_contact_input_phone %}
-                {# @deprecated tag:v6.6.0 - Use outer cms_form_contact_input_phone instead #}
-                {% block cms_form_contact_input_phome %}
-                    {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
+                {# @deprecated tag:v6.6.0 - Block will be renamed because of a typo. Use `cms_form_contact_input_phone` instead. #}                {% block cms_form_contact_input_phome %}
+                {% set phoneNumberFieldRequired = config('core.basicInformation.phoneNumberFieldRequired') == true %}
                     {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
                         with {
                         fieldName: 'phone',

@@ -3,7 +3,7 @@
         class="sw-meteor-single-select__preview"
         role="button"
         tabindex="0"
-        @click="toggleResultList"
+        @click.stop="toggleResultList"
         @keydown.enter="toggleResultList"
     >
         <span class="sw-meteor-single-select__label">
@@ -37,9 +37,10 @@
                 <slot name="before-item-list">
                     <sw-simple-search-field
                         ref="searchField"
-                        v-model="searchTerm"
+                        :value="searchTerm"
                         size="small"
                         variant="form"
+                        @input="searchTerm = $event"
                         @search-term-change="onInputSearchTerm"
                     />
                 </slot>

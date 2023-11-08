@@ -23,6 +23,11 @@ Component.register('sw-simple-search-field', {
     template,
     inheritAttrs: false,
 
+    emits: [
+        'input',
+        'search-term-change',
+    ],
+
     props: {
         variant: {
             type: String,

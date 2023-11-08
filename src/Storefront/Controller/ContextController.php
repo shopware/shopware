@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -61,16 +62,15 @@ class ContextController extends StorefrontController
             throw RoutingException::languageNotFound($languageId);
         }
 
-        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
-
-        if (empty($route)) {
-            $route = 'frontend.home.page';
-        }
-
         $params = $request->get('redirectParameters', '[]');
-
         if (\is_string($params)) {
             $params = json_decode($params, true);
+        }
+
+        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
+        if (empty($route) || $this->routeTargetExists($route, $params) === false) {
+            $route = 'frontend.home.page';
+            $params = [];
         }
 
         if ($newTokenResponse->getRedirectUrl() === null) {
@@ -122,5 +122,19 @@ class ContextController extends StorefrontController
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
 
         return new RedirectResponse($url);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function routeTargetExists(string $route, array $params): bool
+    {
+        try {
+            $this->router->generate($route, $params);
+
+            return true;
+        } catch (RouteNotFoundException) {
+            return false;
+        }
     }
 }

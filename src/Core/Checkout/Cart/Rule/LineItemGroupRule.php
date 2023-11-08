@@ -49,9 +49,7 @@ class LineItemGroupRule extends FilterRule
             $this->rules ?? new RuleCollection()
         );
 
-        /** @var LineItemGroupBuilder|null $builder */
         $builder = $scope->getCart()->getData()->get(LineItemGroupBuilder::class);
-
         if (!$builder instanceof LineItemGroupBuilder) {
             return false;
         }

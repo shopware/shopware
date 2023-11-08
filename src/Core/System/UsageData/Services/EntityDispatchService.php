@@ -35,7 +35,7 @@ class EntityDispatchService
 
     public function start(): void
     {
-        if (!$this->consentService->isConsentAccepted()) {
+        if (!$this->consentService->isConsentAccepted() || !$this->consentService->shouldPushData()) {
             return;
         }
 

@@ -26,6 +26,7 @@ class ConsentService
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';
     public const USER_CONFIG_KEY_HIDE_CONSENT_BANNER = 'core.usageData.hideConsentBanner';
     public const SYSTEM_CONFIG_KEY_INTEGRATION_ID = 'core.usageData.integrationId';
+    public const SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED = 'core.usageData.dataPushDisabled';
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
@@ -100,6 +101,11 @@ class ConsentService
     public function isConsentRevoked(): bool
     {
         return $this->systemConfigService->getString(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE) === ConsentState::REVOKED->value;
+    }
+
+    public function shouldPushData(): bool
+    {
+        return !$this->systemConfigService->getBool(ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED);
     }
 
     public function hasUserHiddenConsentBanner(string $userId, Context $context): bool

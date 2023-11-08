@@ -39,6 +39,10 @@ final class DispatchEntityMessageHandler
 
     public function __invoke(DispatchEntityMessage $message): void
     {
+        if (!$this->consentService->shouldPushData()) {
+            return;
+        }
+
         $definition = $this->entityDefinitionService->getAllowedEntityDefinition($message->getEntityName());
         if ($definition === null) {
             self::throwUnrecoverableMessageHandlingException($message, 'No allowed entity definition found');

@@ -4,18 +4,17 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCode;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -32,6 +31,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
+use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigService;
@@ -126,16 +126,10 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $customerRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'customer',
-                1,
-                new EntityCollection([$customerEntity]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ], new CustomerDefinition());
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
 
         $definition = new DataValidationDefinition('address.create');
 
@@ -203,16 +197,10 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $customerRepository = new StaticEntityRepository([
-            new EntitySearchResult(
-                'customer',
-                1,
-                new EntityCollection([$customerEntity]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext(),
-            ),
-        ], new CustomerDefinition());
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition()
+        );
 
         $definition = new DataValidationDefinition('address.create');
 
@@ -280,10 +268,10 @@ class RegisterRouteTest extends TestCase
         $customerEntity->setId('customer-1');
         $customerEntity->setGuest(false);
 
-        $customerRepository = new StaticEntityRepository([
-            new EntityCollection([$customerEntity]),
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
             new CustomerDefinition(),
-        ]);
+        );
 
         $definition = new DataValidationDefinition('address.create');
 
@@ -433,13 +421,7 @@ class RegisterRouteTest extends TestCase
         $result->method('first')->willReturn($customerEntity);
 
         $salutationId = Uuid::randomHex();
-
-        $idSearchResult = new IdSearchResult(
-            1,
-            [['data' => $salutationId, 'primaryKey' => $salutationId]],
-            new Criteria(),
-            Context::createDefaultContext(),
-        );
+        $salutationRepository = new StaticEntityRepository([[$salutationId]], new SalutationDefinition());
 
         $customerRepository = $this->createMock(EntityRepository::class);
         $customerRepository->method('search')->willReturn($result);
@@ -453,9 +435,6 @@ class RegisterRouteTest extends TestCase
 
                 return new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([]), []);
             });
-
-        $salutationRepository = $this->createMock(EntityRepository::class);
-        $salutationRepository->method('searchIds')->willReturn($idSearchResult);
 
         $register = new RegisterRoute(
             new EventDispatcher(),
@@ -480,6 +459,79 @@ class RegisterRouteTest extends TestCase
             ],
             'accountType' => CustomerEntity::ACCOUNT_TYPE_PRIVATE,
             'salutationId' => '',
+        ];
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testRedirectParameters(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+                'core.loginRegistration.doubleOptInRegistration' => true,
+                'core.cart.wishlistEnabled' => true,
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(true);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher
+                ->expects(static::atLeast(1))
+                ->method('dispatch')
+                ->with(
+                    static::callback(function ($event): bool {
+                        if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
+                            $query = [];
+                            $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
+                            self::assertIsString($queryString);
+                            \parse_str($queryString, $query);
+                            self::assertArrayHasKey('productId', $query);
+                            self::assertSame('018b906b869273fea7926f161dd23911', $query['productId']);
+                        }
+
+                        return true;
+                    })
+                );
+
+        $register = new RegisterRoute(
+            $eventDispatcher,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(DataValidator::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'storefrontUrl' => 'http://localhost:8000',
+            'redirectTo' => 'frontend.wishlist.add.after.login',
+            'redirectParameters' => '{"productId":"018b906b869273fea7926f161dd23911"}',
         ];
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

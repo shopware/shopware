@@ -166,7 +166,15 @@ class RegisterRoute extends AbstractRegisterRoute
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
 
         if ($customerEntity->getDoubleOptInRegistration()) {
-            $this->eventDispatcher->dispatch($this->getDoubleOptInEvent($customerEntity, $context, $data->get('storefrontUrl'), $data->get('redirectTo')));
+            $this->eventDispatcher->dispatch(
+                $this->getDoubleOptInEvent(
+                    $customerEntity,
+                    $context,
+                    $data->get('storefrontUrl'),
+                    $data->get('redirectTo'),
+                    $data->get('redirectParameters')
+                )
+            );
 
             // We don't want to leak the hash in store-api
             $customerEntity->setHash('');
@@ -221,12 +229,18 @@ class RegisterRoute extends AbstractRegisterRoute
         return $response;
     }
 
-    private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
-    {
+    private function getDoubleOptInEvent(
+        CustomerEntity $customer,
+        SalesChannelContext $context,
+        string $url,
+        ?string $redirectTo,
+        ?string $redirectParameters
+    ): Event {
         $url .= $this->getConfirmUrl($context, $customer);
 
         if ($redirectTo) {
-            $url .= '&redirectTo=' . $redirectTo;
+            $params = \is_string($redirectParameters) ? \json_decode($redirectParameters, true) : [];
+            $url .= '&' . \http_build_query(array_merge(['redirectTo' => $redirectTo], $params));
         }
 
         if ($customer->getGuest()) {

@@ -2611,36 +2611,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlPersister.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createDefaultMapping\\(\\) has parameter \\$matches with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createDefaultMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createSeoMapping\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createSeoMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandlerInterface\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandlerInterface.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlMapping\\:\\:__construct\\(\\) has parameter \\$infoPathContext with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlMapping.php

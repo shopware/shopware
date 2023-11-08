@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -61,6 +63,80 @@ class EntityAggregatorTest extends TestCase
         $this->definition = $this->getContainer()->get(ProductDefinition::class);
 
         $this->insertData();
+    }
+
+    public function testAggregationOnFilteredField(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            (new ProductBuilder($ids, 'p1'))
+                ->price(100)
+                ->property('red', 'color')
+                ->property('yellow', 'color')
+                ->property('xl', 'size')
+                ->property('l', 'size')
+                ->property('cotton', 'material')
+                ->property('leather', 'material')
+                ->build(),
+            (new ProductBuilder($ids, 'p2'))
+                ->price(100)
+                ->property('red', 'color')
+                ->property('black', 'color')
+                ->property('s', 'size')
+                ->property('cotton', 'material')
+                ->property('silk', 'material')
+                ->build(),
+            (new ProductBuilder($ids, 'p3'))
+                ->price(100)
+                ->property('white', 'color')
+                ->property('xs', 'size')
+                ->property('foo', 'bar')
+                ->build(),
+        ];
+
+        $this->getContainer()
+            ->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.properties.id', $ids->get('red')));
+
+        $criteria->addAggregation(
+            new FilterAggregation(
+                'color',
+                new TermsAggregation('color', 'product.properties.id'),
+                // does not matter if we have a filter or not, the filter aggregation previously prevents to access the field of the nested aggregation
+                []
+            )
+        );
+
+        $result = $this->getContainer()
+            ->get('product.repository')
+            ->aggregate($criteria, Context::createDefaultContext());
+
+        static::assertTrue($result->has('color'));
+
+        $agg = $result->get('color');
+
+        static::assertInstanceOf(TermsResult::class, $agg);
+
+        static::assertCount(9, $agg->getBuckets());
+
+        static::assertTrue($agg->has($ids->get('red')));
+        static::assertTrue($agg->has($ids->get('yellow')));
+        static::assertTrue($agg->has($ids->get('xl')));
+        static::assertTrue($agg->has($ids->get('l')));
+        static::assertTrue($agg->has($ids->get('s')));
+        static::assertTrue($agg->has($ids->get('cotton')));
+        static::assertTrue($agg->has($ids->get('leather')));
+        static::assertTrue($agg->has($ids->get('black')));
+        static::assertTrue($agg->has($ids->get('silk')));
+
+        // these ids not matching the criteria filter condition which checks for color=red
+        static::assertFalse($agg->has($ids->get('white')));
+        static::assertFalse($agg->has($ids->get('xs')));
+        static::assertFalse($agg->has($ids->get('foo')));
     }
 
     public function testSingleTermsAggregation(): void

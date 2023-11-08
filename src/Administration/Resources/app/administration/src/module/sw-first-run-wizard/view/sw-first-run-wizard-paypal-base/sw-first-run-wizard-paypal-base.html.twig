@@ -1,4 +1,15 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_first_run_wizard_paypal_base %}
+{% if VUE3 %}
+<router-view
+    v-slot="{ Component }"
+>
+    <component
+        :is="Component"
+        v-on="$listeners"
+    />
+</router-view>
+{% else %}
 <router-view v-on="$listeners" />
+{% endif %}
 {% endblock %}

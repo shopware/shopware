@@ -348,6 +348,7 @@ class AppLifecycleTest extends TestCase
             $this->createMock(FlowEventPersister::class),
             'test',
             $this->createMock(ShippingMethodPersister::class),
+            $this->createMock(EntityRepository::class),
         );
     }
 

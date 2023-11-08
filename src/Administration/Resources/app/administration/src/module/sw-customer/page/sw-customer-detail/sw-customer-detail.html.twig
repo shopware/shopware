@@ -180,13 +180,27 @@
                 <sw-skeleton />
             </template>
 
-            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            {% if VUE3 %}
+            <router-view
+                v-if="customer"
+                v-slot="{ Component }"
+            >
+                {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+                <component
+                    :is="Component"
+                    v-show="!isLoading"
+                    :customer="customer"
+                    :customer-edit-mode="editMode"
+                />
+            </router-view>
+            {% else %}
             <router-view
                 v-if="customer"
                 v-show="!isLoading"
                 :customer="customer"
                 :customer-edit-mode="editMode"
             />
+            {% endif %}
             {% endblock %}
         </sw-card-view>
     </template>

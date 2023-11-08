@@ -20,5 +20,7 @@
             <tag name="console.command" command="e2e:restore-db" />
             <tag name="console.command" command="e2e:cleanup" />
         </service>
+
+        <service id="shopware.usage_data.gateway.client" class="Symfony\Component\HttpClient\MockHttpClient" public="true"/>
     </services>
 </container>

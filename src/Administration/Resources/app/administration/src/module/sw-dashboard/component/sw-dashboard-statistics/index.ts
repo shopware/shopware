@@ -350,7 +350,7 @@ export default Shopware.Component.wrapComponentConfig({
                             amount: number
                         }>
                     }
-                }>(`/_admin/dashboard/order-amount/${since}/${timezone}?paid=${paid.toString()}`, { headers })
+                }>(`/_admin/dashboard/order-amount/${since}?timezone=${timezone}&paid=${paid.toString()}`, { headers })
                 .then((response) => {
                     const buckets = response.data.statistic.map((bucket) => {
                         return {

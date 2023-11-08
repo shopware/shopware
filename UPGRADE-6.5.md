@@ -1,3 +1,21 @@
+# 6.5.6.0
+## Cluster setup configuration
+
+There is a new configuration option `shopware.deployment.cluster_setup` which is set to `false` by default. If you are using a cluster setup, you need to set this option to `true` in your `config/packages/shopware.yaml` file.
+## Deprecation of CacheInvalidatorStorage
+
+We deprecated the default delayed cache invalidation storage, as it is not ideal for multi-server usage.
+Make sure you switch until 6.6 to the new RedisInvalidatorStorage.
+
+```yaml
+shopware:
+    cache:
+        invalidation:
+            delay_options:
+                storage: cache
+                dsn: 'redis://localhost'
+```
+
 # 6.5.5.0
 Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](../../adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
 

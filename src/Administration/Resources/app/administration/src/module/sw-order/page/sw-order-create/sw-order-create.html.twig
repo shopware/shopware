@@ -98,9 +98,20 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_content_view %}
+            {% if VUE3 %}
+            <router-view
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    @error="showError"
+                />
+            </router-view>
+            {% else %}
             <router-view
                 @error="showError"
             />
+            {% endif %}
             {% endblock %}
         </sw-card-view>
         {% endblock %}

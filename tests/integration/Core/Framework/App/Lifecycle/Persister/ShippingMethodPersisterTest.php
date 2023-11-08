@@ -39,6 +39,7 @@ class ShippingMethodPersisterTest extends TestCase
     private const IDENTIFIER_SECOND_METHOD_UPDATED = 'swagUpdatedShippingMethod';
     private const INITIAL_METHOD_NAME = 'first Shipping Method';
     private const INITIAL_METHOD_DESCRIPTION = 'This is a simple description';
+    private const INITIAL_TECHNICAL_NAME = 'shipping_test_swagFirstShippingMethod';
     private const DELIVERY_TIME_ID_INITIAL = '4b00146bdc8b4175b12d3fc36ec114c8';
     private const TRACKING_URL_UPDATED = 'https://www.mytrackingurl.com/updated-by-manifest';
     private const POSITION_INITIAL = 3;
@@ -91,6 +92,7 @@ class ShippingMethodPersisterTest extends TestCase
         $updatedShippingMethod = $updatedAppShippingMethods->filterByProperty('identifier', self::IDENTIFIER_FIRST_METHOD)->first()?->getShippingMethod();
         static::assertInstanceOf(ShippingMethodEntity::class, $updatedShippingMethod);
 
+        static::assertSame(self::INITIAL_TECHNICAL_NAME, $updatedShippingMethod->getTechnicalName(), 'technicalName shall be not updatable by app but has been updated.');
         static::assertSame(self::INITIAL_METHOD_NAME, $updatedShippingMethod->getName(), 'name shall be not updatable by app but has been updated.');
         static::assertSame(self::INITIAL_METHOD_DESCRIPTION, $updatedShippingMethod->getDescription(), 'description shall be not updatable by app but has been updated.');
         static::assertSame(self::DELIVERY_TIME_ID_INITIAL, $updatedShippingMethod->getDeliveryTimeId(), 'deliveryTime shall be not updatable by app but has been updated.');

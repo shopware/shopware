@@ -267,6 +267,7 @@ class ShippingMethodRouteTest extends TestCase
                 'position' => 1,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule'),
                     'name' => 'asd',
@@ -296,6 +297,7 @@ class ShippingMethodRouteTest extends TestCase
                 'position' => 5,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test2',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule2'),
                     'name' => 'asd',
@@ -325,6 +327,7 @@ class ShippingMethodRouteTest extends TestCase
                 'position' => -3,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'technicalName' => 'shipping_test3',
                 'availabilityRule' => [
                     'id' => $this->ids->create('rule3'),
                     'name' => 'asd',

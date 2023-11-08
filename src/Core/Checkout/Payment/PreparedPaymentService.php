@@ -56,7 +56,7 @@ class PreparedPaymentService
         } catch (PaymentException $e) {
             $customer = $salesChannelContext->getCustomer();
             $customerId = $customer !== null ? $customer->getId() : '';
-            $this->logger->error('An error occurred during processing the validation of the payment. The order has not been placed yet.', ['customerId' => $customerId, 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the validation of the payment. The order has not been placed yet.', ['customerId' => $customerId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
 
             throw $e;
         }
@@ -84,7 +84,7 @@ class PreparedPaymentService
             $preparedTransactionStruct = $this->paymentTransactionStructFactory->prepared($transaction, $order);
             $paymentHandler->capture($preparedTransactionStruct, $dataBag, $salesChannelContext, $preOrderStruct);
         } catch (PaymentProcessException $e) {
-            $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage()]);
+            $this->logger->error('An error occurred during processing the capture of the payment. The order has been placed.', ['orderId' => $order->getId(), 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
 
             throw $e;
         }

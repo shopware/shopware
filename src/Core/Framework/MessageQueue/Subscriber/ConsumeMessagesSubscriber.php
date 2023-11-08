@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -36,16 +37,29 @@ class ConsumeMessagesSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $receivers = $event->getInput()->getArgument('receivers');
+        $input = $event->getInput();
+        $receivers = $input->getArgument('receivers');
 
-        // If no receivers are specified, let the user interactively choose
-        if (\count($receivers) < 1) {
+        if ($input->isInteractive() && $receivers === []) {
             return;
         }
 
-        if (!\in_array(self::LOW_PRIORITY_QUEUE, $receivers, true)) {
-            $receivers[] = self::LOW_PRIORITY_QUEUE;
-            $event->getInput()->setArgument('receivers', $receivers);
+        if (!$input instanceof ArgvInput) {
+            return;
+        }
+
+        // https://github.com/symfony/symfony/issues/52415
+        $reflectionClass = new \ReflectionClass($input);
+        $tokens = $reflectionClass->getProperty('tokens');
+        $tokens->setAccessible(true);
+
+        if ($receivers === []) {
+            $receivers = ['async'];
+        }
+
+        if (!\in_array(self::LOW_PRIORITY_QUEUE, $receivers, true) && \in_array('async', $receivers, true)) {
+            $tokens->setValue($input, array_merge($tokens->getValue($input), [self::LOW_PRIORITY_QUEUE]));
+            $input->setArgument('receivers', array_merge($receivers, [self::LOW_PRIORITY_QUEUE]));
         }
     }
 }

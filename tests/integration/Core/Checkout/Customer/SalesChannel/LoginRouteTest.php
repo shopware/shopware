@@ -343,6 +343,7 @@ class LoginRouteTest extends TestCase
             'defaultBillingAddressId' => $addressId,
             'defaultPaymentMethod' => [
                 'name' => 'Invoice',
+                'technicalName' => Uuid::randomHex(),
                 'active' => true,
                 'description' => 'Default payment method',
                 'handlerIdentifier' => SyncTestPaymentHandler::class,

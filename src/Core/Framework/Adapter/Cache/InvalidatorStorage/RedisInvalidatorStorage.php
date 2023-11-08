@@ -26,7 +26,7 @@ class RedisInvalidatorStorage extends AbstractInvalidatorStorage
     public function loadAndDelete(): array
     {
         /** @var array{0: list<string>, 1: mixed} $values */
-        $values = $this // @phpstan-ignore-line - PhpStan does not understand redis multi
+        $values = $this
             ->redis
             ->multi()
                 ->sMembers(self::KEY)

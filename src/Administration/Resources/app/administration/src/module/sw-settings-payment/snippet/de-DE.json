@@ -44,6 +44,7 @@
       "messageSaveSuccess": "Die Zahlungsart \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Zahlungsart \"{name}\" konnte nicht gespeichert werden.",
       "labelName": "Name",
+      "labelTechnicalName": "Technischer Name",
       "labelPosition": "Position",
       "labelActive": "Aktiv",
       "labelAfterOrderEnabled": "Zahlartwechsel nach Bestellabschluss erlauben",
@@ -54,11 +55,13 @@
       },
       "topRule": "Verfügbarkeitsregel",
       "placeholderName": "Namen eingeben ...",
+      "placeholderTechnicalName": "Technischen Namen eingeben ...",
       "placeholderPosition": "Position eingeben ...",
       "placeholderDescription": "Beschreibung eingeben ...",
       "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
       "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern"
+      "buttonSave": "Speichern",
+      "helpTextTechnicalName": "Der technische Name wird für die Identifikation der Zahlungsart verwendet. Er ist einzigartig und wird ab Version 6.7.0.0 für alle Zahlungs- und Versandarten erforderlich sein. Das Ändern des technischen Namens kann bestehende Zahlungsintegrationen brechen."
     }
   },
   "sw-plugin-box": {

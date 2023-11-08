@@ -879,6 +879,7 @@ class CheckoutControllerTest extends TestCase
             [
                 'id' => $paymentId,
                 'name' => SyncTestFailedPaymentHandler::class,
+                'technicalName' => 'payment_test',
                 'active' => true,
                 'handlerIdentifier' => SyncTestFailedPaymentHandler::class,
                 'salesChannels' => [

@@ -31,6 +31,7 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -72,6 +73,7 @@ class OrderConverter
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
      * @param EntityRepository<OrderAddressCollection> $orderAddressRepository
+     * @param EntityRepository<RuleCollection> $ruleRepository
      */
     public function __construct(
         protected EntityRepository $customerRepository,
@@ -81,7 +83,8 @@ class OrderConverter
         private readonly OrderDefinition $orderDefinition,
         private readonly EntityRepository $orderAddressRepository,
         private readonly InitialStateIdLoader $initialStateIdLoader,
-        private readonly LineItemDownloadLoader $downloadLoader
+        private readonly LineItemDownloadLoader $downloadLoader,
+        private readonly EntityRepository $ruleRepository,
     ) {
     }
 
@@ -314,6 +317,7 @@ class OrderConverter
 
         if ($order->getRuleIds() !== null) {
             $salesChannelContext->setRuleIds($order->getRuleIds());
+            $salesChannelContext->setAreaRuleIds($this->fetchRuleAreas($order->getRuleIds(), $context));
         }
 
         $event = new SalesChannelContextAssembledEvent($order, $salesChannelContext);
@@ -390,5 +394,22 @@ class OrderConverter
         }
 
         return $cartDeliveries;
+    }
+
+    /**
+     * @param string[] $ruleIds
+     *
+     * @return array<string, string[]>
+     */
+    private function fetchRuleAreas(array $ruleIds, Context $context): array
+    {
+        if (!$ruleIds) {
+            return [];
+        }
+
+        $criteria = new Criteria($ruleIds);
+        $rules = $this->ruleRepository->search($criteria, $context)->getEntities();
+
+        return $rules->getIdsByArea();
     }
 }

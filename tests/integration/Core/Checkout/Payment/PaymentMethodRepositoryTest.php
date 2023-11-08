@@ -242,6 +242,7 @@ class PaymentMethodRepositoryTest extends TestCase
             [
                 'id' => $this->paymentMethodId,
                 'name' => 'test',
+                'technicalName' => 'test_payment',
                 'handlerIdentifier' => AsyncTestPaymentHandler::class,
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),
@@ -261,6 +262,7 @@ class PaymentMethodRepositoryTest extends TestCase
             [
                 'id' => $this->paymentMethodId,
                 'name' => 'test',
+                'technicalName' => 'payment_test',
                 'handlerIdentifier' => 'Object',
                 'availabilityRule' => [
                     'id' => Uuid::randomHex(),

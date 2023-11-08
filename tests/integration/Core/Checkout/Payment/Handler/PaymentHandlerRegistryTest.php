@@ -238,6 +238,7 @@ class PaymentHandlerRegistryTest extends TestCase
         if (!$method) {
             $method = [
                 'id' => Uuid::randomHex(),
+                'technicalName' => 'payment_test',
                 'handlerIdentifier' => $handler,
                 'translations' => [
                     Defaults::LANGUAGE_SYSTEM => [

@@ -55,6 +55,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
                         'en-GB' => 'Credit card',
                         'de-DE' => 'Kreditkarte',
                     ],
+                    'technicalName' => 'payment_creditcard',
                     'active' => true,
                 ],
                 [
@@ -63,6 +64,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
                         'en-GB' => 'Invoice',
                         'de-DE' => 'Rechnungskauf',
                     ],
+                    'technicalName' => 'payment_invoice1',
                     'active' => true,
                     'plugin' => [
                         'name' => 'Shopware',
@@ -81,6 +83,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
                         'en-GB' => 'Invoice',
                         'de-DE' => 'Rechnung',
                     ],
+                    'technicalName' => 'payment_invoice2',
                     'active' => true,
                     'plugin' => [
                         'name' => 'Plugin',
@@ -99,6 +102,7 @@ class PaymentDistinguishableNameSubscriberTest extends TestCase
                         'en-GB' => 'Invoice',
                         'de-DE' => 'Rechnung',
                     ],
+                    'technicalName' => 'payment_invoice3',
                     'active' => true,
                     'appPaymentMethod' => [
                         'identifier' => 'identifier',

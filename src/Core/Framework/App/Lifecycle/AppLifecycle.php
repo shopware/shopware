@@ -47,6 +47,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
@@ -61,6 +62,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('core')]
 class AppLifecycle extends AbstractAppLifecycle
 {
+    /**
+     * @param EntityRepository<CustomEntityCollection> $customEntityRepository
+     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly PermissionPersister $permissionPersister,
@@ -94,6 +98,7 @@ class AppLifecycle extends AbstractAppLifecycle
         private readonly FlowEventPersister $flowEventPersister,
         private readonly string $env,
         private readonly ShippingMethodPersister $shippingMethodPersister,
+        private readonly EntityRepository $customEntityRepository
     ) {
     }
 
@@ -298,6 +303,8 @@ class AppLifecycle extends AbstractAppLifecycle
                 }
             }
 
+            $this->markCustomEntitiesAsDeleted($app->getId(), $keepUserData, $context);
+
             $this->appRepository->delete([['id' => $app->getId()]], $context);
 
             if ($softDelete) {
@@ -313,6 +320,33 @@ class AppLifecycle extends AbstractAppLifecycle
 
             $this->deleteAclRole($app->getName(), $context);
         });
+    }
+
+    private function markCustomEntitiesAsDeleted(string $appId, bool $keepUserData, Context $context): void
+    {
+        if (!$keepUserData) {
+            return;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+
+        $customEntities = $this->customEntityRepository->search($criteria, $context)->getEntities();
+
+        $update = [];
+        foreach ($customEntities as $customEntity) {
+            $update[] = [
+                'id' => $customEntity->getId(),
+                'appId' => null,
+                'deletedAt' => new \DateTimeImmutable(),
+            ];
+        }
+
+        if (empty($update)) {
+            return;
+        }
+
+        $this->customEntityRepository->update($update, $context);
     }
 
     /**

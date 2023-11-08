@@ -466,7 +466,7 @@ const missingTests = [
     'src/module/sw-customer/constant/sw-customer.constant.js',
     'src/module/sw-customer/default-search-configuration.js',
     'src/module/sw-customer/index.js',
-    'src/module/sw-dashboard/index.js',
+    'src/module/sw-dashboard/index.ts',
     'src/module/sw-extension/index.js',
     'src/module/sw-extension/mixin/sw-extension-error.mixin.js',
     'src/module/sw-extension/page/sw-extension-my-extensions-index/index.js',

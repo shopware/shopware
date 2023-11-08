@@ -240,6 +240,7 @@ class EditOrderPageTest extends TestCase
             [
                 'id' => $paymentId,
                 'name' => 'Test Payment with Rule',
+                'technicalName' => Uuid::randomHex(),
                 'description' => 'Payment rule test',
                 'active' => true,
                 'afterOrderEnabled' => true,
@@ -266,6 +267,7 @@ class EditOrderPageTest extends TestCase
             [
                 'id' => $paymentId,
                 'name' => 'Test Payment',
+                'technicalName' => Uuid::randomHex(),
                 'description' => 'Payment test',
                 'active' => true,
                 'afterOrderEnabled' => true,

@@ -488,6 +488,7 @@ class SalesChannelProxyControllerTest extends TestCase
             [
                 'id' => $shippingMethodId,
                 'name' => 'Example shipping',
+                'technicalName' => 'shipping_test',
                 'availabilityRule' => ['name' => 'test', 'priority' => 1],
                 'deliveryTime' => ['name' => 'test', 'min' => 1, 'max' => 1, 'unit' => 'day'],
                 'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
@@ -1484,6 +1485,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test',
                     'description' => 'Default payment method',
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
@@ -1524,6 +1526,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'id' => $shippingMethodId,
             'type' => 0,
             'name' => 'Test shipping method',
+            'technicalName' => 'shipping_test',
             'bindShippingfree' => false,
             'active' => true,
             'prices' => [

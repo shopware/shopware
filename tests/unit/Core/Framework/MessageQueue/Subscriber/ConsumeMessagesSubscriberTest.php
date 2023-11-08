@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Subscriber\ConsumeMessagesSubscriber;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,10 +28,23 @@ class ConsumeMessagesSubscriberTest extends TestCase
         );
     }
 
+    public function testReturnsIfNoCommandIsGiven(): void
+    {
+        $event = new ConsoleCommandEvent(
+            null,
+            new ArrayInput(['receivers' => ['async']]),
+            $this->createMock(OutputInterface::class),
+        );
+
+        $subscriber = new ConsumeMessagesSubscriber();
+        $subscriber->onMessengerConsume($event);
+
+        static::assertEmpty($event->getInput()->getArguments());
+    }
+
     public function testOnlyHandlesConsumeMessagesCommand(): void
     {
         $command = new RandomCommand();
-
         $event = new ConsoleCommandEvent(
             $command,
             new ArrayInput(['receivers' => ['async']], $command->getDefinition()),
@@ -43,10 +57,9 @@ class ConsumeMessagesSubscriberTest extends TestCase
         static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
     }
 
-    public function testDoesNotAddAsyncLowPriorityQueueIfNoReceiverIsSpecified(): void
+    public function testDoesNotAddQueueIfIsInteractive(): void
     {
         $command = new ConsumeMessagesCommand();
-
         $event = new ConsoleCommandEvent(
             $command,
             new ArrayInput([], $command->getDefinition()),
@@ -59,7 +72,7 @@ class ConsumeMessagesSubscriberTest extends TestCase
         static::assertSame([], $event->getInput()->getArgument('receivers'));
     }
 
-    public function testAddsAsyncLowPriorityQueueIfAtLeastOneReceiverIsSpecified(): void
+    public function testDoesNotAddQueueIfArgsAreNotArgvInput(): void
     {
         $command = new ConsumeMessagesCommand();
         $event = new ConsoleCommandEvent(
@@ -71,7 +84,67 @@ class ConsumeMessagesSubscriberTest extends TestCase
         $subscriber = new ConsumeMessagesSubscriber();
         $subscriber->onMessengerConsume($event);
 
-        static::assertSame(['async', 'low_priority'], $event->getInput()->getArgument('receivers'));
+        static::assertSame(['async'], $event->getInput()->getArgument('receivers'));
+    }
+
+    public function testAddsAsyncAndLowPriorityQueue(): void
+    {
+        $command = new ConsumeMessagesCommand();
+        $input = new ArgvInput(['receivers' => []], $command->getDefinition());
+        $input->setInteractive(false);
+
+        $event = new ConsoleCommandEvent(
+            $command,
+            $input,
+            $this->createMock(OutputInterface::class),
+        );
+
+        $subscriber = new ConsumeMessagesSubscriber();
+        $subscriber->onMessengerConsume($event);
+
+        static::assertSame([
+            'async',
+            'low_priority',
+        ], $event->getInput()->getArgument('receivers'));
+    }
+
+    public function testAddsLowPriorityQueue(): void
+    {
+        $command = new ConsumeMessagesCommand();
+        $input = new ArgvInput(['applicationName', 'receivers' => 'async'], $command->getDefinition());
+        $input->setInteractive(false);
+
+        $event = new ConsoleCommandEvent(
+            $command,
+            $input,
+            $this->createMock(OutputInterface::class),
+        );
+
+        $subscriber = new ConsumeMessagesSubscriber();
+        $subscriber->onMessengerConsume($event);
+
+        static::assertSame([
+            'async',
+            'low_priority',
+        ], $event->getInput()->getArgument('receivers'));
+    }
+
+    public function testDoesNotAddLowPriorityQueue(): void
+    {
+        $command = new ConsumeMessagesCommand();
+        $input = new ArgvInput(['applicationName', 'receivers' => 'failed'], $command->getDefinition());
+        $input->setInteractive(false);
+
+        $event = new ConsoleCommandEvent(
+            $command,
+            $input,
+            $this->createMock(OutputInterface::class),
+        );
+
+        $subscriber = new ConsumeMessagesSubscriber();
+        $subscriber->onMessengerConsume($event);
+
+        static::assertSame(['failed'], $event->getInput()->getArgument('receivers'));
     }
 }
 

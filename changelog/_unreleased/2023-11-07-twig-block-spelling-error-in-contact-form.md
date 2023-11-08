@@ -7,4 +7,4 @@ author_github: @AEYCEN
 ---
 
 # Storefront
-* Deprecated typo in twig block of `contact-form.html.twig` from `cms_form_contact_input_phome` to `cms_form_contact_input_phone`
+* Deprecated typo in twig block of `contact-form.html.twig`. Changed from `cms_form_contact_input_phome` to `cms_form_contact_input_phone`

@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('storefront')]
 class RequestTransformer implements RequestTransformerInterface
 {
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     */
     final public const REQUEST_TRANSFORMER_CACHE_KEY = CachedDomainLoader::CACHE_KEY;
 
     /**

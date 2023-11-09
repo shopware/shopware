@@ -4,6 +4,8 @@ namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
@@ -16,7 +18,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal
+ */
+#[Package('core')]
 class CacheStore implements StoreInterface
 {
     final public const TAG_HEADER = 'sw-cache-tags';
@@ -68,9 +73,13 @@ class CacheStore implements StoreInterface
             return null;
         }
 
-        $this->eventDispatcher->dispatch(
-            new HttpCacheHitEvent($item, $request, $response)
-        );
+        if (Feature::isActive('v6.6.0.0')) {
+            $event = new \Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent($item, $request, $response);
+        } else {
+            $event = new HttpCacheHitEvent($item, $request, $response);
+        }
+
+        $this->eventDispatcher->dispatch($event);
 
         return $response;
     }
@@ -141,9 +150,13 @@ class CacheStore implements StoreInterface
 
         $this->cache->save($item);
 
-        $this->eventDispatcher->dispatch(
-            new HttpCacheItemWrittenEvent($item, $tags, $request, $response)
-        );
+        if (Feature::isActive('v6.6.0.0')) {
+            $event = new HttpCacheStoreEvent($item, $tags, $request, $response);
+        } else {
+            $event = new HttpCacheItemWrittenEvent($item, $tags, $request, $response);
+        }
+
+        $this->eventDispatcher->dispatch($event);
 
         return $key;
     }

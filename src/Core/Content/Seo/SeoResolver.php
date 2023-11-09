@@ -62,7 +62,7 @@ class SeoResolver extends AbstractSeoResolver
         $seoPath = $seoPaths[0] ?? ['pathInfo' => $seoPathInfo, 'isCanonical' => false];
 
         if (!$seoPath['isCanonical']) {
-            $query = $this->connection->createQueryBuilder()
+            $query = (new QueryBuilder($this->connection))
                 ->select('path_info pathInfo', 'seo_path_info seoPathInfo')
                 ->from('seo_url')
                 ->where('language_id = :language_id')
@@ -73,6 +73,8 @@ class SeoResolver extends AbstractSeoResolver
                 ->setParameter('language_id', Uuid::fromHexToBytes($languageId))
                 ->setParameter('sales_channel_id', Uuid::fromHexToBytes($salesChannelId))
                 ->setParameter('pathInfo', '/' . ltrim((string) $seoPath['pathInfo'], '/'));
+
+            $query->setTitle('seo-url::resolve-fallback');
 
             // we only have an id when the hit seo url was not a canonical url, save the one filter condition
             if (isset($seoPath['id'])) {

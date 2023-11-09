@@ -124,7 +124,7 @@ LUA;
         $pool->promise()->wait();
     }
 
-    public function getDecorated(): \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
+    public function getDecorated(): AbstractReverseProxyGateway
     {
         throw new DecorationPatternException(self::class);
     }

@@ -10,6 +10,9 @@ namespace Shopware\Storefront\Framework\Cache\ReverseProxy {
         #[Package('core')]
         abstract class AbstractReverseProxyGateway
         {
+            /**
+             * @deprecated tag:v6.6.0 - will be removed
+             */
             abstract public function getDecorated(): AbstractReverseProxyGateway;
 
             /**
@@ -43,11 +46,6 @@ namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy {
     #[Package('core')]
     abstract class AbstractReverseProxyGateway extends \Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway
     {
-        /**
-         * @deprecated tag:v6.6.0 - `getDecorated` will be removed, decoration is not intended. Plugins can implement own gateways but can't decorate other gateways
-         */
-        abstract public function getDecorated(): AbstractReverseProxyGateway;
-
         /**
          * @param string[] $tags
          */

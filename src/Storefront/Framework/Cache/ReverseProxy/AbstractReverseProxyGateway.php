@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 abstract class AbstractReverseProxyGateway
 {
+    /**
+     * @deprecated tag:v6.6.0 - will be removed
+     */
     abstract public function getDecorated(): AbstractReverseProxyGateway;
 
     /**

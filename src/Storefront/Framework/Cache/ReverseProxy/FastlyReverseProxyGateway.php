@@ -59,7 +59,7 @@ class FastlyReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\R
         $this->tagBuffer = [];
     }
 
-    public function getDecorated(): \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
+    public function getDecorated(): AbstractReverseProxyGateway
     {
         throw new DecorationPatternException(self::class);
     }

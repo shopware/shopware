@@ -4416,11 +4416,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/AclController.php
 
 		-
-			message: "#^Parameter \\#2 \\$skip of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:sendIndexingMessage\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Controller/CacheController.php
-
-		-
 			message: "#^Parameter \\#2 \\$skip of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:sendIndexingMessage\\(\\) expects list\\<string\\>, array\\<int\\<0, max\\>, non\\-falsy\\-string\\> given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Controller/IndexingController.php

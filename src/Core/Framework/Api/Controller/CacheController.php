@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -45,9 +46,14 @@ class CacheController extends AbstractController
     public function index(RequestDataBag $dataBag): Response
     {
         $data = $dataBag->all();
-        $skip = !empty($data['skip']) && \is_array($data['skip']) ? $data['skip'] : [];
 
-        $this->indexerRegistry->sendIndexingMessage([], $skip);
+        $skip = !empty($data['skip']) && \is_array($data['skip']) ? $data['skip'] : [];
+        $mapped = [];
+        foreach ($skip as $value) {
+            $mapped[] = (string) $value;
+        }
+
+        $this->indexerRegistry->sendIndexingMessage([], $mapped);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -55,6 +61,10 @@ class CacheController extends AbstractController
     #[Route(path: '/api/_action/cache_warmup', name: 'api.action.cache.delete_and_warmup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearCacheAndScheduleWarmUp(): Response
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
+        );
         if ($this->cacheWarmer === null) {
             throw new \RuntimeException('Storefront is not installed');
         }

@@ -40,22 +40,30 @@ Even though there were a lot of deprecations in this release, 99% of them involv
 But there is one big change that affects each project and nearly all repositories outside which are using phpstan. 
 
 ### Kernel bootstrapping
-We had to refactor the Kernel bootstrapping and the Kernel itself. Therefore you have to change your bootstrapping classes as follows:
+We had to refactor the Kernel bootstrapping and the Kernel itself. 
+When you forked our production template, or you boot the kernel somewhere by your own, you have to change the bootstrapping as follows:
 
 ```php
 
 #### Before #####
 
-$kernel = new StaticAnalyzeKernel(
-    'phpstan', 
-    true, 
-    $pluginLoader, 
-    'phpstan-test-cache-id'
+$kernel = new Kernel(
+    environment: $appEnv, 
+    debug: $debug, 
+    pluginLoader: $pluginLoader
 );
 
-$kernel->boot();
-
 #### After #####
+
+$kernel = KernelFactory::create(
+    environment: $appEnv,
+    debug: $debug,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader
+);
+
+
+### In case of static code analysis
 
 KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
@@ -70,8 +78,9 @@ $kernel = KernelFactory::create(
 ```
 
 ### Session access in phpunit tests
-Due to the kernel refactoring and which kernel get initialized, you also have change in the request handling inside unit tests, when using `$this->request()` and try to access the session afterwards. 
-With the old code, you will run in a pipeline error like `Session not started` or `Session already closed`.
+The way how you can access the session in unit test has changed.
+The session is no more accessible via the request/response.
+You have to use the `session.factory` service to access it or use the `SessionTestBehaviour` for a shortcut
 
 ```php
 ##### Before
@@ -82,9 +91,15 @@ $session = $this->getBrowser()->getRequest()->getSession();
 
 ##### After
 
+use SessionTestBehaviour;
+
 $this->request(....);
 
+// shortcut via trait 
 $this->getSession();
+
+// code behind the shortcut
+$this->getContainer()->get('session.factory')->getSession();
 
 ```
 

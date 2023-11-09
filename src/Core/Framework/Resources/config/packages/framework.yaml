@@ -12,6 +12,8 @@ framework:
     trusted_hosts: ~
     fragments: ~
     assets: ~
+    http_cache:
+        enabled: true
     session:
         name: 'session-'
         handler_id: ~

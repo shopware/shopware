@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -389,7 +390,7 @@ class WishlistControllerTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
         $browser->request(
             'POST',
-            $_SERVER['APP_URL'] . '/account/login',
+            EnvironmentHelper::getVariable('APP_URL') . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
                 'password' => 'shopware',

@@ -290,9 +290,6 @@ parameters:
         - message: '#Class like namespace \"Shopware\\Storefront\\Framework\\Cache\\ReverseProxy\" does not follow PSR-4 configuration in composer\.json#'
           path: src/Core/Framework/Adapter/Cache/ReverseProxy/AbstractReverseProxyGateway.php
 
-        ## getDecorated is marked as deprecated
-        - message: '#Decoration error\: Concrete class is marked as \@internal\. Remove `getDecorated` \(if not intended that these classes can be decorated\) or remove \@internal annotation#'
-          path: src/Storefront/Framework/Cache/ReverseProxy/VarnishReverseProxyGateway.php
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

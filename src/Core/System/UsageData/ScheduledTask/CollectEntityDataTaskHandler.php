@@ -24,6 +24,6 @@ final class CollectEntityDataTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $this->entityDispatchService->start();
+        $this->entityDispatchService->dispatchCollectEntityDataMessage();
     }
 }

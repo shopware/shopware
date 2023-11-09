@@ -21,7 +21,7 @@ class CollectEntityDataTaskHandlerTest extends TestCase
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects(static::once())
-            ->method('start');
+            ->method('dispatchCollectEntityDataMessage');
 
         $taskHandler = new CollectEntityDataTaskHandler(
             new StaticEntityRepository([], new ScheduledTaskDefinition()),

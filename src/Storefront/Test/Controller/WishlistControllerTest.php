@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -63,12 +65,16 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $salesChannelId = $browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
 
-        $productId = $this->createProduct($salesChannelId);
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        $productId = $this->createProduct($context->getSalesChannelId());
 
         // add product to wishlist
-        $this->createCustomerWishlist($productId, $salesChannelId);
+        $this->createCustomerWishlist($productId, $context->getSalesChannelId());
 
         $browser->request('GET', '/wishlist');
         $response = $browser->getResponse();
@@ -110,9 +116,16 @@ class WishlistControllerTest extends TestCase
 
         $browser->request('GET', $_SERVER['APP_URL']);
 
-        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        $productId = $this->createProduct($context->getSalesChannelId());
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/guest-pagelet', $this->tokenize('frontend.wishlist.guestPage.pagelet', ['productIds' => [$productId]]));
+
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
 
@@ -120,6 +133,7 @@ class WishlistControllerTest extends TestCase
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(EntitySearchResult::class, $result = $response->getData()['searchResult']);
         static::assertCount(1, $result);
+        static::assertInstanceOf(Entity::class, $result->first());
         static::assertEquals($productId, $result->first()->get('id'));
     }
 
@@ -127,9 +141,13 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $salesChannelId = $browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
 
-        $productId = $this->createProduct($salesChannelId);
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        $productId = $this->createProduct($context->getSalesChannelId());
 
         $browser->request('DELETE', '/wishlist/product/delete/' . $productId);
 
@@ -138,7 +156,7 @@ class WishlistControllerTest extends TestCase
             $this->getFlashBag()->all()
         );
 
-        $this->createCustomerWishlist($productId, $salesChannelId);
+        $this->createCustomerWishlist($productId, $context->getSalesChannelId());
 
         $browser->request('DELETE', '/wishlist/product/delete/' . $productId);
         $response = $browser->getResponse();
@@ -163,7 +181,13 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        $productId = $this->createProduct($context->getSalesChannelId());
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/add/' . $productId, $this->tokenize('frontend.wishlist.product.add', []));
 
@@ -192,7 +216,13 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        $productId = $this->createProduct($context->getSalesChannelId());
 
         $browser->request('POST', $_SERVER['APP_URL'] . '/wishlist/add/' . $productId, $this->tokenize('frontend.wishlist.product.add', []));
 
@@ -216,7 +246,13 @@ class WishlistControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        $productId = $this->createProduct($context->getSalesChannelId());
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
 
@@ -339,7 +375,11 @@ class WishlistControllerTest extends TestCase
 
         $repo->create($data, Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$this->customerId]), Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(CustomerEntity::class, $entity);
+
+        return $entity;
     }
 
     private function login(): KernelBrowser

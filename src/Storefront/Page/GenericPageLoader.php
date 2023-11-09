@@ -38,7 +38,14 @@ class GenericPageLoader implements GenericPageLoaderInterface
         return Profiler::trace('generic-page-loader', function () use ($request, $context) {
             $page = new Page();
 
-            if ($request->isXmlHttpRequest()) {
+            $page->setMetaInformation((new MetaInformation())->assign([
+                'revisit' => '15 days',
+                'robots' => 'index,follow',
+                'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
+                'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannel()->getId()),
+            ]));
+
+            if ($request->isXmlHttpRequest() || $request->attributes->get('_esi', false)) {
                 $this->eventDispatcher->dispatch(
                     new GenericPageLoadedEvent($page, $context, $request)
                 );
@@ -76,13 +83,6 @@ class GenericPageLoader implements GenericPageLoaderInterface
                 ->getPaymentMethods();
 
             $page->setSalesChannelPaymentMethods($paymentMethods);
-
-            $page->setMetaInformation((new MetaInformation())->assign([
-                'revisit' => '15 days',
-                'robots' => 'index,follow',
-                'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
-                'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannel()->getId()),
-            ]));
 
             $this->eventDispatcher->dispatch(
                 new GenericPageLoadedEvent($page, $context, $request)

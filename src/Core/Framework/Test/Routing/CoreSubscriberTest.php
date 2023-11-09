@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Controller\ProductController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -60,7 +59,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', $_SERVER['APP_URL']);
         $response = $browser->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         static::assertTrue($response->headers->has('X-Frame-Options'));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
@@ -81,17 +80,15 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
-        $request = $browser->getRequest();
-        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CSP_NONCE));
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $nonce = $this->getNonceFromCsp($response);
 
         static::assertMatchesRegularExpression(
-            '/.*script-src[^;]+nonce-' . preg_quote((string) $nonce, '/') . '.*/',
-            $response->headers->get('Content-Security-Policy'),
+            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            (string) $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );
-        static::assertStringNotContainsString("\n", $response->headers->get('Content-Security-Policy'));
-        static::assertStringNotContainsString("\r", $response->headers->get('Content-Security-Policy'));
+        static::assertStringNotContainsString("\n", (string) $response->headers->get('Content-Security-Policy'));
+        static::assertStringNotContainsString("\r", (string) $response->headers->get('Content-Security-Policy'));
     }
 
     public function testSwaggerHasCsp(): void
@@ -105,13 +102,11 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
-        $request = $browser->getRequest();
-        static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_CSP_NONCE));
-        $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
+        $nonce = $this->getNonceFromCsp($response);
 
         static::assertMatchesRegularExpression(
-            '/.*script-src[^;]+nonce-' . preg_quote((string) $nonce, '/') . '.*/',
-            $response->headers->get('Content-Security-Policy'),
+            '/.*script-src[^;]+nonce-' . preg_quote($nonce, '/') . '.*/',
+            (string) $response->headers->get('Content-Security-Policy'),
             'CSP should contain the nonce'
         );
     }
@@ -125,5 +120,15 @@ class CoreSubscriberTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertFalse($response->headers->has('Content-Security-Policy'));
+    }
+
+    public function getNonceFromCsp(Response $response): string
+    {
+        $csp = (string) $response->headers->get('Content-Security-Policy');
+        preg_match('/nonce-([\w+-=]*)/m', $csp, $matches);
+
+        static::assertArrayHasKey(1, $matches);
+
+        return $matches[1];
     }
 }

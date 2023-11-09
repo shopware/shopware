@@ -37,7 +37,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -81,7 +80,7 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
 
         $sessionId = $session->getId();
@@ -94,7 +93,7 @@ class AuthControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
         static::assertNotEquals($contextToken, $newContextToken);
@@ -116,10 +115,19 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
 
-        static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        $context = $response->getContext();
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+
+        static::assertEquals(
+            $context->getSalesChannelId(),
+            $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)
+        );
 
         $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
@@ -130,7 +138,7 @@ class AuthControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
         static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
-        static::assertNotEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
+        static::assertNotEquals($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testDoNotLogoutWhenSalesChannelIdChangedIfCustomerScopeIsOff(): void
@@ -140,10 +148,20 @@ class AuthControllerTest extends TestCase
 
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
+
         $contextToken = $session->get('sw-context-token');
 
-        static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+
+        $context = $response->getContext();
+
+        static::assertInstanceOf(SalesChannelContext::class, $context);
+        static::assertEquals(
+            $context->getSalesChannelId(),
+            $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)
+        );
 
         $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
@@ -154,7 +172,7 @@ class AuthControllerTest extends TestCase
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertInstanceOf(AccountOverviewPage::class, $response->getData()['page']);
-        static::assertEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
+        static::assertEquals($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
     public function testSessionIsInvalidatedOnLogoutAndInvalidateSettingFalse(): void
@@ -174,7 +192,7 @@ class AuthControllerTest extends TestCase
         $browser->request('GET', '/', []);
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         if ($session->isStarted()) {
             // Close the old session
@@ -189,7 +207,7 @@ class AuthControllerTest extends TestCase
         // Try opening account page
         $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/account', []);
         $response = $browser->getResponse();
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         // Expect the session to have the same value as the initial session
         static::assertSame($session->getId(), $sessionCookie->getValue());
@@ -214,19 +232,19 @@ class AuthControllerTest extends TestCase
     {
         $browser = $this->login();
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
         $sessionId = $session->getId();
 
-        $browser->request('GET', '/account/logout', []);
+        $browser->request('GET', '/account/logout');
         $response = $browser->getResponse();
         static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('GET', '/', []);
+        $browser->request('GET', '/');
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $session = $browser->getRequest()->getSession();
+        $session = $this->getSession();
 
         $newContextToken = $session->get('sw-context-token');
         static::assertNotEquals($contextToken, $newContextToken);
@@ -242,7 +260,7 @@ class AuthControllerTest extends TestCase
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
-        $firstTimeLogin = $browser->getRequest()->getSession();
+        $firstTimeLogin = $this->getSession();
         $firstTimeLoginSessionId = $firstTimeLogin->getId();
         $firstTimeLoginContextToken = $firstTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
@@ -264,7 +282,7 @@ class AuthControllerTest extends TestCase
             ])
         );
 
-        $secondTimeLogin = $browser->getRequest()->getSession();
+        $secondTimeLogin = $this->getSession();
         $secondTimeLoginSessionId = $secondTimeLogin->getId();
         $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
 
@@ -579,27 +597,18 @@ class AuthControllerTest extends TestCase
 
     public function testAccountRecoveryPasswordNotMatchingNewPasswords(): void
     {
-        $controller = $this->getAuthController();
-
-        $request = new Request();
-        $request->attributes->set('_route', 'frontend.account.recover.password.reset');
-        $session = $this->getSession();
-        $request->setSession($session);
-        $this->getContainer()->get('request_stack')->push($request);
-
-        $requestData = new RequestDataBag();
-        $passwordData = new RequestDataBag();
-        $passwordData->set('newPassword', 'kek12345');
-        $passwordData->set('newPasswordConfirm', 'kek12345!');
-        $requestData->set('password', $passwordData);
-
-        $controller->resetPassword($requestData, Generator::createSalesChannelContext());
+        $this->request('POST', '/account/recover/password', [
+            'password' => [
+                'newPassword' => 'kek12345',
+                'newPasswordConfirm' => 'kek12345!',
+            ],
+        ]);
 
         /** @var FlashBag $flashBag */
         $flashBag = $this->getSession()->getBag('flashes');
 
-        static::assertEquals(
-            ['The passwords you have entered do not match.'],
+        static::assertContains(
+            'The passwords you have entered do not match.',
             $flashBag->get('danger')
         );
     }
@@ -715,7 +724,7 @@ class AuthControllerTest extends TestCase
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
-    private function getAuthController(?SendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
+    private function getAuthController(?AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
     {
         $sendPasswordRecoveryMailRoute ??= $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
 

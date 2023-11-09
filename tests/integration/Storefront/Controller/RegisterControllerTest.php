@@ -305,8 +305,8 @@ class RegisterControllerTest extends TestCase
         $ids = new TestDataCollection();
         $this->createCustomerGroup($ids);
 
-        $response = $this->request('GET', '/customer-group-registration/' . $ids->get('group'), []);
-        static::assertEquals(200, $response->getStatusCode());
+        $response = $this->request('GET', 'customer-group-registration/' . $ids->get('group'), []);
+        static::assertEquals(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -394,6 +394,7 @@ class RegisterControllerTest extends TestCase
             ),
             Context::createDefaultContext()
         )->getEntities()->first();
+
         static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
 
         $this->getContainer()->get('customer_group.repository')->create([

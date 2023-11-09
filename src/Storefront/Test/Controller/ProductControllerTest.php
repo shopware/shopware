@@ -309,11 +309,11 @@ class ProductControllerTest extends TestCase
 
         $response = $this->request(
             'GET',
-            '/detail/' . $productId,
+            '/my-product/' . $productId,
             []
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
@@ -378,7 +378,7 @@ class ProductControllerTest extends TestCase
             'id' => $id,
             'productNumber' => $id,
             'stock' => 5,
-            'name' => 'Test',
+            'name' => 'my-product',
             'isCloseout' => true,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
@@ -428,7 +428,11 @@ class ProductControllerTest extends TestCase
 
         $repo->create($data, Context::createDefaultContext());
 
-        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $entity = $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(CustomerEntity::class, $entity);
+
+        return $entity;
     }
 
     private function login(): KernelBrowser

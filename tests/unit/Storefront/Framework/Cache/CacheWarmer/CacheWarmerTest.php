@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
@@ -43,6 +44,8 @@ class CacheWarmerTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $this->salesChannelDomainRepositoryMock = $this->createMock(EntityRepository::class);
         $this->busMock = $this->createMock(MessageBusInterface::class);
         $this->registryMock = $this->createMock(CacheRouteWarmerRegistry::class);

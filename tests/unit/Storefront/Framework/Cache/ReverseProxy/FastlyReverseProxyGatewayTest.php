@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @covers \Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway
  *
+ * @deprecated tag:v6.6.0 - Move to core
+ *
  * @internal
  */
 class FastlyReverseProxyGatewayTest extends TestCase

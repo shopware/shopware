@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -188,7 +187,7 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeProfileWithExistingNotSpecifiedSalutation(): void
     {
-        $connection = KernelLifecycleManager::getConnection();
+        $connection = $this->getContainer()->get(Connection::class);
 
         $salutations = $connection->fetchAllKeyValue('SELECT salutation_key, id FROM salutation');
         static::assertArrayHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
@@ -210,12 +209,10 @@ class ChangeProfileRouteTest extends TestCase
 
     public function testChangeProfileToNotSpecifiedWithoutExistingSalutation(): void
     {
-        $connection = KernelLifecycleManager::getConnection();
+        $connection = $this->getContainer()->get(Connection::class);
 
         $connection->executeStatement(
-            '
-					DELETE FROM salutation WHERE salutation_key = :salutationKey
-				',
+            'DELETE FROM salutation WHERE salutation_key = :salutationKey',
             ['salutationKey' => SalutationDefinition::NOT_SPECIFIED]
         );
 
@@ -234,6 +231,7 @@ class ChangeProfileRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertArrayHasKey('success', $response);
         static::assertTrue($response['success']);
     }
 

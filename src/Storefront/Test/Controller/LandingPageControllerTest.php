@@ -34,7 +34,8 @@ class LandingPageControllerTest extends TestCase
 
     public function testLandingPageLoadedHookScriptsAreExecuted(): void
     {
-        $response = $this->request('GET', '/landingPage/' . $this->ids->get('landing-page'), []);
+        $response = $this->request('GET', '/myUrl', []);
+
         static::assertEquals(200, $response->getStatusCode());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();

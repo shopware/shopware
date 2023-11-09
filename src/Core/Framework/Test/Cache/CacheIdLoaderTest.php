@@ -23,6 +23,7 @@ class CacheIdLoaderTest extends TestCase
     {
         parent::setUp();
         $this->loader = $this->getContainer()->get(CacheIdLoader::class);
+        unset($_SERVER['SHOPWARE_CACHE_ID']);
     }
 
     public function testLoadExisting(): void

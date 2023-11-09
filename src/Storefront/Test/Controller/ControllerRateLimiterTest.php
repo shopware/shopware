@@ -328,6 +328,7 @@ class ControllerRateLimiterTest extends TestCase
         $request = new Request();
         $request->query->add($params);
         $request->setSession($this->getSession());
+        $request->headers->set('HOST', 'localhost');
         $request->attributes->add([
             '_route' => $route,
             SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,

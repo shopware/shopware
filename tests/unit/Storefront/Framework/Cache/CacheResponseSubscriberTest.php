@@ -624,7 +624,7 @@ class CacheResponseSubscriberTest extends TestCase
             $response
         ));
 
-        static::assertSame('must-revalidate, public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
+        static::assertSame('public, s-maxage=100, stale-if-error=6, stale-while-revalidate=5', $response->headers->get('cache-control'));
     }
 
     /**

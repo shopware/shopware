@@ -1,3 +1,7 @@
+parameters:
+    '.container.dumper.inline_class_loader': false
+    '.container.dumper.inline_factories': false
+
 framework:
     test: true
     session:

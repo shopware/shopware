@@ -144,7 +144,7 @@ class VariantListingUpdater
             $groups = [];
             $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
             foreach ($configuratorGroupConfig as $group) {
-                if ($group['expressionForListings']) {
+                if (\array_key_exists('expressionForListings', $group) && $group['expressionForListings']) {
                     $groups[] = $group['id'];
                 }
             }

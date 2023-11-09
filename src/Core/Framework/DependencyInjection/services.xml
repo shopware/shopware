@@ -654,5 +654,28 @@ base-uri 'self';
             <argument type="service" id=".inner"/>
             <argument type="collection"></argument>
         </service>
+
+        <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="controller_resolver"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="argument_resolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\CanonicalRedirectService"/>
+
+            <tag name="container.hot_path"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\ResponseRunner"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\SymfonyRuntime"/>
+        </service>
+
+        <service id="http_kernel.cache" class="Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel" decorates="http_kernel">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStore"/>
+            <argument type="service" id="esi"/>
+            <argument type="collection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%storefront.reverse_proxy.enabled%</argument>
+        </service>
     </services>
 </container>

@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
@@ -15,8 +17,10 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
@@ -54,6 +58,8 @@ class Kernel extends HttpKernel
     protected $shopwareVersionRevision;
 
     /**
+     * @deprecated tag:v6.6.0 - Signature will change to `@var string`. Property will also be declared over __construct
+     *
      * @var string|null
      */
     protected $projectDir;
@@ -61,6 +67,8 @@ class Kernel extends HttpKernel
     private bool $rebooting = false;
 
     /**
+     * @deprecated tag:v6.6.0 - reason:becomes-internal - Will become internal, use `KernelFactory::create`
+     *
      * {@inheritdoc}
      */
     public function __construct(
@@ -68,10 +76,15 @@ class Kernel extends HttpKernel
         bool $debug,
         KernelPluginLoader $pluginLoader,
         private string $cacheId,
+        // @deprecated tag:v6.6.0 - change signature to `string $version,`
         ?string $version = self::SHOPWARE_FALLBACK_VERSION,
+        // @deprecated tag:v6.6.0 - change signature to `Connection $connection,`
         ?Connection $connection = null,
+        // @deprecated tag:v6.6.0 - change signature to `protected string $projectDir`
         ?string $projectDir = null
     ) {
+        $version = $version ?? self::SHOPWARE_FALLBACK_VERSION;
+
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
@@ -108,29 +121,46 @@ class Kernel extends HttpKernel
 
     public function getProjectDir(): string
     {
-        if ($this->projectDir === null) {
-            if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
-                return $this->projectDir = $dir;
-            }
-
-            $r = new \ReflectionObject($this);
-
-            $dir = (string) $r->getFileName();
-            if (!file_exists($dir)) {
-                throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
-            }
-
-            $dir = $rootDir = \dirname($dir);
-            while (!file_exists($dir . '/vendor')) {
-                if ($dir === \dirname($dir)) {
-                    return $this->projectDir = $rootDir;
-                }
-                $dir = \dirname($dir);
-            }
-            $this->projectDir = $dir;
+        // @deprecated tag:v6.6.0 - remove all code below and just return projectDir
+        if ($this->projectDir !== null) {
+            return $this->projectDir;
         }
 
+        if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
+            return $this->projectDir = $dir;
+        }
+
+        $r = new \ReflectionObject($this);
+
+        $dir = (string) $r->getFileName();
+        if (!file_exists($dir)) {
+            throw FrameworkException::projectDirNotExists($dir);
+        }
+
+        $dir = $rootDir = \dirname($dir);
+        while (!file_exists($dir . '/vendor')) {
+            if ($dir === \dirname($dir)) {
+                return $this->projectDir = $rootDir;
+            }
+            $dir = \dirname($dir);
+        }
+        $this->projectDir = $dir;
+
         return $this->projectDir;
+    }
+
+    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
+    {
+        // @deprecated tag:v6.6.0 - remove complete IF statement
+        if (!Feature::isActive('v6.6.0.0')) {
+            return parent::handle($request, $type, $catch);
+        }
+
+        if (!$this->booted) {
+            $this->boot();
+        }
+
+        return $this->getHttpKernel()->handle($request, $type, $catch);
     }
 
     public function boot(): void

@@ -20,7 +20,6 @@ return [
         'Unable to compile initializer in method', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Could not locate constant .* while trying to evaluate constant expression', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Value.+of.+constant', // Changing const values in not a BC per se
-
         // Renaming of arguments
         'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions',
 
@@ -43,5 +42,9 @@ return [
 
         // Removed property, which was unintentionally added
         'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
+
+        'The return type of Shopware\\\\CStorefront\\\\CFramework\\\C\Cache\\\\CReverseProxy\\\\CFastlyReverseProxyGateway#getDecorated\(\) changed from Shopware\\\C\Storefront\\\C\Framework\\\C\Cache\\\C\ReverseProxy\\\\CAbstractReverseProxyGateway to Shopware\\\C\Core\\\\CFramework\\\C\Adapter\\\\CCache\\\\CReverseProxy\\\C\AbstractReverseProxyGateway',
+        'The return type of Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\RedisReverseProxyGateway#getDecorated\(\) changed from Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway to Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\ReverseProxy\\\\AbstractReverseProxyGateway'
+
     ],
 ];

@@ -8,7 +8,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - Will be removed, use `Shopware\Core\Framework\Adapter\Cache\Http\Event\HttpCacheStoreEvent` instead
+ */
+#[Package('core')]
 class HttpCacheItemWrittenEvent extends Event
 {
     /**
@@ -27,6 +30,9 @@ class HttpCacheItemWrittenEvent extends Event
         return $this->item;
     }
 
+    /**
+     * @return string[]
+     */
     public function getTags(): array
     {
         return $this->tags;

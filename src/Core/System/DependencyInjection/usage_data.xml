@@ -90,6 +90,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="clock"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\GatewayStatusService"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ManyToManyAssociationService">
@@ -120,6 +121,15 @@
 
         <service id="Shopware\Core\System\UsageData\Services\ShopIdProvider">
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Services\GatewayStatusService">
+            <argument type="service" id="Shopware\Core\System\UsageData\Client\GatewayClient"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Client\GatewayClient">
+            <argument type="service" id="shopware.usage_data.gateway.client"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
         </service>
 
         <!-- Scheduled tasks -->

@@ -26,6 +26,7 @@ class EntityDispatchService
         private readonly MessageBusInterface $messageBus,
         private readonly ClockInterface $clock,
         private readonly ConsentService $consentService,
+        private readonly GatewayStatusService $gatewayStatusService,
     ) {
     }
 
@@ -41,7 +42,15 @@ class EntityDispatchService
 
     public function dispatchIterateEntityMessages(): void
     {
-        if (!$this->consentService->isConsentAccepted() || !$this->consentService->shouldPushData()) {
+        if (!$this->consentService->isConsentAccepted()) {
+            return;
+        }
+
+        if (!$this->consentService->shouldPushData()) {
+            return;
+        }
+
+        if (!$this->gatewayStatusService->isGatewayAllowsPush()) {
             return;
         }
 

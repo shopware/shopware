@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @Annotation
  *
+ * @deprecated tag:v6.6.0 - Will be removed without replacement
+ *
  * @Target("CLASS")
  *
  * @ExtensionPattern

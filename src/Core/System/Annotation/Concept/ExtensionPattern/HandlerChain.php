@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @Target("CLASS")
  *
+ * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-constraint-annotation
+ *
  * @ExtensionPattern
  *
  * The HandlerChain pattern is very similar to the `\Shopware\Core\System\Annotation\Concept\ExtensionPattern\Handler` pattern.

@@ -13,6 +13,9 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Contracts\EventDispatcher\Event as SymfonyBaseEvent;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-subscriber
+ */
 #[Package('core')]
 class ActionEventCompilerPass implements CompilerPassInterface
 {

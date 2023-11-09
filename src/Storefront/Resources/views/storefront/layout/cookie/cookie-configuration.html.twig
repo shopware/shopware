@@ -29,6 +29,7 @@
         <div class="offcanvas-cookie-list">
             {% for cookieGroup in cookieGroups %}
                 {% sw_include '@Storefront/storefront/layout/cookie/cookie-configuration-group.html.twig' with {
+                    themeIconConfig: themeIconConfig,
                     cookieGroup: cookieGroup
                 } only %}
             {% endfor %}

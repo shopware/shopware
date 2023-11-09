@@ -80,7 +80,12 @@
                                              data-flyout-menu-id="{{ treeItem.category.id }}">
                                             <div class="container">
                                                 {% block layout_main_navigation_menu_flyout_include %}
-                                                    {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {navigationTree: treeItem, level: level+1, page: page} only %}
+                                                    {% sw_include '@Storefront/storefront/layout/navigation/flyout.html.twig' with {
+                                                        themeIconConfig: themeIconConfig,
+                                                        navigationTree: treeItem,
+                                                        level: level+1,
+                                                        page: page
+                                                    } only %}
                                                 {% endblock %}
                                             </div>
                                         </div>

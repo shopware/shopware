@@ -5,7 +5,11 @@
     v-if="!config.hidden"
     v-bind="bind"
     ref="component"
+    {% if VUE3 %}
+    v-model:value="currentValue"
+    {% else %}
     v-model="currentValue"
+    {% endif %}
     class="sw-form-field-renderer"
     @change="$emit('change', $event)"
 >

@@ -7,12 +7,16 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('storefront')]
-class RedisReverseProxyGateway extends AbstractReverseProxyGateway
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal
+ */
+#[Package('core')]
+class RedisReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
 {
     private string $keyScript = <<<LUA
 local list = {}
@@ -86,7 +90,7 @@ LUA;
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }
 
                 throw $reason;
@@ -110,7 +114,7 @@ LUA;
             'concurrency' => $this->concurrency,
             'rejected' => function (\Throwable $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }
 
                 throw $reason;
@@ -120,7 +124,7 @@ LUA;
         $pool->promise()->wait();
     }
 
-    public function getDecorated(): AbstractReverseProxyGateway
+    public function getDecorated(): \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
     {
         throw new DecorationPatternException(self::class);
     }

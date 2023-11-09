@@ -7,12 +7,16 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('storefront')]
-class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal - Implementation class becomes internal
+ */
+#[Package('core')]
+class FastlyReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';
     private const MAX_TAG_INVALIDATION = 256;
@@ -55,7 +59,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         $this->tagBuffer = [];
     }
 
-    public function getDecorated(): AbstractReverseProxyGateway
+    public function getDecorated(): \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
     {
         throw new DecorationPatternException(self::class);
     }
@@ -67,13 +71,6 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
     {
         if ($this->instanceTag !== '') {
             $tags[] = $this->instanceTag;
-        }
-
-        /** @var Response|null $response */
-        $response = \func_num_args() === 3 ? \func_get_arg(2) : null;
-
-        if ($response === null) {
-            throw new \InvalidArgumentException('Parameter $response is required for FastlyReverseProxyGateway');
         }
 
         $response->headers->set('surrogate-key', \implode(' ', $this->prefixTags($tags)));
@@ -105,7 +102,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }
 
                 throw $reason;

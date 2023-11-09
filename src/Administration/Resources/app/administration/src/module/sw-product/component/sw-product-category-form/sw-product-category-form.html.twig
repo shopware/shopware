@@ -196,7 +196,11 @@
                 :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
                 :error="productTagsError"
                 :entity-collection="currentValue ? currentValue : {}"
+                {% if VUE3 %}
+                @update:entity-collection="updateCurrentValue"
+                {% else %}
                 @change="updateCurrentValue"
+                {% endif %}
             />
         </template>
     </sw-inherit-wrapper>

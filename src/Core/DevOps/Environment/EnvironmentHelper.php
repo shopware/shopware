@@ -40,9 +40,12 @@ class EnvironmentHelper
         return \array_key_exists($key, $_SERVER) || \array_key_exists($key, $_ENV);
     }
 
+    /**
+     * @param class-string $transformerClass
+     */
     public static function addTransformer(string $transformerClass, int $priority = 0): void
     {
-        if (!is_subclass_of($transformerClass, EnvironmentHelperTransformerInterface::class, true)) {
+        if (!is_subclass_of($transformerClass, EnvironmentHelperTransformerInterface::class)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     'Expected class to implement "%1$s" but got "%2$s".',
@@ -57,6 +60,9 @@ class EnvironmentHelper
         krsort(self::$transformers, \SORT_NUMERIC);
     }
 
+    /**
+     * @param class-string $transformerClass
+     */
     public static function removeTransformer(string $transformerClass, int $priority = 0): void
     {
         if (!isset(self::$transformers[$priority][$transformerClass])) {

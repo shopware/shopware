@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class FileServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

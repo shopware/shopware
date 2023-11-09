@@ -3,7 +3,7 @@ import swOrderCreateBase from 'src/module/sw-order/view/sw-order-create-base';
 import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-create-base', swOrderCreateBase);

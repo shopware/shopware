@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
 
     public static function getIds(): IdsCollection
     {
-        if (self::$ids === null) {
+        if (!self::$ids instanceof IdsCollection) {
             $ids = KernelLifecycleManager::getKernel()
                 ->getContainer()
                 ->get(Connection::class)
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `php_bench` (
      */
     public static function context(array $options = []): SalesChannelContext
     {
-        if (self::$context === null) {
+        if (!self::$context instanceof SalesChannelContext) {
             self::$context = KernelLifecycleManager::getKernel()
                 ->getContainer()
                 ->get(SalesChannelContextFactory::class)

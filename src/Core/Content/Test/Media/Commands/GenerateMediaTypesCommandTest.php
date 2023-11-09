@@ -6,8 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Commands\GenerateMediaTypesCommand;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\MediaType;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -38,11 +38,6 @@ class GenerateMediaTypesCommandTest extends TestCase
      */
     private $generateMediaTypesCommand;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
-
     private Context $context;
 
     /**
@@ -53,7 +48,6 @@ class GenerateMediaTypesCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
-        $this->urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         $this->generateMediaTypesCommand = $this->getContainer()->get(GenerateMediaTypesCommand::class);
 
@@ -116,7 +110,9 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('Provided batch size is invalid.');
+
         $this->createValidMediaFiles();
 
         $input = new StringInput('-b "test"');
@@ -147,19 +143,22 @@ class GenerateMediaTypesCommandTest extends TestCase
             ],
         ], $this->context);
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
+        $filePath = $mediaPng->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
+        $filePath = $mediaJpg->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
 
-        $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
+        $filePath = $mediaPdf->getPath();
+
         $this->getPublicFilesystem()->writeStream(
             $filePath,
             fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')

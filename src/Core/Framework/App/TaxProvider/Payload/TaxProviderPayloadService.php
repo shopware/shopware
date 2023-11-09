@@ -6,8 +6,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Checkout\Cart\TaxProvider\Struct\TaxProviderResult;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppPayloadServiceHelper;
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\TaxProvider\Response\TaxProviderResponse;
 use Shopware\Core\Framework\Context;
@@ -61,7 +61,7 @@ class TaxProviderPayloadService
         $secret = $app->getAppSecret();
 
         if (!$secret) {
-            throw new AppRegistrationException('App secret missing');
+            throw AppException::registrationFailed($app->getName(), 'App secret is missing');
         }
 
         return [

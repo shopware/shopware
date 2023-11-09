@@ -137,6 +137,13 @@ class SubManyDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()), new VersionField(), new StringField('name', 'name'), (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new ApiAware(), new Required()), (new ReferenceVersionField(SubDefinition::class))->addFlags(new ApiAware(), new Required()), new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, 'id', false)]);
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            new VersionField(),
+            new StringField('name', 'name'),
+            (new FkField('root_sub_id', 'subId', SubDefinition::class, 'id'))->addFlags(new ApiAware(), new Required()),
+            (new ReferenceVersionField(SubDefinition::class))->addFlags(new ApiAware(), new Required()),
+            new ManyToOneAssociationField('sub', 'root_sub_id', SubDefinition::class, 'id', false),
+        ]);
     }
 }

@@ -2,7 +2,11 @@
 {% block sw_condition_value_before_content %}
 <sw-single-select
     v-if="allowMatchesAll"
+    {% if VUE3 %}
+    v-model:value="matchesAll"
+    {% else %}
     v-model="matchesAll"
+    {% endif %}
     class="sw-condition-base-line-item__matches-all"
     size="medium"
     :options="matchesAllOptions"

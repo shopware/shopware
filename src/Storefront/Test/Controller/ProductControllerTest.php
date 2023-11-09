@@ -416,7 +416,7 @@ class ProductControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
-                'password' => 'test12345',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -441,7 +441,7 @@ class ProductControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test12345',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();

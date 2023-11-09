@@ -12,8 +12,13 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\System\User\UserException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -23,6 +28,10 @@ use Symfony\Component\Routing\RouterInterface;
 class UserRecoveryService
 {
     /**
+     * @param EntityRepository<UserRecoveryCollection> $userRecoveryRepo
+     * @param EntityRepository<UserCollection> $userRepo
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     *
      * @internal
      */
     public function __construct(
@@ -77,12 +86,14 @@ class UserRecoveryService
 
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
 
+        $salesChannel = $this->getSalesChannel($context);
+
         $salesChannelContext = $this->salesChannelContextService->get(
             new SalesChannelContextServiceParameters(
-                $this->getSalesChannelId($context),
+                $salesChannel->getId(),
                 Uuid::randomHex(),
-                $context->getLanguageId(),
-                null,
+                $salesChannel->getLanguageId(),
+                $salesChannel->getCurrencyId(),
                 null,
                 $context,
                 null,
@@ -141,26 +152,23 @@ class UserRecoveryService
 
         $user = $this->getUserRecovery($criteria, $context);
 
-        if ($user === null) {
-            return null;
-        }
-
-        return $user->getUser();
+        return $user?->getUser();
     }
 
     private function getUserByEmail(string $userEmail, Context $context): ?UserEntity
     {
         $criteria = new Criteria();
+
         $criteria->addFilter(
             new EqualsFilter('email', $userEmail)
         );
 
-        return $this->userRepo->search($criteria, $context)->first();
+        return $this->userRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function getUserRecovery(Criteria $criteria, Context $context): ?UserRecoveryEntity
     {
-        return $this->userRecoveryRepo->search($criteria, $context)->first();
+        return $this->userRecoveryRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function deleteRecoveryForUser(UserRecoveryEntity $userRecoveryEntity, Context $context): void
@@ -172,14 +180,17 @@ class UserRecoveryService
         $this->userRecoveryRepo->delete([$recoveryData], $context);
     }
 
-    private function getSalesChannelId(Context $context): string
+    /**
+     * pick a random sales channel to form sales channel context as flow builder requires it
+     */
+    private function getSalesChannel(Context $context): SalesChannelEntity
     {
-        $id = $this->salesChannelRepository->searchIds(new Criteria(), $context)->firstId();
+        $salesChannel = $this->salesChannelRepository->search((new Criteria())->setLimit(1), $context)->first();
 
-        if ($id === null) {
-            throw new \RuntimeException('No sales channel found');
+        if (!$salesChannel instanceof SalesChannelEntity) {
+            throw UserException::salesChannelNotFound();
         }
 
-        return $id;
+        return $salesChannel;
     }
 }

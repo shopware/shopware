@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes;
+namespace Shopware\Tests\Integration\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -8,8 +8,6 @@ use Shopware\Tests\Integration\Core\Framework\App\CustomFieldTypeTestBehaviour;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\SingleEntitySelectField
  */
 class SingleEntitySelectFieldTest extends TestCase
 {

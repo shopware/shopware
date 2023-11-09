@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('inventory')]
 class ProductStreamDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'product_stream';

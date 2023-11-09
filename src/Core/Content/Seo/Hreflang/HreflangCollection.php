@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\StructCollection;
 /**
  * @extends StructCollection<HreflangStruct>
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class HreflangCollection extends StructCollection
 {
     public function getApiAlias(): string

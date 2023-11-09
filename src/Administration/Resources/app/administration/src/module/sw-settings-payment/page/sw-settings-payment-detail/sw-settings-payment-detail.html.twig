@@ -32,7 +32,11 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('payment.editor')"
             variant="primary"
+            {% if VUE3 %}
+            @update:process-success="saveFinish"
+            {% else %}
             @process-finish="saveFinish"
+            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-payment.detail.buttonSave') }}
@@ -86,14 +90,18 @@
                         {% endblock %}
 
                         <sw-container
-                            columns="3fr 1fr"
+                            columns="3fr 3fr 1fr"
                             gap="0px 30px"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_name %}
-                            <sw-field
+                            <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.name"
+                                {% else %}
                                 v-model="paymentMethod.name"
-                                type="text"
+                                {% endif %}
+                                name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
                                 :disabled="!acl.can('payment.editor')"
@@ -104,10 +112,33 @@
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_settings_payment_detail_content_field_technical_name %}
+                            <sw-text-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.technicalName"
+                                {% else %}
+                                v-model="paymentMethod.technicalName"
+                                {% endif %}
+                                name="sw-field--paymentMethod-technicalName"
+                                class="sw-settings-payment-detail__field-technical-name"
+                                :required="feature.isActive('v6.7.0.0')"
+                                :disabled="!acl.can('payment.editor')"
+                                :label="$tc('sw-settings-payment.detail.labelTechnicalName')"
+                                :placeholder="placeholder(paymentMethod, 'technicalName', $tc('sw-settings-payment.detail.placeholderTechnicalName'))"
+                                :error="paymentMethodTechnicalNameError"
+                                :help-text="$tc('sw-settings-payment.detail.helpTextTechnicalName')"
+                            />
+                            {% endblock %}
+
+                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_position %}
-                            <sw-field
+                            <sw-number-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.position"
+                                {% else %}
                                 v-model="paymentMethod.position"
-                                type="number"
+                                {% endif %}
+                                name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelPosition')"
@@ -123,7 +154,12 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_base_content_field_description %}
                             <sw-textarea-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.description"
+                                {% else %}
                                 v-model="paymentMethod.description"
+                                {% endif %}
+                                name="sw-field--paymentMethod-description"
                                 :disabled="!acl.can('payment.editor')"
                                 :value="paymentMethod.description"
                                 class="sw-settings-payment-detail__description"
@@ -161,10 +197,14 @@
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_active %}
-                            <sw-field
+                            <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.active"
+                                {% else %}
                                 v-model="paymentMethod.active"
+                                {% endif %}
+                                name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
-                                type="switch"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelActive')"
                             />
@@ -172,10 +212,14 @@
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
-                            <sw-field
+                            <sw-switch-field
+                                {% if VUE3 %}
+                                v-model:value="paymentMethod.afterOrderEnabled"
+                                {% else %}
                                 v-model="paymentMethod.afterOrderEnabled"
+                                {% endif %}
+                                name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
-                                type="switch"
                                 :disabled="!acl.can('payment.editor')"
                                 :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
                             />

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<SalesChannelTranslationEntity>
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelTranslationCollection extends EntityCollection
 {
     /**

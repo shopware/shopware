@@ -62,11 +62,11 @@ describe('src/app/service/entity-validation.service.js', () => {
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/stock' },
+                source: { pointer: '/0/name' },
             },
             {
                 code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                source: { pointer: '/0/name' },
+                source: { pointer: '/0/stock' },
             },
         ]);
     });

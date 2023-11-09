@@ -10,7 +10,7 @@ describe('Administration: Check module navigation in settings', () => {
             });
     });
 
-    it('@base @visual: check appearance of shipping module', { tags: ['pa-checkout'] }, () => {
+    it('@base @visual: check appearance of shipping module', { tags: ['pa-checkout', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
             method: 'POST',

@@ -8,6 +8,8 @@ import './sw-bulk-edit-change-type.scss';
 export default {
     template,
 
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -53,6 +55,13 @@ export default {
             },
             set(newValue) {
                 this.isDisplayingValue = newValue !== 'clear';
+
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
+                    return;
+                }
+
                 this.$emit('change', newValue);
             },
         },

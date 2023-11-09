@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ConfirmUrlAware is deprecated and will be removed in v6.6.0
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class DoubleOptInGuestOrderEvent extends Event implements SalesChannelAware, CustomerAware, MailAware, ConfirmUrlAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'checkout.customer.double_opt_in_guest_order';

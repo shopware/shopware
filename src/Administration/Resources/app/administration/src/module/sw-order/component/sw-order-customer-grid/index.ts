@@ -9,7 +9,7 @@ import './sw-order-customer-grid.scss';
 import type { Cart } from '../../order.types';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, State, Mixin, Context } = Shopware;
@@ -132,6 +132,10 @@ export default Component.wrapComponentConfig({
         cart(): Cart {
             return State.get('swOrder').cart;
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     mounted() {
@@ -216,9 +220,7 @@ export default Component.wrapComponentConfig({
 
             // Refresh customer list if new customer is created successfully
             void this.getList();
-            // @ts-expect-error
             this.page = 1;
-            // @ts-expect-error
             this.term = '';
         },
 

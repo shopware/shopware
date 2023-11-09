@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('business-ops')]
 class Migration1659257296GenerateFlowTemplateDataFromEventAction extends MigrationStep

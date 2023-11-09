@@ -33,6 +33,9 @@ async function createWrapper(customOptions = {}) {
             'sw-context-menu-item': true,
             'sw-checkbox-field': true,
         },
+        provide: {
+            getItems: () => {},
+        },
         propsData: {
             item: {
                 data: {

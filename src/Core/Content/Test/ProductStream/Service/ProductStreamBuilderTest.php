@@ -5,14 +5,13 @@ namespace Shopware\Core\Content\Test\ProductStream\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
@@ -36,30 +35,18 @@ class ProductStreamBuilderTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var SalesChannelRepository<ProductCollection>
      */
-    private $productStreamRepository;
-
-    /**
-     * @var SalesChannelRepository
-     */
-    private $productRepository;
+    private SalesChannelRepository $productRepository;
 
     private Context $context;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var ProductStreamBuilderInterface
-     */
-    private $service;
+    private ProductStreamBuilderInterface $service;
 
     protected function setUp(): void
     {
-        $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
         $this->context = Context::createDefaultContext();
         $this->service = $this->getContainer()->get(ProductStreamBuilder::class);
         $this->productRepository = $this->getContainer()->get('sales_channel.product.repository');
@@ -145,13 +132,15 @@ class ProductStreamBuilderTest extends TestCase
     {
         $this->createTestEntityWithoutFilters();
 
-        static::expectException(NoFilterException::class);
+        $this->expectException(NoFilterException::class);
 
         $this->getProducts('137b079935714281ba80b40f83f8d7eb');
     }
 
     /**
      * @dataProvider relativeTimeFiltersDataProvider
+     *
+     * @param list<string> $releaseDates
      */
     public function testRelativeTimeFilters(string $type, string $operator, string $field, string $value, array $releaseDates, int $expected): void
     {
@@ -182,6 +171,9 @@ class ProductStreamBuilderTest extends TestCase
         static::assertCount($expected, $products);
     }
 
+    /**
+     * @return array<string, array{0: string, 1: string, 2: string, 3: string, 4: list<string>, 5: int}>
+     */
     public static function relativeTimeFiltersDataProvider(): array
     {
         return [
@@ -200,14 +192,14 @@ class ProductStreamBuilderTest extends TestCase
         ];
     }
 
-    private function getProducts(string $productStreamId): EntitySearchResult
+    private function getProducts(string $productStreamId): ProductCollection
     {
         $filters = $this->service->buildFilters($productStreamId, $this->context);
 
         $criteria = new Criteria();
         $criteria->addFilter(...$filters);
 
-        return $this->productRepository->search($criteria, $this->salesChannelContext);
+        return $this->productRepository->search($criteria, $this->salesChannelContext)->getEntities();
     }
 
     private function createTestEntity(): void
@@ -254,9 +246,13 @@ class ProductStreamBuilderTest extends TestCase
         );
     }
 
+    /**
+     * @param list<string>|null $releaseDates
+     *
+     * @return list<array<string, mixed>>
+     */
     private function createProducts(?array $releaseDates = null): array
     {
-        $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
         $salesChannelId = TestDefaults::SALES_CHANNEL;
@@ -278,12 +274,15 @@ class ProductStreamBuilderTest extends TestCase
             ];
         }
 
-        $productRepository->create($products, $this->context);
+        $this->getContainer()->get('product.repository')->create($products, $this->context);
         $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
 
         return $products;
     }
 
+    /**
+     * @return list<string>
+     */
     private static function getReleaseDates(string $operator): array
     {
         return [

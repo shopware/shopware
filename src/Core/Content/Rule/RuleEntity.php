@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class RuleEntity extends Entity
 {
     use EntityCustomFieldsTrait;

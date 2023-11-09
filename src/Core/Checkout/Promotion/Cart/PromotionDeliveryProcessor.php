@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionDeliveryProcessor implements CartProcessorInterface
 {
     final public const SKIP_DELIVERY_RECALCULATION = 'skipDeliveryRecalculation';

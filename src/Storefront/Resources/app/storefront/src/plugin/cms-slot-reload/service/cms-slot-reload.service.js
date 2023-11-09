@@ -9,6 +9,7 @@ import Iterator from 'src/helper/iterator.helper';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 
 /**
+ * @deprecated tag:v6.6.0 - Service "CmsSlotReloadService" will be removed without replacement. Service is not used anymore.
  * @package content
  */
 export default class CmsSlotReloadService {

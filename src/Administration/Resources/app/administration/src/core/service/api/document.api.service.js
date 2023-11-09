@@ -6,7 +6,7 @@ const DocumentEvents = {
 };
 
 /**
- * @package customer-order
+ * @package checkout
  * Gateway for the API end point "document"
  * @class
  * @extends ApiService
@@ -96,7 +96,18 @@ class DocumentApiService extends ApiService {
                     responseType: 'blob',
                     headers: this.getBasicHeaders(),
                 },
-            );
+            )
+            .catch(async (error) => {
+                const errorObject = JSON.parse(await error.response.data.text());
+                if (errorObject.errors) {
+                    this.$listener(
+                        this.createDocumentEvent(
+                            'create-document-fail',
+                            errorObject.errors.pop(),
+                        ),
+                    );
+                }
+            });
     }
 
     getDocument(documentId, documentDeepLink, context, download = false) {

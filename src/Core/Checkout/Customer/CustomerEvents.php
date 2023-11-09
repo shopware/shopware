@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerEvents
 {
     /**

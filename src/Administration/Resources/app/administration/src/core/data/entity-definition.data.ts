@@ -172,6 +172,10 @@ export default class EntityDefinition<EntityName extends keyof EntitySchema.Enti
         return field.type === 'association' && ['many_to_one', 'one_to_one'].includes(field.relation ?? '');
     }
 
+    isOneToOneAssociation(field: Property) {
+        return field.type === 'association' && field.relation === 'one_to_one';
+    }
+
     isTranslatableField(field: Property) {
         return (field.type === 'string' || field.type === 'text') && field.flags?.translatable === true;
     }

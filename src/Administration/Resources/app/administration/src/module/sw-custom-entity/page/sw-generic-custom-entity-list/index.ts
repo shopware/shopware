@@ -150,6 +150,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             return this.$te(dynamicSnippetKey) ? this.$tc(dynamicSnippetKey) : this.$tc(fallbackSnippetKey);
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {

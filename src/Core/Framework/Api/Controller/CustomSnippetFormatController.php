@@ -14,7 +14,7 @@ use Twig\Environment;
  * @internal
  */
 #[Route(defaults: ['_routeScope' => ['api']])]
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomSnippetFormatController
 {
     /**

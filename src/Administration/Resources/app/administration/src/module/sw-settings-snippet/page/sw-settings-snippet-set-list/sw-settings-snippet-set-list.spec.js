@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
@@ -110,8 +110,9 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                 'sw-card-section': true,
                 'sw-pagination': true,
                 'sw-grid': await Shopware.Component.build('sw-grid'),
-                'sw-field': true,
+                'sw-select-field': true,
                 'sw-checkbox-field': true,
+                'sw-text-field': true,
                 'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
                 'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
                 'router-link': true,

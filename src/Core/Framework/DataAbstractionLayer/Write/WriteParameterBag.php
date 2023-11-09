@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -78,7 +78,7 @@ class WriteParameterBag
     public function setCurrentWriteLanguageId(string $languageId): void
     {
         if (!Uuid::isValid($languageId)) {
-            throw new LanguageNotFoundException($languageId);
+            throw DataAbstractionLayerException::invalidLanguageId($languageId);
         }
 
         $this->currentWriteLanguageId = $languageId;

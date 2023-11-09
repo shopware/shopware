@@ -7,7 +7,9 @@ use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +22,8 @@ class IntegrationController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
     public function __construct(private readonly EntityRepository $integrationRepository)
     {
@@ -46,9 +50,10 @@ class IntegrationController extends AbstractController
         }
         $data['id'] = $integrationId ?: $data['id'];
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->integrationRepository->upsert([$data], $context));
+        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): EntityWrittenContainerEvent => $this->integrationRepository->upsert([$data], $context));
 
         $event = $events->getEventByEntityName(IntegrationDefinition::ENTITY_NAME);
+        \assert($event !== null);
 
         $eventIds = $event->getIds();
         $entityId = array_pop($eventIds);

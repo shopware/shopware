@@ -6,7 +6,7 @@
                     <ul class="nav nav-tabs product-detail-tab-navigation-list"
                         id="product-detail-cross-selling-tabs"
                         role="tablist">
-                        {% for item in crossSellings|filter(item => item.total > 0 and item.crossSelling.active == true)  %}
+                        {% for item in crossSellings|filter(item => item.total > 0 and item.crossSelling.active == true) %}
                             {% set id = item.crossSelling.id %}
                             <li class="nav-item">
                                 <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"

@@ -25,7 +25,7 @@
                 :items="sortedPaymentMethods"
                 :scroll-on-drag="true"
                 :scroll-on-drag-conf="scrollOnDragConf"
-                @itemsSorted="onSort"
+                @items-sorted="onSort"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_payment_sorting_modal_content_payment_method %}
@@ -46,7 +46,7 @@
                         <img
                             v-if="isShopwareDefaultPaymentMethod(paymentMethod)"
                             class="sw-settings-payment-sorting-modal__payment-method-list-item__icon"
-                            :src="'/administration/static/img/checkout/shopware_payment_method.svg' | asset"
+                            :src="assetFilter('/administration/static/img/checkout/shopware_payment_method.svg')"
                             alt=""
                         >
                         <sw-media-preview-v2

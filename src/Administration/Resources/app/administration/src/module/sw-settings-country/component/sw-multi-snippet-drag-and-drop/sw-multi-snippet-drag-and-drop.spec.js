@@ -9,7 +9,7 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-button';
 
 /**
- * @package customer-order
+ * @package buyers-experience
  */
 async function createWrapper(customPropsData = {}) {
     const localVue = createLocalVue();

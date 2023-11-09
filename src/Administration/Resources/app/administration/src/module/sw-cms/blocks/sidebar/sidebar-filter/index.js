@@ -2,7 +2,7 @@ import CMS from '../../../constant/sw-cms.constant';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-preview-sidebar-filter', () => import('./preview'));
 /**
@@ -13,7 +13,7 @@ Shopware.Component.register('sw-cms-block-sidebar-filter', () => import('./compo
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsBlock({
     name: 'sidebar-filter',

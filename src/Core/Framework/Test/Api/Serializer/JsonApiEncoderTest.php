@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -316,7 +317,9 @@ class JsonApiEncoderTest extends TestCase
 
         $definition = new CustomFieldPlainTestDefinition();
         $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
-        $struct = new Entity();
+        $struct = new class() extends Entity {
+            use EntityCustomFieldsTrait;
+        };
         $struct->setUniqueIdentifier(Uuid::randomHex());
         $struct->assign($input);
 

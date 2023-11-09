@@ -68,7 +68,8 @@
       "emptyStateDescription": "Add individual tax rates for different countries.",
       "createStateDescription": "Save this tax rate first, then add more countries.",
       "textDeleteConfirm": "Are you sure you want to delete this country: \"{name}\"?",
-      "placeholderStates": "Add states..."
+      "placeholderStates": "Add states...",
+      "labelActiveFrom": "Active from"
     },
     "taxProviderDetail": {
       "textHeadline": "Tax provider",

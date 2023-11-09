@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-#[Package('inventory')]
+#[Package('buyers-experience')]
 class CurrencyTranslationDefinition extends EntityTranslationDefinition
 {
     final public const ENTITY_NAME = 'currency_translation';

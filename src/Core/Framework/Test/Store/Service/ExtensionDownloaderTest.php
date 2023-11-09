@@ -7,8 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
-use Shopware\Core\Framework\Store\Exception\StoreNotAvailableException;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -59,7 +59,8 @@ class ExtensionDownloaderTest extends TestCase
 
         $context = $this->createAdminStoreContext();
 
-        static::expectException(StoreNotAvailableException::class);
+        static::expectException(PluginException::class);
+        static::expectExceptionMessage('Store is not available');
         $this->extensionDownloader->download('TestApp', $context);
     }
 

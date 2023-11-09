@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 abstract class AbstractFileService
 {
     abstract public function getDecorated(): AbstractFileService;

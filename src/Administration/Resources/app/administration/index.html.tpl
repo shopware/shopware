@@ -25,7 +25,7 @@
                 systemCurrencyISOCode: 'EUR',
                 disableExtensions: false,
                 adminEsEnable: false,
-                storefrontEsEnable: false
+                storefrontEsEnable: false,
             },
             apiContext: {
                 host: 'localhost',

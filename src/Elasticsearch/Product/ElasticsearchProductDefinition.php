@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -21,24 +22,6 @@ use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMapping
 #[Package('core')]
 class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 {
-    final public const KEYWORD_FIELD = [
-        'type' => 'keyword',
-        'normalizer' => 'sw_lowercase_normalizer',
-    ];
-
-    final public const BOOLEAN_FIELD = ['type' => 'boolean'];
-
-    final public const FLOAT_FIELD = ['type' => 'double'];
-
-    final public const INT_FIELD = ['type' => 'long'];
-
-    private const SEARCH_FIELD = [
-        'fields' => [
-            'search' => ['type' => 'text'],
-            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-        ],
-    ];
-
     /**
      * @var array<string, string>|null
      */
@@ -54,7 +37,10 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private readonly Connection $connection,
         private array $customMapping,
         protected EventDispatcherInterface $eventDispatcher,
-        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder
+        private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
+        private readonly EsProductDefinition $newImplementation,
+        private bool $excludeSource,
+        private readonly string $environment
     ) {
     }
 
@@ -64,18 +50,28 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     }
 
     /**
-     * @return array{_source: array{includes: string[]}, properties: array<mixed>}
+     * {@inheritdoc}
      */
     public function getMapping(Context $context): array
     {
-        return [
-            '_source' => ['includes' => ['id', 'autoIncrement']],
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->getMapping($context);
+        }
+
+        $debug = $this->environment !== 'prod';
+
+        $mapping = [
             'properties' => [
                 'id' => self::KEYWORD_FIELD,
                 'parentId' => self::KEYWORD_FIELD,
                 'active' => self::BOOLEAN_FIELD,
                 'available' => self::BOOLEAN_FIELD,
                 'isCloseout' => self::BOOLEAN_FIELD,
+                'categoryTree' => self::KEYWORD_FIELD,
+                'categoryIds' => self::KEYWORD_FIELD,
+                'propertyIds' => self::KEYWORD_FIELD,
+                'optionIds' => self::KEYWORD_FIELD,
+                'tagIds' => self::KEYWORD_FIELD,
                 'categoriesRo' => [
                     'type' => 'nested',
                     'properties' => [
@@ -190,20 +186,31 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
             ],
         ];
+
+        if (!$this->excludeSource && !$debug) {
+            $mapping['_source'] = ['includes' => ['id', 'autoIncrement']];
+        }
+
+        return $mapping;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
         return $this->searchQueryBuilder->build($criteria, $context);
     }
 
     /**
-     * @param array<string> $ids
-     *
-     * @return array<mixed>
+     * {@inheritdoc}
      */
     public function fetch(array $ids, Context $context): array
     {
+        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
+            return $this->newImplementation->fetch($ids, $context);
+        }
+
         $data = $this->fetchProducts($ids, $context);
 
         $groupIds = [];
@@ -236,7 +243,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $optionIds = json_decode($item['optionIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $propertyIds = json_decode($item['propertyIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $tagIds = json_decode($item['tagIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
-            $categoriesRo = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoriesRo = json_decode($item['categoryTree'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
+            $categoryIds = json_decode($item['categoryIds'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
             $states = json_decode($item['states'] ?? '[]', true, 512, \JSON_THROW_ON_ERROR);
 
             $translations = $this->filterToOne(json_decode((string) $item['translation'], true, 512, \JSON_THROW_ON_ERROR));
@@ -245,14 +253,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $tags = $this->filterToOne(json_decode((string) $item['tags'], true, 512, \JSON_THROW_ON_ERROR), 'id');
             $categories = $this->filterToMany(json_decode((string) $item['categories'], true, 512, \JSON_THROW_ON_ERROR));
 
-            $customFields = $this->takeItem('customFields', $context, $translations, $parentTranslations) ?? [];
-
-            // MariaDB servers gives the result as string and not directly decoded
-            // @codeCoverageIgnoreStart
-            if (\is_string($customFields)) {
-                $customFields = json_decode($customFields, true, 512, \JSON_THROW_ON_ERROR);
-            }
-            // @codeCoverageIgnoreEnd
+            $customFields = $this->buildCustomFields($context, $parentTranslations, $translations);
 
             $document = [
                 'id' => $id,
@@ -295,6 +296,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'name' => $this->takeItem('name', $context, $category) ?? '',
                 ], $categories)),
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
+                'categoryIds' => $categoryIds,
+                'categoryTree' => $categoriesRo,
                 'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
@@ -427,7 +430,8 @@ SELECT
     IFNULL(p.width, pp.width) AS width,
     IFNULL(p.release_date, pp.release_date) AS releaseDate,
     IFNULL(p.created_at, pp.created_at) AS createdAt,
-    IFNULL(p.category_tree, pp.category_tree) AS categoryIds,
+    IFNULL(p.category_tree, pp.category_tree) AS categoryTree,
+    IFNULL(p.category_ids, pp.category_ids) AS categoryIds,
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,
     IFNULL(p.tag_ids, pp.tag_ids) AS tagIds,
@@ -589,7 +593,17 @@ SQL;
             return $this->customFieldsTypes;
         }
 
-        $event = new ElasticsearchProductCustomFieldsMappingEvent($this->customMapping, $context);
+        /** @var array<string, string> $mappings */
+        $mappings = $this->connection->fetchAllKeyValue('
+SELECT
+    custom_field.`name`,
+    custom_field.type
+FROM custom_field_set_relation
+    INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
+WHERE custom_field_set_relation.entity_name = "product"
+') + $this->customMapping;
+
+        $event = new ElasticsearchProductCustomFieldsMappingEvent($mappings, $context);
         $this->eventDispatcher->dispatch($event);
 
         $this->customFieldsTypes = $event->getMappings();
@@ -658,5 +672,48 @@ SQL;
         }
 
         return $filtered;
+    }
+
+    /**
+     * @param array<mixed> ...$sources
+     *
+     * @return array<mixed>
+     *
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::customFields
+     * @see \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::mergeJson
+     */
+    private function buildCustomFields(Context $context, array ...$sources): array
+    {
+        $merged = [];
+
+        // need to reverse the language chain to get the correct order merged
+        $languageIds = array_reverse($context->getLanguageIdChain());
+
+        foreach ($languageIds as $languageId) {
+            foreach ($sources as $source) {
+                if (!isset($source[$languageId]['customFields'])) {
+                    continue;
+                }
+
+                $languageTranslation = $source[$languageId]['customFields'];
+
+                // MariaDB's servers gives the result as string and not directly decodes
+                // @codeCoverageIgnoreStart
+                if (\is_string($languageTranslation)) {
+                    $languageTranslation = json_decode($languageTranslation, true, 512, \JSON_THROW_ON_ERROR);
+                }
+                // @codeCoverageIgnoreEnd
+
+                foreach ($languageTranslation as $key => $value) {
+                    if ($value === null) {
+                        continue;
+                    }
+
+                    $merged[$key] = $value;
+                }
+            }
+        }
+
+        return $merged;
     }
 }

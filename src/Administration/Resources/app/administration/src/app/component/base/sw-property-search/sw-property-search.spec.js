@@ -314,4 +314,10 @@ describe('components/base/sw-property-search', () => {
         expect(groupElement.find('.sw-grid__cell-content').text()).toBe('Länge');
         expect(groupOptionElement.find('.sw-grid__cell-content').text()).toBe('Dunkelgrün');
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

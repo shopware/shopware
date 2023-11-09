@@ -240,4 +240,10 @@ describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => 
         const isListingVisible = wrapper.vm.showListing;
         expect(isListingVisible).toBe(false);
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

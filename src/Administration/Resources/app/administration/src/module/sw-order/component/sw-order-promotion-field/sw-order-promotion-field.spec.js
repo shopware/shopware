@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swOrderPromotionField from 'src/module/sw-order/component/sw-order-promotion-field';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const orderFixture = {

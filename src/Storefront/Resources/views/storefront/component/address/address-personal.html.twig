@@ -29,11 +29,11 @@
                             {% set isCompany = false %}
 
                             {% if page.address.company or data.company is not empty %}
-                                {% set isCompany  = true %}
+                                {% set isCompany = true %}
                             {% endif %}
 
                             {% if onlyCompanyRegistration or (accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')) %}
-                                {% set isCompany  = true %}
+                                {% set isCompany = true %}
                             {% endif %}
 
                             {% set isLoginPage = false %}
@@ -80,22 +80,14 @@
                     {% block component_address_personal_fields_salutation_label %}
                         <label class="form-label"
                                for="{{ idPrefix ~ prefix }}personalSalutation">
-                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                            {{ "account.personalSalutationLabel"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_salutation_select %}
                         <select id="{{ idPrefix ~ prefix }}personalSalutation"
                                 class="form-select{% if formViolations.getViolations('/salutationId') is not empty %} is-invalid{% endif %}"
-                                name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}"
-                                required="required">
-                            {% if not data.get('salutationId') %}
-                                <option disabled="disabled"
-                                        selected="selected"
-                                        value="">
-                                    {{ "account.personalSalutationPlaceholder"|trans|sw_sanitize }}
-                                </option>
-                            {% endif %}
+                                name="{% if prefix %}{{ prefix }}[salutationId]{% else %}salutationId{% endif %}">
                             {% for salutation in page.salutations %}
                                 <option {% if salutation.id == data.get('salutationId') %}
                                     selected="selected"

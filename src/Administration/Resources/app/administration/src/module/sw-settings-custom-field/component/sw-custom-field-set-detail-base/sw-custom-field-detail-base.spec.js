@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swCustomFieldSetDetailBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
@@ -47,14 +47,15 @@ async function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-card': true,
-            'sw-field': {
+            'sw-number-field': {
                 props: ['label'],
                 template: `
                         <input :label="label"
-                               class="sw-field-stub">
+                               class="sw-number-field-stub">
                         </input>
                     `,
             },
+            'sw-text-field': true,
             'sw-multi-select': true,
         },
     });
@@ -69,7 +70,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
     it('should have a position field', async () => {
         const wrapper = await createWrapper();
 
-        const positionField = wrapper.findAll('.sw-field-stub[label=position]');
+        const positionField = wrapper.findAll('.sw-number-field-stub[label=position]');
         expect(positionField).toHaveLength(1);
     });
 });

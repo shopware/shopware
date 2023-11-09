@@ -4,7 +4,7 @@ import template from './sw-order-create-general-info.html.twig';
 import type { Cart, SalesChannelContext } from '../../order.types';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, Mixin } = Shopware;
@@ -53,6 +53,10 @@ export default Component.wrapComponentConfig({
 
         shippingMethodName(): string {
             return this.context.shippingMethod.translated?.name ?? '';
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 });

@@ -6,7 +6,7 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/structure/sw-page';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const remindPaymentMock = jest.fn(() => {

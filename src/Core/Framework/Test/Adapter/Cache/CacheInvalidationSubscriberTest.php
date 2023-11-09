@@ -33,7 +33,9 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidatorMock = $this->createMock(CacheInvalidator::class);
         $this->cacheInvalidationSubscriber = new CacheInvalidationSubscriber(
             $this->cacheInvalidatorMock,
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            false,
+            false
         );
     }
 

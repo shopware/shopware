@@ -11,7 +11,7 @@ use Shopware\Core\System\Country\CountryCollection;
 /**
  * @extends EntityCollection<CustomerAddressEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerAddressCollection extends EntityCollection
 {
     /**

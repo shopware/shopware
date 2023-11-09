@@ -1,7 +1,7 @@
 import template from './sw-order-detail-documents.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();

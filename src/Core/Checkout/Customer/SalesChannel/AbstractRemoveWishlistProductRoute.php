@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractRemoveWishlistProductRoute
 {
     abstract public function getDecorated(): AbstractRemoveWishlistProductRoute;

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
@@ -32,6 +32,7 @@ export default {
             disableRouteParams: true,
             confirmPassword: '',
             sortBy: 'username',
+            isConfirmingPassword: false,
         };
     },
 
@@ -145,6 +146,7 @@ export default {
 
             let verifiedToken;
             try {
+                this.isConfirmingPassword = true;
                 verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
             } catch (e) {
                 this.createNotificationError({
@@ -157,6 +159,7 @@ export default {
                 });
             } finally {
                 this.confirmPassword = '';
+                this.isConfirmingPassword = false;
             }
 
             if (!verifiedToken) {

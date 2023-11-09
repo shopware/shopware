@@ -15,12 +15,14 @@ const DEFAULT_MIN_LINES = 1 as number;
 const DEFAULT_MAX_LINES = 10 as number;
 
 /**
- * @package customer-order
+ * @package buyers-experience
  *
  * @private
  */
 Component.register('sw-multi-snippet-drag-and-drop', {
     template,
+
+    inject: ['feature'],
 
     model: {
         prop: 'value',
@@ -160,11 +162,15 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                     },
                 );
 
-                this.$emit(
-                    'change',
-                    this.linePosition,
-                    newValue,
-                );
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', this.linePosition, newValue);
+                } else {
+                    this.$emit(
+                        'change',
+                        this.linePosition,
+                        newValue,
+                    );
+                }
 
                 return;
             }
@@ -183,6 +189,12 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         },
 
         onClickDismiss(index: number) {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.linePosition, this.value.filter((_, key) => key !== index));
+
+                return;
+            }
+
             this.$emit(
                 'change',
                 this.linePosition,
@@ -199,6 +211,12 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         },
 
         onDelete() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.linePosition);
+
+                return;
+            }
+
             this.$emit('change', this.linePosition);
         },
 

@@ -32,11 +32,11 @@
                                            {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
                                            itemprop="item">
                                             <link itemprop="url"
-                                                  href="{{ category_url(breadcrumbCategory) }}"/>
+                                                  href="{{ category_url(breadcrumbCategory) }}">
                                             <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
                                         </a>
                                     {% endif %}
-                                    <meta itemprop="position" content="{{ loop.index }}"/>
+                                    <meta itemprop="position" content="{{ loop.index }}">
                                 </li>
                             {% endblock %}
 

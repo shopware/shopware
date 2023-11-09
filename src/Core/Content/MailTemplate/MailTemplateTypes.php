@@ -75,6 +75,12 @@ class MailTemplateTypes
 
     final public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY = 'order_transaction.state.paid_partially';
 
+    final public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_AUTHORIZED = 'order_transaction.state.authorized';
+
+    final public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CHARGEBACK = 'order_transaction.state.chargeback';
+
+    final public const MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_UNCONFIRMED = 'order_transaction.state.unconfirmed';
+
     final public const MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN = 'order.state.open';
 
     final public const MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS = 'order.state.in_progress';

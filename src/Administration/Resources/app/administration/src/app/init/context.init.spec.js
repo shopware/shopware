@@ -87,7 +87,7 @@ describe('src/app/init/context.init.ts', () => {
         });
     });
 
-    it.skip('should return user information', async () => {
+    it('should return user information', async () => {
         Shopware.State.commit('extensions/addExtension', {
             name: 'jestapp',
             baseUrl: '',
@@ -133,7 +133,7 @@ describe('src/app/init/context.init.ts', () => {
         });
     });
 
-    it.skip('should not return user information when permissions arent existing', async () => {
+    it('should not return user information when permissions arent existing', async () => {
         Shopware.State.commit('extensions/addExtension', {
             name: 'jestapp',
             baseUrl: '',
@@ -161,7 +161,7 @@ describe('src/app/init/context.init.ts', () => {
         await expect(getUserInformation()).rejects.toThrow('Extension "jestapp" does not have the permission to read users');
     });
 
-    it.skip('should not return user information when extension is not existing', async () => {
+    it('should not return user information when extension is not existing', async () => {
         Shopware.State.commit('setCurrentUser', {
             aclRoles: [],
             active: true,

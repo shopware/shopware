@@ -6,7 +6,7 @@ import Criteria from 'src/core/data/criteria.data';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-list', swOrderList);
@@ -57,8 +57,6 @@ const mockItem = {
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
-    localVue.filter('currency', key => key);
-    localVue.filter('date', key => key);
 
     return shallowMount(await Shopware.Component.build('sw-order-list'), {
         localVue,
@@ -173,6 +171,38 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(firstRow.find('.sw-order-list__manual-order-label').exists()).toBeTruthy();
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
+    });
+
+    it('should contain empty customer', async () => {
+        const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        await wrapper.setData({
+            orders: [
+                {
+                    ...mockItem,
+                    orderCustomer: {
+                        customerId: '1',
+                        firstName: 'foo',
+                        lastName: 'bar',
+                    },
+                },
+                {
+                    ...mockItem,
+                    orderCustomer: null,
+                },
+            ],
+        });
+
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const secondRow = wrapper.find('.sw-data-grid__row--1');
+
+        expect(warningSpy).toHaveBeenCalledWith('[[sw-data-grid] Can not resolve accessor: orderCustomer.firstName]');
+
+        expect(firstRow.find('.sw-data-grid__cell--orderCustomer-firstName').exists()).toBeTruthy();
+        expect(firstRow.find('.sw-data-grid__cell--orderCustomer-firstName').text()).toBe('bar, foo');
+
+        expect(secondRow.find('.sw-data-grid__cell--orderCustomer-firstName').exists()).toBeTruthy();
+        expect(secondRow.find('.sw-data-grid__cell--orderCustomer-firstName').text()).toBe('');
     });
 
     it('should add query score to the criteria', async () => {
@@ -473,5 +503,11 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             wrapper.vm.orderRepository.search.mockRestore();
             loadFilterValuesSpy.mockClear();
         });
+    });
+
+    it('should return filters from filter registry', async () => {
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.currencyFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

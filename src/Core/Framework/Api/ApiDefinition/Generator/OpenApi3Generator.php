@@ -46,11 +46,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
+     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API): array
+    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API, ?string $bundleName = null): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
@@ -93,7 +93,13 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
-        $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
+
+        if (!empty($bundleName)) {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+            $data['paths'] = [];
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
 
         $loader = new OpenApiFileLoader($schemaPaths);
 
@@ -233,11 +239,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (str_ends_with($definition->getEntityName(), '_translation')) {
             return false;
         }
 
-        if (mb_strpos($definition->getEntityName(), 'version') === 0) {
+        if (str_starts_with($definition->getEntityName(), 'version')) {
             return false;
         }
 

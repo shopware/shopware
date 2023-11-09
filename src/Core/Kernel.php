@@ -13,6 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
@@ -165,6 +167,21 @@ class Kernel extends HttpKernel
         // init container
         $this->initializeContainer();
 
+        // Taken from \Symfony\Component\HttpKernel\Kernel::preBoot()
+        /** @var ContainerInterface $container */
+        $container = $this->container;
+
+        if ($container->hasParameter('kernel.trusted_hosts') && $trustedHosts = $container->getParameter('kernel.trusted_hosts')) {
+            Request::setTrustedHosts($trustedHosts);
+        }
+
+        if ($container->hasParameter('kernel.trusted_proxies') && $container->hasParameter('kernel.trusted_headers') && $trustedProxies = $container->getParameter('kernel.trusted_proxies')) {
+            \assert(\is_string($trustedProxies) || \is_array($trustedProxies));
+            $trustedHeaderSet = $container->getParameter('kernel.trusted_headers');
+            \assert(\is_int($trustedHeaderSet));
+            Request::setTrustedProxies(\is_array($trustedProxies) ? $trustedProxies : array_map('trim', explode(',', $trustedProxies)), $trustedHeaderSet);
+        }
+
         foreach ($this->getBundles() as $bundle) {
             $bundle->setContainer($this->container);
             $bundle->boot();
@@ -235,8 +252,8 @@ class Kernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('.container.dumper.inline_class_loader', true);
-        $container->setParameter('.container.dumper.inline_factories', true);
+        $container->setParameter('.container.dumper.inline_class_loader', $this->environment !== 'test');
+        $container->setParameter('.container.dumper.inline_factories', $this->environment !== 'test');
 
         $confDir = $this->getProjectDir() . '/config';
 
@@ -364,6 +381,8 @@ class Kernel extends HttpKernel
         $cacheDir = $this->getCacheDir();
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
+
+        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
 

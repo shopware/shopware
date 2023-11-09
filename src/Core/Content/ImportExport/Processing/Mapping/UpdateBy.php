@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('system-settings')]
+#[Package('services-settings')]
 class UpdateBy extends Struct
 {
     public function __construct(

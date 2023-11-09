@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class PromotionRedemptionUpdater implements EventSubscriberInterface
 {
     /**

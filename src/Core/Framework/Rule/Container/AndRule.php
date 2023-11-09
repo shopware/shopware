@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Rule\Container;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops
+#[Package('services-settings
 AndRule returns true, if all child-rules are true')]
 class AndRule extends Container
 {

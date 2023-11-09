@@ -217,4 +217,37 @@ class SeoResolverTest extends TestCase
         static::assertEquals('/detail/other', $actual['pathInfo']);
         static::assertTrue((bool) $actual['isCanonical']);
     }
+
+    public function testSalesChannelSpecificSeoulWillBePrioritized(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => null, // default
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/default',
+                'seoPathInfo' => 'awesome-product',
+                'isValid' => true,
+                'isCanonical' => true,
+            ],
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'r',
+                'pathInfo' => '/sales-channel',
+                'seoPathInfo' => 'awesome-product',
+                'isValid' => true,
+                'isCanonical' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $salesChannelResponse = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, $salesChannelId, 'awesome-product');
+        static::assertSame('/sales-channel', $salesChannelResponse['pathInfo']);
+
+        $salesChannelResponse = $this->seoResolver->resolve(Defaults::LANGUAGE_SYSTEM, Uuid::randomHex(), 'awesome-product');
+        static::assertSame('/default', $salesChannelResponse['pathInfo']);
+    }
 }

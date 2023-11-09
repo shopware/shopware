@@ -133,6 +133,7 @@
         "customers": "Kunden",
         "promotions": "Marketing & Rabattaktionen",
         "flow": "Flow Builder",
+        "orders": "Bestellungen",
         "misc": "Sonstige"
       },
       "textUnsavedConditions": "Es gibt ungespeicherte Änderungen in dieser Regel. Speichere die Änderungen, um Zuweisungen hinzufügen zu können."

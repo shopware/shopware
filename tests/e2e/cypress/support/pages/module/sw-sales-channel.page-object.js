@@ -8,7 +8,7 @@ export default class SalesChannelPageObject {
             ...{
                 salesChannelMenuName: '.sw-admin-menu__sales-channel-item',
                 salesChannelModal: '.sw-sales-channel-modal',
-                salesChannelNameInput: 'input[name=sw-field--salesChannel-name]',
+                salesChannelNameInput: '.sw-field--salesChannel-name input',
                 salesChannelMenuTitle: '.sw-admin-menu__sales-channel-item .collapsible-text',
                 apiAccessKeyField: 'input[name=sw-field--salesChannel-accessKey]',
                 salesChannelSaveAction: '.sw-sales-channel-detail__save-action'
@@ -89,7 +89,7 @@ export default class SalesChannelPageObject {
         cy.contains('button', 'Add domain').click();
         cy.contains('.sw-modal__title', 'Create domain');
 
-        cy.get('#sw-field--currentDomain-url').type('example.org');
+        cy.get('.sw-url-input-field__input').type('example.org');
 
         cy.get('.sw-sales-channel-detail-domains__domain-language-select').find('.sw-single-select__selection').click();
         cy.contains('.sw-select-result', 'Deutsch').click();

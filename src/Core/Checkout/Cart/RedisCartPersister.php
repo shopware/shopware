@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
@@ -11,8 +12,6 @@ use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\Cache\Traits\RedisClusterProxy;
-use Symfony\Component\Cache\Traits\RedisProxy;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('checkout')]
@@ -22,9 +21,13 @@ class RedisCartPersister extends AbstractCartPersister
 
     /**
      * @internal
+     *
+     * param cannot be natively typed, as symfony might change the type in the future
+     *
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
      */
     public function __construct(
-        private readonly \Redis|\RedisArray|\RedisCluster|RedisClusterProxy|RedisProxy $redis,
+        private $redis,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
         private readonly bool $compress,
@@ -71,6 +74,8 @@ class RedisCartPersister extends AbstractCartPersister
         $cart->setToken($token);
         $cart->setRuleIds($content['rule_ids']);
 
+        $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
+
         return $cart;
     }
 
@@ -107,8 +112,11 @@ class RedisCartPersister extends AbstractCartPersister
             return;
         }
 
+        $copyContext = clone $context;
+        $copyContext->setRuleIds($cart->getRuleIds());
+
         $cart->setToken($newToken);
-        $this->save($cart, $context);
+        $this->save($cart, $copyContext);
         $cart->setToken($oldToken);
 
         $this->delete($oldToken, $context);

@@ -12,6 +12,10 @@
     :label="label"
     :error="error"
     :currency="currency"
+    {% if VUE3 %}
+    @update:price="purchasePriceChanged"
+    {% else %}
     @change="purchasePriceChanged"
+    {% endif %}
 />
 {% endblock %}

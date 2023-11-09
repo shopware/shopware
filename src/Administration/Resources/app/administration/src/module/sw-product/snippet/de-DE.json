@@ -322,6 +322,7 @@
       "buttonAddProperty": "Eigenschaft konfigurieren",
       "buttonAddProperties": "Eigenschaften konfigurieren",
       "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
+      "titleEmptyStateList": "Keine Eigenschaften gefunden.",
       "columnProperty": "Eigenschaft",
       "columnValue": "Eigenschaftsausprägung",
       "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",

@@ -1,7 +1,7 @@
 /**
  * @internal
  *
- * @package merchant-services
+ * @package services-settings
  */
 
 import { shallowMount } from '@vue/test-utils';

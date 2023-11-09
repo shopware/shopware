@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
  *
  * @covers \Shopware\Core\Migration\V6_5\Migration1674704527UpdateVATPatternForCyprusCountry
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1674704527UpdateVATPatternForCyprusCountryTest extends TestCase
 {
     private Connection $connection;

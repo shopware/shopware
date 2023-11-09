@@ -5,7 +5,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Defaults } = Shopware;
@@ -15,6 +15,8 @@ const { Criteria } = Shopware.Data;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
+
+    emits: ['sales-channel-change'],
 
     props: {
         customer: {

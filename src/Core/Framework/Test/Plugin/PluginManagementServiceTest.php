@@ -194,6 +194,7 @@ class PluginManagementServiceTest extends TestCase
             $this->filesystem,
             $this->cacheDir,
             'test',
+            false,
             $this->getContainer()->get('messenger.bus.shopware')
         );
     }

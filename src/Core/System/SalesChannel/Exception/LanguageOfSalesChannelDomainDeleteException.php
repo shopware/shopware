@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class LanguageOfSalesChannelDomainDeleteException extends ShopwareHttpException
 {
     public function __construct(?\Throwable $e = null)

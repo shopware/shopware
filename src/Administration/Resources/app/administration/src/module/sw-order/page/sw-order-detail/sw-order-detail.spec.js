@@ -5,7 +5,7 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-detail', swOrderDetail);
@@ -151,6 +151,19 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
     });
 
+    it('should remove version context immediately when cancelling', async () => {
+        const oldVersionId = wrapper.vm.versionContext.versionId;
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => {
+            expect(wrapper.vm.versionContext.versionId).not.toBe(oldVersionId);
+
+            return Promise.resolve();
+        });
+
+        await wrapper.vm.onCancelEditing();
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
     it('should reload entity data with orderCriteria', () => {
         const criteria = wrapper.vm.orderCriteria;
 
@@ -166,6 +179,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'transactions',
             'documents',
             'tags',
+            'billingAddress',
         ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
     });
 

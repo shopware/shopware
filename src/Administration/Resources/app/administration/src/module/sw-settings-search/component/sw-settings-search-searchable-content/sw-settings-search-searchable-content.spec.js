@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchSearchableContent from 'src/module/sw-settings-search/component/sw-settings-search-searchable-content';
@@ -44,6 +44,7 @@ async function createWrapper(privileges = []) {
             },
             'sw-icon': true,
             'sw-tabs': true,
+            'sw-tabs-item': true,
             'sw-settings-search-example-modal': await Shopware.Component.build('sw-settings-search-example-modal'),
             'sw-modal': true,
             'router-link': true,

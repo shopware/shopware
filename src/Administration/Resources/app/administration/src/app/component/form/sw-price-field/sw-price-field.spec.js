@@ -55,7 +55,7 @@ const setup = async (propOverride) => {
     };
 
     return shallowMount(await Shopware.Component.build('sw-price-field'), {
-        stubs: ['sw-field', 'sw-icon'],
+        stubs: ['sw-number-field', 'sw-icon'],
         propsData,
     });
 };

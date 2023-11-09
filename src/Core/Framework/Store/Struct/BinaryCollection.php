@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class BinaryCollection extends StoreCollection
 {
     protected function getExpectedClass(): ?string

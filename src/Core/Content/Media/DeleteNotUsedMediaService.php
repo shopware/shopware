@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaDefaultFolder\MediaDefaultFolderEntity;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,13 +19,16 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 /**
  * @deprecated tag:v6.6.0 - Will be removed, use \Shopware\Core\Content\Media\UnusedMediaPurger instead
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class DeleteNotUsedMediaService
 {
     final public const RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION = 'restrict-default-folder-entities';
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepo
+     * @param EntityRepository<MediaDefaultFolderCollection> $mediaRepo
      */
     public function __construct(
         private readonly EntityRepository $mediaRepo,
@@ -70,13 +73,15 @@ class DeleteNotUsedMediaService
         $defaultFolderCriteria->setLimit(50);
         $defaultFolderCriteria->addAssociation('folder.configuration');
 
+        /** @var RepositoryIterator<MediaDefaultFolderCollection> $iterator */
         $iterator = new RepositoryIterator($this->defaultFolderRepo, $context, $defaultFolderCriteria);
         while ($defaultFolders = $iterator->fetch()) {
-            /** @var MediaDefaultFolderEntity $defaultFolder */
-            foreach ($defaultFolders as $defaultFolder) {
+            foreach ($defaultFolders->getEntities() as $defaultFolder) {
                 if ($this->isNoAssociation($defaultFolder)) {
-                    /** @var MediaFolderEntity $folder */
                     $folder = $defaultFolder->getFolder();
+                    if ($folder === null) {
+                        continue;
+                    }
 
                     $criteria->addFilter(
                         new MultiFilter(
@@ -101,7 +106,7 @@ class DeleteNotUsedMediaService
         }
 
         $extension = $context->getExtension(self::RESTRICT_DEFAULT_FOLDER_ENTITIES_EXTENSION);
-        if ($extension instanceof ArrayStruct && \is_array($extension->all())) {
+        if ($extension instanceof ArrayStruct) {
             $criteria->addFilter(
                 new EqualsAnyFilter('media.mediaFolder.defaultFolder.entity', $extension->all())
             );

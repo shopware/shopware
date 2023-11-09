@@ -33,6 +33,7 @@
         <service id="Shopware\Core\Framework\Store\Api\FirstRunWizardController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="plugin.repository" />
+            <argument type="service" id="app.repository" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

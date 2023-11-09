@@ -2,7 +2,7 @@ import template from './sw-order-document-settings-modal.html.twig';
 import './sw-order-document-settings-modal.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin, Utils } = Shopware;

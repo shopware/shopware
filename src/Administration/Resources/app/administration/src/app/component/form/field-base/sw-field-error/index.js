@@ -28,12 +28,30 @@ Component.register('sw-field-error', {
             }
 
             const translationKey = `global.error-codes.${this.error.code}`;
-            const translation = this.$tc(translationKey, 1, this.error.parameters || {});
+            const translation = this.$tc(translationKey, 1, this.formatParameters(this.error.parameters) || {});
 
             if (translation === translationKey) {
                 return this.error.detail;
             }
             return translation;
+        },
+    },
+
+    methods: {
+        formatParameters(parameters) {
+            if (!parameters || Object.keys(parameters).length < 1) {
+                return {};
+            }
+
+            const formattedParameters = {};
+            Object.keys(parameters).forEach(key => {
+                if (parameters.hasOwnProperty(key)) {
+                    const formattedKey = key.replace(/{{\s*(.*?)\s*}}/, '$1');
+                    formattedParameters[formattedKey] = parameters[key];
+                }
+            });
+
+            return formattedParameters;
         },
     },
 });

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderValidationFactory implements DataValidationFactoryInterface
 {
     public function create(SalesChannelContext $context): DataValidationDefinition

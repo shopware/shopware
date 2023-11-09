@@ -35,11 +35,13 @@
             <template v-if="sideBarEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_sidebar_block_empty %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'sidebar') }"
                     class="sw-cms-section__empty-stage"
+                    role="button"
+                    tabindex="0"
                     @click="openBlockBar"
+                    @keydown.enter="openBlockBar"
                 >
 
                     <sw-icon
@@ -63,11 +65,18 @@
                 />
                 {% endblock %}
 
-                <template v-for="(block, index) in sideBarBlocks">
+                <template
+                    v-for="(block, index) in sideBarBlocks"
+                    {% if VUE3 %}
+                    :key="block.id"
+                    {% endif %}
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_sidebar_block %}
                     <sw-cms-block
+                        {% if VUE2 %}
                         :key="block.id"
+                        {% endif %}
                         class="sw-cms-stage-block"
                         :block="block"
                         :disabled="disabled"
@@ -83,10 +92,15 @@
                             {% block sw_cms_section_content_block_slot %}
                             <template
                                 v-for="el in block.slots"
+                                {% if VUE3 %}
+                                :key="el.id"
+                                {% endif %}
                                 #[el.slot]
                             >
                                 <sw-cms-slot
+                                    {% if VUE2 %}
                                     :key="el.id"
+                                    {% endif %}
                                     :element="el"
                                     :disabled="disabled"
                                     :active="selectedBlock !== null && selectedBlock.id === block.id"
@@ -122,11 +136,13 @@
             <template v-if="mainContentEmpty">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_section_content_block_empty %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     v-droppable="{ dragGroup: 'cms-stage', data: getDropData(blockCount, 'main') }"
                     class="sw-cms-section__empty-stage"
+                    role="button"
+                    tabindex="0"
                     @click="openBlockBar"
+                    @keydown.enter="openBlockBar"
                 >
 
                     <sw-icon
@@ -150,11 +166,18 @@
                 />
                 {% endblock %}
 
-                <template v-for="(block, index) in mainContentBlocks">
+                <template
+                    v-for="(block, index) in mainContentBlocks"
+                    {% if VUE3 %}
+                    :key="block.id"
+                    {% endif %}
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_section_content_block %}
                     <sw-cms-block
+                        {% if VUE2 %}
                         :key="block.id"
+                        {% endif %}
                         class="sw-cms-stage-block"
                         :block="block"
                         :disabled="disabled"
@@ -170,10 +193,15 @@
                             {% block sw_cms_section_content_block_component_slot %}
                             <template
                                 v-for="el in block.slots"
+                                {% if VUE3 %}
+                                :key="el.id"
+                                {% endif %}
                                 #[el.slot]
                             >
                                 <sw-cms-slot
+                                    {% if VUE2 %}
                                     :key="el.id"
+                                    {% endif %}
                                     :element="el"
                                     :disabled="disabled"
                                     :active="selectedBlock !== null && selectedBlock.id === block.id"

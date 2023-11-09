@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import { shallowMount } from '@vue/test-utils';
@@ -53,6 +53,7 @@ async function createWrapper() {
             'sw-simple-search-field': true,
             'sw-empty-state': true,
             'sw-entity-listing': true,
+            'sw-pagination': true,
         },
         provide: {
             repositoryFactory: {

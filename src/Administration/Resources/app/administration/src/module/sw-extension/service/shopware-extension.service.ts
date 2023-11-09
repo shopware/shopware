@@ -23,7 +23,7 @@ interface LabeledLocation extends Location {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default class ShopwareExtensionService {

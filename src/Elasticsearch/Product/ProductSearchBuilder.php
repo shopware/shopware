@@ -20,7 +20,8 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     public function __construct(
         private readonly ProductSearchBuilderInterface $decorated,
         private readonly ElasticsearchHelper $helper,
-        private readonly ProductDefinition $productDefinition
+        private readonly ProductDefinition $productDefinition,
+        private readonly int $searchTermMaxLength = 300
     ) {
     }
 
@@ -40,7 +41,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             $term = (string) $search;
         }
 
-        $term = trim($term);
+        $term = mb_substr(trim($term), 0, $this->searchTermMaxLength);
 
         if (empty($term)) {
             throw RoutingException::missingRequestParameter('search');

@@ -221,6 +221,22 @@ export default {
                 return restParams;
             });
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
+        },
     },
 
     watch: {

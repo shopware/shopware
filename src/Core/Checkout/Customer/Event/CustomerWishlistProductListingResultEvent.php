@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Event;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEvent;
@@ -10,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerWishlistProductListingResultEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     final public const EVENT_NAME = 'checkout.customer.wishlist_listing_product_result';
@@ -21,10 +22,13 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
     protected $request;
 
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<ProductCollection>
      */
     protected $result;
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $wishlistProductListingResult
+     */
     public function __construct(
         Request $request,
         EntitySearchResult $wishlistProductListingResult,
@@ -49,11 +53,17 @@ class CustomerWishlistProductListingResultEvent extends NestedEvent implements S
         $this->request = $request;
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     public function getResult(): EntitySearchResult
     {
         return $this->result;
     }
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $result
+     */
     public function setResult(EntitySearchResult $result): void
     {
         $this->result = $result;

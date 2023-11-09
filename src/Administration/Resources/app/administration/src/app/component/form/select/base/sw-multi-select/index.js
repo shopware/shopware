@@ -29,6 +29,8 @@ Component.register('sw-multi-select', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
@@ -141,6 +143,12 @@ Component.register('sw-multi-select', {
                 return this.value;
             },
             set(newValue) {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', newValue);
+
+                    return;
+                }
+
                 this.$emit('change', newValue);
             },
         },

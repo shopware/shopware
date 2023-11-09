@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swSettingsDocumentDetail from 'src/module/sw-settings-document/page/sw-settings-document-detail';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-settings-document-detail', swSettingsDocumentDetail);
@@ -91,7 +91,7 @@ const createWrapper = async (customOptions, privileges = []) => {
         stubs: {
             'sw-page': true,
             'sw-entity-single-select': true,
-            'sw-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
+            'sw-text-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
             'sw-button': true,
             'sw-button-process': true,
             'sw-card-view': true,

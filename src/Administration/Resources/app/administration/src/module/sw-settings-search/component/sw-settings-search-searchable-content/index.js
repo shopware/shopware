@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
@@ -165,7 +165,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesName'),
+                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesValue'),
                     value: 'properties.name',
                     defaultConfigs: {
                         searchable: false,
@@ -230,7 +230,7 @@ export default {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
-                align: 'right',
+                align: 'center',
                 sortable: true,
             }, {
                 property: 'tokenize',
@@ -247,8 +247,7 @@ export default {
     },
 
     watch: {
-        searchConfigId(newValue) {
-            this.searchConfigId = newValue;
+        searchConfigId() {
             this.loadData();
         },
 

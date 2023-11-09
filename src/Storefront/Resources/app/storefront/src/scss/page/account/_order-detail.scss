@@ -208,6 +208,11 @@
     padding-bottom: $spacer-sm;
 }
 
+.order-item-detail-footnote {
+    background-color: $gray-100;
+    padding: 0 $spacer $spacer;
+}
+
 @include media-breakpoint-up(md) {
     .order-detail-content-header {
         display: block;

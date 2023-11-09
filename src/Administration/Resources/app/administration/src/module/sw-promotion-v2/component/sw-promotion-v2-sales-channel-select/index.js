@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-sales-channel-select.html.twig';
 
 const { Criteria } = Shopware.Data;

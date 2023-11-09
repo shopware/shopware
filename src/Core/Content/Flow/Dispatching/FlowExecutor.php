@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal not intended for decoration or replacement
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowExecutor
 {
     /**

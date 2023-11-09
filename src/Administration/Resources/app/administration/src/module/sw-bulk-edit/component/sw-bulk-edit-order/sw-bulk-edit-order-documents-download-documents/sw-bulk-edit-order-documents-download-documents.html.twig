@@ -9,7 +9,11 @@
     <sw-checkbox-field
         v-for="documentType in documentTypes"
         :key="documentType.id"
+        {% if VUE3 %}
+        v-model:value="documentType.selected"
+        {% else %}
         v-model="documentType.selected"
+        {% endif %}
         :label="documentType.translated.name"
         class="sw-bulk-edit-order-documents-download-documents__checkbox"
         :class="`is--${documentType.technicalName}`"

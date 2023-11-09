@@ -21,8 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class DocumentDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'document';
@@ -64,6 +65,7 @@ class DocumentDefinition extends EntityDefinition
             (new BoolField('sent', 'sent'))->addFlags(new ApiAware()),
             (new BoolField('static', 'static'))->addFlags(new ApiAware()),
             (new StringField('deep_link_code', 'deepLinkCode'))->addFlags(new ApiAware(), new Required()),
+            (new NumberRangeField('document_number', 'documentNumber'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
 
             (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),

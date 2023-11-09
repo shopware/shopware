@@ -7,7 +7,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class NewsletterEvents
 {
     /**

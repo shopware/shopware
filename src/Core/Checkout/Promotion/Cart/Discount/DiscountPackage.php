@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class DiscountPackage
 {
     private LineItemFlatCollection $cartItems;

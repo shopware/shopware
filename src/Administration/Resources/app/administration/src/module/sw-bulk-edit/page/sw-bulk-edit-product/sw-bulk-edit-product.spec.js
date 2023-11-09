@@ -271,6 +271,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     }
 
     beforeAll(async () => {
+        global.allowedErrors = [
+            ...global.allowedErrors,
+            {
+                method: 'warn',
+                msg: /\[vuex\].*/,
+            },
+        ];
+
         routes = [
             {
                 name: 'sw.product.detail.variants',
@@ -367,13 +375,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         });
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
         console.error = jest.fn();
-        global.allowedErrors = [
-            ...global.allowedErrors,
-            {
-                method: 'warn',
-                msg: /\[vuex\].*/,
-            },
-        ];
     });
 
     afterEach(() => {
@@ -614,6 +615,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0]).toHaveProperty('linked');
         expect(changeField.value[0]).toHaveProperty('gross');
         expect(changeField.value[0]).not.toHaveProperty('listPrice');
+        expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
     it('should be getting the list price when the price field is exists', async () => {
@@ -884,6 +886,62 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.getParentProduct).toHaveBeenCalled();
 
         wrapper.vm.getParentProduct.mockRestore();
+    });
+
+    const dataProvider = [
+        [
+            true,
+            'price',
+            {
+                currencyId: 'currencyId',
+                gross: '1',
+                net: '2',
+            },
+        ],
+        [
+            false,
+            'purchasePrices',
+            {
+                currencyId: 'currencyId',
+                gross: '1',
+                net: '2',
+            },
+        ],
+        [
+            true,
+            'price',
+            true,
+        ],
+        [
+            true,
+            'price',
+            null,
+        ],
+    ];
+
+    it.each(dataProvider)('should have set price to product when value is not boolean', async (isChanged, item, value) => {
+        wrapper = await createWrapper();
+        await wrapper.setData({
+            isLoading: false,
+            bulkEditProduct: {
+                price: {
+                    isChanged: isChanged,
+                    value: null,
+                },
+            },
+        });
+
+        wrapper.vm.onChangePrices(item, value);
+        wrapper.vm.createdComponent();
+        expect(wrapper.vm.bulkEditProduct.price.isChanged).toBe(isChanged);
+        expect(wrapper.vm.bulkEditProduct.price.value).toBeNull();
+
+        let expected;
+        if (value && typeof value !== 'boolean') {
+            expected = [value];
+        }
+
+        expect(wrapper.vm.product[item]).toEqual(expected);
     });
 
     it('should not be able to get parent product', async () => {

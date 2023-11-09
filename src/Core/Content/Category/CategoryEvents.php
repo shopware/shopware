@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryEvents
 {
     /**

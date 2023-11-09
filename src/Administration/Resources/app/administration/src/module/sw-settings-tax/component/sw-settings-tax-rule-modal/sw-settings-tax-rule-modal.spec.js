@@ -6,7 +6,7 @@ import 'src/app/component/base/sw-button';
 Shopware.Component.register('sw-settings-tax-rule-modal', swSettingsTaxRuleModal);
 
 /**
- * @package customer-order
+ * @package checkout
  */
 async function createWrapper() {
     const localVue = createLocalVue();
@@ -20,6 +20,7 @@ async function createWrapper() {
             'sw-container': true,
             'sw-entity-single-select': true,
             'sw-number-field': true,
+            'sw-datepicker': true,
         },
         provide: {
             shortcutService: {

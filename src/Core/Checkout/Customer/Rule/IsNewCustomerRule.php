@@ -13,7 +13,7 @@ use Shopware\Core\Framework\Rule\RuleScope;
 /**
  * @deprecated tag:v6.6.0 - will be removed, use DaysSinceFirstLoginRule instead
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class IsNewCustomerRule extends Rule
 {
     final public const RULE_NAME = 'customerIsNewCustomer';

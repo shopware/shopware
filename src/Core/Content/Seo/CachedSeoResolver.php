@@ -3,14 +3,17 @@
 namespace Shopware\Core\Content\Seo;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be removed without a replacement
+ *
  * @phpstan-import-type ResolvedSeoUrl from AbstractSeoResolver
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class CachedSeoResolver extends AbstractSeoResolver
 {
     /**
@@ -24,6 +27,8 @@ class CachedSeoResolver extends AbstractSeoResolver
 
     public function getDecorated(): AbstractSeoResolver
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedClassMessage(self::class, 'v6.6.0.0'));
+
         return $this->decorated;
     }
 
@@ -32,6 +37,8 @@ class CachedSeoResolver extends AbstractSeoResolver
      */
     public function resolve(string $languageId, string $salesChannelId, string $pathInfo): array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedClassMessage(self::class, 'v6.6.0.0'));
+
         $key = 'seo-resolver-' . md5(implode('-', [$languageId, $salesChannelId, $pathInfo]));
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($languageId, $salesChannelId, $pathInfo) {
@@ -50,6 +57,8 @@ class CachedSeoResolver extends AbstractSeoResolver
 
     public static function buildName(string $pathInfo): string
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedClassMessage(self::class, 'v6.6.0.0'));
+
         return 'path-info-' . md5($pathInfo);
     }
 }

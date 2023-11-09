@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swImportExportEditProfileModal from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal';
@@ -60,6 +60,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-select-base': true,
                 'sw-button': true,
                 'sw-tabs': true,
+                'sw-tabs-item': true,
                 'sw-modal': true,
             },
             provide: {

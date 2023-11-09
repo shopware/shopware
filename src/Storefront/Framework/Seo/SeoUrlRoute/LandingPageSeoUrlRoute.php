@@ -45,7 +45,7 @@ class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
     public function getMapping(Entity $landingPage, ?SalesChannelEntity $salesChannel): SeoUrlMapping
     {
         if (!$landingPage instanceof LandingPageEntity) {
-            throw new \InvalidArgumentException('Expected ProductEntity');
+            throw new \InvalidArgumentException('Expected LandingPageEntity');
         }
 
         $landingPageJson = $landingPage->jsonSerialize();

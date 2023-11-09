@@ -72,4 +72,4 @@ class CustomerNotFoundException extends CustomerException
 ```
 
 ## Http status code
-Each specific type of domain exceptions should provide a specific http status code. Please use the following official http status defined by [https://developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) 
+Each specific type of domain exceptions should provide a specific http status code. Please use the following official http status defined by [https://developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)

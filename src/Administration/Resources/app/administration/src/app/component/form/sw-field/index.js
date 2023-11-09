@@ -2,11 +2,11 @@ const { Component } = Shopware;
 
 /**
  * @package admin
- *
+ * @deprecated tag:v6.6.0 - Will be removed. Use corresponding components instead.
  * @private
  * @description sw-field as alias for all input fields
  * @example-type dynamic
- * @status ready
+ * @status deprecated
  */
 Component.register('sw-field', {
     functional: true,

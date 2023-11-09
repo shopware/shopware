@@ -102,7 +102,7 @@ const searchLanguage = [
 ];
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () => {
     async function createWrapper() {
@@ -164,6 +164,9 @@ describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome', () =
                                 throw new Error(`No repositoryFactory registered for entity "${entity}"`);
                         }
                     },
+                },
+                shopwareExtensionService: {
+                    updateExtensionData: () => Promise.resolve(),
                 },
             },
             mixins: [

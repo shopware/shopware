@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @deprecated tag:v6.6.0 - reason:becomes-internal - Use PromotionException::codeAlreadyRedeemed instead
  */
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class CodeAlreadyRedeemedException extends ShopwareHttpException
 {
     public function __construct(string $code)

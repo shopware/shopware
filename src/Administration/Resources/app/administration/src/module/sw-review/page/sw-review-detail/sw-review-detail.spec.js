@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package inventory
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swReviewDetail from 'src/module/sw-review/page/sw-review-detail';
@@ -11,7 +11,6 @@ Shopware.Component.register('sw-review-detail', swReviewDetail);
 async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
-    localVue.filter('date', v => v);
 
     return shallowMount(await Shopware.Component.build('sw-review-detail'), {
         localVue,
@@ -154,5 +153,11 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(languageField.attributes().disabled).toBeFalsy();
         expect(activeField.attributes().disabled).toBeFalsy();
         expect(commentField.attributes().disabled).toBeFalsy();
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

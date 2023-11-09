@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package inventory
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsNumberRangeDetail from 'src/module/sw-settings-number-range/page/sw-settings-number-range-detail';
@@ -69,7 +69,9 @@ async function createWrapper() {
             'sw-card': {
                 template: '<div class="sw-card"><slot /></div>',
             },
-            'sw-field': {
+            'sw-switch-field': true,
+            'sw-number-field': true,
+            'sw-text-field': {
                 template: '<div class="sw-field"></div>',
                 props: ['disabled'],
             },

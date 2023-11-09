@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class VariantStruct extends StoreStruct
 {
     final public const TYPE_RENT = 'rent';

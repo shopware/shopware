@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaFolderConfigurationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'media_folder_configuration';

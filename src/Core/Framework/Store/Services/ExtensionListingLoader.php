@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class ExtensionListingLoader
 {
     public function __construct(private readonly StoreClient $client)

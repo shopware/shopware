@@ -20,7 +20,11 @@
         :criteria="productCriteria"
         :context="productContext"
         advanced-selection-component="sw-advanced-selection-product"
+        {% if VUE3 %}
+        @update:entity-collection="setIds"
+        {% else %}
         @change="setIds"
+        {% endif %}
     >
         <template #selection-label-property="{ item }">
             <slot
@@ -43,8 +47,7 @@
                 name="result-item"
                 v-bind="{ item, index, searchTerm, highlightSearchTerm }"
             >
-                <li
-                    is="sw-select-result"
+                <sw-select-result
                     :selected="isSelected(item)"
                     v-bind="{ item, index, searchTerm, highlightSearchTerm }"
                 >
@@ -60,7 +63,7 @@
                         </sw-product-variant-info>
                     </span>
                     {% endblock %}
-                </li>
+                </sw-select-result>
             </slot>
         </template>
     </sw-entity-multi-select>

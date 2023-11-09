@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @codeCoverageIgnore
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class StoreCategoryStruct extends StoreStruct
 {
     /**

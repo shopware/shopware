@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { email } from 'src/core/service/validation.service';
 import template from './sw-users-permissions-user-detail.html.twig';
@@ -159,6 +159,9 @@ export default {
             }];
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed.
+         */
         secretAccessKeyFieldType() {
             return this.showSecretAccessKey ? 'text' : 'password';
         },

@@ -32,14 +32,14 @@ final class AdminSearchController
     public function elastic(Request $request, Context $context): Response
     {
         if ($this->adminEsHelper->getEnabled() === false) {
-            throw new \RuntimeException('Admin elasticsearch is not enabled');
+            throw ElasticsearchAdminException::esNotEnabled();
         }
 
         $term = trim((string) $request->get('term', ''));
         $entities = $request->request->all('entities');
 
         if (empty($term)) {
-            throw new \RuntimeException('Search term is empty');
+            throw ElasticsearchAdminException::missingTermParameter();
         }
 
         $limit = $request->get('limit', 10);

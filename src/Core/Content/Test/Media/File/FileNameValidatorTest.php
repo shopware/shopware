@@ -3,16 +3,18 @@
 namespace Shopware\Core\Content\Test\Media\File;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Content\Media\File\FileNameValidator;
+use Shopware\Core\Content\Media\MediaException;
 
 /**
  * @internal
  */
 class FileNameValidatorTest extends TestCase
 {
-    public static function restrictedCharacters()
+    /**
+     * @return array<array<string>>
+     */
+    public static function restrictedCharacters(): array
     {
         return array_map(
             fn ($value) => [$value],
@@ -37,6 +39,9 @@ class FileNameValidatorTest extends TestCase
         );
     }
 
+    /**
+     * @return array<array<string>>
+     */
     public static function ntfsInternals(): array
     {
         return [
@@ -57,6 +62,9 @@ class FileNameValidatorTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array<string>>
+     */
     public static function controlCharacters(): array
     {
         $c = [];
@@ -70,14 +78,16 @@ class FileNameValidatorTest extends TestCase
 
     public function testValidateFileNameThrowsExceptionIfFileNameIsEmpty(): void
     {
-        $this->expectException(EmptyMediaFilenameException::class);
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('A valid filename must be provided.');
+
         $validator = new FileNameValidator();
         $validator->validateFileName('');
     }
 
     public function testValidateFileNameThrowsIfFileNameIsOnlyDots(): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Filename must not start with a "." (dot).');
 
         $validator = new FileNameValidator();
@@ -86,7 +96,7 @@ class FileNameValidatorTest extends TestCase
 
     public function testValidateFileNameThrowsIfFileNameStartsWithDot(): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Filename must not start with a "." (dot).');
 
         $validator = new FileNameValidator();
@@ -95,7 +105,7 @@ class FileNameValidatorTest extends TestCase
 
     public function testValidateFileNameThrowsIfFileNameEndsWithDot(): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Filename must not end with a "." (dot).');
 
         $validator = new FileNameValidator();
@@ -105,9 +115,9 @@ class FileNameValidatorTest extends TestCase
     /**
      * @dataProvider restrictedCharacters
      */
-    public function testValidateFileNameThrowsIfRestrictedCharacterIsPresent($input): void
+    public function testValidateFileNameThrowsIfRestrictedCharacterIsPresent(string $input): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage("Filename must not contain \"$input\"");
 
         $validator = new FileNameValidator();
@@ -117,9 +127,9 @@ class FileNameValidatorTest extends TestCase
     /**
      * @dataProvider ntfsInternals
      */
-    public function testValidateFileNameThrowsIfFileNameIsNtfsInternal($input): void
+    public function testValidateFileNameThrowsIfFileNameIsNtfsInternal(string $input): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Filename must not contain "$"');
 
         $validator = new FileNameValidator();
@@ -129,9 +139,9 @@ class FileNameValidatorTest extends TestCase
     /**
      * @dataProvider controlCharacters
      */
-    public function testValidateFileNameThrowsExceptionIfControlCharacterIsPresent($input): void
+    public function testValidateFileNameThrowsExceptionIfControlCharacterIsPresent(string $input): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage(
             sprintf(
                 'Filename must not contain character "%x"',
@@ -145,7 +155,7 @@ class FileNameValidatorTest extends TestCase
 
     public function testValidateFileNameThrowsExceptionIfFileNameEndsWithSpaces(): void
     {
-        $this->expectException(IllegalFileNameException::class);
+        $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Filename must not end with spaces');
 
         $validator = new FileNameValidator();

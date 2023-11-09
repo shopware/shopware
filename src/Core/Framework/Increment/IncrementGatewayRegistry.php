@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Increment;
 
-use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -29,6 +28,6 @@ class IncrementGatewayRegistry
             }
         }
 
-        throw new IncrementGatewayNotFoundException($pool);
+        throw IncrementException::gatewayNotFound($pool);
     }
 }

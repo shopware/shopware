@@ -1,9 +1,11 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_cms_add_block %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     class="sw-cms-stage-add-block"
+    role="button"
+    tabindex="0"
     @click="$emit('stage-block-add')"
+    @keydown.enter="$emit('stage-block-add')"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_add_block_handle %}

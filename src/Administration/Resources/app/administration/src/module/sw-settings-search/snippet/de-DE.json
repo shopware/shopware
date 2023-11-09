@@ -76,8 +76,8 @@
         "tagsName": "Produkt-Tag",
         "metaTitle": "Produkt-Meta-Titel",
         "metaDescription": "Produkt-Meta-Beschreibung",
-        "propertiesName": "Eigenschaftsname",
-        "variantValue": "Eigenschaftsausprägung"
+        "propertiesValue": "Eigenschaftsausprägungen",
+        "variantValue": "Variantenwerte"
       }
     },
     "notification": {

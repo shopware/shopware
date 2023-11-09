@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -54,8 +54,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, [
+        $this->prepareCustomer($email, [
             'requestedGroup' => [
                 'id' => $this->ids->create('customer_group'),
                 'name' => 'foo',

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCustomFieldSetDetailBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
@@ -52,7 +52,8 @@ async function createWrapper(privileges = []) {
             'sw-card': true,
             'sw-container': true,
             'sw-custom-field-type-checkbox': true,
-            'sw-field': true,
+            'sw-number-field': true,
+            'sw-text-field': true,
             'sw-button': true,
             'sw-multi-select': true,
             'sw-loader': true,

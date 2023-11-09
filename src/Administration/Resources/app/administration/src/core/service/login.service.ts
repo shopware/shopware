@@ -5,6 +5,7 @@
 import { CookieStorage } from 'cookie-storage';
 import html2canvas from 'html2canvas';
 import type VueRouter from 'vue-router';
+import type { Router } from 'vue-router_v3';
 
 /** @private */
 export interface AuthObject {
@@ -344,7 +345,44 @@ export default function createLoginService(
     function forwardLogout(isInactivityLogout: boolean, shouldRedirect: boolean): void {
         notifyOnLogoutListener();
 
+        // For Vue 3 the router is available in the Shopware.Application.view.router and the currentRoute is a ref object
+        if (window._features_.vue3) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const router = Shopware.Application.view.router as null | Router;
+            if (router) {
+                const id = Shopware.Utils.createId();
+
+                sessionStorage.setItem(`sw-admin-previous-route_${id}`, JSON.stringify({
+                    fullPath: router.currentRoute.value.fullPath,
+                    name: router.currentRoute.value.name,
+                }));
+
+                if (isInactivityLogout && shouldRedirect) {
+                    // Prevent multiple logout calls
+                    if (window.processingInactivityLogout) {
+                        return;
+                    }
+                    // @ts-expect-error - The app element exists
+                    void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
+                        window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+
+                        window.sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
+
+                        window.processingInactivityLogout = true;
+
+                        void router.push({ name: 'sw.inactivity.login.index', params: { id } });
+                    });
+                } else {
+                    void router.push({ name: 'sw.login.index' });
+                }
+            }
+
+            return;
+        }
+
         // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const $router = Shopware.Application.getApplicationRoot().$router as null | VueRouter;
         if ($router) {
             const id = Shopware.Utils.createId();

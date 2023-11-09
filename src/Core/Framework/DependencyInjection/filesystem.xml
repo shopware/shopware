@@ -70,6 +70,7 @@
                 <argument>%shopware.filesystem.public.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="public"/>
         </service>
 
@@ -90,6 +91,7 @@
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
             <argument type="service" id="shopware.asset.asset.version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="asset"/>
         </service>
 
@@ -98,6 +100,7 @@
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
         </service>
 
         <service id="shopware.asset.sitemap" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage" lazy="true">
@@ -105,6 +108,7 @@
                 <argument>%shopware.filesystem.sitemap.url%</argument>
             </argument>
             <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="request_stack" on-invalid="null"/>
             <tag name="shopware.asset" asset="sitemap"/>
         </service>
     </services>

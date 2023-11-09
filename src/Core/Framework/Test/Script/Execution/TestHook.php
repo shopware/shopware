@@ -8,14 +8,23 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 /**
  * @internal
  */
+#[\AllowDynamicProperties]
 class TestHook extends Hook
 {
+    /**
+     * @var array<string>
+     */
     private static array $serviceIds;
 
+    /**
+     * @var array<string>
+     */
     private static array $deprecatedServices;
 
     /**
      * @param array<string> $serviceIds
+     * @param array<string> $deprecatedServices
+     * @param array<string, mixed> $data
      */
     public function __construct(
         private readonly string $name,
@@ -33,11 +42,17 @@ class TestHook extends Hook
         }
     }
 
+    /**
+     * @return array<string>
+     */
     public static function getServiceIds(): array
     {
         return self::$serviceIds;
     }
 
+    /**
+     * @return array<string>
+     */
     public static function getDeprecatedServices(): array
     {
         return self::$deprecatedServices;

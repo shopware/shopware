@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-wizard-discount-selection.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

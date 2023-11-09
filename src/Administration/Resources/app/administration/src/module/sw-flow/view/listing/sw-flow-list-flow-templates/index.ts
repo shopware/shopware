@@ -19,7 +19,7 @@ const { Mixin, Data: { Criteria } } = Shopware;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -106,14 +106,16 @@ export default Shopware.Component.wrapComponentConfig({
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
         searchTerm: {
             immediate: true,
-            handler(value): void {
-                // @ts-expect-error - Mixin methods are not recognized
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            handler(value: string): void {
                 this.onSearch(value);
             },
         },

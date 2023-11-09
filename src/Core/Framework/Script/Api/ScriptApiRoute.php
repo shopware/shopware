@@ -59,7 +59,6 @@ class ScriptApiRoute
 
         /** @var Script $script */
         foreach ($scripts as $script) {
-            // todo@dr after implementing UI in admin, we can allow "private scripts"
             if (!$script->isAppScript()) {
                 throw new PermissionDeniedException();
             }

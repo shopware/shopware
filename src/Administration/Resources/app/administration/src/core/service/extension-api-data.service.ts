@@ -5,6 +5,8 @@
 import type Vue from 'vue';
 import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
 import { get, debounce } from 'lodash';
+import { selectData } from '@shopware-ag/admin-extension-sdk/es/data/_internals/selectData';
+import MissingPrivilegesError from '@shopware-ag/admin-extension-sdk/es/privileges/missing-privileges-error';
 
 type publishOptions = {
     id: string,
@@ -32,13 +34,28 @@ type vueWithUid = Partial<Vue> & { _uid: number };
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
 
-handleGet((data) => {
+handleGet((data, additionalOptions) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const origin = additionalOptions?._event_?.origin;
     const registeredDataSet = publishedDataSets.find(s => s.id === data.id);
+
     if (!registeredDataSet) {
         return null;
     }
 
-    return registeredDataSet.data;
+    const selectors = data.selectors;
+
+    if (!selectors) {
+        return registeredDataSet.data;
+    }
+
+    const selectedData = selectData(registeredDataSet.data, selectors, 'datasetGet', origin);
+
+    if (selectedData instanceof MissingPrivilegesError) {
+        console.error(selectedData);
+    }
+
+    return selectedData;
 });
 
 /**
@@ -146,6 +163,10 @@ export function publishData({ id, path, scope }: publishOptions): void {
 
                 setObject({ [index]: entry as unknown });
             });
+        } else if (typeof value.data === 'object') {
+            setObject(value.data as transferObject);
+
+            return;
         }
 
         // Vue.set does not resolve path's therefore we need to resolve to the last child property

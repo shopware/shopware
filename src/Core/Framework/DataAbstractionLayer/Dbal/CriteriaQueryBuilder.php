@@ -26,9 +26,6 @@ class CriteriaQueryBuilder
 {
     public function __construct(
         private readonly SqlQueryParser $parser,
-        /***
-         * @var EntityDefinitionQueryHelper
-         */
         private readonly EntityDefinitionQueryHelper $helper,
         private readonly SearchTermInterpreter $interpreter,
         private readonly EntityScoreQueryBuilder $scoreBuilder,
@@ -37,6 +34,9 @@ class CriteriaQueryBuilder
     ) {
     }
 
+    /**
+     * @param list<string> $paths
+     */
     public function build(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, array $paths = []): QueryBuilder
     {
         $query = $this->helper->getBaseQuery($query, $definition, $context);
@@ -100,9 +100,11 @@ class CriteriaQueryBuilder
         }
     }
 
+    /**
+     * @param array<FieldSorting> $sortings
+     */
     public function addSortings(EntityDefinition $definition, Criteria $criteria, array $sortings, QueryBuilder $query, Context $context): void
     {
-        /** @var FieldSorting $sorting */
         foreach ($sortings as $sorting) {
             $this->validateSortingDirection($sorting->getDirection());
 
@@ -176,6 +178,7 @@ class CriteriaQueryBuilder
         }
 
         $minScore = array_map(fn (ScoreQuery $query) => $query->getScore(), $criteria->getQueries());
+        \assert(!empty($minScore));
 
         $minScore = min($minScore);
 
@@ -197,6 +200,11 @@ class CriteriaQueryBuilder
         return $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN) || !empty($criteria->getGroupFields());
     }
 
+    /**
+     * @param list<string> $additionalFields
+     *
+     * @return list<Filter>
+     */
     private function groupFilters(EntityDefinition $definition, Criteria $criteria, array $additionalFields = []): array
     {
         $filters = [];
@@ -209,7 +217,7 @@ class CriteriaQueryBuilder
         }
 
         // $additionalFields is used by the entity aggregator.
-        // For example, if an aggregation is to be created on a to many association that is already stored as a filter.
+        // For example, if an aggregation is to be created on a to-many-association that is already stored as a filter.
         // The association is therefore referenced twice in the query and would have to be created as a sub-join in each case. But since only the filters are considered, the association is referenced only once.
         return $this->joinGrouper->group($filters, $definition, $additionalFields);
     }
@@ -230,9 +238,6 @@ class CriteriaQueryBuilder
         return !empty($criteria->getQueries()) || $criteria->getTerm();
     }
 
-    /**
-     * @throws InvalidSortingDirectionException
-     */
     private function validateSortingDirection(string $direction): void
     {
         if (!\in_array(mb_strtoupper($direction), [FieldSorting::ASCENDING, FieldSorting::DESCENDING], true)) {

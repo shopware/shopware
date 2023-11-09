@@ -2,7 +2,7 @@ import template from './sw-order-send-document-modal.html.twig';
 import './sw-order-send-document-modal.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -73,6 +73,10 @@ export default {
 
         primaryActionDisabled() {
             return this.mailTemplateId === null || this.subject.length <= 0 || this.recipient.length <= 0;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

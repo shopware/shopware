@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
@@ -37,6 +37,10 @@ const defaultProps = {
                 value: null,
             },
             verticalAlign: {
+                source: 'static',
+                value: null,
+            },
+            horizontalAlign: {
                 source: 'static',
                 value: null,
             },

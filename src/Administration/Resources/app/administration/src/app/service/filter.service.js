@@ -158,6 +158,10 @@ export default class FilterService {
         const router = Shopware.Application.view.router;
         const route = router?.currentRoute;
 
+        if (window._features_?.vue3) {
+            return route?.value?.query[storeKey];
+        }
+
         return route?.query[storeKey];
     }
 }

@@ -22,10 +22,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class SalutationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'salutation';
+
+    final public const NOT_SPECIFIED = 'not_specified';
 
     public function getEntityName(): string
     {

@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderPaymentMethodChangedCriteriaEvent extends Event
 {
     public function __construct(

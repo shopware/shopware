@@ -1,6 +1,7 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 
+/** @deprecated tag:v6.6.0 - Plugin "Ellipsis" will be removed without replacement. Plugin is not used anymore. */
 export default class EllipsisPlugin extends Plugin {
     static options = {
         hiddenClass: 'swag-ellipsis-hidden',

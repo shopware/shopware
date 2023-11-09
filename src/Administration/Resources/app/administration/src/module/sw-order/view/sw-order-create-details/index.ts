@@ -14,7 +14,7 @@ import type Repository from '../../../../core/data/repository.data';
 import { get } from '../../../../core/service/utils/object.utils';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, Mixin, State } = Shopware;
@@ -209,11 +209,9 @@ export default Component.wrapComponentConfig({
                 languageId: this.salesChannelContext.context.languageIdChain[0],
                 shippingMethodId: this.salesChannelContext.shippingMethod.id,
                 paymentMethodId: this.salesChannelContext.paymentMethod.id,
-                // @ts-expect-error - activeBillingAddress is not defined in the type
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
                 billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
-                // @ts-expect-error - activeShippingAddress is not defined in the type
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',

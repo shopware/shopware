@@ -27,6 +27,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
      */
     private array $salutationIds = [];
 
+    private string|false|null $paymentMethodId = false;
+
     private Generator $faker;
 
     /**
@@ -136,6 +138,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $tags = $this->getIds('tag');
 
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+        $countries = $this->connection->fetchFirstColumn('SELECT id FROM country WHERE active = 1');
 
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
@@ -144,7 +147,6 @@ class CustomerGenerator implements DemodataGeneratorInterface
             $lastName = $context->getFaker()->format('lastName');
             $salutationId = Uuid::fromBytesToHex($this->getRandomSalutationId());
             $title = $this->getRandomTitle();
-            $countries = $this->connection->fetchFirstColumn('SELECT id FROM country WHERE active = 1');
 
             $addresses = [];
 
@@ -171,7 +173,9 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'firstName' => $firstName,
                 'lastName' => $lastName,
                 'email' => $id . $context->getFaker()->format('safeEmail'),
-                'password' => 'shopware',
+                // use dummy hashed password, so not need to compute the hash for every customer
+                // password is `shopware`
+                'password' => '$2y$10$XFRhv2TdOz9GItRt6ZgHl.e/HpO5Mfea6zDNXI9Q8BasBRtWbqSTS',
                 'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
                 'groupId' => $customerGroups[array_rand($customerGroups)],
                 'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
@@ -250,14 +254,18 @@ class CustomerGenerator implements DemodataGeneratorInterface
 
     private function getDefaultPaymentMethod(): ?string
     {
-        $id = $this->connection->fetchOne(
-            'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
-        );
+        if ($this->paymentMethodId === false) {
+            $id = $this->connection->fetchOne(
+                'SELECT `id` FROM `payment_method` WHERE `active` = 1 ORDER BY `position` ASC'
+            );
 
-        if (!$id) {
-            return null;
+            if (!$id) {
+                return $this->paymentMethodId = null;
+            }
+
+            return $this->paymentMethodId = Uuid::fromBytesToHex($id);
         }
 
-        return Uuid::fromBytesToHex($id);
+        return $this->paymentMethodId;
     }
 }

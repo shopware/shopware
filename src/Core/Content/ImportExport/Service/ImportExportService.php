@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
  * @phpstan-type Config array{mapping?: ?array<array<string, mixed>>, updateBy?: ?array<string, mixed>, parameters?: ?array<string, mixed>}
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportExportService
 {
     public function __construct(

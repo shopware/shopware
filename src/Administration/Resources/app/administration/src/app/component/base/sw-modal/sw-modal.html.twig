@@ -2,10 +2,14 @@
 {% block sw_modal %}
 <transition
     name="sw-modal-fade"
+    {% if VUE3 %}
+    v-bind="$attrs"
+    {% endif %}
     appear
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_modal_element %}
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
         class="sw-modal"
         :class="modalClasses"

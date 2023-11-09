@@ -25,6 +25,7 @@ class AssetService
      */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
+        private readonly FilesystemOperator $privateFilesystem,
         private readonly KernelInterface $kernel,
         private readonly KernelPluginLoader $pluginLoader,
         private readonly CacheInvalidator $cacheInvalidator,
@@ -36,24 +37,25 @@ class AssetService
     /**
      * @throws PluginNotFoundException
      */
-    public function copyAssetsFromBundle(string $bundleName): void
+    public function copyAssetsFromBundle(string $bundleName, bool $force = false): void
     {
         $bundle = $this->getBundle($bundleName);
 
-        $this->copyAssets($bundle);
+        $this->copyAssets($bundle, $force);
 
         if ($bundle instanceof Plugin) {
             foreach ($this->getAdditionalBundles($bundle) as $bundle) {
-                $this->copyAssets($bundle);
+                $this->copyAssets($bundle, $force);
             }
         }
     }
 
-    public function copyAssets(BundleInterface $bundle): void
+    public function copyAssets(BundleInterface $bundle, bool $force = false): void
     {
         $this->copyAssetsFromBundleOrApp(
             $bundle->getPath() . '/Resources/public',
-            $bundle->getName()
+            $bundle->getName(),
+            $force
         );
     }
 
@@ -65,11 +67,18 @@ class AssetService
         Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
     }
 
-    public function copyAssetsFromApp(string $appName, string $appPath): void
+    public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void
     {
+        $publicDirectory = $this->appLoader->locatePath($appPath, 'Resources/public');
+
+        if ($publicDirectory === null) {
+            return;
+        }
+
         $this->copyAssetsFromBundleOrApp(
-            $this->appLoader->getAssetPathForAppPath($appPath),
-            $appName
+            $publicDirectory,
+            $appName,
+            $force
         );
     }
 
@@ -102,7 +111,7 @@ class AssetService
         $this->writeManifest($manifest);
     }
 
-    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName): void
+    private function copyAssetsFromBundleOrApp(string $originDirectory, string $bundleOrAppName, bool $force): void
     {
         $bundleOrAppName = mb_strtolower($bundleOrAppName);
 
@@ -111,6 +120,10 @@ class AssetService
         }
 
         $manifest = $this->getManifest();
+
+        if ($force) {
+            unset($manifest[$bundleOrAppName]);
+        }
 
         $targetDirectory = $this->getTargetDirectory($bundleOrAppName);
 
@@ -263,10 +276,14 @@ class AssetService
      */
     private function getManifest(): array
     {
+        if ($this->areAssetsStoredLocally()) {
+            return [];
+        }
+
         $hashes = [];
-        if ($this->filesystem->fileExists('asset-manifest.json')) {
+        if ($this->privateFilesystem->fileExists('asset-manifest.json')) {
             $hashes = json_decode(
-                $this->filesystem->read('asset-manifest.json'),
+                $this->privateFilesystem->read('asset-manifest.json'),
                 true,
                 \JSON_THROW_ON_ERROR
             );
@@ -280,9 +297,18 @@ class AssetService
      */
     private function writeManifest(array $manifest): void
     {
-        $this->filesystem->write(
+        if ($this->areAssetsStoredLocally()) {
+            return;
+        }
+
+        $this->privateFilesystem->write(
             'asset-manifest.json',
             json_encode($manifest, \JSON_PRETTY_PRINT | \JSON_THROW_ON_ERROR)
         );
+    }
+
+    private function areAssetsStoredLocally(): bool
+    {
+        return $this->parameterBag->get('shopware.filesystem.asset.type') === 'local';
     }
 }

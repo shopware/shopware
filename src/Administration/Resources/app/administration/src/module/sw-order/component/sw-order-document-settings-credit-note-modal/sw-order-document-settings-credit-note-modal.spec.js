@@ -8,7 +8,7 @@ import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);

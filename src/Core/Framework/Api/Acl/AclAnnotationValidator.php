@@ -3,7 +3,8 @@
 namespace Shopware\Core\Framework\Api\Acl;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -49,8 +50,8 @@ class AclAnnotationValidator implements EventSubscriberInterface
         }
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
-        if ($context === null) {
-            throw new MissingPrivilegeException([]);
+        if (!$context instanceof Context) {
+            throw ApiException::missingPrivileges([]);
         }
 
         foreach ($privileges as $privilege) {
@@ -63,7 +64,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
             }
 
             if (!$context->isAllowed($privilege)) {
-                throw new MissingPrivilegeException([$privilege]);
+                throw ApiException::missingPrivileges([$privilege]);
             }
         }
     }
@@ -73,7 +74,7 @@ class AclAnnotationValidator implements EventSubscriberInterface
         $actionId = $request->get('id');
 
         if (empty($actionId)) {
-            throw new MissingPrivilegeException();
+            throw ApiException::appIdParameterIsMissing();
         }
 
         $appName = $this->connection->fetchOne(

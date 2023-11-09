@@ -7,7 +7,7 @@ const Criteria = Shopware.Data.Criteria;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -22,7 +22,9 @@ export default {
         return {
             mediaModalIsOpen: false,
             initialFolderId: null,
+            /* @deprecated tag:v6.6.0 - Will be removed use entity instead. */
             enitiy: this.element,
+            entity: this.element,
             mediaItems: [],
             columnWidth: '100px',
         };

@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:monolog="http://symfony.com/schema/dic/monolog"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd http://symfony.com/schema/dic/monolog http://symfony.com/schema/dic/monolog/monolog-1.0.xsd">
+
+    <services>
+        <service id="app-life-cycle-dev" public="true" class="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TaxProviderPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\RuleConditionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
+            <argument type="service" id="integration.repository"/>
+            <argument type="service" id="acl_role.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\Util\AssetService"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
+            <argument type="string">%kernel.project_dir%</argument>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowActionPersister"/>
+            <argument type="service" id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater"/>
+            <argument type="service" id="Shopware\Core\System\CustomEntity\CustomEntityLifecycleService"/>
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\FlowEventPersister"/>
+            <argument>dev</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister"/>
+            <argument type="service" id="custom_entity.repository"/>
+        </service>
+    </services>
+</container>

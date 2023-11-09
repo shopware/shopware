@@ -1,4 +1,6 @@
 /**
+ * @package buyers-experience
+ *
  * @private
  */
 export default {

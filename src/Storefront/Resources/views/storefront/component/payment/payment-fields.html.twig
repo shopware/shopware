@@ -11,7 +11,7 @@
             {% endfor %}
 
             {% block component_payment_method_collapse %}
-                {% if page.paymentMethods | length > visiblePaymentMethodsLimit and visiblePaymentMethodsLimit is not same as(null) %}
+                {% if page.paymentMethods|length > visiblePaymentMethodsLimit and visiblePaymentMethodsLimit is not same as(null) %}
                     <div class="collapse">
                         {% for payment in page.paymentMethods[visiblePaymentMethodsLimit:] %}
                             {% sw_include '@Storefront/storefront/component/payment/payment-method.html.twig' %}

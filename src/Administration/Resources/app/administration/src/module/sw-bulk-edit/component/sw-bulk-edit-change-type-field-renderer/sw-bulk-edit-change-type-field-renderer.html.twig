@@ -79,7 +79,11 @@
                                 <sw-bulk-edit-form-field-renderer
                                     v-bind="formField"
                                     :key="`formField-${index}`"
+                                    {% if VUE3 %}
+                                    v-model:value="entity[formField.name]"
+                                    {% else %}
                                     v-model="entity[formField.name]"
+                                    {% endif %}
                                     @input="onChangeValue($event, formField.name)"
                                 />
                             </div>

@@ -8,11 +8,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, use site crawlers for real cache warming
+ */
+#[Package('core')]
 class CacheWarmer
 {
     /**
@@ -30,6 +34,11 @@ class CacheWarmer
 
     public function warmUp(?string $cacheId = null): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
+        );
+
         $cacheId ??= $this->cacheIdLoader->load();
 
         $criteria = new Criteria();

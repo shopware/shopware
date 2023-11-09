@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 
-#[Package('customer-order')]
-class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
+#[Package('checkout')]
+class EntireCountryRuleTypeFilter extends AbstractTaxRuleTypeFilter
 {
     final public const TECHNICAL_NAME = 'entire_country';
 
@@ -18,6 +18,10 @@ class EntireCountryRuleTypeFilter implements TaxRuleTypeFilterInterface
             || !$this->metPreconditions($taxRuleEntity, $shippingLocation)
         ) {
             return false;
+        }
+
+        if ($taxRuleEntity->getActiveFrom() !== null) {
+            return $this->isTaxActive($taxRuleEntity);
         }
 
         return true;

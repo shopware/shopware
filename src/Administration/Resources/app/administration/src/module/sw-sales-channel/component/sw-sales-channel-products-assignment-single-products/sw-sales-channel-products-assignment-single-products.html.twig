@@ -47,6 +47,10 @@
                 :show-actions="false"
                 :show-settings="false"
                 @selection-change="onSelectionChange"
+                {% if VUE3 %}
+                @select-item="onSelectionChange"
+                @select-all-items="onSelectionChange"
+                {% endif %}
             >
                 <template #pagination>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -71,7 +75,7 @@
             >
                 <template #icon>
                     <img
-                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :src="assetFilter('/administration/static/img/empty-states/products-empty-state.svg')"
                         :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
                     >
                 </template>

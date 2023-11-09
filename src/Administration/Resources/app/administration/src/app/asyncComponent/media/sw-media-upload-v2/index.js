@@ -1,10 +1,12 @@
 import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
+import fileValidationService from '../../../service/file-validation.service';
 
 const { Mixin, Context } = Shopware;
 const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
 const { Criteria } = Shopware.Data;
+const { checkByExtension, checkByType } = fileValidationService();
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
@@ -26,7 +28,12 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 export default {
     template,
 
-    inject: ['repositoryFactory', 'mediaService', 'configService'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+        'configService',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -114,6 +121,12 @@ export default {
             default: '*/*',
         },
 
+        extensionAccept: {
+            type: String,
+            required: false,
+            default: null,
+        },
+
         maxFileSize: {
             type: Number,
             required: false,
@@ -153,6 +166,7 @@ export default {
             isDragActive: false,
             defaultFolderId: null,
             isUploadUrlFeatureEnabled: false,
+            isLoading: false,
         };
     },
 
@@ -172,6 +186,10 @@ export default {
         },
 
         hasOpenMediaButtonListener() {
+            if (this.feature.isActive('VUE3')) {
+                return Object.keys(this.$listeners).includes('mediaUploadSidebarOpen');
+            }
+
             return Object.keys(this.$listeners).includes('media-upload-sidebar-open');
         },
 
@@ -212,6 +230,10 @@ export default {
 
             return this.buttonLabel;
         },
+
+        mediaNameFilter() {
+            return Shopware.Filter.getByName('mediaName');
+        },
     },
 
     watch: {
@@ -246,7 +268,9 @@ export default {
             }
 
             if (this.defaultFolder) {
+                this.isLoading = true;
                 this.defaultFolderId = await this.getDefaultFolderId();
+                this.isLoading = false;
             }
 
             this.configService.getConfig().then((result) => {
@@ -492,28 +516,19 @@ export default {
         },
 
         checkFileType(file) {
-            if (!this.fileAccept || this.fileAccept === '*/*') {
-                return true;
-            }
-
-            const fileTypes = this.fileAccept.replaceAll(' ', '').split(',');
-
-            const isCorrectFileType = fileTypes.some(fileType => {
-                const fileAcceptType = fileType.split('/');
-                const currentFileType = file?.type?.split('/') || file?.mimeType?.split('/');
-
-                if (fileAcceptType[0] !== currentFileType[0] && fileAcceptType[0] !== '*') {
-                    return false;
+            const isValidFile = () => {
+                if (this.extensionAccept) {
+                    return checkByExtension(file, this.extensionAccept);
                 }
 
-                if (fileAcceptType[1] === '*') {
-                    return true;
+                if (this.fileAccept) {
+                    return checkByType(file, this.fileAccept);
                 }
 
-                return fileAcceptType[1] === currentFileType[1];
-            });
+                return false;
+            };
 
-            if (isCorrectFileType) {
+            if (isValidFile()) {
                 return true;
             }
 
@@ -521,7 +536,7 @@ export default {
                 title: this.$tc('global.default.error'),
                 message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
                     name: file.name || file.fileName,
-                    supportedTypes: this.fileAccept,
+                    supportedTypes: this.extensionAccept || this.fileAccept,
                 }),
             });
             return false;

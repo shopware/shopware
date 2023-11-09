@@ -19,7 +19,12 @@ abstract class EntityTranslationDefinition extends EntityDefinition
 {
     public function getParentDefinition(): EntityDefinition
     {
-        return parent::getParentDefinition();
+        $parentDefinition = parent::getParentDefinition();
+        if ($parentDefinition === null) {
+            throw new \RuntimeException('Translation entity definitions always need a parent definition');
+        }
+
+        return $parentDefinition;
     }
 
     public function isVersionAware(): bool
@@ -47,9 +52,6 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         throw new \RuntimeException('`getParentDefinitionClass` not implemented');
     }
 
-    /**
-     * @return Field[]
-     */
     protected function getBaseFields(): array
     {
         $translatedDefinition = $this->getParentDefinition();

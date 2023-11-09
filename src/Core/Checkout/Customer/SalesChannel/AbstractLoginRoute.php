@@ -11,7 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * This route is used to login and get a new context token
  * The required parameters are "email" and "password"
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractLoginRoute
 {
     abstract public function getDecorated(): AbstractLoginRoute;

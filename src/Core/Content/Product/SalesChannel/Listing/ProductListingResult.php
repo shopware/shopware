@@ -2,24 +2,31 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\StateAwareTrait;
 
+/**
+ * @extends EntitySearchResult<ProductCollection>
+ */
 #[Package('inventory')]
 class ProductListingResult extends EntitySearchResult
 {
-    use StateAwareTrait;
-
     protected ?string $sorting = null;
 
+    /**
+     * @var array<string, int|float|string|bool|array<mixed>|null>
+     */
     protected array $currentFilters = [];
 
     protected ProductSortingCollection $availableSortings;
 
     protected ?string $streamId = null;
 
+    /**
+     * @param int|float|string|bool|array<mixed>|null       $value
+     */
     public function addCurrentFilter(string $key, $value): void
     {
         $this->currentFilters[$key] = $value;
@@ -45,11 +52,17 @@ class ProductListingResult extends EntitySearchResult
         $this->sorting = $sorting;
     }
 
+    /**
+     * @return array<string, int|float|string|bool|array<mixed>|null>
+     */
     public function getCurrentFilters(): array
     {
         return $this->currentFilters;
     }
 
+    /**
+     * @return int|float|string|bool|array<mixed>|null
+     */
     public function getCurrentFilter(string $key)
     {
         return $this->currentFilters[$key] ?? null;

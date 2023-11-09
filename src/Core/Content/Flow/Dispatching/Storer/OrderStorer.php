@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class OrderStorer extends FlowStorer
 {
     /**
@@ -90,6 +90,7 @@ class OrderStorer extends FlowStorer
             'orderCustomer',
             'orderCustomer.salutation',
             'lineItems.downloads.media',
+            'lineItems.cover',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
             'deliveries.shippingOrderAddress.countryState',
@@ -100,6 +101,7 @@ class OrderStorer extends FlowStorer
             'currency',
             'addresses.country',
             'tags',
+            'documents',
         ]);
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));

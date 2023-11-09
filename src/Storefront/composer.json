@@ -31,9 +31,9 @@
         "php": "~8.1.0 || ~8.2.0",
         "cocur/slugify": "^4.3.0",
         "doctrine/dbal": "^3.6",
-        "meyfa/php-svg": "~0.13.0",
-        "padaliyajay/php-autoprefixer": "1.4",
-        "scssphp/scssphp": "v1.11.0",
+        "meyfa/php-svg": "^0.13.0",
+        "padaliyajay/php-autoprefixer": "^1.4",
+        "scssphp/scssphp": "^v1.11.0",
         "shopware/core": "*",
         "symfony/cache": "~6.3.0",
         "symfony/cache-contracts": "~3.1.0",
@@ -52,10 +52,10 @@
         "symfony/mime": "~6.3.0",
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
-        "twig/twig": "~3.4.3"
+        "twig/twig": "^3.4.3"
     },
     "require-dev": {
         "symfony/css-selector": "~6.3.0",
-        "phpunit/phpunit": "~9.6"
+        "phpunit/phpunit": "^9.6"
     }
 }

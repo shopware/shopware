@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsTagDetailModal from 'src/module/sw-settings-tag/component/sw-settings-tag-detail-modal';
 
@@ -32,6 +35,7 @@ async function createWrapper() {
         stubs: {
             'sw-modal': true,
             'sw-tabs': true,
+            'sw-tabs-item': true,
         },
     });
 }

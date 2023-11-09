@@ -2,6 +2,9 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import Debouncer from 'src/helper/debouncer.helper';
 
+/**
+ * @deprecated tag:v6.6.0 - Plugin "Fading" will be removed without replacement. Plugin is not used anymore.
+ */
 export default class FadingPlugin extends Plugin {
     static options = {
         resizeDebounceTime: 200,

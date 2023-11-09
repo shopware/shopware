@@ -13,9 +13,12 @@ use Shopware\Core\Framework\Struct\Collection;
 #[Package('core')]
 class EntityCollection extends Collection
 {
+    /**
+     * @param iterable<TElement> $elements
+     */
     public function __construct(iterable $elements = [])
     {
-        parent::__construct([]);
+        parent::__construct();
 
         foreach ($elements as $element) {
             $this->validateType($element);
@@ -178,12 +181,8 @@ class EntityCollection extends Collection
      */
     public function getCustomFieldsValues(string ...$fields): array
     {
-        if ($this->count() === 0) {
+        if (!$this->hasCustomFieldSupport(__METHOD__)) {
             return [];
-        }
-        $uses = \class_uses($this->first());
-        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
-            throw new \RuntimeException(static::class . '::getCustomFields() is only supported for entities that use the EntityCustomFieldsTrait');
         }
 
         $values = [];
@@ -221,12 +220,8 @@ class EntityCollection extends Collection
      */
     public function getCustomFieldsValue(string $field): array
     {
-        if ($this->count() === 0) {
+        if (!$this->hasCustomFieldSupport(__METHOD__)) {
             return [];
-        }
-        $uses = \class_uses($this->first());
-        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
-            throw new \RuntimeException(static::class . '::getCustomFields() is only supported for entities that use the EntityCustomFieldsTrait');
         }
 
         $values = [];
@@ -262,12 +257,8 @@ class EntityCollection extends Collection
      */
     public function setCustomFields(array $values): void
     {
-        if ($this->count() === 0) {
+        if (!$this->hasCustomFieldSupport(__METHOD__)) {
             return;
-        }
-        $uses = \class_uses($this->first());
-        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
-            throw new \RuntimeException(static::class . '::setCustomFields() is only supported for entities that use the EntityCustomFieldsTrait');
         }
 
         foreach ($values as $id => $value) {
@@ -284,5 +275,21 @@ class EntityCollection extends Collection
     protected function getExpectedClass(): string
     {
         return Entity::class;
+    }
+
+    private function hasCustomFieldSupport(string $methodName): bool
+    {
+        $first = $this->first();
+        if ($first === null) {
+            return false;
+        }
+        $uses = \class_uses($first);
+        if ($uses === false || !\in_array(EntityCustomFieldsTrait::class, $uses, true)) {
+            throw new \RuntimeException(
+                sprintf('%s() is only supported for entities that use the EntityCustomFieldsTrait', $methodName)
+            );
+        }
+
+        return true;
     }
 }

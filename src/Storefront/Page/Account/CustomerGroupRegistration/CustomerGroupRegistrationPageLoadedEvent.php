@@ -7,7 +7,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerGroupRegistrationPageLoadedEvent extends PageLoadedEvent
 {
     /**

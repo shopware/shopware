@@ -208,7 +208,11 @@
             "displayModeContain": "Beinhalten",
             "autoSlide": "Automatischer Wechsel",
             "autoplayTimeout": "Verzögerung",
-            "speed": "Animationsverzögerung"
+            "speed": "Animationsverzögerung",
+            "horizontalAlign": "Horizontale Ausrichtung",
+            "horizontalAlignLeft": "Links",
+            "horizontalAlignCenter": "Mitte",
+            "horizontalAlignRight": "Rechts"
           },
           "helpText": {
             "autoSlide": "Der Bilderwechsel erfolgt automatisch nach den hier gemachten Vorgaben.",
@@ -472,7 +476,7 @@
           "placeholder": {
             "firstName": "John",
             "lastName": "Doe",
-            "email": "john@doe.com",
+            "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."

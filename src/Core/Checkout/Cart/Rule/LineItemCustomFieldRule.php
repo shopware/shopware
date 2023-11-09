@@ -13,15 +13,19 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemCustomFieldRule extends Rule
 {
     final public const RULE_NAME = 'cartLineItemCustomField';
 
     /**
-     * @var string|int|float|bool|null
+     * @var array<string>|string|int|float|bool|null
      */
     protected $renderedFieldValue;
+
+    protected ?string $selectedField = null;
+
+    protected ?string $selectedFieldSet = null;
 
     /**
      * @param array<string, mixed> $renderedField
@@ -122,7 +126,7 @@ class LineItemCustomFieldRule extends Rule
     {
         $constraints = [];
 
-        if (!\is_array($this->renderedField) || !\array_key_exists('type', $this->renderedField)) {
+        if (!\array_key_exists('type', $this->renderedField)) {
             return [new NotBlank()];
         }
 
@@ -157,10 +161,10 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
-     * @param string|int|float|bool|null $renderedFieldValue
+     * @param array<string>|string|int|float|bool|null $renderedFieldValue
      * @param array<string, mixed> $renderedField
      *
-     * @return string|int|float|bool|null
+     * @return array<string>|string|int|float|bool|null
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {

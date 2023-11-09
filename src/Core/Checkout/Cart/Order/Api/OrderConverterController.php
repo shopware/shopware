@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace Shopware\Core\Checkout\Cart\Order\Api;
 
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,7 +46,11 @@ class OrderConverterController extends AbstractController
         $order = $this->orderRepository->search($criteria, $context)->get($orderId);
 
         if (!$order) {
-            throw new InvalidOrderException($orderId);
+            if (!Feature::isActive('v6.6.0.0')) {
+                throw new InvalidOrderException($orderId);
+            }
+
+            throw CartException::orderNotFound($orderId);
         }
 
         $convertedCart = $this->orderConverter->convertToCart($order, $context);

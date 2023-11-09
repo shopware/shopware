@@ -71,12 +71,15 @@ $sw-field-color-inherited: $color-module-purple-900;
                 color: lighten($sw-field-color-text, 40%);
             }
 
-            &:checked ~ .sw-field__checkbox-state {
-                background: $sw-field-color-focus;
-                border-color: $sw-field-color-focus;
+            &:checked,
+            &:indeterminate {
+                ~ .sw-field__checkbox-state {
+                    background: $sw-field-color-focus;
+                    border-color: $sw-field-color-focus;
 
-                .sw-icon {
-                    display: inline-block;
+                    .sw-icon {
+                        display: inline-block;
+                    }
                 }
             }
 

@@ -36,6 +36,31 @@ function rejectRepositoryCreation(entityName: string): unknown {
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 
+// eslint-disable-next-line max-len
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+function filterContext(result: any, customContext: any) {
+    if (result === null || result === 'undefined') {
+        return;
+    }
+
+    if (typeof result === 'object') {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const key in result) {
+            if (key === 'context') {
+                // delete everything inside context except properties of customContext
+                // eslint-disable-next-line no-restricted-syntax
+                for (const contextKey in result[key]) {
+                    if (!customContext || !customContext[contextKey]) {
+                        delete result[key][contextKey];
+                    }
+                }
+            } else {
+                filterContext(result[key], customContext);
+            }
+        }
+    }
+}
+
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
@@ -60,7 +85,9 @@ export default function initializeExtensionDataLoader(): void {
             const mergedContext = { ...Shopware.Context.api, ...context };
 
             try {
-                return await repository.search(criteria, mergedContext);
+                const result = await repository.search(criteria, mergedContext);
+                filterContext(result, context);
+                return result;
             } catch (e) {
                 return Promise.reject(e);
             }
@@ -85,7 +112,9 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.get(id, mergedContext, criteria);
+        const result = repository.get(id, mergedContext, criteria);
+        filterContext(result, context);
+        return result;
     });
 
     Shopware.ExtensionAPI.handle('repositorySave', (
@@ -122,7 +151,9 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.clone(entityId, mergedContext, behavior as $TSDangerUnknownObject);
+        const result = repository.clone(entityId, mergedContext, behavior as $TSDangerUnknownObject);
+        filterContext(result, context);
+        return result;
     });
 
     Shopware.ExtensionAPI.handle('repositoryHasChanges', (
@@ -193,6 +224,8 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.create(mergedContext, entityId);
+        const result = repository.create(mergedContext, entityId);
+        filterContext(result, context);
+        return result;
     });
 }

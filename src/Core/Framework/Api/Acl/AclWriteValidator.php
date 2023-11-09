@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Api\Acl;
 
 use Shopware\Core\Framework\Api\Acl\Event\CommandAclValidationEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -75,6 +75,9 @@ class AclWriteValidator implements EventSubscriberInterface
 
             $event = new CommandAclValidationEvent($missingPrivileges, $source, $command);
             $this->eventDispatcher->dispatch($event);
+            /**
+             * @var list<string> $missingPrivileges
+             */
             $missingPrivileges = $event->getMissingPrivileges();
         }
 
@@ -87,7 +90,7 @@ class AclWriteValidator implements EventSubscriberInterface
     private function tryToThrow(array $missingPrivileges): void
     {
         if (!empty($missingPrivileges)) {
-            throw new MissingPrivilegeException($missingPrivileges);
+            throw ApiException::missingPrivileges($missingPrivileges);
         }
     }
 

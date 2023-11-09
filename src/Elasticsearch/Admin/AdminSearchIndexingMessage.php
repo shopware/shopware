@@ -3,12 +3,13 @@
 namespace Shopware\Elasticsearch\Admin;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
  * @internal
  */
 #[Package('system-settings')]
-final class AdminSearchIndexingMessage
+final class AdminSearchIndexingMessage implements AsyncMessageInterface
 {
     /**
      * @param array<string, string> $indices

@@ -14,7 +14,7 @@
 
             {% set referencePrice = lineItem.price.referencePrice %}
             {% if referencePrice is not null and displayMode == 'offcanvas' %}
-                <br />
+                <br>
                 <small class="line-item-reference-price">
                     ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }}&nbsp;{{ referencePrice.unitName }})
                 </small>

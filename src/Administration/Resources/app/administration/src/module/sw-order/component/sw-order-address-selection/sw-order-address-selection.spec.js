@@ -14,7 +14,7 @@ import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/form/field-base/sw-base-field';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Context } = Shopware;

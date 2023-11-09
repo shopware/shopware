@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
@@ -73,7 +74,7 @@ class SalesChannelContext extends Struct
     protected $shippingLocation;
 
     /**
-     * @var mixed[]
+     * @var array<string, bool>
      */
     protected $permissions = [];
 
@@ -104,8 +105,8 @@ class SalesChannelContext extends Struct
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
         ?CustomerEntity $customer,
-        private CashRoundingConfig $itemRounding,
-        private CashRoundingConfig $totalRounding,
+        protected CashRoundingConfig $itemRounding,
+        protected CashRoundingConfig $totalRounding,
         protected array $areaRuleIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -280,7 +281,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @return mixed[]
+     * @return array<string, bool>
      */
     public function getPermissions(): array
     {
@@ -288,7 +289,7 @@ class SalesChannelContext extends Struct
     }
 
     /**
-     * @param mixed[] $permissions
+     * @param array<string, bool> $permissions
      */
     public function setPermissions(array $permissions): void
     {
@@ -306,7 +307,7 @@ class SalesChannelContext extends Struct
 
     public function hasPermission(string $permission): bool
     {
-        return \array_key_exists($permission, $this->permissions) && (bool) $this->permissions[$permission];
+        return \array_key_exists($permission, $this->permissions) && $this->permissions[$permission];
     }
 
     public function getSalesChannelId(): string
@@ -409,5 +410,25 @@ class SalesChannelContext extends Struct
     public function getCustomerId(): ?string
     {
         return $this->customer ? $this->customer->getId() : null;
+    }
+
+    /**
+     * @template TReturn of mixed
+     *
+     * @param callable(SalesChannelContext): TReturn $callback
+     *
+     * @return TReturn the return value of the provided callback function
+     */
+    public function live(callable $callback): mixed
+    {
+        $before = $this->context;
+
+        $this->context = $this->context->createWithVersionId(Defaults::LIVE_VERSION);
+
+        $result = $callback($this);
+
+        $this->context = $before;
+
+        return $result;
     }
 }

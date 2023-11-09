@@ -31,7 +31,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class StoreApiSeoResolver implements EventSubscriberInterface
 {
     /**

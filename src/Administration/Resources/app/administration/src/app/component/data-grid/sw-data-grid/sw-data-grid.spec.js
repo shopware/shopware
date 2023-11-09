@@ -13,12 +13,17 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/utils/sw-popover';
+import 'src/app/component/base/sw-icon';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const localVue = createLocalVue();
 localVue.directive('popover', {});
-localVue.directive('tooltip', {});
+localVue.directive('tooltip', {
+    bind(el, binding) {
+        el.setAttribute('data-tooltip-message', binding.value);
+    },
+});
 
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
@@ -74,7 +79,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
-            'sw-icon': true,
+            'sw-icon': await Shopware.Component.build('sw-icon'),
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
@@ -874,5 +879,36 @@ describe('components/data-grid/sw-data-grid', () => {
         const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
 
         expect(selectionAll.attributes().disabled).toBe('disabled');
+    });
+
+    it('should render icon column header', async () => {
+        const wrapper = await createWrapper({
+            columns: [
+                { property: 'name', label: 'Name', iconLabel: 'regular-file-text' },
+                { property: 'company', label: 'Company' },
+            ],
+            dataSource: [
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            ],
+        });
+        expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes()).not.toContain('data-tooltip-message');
+    });
+
+    it('should render icon column header with tooltip', async () => {
+        const wrapper = await createWrapper({
+            columns: [
+                { property: 'name', label: 'Name', iconLabel: 'regular-file-text', iconTooltip: 'tooltip message' },
+                { property: 'company', label: 'Company' },
+            ],
+            dataSource: [
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            ],
+        });
+
+        expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe('tooltip message');
     });
 });

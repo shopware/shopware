@@ -165,7 +165,11 @@ trait StorefrontSalesChannelTestHelper
             Context::createDefaultContext()
         );
 
-        return $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+        $customer = $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+
+        return $customer;
     }
 
     private function createNewContext(SalesChannelEntity $salesChannel): SalesChannelContext

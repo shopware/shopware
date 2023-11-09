@@ -3,10 +3,10 @@ import './sw-customer-address-form.scss';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
-const { Defaults } = Shopware;
+const { Defaults, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -158,6 +158,36 @@ export default {
             }
 
             this.customer.company = newVal;
+        },
+
+        'country.forceStateInRegistration'(newVal) {
+            if (!newVal) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    {
+                        expression: `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
+                    },
+                );
+            }
+
+            const definition = EntityDefinition.get(this.address.getEntityName());
+
+            definition.properties.countryStateId.flags.required = newVal;
+        },
+
+        'country.postalCodeRequired'(newVal) {
+            if (!newVal) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    {
+                        expression: `${this.address.getEntityName()}.${this.address.id}.zipcode`,
+                    },
+                );
+            }
+
+            const definition = EntityDefinition.get(this.address.getEntityName());
+
+            definition.properties.zipcode.flags.required = newVal;
         },
     },
 

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageRouteCacheKeyEvent extends StoreApiRouteCacheKeyEvent
 {
     public function __construct(

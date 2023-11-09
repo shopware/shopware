@@ -10,6 +10,8 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1600778848AddOrderMails extends MigrationStep

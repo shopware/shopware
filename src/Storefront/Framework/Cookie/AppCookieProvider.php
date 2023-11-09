@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
@@ -16,6 +15,8 @@ class AppCookieProvider implements CookieProviderInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<AppCollection> $appRepository
      */
     public function __construct(
         private readonly CookieProviderInterface $inner,
@@ -42,7 +43,7 @@ class AppCookieProvider implements CookieProviderInterface
         $result = $this->appRepository->search(
             $criteria,
             Context::createDefaultContext()
-        );
+        )->getEntities();
 
         $cookies = array_values($this->inner->getCookieGroups());
 
@@ -61,7 +62,7 @@ class AppCookieProvider implements CookieProviderInterface
      *
      * @return array<string|int, mixed>
      */
-    private function mergeCookies(array $cookies, EntitySearchResult $apps): array
+    private function mergeCookies(array $cookies, AppCollection $apps): array
     {
         $cookieGroups = [];
         // build an array with the snippetName of a cookie group and the index in the cookies array
@@ -72,8 +73,7 @@ class AppCookieProvider implements CookieProviderInterface
             }
         }
 
-        /** @var AppEntity $app */
-        foreach ($apps->getEntities() as $app) {
+        foreach ($apps as $app) {
             foreach ($app->getCookies() as $cookie) {
                 // cookies that are not part of a group can simply be added to the cookies array
                 if (!\array_key_exists('entries', $cookie)) {

@@ -57,6 +57,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve(responseMock),
+                    buildHeaders: () => {},
                 }),
             },
             stateStyleDataProviderService: {},
@@ -87,7 +88,7 @@ async function createWrapper(privileges = [], orderSumToday = null) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
     let wrapper = null;
@@ -106,6 +107,16 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
                     state.currentUser = user;
                 },
             },
+        });
+
+        Shopware.Application.addInitializer('httpClient', () => {
+            return {
+                get: () => Promise.resolve({
+                    data: {
+                        statistic: [],
+                    },
+                }),
+            };
         });
         jest.useFakeTimers('modern');
     });

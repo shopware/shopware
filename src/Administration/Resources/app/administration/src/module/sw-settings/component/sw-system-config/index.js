@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import template from './sw-system-config.html.twig';

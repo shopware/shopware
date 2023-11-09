@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * This route is used to get the generated document from a documentId
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractDocumentRoute
 {
     abstract public function getDecorated(): AbstractDocumentRoute;

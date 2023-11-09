@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swFirstRunWizardMailerSelection from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection';
@@ -7,7 +7,7 @@ import swFirstRunWizardMailerSelection from 'src/module/sw-first-run-wizard/view
 Shopware.Component.register('sw-first-run-wizard-mailer-selection', swFirstRunWizardMailerSelection);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectSmtp = 'sw.first.run.wizard.index.mailer.smtp';

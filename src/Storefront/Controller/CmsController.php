@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('content')]
+#[Package('buyers-experience')]
 class CmsController extends StorefrontController
 {
     /**
@@ -63,7 +63,7 @@ class CmsController extends StorefrontController
     /**
      * Navigation id is required to load the slot config for the navigation
      */
-    #[Route(path: '/widgets/cms/navigation/{navigationId}', name: 'frontend.cms.navigation.page', defaults: ['navigationId' => null, 'XmlHttpRequest' => true], methods: ['GET', 'POST'])]
+    #[Route(path: '/widgets/cms/navigation/{navigationId}', name: 'frontend.cms.navigation.page', defaults: ['navigationId' => null, 'XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {

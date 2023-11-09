@@ -8,6 +8,14 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('storefront')]
 class StorefrontPluginConfiguration extends Struct
 {
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $themeJson = [];
+
+    /**
+     * @var array<string, mixed>|null
+     */
     protected ?array $themeConfig = [];
 
     protected ?string $name = null;
@@ -24,8 +32,14 @@ class StorefrontPluginConfiguration extends Struct
 
     protected ?string $storefrontEntryFilepath = null;
 
+    /**
+     * @decrecated tag:v6.0.0 will no longer be nullable
+     */
     protected ?string $basePath = null;
 
+    /**
+     * @var array<int, string>
+     */
     protected array $assetPaths = [];
 
     /**
@@ -119,7 +133,7 @@ class StorefrontPluginConfiguration extends Struct
 
     public function getBasePath(): string
     {
-        return $this->basePath;
+        return $this->basePath ?? '';
     }
 
     public function setBasePath(string $basePath): void
@@ -127,21 +141,33 @@ class StorefrontPluginConfiguration extends Struct
         $this->basePath = $basePath;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getAssetPaths(): array
     {
         return $this->assetPaths;
     }
 
+    /**
+     * @param array<int, string> $assetPaths
+     */
     public function setAssetPaths(array $assetPaths): void
     {
         $this->assetPaths = $assetPaths;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getThemeConfig(): ?array
     {
         return $this->themeConfig;
     }
 
+    /**
+     * @param array<string, mixed>|null $themeConfig
+     */
     public function setThemeConfig(?array $themeConfig): void
     {
         $this->themeConfig = $themeConfig;
@@ -194,13 +220,35 @@ class StorefrontPluginConfiguration extends Struct
         return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0;
     }
 
+    /**
+     * @param array<int, string> $configInheritance
+     */
     public function setConfigInheritance(array $configInheritance): void
     {
         $this->configInheritance = $configInheritance;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getConfigInheritance(): array
     {
         return $this->configInheritance;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getThemeJson(): ?array
+    {
+        return $this->themeJson;
+    }
+
+    /**
+     * @param array<string, mixed>|null $themeJson
+     */
+    public function setThemeJson(?array $themeJson): void
+    {
+        $this->themeJson = $themeJson;
     }
 }

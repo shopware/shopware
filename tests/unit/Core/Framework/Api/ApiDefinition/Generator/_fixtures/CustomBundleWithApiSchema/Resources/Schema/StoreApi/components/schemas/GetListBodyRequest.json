@@ -1,0 +1,22 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "GetListBodyRequest": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max amount of resources to be returned in a page"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "description": "The page to be returned"
+                    }
+                }
+            }
+        }
+    }
+}

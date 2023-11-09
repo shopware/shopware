@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf-8'))
-const versionRegex = /(^\^?\d{1,}\.\d{1,}\.\d{1,}$)|(^file:.*$)/; // https://regex101.com/r/07JABk/1
+const versionRegex = /(^\^?\d{1,}\.\d{1,}\.\d{1,}$)|(^file:.*$)|(npm:.*)/; // https://regex101.com/r/07JABk/2
 const invalidDependencies = {
     dependencies: [],
     devDependencies: [],

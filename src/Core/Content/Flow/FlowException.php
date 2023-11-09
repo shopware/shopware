@@ -6,7 +6,7 @@ use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowException extends HttpException
 {
     final public const METHOD_NOT_COMPATIBLE = 'METHOD_NOT_COMPATIBLE';

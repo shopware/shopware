@@ -6,6 +6,7 @@
 import type { Dictionary } from 'vue-router/types/router';
 import type { RawLocation } from 'vue-router';
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import { defineComponent } from 'vue';
 
 /* @private */
 export {};
@@ -16,7 +17,7 @@ export {};
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Shopware.Mixin.register('listing', {
+export default Shopware.Mixin.register('listing', defineComponent({
     inject: ['searchRankingService', 'feature'],
 
     data(): {
@@ -32,6 +33,7 @@ Shopware.Mixin.register('listing', {
         searchConfigEntity: string|null,
         entitySearchable: boolean,
         freshSearchTerm: boolean,
+        previousRouteName: string,
         } {
         return {
             page: 1,
@@ -46,6 +48,7 @@ Shopware.Mixin.register('listing', {
             searchConfigEntity: null,
             entitySearchable: true,
             freshSearchTerm: false,
+            previousRouteName: '',
         };
     },
 
@@ -87,6 +90,10 @@ Shopware.Mixin.register('listing', {
     },
 
     created() {
+        if (this.feature.isActive('VUE3')) {
+            this.previousRouteName = this.$route.name as string;
+        }
+
         if (this.disableRouteParams) {
             this.getList();
             return;
@@ -116,7 +123,7 @@ Shopware.Mixin.register('listing', {
     watch: {
         // Watch for changes in query parameters and update listing
         '$route'(newRoute, oldRoute) {
-            if (this.disableRouteParams) {
+            if (this.disableRouteParams || (this.feature.isActive('VUE3') && this.previousRouteName !== newRoute.name)) {
                 return;
             }
 
@@ -129,6 +136,7 @@ Shopware.Mixin.register('listing', {
             // Update data information from the url
             this.updateData(query);
 
+            // @ts-expect-error - properties are defined in base component
             if (newRoute.query[this.storeKey] !== oldRoute.query[this.storeKey] && this.filterCriteria.length) {
                 // @ts-expect-error - filterCriteria is defined in base component
                 this.filterCriteria = [];
@@ -371,4 +379,4 @@ Shopware.Mixin.register('listing', {
             );
         },
     },
-});
+}));

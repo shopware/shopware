@@ -4,7 +4,7 @@ import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 function getDocumentApiService() {
@@ -265,6 +265,39 @@ describe('documentService', () => {
                         documentId: '4d03324edcd0490b9180df8161c9167f',
                         documentDeepLink: 'COp6DlWc2JgUn3XOb7QzKXWcWIVrH8XN',
                     },
+                ];
+            });
+
+        documentApiService.getDocumentPreview(orderId, orderDeepLink, type, {});
+        expect(didRequest).toBeTruthy();
+    });
+
+    it('handles an error when getDocumentPreview is being called', async () => {
+        const { documentApiService, clientMock } = getDocumentApiService();
+
+        documentApiService.setListener(expectCreateDocumentFailed);
+
+        let didRequest = false;
+        const orderId = '4a4a687257644d52bf481b4c20e59213';
+        const orderDeepLink = 'DEEP_LINK';
+        const type = 'invoice';
+        const errorBody = {
+            errors: [
+                {
+                    detail: 'some-error-detail',
+                },
+            ],
+        };
+
+        clientMock.onGet(`/_action/order/${orderId}/${orderDeepLink}/document/${type}/preview`)
+            .reply(() => {
+                didRequest = true;
+
+                return [
+                    500,
+                    new Blob([JSON.stringify(errorBody)], {
+                        type: 'application/json',
+                    }),
                 ];
             });
 

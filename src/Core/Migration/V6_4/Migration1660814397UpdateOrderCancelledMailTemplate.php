@@ -11,6 +11,8 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('core')]
 class Migration1660814397UpdateOrderCancelledMailTemplate extends MigrationStep

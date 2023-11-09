@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 
-#[Package('customer-order')]
+#[Package('buyers-experience')]
 class SalutationEntity extends Entity
 {
     use EntityCustomFieldsTrait;

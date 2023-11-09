@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\App\Template;
 
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
 use Shopware\Core\Framework\Log\Package;
@@ -21,6 +22,7 @@ class IconTemplateLoader extends AbstractTemplateLoader
     public function __construct(
         private readonly AbstractTemplateLoader $inner,
         private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
+        private readonly AbstractAppLoader $appLoader,
         private readonly string $projectDir
     ) {
     }
@@ -29,7 +31,11 @@ class IconTemplateLoader extends AbstractTemplateLoader
     {
         $viewPaths = $this->inner->getTemplatePathsForApp($app);
 
-        $resourceDirectory = $app->getPath() . '/Resources';
+        $resourceDirectory = $this->appLoader->locatePath($app->getPath(), 'Resources');
+
+        if ($resourceDirectory === null) {
+            return $viewPaths;
+        }
 
         $relativeAppPath = str_replace($this->projectDir . '/', '', $app->getPath());
         $storefrontConfig = $this->storefrontPluginConfigurationFactory->createFromApp($app->getMetadata()->getName(), $relativeAppPath);
@@ -65,9 +71,9 @@ class IconTemplateLoader extends AbstractTemplateLoader
             return $this->inner->getTemplateContent($path, $app);
         }
 
-        $content = @file_get_contents($app->getPath() . '/Resources/' . $path);
+        $content = $this->appLoader->loadFile($app->getPath(), 'Resources/' . $path);
 
-        if ($content === false) {
+        if ($content === null) {
             throw StorefrontFrameworkException::appTemplateFileNotReadable($app->getPath() . '/Resources/' . $path);
         }
 

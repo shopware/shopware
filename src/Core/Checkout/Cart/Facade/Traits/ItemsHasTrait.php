@@ -23,9 +23,6 @@ trait ItemsHasTrait
         if (\is_string($id)) {
             return $this->getItems()->has($id);
         }
-        if (!$id instanceof ItemFacade) {
-            return false;
-        }
 
         if ($this->getItems()->has($id->getId())) {
             return true;

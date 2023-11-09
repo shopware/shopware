@@ -10,7 +10,7 @@ describe('Tax: Visual testing', () => {
             });
     });
 
-    it('@base @visual: check appearance of tax module', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @visual: check appearance of tax module', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/tax`,
             method: 'POST',

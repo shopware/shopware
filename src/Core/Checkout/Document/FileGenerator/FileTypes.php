@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document\FileGenerator;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class FileTypes
 {
     final public const PDF = 'pdf';

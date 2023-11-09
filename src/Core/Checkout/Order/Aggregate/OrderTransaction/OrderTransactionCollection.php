@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<OrderTransactionEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderTransactionCollection extends EntityCollection
 {
     public function filterByState(string $state): self

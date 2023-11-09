@@ -6,10 +6,9 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartFactory;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
-use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -18,6 +17,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-final - Should not be extended and is only intended as cache
+ */
 #[Package('checkout')]
 class CartService implements ResetInterface
 {
@@ -38,7 +40,8 @@ class CartService implements ResetInterface
         private readonly AbstractCartItemAddRoute $itemAddRoute,
         private readonly AbstractCartItemUpdateRoute $itemUpdateRoute,
         private readonly AbstractCartItemRemoveRoute $itemRemoveRoute,
-        private readonly AbstractCartOrderRoute $orderRoute
+        private readonly AbstractCartOrderRoute $orderRoute,
+        private readonly CartFactory $cartFactory,
     ) {
     }
 
@@ -49,9 +52,7 @@ class CartService implements ResetInterface
 
     public function createNew(string $token): Cart
     {
-        $cart = new Cart($token);
-
-        $this->eventDispatcher->dispatch(new CartCreatedEvent($cart));
+        $cart = $this->cartFactory->createNew($token);
 
         return $this->cart[$cart->getToken()] = $cart;
     }
@@ -96,13 +97,23 @@ class CartService implements ResetInterface
      */
     public function changeQuantity(Cart $cart, string $identifier, int $quantity, SalesChannelContext $context): Cart
     {
-        $request = new Request();
-        $request->request->set('items', [
+        return $this->update($cart, [
             [
                 'id' => $identifier,
                 'quantity' => $quantity,
             ],
-        ]);
+        ], $context);
+    }
+
+    /**
+     * @param array<string|int, mixed>[] $items
+     *
+     * @throws CartException
+     */
+    public function update(Cart $cart, array $items, SalesChannelContext $context): Cart
+    {
+        $request = new Request();
+        $request->request->set('items', $items);
 
         $cart = $this->itemUpdateRoute->change($request, $cart, $context)->getCart();
 
@@ -114,8 +125,18 @@ class CartService implements ResetInterface
      */
     public function remove(Cart $cart, string $identifier, SalesChannelContext $context): Cart
     {
+        return $this->removeItems($cart, [$identifier], $context);
+    }
+
+    /**
+     * @param string[] $ids
+     *
+     * @throws CartException
+     */
+    public function removeItems(Cart $cart, array $ids, SalesChannelContext $context): Cart
+    {
         $request = new Request();
-        $request->request->set('ids', [$identifier]);
+        $request->request->set('ids', $ids);
 
         $cart = $this->itemRemoveRoute->remove($request, $cart, $context)->getCart();
 
@@ -123,7 +144,6 @@ class CartService implements ResetInterface
     }
 
     /**
-     * @throws InvalidOrderException
      * @throws InconsistentCriteriaIdsException
      */
     public function order(Cart $cart, SalesChannelContext $context, RequestDataBag $data): string

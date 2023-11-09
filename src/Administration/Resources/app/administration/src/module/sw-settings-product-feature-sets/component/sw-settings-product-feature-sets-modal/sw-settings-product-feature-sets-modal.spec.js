@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swSettingsProductFeatureSetsModal from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';
@@ -63,7 +66,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-icon': true,
                 'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
                 'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-field': true,
+                'sw-text-field': true,
                 'sw-data-grid-skeleton': true,
                 i18n: true,
             },

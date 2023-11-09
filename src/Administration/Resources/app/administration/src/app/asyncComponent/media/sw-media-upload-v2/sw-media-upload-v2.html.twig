@@ -186,7 +186,7 @@
                     class="sw-media-upload-v2__file-info"
                 >
                     <div class="sw-media-upload-v2__file-headline">
-                        {{ source | mediaName(source.name) }}
+                        {{ mediaNameFilter(source, source.name) }}
                     </div>
                     <sw-icon
                         v-if="!disabled"
@@ -269,7 +269,7 @@
             ref="fileInput"
             class="sw-media-upload-v2__file-input"
             type="file"
-            :accept="fileAccept"
+            :accept="extensionAccept ? '*/*' : fileAccept"
             :multiple="multiSelect"
             @change="onFileInputChange"
         >

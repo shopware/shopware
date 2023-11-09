@@ -6,7 +6,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryRouteResponse extends StoreApiResponse
 {
     /**

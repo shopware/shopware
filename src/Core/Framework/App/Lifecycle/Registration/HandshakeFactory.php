@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
-use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -11,9 +11,11 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ *
+ * @final
  */
 #[Package('core')]
-final class HandshakeFactory
+class HandshakeFactory
 {
     public function __construct(
         private readonly string $shopUrl,
@@ -27,9 +29,11 @@ final class HandshakeFactory
     {
         $setup = $manifest->getSetup();
         $metadata = $manifest->getMetadata();
+        $appName = $metadata->getName();
 
         if (!$setup) {
-            throw new AppRegistrationException(
+            throw AppException::registrationFailed(
+                $appName,
                 sprintf('No setup for registration provided in manifest for app "%s".', $metadata->getName())
             );
         }
@@ -39,7 +43,8 @@ final class HandshakeFactory
         try {
             $shopId = $this->shopIdProvider->getShopId();
         } catch (AppUrlChangeDetectedException) {
-            throw new AppRegistrationException(
+            throw AppException::registrationFailed(
+                $appName,
                 'The app url changed. Please resolve how the apps should handle this change.'
             );
         }

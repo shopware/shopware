@@ -92,13 +92,18 @@ class CacheStore implements StoreInterface
         $tags = $this->tracer->get('all');
 
         $tags = array_filter($tags, static function (string $tag): bool {
-            // remove tag for global theme cache, http cache will be invalidate for each key which gets accessed in the request
+            // remove tag for global theme cache, http cache will be invalidated for each key which gets accessed in the request
             if (str_contains($tag, 'theme-config')) {
                 return false;
             }
 
-            // remove tag for global config cache, http cache will be invalidate for each key which gets accessed in the request
+            // remove tag for global config cache, http cache will be invalidated for each key which gets accessed in the request
             if (str_contains($tag, 'system-config')) {
+                return false;
+            }
+
+            // remove tag for global translation cache, http cache will be invalidated for each key which gets accessed in the request
+            if (str_contains($tag, 'translation.catalog.')) {
                 return false;
             }
 

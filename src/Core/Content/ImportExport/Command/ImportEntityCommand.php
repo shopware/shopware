@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
     name: 'import:entity',
     description: 'Import entities from a csv file',
 )]
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ImportEntityCommand extends Command
 {
     /**

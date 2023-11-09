@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import template from './sw-promotion-v2-settings-discount-type.html.twig';
 import './sw-promotion-v2-settings-discount-type.scss';
 

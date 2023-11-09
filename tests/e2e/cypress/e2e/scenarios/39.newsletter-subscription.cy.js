@@ -1,4 +1,7 @@
 /// <reference types="Cypress" />
+/**
+ * @package buyers-experience
+ */
 
 import NewsletterRecipientPageObject  from '../../support/pages/module/sw-newsletter-recipient.page-object';
 

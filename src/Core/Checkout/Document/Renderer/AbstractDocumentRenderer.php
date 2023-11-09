@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 abstract class AbstractDocumentRenderer
 {
     abstract public function supports(): string;

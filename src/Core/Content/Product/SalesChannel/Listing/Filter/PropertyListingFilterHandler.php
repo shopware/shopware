@@ -76,7 +76,6 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
 
         $repositoryIterator = new RepositoryIterator($this->repository, $context->getContext(), $criteria);
         while (($loop = $repositoryIterator->fetch()) !== null) {
-            /** @var PropertyGroupOptionCollection $entities */
             $entities = $loop->getEntities();
 
             $mergedOptions->merge($entities);
@@ -158,11 +157,11 @@ class PropertyListingFilterHandler extends AbstractListingFilterHandler
     {
         $aggregations = $result->getAggregations();
 
-        /** @var TermsResult|null $properties */
         $properties = $aggregations->get('properties');
+        \assert($properties instanceof TermsResult || $properties === null);
 
-        /** @var TermsResult|null $options */
         $options = $aggregations->get('options');
+        \assert($options instanceof TermsResult || $options === null);
 
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];

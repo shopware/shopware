@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -91,8 +92,12 @@ class AuthController extends StorefrontController
     #[Route(path: '/account/guest/login', name: 'frontend.account.guest.login.page', defaults: ['_noStore' => true], methods: ['GET'])]
     public function guestLoginPage(Request $request, SalesChannelContext $context): Response
     {
-        /** @var string $redirect */
-        $redirect = $request->get('redirectTo', 'frontend.account.home.page');
+        /** @var string|null $redirect */
+        $redirect = $request->get('redirectTo');
+        if (!$redirect) {
+            // page was probably called directly, instead of deeplink url
+            throw CustomerException::guestAccountInvalidAuth();
+        }
 
         $customer = $context->getCustomer();
 
@@ -247,7 +252,7 @@ class AuthController extends StorefrontController
 
         try {
             $page = $this->recoverPasswordPageLoader->load($request, $context, $hash);
-        } catch (ConstraintViolationException) {
+        } catch (ConstraintViolationException|CustomerNotFoundByHashException) {
             $this->addFlash(self::DANGER, $this->trans('account.passwordHashNotFound'));
 
             return $this->redirectToRoute('frontend.account.recover.request');
@@ -281,7 +286,11 @@ class AuthController extends StorefrontController
 
             $this->addFlash(self::SUCCESS, $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
-            $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
+            if ($formViolations->getViolations('newPassword')->count() === 1) {
+                $this->addFlash(self::DANGER, $this->trans('account.passwordNotIdentical'));
+            } else {
+                $this->addFlash(self::DANGER, $this->trans('account.passwordChangeNoSuccess'));
+            }
 
             return $this->forwardToRoute(
                 'frontend.account.recover.password.page',

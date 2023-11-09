@@ -273,4 +273,10 @@ describe('src/module/sw-category/view/sw-category-detail-custom-entity/index.ts'
             title: 'sw-category.base.customEntity.cardTitle',
         });
     });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
 });

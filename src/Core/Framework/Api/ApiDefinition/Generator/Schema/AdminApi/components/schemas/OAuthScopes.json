@@ -1,0 +1,114 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "OAuthScopes": {
+                "description": "OAuth scopes that should be requested.",
+                "type": "string",
+                "enum": [
+                    "write",
+                    "user-verified",
+                    "admin",
+                    "write user-verified",
+                    "write admin",
+                    "user-verified admin",
+                    "write user-verified admin"
+                ]
+            },
+            "OAuthGrant": {
+                "type": "object",
+                "properties": {
+                    "grant_type": {
+                        "description": "OAuth grant type that should be requested. See [OAuth 2.0 grant](https://oauth2.thephpleague.com/authorization-server/which-grant/) for more information.",
+                        "type": "string"
+                    }
+                },
+                "required": ["grant_type"],
+                "discriminator": {
+                    "propertyName": "grant_type",
+                    "mapping": {
+                        "client_credentials": "#/components/schemas/OAuthClientCredentialsGrant",
+                        "password": "#/components/schemas/OAuthPasswordGrant",
+                        "refresh_token": "#/components/schemas/OAuthRefreshTokenGrant"
+                    }
+                }
+            },
+            "OAuthClientCredentialsGrant": {
+                "allOf": [
+                    { "$ref": "#/components/schemas/OAuthGrant" },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "client_id": {
+                                "description": "OAuth client id.",
+                                "type": "string"
+                            },
+                            "client_secret": {
+                                "description": "Password of the client that should be authenticated.",
+                                "type": "string"
+                            }
+                        },
+                        "required": ["client_id", "client_secret"]
+                    }
+                ]
+            },
+            "OAuthPasswordGrant": {
+                "allOf": [
+                    { "$ref": "#/components/schemas/OAuthGrant" },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "client_id": {
+                                "description": "OAuth client id.",
+                                "type": "string",
+                                "enum": ["administration"]
+                            },
+                            "scopes": {
+                                "$ref": "#/components/schemas/OAuthScopes"
+                            },
+                            "username": {
+                                "description": "Username of the user that should be authenticated.",
+                                "type": "string"
+                            },
+                            "password": {
+                                "description": "Password of the user that should be authenticated.",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "client_id",
+                            "scopes",
+                            "username",
+                            "password"
+                        ]
+                    }
+                ]
+            },
+            "OAuthRefreshTokenGrant": {
+                "allOf": [
+                    { "$ref": "#/components/schemas/OAuthGrant" },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "client_id": {
+                                "description": "OAuth client id.",
+                                "type": "string",
+                                "enum": ["administration"]
+                            },
+                            "scopes": {
+                                "$ref": "#/components/schemas/OAuthScopes"
+                            },
+                            "refresh_token": {
+                                "description": "The refresh token that should be used to refresh the access token.",
+                                "type": "string"
+                            }
+                        },
+                        "required": ["client_id", "scopes", "refresh_token"]
+                    }
+                ]
+            }
+        }
+    }
+}

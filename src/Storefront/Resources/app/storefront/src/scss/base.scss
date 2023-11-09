@@ -68,11 +68,13 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/filter-boolean';
 @import 'component/filter-range';
 @import 'component/filter-rating-select';
+/** @deprecated tag:v6.6.0 - File "_ellipsis.scss" will be removed without replacement. Corresponding JS-Plugin "ellipsis.plugin.js" is not used anymore. */
 @import 'component/ellipsis';
 @import 'component/product-feature';
 @import 'component/notification-dot';
 @import 'component/product-wishlist';
 @import 'component/quantity-selector';
+/** @deprecated tag:v6.6.0 - File "_fading-plugin.scss" will be removed without replacement. Corresponding JS-Plugin "fading.plugin.js" is not used anymore. */
 @import 'component/fading-plugin';
 @import 'component/basic-captcha';
 @import 'component/line-item';
@@ -118,6 +120,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 
 @import 'page/checkout/checkout';
 @import 'page/checkout/aside';
+/** @deprecated tag:v6.6.0 - File "_aside-children.scss" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
 @import 'page/checkout/aside-children';
 @import 'page/checkout/cart';
 @import 'page/checkout/register';

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 
 /**
  * @internal
@@ -10,6 +12,28 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class PluginZipDetector
 {
+    /**
+     * @return PluginManagementService::PLUGIN|PluginManagementService::APP
+     */
+    public function detect(string $zipFilePath): string
+    {
+        try {
+            $archive = ZipUtils::openZip($zipFilePath);
+        } catch (PluginExtractionException $e) {
+            throw PluginException::noPluginFoundInZip($zipFilePath);
+        }
+
+        try {
+            return match (true) {
+                $this->isPlugin($archive) => PluginManagementService::PLUGIN,
+                $this->isApp($archive) => PluginManagementService::APP,
+                default => throw PluginException::noPluginFoundInZip($zipFilePath)
+            };
+        } finally {
+            $archive->close();
+        }
+    }
+
     public function isPlugin(\ZipArchive $archive): bool
     {
         $entry = $archive->statIndex(0);

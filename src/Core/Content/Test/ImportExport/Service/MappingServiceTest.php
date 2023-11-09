@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class MappingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -5,7 +5,7 @@ namespace Shopware\Core\System\Country\Event;
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryStateRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
 }

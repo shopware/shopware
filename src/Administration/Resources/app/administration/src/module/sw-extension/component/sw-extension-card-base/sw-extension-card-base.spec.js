@@ -31,7 +31,7 @@ async function createWrapper(propsData = {}, provide = {}) {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-card-base', () => {
     beforeAll(() => {

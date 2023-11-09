@@ -21,9 +21,9 @@
     <coverage cacheDirectory=".phpunit.cache/code-coverage"
               processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src/Controller</directory>
-            <directory suffix=".php">src/Listener</directory>
-            <directory suffix=".php">src/Services</directory>
+            <directory suffix=".php">Controller</directory>
+            <directory suffix=".php">Listener</directory>
+            <directory suffix=".php">Services</directory>
         </include>
     </coverage>
 </phpunit>

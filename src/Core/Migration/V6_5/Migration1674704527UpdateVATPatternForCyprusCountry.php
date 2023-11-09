@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class Migration1674704527UpdateVATPatternForCyprusCountry extends MigrationStep
 {
     public function getCreationTimestamp(): int

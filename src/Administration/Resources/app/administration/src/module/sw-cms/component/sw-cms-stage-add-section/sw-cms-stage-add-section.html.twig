@@ -15,12 +15,14 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_add_section_button %}
-    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="!forceChoose"
         class="sw-cms-stage-add-section__button"
         :class="{ 'is--open': showSelection }"
+        role="button"
+        tabindex="0"
         @click="toggleSelection"
+        @keydown.enter="toggleSelection"
     >
         <sw-icon
             name="regular-plus-circle"

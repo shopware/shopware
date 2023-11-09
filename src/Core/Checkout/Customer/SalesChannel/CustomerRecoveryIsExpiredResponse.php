@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerRecoveryIsExpiredResponse extends StoreApiResponse
 {
     /**

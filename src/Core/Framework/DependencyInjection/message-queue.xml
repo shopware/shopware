@@ -13,8 +13,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="messenger.bus.shopware" alias="messenger.default_bus" />
-
         <!--Controller-->
         <service id="Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController" public="true">
             <argument type="service" id="messenger.receiver_locator"/>
@@ -24,6 +22,8 @@
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber"/>
             <argument type="string">%messenger.default_transport_name%</argument>
             <argument type="string">%shopware.admin_worker.memory_limit%</argument>
+            <argument type="string">%shopware.admin_worker.poll_interval%</argument>
+            <argument type="service" id="lock.factory"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -36,6 +36,10 @@
 
         <service id="Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer">
             <tag name="serializer.normalizer"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\MessageQueue\Subscriber\ConsumeMessagesSubscriber">
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

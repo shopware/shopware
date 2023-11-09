@@ -31,6 +31,8 @@ Component.register('sw-tabs-item', {
 
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     props: {
         route: {
             type: [String, Object],
@@ -71,14 +73,14 @@ Component.register('sw-tabs-item', {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-tabs-item.tooltipTabHasErrors');
+                return Shopware.Snippet.tc('global.sw-tabs-item.tooltipTabHasErrors');
             },
         },
         warningTooltip: {
             type: String,
             required: false,
             default() {
-                return this.$tc('global.sw-tabs-item.tooltipTabHasWarnings');
+                return Shopware.Snippet.tc('global.sw-tabs-item.tooltipTabHasWarnings');
             },
         },
     },
@@ -161,8 +163,28 @@ Component.register('sw-tabs-item', {
                  * Prevent endless loop with checking if the route exists. Because a router-link with a
                  * non existing route has always the class 'router-link-active'
                  */
-                const resolvedRoute = this.$router.resolve(this.route);
-                const routeExists = resolvedRoute.resolved.matched.length > 0;
+                let resolvedRoute;
+                if (this.feature.isActive('VUE3')) {
+                    try {
+                        resolvedRoute = this.$router.resolve(this.route);
+                    } catch {
+                        return;
+                    }
+
+                    if (resolvedRoute === undefined) {
+                        return;
+                    }
+                } else {
+                    resolvedRoute = this.$router.resolve(this.route);
+                }
+
+                let routeExists = false;
+                if (Shopware.Service('feature').isActive('VUE3')) {
+                    routeExists = resolvedRoute.matched.length > 0;
+                } else {
+                    routeExists = resolvedRoute.resolved.matched.length > 0;
+                }
+
                 if (!routeExists) {
                     return;
                 }

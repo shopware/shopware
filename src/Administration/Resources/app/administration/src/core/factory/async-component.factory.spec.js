@@ -1352,6 +1352,101 @@ describe('core/factory/async-component.factory.ts', () => {
         });
     });
 
+    describe('should build the $super-call-stack when $super-call is inside a promise chain and the component providing the promise chain is overridden', () => {
+        createComponentMatrix({
+            A: () => ({
+                methods: {
+                    fooBar() {
+                        return 'fooBar';
+                    },
+                },
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
+            }),
+            B: () => ({
+                methods: {
+                    fooBar() {
+                        const p = new Promise((resolve) => {
+                            resolve('Baz');
+                        });
+
+
+                        return p.then((value) => {
+                            const prev = this.$super('fooBar');
+
+                            return `${prev}${value}`;
+                        });
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    fooBar() {
+                        return this.$super('fooBar').then((value) => `${value}Buz`);
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = shallowMount(await ComponentFactory.build('test-component'));
+
+                expect(component.vm).toBeTruthy();
+                expect(await component.vm.fooBar()).toBe('fooBarBazBuz');
+            });
+        });
+    });
+
+    describe('should build the $super-call-stack when $super-call to an asynchronous method is inside an promise chain and the component providing the promise chain is overridden', () => {
+        createComponentMatrix({
+            A: () => ({
+                methods: {
+                    fooBar() {
+                        return new Promise((resolve) => {
+                            resolve('fooBar');
+                        });
+                    },
+                },
+                template: '{% block content %}<div>This is a test template.</div>{% endblock %}',
+            }),
+            B: () => ({
+                methods: {
+                    fooBar() {
+                        const p = new Promise((resolve) => {
+                            resolve('Baz');
+                        });
+
+                        return p.then((value) => {
+                            return this.$super('fooBar').then((prev) => {
+                                return `${prev}${value}`;
+                            });
+                        });
+                    },
+                },
+            }),
+            C: () => ({
+                methods: {
+                    fooBar() {
+                        return this.$super('fooBar').then((value) => `${value}Buz`);
+                    },
+                },
+            }),
+        }).forEach(({ testCase, components }) => {
+            it(`${testCase}`, async () => {
+                ComponentFactory.register('test-component', components.A());
+                ComponentFactory.override('test-component', components.B());
+                ComponentFactory.override('test-component', components.C());
+
+                const component = shallowMount(await ComponentFactory.build('test-component'));
+
+                expect(component.vm).toBeTruthy();
+                expect(await component.vm.fooBar()).toBe('fooBarBazBuz');
+            });
+        });
+    });
+
     describe('should extend an extended component and all three components get build before with usage of parent', () => {
         createComponentMatrix({
             A: () => ({

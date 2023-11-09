@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class SlotConfigFieldSerializer extends JsonFieldSerializer
 {
     protected function getConstraints(Field $field): array

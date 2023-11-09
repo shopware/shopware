@@ -1,12 +1,11 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Theme: Test loading and saving of theme', () => {
+describe('Theme: Test loading and saving of theme', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
@@ -44,8 +43,8 @@ describe('Theme: Test loading and saving of theme', () => {
         );
 
         cy.get('.sw-modal').should('be.visible');
-        cy.get('#sw-field--newThemeName').clear();
-        cy.get('#sw-field--newThemeName').type('Lovski Theme');
+        cy.get('[name="sw-field--rename-theme-name"]').clear();
+        cy.get('[name="sw-field--rename-theme-name"]').type('Lovski Theme');
 
         cy.get('.sw-modal .sw-button--primary').click();
 

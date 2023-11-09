@@ -13,7 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagDefinition;
 
-#[Package('content')]
+#[Package('inventory')]
 class CategoryTagDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'category_tag';

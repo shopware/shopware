@@ -44,55 +44,24 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $this->createPluginConfig($appName, $absolutePath);
     }
 
-    private function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function createFromThemeJson(string $name, array $data, string $path, bool $isFullpath = true): StorefrontPluginConfiguration
     {
-        $config = new StorefrontPluginConfiguration($name);
-        $config->setIsTheme(false);
-        $config->setStorefrontEntryFilepath($this->getEntryFile($path));
-        $config->setBasePath($this->stripProjectDir($path));
-
-        $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
-
-        $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
-        $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));
-
-        return $config;
-    }
-
-    private function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
-    {
-        $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
-
-        if (!file_exists($pathname)) {
-            throw new InvalidThemeBundleException($name);
-        }
-
-        $config = new StorefrontPluginConfiguration($name);
-
         try {
-            $fileContent = file_get_contents($pathname);
-            if ($fileContent === false) {
-                throw new ThemeCompileException(
-                    $name,
-                    'Unable to read theme.json'
-                );
+            if (!$isFullpath) {
+                $path = $this->projectDir . \DIRECTORY_SEPARATOR . str_replace(\DIRECTORY_SEPARATOR . 'Resources', '', $path);
             }
+            $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
 
-            /** @var array<string, mixed> $data */
-            $data = json_decode($fileContent, true);
-            if (json_last_error() !== \JSON_ERROR_NONE) {
-                throw new ThemeCompileException(
-                    $name,
-                    'Unable to parse theme.json. Message: ' . json_last_error_msg()
-                );
-            }
-
-            $basePath = realpath(pathinfo($pathname, \PATHINFO_DIRNAME));
-            \assert(\is_string($basePath));
+            $basePath = realpath(pathinfo($pathname, \PATHINFO_DIRNAME)) ?: $pathname;
 
             $basePath = $this->stripProjectDir($basePath);
 
+            $config = new StorefrontPluginConfiguration($name);
+
+            $config->setThemeJson($data);
             $config->setBasePath($this->stripProjectDir($basePath));
             $config->setStorefrontEntryFilepath($this->getEntryFile($path));
             $config->setIsTheme(true);
@@ -134,6 +103,56 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             if (\array_key_exists('iconSets', $data)) {
                 $config->setIconSets($data['iconSets']);
             }
+        } catch (\Throwable) {
+            $config = new StorefrontPluginConfiguration($name);
+        }
+
+        return $config;
+    }
+
+    private function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
+    {
+        $config = new StorefrontPluginConfiguration($name);
+        $config->setIsTheme(false);
+        $config->setStorefrontEntryFilepath($this->getEntryFile($path));
+        $config->setBasePath($this->stripProjectDir($path));
+
+        $stylesPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        $config->setStyleFiles(FileCollection::createFromArray($this->getScssEntryFileInDir($stylesPath)));
+
+        $scriptPath = $path . \DIRECTORY_SEPARATOR . 'Resources/app/storefront/dist/storefront/js';
+        $config->setScriptFiles(FileCollection::createFromArray($this->getFilesInDir($scriptPath)));
+
+        return $config;
+    }
+
+    private function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
+    {
+        $pathname = $path . \DIRECTORY_SEPARATOR . 'Resources/theme.json';
+
+        if (!file_exists($pathname)) {
+            throw new InvalidThemeBundleException($name);
+        }
+
+        try {
+            $fileContent = file_get_contents($pathname);
+            if ($fileContent === false) {
+                throw new ThemeCompileException(
+                    $name,
+                    'Unable to read theme.json'
+                );
+            }
+
+            /** @var array<string, mixed> $data */
+            $data = json_decode($fileContent, true);
+            if (json_last_error() !== \JSON_ERROR_NONE) {
+                throw new ThemeCompileException(
+                    $name,
+                    'Unable to parse theme.json. Message: ' . json_last_error_msg()
+                );
+            }
+
+            $config = $this->createFromThemeJson($name, $data, $path);
         } catch (ThemeCompileException $e) {
             throw $e;
         } catch (\Exception $e) {

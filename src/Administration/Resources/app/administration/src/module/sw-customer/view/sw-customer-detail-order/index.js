@@ -2,7 +2,7 @@ import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
@@ -44,6 +44,14 @@ export default {
             return this.term ?
                 this.$tc('sw-customer.detailOrder.emptySearchTitle') :
                 this.$tc('sw-customer.detailOrder.emptyTitle');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 

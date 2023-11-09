@@ -10,7 +10,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntity;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod;
+use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -45,6 +45,7 @@ class PaymentMethodPersister
         foreach ($paymentMethods as $paymentMethod) {
             $payload = $paymentMethod->toArray($defaultLocale);
             $payload['handlerIdentifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
+            $payload['technicalName'] = \sprintf('payment_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
             /** @var PaymentMethodEntity|null $existing */
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();

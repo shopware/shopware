@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class AccountNewsletterRecipientResult extends Struct
 {
     final public const UNDEFINED = 'undefined';

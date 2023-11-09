@@ -1,12 +1,12 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Media: Visual tests', () => {
+describe('Media: Visual tests', { tags: ['VUE3'] }, () => {
     beforeEach(() => {
         cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);

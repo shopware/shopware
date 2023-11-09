@@ -3,7 +3,7 @@ Shopware.Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', () =
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'manufacturer-logo',
@@ -36,6 +36,10 @@ Shopware.Service('cmsService').registerCmsElement({
             value: null,
         },
         verticalAlign: {
+            source: 'static',
+            value: null,
+        },
+        horizontalAlign: {
             source: 'static',
             value: null,
         },

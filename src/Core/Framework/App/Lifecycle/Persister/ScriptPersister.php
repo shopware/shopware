@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
+use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Script\ScriptEntity;
 class ScriptPersister
 {
     public function __construct(
-        private readonly ScriptFileReaderInterface $scriptReader,
+        private readonly ScriptFileReader $scriptReader,
         private readonly EntityRepository $scriptRepository,
         private readonly EntityRepository $appRepository
     ) {

@@ -59,10 +59,10 @@ class Migration1662533751AddCustomEntityTypeIdToCategoryTest extends TestCase
 
     private function hasColumn(Connection $connection, string $columnName): bool
     {
-        return \count(array_filter(
+        return array_filter(
             $connection->createSchemaManager()->listTableColumns('category'),
             static fn (Column $column): bool => $column->getName() === $columnName
-        )) > 0;
+        ) !== [];
     }
 
     private function keyExists(Connection $connection, string $keyName): bool

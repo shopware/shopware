@@ -3,7 +3,7 @@ import swCustomerDetailOrder from 'src/module/sw-customer/view/sw-customer-detai
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-customer-detail-order', swCustomerDetailOrder);

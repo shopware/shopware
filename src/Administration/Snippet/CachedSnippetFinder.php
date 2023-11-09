@@ -8,6 +8,8 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 #[Package('administration')]
 class CachedSnippetFinder implements SnippetFinderInterface
 {
+    public const CACHE_TAG = 'admin-snippet';
+
     /**
      * @internal
      */
@@ -32,6 +34,7 @@ class CachedSnippetFinder implements SnippetFinderInterface
         $snippets = $this->snippetFinder->findSnippets($locale);
 
         $item->set($snippets);
+        $item->tag(self::CACHE_TAG);
         $this->cache->save($item);
 
         return $snippets;

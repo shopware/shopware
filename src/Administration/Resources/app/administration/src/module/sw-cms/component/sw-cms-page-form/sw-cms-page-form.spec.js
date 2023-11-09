@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swCmsPageForm from 'src/module/sw-cms/component/sw-cms-page-form';

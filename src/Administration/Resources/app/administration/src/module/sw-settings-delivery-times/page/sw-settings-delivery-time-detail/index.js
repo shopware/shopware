@@ -1,7 +1,7 @@
 import template from './sw-settings-delivery-time-detail.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Component, Mixin } = Shopware;

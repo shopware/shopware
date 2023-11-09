@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('content')]
+#[Package('buyers-experience')]
 class LandingPageNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $landingPageId)

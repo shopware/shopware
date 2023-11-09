@@ -1,7 +1,7 @@
 import template from './sw-settings-customer-group-list.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -102,7 +102,7 @@ export default {
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, this.limit);
 
             criteria.addFilter(
                 Criteria.equalsAny('id', idsOfSelectedCustomerGroups),

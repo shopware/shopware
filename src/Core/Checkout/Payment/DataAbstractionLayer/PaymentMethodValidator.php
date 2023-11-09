@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -50,7 +50,7 @@ final class PaymentMethodValidator implements EventSubscriberInterface
         );
 
         if (!empty($pluginIds)) {
-            throw new PluginPaymentMethodsDeleteRestrictionException();
+            throw PaymentException::pluginPaymentMethodDeleteRestriction();
         }
     }
 }

@@ -59,6 +59,7 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
             'sw-payment-card': true,
             'sw-empty-state': true,
             'sw-extension-component-section': true,
+            'router-link': true,
         },
     });
 }

@@ -12,7 +12,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 /**
  * @extends EntityCollection<OrderEntity>
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class OrderCollection extends EntityCollection
 {
     /**

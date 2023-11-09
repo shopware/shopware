@@ -2,13 +2,22 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Mapping\ClassDiscriminatorFromClassMetadata;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
@@ -60,5 +69,25 @@ class ContextTest extends TestCase
         $versionContext = $context->createWithVersionId(Uuid::randomHex());
 
         static::assertNotNull($versionContext->getExtension('foo'));
+    }
+
+    public function testExtensionsAreStripped(): void
+    {
+        $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+        $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
+
+        $normalizers = [new StructNormalizer(), new ObjectNormalizer($classMetadataFactory, null, null, null, $discriminator), new ArrayDenormalizer()];
+        $serializer = new Serializer($normalizers, [new JsonEncoder()]);
+
+        $context = Context::createDefaultContext();
+
+        $context->addExtension('foo', new ArrayEntity());
+
+        $serialized = $serializer->serialize($context, 'json');
+        $deserialized = $serializer->deserialize($serialized, Context::class, 'json');
+
+        static::assertInstanceOf(Context::class, $deserialized);
+
+        static::assertEmpty($deserialized->getVars()['extensions']);
     }
 }

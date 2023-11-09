@@ -40,9 +40,7 @@ function isIllegalUrlException(error) {
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-upload-listener', {
-    render() {
-        return document.createComment('');
-    },
+    template: '<div style="display: none"></div>',
 
     inject: ['repositoryFactory', 'mediaService'],
 

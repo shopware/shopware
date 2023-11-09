@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerChangedPaymentMethodEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, FlowEventAware
 {
     final public const EVENT_NAME = 'checkout.customer.changed-payment-method';

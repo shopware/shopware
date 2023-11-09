@@ -118,6 +118,7 @@ async function createWrapper(privileges = []) {
                 props: ['value'],
                 template: '<input class="sw-order-saveable-field" :value="value" @input="$emit(\'value-change\', $event.target.value)" />',
             },
+            'sw-extension-component-section': true,
         },
         mocks: {
             $tc: (key, number, value) => {

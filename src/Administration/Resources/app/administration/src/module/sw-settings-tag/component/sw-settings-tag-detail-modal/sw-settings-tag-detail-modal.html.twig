@@ -47,7 +47,11 @@
                 <p class="sw-settings-tag-detail-modal__tag-name">
                     <sw-text-field
                         id="sw-field--tag-name"
+                        {% if VUE3 %}
+                        v-model:value="tag.name"
+                        {% else %}
                         v-model="tag.name"
+                        {% endif %}
                         name="sw-field--tag-name"
                         :label="$tc('sw-settings-tag.list.columnName')"
                         :placeholder="$tc('sw-settings-tag.list.placeholderTagName')"

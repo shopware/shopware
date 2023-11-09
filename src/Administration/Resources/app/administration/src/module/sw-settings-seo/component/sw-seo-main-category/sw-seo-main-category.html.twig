@@ -12,7 +12,11 @@
         :label="overwriteLabel ? undefined : $tc('sw-seo-url.labelMainCategory')"
         :value="selectedCategory"
         :disabled="currentSalesChannelId === null || !allowEdit"
+        {% if VUE3 %}
+        @update:value="onMainCategorySelected"
+        {% else %}
         @change="onMainCategorySelected"
+        {% endif %}
     />
     {% endblock %}
 </div>

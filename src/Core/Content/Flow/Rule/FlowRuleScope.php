@@ -8,7 +8,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class FlowRuleScope extends CartRuleScope
 {
     public function __construct(

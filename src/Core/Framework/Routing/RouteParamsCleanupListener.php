@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Routing;
 
+use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -15,6 +16,7 @@ class RouteParamsCleanupListener
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED,
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
         PlatformRequest::ATTRIBUTE_ACL,
+        TemplateScopeDetector::SCOPES_ATTRIBUTE,
     ];
 
     public function __invoke(RequestEvent $event): void

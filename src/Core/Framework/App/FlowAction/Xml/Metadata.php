@@ -14,16 +14,15 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class Metadata extends XmlElement
 {
-    final public const TRANSLATABLE_FIELDS = [
-        'label',
-        'description',
-        'headline',
-    ];
-
-    final public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'label',
         'name',
         'url',
+    ];
+    private const TRANSLATABLE_FIELDS = [
+        'label',
+        'description',
+        'headline',
     ];
 
     private const BOOLEAN_FIELD = ['delayable'];
@@ -57,18 +56,6 @@ class Metadata extends XmlElement
     protected ?array $headline = null;
 
     protected bool $delayable = false;
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
 
     /**
      * @return array<string, mixed>
@@ -182,14 +169,14 @@ class Metadata extends XmlElement
         $this->delayable = $delayable;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
         );
 
-        return new self(self::parse($element));
+        return parent::fromXml($element);
     }
 
     /**
@@ -216,11 +203,13 @@ class Metadata extends XmlElement
         return $data;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         $values = [];
 
         foreach ($element->childNodes as $child) {

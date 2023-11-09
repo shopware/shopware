@@ -5,7 +5,7 @@ import Vuex from 'vuex';
 import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-create-details', swOrderCreateDetails);

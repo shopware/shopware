@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSmippetFilterSwitch from 'src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch';

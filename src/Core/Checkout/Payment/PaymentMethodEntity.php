@@ -125,6 +125,11 @@ class PaymentMethodEntity extends Entity
     protected $shortName;
 
     /**
+     * @deprecated tag:v6.7.0 - will not be nullable
+     */
+    protected ?string $technicalName = null;
+
+    /**
      * @var AppPaymentMethodEntity|null
      */
     protected $appPaymentMethod;
@@ -136,6 +141,8 @@ class PaymentMethodEntity extends Entity
     protected bool $prepared = false;
 
     protected bool $refundable = false;
+
+    protected bool $recurring = false;
 
     public function getPluginId(): ?string
     {
@@ -346,6 +353,30 @@ class PaymentMethodEntity extends Entity
         $this->shortName = $shortName;
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
+     */
+    public function getTechnicalName(): ?string
+    {
+        if (!$this->technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        return $this->technicalName;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     */
+    public function setTechnicalName(?string $technicalName): void
+    {
+        if (!$technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        $this->technicalName = $technicalName;
+    }
+
     public function getAppPaymentMethod(): ?AppPaymentMethodEntity
     {
         return $this->appPaymentMethod;
@@ -394,5 +425,15 @@ class PaymentMethodEntity extends Entity
     public function setRefundable(bool $refundable): void
     {
         $this->refundable = $refundable;
+    }
+
+    public function isRecurring(): bool
+    {
+        return $this->recurring;
+    }
+
+    public function setRecurring(bool $recurring): void
+    {
+        $this->recurring = $recurring;
     }
 }

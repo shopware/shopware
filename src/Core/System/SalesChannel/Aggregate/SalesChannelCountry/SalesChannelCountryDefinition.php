@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelCountryDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'sales_channel_country';

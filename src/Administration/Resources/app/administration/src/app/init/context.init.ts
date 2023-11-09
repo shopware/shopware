@@ -60,7 +60,6 @@ export default function initializeContext(): void {
         };
     });
 
-    // @ts-expect-error
     Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
         const extension = Object.entries(Shopware.State.get('extensions')).find((ext) => {

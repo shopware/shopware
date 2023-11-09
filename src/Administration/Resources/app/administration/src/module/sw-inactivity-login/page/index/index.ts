@@ -12,7 +12,10 @@ const { Component } = Shopware;
 Component.register('sw-inactivity-login', {
     template,
 
-    inject: ['loginService'],
+    inject: [
+        'loginService',
+        'feature',
+    ],
 
     props: {
         hash: {
@@ -53,6 +56,10 @@ Component.register('sw-inactivity-login', {
     },
 
     created() {
+        if (this.feature.isActive('VUE3')) {
+            window.processingInactivityLogout = false;
+        }
+
         const lastKnownUser = sessionStorage.getItem('lastKnownUser');
 
         if (!lastKnownUser) {
@@ -74,6 +81,12 @@ Component.register('sw-inactivity-login', {
             }
 
             this.forwardLogin();
+
+            // Vue router v4 behaves differently than v3 and does not require a reload
+            if (this.feature.isActive('VUE3')) {
+                return;
+            }
+
             window.location.reload();
         };
         this.lastKnownUser = lastKnownUser;
@@ -119,6 +132,11 @@ Component.register('sw-inactivity-login', {
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
+
+            // Vue router v4 behaves differently than v3 and does not require a reload
+            if (this.feature.isActive('VUE3')) {
+                return;
+            }
 
             window.location.reload();
         },

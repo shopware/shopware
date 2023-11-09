@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class ProductSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -94,7 +94,7 @@ class ProductSerializerTest extends TestCase
         static::assertNotEmpty($serialized);
 
         static::assertSame($product->getId(), $serialized['id']);
-        static::assertSame($product->getTranslations()->first()->getName(), $serialized['translations']['DEFAULT']['name']);
+        static::assertSame($product->getTranslations()?->first()?->getName(), $serialized['translations']['DEFAULT']['name']);
         static::assertSame((string) $product->getStock(), $serialized['stock']);
         static::assertSame($product->getProductNumber(), $serialized['productNumber']);
         static::assertSame('1', $serialized['active']);
@@ -103,10 +103,17 @@ class ProductSerializerTest extends TestCase
         static::assertStringContainsString('shopware-background.png', $serialized['media']);
         static::assertStringNotContainsString('shopware-logo.png', $serialized['media']);
 
-        $deserialized = iterator_to_array($serializer->deserialize(new Config([], [], []), $productDefinition, $serialized));
+        $iterator = $serializer->deserialize(new Config([], [], []), $productDefinition, $serialized);
+        static::assertInstanceOf(\Traversable::class, $iterator);
+        $deserialized = iterator_to_array($iterator);
 
         static::assertSame($product->getId(), $deserialized['id']);
-        static::assertSame($product->getTranslations()->first()->getName(), $deserialized['translations'][Defaults::LANGUAGE_SYSTEM]['name']);
+        $translations = $product->getTranslations();
+        static::assertNotNull($translations);
+
+        $first = $translations->first();
+        static::assertNotNull($first);
+        static::assertSame($first->getName(), $deserialized['translations'][Defaults::LANGUAGE_SYSTEM]['name']);
         static::assertSame($product->getStock(), $deserialized['stock']);
         static::assertSame($product->getProductNumber(), $deserialized['productNumber']);
         static::assertSame($product->getActive(), $deserialized['active']);
@@ -199,8 +206,8 @@ class ProductSerializerTest extends TestCase
         $result = $serializer->deserialize(new Config([], [], []), $productDefinition, $record);
         $result = \is_array($result) ? $result : iterator_to_array($result);
 
-        static::assertEquals($product->getMedia()->first()->getId(), $result['media'][0]['id']);
-        static::assertEquals($product->getMedia()->first()->getMedia()->getId(), $result['media'][0]['media']['id']);
+        static::assertEquals($product->getMedia()?->first()?->getId(), $result['media'][0]['id']);
+        static::assertEquals($product->getMedia()?->first()?->getMedia()?->getId(), $result['media'][0]['media']['id']);
         static::assertArrayNotHasKey('url', $result['media'][0]['media']);
 
         static::assertArrayNotHasKey('id', $result['media'][1]);
@@ -279,6 +286,7 @@ class ProductSerializerTest extends TestCase
                 'media' => [
                     'id' => Uuid::randomHex(),
                     'fileName' => 'shopware-logo',
+                    'path' => 'shopware-logo.png',
                     'fileExtension' => 'png',
                     'mimeType' => 'image/png',
                     'metaData' => [
@@ -293,6 +301,7 @@ class ProductSerializerTest extends TestCase
                     'media' => [
                         'id' => Uuid::randomHex(),
                         'fileName' => 'shopware-icon',
+                        'path' => 'shopware-icon.png',
                         'fileExtension' => 'png',
                         'mimeType' => 'image/png',
                     ],
@@ -303,6 +312,7 @@ class ProductSerializerTest extends TestCase
                     'media' => [
                         'id' => Uuid::randomHex(),
                         'fileName' => 'shopware-background',
+                        'path' => 'shopware-background.png',
                         'fileExtension' => 'png',
                         'mimeType' => 'image/png',
                     ],
@@ -323,6 +333,9 @@ class ProductSerializerTest extends TestCase
         $criteria->addAssociation('media');
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
-        return $productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $productRepository->search($criteria, Context::createDefaultContext())->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        return $product;
     }
 }

@@ -3,7 +3,7 @@ import Criteria from 'src/core/data/criteria.data';
 import swOrderCreateDetailsFooter from 'src/module/sw-order/component/sw-order-create-details-footer';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-create-details-footer', swOrderCreateDetailsFooter);

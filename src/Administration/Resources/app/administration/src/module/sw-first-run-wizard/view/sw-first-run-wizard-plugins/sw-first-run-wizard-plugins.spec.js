@@ -5,7 +5,7 @@ import 'src/app/component/base/sw-label';
 Shopware.Component.register('sw-first-run-wizard-plugins', swFirstRunWizardPlugins);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins', () => {
     /** @type Wrapper */

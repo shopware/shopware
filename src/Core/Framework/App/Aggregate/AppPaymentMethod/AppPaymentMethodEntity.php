@@ -63,6 +63,8 @@ class AppPaymentMethodEntity extends Entity
 
     protected ?string $refundUrl = null;
 
+    protected ?string $recurringUrl = null;
+
     /**
      * @var string|null
      */
@@ -181,6 +183,16 @@ class AppPaymentMethodEntity extends Entity
     public function setRefundUrl(?string $refundUrl): void
     {
         $this->refundUrl = $refundUrl;
+    }
+
+    public function getRecurringUrl(): ?string
+    {
+        return $this->recurringUrl;
+    }
+
+    public function setRecurringUrl(?string $recurringUrl): void
+    {
+        $this->recurringUrl = $recurringUrl;
     }
 
     public function getOriginalMediaId(): ?string

@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('system-settings')]
+#[Package('buyers-experience')]
 class CountryEvents
 {
     /**

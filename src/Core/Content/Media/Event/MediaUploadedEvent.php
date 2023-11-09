@@ -17,7 +17,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - MediaUploadedAware is deprecated and will be removed in v6.6.0
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaUploadedEvent extends Event implements MediaUploadedAware, ScalarValuesAware, FlowEventAware, Hookable
 {
     public const EVENT_NAME = 'media.uploaded';

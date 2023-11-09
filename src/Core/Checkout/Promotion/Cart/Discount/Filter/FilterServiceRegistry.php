@@ -6,11 +6,14 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPicker
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('checkout')]
+#[Package('buyers-experience')]
 class FilterServiceRegistry
 {
     /**
      * @internal
+     *
+     * @param iterable<FilterSorterInterface> $sorters
+     * @param iterable<FilterPickerInterface> $pickers
      */
     public function __construct(
         private readonly iterable $sorters,
@@ -20,6 +23,8 @@ class FilterServiceRegistry
 
     /**
      * Gets a list of all registered sorters.
+     *
+     * @return \Generator<FilterSorterInterface>
      */
     public function getSorters(): \Generator
     {
@@ -47,6 +52,8 @@ class FilterServiceRegistry
 
     /**
      * Gets a list of all registered sorters.
+     *
+     * @return \Generator<FilterPickerInterface>
      */
     public function getPickers(): \Generator
     {

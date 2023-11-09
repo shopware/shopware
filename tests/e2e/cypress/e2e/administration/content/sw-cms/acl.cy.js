@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
@@ -10,7 +10,7 @@ describe('Category: Test ACL privileges', () => {
         });
     });
 
-    it('@base @catalogue: can view shopping experiences listing', { tags: ['pa-content-management'] }, () => {
+    it('@base @catalogue: can view shopping experiences listing', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -27,7 +27,7 @@ describe('Category: Test ACL privileges', () => {
             'Vierte Wand');
     });
 
-    it('@catalogue: can view shopping experiences detail page', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can view shopping experiences detail page', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -50,7 +50,7 @@ describe('Category: Test ACL privileges', () => {
         cy.contains('.sw-cms-detail__page-name', 'Vierte Wand');
     });
 
-    it('@catalogue: can edit shopping experiences detail page', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can edit shopping experiences detail page', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -100,7 +100,7 @@ describe('Category: Test ACL privileges', () => {
         cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Vierte Wand');
     });
 
-    it('@catalogue: can edit shopping experiences detail page', { tags: ['pa-content-management'] }, () => {
+    it('@catalogue: can edit shopping experiences detail page', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -134,7 +134,7 @@ describe('Category: Test ACL privileges', () => {
         cy.contains('.sw-cms-stage-section-selection__default', 'Full width').click();
         cy.contains('.sw-cms-create-wizard__title', 'How do you want to label your new layout?');
         cy.contains('.sw-button--primary', 'Create layout').should('not.be.enabled');
-        cy.get('#sw-field--page-name').typeAndCheck('Laidout');
+        cy.get('input[placeholder*="Enter layout name"]').typeAndCheck('Laidout');
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
         cy.contains('.sw-button--primary', 'Create layout').click();
         cy.get('.sw-loader').should('not.exist');
@@ -153,6 +153,8 @@ describe('Category: Test ACL privileges', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-detail__back-btn').click();
+
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-cms-list-item--0 .sw-cms-list-item__title', 'Laidout');

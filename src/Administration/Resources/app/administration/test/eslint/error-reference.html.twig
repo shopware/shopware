@@ -1,0 +1,49 @@
+<!-- vue/no-lone-template -->
+<template>
+    <div></div>
+</template>
+
+<!-- vue/no-useless-template-attributes -->
+<template
+    v-if="foo"
+    class="heading"
+>
+</template>
+
+{% block sw_foo %}
+<!-- vue/no-deprecated-slot-scope-attribute -->
+<template slot-scope="props">
+    {{ props.title }}
+</template>
+
+<!-- vue/no-deprecated-slot-attribute -->
+<template slot="name">
+    {% block sw_slot %}
+    {{ props.title }}
+    {% endblock %}
+</template>
+
+{% block sw_bar %}
+{% endblock %}
+
+<!-- vue/attributes-order, vue/no-v-text-v-html-on-component, vue/no-deprecated-html-element-is, vue/attributes-order, vue/no-use-v-if-with-v-for, vue/valid-v-for -->
+<div
+    ref="header"
+    v-for="item in items"
+    v-once
+    id="uniqueID"
+    v-model="headerData"
+    my-prop="prop"
+    v-if="!visible"
+    is="header"
+    @click="functionCall"
+    {% if VUE3 %}
+    @update:value="onUpdateValue"
+    {% else %}
+    @change="onChange"
+    {% endif %}
+    v-text="textContent"
+/>
+
+<div v-if="!visible" class="juihu"/>
+{% endblock %}

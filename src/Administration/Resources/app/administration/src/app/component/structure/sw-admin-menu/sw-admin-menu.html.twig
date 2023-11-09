@@ -1,6 +1,6 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_admin_menu %}
-<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
 <aside
     class="sw-admin-menu"
     :class="adminMenuClasses"
@@ -45,18 +45,26 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_admin_menu_navigation_main_list %}
                 <ul class="sw-admin-menu__navigation-list">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_admin_menu_navigation_main_items %}
-                    <sw-admin-menu-item
+                    <template
                         v-for="(entry, index) in mainMenuEntries"
+                        {% if VUE3 %}
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
-                        :sidebar-expanded="isExpanded"
-                        :entry="entry"
-                        @menu-item-click="onMenuItemClick"
-                        @menu-item-enter="onMenuItemEnter"
-                        @sub-menu-item-enter="onSubMenuItemEnter"
-                    />
+                        {% endif %}
+                    >
+                        <sw-admin-menu-item
+                            {% if VUE2 %}
+                            :key="`${entry.id || entry.path}-${entry.children.length}`"
+                            {% endif %}
+                            :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
+                            :sidebar-expanded="isExpanded"
+                            :entry="entry"
+                            @menu-item-click="onMenuItemClick"
+                            @menu-item-enter="onMenuItemEnter"
+                            @sub-menu-item-enter="onSubMenuItemEnter"
+                        />
+                    </template>
                     {% endblock %}
                 </ul>
                 {% endblock %}
@@ -96,7 +104,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_user_actions_toggle %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             class="sw-admin-menu__user-actions-toggle"
             :class="{'is--active': isUserActionsActive}"
@@ -144,7 +152,7 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_admin_menu_user_actions %}
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <div
             class="sw-admin-menu__user-actions"
             :class="{'is--active': isUserActionsActive}"
@@ -221,7 +229,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_admin_menu_flyout_transition %}
     <transition name="flyout">
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
         <ul
             v-if="flyoutEntries.length"
             class="sw-admin-menu_flyout-holder"
@@ -229,11 +237,19 @@
             @mouseenter="onFlyoutEnter"
             @mouseleave="onFlyoutLeave"
         >
-            <template v-for="entry in flyoutEntries">
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+            <template
+                v-for="entry in flyoutEntries"
+                {% if VUE3 %}
+                :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                {% endif %}
+            >
 
                 <li
                     v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
+                    {% if VUE2 %}
                     :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                    {% endif %}
                     :style="{ 'border-color': flyoutColor }"
                     class="sw-admin-menu__separator"
                 >
@@ -241,7 +257,6 @@
                 </li>
 
                 <sw-admin-menu-item
-                    :key="`${entry.id || entry.path}-${entry.children.length}`"
                     :entry="entry"
                     :border-color="flyoutColor"
                     :display-icon="false"

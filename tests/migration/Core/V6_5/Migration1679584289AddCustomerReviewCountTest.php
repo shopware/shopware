@@ -61,6 +61,10 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
             ['customerId' => Uuid::fromHexToBytes($this->ids->get('customer'))],
         );
         static::assertEquals(3, $reviewCount);
+
+        // created reviews are deleted over the cascade of the customer
+        $this->connection->delete('customer', ['id' => Uuid::fromHexToBytes($this->ids->get('customer'))]);
+        $this->connection->delete('product', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
     }
 
     private function createCustomer(): void
@@ -129,9 +133,6 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
 
     private function createReview(string $reviewId): void
     {
-        /** @var Connection $connection */
-        $connection = self::getContainer()->get(Connection::class);
-
         $review = [
             'id' => Uuid::fromHexToBytes($reviewId),
             'product_id' => Uuid::fromHexToBytes($this->ids->create('product')),
@@ -143,6 +144,6 @@ class Migration1679584289AddCustomerReviewCountTest extends TestCase
             'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
         ];
 
-        $connection->insert(ProductReviewDefinition::ENTITY_NAME, $review);
+        $this->connection->insert(ProductReviewDefinition::ENTITY_NAME, $review);
     }
 }

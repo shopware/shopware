@@ -5,12 +5,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 /* @private */
-export {};
+import { defineComponent } from 'vue';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
-Shopware.Mixin.register('placeholder', {
+export default Shopware.Mixin.register('placeholder', defineComponent({
     methods: {
         placeholder<EntityName extends keyof EntitySchema.Entities>(
             entity: EntitySchema.Entity<EntityName>,
@@ -62,4 +62,4 @@ Shopware.Mixin.register('placeholder', {
             return fallbackSnippet;
         },
     },
-});
+}));

@@ -6,11 +6,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection as RawP
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 #[Package('checkout')]
-class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface
+class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface, FilterableInterface
 {
     final public const TYPE = 'currency-price';
     final public const SORTING_PRIORITY = 75;
@@ -52,6 +53,9 @@ class CurrencyPriceDefinition extends Struct implements PriceDefinitionInterface
         return $data;
     }
 
+    /**
+     * @return array<string, Constraint[]>
+     */
     public static function getConstraints(): array
     {
         return [

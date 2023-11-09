@@ -23,7 +23,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class UnusedMediaPurger
 {
     private const VALID_ASSOCIATIONS = [
@@ -34,6 +34,8 @@ class UnusedMediaPurger
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepo
      */
     public function __construct(
         private readonly EntityRepository $mediaRepo,
@@ -43,6 +45,8 @@ class UnusedMediaPurger
 
     /**
      * @internal This method is used only by the media:delete-unused command and is subject to change
+     *
+     * @return \Generator<array<MediaEntity>>
      */
     public function getNotUsedMedia(?int $limit = 50, ?int $offset = null, ?int $gracePeriodDays = null, ?string $folderEntity = null): \Generator
     {
@@ -64,7 +68,7 @@ class UnusedMediaPurger
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays);
             $ids = $this->dispatchEvent($ids);
 
-            return yield array_values($this->mediaRepo->search(new Criteria($ids), $context)->getElements());
+            return yield $this->searchMedia($ids, $context);
         }
 
         // otherwise, we need iterate over the entire result set in batches
@@ -77,7 +81,7 @@ class UnusedMediaPurger
                 continue;
             }
 
-            yield array_values($this->mediaRepo->search(new Criteria($unusedIds), $context)->getElements());
+            yield $this->searchMedia($unusedIds, $context);
         }
     }
 
@@ -103,6 +107,18 @@ class UnusedMediaPurger
         }
 
         return $deletedTotal;
+    }
+
+    /**
+     * @param array<string> $ids
+     *
+     * @return array<MediaEntity>
+     */
+    public function searchMedia(array $ids, Context $context): array
+    {
+        $media = $this->mediaRepo->search(new Criteria($ids), $context)->getEntities()->getElements();
+
+        return array_values($media);
     }
 
     /**

@@ -3,12 +3,13 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('customer-order')]
+#[Package('checkout')]
 class LoadWishlistRouteResponse extends StoreApiResponse
 {
     /**
@@ -17,10 +18,13 @@ class LoadWishlistRouteResponse extends StoreApiResponse
     protected $wishlist;
 
     /**
-     * @var EntitySearchResult
+     * @var EntitySearchResult<ProductCollection>
      */
     protected $productListing;
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $listing
+     */
     public function __construct(
         CustomerWishlistEntity $wishlist,
         EntitySearchResult $listing
@@ -43,11 +47,17 @@ class LoadWishlistRouteResponse extends StoreApiResponse
         $this->wishlist = $wishlist;
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     public function getProductListing(): EntitySearchResult
     {
         return $this->productListing;
     }
 
+    /**
+     * @param EntitySearchResult<ProductCollection> $productListing
+     */
     public function setProductListing(EntitySearchResult $productListing): void
     {
         $this->productListing = $productListing;

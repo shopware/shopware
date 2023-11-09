@@ -3,22 +3,22 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\IOInterface;
+use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackageInterface;
+use Composer\Package\Version\VersionParser;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
-use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageCollection;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -29,12 +29,15 @@ class PluginService
 {
     final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<LanguageCollection> $languageRepo
+     */
     public function __construct(
         private readonly string $pluginDir,
         private readonly string $projectDir,
         private readonly EntityRepository $pluginRepo,
         private readonly EntityRepository $languageRepo,
-        private readonly ChangelogService $changelogService,
         private readonly PluginFinder $pluginFinder,
         private readonly VersionSanitizer $versionSanitizer
     ) {
@@ -63,7 +66,15 @@ class PluginService
                 continue;
             }
 
-            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
+            $version = $info->getVersion();
+
+            // default branches are normalized to alias internally @see https://github.com/composer/composer/blob/95dca79fc2e18c3a4e33f207c1fcaa7d5b559400/src/Composer/Package/Locker.php#L353,
+            // when showing the version name, they will be normalized back to real name of the alias @see https://github.com/composer/composer/blob/95dca79fc2e18c3a4e33f207c1fcaa7d5b559400/src/Composer/Command/ShowCommand.php#L752
+            if ($version === VersionParser::DEFAULT_BRANCH_ALIAS && $info instanceof AliasPackage) {
+                $version = $info->getAliasOf()->getVersion();
+            }
+
+            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($version);
             $extra = $info->getExtra();
             $license = $info->getLicense();
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
@@ -83,24 +94,6 @@ class PluginService
             ];
 
             $pluginData['translations'] = $this->getTranslations($shopwareContext, $extra);
-
-            if ($changelogFiles = $this->changelogService->getChangelogFiles($pluginPath)) {
-                foreach ($changelogFiles as $file) {
-                    $languageId = $this->getLanguageIdForLocale(
-                        $this->changelogService->getLocaleFromChangelogFile($file),
-                        $shopwareContext
-                    );
-                    if ($languageId === '') {
-                        continue;
-                    }
-
-                    try {
-                        $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);
-                    } catch (PluginChangelogInvalidException $changelogInvalidException) {
-                        $errors->add($changelogInvalidException);
-                    }
-                }
-            }
 
             /** @var PluginEntity $currentPluginEntity */
             $currentPluginEntity = $installedPlugins->filterByProperty('baseClass', $baseClass)->first();
@@ -181,14 +174,11 @@ class PluginService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
-        $result = $this->languageRepo->search($criteria, $context);
+        $languageEntity = $this->languageRepo->search($criteria, $context)->getEntities()->first();
 
-        if ($result->getTotal() === 0) {
+        if ($languageEntity === null) {
             return '';
         }
-
-        /** @var LanguageEntity $languageEntity */
-        $languageEntity = $result->first();
 
         return $languageEntity->getId();
     }

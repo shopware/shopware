@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal - Fetch the $referenceDocumentId if set, otherwise fetch the latest document
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 final class ReferenceInvoiceLoader
 {
     /**
@@ -35,6 +35,7 @@ final class ReferenceInvoiceLoader
             'LOWER(HEX(`order`.`version_id`)) as versionId',
             '`order`.`deep_link_code` as deepLinkCode',
             '`document`.`config` as config',
+            '`document`.`document_number` as documentNumber',
         ])->from('`document`', '`document`')
             ->innerJoin('`document`', '`document_type`', '`document_type`', '`document`.`document_type_id` = `document_type`.`id`')
             ->innerJoin('`document`', '`order`', '`order`', '`document`.`order_id` = `order`.`id`');

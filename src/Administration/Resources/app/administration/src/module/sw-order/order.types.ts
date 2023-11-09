@@ -1,7 +1,7 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 interface TaxRule {

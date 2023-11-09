@@ -262,7 +262,7 @@ Component.register('sw-sortable-list', {
                 return;
             }
 
-            this.$emit('itemsSorted', this.sortedItems, this.hasOrderChanged());
+            this.$emit('items-sorted', this.sortedItems, this.hasOrderChanged());
         },
     },
 });

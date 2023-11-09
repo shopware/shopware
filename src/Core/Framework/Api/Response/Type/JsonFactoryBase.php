@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Response\Type;
 
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -32,6 +33,14 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
         return $apiCase . '/' . $this->camelCaseToSnailCase($definition->getEntityName());
     }
 
+    /**
+     * @template TEntityCollection of EntityCollection
+     *
+     * @param EntitySearchResult<TEntityCollection> $searchResult
+     * @param array<string, mixed>                 $parameters
+     *
+     * @return array{first?: string, prev?: string, next?: string, last?: string}
+     */
     protected function createPaginationLinks(EntitySearchResult $searchResult, string $uri, array $parameters): array
     {
         $limit = $searchResult->getCriteria()->getLimit() ?? 0;
@@ -86,6 +95,9 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
         return $pagination;
     }
 
+    /**
+     * @param array<string, mixed>  $parameters
+     */
     protected function buildPaginationUrl(string $uri, array $parameters, int $limit, int $page): string
     {
         $params = array_merge($parameters, ['limit' => $limit, 'page' => $page]);

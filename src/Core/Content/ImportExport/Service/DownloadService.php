@@ -4,9 +4,9 @@ namespace Shopware\Core\Content\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
-use Shopware\Core\Content\ImportExport\Exception\FileNotFoundException;
-use Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -17,9 +17,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 /**
  * @internal We might break this in v6.2
  */
-#[Package('system-settings')]
+#[Package('services-settings')]
 class DownloadService
 {
+    /**
+     * @internal
+     *
+     * @param EntityRepository<EntityCollection<ImportExportFileEntity>> $fileRepository
+     */
     public function __construct(
         private readonly FilesystemOperator $filesystem,
         private readonly EntityRepository $fileRepository
@@ -45,7 +50,7 @@ class DownloadService
         $fileAccessToken = (string) $entity->getAccessToken();
 
         if ($fileAccessToken === '' || $entity->getAccessToken() !== $accessToken || !$this->isModifiedRecently($entity)) {
-            throw new InvalidFileAccessTokenException();
+            throw ImportExportException::invalidFileAccessToken();
         }
 
         $this->fileRepository->update(
@@ -53,19 +58,21 @@ class DownloadService
             $context
         );
 
+        $originalName = (string) preg_replace('/[\/\\\]/', '', $entity->getOriginalName());
+
         $headers = [
             'Content-Disposition' => HeaderUtils::makeDisposition(
                 'attachment',
-                $entity->getOriginalName(),
+                $originalName,
                 // only printable ascii
-                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $entity->getOriginalName())
+                (string) preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $originalName)
             ),
             'Content-Length' => $this->filesystem->fileSize($entity->getPath()),
             'Content-Type' => 'application/octet-stream',
         ];
         $stream = $this->filesystem->readStream($entity->getPath());
         if (!\is_resource($stream)) {
-            throw new FileNotFoundException($fileId);
+            throw ImportExportException::fileNotFound($fileId);
         }
 
         return new StreamedResponse(function () use ($stream): void {
@@ -76,8 +83,9 @@ class DownloadService
     private function findFile(Context $context, string $fileId): ImportExportFileEntity
     {
         $entity = $this->fileRepository->search(new Criteria([$fileId]), $context)->get($fileId);
-        if ($entity === null) {
-            throw new FileNotFoundException($fileId);
+
+        if (!$entity instanceof ImportExportFileEntity) {
+            throw ImportExportException::fileNotFound($fileId);
         }
 
         return $entity;

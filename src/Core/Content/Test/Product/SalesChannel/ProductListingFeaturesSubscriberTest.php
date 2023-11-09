@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -21,8 +21,10 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -109,10 +111,17 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
-        $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-            new Criteria([TestDefaults::SALES_CHANNEL]),
-            Context::createDefaultContext()
-        )->first();
+        /** @var EntityRepository<SalesChannelCollection> $salesChannelRepo */
+        $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
+
+        $salesChannel = $salesChannelRepo
+            ->search(new Criteria([TestDefaults::SALES_CHANNEL]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertNotNull($salesChannel);
+
+        $this->salesChannel = $salesChannel;
     }
 
     /**
@@ -891,7 +900,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<Filter> $filters
+     * @param Filter[] $filters
      *
      * @return array<mixed>
      */

@@ -13,7 +13,9 @@ use Symfony\Component\Lock\LockFactory;
 class IncrementRedisStorage extends AbstractIncrementStorage
 {
     /**
-     * @param \Redis|\RedisCluster $redis
+     * param cannot be natively typed, as symfony might change the type in the future
+     *
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
      */
     public function __construct(
         private $redis,
@@ -34,6 +36,7 @@ class IncrementRedisStorage extends AbstractIncrementStorage
     {
         $key = $this->getKey($config['id']);
         $increment = $this->redis->incr($key);
+        \assert(\is_int($increment));
         $start = $config['start'] ?? 1;
 
         // in the normal flow where the increment value is greater or equals the configured start value
@@ -55,7 +58,10 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         try {
             // to set the current increment to the new configured start we use incrementBy, rather than simply setting the new start value
             // to prevent issues where maybe the increment value is already increment to higher value by competing requests
-            return $this->redis->incrBy($key, $start - $increment);
+            $newIncr = $this->redis->incrBy($key, $start - $increment); // // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
+            \assert(\is_int($newIncr));
+
+            return $newIncr;
         } finally {
             $lock->release();
         }
@@ -118,8 +124,14 @@ class IncrementRedisStorage extends AbstractIncrementStorage
         return 'number_range:' . $id;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getNumberRangeIds(): array
     {
-        return $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+        /** @var list<string> $ids */
+        $ids = $this->numberRangeRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+
+        return $ids;
     }
 }

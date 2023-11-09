@@ -38,9 +38,15 @@ export default {
         },
 
         addressFormatSettingsLink() {
+            if (!this.defaultCountry) {
+                return null;
+            }
+
             const route = {
                 name: 'sw.settings.country.detail.address-handling',
-                params: { id: this.defaultCountry },
+                params: {
+                    id: this.defaultCountry,
+                },
             };
             const routeData = this.$router.resolve(route);
 

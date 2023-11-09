@@ -22,6 +22,7 @@ async function createWrapper() {
         },
         mocks: {
             $route: { query: '' },
+            $router: { resolve: () => ({ href: 'the_link' }) },
         },
         stubs: {
             'sw-page': true,
@@ -52,6 +53,7 @@ describe('src/module/sw-settings-address/page/sw-settings-address', () => {
 
     it('should be shown sw-alert component', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm.isLoading).toBe(false);
         expect(wrapper.find('sw-alert-stub').exists()).toBeTruthy();

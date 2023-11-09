@@ -20,7 +20,7 @@ use Shopware\Core\System\User\UserEntity;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 trait StoreClientBehaviour
 {
     /**

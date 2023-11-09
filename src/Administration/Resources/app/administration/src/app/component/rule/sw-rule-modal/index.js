@@ -30,6 +30,11 @@ Component.register('sw-rule-modal', {
         Mixin.getByName('placeholder'),
     ],
 
+    emits: [
+        'save',
+        'modal-close',
+    ],
+
     props: {
         allowedRuleScopes: {
             type: Array,

@@ -123,7 +123,7 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertTrue($themeEntity->isActive());
         static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
-        static::assertEquals(5, $themeEntity->getMedia()->count());
+        static::assertEquals(3, $themeEntity->getMedia()->count());
     }
 
     public function testItWontThrowIfMediaHasRestrictDeleteAssociation(): void
@@ -141,7 +141,7 @@ class ThemeLifecycleServiceTest extends TestCase
         static::assertEquals($shopwareLogoId, $this->getMedia('shopware_logo'));
     }
 
-    public function testItRenamesThemeMediaIfItExistsBefore(): void
+    public function testItDontRenamesThemeMediaIfItExistsBeforeAndIsSame(): void
     {
         $bundle = $this->getThemeConfig();
         $this->addPinkLogoToTheme($bundle);
@@ -156,8 +156,45 @@ class ThemeLifecycleServiceTest extends TestCase
         $themeEntity = $this->getTheme($bundle);
 
         static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
-        $renamedShopwareLogoId = $this->getMedia('shopware_logo_(1)');
+        $renamedShopwareLogoId = $this->getMedia('shopware_logo');
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
+    }
+
+    public function testItRenamesThemeMediaIfItExistsBefore(): void
+    {
+        $bundle = $this->getThemeConfig();
+        $this->addPinkLogoToThemeChanged($bundle);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $shopwareLogoId = $this->getMedia('shopware_logo');
+        $this->createCmsPage($shopwareLogoId->getId());
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+
+        static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
+        $renamedShopwareLogoId = $this->getMedia('shopware_logo_pink2');
+        static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
+    }
+
+    public function testItIgnoresMediaFieldsWithoutValue(): void
+    {
+        $bundle = $this->getThemeConfig();
+        $this->addPinkLogoToThemeWithoutValue($bundle);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $shopwareLogoId = $this->getMedia('shopware_logo');
+        $this->createCmsPage($shopwareLogoId->getId());
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $themeEntity = $this->getTheme($bundle);
+
+        static::assertInstanceOf(MediaCollection::class, $themeEntity->getMedia());
+        $this->hasNoMedia('shopware_logo_pink2');
     }
 
     public function testItUploadsFilesIntoTheRootFolderIfThemeDefaultFolderDoesNotExist(): void
@@ -223,13 +260,13 @@ class ThemeLifecycleServiceTest extends TestCase
 
         static::assertInstanceOf(ThemeTranslationCollection::class, $theme->getTranslations());
         static::assertCount(1, $theme->getTranslations());
-        static::assertEquals('en-GB', $theme->getTranslations()->first()->getLanguage()->getLocale()->getCode());
+        static::assertEquals('en-GB', $theme->getTranslations()->first()?->getLanguage()?->getLocale()?->getCode());
         static::assertEquals([
             'fields.sw-image' => 'test label',
-        ], $theme->getTranslations()->first()->getLabels());
+        ], $theme->getTranslations()->first()?->getLabels());
         static::assertEquals([
             'fields.sw-image' => 'test help',
-        ], $theme->getTranslations()->first()->getHelpTexts());
+        ], $theme->getTranslations()->first()?->getHelpTexts());
     }
 
     public function testItUsesEnglishTranslationsAsFallbackIfDefaultLanguageIsNotProvided(): void
@@ -381,6 +418,15 @@ class ThemeLifecycleServiceTest extends TestCase
         return $media;
     }
 
+    private function hasNoMedia(string $fileName): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('fileName', $fileName));
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->first();
+        static::assertNull($media);
+    }
+
     // we create a cms-page because it has has the DeleteRestricted flag in media definition
     private function createCmsPage(string $logoId): void
     {
@@ -403,6 +449,35 @@ class ThemeLifecycleServiceTest extends TestCase
             ],
             'type' => 'media',
             'value' => 'app/storefront/src/assets/image/shopware_logo_pink.svg',
+        ];
+
+        $bundle->setThemeConfig($config);
+    }
+
+    private function addPinkLogoToThemeChanged(StorefrontPluginConfiguration $bundle): void
+    {
+        $config = $bundle->getThemeConfig();
+        $config['fields']['shopwareLogoPink'] = [
+            'label' => [
+                'en-GB' => 'shopware_logo_pink',
+                'de-DE' => 'shopware_logo_pink',
+            ],
+            'type' => 'media',
+            'value' => 'app/storefront/src/assets/image/shopware_logo_pink2.svg',
+        ];
+
+        $bundle->setThemeConfig($config);
+    }
+
+    private function addPinkLogoToThemeWithoutValue(StorefrontPluginConfiguration $bundle): void
+    {
+        $config = $bundle->getThemeConfig();
+        $config['fields']['shopwareLogoPink'] = [
+            'label' => [
+                'en-GB' => 'shopware_logo_pink',
+                'de-DE' => 'shopware_logo_pink',
+            ],
+            'type' => 'media',
         ];
 
         $bundle->setThemeConfig($config);
@@ -449,12 +524,18 @@ class ThemeLifecycleServiceTest extends TestCase
 
     private function getTranslationByLocale(string $locale, ThemeTranslationCollection $translations): ThemeTranslationEntity
     {
-        return $translations->filter(static function (ThemeTranslationEntity $translation) use ($locale): bool {
+        $entity = $translations->filter(static function (ThemeTranslationEntity $translation) use ($locale): bool {
             static::assertInstanceOf(LanguageEntity::class, $translation->getLanguage());
             static::assertInstanceOf(LocaleEntity::class, $translation->getLanguage()->getLocale());
 
             return $locale === $translation->getLanguage()->getLocale()->getCode();
         })->first();
+
+        if ($entity === null) {
+            throw new \RuntimeException('Translation not found.');
+        }
+
+        return $entity;
     }
 
     private function getThemeMediaDefaultFolderId(): string
@@ -466,7 +547,7 @@ class ThemeLifecycleServiceTest extends TestCase
         /** @var MediaFolderCollection $defaultFolder */
         $defaultFolder = $this->mediaFolderRepository->search($criteria, $this->context)->getEntities();
 
-        if ($defaultFolder->count() !== 1) {
+        if ($defaultFolder->count() !== 1 || $defaultFolder->first() === null) {
             throw new \RuntimeException('Default Theme folder does not exist.');
         }
 

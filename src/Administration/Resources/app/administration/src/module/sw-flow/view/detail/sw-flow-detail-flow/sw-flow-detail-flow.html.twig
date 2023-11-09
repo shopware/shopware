@@ -94,11 +94,13 @@
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_sequence_icon_plus %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
                         class="sw-flow-detail-flow__position-plus"
                         :disabled="!acl.can('flow.editor')"
+                        role="button"
+                        tabindex="0"
                         @click="onAddRootSequence"
+                        @keydown.enter="onAddRootSequence"
                     >
                         <sw-icon
                             small

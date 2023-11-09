@@ -7,7 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;

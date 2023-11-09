@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Metrics/Api/**/*Controller.php" type="annotation" />
+    <import resource="../../UsageData/Api/**/*Controller.php" type="annotation" />
     <import resource="../../User/Api/**/*Controller.php" type="annotation" />
     <import resource="../../CustomEntity/Api/*Controller.php" type="annotation" />
     <import resource="../../Snippet/**/*Controller.php" type="annotation" />

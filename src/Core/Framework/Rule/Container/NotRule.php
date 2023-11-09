@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-#[Package('business-ops
+#[Package('services-settings
 NotRule inverses the return value of the child rule. Only one child is possible')]
 class NotRule extends Container
 {

@@ -53,7 +53,7 @@
                                                     {{ context.customer.salutation.translated.displayName }}
                                                 {% endif %}
                                                 {% if context.customer.title %}
-                                                    {{ context.customer.title }}<br/>
+                                                    {{ context.customer.title }}<br>
                                                 {% endif %}
                                                 {{ context.customer.firstName }} {{ context.customer.lastName }}
                                             </p>
@@ -73,11 +73,7 @@
 
                                         {% block page_account_overview_profile_actions %}
                                             <div class="card-actions">
-                                                <a href="{{ path('frontend.account.profile.page') }}"
-                                                   title="{{ "account.overviewChangeProfile"|trans|striptags }}"
-                                                   class="btn btn-light">
-                                                    {{ "account.overviewChangeProfile"|trans|sw_sanitize }}
-                                                </a>
+                                                {% block page_account_overview_profile_actions_content %}{% endblock %}
                                             </div>
                                         {% endblock %}
                                     </div>
@@ -104,11 +100,7 @@
 
                                         {% block page_account_overview_payment_actions %}
                                             <div class="card-actions">
-                                                <a href="{{ path('frontend.account.payment.page') }}"
-                                                   title="{{ "account.overviewChangePayment"|trans|striptags }}"
-                                                   class="btn btn-light">
-                                                    {{ "account.overviewChangePayment"|trans|sw_sanitize }}
-                                                </a>
+                                                {% block page_account_overview_payment_actions_content %}{% endblock %}
                                             </div>
                                         {% endblock %}
                                     </div>

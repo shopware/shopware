@@ -100,34 +100,34 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
     {
         Profiler::trace('cart::delivery::process', function () use ($data, $original, $toCalculate, $context, $behavior): void {
-            $deliveries = $this->builder->build($toCalculate, $data, $context, $behavior);
-
-            $delivery = $deliveries->first();
-
             if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)) {
-                $originalDeliveries = $original->getDeliveries();
-
-                $originalDelivery = $originalDeliveries->first();
-                if ($delivery !== null && $originalDelivery !== null) {
-                    $originalDelivery->setShippingMethod($delivery->getShippingMethod());
-
-                    // Keep old prices
-                    $delivery->setShippingCosts($originalDelivery->getShippingCosts());
-
-                    // Recalculate tax
-                    $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
-                    $originalDelivery->setShippingCosts($delivery->getShippingCosts());
+                $deliveries = $original->getDeliveries();
+                $firstDelivery = $deliveries->first();
+                if ($firstDelivery === null) {
+                    return;
                 }
 
-                // New shipping method (if changed) but with old prices
-                $toCalculate->setDeliveries($originalDeliveries);
+                // Stored original edit shipping cost
+                $manualShippingCosts = $toCalculate->getExtension(self::MANUAL_SHIPPING_COSTS) ?? $firstDelivery->getShippingCosts();
+
+                $toCalculate->addExtension(self::MANUAL_SHIPPING_COSTS, $manualShippingCosts);
+
+                if ($manualShippingCosts instanceof CalculatedPrice) {
+                    $firstDelivery->setShippingCosts($manualShippingCosts);
+                }
+
+                $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);
+
+                $toCalculate->setDeliveries($deliveries);
 
                 return;
             }
 
+            $deliveries = $this->builder->build($toCalculate, $data, $context, $behavior);
             $manualShippingCosts = $original->getExtension(self::MANUAL_SHIPPING_COSTS);
-            if ($delivery !== null && $manualShippingCosts instanceof CalculatedPrice) {
-                $delivery->setShippingCosts($manualShippingCosts);
+
+            if ($manualShippingCosts instanceof CalculatedPrice) {
+                $deliveries->first()?->setShippingCosts($manualShippingCosts);
             }
 
             $this->deliveryCalculator->calculate($data, $toCalculate, $deliveries, $context);

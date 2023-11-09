@@ -11,6 +11,11 @@ Until now, we have implemented many different exception classes in Shopware to m
 However, this pattern is very cumbersome for developers to maintain properly, which is why we often fall back on the old \RuntimeException. 
 Another disadvantage of this pattern is that the system is overwhelmed with exception classes and therefore the overview of possible exceptions suffers.
 
+Domain exceptions should be specific in 99% of cases, otherwise, they are no longer clearly identifiable and traceable. If we want to add a generic exception like EntityNotFound exceptions everywhere, it will not help API consumer to identify the root cause.
+Therefore, it is for a good reason that there're similar exceptions occur again in many places. If there's something goes wrong from anywhere, there should be an unique code for it.
+In good software, you have a unique code for each error. This code is then listed in a code list that is publicly available. 
+For each code, there is then a clear documentation, of when and where it occurs and how to fix it.
+
 ## Solution
 With the following pattern I would like to achieve the following goals:
 - Developers can **no longer** just throw any **\RuntimeException** that can't be traced.

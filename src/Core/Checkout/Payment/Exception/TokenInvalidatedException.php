@@ -2,18 +2,23 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
-class TokenInvalidatedException extends ShopwareHttpException
+/**
+ * @decrecated tag:v6.6.0 - use PaymentException::tokenInvalidated instead
+ */
+class TokenInvalidatedException extends PaymentException
 {
     public function __construct(
         string $token,
         ?\Throwable $e = null
     ) {
         parent::__construct(
+            Response::HTTP_GONE,
+            'CHECKOUT__PAYMENT_TOKEN_INVALIDATED',
             'The provided token {{ token }} is invalidated and the payment could not be processed.',
             ['token' => $token],
             $e

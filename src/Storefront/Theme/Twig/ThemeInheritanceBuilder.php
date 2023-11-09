@@ -18,14 +18,22 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param array<string, float|array<mixed>> $bundles
+     * @param array<string, bool|array<mixed>> $themes
+     *
+     * @return array<string, float|array<mixed>>
      */
     public function build(array $bundles, array $themes): array
     {
+        // Sort bundles by priority
+        arsort($bundles);
+
         $keys = array_keys($themes);
 
         $theme = array_shift($keys);
 
-        $inheritance = $this->getThemeInheritance($theme, $themes);
+        $inheritance = $this->getThemeInheritance((string) $theme, $themes);
 
         foreach (array_keys($bundles) as $bundle) {
             $key = '@' . $bundle;
@@ -65,6 +73,11 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         return $new;
     }
 
+    /**
+     * @param array<string, bool|array<mixed>> $themes
+     *
+     * @return array<string, array<int, string>>
+     */
     private function getThemeInheritance(string $theme, array $themes): array
     {
         $names = array_keys($themes);
@@ -103,6 +116,11 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         return $this->injectPluginWildcard($tree);
     }
 
+    /**
+     * @param array<string, array<int, string>> $inheritance
+     *
+     * @return array<string, array<int, string>>
+     */
     private function injectPluginWildcard(array $inheritance): array
     {
         // ensure plugin support

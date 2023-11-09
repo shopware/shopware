@@ -31,7 +31,6 @@
                                         "$ref": "#/components/schemas/Criteria"
                                     },
                                     {
-                                        "type": "object",
                                         "allOf": [
                                             {
                                                 "properties": {

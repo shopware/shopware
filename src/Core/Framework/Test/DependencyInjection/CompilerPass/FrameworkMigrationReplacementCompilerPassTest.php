@@ -20,6 +20,7 @@ class FrameworkMigrationReplacementCompilerPassTest extends TestCase
         $container->register(MigrationSource::class . '.core.V6_4', MigrationSource::class)->setPublic(true);
         $container->register(MigrationSource::class . '.core.V6_5', MigrationSource::class)->setPublic(true);
         $container->register(MigrationSource::class . '.core.V6_6', MigrationSource::class)->setPublic(true);
+        $container->register(MigrationSource::class . '.core.V6_7', MigrationSource::class)->setPublic(true);
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->compile(false);

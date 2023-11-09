@@ -28,6 +28,10 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         if ($grantType === 'client_credentials' && $clientSecret !== null) {
+            if (!\is_string($clientIdentifier)) {
+                return false;
+            }
+
             $values = $this->getByAccessKey($clientIdentifier);
             if (!$values) {
                 return false;
@@ -43,6 +47,10 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function getClientEntity($clientIdentifier): ?ClientEntityInterface
     {
+        if (!\is_string($clientIdentifier)) {
+            return null;
+        }
+
         if ($clientIdentifier === 'administration') {
             return new ApiClient('administration', true);
         }
@@ -53,9 +61,12 @@ class ClientRepository implements ClientRepositoryInterface
             return null;
         }
 
-        return new ApiClient($clientIdentifier, true, $values['label'] ?? Uuid::fromBytesToHex($values['user_id']));
+        return new ApiClient($clientIdentifier, true, $values['label'] ?? Uuid::fromBytesToHex((string) $values['user_id']));
     }
 
+    /**
+     * @return array<string, string|null>|null
+     */
     private function getByAccessKey(string $clientIdentifier): ?array
     {
         $origin = AccessKeyHelper::getOrigin($clientIdentifier);
@@ -71,15 +82,14 @@ class ClientRepository implements ClientRepositoryInterface
         return null;
     }
 
+    /**
+     * @return array<string, string|null>|null
+     */
     private function getUserByAccessKey(string $clientIdentifier): ?array
     {
-        $key = $this->connection->createQueryBuilder()
-            ->select(['user_id', 'secret_access_key'])
-            ->from('user_access_key')
-            ->where('access_key = :accessKey')
-            ->setParameter('accessKey', $clientIdentifier)
-            ->executeQuery()
-            ->fetchAssociative();
+        $key = $this->connection->fetchAssociative('SELECT user_id, secret_access_key FROM user_access_key WHERE access_key = :accessKey', [
+            'accessKey' => $clientIdentifier,
+        ]);
 
         if (!$key) {
             return null;
@@ -88,16 +98,14 @@ class ClientRepository implements ClientRepositoryInterface
         return $key;
     }
 
+    /**
+     * @return array<string, string|null>|null
+     */
     private function getIntegrationByAccessKey(string $clientIdentifier): ?array
     {
-        $key = $this->connection->createQueryBuilder()
-            ->select(['integration.id AS id', 'label', 'secret_access_key', 'app.active as active'])
-            ->from('integration')
-            ->leftJoin('integration', 'app', 'app', 'app.integration_id = integration.id')
-            ->where('access_key = :accessKey')
-            ->setParameter('accessKey', $clientIdentifier)
-            ->executeQuery()
-            ->fetchAssociative();
+        $key = $this->connection->fetchAssociative('SELECT integration.id AS id, label, app.active AS active, secret_access_key FROM integration LEFT JOIN app ON app.integration_id = integration.id WHERE access_key = :accessKey', [
+            'accessKey' => $clientIdentifier,
+        ]);
 
         if (!$key) {
             return null;

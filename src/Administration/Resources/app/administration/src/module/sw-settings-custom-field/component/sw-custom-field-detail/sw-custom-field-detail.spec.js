@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCustomFieldDetail from 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
@@ -80,7 +80,9 @@ async function createWrapper(privileges = []) {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-container': true,
             'sw-custom-field-type-checkbox': true,
-            'sw-field': true,
+            'sw-switch-field': true,
+            'sw-number-field': true,
+            'sw-text-field': true,
             'sw-select-field': await Shopware.Component.build('sw-select-field'),
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),

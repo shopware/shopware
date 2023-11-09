@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -19,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
 #[Route(defaults: ['_routeScope' => ['storefront']])]
-#[Package('storefront')]
+#[Package('buyers-experience')]
 class NewsletterController extends StorefrontController
 {
     /**
@@ -37,6 +38,10 @@ class NewsletterController extends StorefrontController
     {
         try {
             $this->newsletterConfirmRoute->confirm($queryDataBag->toRequestDataBag(), $context);
+        } catch (NewsletterException) {
+            $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
+
+            return $this->forwardToRoute('frontend.home.page');
         } catch (\Throwable $throwable) {
             $this->addFlash(self::DANGER, $this->trans('newsletter.subscriptionConfirmationFailed'));
 

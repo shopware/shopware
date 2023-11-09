@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-import-export-view-import.html.twig';
 import './sw-import-export-view-import.scss';

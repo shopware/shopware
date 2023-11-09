@@ -28,7 +28,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - ResetUrlAware and ShopNameAware are deprecated and will be removed in v6.6.0
  */
-#[Package('customer-order')]
+#[Package('checkout')]
 class CustomerAccountRecoverRequestEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, CustomerRecoveryAware, ResetUrlAware, ShopNameAware, ScalarValuesAware, FlowEventAware
 {
     public const EVENT_NAME = 'customer.recovery.request';

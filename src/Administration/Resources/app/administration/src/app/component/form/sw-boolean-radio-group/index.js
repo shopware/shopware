@@ -26,10 +26,18 @@ Component.register('sw-boolean-radio-group', {
     class="sw-boolean-radio-group"
     v-bind="$attrs"
     :options="options"
+    {% if VUE3 %}
+    v-model:value="castedValue"
+    {% else %}
     v-model="castedValue"
+    {% endif %}
+    name="sw-field--castedValue"
     :bordered="bordered">
 </sw-radio-field>
 `,
+
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -75,6 +83,12 @@ Component.register('sw-boolean-radio-group', {
             },
 
             set(val) {
+                if (this.feature.isActive('VUE3')) {
+                    this.$emit('update:value', val === 'true');
+
+                    return;
+                }
+
                 this.$emit('change', val === 'true');
             },
         },

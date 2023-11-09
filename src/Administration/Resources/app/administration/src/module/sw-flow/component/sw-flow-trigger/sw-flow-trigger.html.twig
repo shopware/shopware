@@ -140,13 +140,15 @@
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_flow_trigger_search_list_item %}
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <li
                         v-for="item in searchResult"
                         :key="item.id"
                         class="sw-flow-trigger__search-result"
                         :class="{ 'is--focus': isSearchResultInFocus(item)}"
+                        role="button"
+                        tabindex="0"
                         @click="onClickSearchItem(item)"
+                        @keydown.enter="onClickSearchItem(item)"
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_trigger_search_list_item_icon %}

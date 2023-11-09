@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class NotRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

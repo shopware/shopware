@@ -6,7 +6,6 @@ use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Reflection\ClassReflection;
-use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\TestCase;
@@ -56,13 +55,6 @@ class InternalClassRule implements Rule
         DemodataCommand::class,
         DemodataRequestCreatedEvent::class,
     ];
-
-    private ReflectionProvider $reflectionProvider;
-
-    public function __construct(ReflectionProvider $reflectionProvider)
-    {
-        $this->reflectionProvider = $reflectionProvider;
-    }
 
     public function getNodeType(): string
     {
@@ -128,6 +120,10 @@ class InternalClassRule implements Rule
         $namespace = $node->getClassReflection()->getName();
 
         if (\in_array($namespace, self::TEST_CLASS_EXCEPTIONS, true)) {
+            return false;
+        }
+
+        if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
             return false;
         }
 
@@ -238,7 +234,9 @@ class InternalClassRule implements Rule
 
     private function isParentInternalAndAbstract(Scope $scope): bool
     {
-        $parent = $scope->getClassReflection()->getParentClass();
+        $class = $scope->getClassReflection();
+        \assert($class !== null);
+        $parent = $class->getParentClass();
 
         if ($parent === null) {
             return false;

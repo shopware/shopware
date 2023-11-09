@@ -15,11 +15,9 @@ use Shopware\Core\Framework\Log\Package;
 class Parameters extends XmlElement
 {
     /**
-     * @param Parameter[] $parameters
+     * @var Parameter[]
      */
-    public function __construct(protected array $parameters)
-    {
-    }
+    protected array $parameters;
 
     /**
      * @return Parameter[]
@@ -34,27 +32,29 @@ class Parameters extends XmlElement
         return $this->parameters;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Parameters')
         );
 
-        return new self(self::parseParameter($element));
+        return parent::fromXml($element);
     }
 
-    /**
-     * @return array<int, Parameter>
-     */
-    private static function parseParameter(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Parameters')
+        );
+
         $values = [];
 
         foreach ($element->getElementsByTagName('parameter') as $parameter) {
             $values[] = Parameter::fromXml($parameter);
         }
 
-        return $values;
+        return ['parameters' => $values];
     }
 }

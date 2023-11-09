@@ -27,15 +27,13 @@ class Migration1671723392AddWebhookLifetimeConfigTest extends TestCase
 
     public function testMigration(): void
     {
-        static::assertFalse($this->getConfig());
+        static::assertEmpty($this->getConfig());
 
         $migration = new Migration1671723392AddWebhookLifetimeConfig();
         $migration->update($this->connection);
 
-        /** @var array<mixed> $record */
         $record = $this->getConfig();
 
-        static::assertIsArray($record);
         static::assertArrayHasKey('configuration_key', $record);
         static::assertArrayHasKey('configuration_value', $record);
         static::assertSame('core.webhook.entryLifetimeSeconds', $record['configuration_key']);
@@ -44,10 +42,8 @@ class Migration1671723392AddWebhookLifetimeConfigTest extends TestCase
         $migration = new Migration1671723392AddWebhookLifetimeConfig();
         $migration->update($this->connection);
 
-        /** @var array<mixed> $record */
         $record = $this->getConfig();
 
-        static::assertIsArray($record);
         static::assertArrayHasKey('configuration_key', $record);
         static::assertArrayHasKey('configuration_value', $record);
         static::assertSame('core.webhook.entryLifetimeSeconds', $record['configuration_key']);
@@ -55,12 +51,12 @@ class Migration1671723392AddWebhookLifetimeConfigTest extends TestCase
     }
 
     /**
-     * @return bool|array<mixed>
+     * @return array<string, mixed>
      */
-    private function getConfig(): bool|array
+    private function getConfig(): array
     {
         return $this->connection->fetchAssociative(
             'SELECT * FROM system_config WHERE configuration_key = \'core.webhook.entryLifetimeSeconds\''
-        );
+        ) ?: [];
     }
 }

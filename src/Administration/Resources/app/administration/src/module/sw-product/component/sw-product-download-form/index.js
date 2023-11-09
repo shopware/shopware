@@ -91,16 +91,7 @@ export default {
         },
 
         fileAccept() {
-            let list = '';
-            this.fileAcceptedExtensions.forEach((extension) => {
-                if (list === '') {
-                    list = `*/${extension}`;
-                } else {
-                    list += `,*/${extension}`;
-                }
-            });
-
-            return list;
+            return this.fileAcceptedExtensions.join(', ');
         },
     },
 

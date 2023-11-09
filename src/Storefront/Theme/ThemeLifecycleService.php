@@ -4,10 +4,12 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\MimeType;
-use Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 
@@ -25,7 +28,11 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 class ThemeLifecycleService
 {
     /**
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     *
      * @internal
+     *
+     * @decrecated tag:v6.6.0 argument $pluginConfigurationFactory will be mandatory
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $pluginRegistry,
@@ -38,7 +45,8 @@ class ThemeLifecycleService
         private readonly ThemeFileImporterInterface $themeFileImporter,
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ?AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
     ) {
     }
 
@@ -62,6 +70,7 @@ class ThemeLifecycleService
         $themeData['name'] = $configuration->getName();
         $themeData['technicalName'] = $configuration->getTechnicalName();
         $themeData['author'] = $configuration->getAuthor();
+        $themeData['themeJson'] = $configuration->getThemeJson();
 
         // refresh theme after deleting media
         $theme = $this->getThemeByTechnicalName($configuration->getTechnicalName(), $context);
@@ -85,11 +94,15 @@ class ThemeLifecycleService
 
         $writtenEvent = $this->themeRepository->upsert([$themeData], $context);
 
-        if (!isset($themeData['id']) || empty($themeData['id'])) {
+        if (empty($themeData['id'])) {
             $themeData['id'] = current($writtenEvent->getPrimaryKeys(ThemeDefinition::ENTITY_NAME));
         }
 
         $this->themeRepository->upsert([$themeData], $context);
+
+        if (!empty($themeData['toDeleteMedia'])) {
+            $this->themeMediaRepository->delete($themeData['toDeleteMedia'], $context);
+        }
 
         $parentThemes = $this->getParentThemes($configuration, $themeData['id']);
         $parentCriteria = new Criteria();
@@ -124,8 +137,11 @@ class ThemeLifecycleService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
+        $criteria->addAssociation('previewMedia');
 
-        return $this->themeRepository->search($criteria, $context)->first();
+        $theme = $this->themeRepository->search($criteria, $context)->first();
+
+        return $theme instanceof ThemeEntity ? $theme : null;
     }
 
     /**
@@ -162,7 +178,11 @@ class ThemeLifecycleService
         $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
         $defaultFolderId = null;
         if ($defaultFolder->count() === 1) {
-            $defaultFolderId = $defaultFolder->first()->getId();
+            $defaultFolder = $defaultFolder->first();
+
+            if ($defaultFolder instanceof MediaFolderEntity) {
+                $defaultFolderId = $defaultFolder->getId();
+            }
         }
 
         return $defaultFolderId;
@@ -331,8 +351,27 @@ class ThemeLifecycleService
         $themeData = [];
         $themeFolderId = $this->getMediaDefaultFolderId($context);
 
-        if ($pluginConfiguration->getPreviewMedia()) {
+        $installedConfiguration = null;
+        if ($theme && \is_array($theme->getThemeJson()) && $this->pluginConfigurationFactory) {
+            $installedConfiguration = $this->pluginConfigurationFactory->createFromThemeJson(
+                $theme->getTechnicalName() ?? 'childTheme',
+                $theme->getThemeJson(),
+                $pluginConfiguration->getBasePath(),
+                false
+            );
+        }
+
+        if (
+            $pluginConfiguration->getPreviewMedia()
+            && $pluginConfiguration->getPreviewMedia() !== $installedConfiguration?->getPreviewMedia()
+            && (
+                $theme === null
+                || $theme->getPreviewMedia() === null
+                || basename($installedConfiguration?->getPreviewMedia() ?? '') !== $theme->getPreviewMedia()->getFileNameIncludingExtension()
+            )
+        ) {
             $mediaId = Uuid::randomHex();
+
             $path = $pluginConfiguration->getPreviewMedia();
 
             $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
@@ -341,24 +380,60 @@ class ThemeLifecycleService
                 $themeData['previewMediaId'] = $mediaId;
                 $media[$path] = $mediaItem;
             }
-
-            // if preview was not deleted because it is not created from theme use current preview id
-            if ($theme && $theme->getPreviewMediaId() !== null) {
-                $themeData['previewMediaId'] = $theme->getPreviewMediaId();
-            }
         }
 
         $baseConfig = $pluginConfiguration->getThemeConfig() ?? [];
+        $installedBaseConfig = $installedConfiguration?->getThemeConfig() ?? [];
+
+        $currentThemeMedia = null;
+        $currentMediaIds = null;
+        $toDeleteIds = null;
+        // get existing MediaFiles
+        if ($theme !== null && \array_key_exists('fields', $theme->getBaseConfig() ?? [])) {
+            foreach ($theme->getBaseConfig()['fields'] as $key => $field) {
+                if ($this->hasOldMedia($field) === false) {
+                    continue;
+                }
+                $currentMediaIds[$key] = $field['value'];
+            }
+
+            if (!empty($currentMediaIds)) {
+                $currentThemeMedia = $this->mediaRepository->search(new Criteria($currentMediaIds), $context);
+            }
+        }
 
         if (\array_key_exists('fields', $baseConfig)) {
             foreach ($baseConfig['fields'] as $key => $field) {
-                if (!\array_key_exists('type', $field) || $field['type'] !== 'media') {
+                if ($this->hasNewMedia($field) === false) {
+                    continue;
+                }
+
+                if (
+                    isset($installedBaseConfig['fields'][$key]['value'])
+                    && $field['value'] === $installedBaseConfig['fields'][$key]['value']
+                ) {
+                    $baseConfig['fields'][$key]['value'] = $currentMediaIds[$key] ?? $baseConfig['fields'][$key]['value'];
+
                     continue;
                 }
 
                 $path = $pluginConfiguration->getBasePath() . \DIRECTORY_SEPARATOR . $field['value'];
 
                 if (!\array_key_exists($path, $media)) {
+                    if (
+                        $currentThemeMedia !== null
+                        && !empty($currentMediaIds)
+                        && isset($currentMediaIds[$key])
+                        && $currentThemeMedia->getEntities()->get($currentMediaIds[$key])?->getFileNameIncludingExtension() === basename($path)) {
+                        continue;
+                    }
+
+                    $criteriaMedia = new Criteria();
+                    $criteriaMedia->addFilter(new EqualsFilter('fileName', basename($path)));
+                    if ($this->mediaRepository->searchIds($criteriaMedia, $context)->getTotal() > 0) {
+                        continue;
+                    }
+
                     $mediaId = Uuid::randomHex();
                     $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
 
@@ -373,6 +448,9 @@ class ThemeLifecycleService
                 } else {
                     $baseConfig['fields'][$key]['value'] = $media[$path]['media']['id'];
                 }
+                if ($theme && isset($currentMediaIds[$key])) {
+                    $toDeleteIds[] = $currentMediaIds[$key];
+                }
             }
             $themeData['baseConfig'] = $baseConfig;
         }
@@ -385,9 +463,17 @@ class ThemeLifecycleService
             $this->mediaRepository->create($mediaIds, $context);
 
             foreach ($media as $item) {
+                if (!$item['mediaFile'] instanceof MediaFile) {
+                    throw MediaException::missingFile($item['media']['id']);
+                }
+
                 try {
                     $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
-                } catch (DuplicatedMediaFileNameException) {
+                } catch (MediaException $e) {
+                    if ($e->getErrorCode() !== MediaException::MEDIA_DUPLICATED_FILE_NAME) {
+                        throw $e;
+                    }
+
                     $newFileName = $this->fileNameProvider->provide(
                         $item['basename'],
                         $item['mediaFile']->getFileExtension(),
@@ -400,6 +486,18 @@ class ThemeLifecycleService
         }
 
         $themeData['media'] = $mediaIds;
+
+        if ($theme && \is_array($toDeleteIds)) {
+            $toDeleteIds = array_unique($toDeleteIds);
+            foreach ($toDeleteIds as $id) {
+                if (Uuid::isValid($id)) {
+                    $themeData['toDeleteMedia'][] = [
+                        'mediaId' => $id,
+                        'themeId' => $theme->getId(),
+                    ];
+                }
+            }
+        }
 
         return $themeData;
     }
@@ -530,5 +628,23 @@ class ThemeLifecycleService
         return $currentThemeConfig->getTechnicalName() !== $parentConfig->getTechnicalName()
             && \in_array('@' . $parentConfig->getTechnicalName(), $currentThemeConfig->getStyleFiles()->getFilepaths(), true)
         ;
+    }
+
+    /**
+     * @param array<int|string, mixed> $field
+     */
+    private function hasNewMedia(array $field): bool
+    {
+        return \array_key_exists('type', $field) && $field['type'] === 'media'
+            && \array_key_exists('value', $field) && \is_string($field['value']);
+    }
+
+    /**
+     * @param array<int|string, mixed> $field
+     */
+    private function hasOldMedia(array $field): bool
+    {
+        return \array_key_exists('type', $field) && $field['type'] === 'media'
+            && \array_key_exists('value', $field) && \is_string($field['value']) && Uuid::isValid($field['value']);
     }
 }

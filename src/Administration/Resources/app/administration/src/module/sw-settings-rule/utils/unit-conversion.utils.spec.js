@@ -146,46 +146,46 @@ describe('src/module/sw-promotion/utils/unit-conversion.utils.js', () => {
     });
 
     describe('time', () => {
-        it('should convert 8760 hours to 1 year', () => {
-            expect(convertUnit(8760, {
-                from: 'hr',
+        it('should convert 365 days to 1 year', () => {
+            expect(convertUnit(365, {
+                from: 'd',
                 to: 'yr',
             })).toBe(1);
         });
 
-        it('should convert 1 year to 8760 hours', () => {
+        it('should convert 1 year to 365 days', () => {
             expect(convertUnit(1, {
                 from: 'yr',
-                to: 'hr',
-            })).toBe(8760);
+                to: 'd',
+            })).toBe(365);
         });
 
-        it('should convert 730 hours to 1 month', () => {
-            expect(convertUnit(730, {
-                from: 'hr',
+        it('should convert 30 days to 1 month', () => {
+            expect(convertUnit(30, {
+                from: 'd',
                 to: 'mth',
             })).toBe(1);
         });
 
-        it('should convert 1 month to 730 hours', () => {
+        it('should convert 1 month to 30 days', () => {
             expect(convertUnit(1, {
                 from: 'mth',
-                to: 'hr',
-            })).toBe(730);
+                to: 'd',
+            })).toBe(30);
         });
 
-        it('should convert 168 hours to 1 week', () => {
-            expect(convertUnit(168, {
-                from: 'hr',
+        it('should convert 7 days to 1 week', () => {
+            expect(convertUnit(7, {
+                from: 'd',
                 to: 'wk',
             })).toBe(1);
         });
 
-        it('should convert 1 week to 168 hours', () => {
+        it('should convert 1 week to 7 days', () => {
             expect(convertUnit(1, {
                 from: 'wk',
-                to: 'hr',
-            })).toBe(168);
+                to: 'd',
+            })).toBe(7);
         });
 
         it('should convert 24 hours to 1 day', () => {
@@ -202,18 +202,18 @@ describe('src/module/sw-promotion/utils/unit-conversion.utils.js', () => {
             })).toBe(24);
         });
 
-        it('should convert 60 minutes to 1 hour', () => {
-            expect(convertUnit(60, {
+        it('should convert 1440 minutes to 1 day', () => {
+            expect(convertUnit(1440, {
                 from: 'min',
-                to: 'hr',
+                to: 'd',
             })).toBe(1);
         });
 
-        it('should convert 1 hour to 60 minutes', () => {
+        it('should convert 1 day to 1440 minutes', () => {
             expect(convertUnit(1, {
-                from: 'hr',
+                from: 'd',
                 to: 'min',
-            })).toBe(60);
+            })).toBe(1440);
         });
     });
 

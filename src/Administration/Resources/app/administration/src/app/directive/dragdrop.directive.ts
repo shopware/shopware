@@ -450,7 +450,6 @@ function mergeConfigs(defaultConfig: DragConfig|DropConfig, binding: { value: un
  * See the {DragConfig} for all possible config options.
  */
 Shopware.Directive.register('draggable', {
-    // @ts-expect-error - value is required in this directive
     inserted(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
         el.dragConfig = dragConfig;
@@ -463,7 +462,6 @@ Shopware.Directive.register('draggable', {
         }
     },
 
-    // @ts-expect-error - value is required in this directive
     update(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
@@ -491,7 +489,6 @@ Shopware.Directive.register('draggable', {
         Object.assign(el.dragConfig, dragConfig);
     },
 
-    // @ts-expect-error - value is required in this directive
     unbind(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
@@ -513,7 +510,6 @@ Shopware.Directive.register('draggable', {
  * See the {dropConfig} for all possible config options.
  */
 Shopware.Directive.register('droppable', {
-    // @ts-expect-error - value is required in this directive
     inserted(el: HTMLElement, binding: { value: unknown }) {
         const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
@@ -524,7 +520,6 @@ Shopware.Directive.register('droppable', {
         el.addEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
     },
 
-    // @ts-expect-error - value is required in this directive
     unbind(el: HTMLElement, binding: { value: unknown }) {
         const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
@@ -535,7 +530,6 @@ Shopware.Directive.register('droppable', {
         el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
     },
 
-    // @ts-expect-error - value is required in this directive
     update: (el: HTMLElement, binding: { value: unknown }) => {
         const dropZone = dropZones.find(zone => zone.el === el);
         if (!dropZone) {

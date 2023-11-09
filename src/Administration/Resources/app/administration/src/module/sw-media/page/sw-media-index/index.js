@@ -1,16 +1,21 @@
 import template from './sw-media-index.html.twig';
 import './sw-media-index.scss';
 
-const { Context } = Shopware;
+const { Context, Filter } = Shopware;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory', 'mediaService', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+        'acl',
+        'feature',
+    ],
 
     props: {
         routeFolderId: {
@@ -30,7 +35,7 @@ export default {
             isLoading: false,
             selectedItems: [],
             uploads: [],
-            term: this.$route.query ? this.$route.query.term : '',
+            term: this.$route.query?.term ?? '',
             uploadTag: 'upload-tag-sw-media-index',
             parentFolder: null,
             currentFolder: null,
@@ -56,10 +61,21 @@ export default {
             root.id = null;
             return root;
         },
+
+        assetFilter() {
+            return Filter.getByName('asset');
+        },
     },
 
     watch: {
         routeFolderId() {
+            if (this.feature.isActive('VUE3')) {
+                this.term = '';
+                this.updateFolder();
+
+                return;
+            }
+
             this.term = null;
             this.updateFolder();
         },
@@ -75,6 +91,13 @@ export default {
 
     methods: {
         createdComponent() {
+            // Vue router sets the folder id to an empty string if the page is reloaded
+            if (this.feature.isActive('VUE3') && this.routeFolderId === '') {
+                this.updateRoute(null);
+
+                return;
+            }
+
             this.updateFolder();
         },
 
@@ -166,7 +189,7 @@ export default {
         },
 
         updateRoute(newFolderId) {
-            this.term = this.$route.query ? this.$route.query.term : '';
+            this.term = this.$route.query?.term ?? '';
             this.$router.push({
                 name: 'sw.media.index',
                 params: {

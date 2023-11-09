@@ -34,7 +34,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         private readonly ElasticsearchHelper $helper,
         private readonly CriteriaParser $criteriaParser,
         private readonly AbstractElasticsearchSearchHydrator $hydrator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $timeout = '5s'
     ) {
     }
 
@@ -63,7 +64,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
+                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
                 'track_total_hits' => true,
                 'body' => $search,
             ]);
@@ -107,15 +108,18 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
         if (!$criteria->getGroupFields()) {
-            return $search->toArray();
+            $array = $search->toArray();
+            $array['timeout'] = $this->timeout;
+
+            return $array;
         }
 
         $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
         $search->addAggregation($aggregation);
-
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
+        $array['timeout'] = $this->timeout;
 
         return $array;
     }

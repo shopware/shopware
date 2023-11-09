@@ -9,11 +9,11 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<CategoryEntity>
  */
-#[Package('content')]
+#[Package('inventory')]
 class CategoryCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getParentIds(): array
     {
@@ -26,7 +26,7 @@ class CategoryCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMediaIds(): array
     {

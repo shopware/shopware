@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class HttpException extends ShopwareHttpException
 {
+    protected static string $couldNotFindMessage = 'Could not find {{ entity }} with {{ field }} "{{ value }}"';
+
     public function __construct(
         protected int $statusCode,
         protected string $errorCode,

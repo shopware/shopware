@@ -208,7 +208,7 @@
           "textProblem": "Beim Installieren Deiner Erweiterung ist ein Problem aufgetreten. Der Hersteller wird von uns informiert.",
           "notificationLicense": "Beachte, dass die Miete dieser App bzw. des Themes weiterhin aktiv bleibt.",
           "textSupport": "Bei Fragen zur Lizenz wende Dich bitte an die Shopware Financial Services. Erreichbar per E-Mail unter {0} oder per Telefon unter {1}",
-          "supportEmail": "financial.services@shopware.com",
+          "supportEmail": "financial.services{'@'}shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
         }
       },

@@ -6,8 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfType;
 
-#[Package('services-settings
-AbstractContainer implements setRules and addRule of the container interface')]
+/**
+ * AbstractContainer implements setRules and addRule of the container interface
+ */
+#[Package('services-settings')]
 abstract class Container extends Rule implements ContainerInterface
 {
     /**

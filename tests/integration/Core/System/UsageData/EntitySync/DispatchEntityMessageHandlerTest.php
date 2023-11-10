@@ -29,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @internal
@@ -44,6 +45,19 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     protected function setUp(): void
     {
+        /** @var MockHttpClient $client */
+        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
+            return new MockResponse();
+        });
+
         $this->idsCollection = new IdsCollection();
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -58,6 +72,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
         /** @var MockHttpClient $client */
         $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
         $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
             $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);

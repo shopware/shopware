@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleTag\RuleTagDefinition;
@@ -19,6 +20,7 @@ use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
+use Shopware\Core\System\UsageData\Services\GatewayStatusService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -74,6 +76,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock($now),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         static::assertNull($appConfig->get('usageData-entitySync-lastRun-product'));
@@ -121,6 +124,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock($now),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -163,6 +167,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock($now),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
         $storedScLastRunDatetime = new \DateTimeImmutable($lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
@@ -186,6 +191,29 @@ class EntityDispatchServiceTest extends TestCase
         static::assertEquals($now, $salesChannelMessage->getRunDate());
     }
 
+    public function testReturnsEarlyIfGatewayDoesNotAllowPush(): void
+    {
+        $messageBusMock = $this->createMock(MessageBusInterface::class);
+        $messageBusMock->expects(static::never())->method('dispatch');
+
+        $entityDispatchService = new EntityDispatchService(
+            new EntityDefinitionService(
+                [
+                    $this->registry->get(ProductDefinition::class),
+                    $this->registry->get(SalesChannelDefinition::class),
+                ],
+                new UsageDataAllowListService(),
+            ),
+            new ArrayKeyValueStorage(),
+            $messageBusMock,
+            new MockClock(),
+            $this->createConsentService(true),
+            $this->createGatewayStatusService(false),
+        );
+
+        $entityDispatchService->dispatchIterateEntityMessages();
+    }
+
     public function testReturnsEarlyIfNoEntitiesAreRegistered(): void
     {
         $messageBusMock = $this->createMock(MessageBusInterface::class);
@@ -197,6 +225,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBusMock,
             new MockClock(),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -219,6 +248,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBusMock,
             new MockClock(),
             $this->createConsentService(false),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -255,6 +285,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBusMock,
             new MockClock(),
             $consentService,
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -276,6 +307,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock(),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -308,6 +340,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock(),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -344,6 +377,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock(),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchIterateEntityMessages();
@@ -414,6 +448,7 @@ class EntityDispatchServiceTest extends TestCase
             $messageBus,
             new MockClock($now),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->dispatchCollectEntityDataMessage();
@@ -447,6 +482,7 @@ class EntityDispatchServiceTest extends TestCase
             new CollectingMessageBus(),
             new MockClock(),
             $this->createConsentService(true),
+            $this->createGatewayStatusService(true),
         );
 
         $entityDispatchService->resetLastRunDateForAllEntities();
@@ -476,6 +512,14 @@ class EntityDispatchServiceTest extends TestCase
         if ($isApprovalGiven) {
             $service->acceptConsent();
         }
+
+        return $service;
+    }
+
+    private function createGatewayStatusService(bool $isAcceptingEntities): GatewayStatusService&MockObject
+    {
+        $service = $this->createMock(GatewayStatusService::class);
+        $service->expects(static::any())->method('isGatewayAllowsPush')->willReturn($isAcceptingEntities);
 
         return $service;
     }

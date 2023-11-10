@@ -21,7 +21,7 @@ class ShopIdProvider
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
-        private readonly EntityRepository $appRepository
+        private readonly EntityRepository $appRepository,
     ) {
     }
 
@@ -43,17 +43,17 @@ class ShopIdProvider
         }
 
         if (EnvironmentHelper::getVariable('APP_URL') !== ($shopId['app_url'] ?? '')) {
-            if ($this->hasApps()) {
-                /** @var string $appUrl */
-                $appUrl = EnvironmentHelper::getVariable('APP_URL');
+            /** @var string $appUrl */
+            $appUrl = EnvironmentHelper::getVariable('APP_URL');
 
-                throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl);
+            if ($this->hasApps()) {
+                throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl, $shopId['value']);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-                'app_url' => EnvironmentHelper::getVariable('APP_URL'),
+            $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, [
+                'app_url' => $appUrl,
                 'value' => $shopId['value'],
             ]);
         }

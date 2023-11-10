@@ -2,9 +2,8 @@
 
 namespace Shopware\Core\System\UsageData\Services;
 
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -12,19 +11,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('merchant-services')]
 class ShopIdProvider
 {
-    final public const USAGE_DATA_SHOP_ID_CONFIG_KEY = 'usageData-shopId';
-
     public function __construct(
-        private readonly AbstractKeyValueStorage $config,
+        private readonly \Shopware\Core\Framework\App\ShopId\ShopIdProvider $shopIdProvider,
     ) {
     }
 
     public function getShopId(): string
     {
-        if (!$this->config->has(self::USAGE_DATA_SHOP_ID_CONFIG_KEY)) {
-            $this->config->set(self::USAGE_DATA_SHOP_ID_CONFIG_KEY, Uuid::randomHex());
+        try {
+            return $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return $e->getShopId();
         }
-
-        return (string) $this->config->get(self::USAGE_DATA_SHOP_ID_CONFIG_KEY);
     }
 }

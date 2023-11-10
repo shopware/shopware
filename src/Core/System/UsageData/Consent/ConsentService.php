@@ -12,20 +12,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
  * @internal
  *
- * @phpstan-type AccessKeys array{accessKey: string, secretAccessKey: string}
+ * @phpstan-type AccessKeys array{accessKey: string, secretAccessKey: string, appUrl: string}
+ * @phpstan-type SystemConfigIntegration array{integrationId: string|null, appUrl: string, shopId: string}
  */
 #[Package('merchant-services')]
 class ConsentService
 {
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';
     public const USER_CONFIG_KEY_HIDE_CONSENT_BANNER = 'core.usageData.hideConsentBanner';
-    public const SYSTEM_CONFIG_KEY_INTEGRATION_ID = 'core.usageData.integrationId';
+    public const SYSTEM_CONFIG_KEY_INTEGRATION = 'core.usageData.integration';
     public const SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED = 'core.usageData.dataPushDisabled';
 
     public function __construct(
@@ -34,7 +36,9 @@ class ConsentService
         private readonly EntityRepository $userConfigRepository,
         private readonly EntityRepository $integrationRepository,
         private readonly ConsentReporter $consentReporter,
+        private readonly ShopIdProvider $shopIdProvider,
         private readonly ClockInterface $clock,
+        private readonly string $appUrl,
     ) {
     }
 
@@ -70,6 +74,14 @@ class ConsentService
     }
 
     /**
+     * @param AccessKeys $accessKeys
+     */
+    public function updateConsentIntegrationAppUrl(string $shopId, array $accessKeys): void
+    {
+        $this->consentReporter->reportConsentIntegrationAppUrlChanged($shopId, $accessKeys);
+    }
+
+    /**
      * Returns the last date when we still had the consent.
      * If we never had the consent before, null is returned.
      */
@@ -90,28 +102,46 @@ class ConsentService
 
     public function hasConsentState(): bool
     {
-        return $this->systemConfigService->getString(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE) !== '';
+        return $this->systemConfigService->getString(self::SYSTEM_CONFIG_KEY_CONSENT_STATE) !== '';
     }
 
     public function isConsentAccepted(): bool
     {
-        return $this->systemConfigService->getString(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE) === ConsentState::ACCEPTED->value;
+        return $this->systemConfigService->getString(self::SYSTEM_CONFIG_KEY_CONSENT_STATE) === ConsentState::ACCEPTED->value;
     }
 
     public function isConsentRevoked(): bool
     {
-        return $this->systemConfigService->getString(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE) === ConsentState::REVOKED->value;
+        return $this->systemConfigService->getString(self::SYSTEM_CONFIG_KEY_CONSENT_STATE) === ConsentState::REVOKED->value;
     }
 
     public function shouldPushData(): bool
     {
-        return !$this->systemConfigService->getBool(ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED);
+        return !$this->systemConfigService->getBool(self::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED);
+    }
+
+    public function hideConsentBannerForUser(string $userId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('userId', $userId));
+        $criteria->addFilter(new EqualsFilter('key', self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
+
+        $userConfigId = $this->userConfigRepository->searchIds($criteria, $context)->firstId();
+
+        $this->userConfigRepository->upsert([
+            [
+                'id' => $userConfigId ?: Uuid::randomHex(),
+                'userId' => $userId,
+                'key' => self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER,
+                'value' => ['_value' => true],
+            ],
+        ], $context);
     }
 
     public function hasUserHiddenConsentBanner(string $userId, Context $context): bool
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('key', ConsentService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
+        $criteria->addFilter(new EqualsFilter('key', self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
         $criteria->addFilter(new EqualsFilter('userId', $userId));
 
         /** @var UserConfigEntity|null $userConfig */
@@ -121,6 +151,31 @@ class ConsentService
         }
 
         return $userConfig->getValue()['_value'] ?? false;
+    }
+
+    public function resetIsBannerHiddenToFalseForAllUsers(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('key', self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
+
+        $userConfigs = $this->userConfigRepository->search($criteria, Context::createDefaultContext());
+        if ($userConfigs->getTotal() === 0) {
+            return;
+        }
+
+        $updates = [];
+
+        /** @var UserConfigEntity $userConfig */
+        foreach ($userConfigs->getElements() as $userConfig) {
+            $updates[] = [
+                'id' => $userConfig->getId(),
+                'userId' => $userConfig->getUserId(),
+                'key' => self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER,
+                'value' => ['_value' => false],
+            ];
+        }
+
+        $this->userConfigRepository->upsert($updates, Context::createDefaultContext());
     }
 
     /**
@@ -134,7 +189,7 @@ class ConsentService
         );
 
         try {
-            $this->consentReporter->report($consentState, $accessKeys);
+            $this->consentReporter->reportConsent($consentState, $accessKeys);
         } catch (\Throwable) {
         }
     }
@@ -156,28 +211,41 @@ class ConsentService
         ], Context::createDefaultContext());
 
         $this->systemConfigService->set(
-            ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION_ID,
-            $integrationId
+            self::SYSTEM_CONFIG_KEY_INTEGRATION,
+            [
+                'integrationId' => $integrationId,
+                'appUrl' => $this->appUrl,
+                'shopId' => $this->shopIdProvider->getShopId(),
+            ],
         );
 
-        return ['accessKey' => $accessKey, 'secretAccessKey' => $secretAccessKey];
+        return [
+            'accessKey' => $accessKey,
+            'secretAccessKey' => $secretAccessKey,
+            'appUrl' => $this->appUrl,
+        ];
     }
 
     private function deleteIntegration(): void
     {
-        $integrationId = $this->systemConfigService->getString(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION_ID);
+        /** @var SystemConfigIntegration|null $integration */
+        $integration = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_INTEGRATION);
 
-        if ($integrationId === '') {
+        if (!\is_array($integration)) {
             return;
         }
 
         try {
             $this->integrationRepository->delete([
-                ['id' => $integrationId],
+                ['id' => $integration['integrationId']],
             ], Context::createDefaultContext());
         } catch (EntityNotFoundException) {
         }
 
-        $this->systemConfigService->delete(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION_ID);
+        $integration['integrationId'] = null;
+        $this->systemConfigService->set(
+            self::SYSTEM_CONFIG_KEY_INTEGRATION,
+            $integration,
+        );
     }
 }

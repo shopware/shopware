@@ -3,38 +3,39 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
-use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 
 /**
  * @internal
  *
  * @covers \Shopware\Core\System\UsageData\Services\ShopIdProvider
  */
-#[Package('merchant-services')]
 class ShopIdProviderTest extends TestCase
 {
-    public function testCreatesANewShopIdIfNoneIsGiven(): void
+    public function testReturnsShopIdWithoutAnyException(): void
     {
-        $shopId = Uuid::randomHex();
+        $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
+        $appShopIdProvider->expects(static::once())
+            ->method('getShopId')
+            ->willReturn('shopId');
 
-        $shopIdProvider = new ShopIdProvider(new ArrayKeyValueStorage());
-        $shopId = $shopIdProvider->getShopId();
+        $providerToTest = new ShopIdProvider($appShopIdProvider);
 
-        static::assertTrue(Uuid::isValid($shopId));
+        static::assertSame('shopId', $providerToTest->getShopId());
     }
 
-    public function testDoesNotGenerateANewShopIdIfAlreadyGiven(): void
+    public function testReturnsShopIdOnException(): void
     {
-        $expectedShopId = 'this-is-a-unique-shop-id';
+        $exception = new AppUrlChangeDetectedException('oldUrl', 'currentUrl', 'shopId');
 
-        $shopIdProvider = new ShopIdProvider(new ArrayKeyValueStorage([
-            ShopIdProvider::USAGE_DATA_SHOP_ID_CONFIG_KEY => $expectedShopId,
-        ]));
-        $shopId = $shopIdProvider->getShopId();
+        $appShopIdProvider = $this->createMock(\Shopware\Core\Framework\App\ShopId\ShopIdProvider::class);
+        $appShopIdProvider->expects(static::once())
+            ->method('getShopId')
+            ->willThrowException($exception);
 
-        static::assertEquals($expectedShopId, $shopId);
+        $providerToTest = new ShopIdProvider($appShopIdProvider);
+
+        static::assertSame('shopId', $providerToTest->getShopId());
     }
 }

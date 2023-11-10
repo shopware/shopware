@@ -10,6 +10,7 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
@@ -24,7 +25,6 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;

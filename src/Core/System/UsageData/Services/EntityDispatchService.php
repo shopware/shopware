@@ -65,6 +65,13 @@ class EntityDispatchService
         }
     }
 
+    public function resetLastRunDateForAllEntities(): void
+    {
+        foreach ($this->entityDefinitionService->getAllowedEntityDefinitions() as $entityDefinition) {
+            $this->appConfig->remove(self::getLastRunKeyForEntity($entityDefinition->getEntityName()));
+        }
+    }
+
     private function getLastRun(string $entityName): ?\DateTimeImmutable
     {
         $lastRunDate = $this->appConfig->get(self::getLastRunKeyForEntity($entityName));

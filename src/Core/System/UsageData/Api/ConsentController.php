@@ -5,10 +5,7 @@ namespace Shopware\Core\System\UsageData\Api;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
@@ -32,7 +29,6 @@ class ConsentController extends AbstractController
 {
     public function __construct(
         private readonly ConsentService $consentService,
-        private readonly EntityRepository $userConfigRepository,
     ) {
     }
 
@@ -83,20 +79,7 @@ class ConsentController extends AbstractController
     {
         $userId = $this->getUserIdFromContext($context);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('userId', $userId));
-        $criteria->addFilter(new EqualsFilter('key', ConsentService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
-
-        $userConfigId = $this->userConfigRepository->searchIds($criteria, $context)->firstId();
-
-        $this->userConfigRepository->upsert([
-            [
-                'id' => $userConfigId ?: Uuid::randomHex(),
-                'userId' => $userId,
-                'key' => ConsentService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER,
-                'value' => ['_value' => true],
-            ],
-        ], Context::createDefaultContext());
+        $this->consentService->hideConsentBannerForUser($userId, $context);
 
         return new Response(status: Response::HTTP_NO_CONTENT);
     }

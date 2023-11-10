@@ -29,6 +29,7 @@ use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
+use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -128,7 +129,9 @@ class EntityDeleteSubscriberTest extends TestCase
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
+                $this->createMock(ShopIdProvider::class),
                 new MockClock(),
+                'APP_URL',
             ),
         );
 
@@ -214,7 +217,9 @@ class EntityDeleteSubscriberTest extends TestCase
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
+                $this->createMock(ShopIdProvider::class),
                 new MockClock(),
+                'APP_URL',
             ),
         );
 
@@ -288,7 +293,9 @@ class EntityDeleteSubscriberTest extends TestCase
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
+                $this->createMock(ShopIdProvider::class),
                 new MockClock(),
+                'APP_URL',
             ),
         );
 
@@ -348,7 +355,9 @@ class EntityDeleteSubscriberTest extends TestCase
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
+                $this->createMock(ShopIdProvider::class),
                 new MockClock(),
+                'APP_URL',
             ),
         );
 
@@ -390,7 +399,9 @@ class EntityDeleteSubscriberTest extends TestCase
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
+                $this->createMock(ShopIdProvider::class),
                 new MockClock(),
+                'APP_URL',
             ),
         );
 
@@ -420,7 +431,9 @@ class EntityDeleteSubscriberTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            $this->createMock(ShopIdProvider::class),
             new MockClock(),
+            'APP_URL',
         );
 
         $registry = new StaticDefinitionInstanceRegistry(

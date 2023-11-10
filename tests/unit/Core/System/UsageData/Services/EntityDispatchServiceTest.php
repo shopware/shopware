@@ -19,6 +19,7 @@ use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
+use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
@@ -237,7 +238,9 @@ class EntityDispatchServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            $this->createMock(ShopIdProvider::class),
             new MockClock(),
+            'APP_URL',
         );
 
         $entityDispatchService = new EntityDispatchService(
@@ -420,6 +423,41 @@ class EntityDispatchServiceTest extends TestCase
         static::assertEquals(new CollectEntityDataMessage(), $messages[0]->getMessage());
     }
 
+    public function testResetLastRunDateForAllEntities(): void
+    {
+        $productRunKey = EntityDispatchService::getLastRunKeyForEntity(ProductDefinition::ENTITY_NAME);
+        $salesChannelRunKey = EntityDispatchService::getLastRunKeyForEntity(SalesChannelDefinition::ENTITY_NAME);
+        $ruleTagRunKey = EntityDispatchService::getLastRunKeyForEntity(RuleTagDefinition::ENTITY_NAME);
+
+        $appConfig = new ArrayKeyValueStorage([
+            $productRunKey => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $salesChannelRunKey => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $ruleTagRunKey => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $entityDispatchService = new EntityDispatchService(
+            new EntityDefinitionService(
+                [
+                    $this->registry->get(ProductDefinition::class),
+                    $this->registry->get(SalesChannelDefinition::class),
+                ],
+                new UsageDataAllowListService(),
+            ),
+            $appConfig,
+            new CollectingMessageBus(),
+            new MockClock(),
+            $this->createConsentService(true),
+        );
+
+        $entityDispatchService->resetLastRunDateForAllEntities();
+
+        static::assertNull($appConfig->get($productRunKey));
+        static::assertNull($appConfig->get($salesChannelRunKey));
+
+        // definition is not given --> should not be null
+        static::assertNotNull($appConfig->get($ruleTagRunKey));
+    }
+
     private function createConsentService(bool $isApprovalGiven): ConsentService
     {
         $service = new ConsentService(
@@ -430,7 +468,9 @@ class EntityDispatchServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
+            $this->createMock(ShopIdProvider::class),
             new MockClock(),
+            'APP_URL',
         );
 
         if ($isApprovalGiven) {

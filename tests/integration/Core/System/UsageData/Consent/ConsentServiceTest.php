@@ -36,12 +36,13 @@ class ConsentServiceTest extends TestCase
         $this->getContainer()->get(ConsentService::class)
             ->acceptConsent();
 
-        $integrationId = $this->getContainer()->get(SystemConfigService::class)
-            ->getString(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION_ID);
-        static::assertNotEmpty($integrationId);
+        $integration = $this->getContainer()->get(SystemConfigService::class)
+            ->get(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION);
+        static::assertIsArray($integration);
+        static::assertArrayHasKey('integrationId', $integration);
 
         $integration = $this->getContainer()->get('integration.repository')
-            ->search(new Criteria([$integrationId]), Context::createDefaultContext())
+            ->search(new Criteria([$integration['integrationId']]), Context::createDefaultContext())
             ->first();
         static::assertInstanceOf(IntegrationEntity::class, $integration);
     }
@@ -51,15 +52,16 @@ class ConsentServiceTest extends TestCase
         $this->getContainer()->get(ConsentService::class)
             ->acceptConsent();
 
-        $integrationId = $this->getContainer()->get(SystemConfigService::class)
-            ->getString(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION_ID);
-        static::assertNotEmpty($integrationId);
+        $integration = $this->getContainer()->get(SystemConfigService::class)
+            ->get(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION);
+        static::assertIsArray($integration);
+        static::assertArrayHasKey('integrationId', $integration);
 
         $this->getContainer()->get(ConsentService::class)
             ->revokeConsent();
 
         $integration = $this->getContainer()->get('integration.repository')
-            ->search(new Criteria([$integrationId]), Context::createDefaultContext())
+            ->search(new Criteria([$integration['integrationId']]), Context::createDefaultContext())
             ->first();
         static::assertNull($integration);
     }

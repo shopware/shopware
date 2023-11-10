@@ -1,4 +1,6 @@
 # -------------------------------
+# Config generated with Ludtwig v0.8.0
+# -------------------------------
 # Ludtwig documentation
 # -------------------------------
 
@@ -39,10 +41,10 @@ active-rules = [
     "twig-logic-and",
     "twig-logic-or",
 #    "twig-string-quotation",
-#    "html-string-quotation",
+    "html-string-quotation",
 #    "twig-hash-key-no-quotes",
     "twig-prefer-shopware-extends",
-# maybe activate in the future?
+# maybe activate in the future? these are okay because shopware extends the twig syntax
 #    "twig-use-is-same-as",
 #    "twig-use-is-not-same-as",
 # not needed by shopware

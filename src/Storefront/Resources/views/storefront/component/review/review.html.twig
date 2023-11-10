@@ -86,6 +86,7 @@
                                                                   action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.parentId }) }}"
                                                                   method="post"
                                                                   data-form-ajax-submit="true"
+                                                                  {# ludtwig-ignore html-string-quotation #}
                                                                   data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                                 {% if app.request.get('limit') %}
@@ -131,6 +132,7 @@
                                                                       action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.id }) }}"
                                                                       method="post"
                                                                       data-form-ajax-submit="true"
+                                                                      {# ludtwig-ignore html-string-quotation #}
                                                                       data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                                     {% if app.request.get('limit') %}
@@ -216,6 +218,7 @@
                                                               action="{{ path('frontend.product.reviews', { productId: product.id, parentId: product.parentId }) }}"
                                                               method="post"
                                                               data-form-ajax-submit="true"
+                                                              {# ludtwig-ignore html-string-quotation #}
                                                               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
                                                             {% if app.request.get('limit') %}

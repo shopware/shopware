@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Media\Commands;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
@@ -11,9 +13,11 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Cursor;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommand(
     name: 'media:delete-unused',
@@ -27,7 +31,8 @@ class DeleteNotUsedMediaCommand extends Command
      */
     public function __construct(
         private readonly UnusedMediaPurger $unusedMediaPurger,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         parent::__construct();
     }
@@ -82,8 +87,55 @@ class DeleteNotUsedMediaCommand extends Command
             return self::SUCCESS;
         }
 
+        $limit = $input->getOption('limit') !== null ? (int) $input->getOption('limit') : 50;
+
+        $listener = new class($io, $limit) {
+            private int $steps = 0;
+
+            private ?ProgressBar $progressBar = null;
+
+            private int $totalMediaDeletionCandidates = 0;
+
+            public function __construct(
+                private ShopwareStyle $io,
+                private int $limit,
+            ) {
+            }
+
+            public function start(UnusedMediaSearchStartEvent $event): void
+            {
+                $this->totalMediaDeletionCandidates = $event->totalMediaDeletionCandidates;
+                $this->io->note(sprintf('Out of a total of %d media items there are %d candidates for removal', $event->totalMedia, $event->totalMediaDeletionCandidates));
+                $this->progressBar = $this->io->createProgressBar($event->totalMediaDeletionCandidates);
+                $this->progressBar->setFormat('debug');
+                $this->progressBar->start();
+            }
+
+            public function advance(UnusedMediaSearchEvent $event): void
+            {
+                \assert($this->progressBar instanceof ProgressBar);
+
+                $advance = $this->limit;
+                if (($this->steps + $advance) > $this->totalMediaDeletionCandidates) {
+                    $advance = $this->totalMediaDeletionCandidates - $this->steps;
+                }
+
+                $this->progressBar->advance($advance);
+                $this->steps += $advance;
+
+                // finished
+                if ($this->steps === $this->totalMediaDeletionCandidates) {
+                    $this->progressBar->finish();
+                    $this->io->newLine(2);
+                }
+            }
+        };
+
+        $this->eventDispatcher->addListener(UnusedMediaSearchStartEvent::class, $listener->start(...));
+        $this->eventDispatcher->addListener(UnusedMediaSearchEvent::class, $listener->advance(...), -1);
+
         $count = $this->unusedMediaPurger->deleteNotUsedMedia(
-            $input->getOption('limit') ? (int) $input->getOption('limit') : null,
+            $limit,
             $input->getOption('offset') !== null ? (int) $input->getOption('offset') : null,
             (int) $input->getOption('grace-period-days'),
             $input->getOption('folder-entity'),

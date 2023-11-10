@@ -76,7 +76,7 @@ class ConsentReporter
 
         $this->client->request(
             Request::METHOD_POST,
-            '/v1/consent/app-url-changed',
+            '/v1/app-url-changed',
             [
                 'headers' => [
                     'Shopware-Shop-Id' => $shopId,

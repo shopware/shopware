@@ -29,22 +29,24 @@
 # -------------------------------
 [general]
 active-rules = [
-#    "ludtwig-ignore-file-not-on-top",
-#    "unknown-token",
-#    "whitespace-between-line-breaks",
-#    "line-ending",
+    "ludtwig-ignore-file-not-on-top",
+    "whitespace-between-line-breaks",
+    "line-ending",
 #    "indentation",
 #    "twig-block-line-breaks",
-#    "twig-block-name-snake-case",
-#    "html-attribute-name-kebab-case",
-#    "twig-logic-and",
-#    "twig-logic-or",
+    "twig-block-name-snake-case",
+    "html-attribute-name-kebab-case",
+    "twig-logic-and",
+    "twig-logic-or",
 #    "twig-string-quotation",
 #    "html-string-quotation",
 #    "twig-hash-key-no-quotes",
+    "twig-prefer-shopware-extends",
+# maybe activate in the future?
 #    "twig-use-is-same-as",
 #    "twig-use-is-not-same-as",
-#    "twig-prefer-shopware-extends",
+# not needed by shopware
+#    "unknown-token",
 ]
 
 [format]

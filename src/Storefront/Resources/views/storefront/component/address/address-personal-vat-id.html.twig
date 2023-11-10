@@ -13,6 +13,7 @@
         {% endif %}
     {% endfor %}
 
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_company_vatId_label %}
         <label class="form-label"
                for="vatIds">
@@ -20,6 +21,7 @@
         </label>
     {% endblock %}
 
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_company_vatId_input %}
         <input type="text"
                class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -29,6 +31,7 @@
                value="{{ vatIdValue }}">
     {% endblock %}
 
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_company_vatId_input_error %}
         {% if violationPath %}
             {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}

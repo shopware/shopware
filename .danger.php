@@ -59,7 +59,7 @@ return (new Config())
 
             return $context->platform instanceof Gitlab
                 && !\in_array('no-trunk', $labels, true)
-                && preg_match('/^6\.\d+.*/', $context->platform->raw['target_branch']);
+                && preg_match('#^6\.\d+.*|saas/\d{4}/\d{1,2}$#', $context->platform->raw['target_branch']);
         },
         [
             function (Context $context): void {

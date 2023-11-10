@@ -27,7 +27,7 @@ class UsageDataApprovalSubscriberTest extends TestCase
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects(static::once())
-            ->method('start');
+            ->method('dispatchCollectEntityDataMessage');
 
         (new UsageDataApprovalSubscriber($entityDispatchService))->onDataUsageApprovalChange(
             new SystemConfigChangedEvent(
@@ -38,11 +38,11 @@ class UsageDataApprovalSubscriberTest extends TestCase
         );
     }
 
-    public function testItDoesNotStartDataSyncWhenConfigKeyIsNotCorrect(): void
+    public function testItDoesNotDispatchCollectionMessageWhenConfigKeyIsNotCorrect(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects(static::never())
-            ->method('start');
+            ->method('dispatchCollectEntityDataMessage');
 
         (new UsageDataApprovalSubscriber($entityDispatchService))->onDataUsageApprovalChange(
             new SystemConfigChangedEvent(
@@ -53,11 +53,11 @@ class UsageDataApprovalSubscriberTest extends TestCase
         );
     }
 
-    public function testItDoesNotStartDataSyncWhenApprovalWasNotGiven(): void
+    public function testItDoesNotDispatchCollectionMessageWhenApprovalWasNotGiven(): void
     {
         $entityDispatchService = $this->createMock(EntityDispatchService::class);
         $entityDispatchService->expects(static::never())
-            ->method('start');
+            ->method('dispatchCollectEntityDataMessage');
 
         (new UsageDataApprovalSubscriber($entityDispatchService))->onDataUsageApprovalChange(
             new SystemConfigChangedEvent(

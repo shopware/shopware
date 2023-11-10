@@ -15,8 +15,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('merchant-services')]
 class UsageDataApprovalSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly EntityDispatchService $entityDispatchService)
-    {
+    public function __construct(
+        private readonly EntityDispatchService $entityDispatchService,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -36,6 +37,6 @@ class UsageDataApprovalSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->entityDispatchService->start();
+        $this->entityDispatchService->dispatchCollectEntityDataMessage();
     }
 }

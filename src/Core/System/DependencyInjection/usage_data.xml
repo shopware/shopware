@@ -61,6 +61,12 @@
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessageHandler">
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
+
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\System\UsageData\EntitySync\EntityDispatcher">
             <argument type="service" id="shopware.usage_data.gateway.client"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>

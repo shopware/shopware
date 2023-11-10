@@ -14,6 +14,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
@@ -77,7 +78,7 @@ class EntityDispatchServiceTest extends TestCase
         static::assertNull($appConfig->get('usageData-entitySync-lastRun-product'));
         static::assertNull($appConfig->get('usageData-entitySync-lastRun-sales_channel'));
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
 
         $messages = $messageBus->getMessages();
 
@@ -121,7 +122,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createConsentService(true),
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
 
         $messages = $messageBus->getMessages();
         static::assertCount(2, $messages);
@@ -164,7 +165,7 @@ class EntityDispatchServiceTest extends TestCase
         );
         $storedScLastRunDatetime = new \DateTimeImmutable($lastScRunDatetime->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
 
         $messages = $messageBus->getMessages();
         static::assertCount(4, $messages);
@@ -197,7 +198,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createConsentService(true),
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
     }
 
     public function testReturnsEarlyIfNoConsentIsGiven(): void
@@ -219,7 +220,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createConsentService(false),
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
     }
 
     public function testReturnsEarlyIfKillSwitchIsActive(): void
@@ -253,7 +254,7 @@ class EntityDispatchServiceTest extends TestCase
             $consentService,
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
     }
 
     public function testItSchedulesCreateOperationIterateMessagesInTheFirstRun(): void
@@ -274,7 +275,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createConsentService(true),
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
 
         $messages = $messageBus->getMessages();
         static::assertCount(2, $messages);
@@ -306,7 +307,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createConsentService(true),
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
 
         $messages = $messageBus->getMessages();
 
@@ -342,7 +343,7 @@ class EntityDispatchServiceTest extends TestCase
             $this->createConsentService(true),
         );
 
-        $entityDispatchService->start();
+        $entityDispatchService->dispatchIterateEntityMessages();
 
         $messages = $messageBus->getMessages();
 
@@ -390,6 +391,33 @@ class EntityDispatchServiceTest extends TestCase
         }
 
         static::assertEquals($expectedMessages, $foundMessages);
+    }
+
+    public function testItDispatchesCollectEntityDataMessage(): void
+    {
+        $now = new \DateTimeImmutable();
+
+        $messageBus = new CollectingMessageBus();
+
+        $entityDispatchService = new EntityDispatchService(
+            new EntityDefinitionService(
+                [
+                    $this->registry->get(ProductDefinition::class),
+                    $this->registry->get(SalesChannelDefinition::class),
+                ],
+                new UsageDataAllowListService(),
+            ),
+            new ArrayKeyValueStorage(),
+            $messageBus,
+            new MockClock($now),
+            $this->createConsentService(true),
+        );
+
+        $entityDispatchService->dispatchCollectEntityDataMessage();
+
+        $messages = $messageBus->getMessages();
+        static::assertCount(1, $messages);
+        static::assertEquals(new CollectEntityDataMessage(), $messages[0]->getMessage());
     }
 
     private function createConsentService(bool $isApprovalGiven): ConsentService

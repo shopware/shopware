@@ -94,6 +94,12 @@ class CustomerStorer extends FlowStorer
     private function loadCustomer(Criteria $criteria, Context $context, string $id): ?CustomerEntity
     {
         $criteria->addAssociation('salutation');
+        $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultBillingAddress.countryState');
+        $criteria->addAssociation('defaultBillingAddress.salutation');
+        $criteria->addAssociation('defaultShippingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.countryState');
+        $criteria->addAssociation('defaultShippingAddress.salutation');
 
         $event = new BeforeLoadStorableFlowDataEvent(
             CustomerDefinition::ENTITY_NAME,

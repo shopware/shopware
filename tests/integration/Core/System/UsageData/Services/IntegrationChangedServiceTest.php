@@ -186,7 +186,7 @@ class IntegrationChangedServiceTest extends TestCase
 
         /** @var SystemConfigIntegration $newIntegration */
         $newIntegration = $systemConfigService->get(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION);
-        static::assertNull($newIntegration['integrationId']);
+        static::assertNull($newIntegration);
 
         /** @var EntityRepository $integrationRepository */
         $integrationRepository = $this->getcontainer()->get('integration.repository');

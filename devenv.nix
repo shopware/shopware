@@ -71,6 +71,7 @@ in {
           not path /theme/* /media/* /thumbnail/* /bundles/* /css/* /fonts/* /js/* /sitemap/*
         }
 
+        encode zstd gzip
         root * public
         php_fastcgi @default unix/${config.languages.php.fpm.pools.web.socket} {
             trusted_proxies private_ranges

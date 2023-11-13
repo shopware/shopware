@@ -14,18 +14,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class JWTFactoryV2 implements TokenFactoryInterfaceV2
 {
     /**
-     * @var Configuration
-     */
-    protected $configuration;
-
-    /**
      * @internal
      */
     public function __construct(
-        Configuration $configuration,
+        private Configuration $configuration,
         private readonly Connection $connection
     ) {
-        $this->configuration = $configuration;
     }
 
     public function generateToken(TokenStruct $tokenStruct): string
@@ -43,22 +37,32 @@ class JWTFactoryV2 implements TokenFactoryInterfaceV2
             );
         }
 
-        $jwtToken = $this->configuration->builder()
+        $jwtTokenBuilder = $this->configuration->builder()
             ->identifiedBy(Uuid::randomHex())
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->canOnlyBeUsedAfter(new \DateTimeImmutable('@' . time()))
             ->expiresAt($expires)
-            ->relatedTo($tokenStruct->getTransactionId() ?? '')
             ->withClaim('pmi', $tokenStruct->getPaymentMethodId())
             ->withClaim('ful', $tokenStruct->getFinishUrl())
-            ->withClaim('eul', $tokenStruct->getErrorUrl())
-            ->getToken($this->configuration->signer(), $this->configuration->signingKey());
+            ->withClaim('eul', $tokenStruct->getErrorUrl());
 
-        $this->write($jwtToken->toString(), $expires);
+        $transactionId = $tokenStruct->getTransactionId();
+        if ($transactionId !== '' && $transactionId !== null) {
+            $jwtTokenBuilder = $jwtTokenBuilder->relatedTo($transactionId);
+        }
 
-        return $jwtToken->toString();
+        $token = $jwtTokenBuilder->getToken($this->configuration->signer(), $this->configuration->signingKey())->toString();
+        $this->write(
+            $token,
+            $expires
+        );
+
+        return $token;
     }
 
+    /**
+     * @param non-empty-string $token
+     */
     public function parseToken(string $token): TokenStruct
     {
         try {

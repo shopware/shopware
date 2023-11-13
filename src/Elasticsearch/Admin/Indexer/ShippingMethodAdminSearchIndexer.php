@@ -67,7 +67,7 @@ final class ShippingMethodAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<string> $ids
      *
      * @throws Exception
      *

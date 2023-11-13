@@ -67,7 +67,7 @@ final class NewsletterRecipientAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<string> $ids
      *
      * @throws Exception
      *

@@ -95,6 +95,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
 
     public function updatePayloads(EntityWrittenEvent $event): void
     {
+        /** @var list<non-empty-string> $ruleIds */
         $ruleIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT rc.rule_id
                 FROM rule_condition rc
@@ -108,7 +109,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
             return;
         }
 
-        $this->update(Uuid::fromBytesToHexList($ruleIds));
+        $this->update(array_values(Uuid::fromBytesToHexList($ruleIds)));
     }
 
     /**

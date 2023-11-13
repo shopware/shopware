@@ -17,7 +17,7 @@ class TestSigner implements Signer
 
     public function sign(string $payload, Key $key): string
     {
-        return '';
+        return 'empty';
     }
 
     public function verify(string $expected, string $payload, Key $key): bool

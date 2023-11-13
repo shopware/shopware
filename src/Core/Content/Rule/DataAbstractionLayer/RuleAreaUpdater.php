@@ -104,7 +104,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
             return;
         }
 
-        $this->update(Uuid::fromBytesToHexList(array_unique(array_filter($ruleIds))));
+        $this->update(array_values(Uuid::fromBytesToHexList(array_filter(array_unique($ruleIds)))));
 
         $this->cacheInvalidator->invalidate([CachedRuleLoader::CACHE_KEY]);
     }
@@ -156,9 +156,9 @@ class RuleAreaUpdater implements EventSubscriberInterface
 
     /**
      * @param FkField[] $fields
-     * @param string[] $ruleIds
+     * @param list<non-empty-string|null> $ruleIds
      *
-     * @return string[]
+     * @return list<non-empty-string|null>
      */
     private function hydrateRuleIds(array $fields, EntityWrittenEvent $nestedEvent, array $ruleIds): array
     {

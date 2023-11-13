@@ -16,6 +16,9 @@ use Symfony\Component\HttpKernel\HttpKernel as SymfonyHttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 #[Package('core')]
 class HttpKernel extends SymfonyHttpKernel
 {

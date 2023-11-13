@@ -18,6 +18,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->append($this->createHttpCacheSection())
                 ->append($this->createNumberRangeSection())
                 ->append($this->createProfilerSection())
                 ->append($this->createFilesystemSection())
@@ -736,6 +737,56 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end();
+
+        return $rootNode;
+    }
+
+    private function createHttpCacheSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('http_cache');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->scalarNode('stale_while_revalidate')->defaultValue(null)->end()
+                ->scalarNode('stale_if_error')->defaultValue(null)->end()
+                ->arrayNode('ignored_url_parameters')
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('reverse_proxy')
+                    ->children()
+                        ->booleanNode('enabled')->end()
+                        ->booleanNode('use_varnish_xkey')->defaultFalse()->end()
+                        ->arrayNode('hosts')->performNoDeepMerging()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->integerNode('max_parallel_invalidations')->defaultValue(2)->end()
+                        ->scalarNode('redis_url')->end()
+                        ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                        ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->arrayNode('purge_all')
+                            ->children()
+                                ->scalarNode('ban_method')->defaultValue('BAN')->end()
+                                ->arrayNode('ban_headers')->performNoDeepMerging()->defaultValue([])->scalarPrototype()->end()->end()
+                                ->arrayNode('urls')->performNoDeepMerging()->defaultValue(['/'])->scalarPrototype()->end()->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('fastly')
+                            ->children()
+                                ->booleanNode('enabled')->defaultFalse()->end()
+                                ->scalarNode('api_key')->defaultValue('')->end()
+                                ->scalarNode('instance_tag')->defaultValue('')->end()
+                                ->scalarNode('service_id')->defaultValue('')->end()
+                                ->scalarNode('soft_purge')->defaultValue('0')->end()
+                                ->scalarNode('tag_prefix')->defaultValue('')->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
 
         return $rootNode;
     }

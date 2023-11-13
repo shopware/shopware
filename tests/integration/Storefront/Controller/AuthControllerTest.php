@@ -42,11 +42,9 @@ use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
-use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPage;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -118,16 +116,7 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
         $contextToken = $session->get('sw-context-token');
 
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-
-        $context = $response->getContext();
-        static::assertInstanceOf(SalesChannelContext::class, $context);
-
-        static::assertEquals(
-            $context->getSalesChannelId(),
-            $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)
-        );
+        $browser->getResponse();
 
         $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
@@ -152,26 +141,12 @@ class AuthControllerTest extends TestCase
 
         $contextToken = $session->get('sw-context-token');
 
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-
-        $context = $response->getContext();
-
-        static::assertInstanceOf(SalesChannelContext::class, $context);
-        static::assertEquals(
-            $context->getSalesChannelId(),
-            $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)
-        );
+        $browser->getResponse();
 
         $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
         $browser->request('GET', '/account');
 
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertInstanceOf(AccountOverviewPage::class, $response->getData()['page']);
         static::assertEquals($contextToken, $this->getSession()->get('sw-context-token'));
     }
 
@@ -673,13 +648,6 @@ class AuthControllerTest extends TestCase
         );
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-
-        $browser->request('GET', '/');
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-        $salesChannelContext = $response->getContext();
-        static::assertNotNull($salesChannelContext);
-        static::assertNotNull($salesChannelContext->getCustomer());
 
         return $browser;
     }

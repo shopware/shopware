@@ -25,7 +25,6 @@ use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
-use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -79,7 +78,6 @@ class ProductControllerTest extends TestCase
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertInstanceOf(ReviewLoaderResult::class, $response->getData()['reviews']);
     }
 
     public function testSwitchOptionsToLoadOptionDefault(): void
@@ -450,12 +448,6 @@ class ProductControllerTest extends TestCase
         );
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-
-        $browser->request('GET', '/');
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-        static::assertNotNull($context = $response->getContext());
-        static::assertNotNull($context->getCustomer());
 
         return $browser;
     }

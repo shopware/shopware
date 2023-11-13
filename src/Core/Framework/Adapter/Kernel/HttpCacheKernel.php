@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Kernel;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\IpUtils;
@@ -12,7 +11,11 @@ use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Component\HttpKernel\HttpCache\SurrogateInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @internal
+ */
 #[Package('core')]
 class HttpCacheKernel extends HttpCache
 {
@@ -21,17 +24,23 @@ class HttpCacheKernel extends HttpCache
     private StoreInterface $store;
 
     /**
+     * @internal
+     *
      * @param array<mixed> $options
      */
     public function __construct(
         HttpKernelInterface $kernel,
-        StoreInterface $store,
+        ?StoreInterface $store,
         SurrogateInterface $surrogate,
         array $options,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $externalReverseProxyEnabled
+        private readonly bool $externalReverseProxyEnabled,
+        StoreInterface $core
     ) {
+        $store = $store ?? $core;
+
         $this->store = $store;
+
         parent::__construct($kernel, $store, $surrogate, $options);
     }
 
@@ -44,21 +53,32 @@ class HttpCacheKernel extends HttpCache
             $response = $this->getKernel()->handle($request, $type, $catch);
 
             // Call store trigger to write the cache tags
-            // @todo: fix this shit.
             $this->store->write($request, $response);
-        } else {
-            $response = parent::handle($request, $type, $catch);
 
-            if ($ips = $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
-                $ips = array_filter(explode(',', $ips));
+            $event = new BeforeSendResponseEvent($request, $response);
+            $this->eventDispatcher->dispatch($event);
 
-                if (IpUtils::checkIp((string) $request->getClientIp(), $ips)) {
-                    $response = $this->getKernel()->handle($request, $type, $catch);
-                }
-            }
-
-            $response->headers->remove(self::MAINTENANCE_WHITELIST_HEADER);
+            return $event->getResponse();
         }
+
+        // only handle main request inside http cache, because ESI tags are also interpreted as main request.
+        // sub requests are requests, which are forwarded to the kernel inside the php stack
+        // https://github.com/symfony/symfony/issues/51648#issuecomment-1717846894
+        if ($type === HttpKernelInterface::MAIN_REQUEST) {
+            $response = parent::handle($request, $type, $catch);
+        } else {
+            $response = $this->getKernel()->handle($request, $type, $catch);
+        }
+
+        if ($ips = $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
+            $ips = array_filter(explode(',', $ips));
+
+            if (IpUtils::checkIp((string) $request->getClientIp(), $ips)) {
+                $response = $this->getKernel()->handle($request, $type, $catch);
+            }
+        }
+
+        $response->headers->remove(self::MAINTENANCE_WHITELIST_HEADER);
 
         $event = new BeforeSendResponseEvent($request, $response);
         $this->eventDispatcher->dispatch($event);

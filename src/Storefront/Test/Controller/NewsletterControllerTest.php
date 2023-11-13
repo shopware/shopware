@@ -131,12 +131,6 @@ class NewsletterControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
 
-        $browser->request('GET', '/');
-        /** @var StorefrontResponse $response */
-        $response = $browser->getResponse();
-        static::assertNotNull($response->getContext());
-        static::assertNotNull($response->getContext()->getCustomer());
-
         return $browser;
     }
 

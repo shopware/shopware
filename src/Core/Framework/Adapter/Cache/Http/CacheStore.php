@@ -1,17 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Cache;
+namespace Shopware\Core\Framework\Adapter\Cache\Http;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
 use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
-use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
-use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
-use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +16,7 @@ use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-internal - Use \Shopware\Core\Framework\Adapter\Cache\Http\CacheStore instead
+ * @internal
  */
 #[Package('core')]
 class CacheStore implements StoreInterface
@@ -44,7 +41,7 @@ class CacheStore implements StoreInterface
         private readonly CacheStateValidator $stateValidator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractCacheTracer $tracer,
-        private readonly AbstractHttpCacheKeyGenerator $cacheKeyGenerator,
+        private readonly HttpCacheKeyGenerator $cacheKeyGenerator,
         private readonly MaintenanceModeResolver $maintenanceResolver,
         array $sessionOptions
     ) {
@@ -73,11 +70,7 @@ class CacheStore implements StoreInterface
             return null;
         }
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $event = new \Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent($item, $request, $response);
-        } else {
-            $event = new HttpCacheHitEvent($item, $request, $response);
-        }
+        $event = new HttpCacheHitEvent($item, $request, $response);
 
         $this->eventDispatcher->dispatch($event);
 
@@ -91,11 +84,6 @@ class CacheStore implements StoreInterface
         // maintenance mode active and current ip is whitelisted > disable caching
         if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
             return $key;
-        }
-
-        if (!Feature::isActive('v6.6.0.0') && $response instanceof StorefrontResponse) {
-            $response->setData([]);
-            $response->setContext(null);
         }
 
         $tags = $this->tracer->get('all');
@@ -150,11 +138,7 @@ class CacheStore implements StoreInterface
 
         $this->cache->save($item);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            $event = new HttpCacheStoreEvent($item, $tags, $request, $response);
-        } else {
-            $event = new HttpCacheItemWrittenEvent($item, $tags, $request, $response);
-        }
+        $event = new HttpCacheStoreEvent($item, $tags, $request, $response);
 
         $this->eventDispatcher->dispatch($event);
 

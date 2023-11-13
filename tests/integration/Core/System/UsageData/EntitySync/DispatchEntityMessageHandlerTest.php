@@ -163,6 +163,88 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $messageHandler($dispatchEntityMessage);
     }
 
+    public function testSendsTranslationEntityDataToGateway(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var MockHttpClient $client */
+        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
+            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
+            $body = gzdecode($options['body']);
+            static::assertIsString($body);
+
+            $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
+            $headers = array_values($options['headers']);
+
+            static::assertEquals(Request::METHOD_POST, $method);
+            static::assertStringContainsString('/v1/entities', $url);
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
+            static::assertContains('Content-Type: application/json', array_values($headers));
+
+            static::assertArrayHasKey('operation', $payload);
+            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+
+            static::assertArrayHasKey('entities', $payload);
+            static::assertCount(2, $payload['entities']);
+
+            $firstProductTranslation = $payload['entities'][0];
+            static::assertIsArray($firstProductTranslation);
+            static::assertArrayNotHasKey('productVersionId', $firstProductTranslation);
+
+            static::assertArrayHasKey('productId', $firstProductTranslation);
+            static::assertEquals($ids->get('test-product-1'), $firstProductTranslation['productId']);
+
+            static::assertArrayHasKey('languageId', $firstProductTranslation);
+            static::assertEquals(Defaults::LANGUAGE_SYSTEM, $firstProductTranslation['languageId']);
+
+            $secondProductTranslation = $payload['entities'][1];
+            static::assertIsArray($secondProductTranslation);
+            static::assertArrayNotHasKey('productVersionId', $secondProductTranslation);
+
+            static::assertArrayHasKey('productId', $secondProductTranslation);
+            static::assertEquals($ids->get('test-product-2'), $secondProductTranslation['productId']);
+
+            static::assertArrayHasKey('languageId', $secondProductTranslation);
+            static::assertEquals(Defaults::LANGUAGE_SYSTEM, $secondProductTranslation['languageId']);
+
+            return new MockResponse('', ['http_code' => 200]);
+        });
+
+        $this->addProductDefinition();
+
+        $this->createTestProduct($ids, 'test-product-1');
+        $this->createTestProduct($ids, 'test-product-2');
+
+        $dispatchEntityMessage = new DispatchEntityMessage(
+            'product_translation',
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            [
+                [
+                    'product_id' => $ids->get('test-product-1'),
+                    'product_version_id' => Defaults::LIVE_VERSION,
+                    'language_id' => Defaults::LANGUAGE_SYSTEM,
+                ],
+                [
+                    'product_id' => $ids->get('test-product-2'),
+                    'product_version_id' => Defaults::LIVE_VERSION,
+                    'language_id' => Defaults::LANGUAGE_SYSTEM,
+                ],
+            ]
+        );
+
+        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler($dispatchEntityMessage);
+    }
+
     public function testSendsUpdatedEntityDataToGateway(): void
     {
         $ids = new IdsCollection();
@@ -392,6 +474,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $product = (new ProductBuilder($idsCollection, $productNumber))
             ->name('Testing product')
             ->price(100)
+            ->translation(Defaults::LANGUAGE_SYSTEM, 'title', 'my awesome product')
             ->build();
 
         $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());

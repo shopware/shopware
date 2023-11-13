@@ -33,9 +33,7 @@
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
-                    {% if VUE3 %}
-                    @update:value="onChangeValue($event, formField.name)"
-                    {% else %}
+                    {% if VUE2 %}
                     @change="onChangeValue($event, formField.name)"
                     {% endif %}
                 />
@@ -84,7 +82,11 @@
                                     {% else %}
                                     v-model="entity[formField.name]"
                                     {% endif %}
+                                    {% if VUE3 %}
+                                    @update="onChangeValue($event, formField.name)"
+                                    {% else %}
                                     @input="onChangeValue($event, formField.name)"
+                                    {% endif %}
                                 />
                             </div>
                         </template>
@@ -93,8 +95,16 @@
                                 v-if="isDisplayingValue"
                                 v-bind="formField"
                                 :key="`formField-${index}`"
+                                {% if VUE3 %}
+                                v-model:value="entity[formField.name]"
+                                {% else %}
                                 v-model="entity[formField.name]"
+                                {% endif %}
+                                {% if VUE3 %}
+                                @update="onChangeValue($event, formField.name)"
+                                {% else %}
                                 @input="onChangeValue($event, formField.name)"
+                                {% endif %}
                             />
                         </template>
                     </slot>
@@ -119,8 +129,16 @@
                             <sw-bulk-edit-form-field-renderer
                                 v-bind="formField"
                                 :key="`formField-${index}`"
+                                {% if VUE3 %}
+                                v-model:value="entity[formField.name]"
+                                {% else %}
                                 v-model="entity[formField.name]"
+                                {% endif %}
+                                {% if VUE3 %}
+                                @update="onChangeValue($event, formField.name)"
+                                {% else %}
                                 @input="onChangeValue($event, formField.name)"
+                                {% endif %}
                             />
                         </div>
                     </template>
@@ -128,8 +146,16 @@
                         <sw-bulk-edit-form-field-renderer
                             v-bind="formField"
                             :key="`formField-${index}`"
+                            {% if VUE3 %}
+                            v-model:value="entity[formField.name]"
+                            {% else %}
                             v-model="entity[formField.name]"
+                            {% endif %}
+                            {% if VUE3 %}
+                            @update="onChangeValue($event, formField.name)"
+                            {% else %}
                             @input="onChangeValue($event, formField.name)"
+                            {% endif %}
                         />
                     </template>
                 </slot>

@@ -1,4 +1,4 @@
-<!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+<!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/v-on-event-hyphenation -->
 {% block sw_form_field_renderer %}
 <component
     :is="componentName"
@@ -15,6 +15,7 @@
     {% if VUE3 %}
     @update:value="emitChange"
     @update:ids="emitChange"
+    @update:modelValue="emitChange"
     {% endif %}
     @input="emitUpdate"
 >

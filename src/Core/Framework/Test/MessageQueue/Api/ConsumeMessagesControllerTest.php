@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestTask;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -16,9 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ConsumeMessagesControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -37,7 +37,7 @@ class ConsumeMessagesControllerTest extends TestCase
     public function testConsumeMessages(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM scheduled_task');
+        $connection->executeStatement('DELETE FROM scheduled_task');
 
         // queue a task
         $repo = $this->getContainer()->get('scheduled_task.repository');
@@ -48,6 +48,7 @@ class ConsumeMessagesControllerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
+                'defaultRunInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
             ],

@@ -7,11 +7,13 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
+#[Package('inventory')]
 class ProductDownloadEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $productId;
 
@@ -19,9 +21,11 @@ class ProductDownloadEntity extends Entity
 
     protected int $position;
 
-    protected ?MediaEntity $media;
+    protected ?MediaEntity $media = null;
 
-    protected ?ProductEntity $product;
+    protected ?ProductEntity $product = null;
+
+    protected string $productVersionId;
 
     public function getProductId(): string
     {
@@ -71,5 +75,15 @@ class ProductDownloadEntity extends Entity
     public function setProduct(ProductEntity $product): void
     {
         $this->product = $product;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
     }
 }

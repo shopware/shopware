@@ -9,34 +9,25 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 {
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartCalculator $cartCalculator;
-
-    private AbstractCartPersister $cartPersister;
-
     /**
      * @internal
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, CartCalculator $cartCalculator, AbstractCartPersister $cartPersister)
-    {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartCalculator = $cartCalculator;
-        $this->cartPersister = $cartPersister;
+    public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartCalculator $cartCalculator,
+        private readonly AbstractCartPersister $cartPersister
+    ) {
     }
 
     public function getDecorated(): AbstractCartItemRemoveRoute
@@ -44,10 +35,8 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.0.0")
-     * @Route("/store-api/checkout/cart/line-item", name="store-api.checkout.cart.remove-item", methods={"DELETE"})
-     */
+    #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.remove-item', methods: ['DELETE'])]
+    #[Route(path: '/store-api/checkout/cart/line-item/delete', name: 'store-api.checkout.cart.remove-item-v2', methods: ['POST'])]
     public function remove(Request $request, Cart $cart, SalesChannelContext $context): CartResponse
     {
         $ids = $request->get('ids');
@@ -55,11 +44,11 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 
         foreach ($ids as $id) {
             $lineItem = $cart->get($id);
-            $lineItems[] = $lineItem;
 
             if (!$lineItem) {
                 throw CartException::lineItemNotFound($id);
             }
+            $lineItems[] = $lineItem;
 
             $cart->remove($id);
 

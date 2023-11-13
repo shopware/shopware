@@ -29,10 +29,6 @@ All blocks of this template are available in the template which renders this tem
             <div class="page_break"></div>
         {% endblock %}
 
-        {% sw_silent_feature_call "v6.5.0.0" %}
-            {{ counter.incrementPage() }}
-        {% endsw_silent_feature_call %}
-
         {#  new page header #}
         {% block document_loop_page_logo %}
             {{ block('logo') }}

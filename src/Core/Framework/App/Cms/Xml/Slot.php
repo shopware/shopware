@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class Slot extends XmlElement
 {
     protected string $name;
@@ -16,18 +16,6 @@ class Slot extends XmlElement
     protected string $type;
 
     protected Config $config;
-
-    private function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseSlot($element));
-    }
 
     public function toArray(string $defaultLocale): array
     {
@@ -52,12 +40,12 @@ class Slot extends XmlElement
         return $this->config;
     }
 
-    private static function parseSlot(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $name = $element->getAttribute('name');
         $type = $element->getAttribute('type');
-        /** @var \DOMElement $config */
         $config = $element->getElementsByTagName('config')->item(0);
+        \assert($config !== null);
         $config = Config::fromXml($config);
 
         return [

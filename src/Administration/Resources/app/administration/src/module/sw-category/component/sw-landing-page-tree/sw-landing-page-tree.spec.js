@@ -17,12 +17,12 @@ async function createWrapper() {
     localVue.use(VueRouter);
 
     const routes = [{
-        name: 'sw.category.landingPage',
-        path: 'category/landingPage/:id'
+        name: 'sw.category.landingPageDetail',
+        path: 'category/landingPage/:id',
     }];
 
     const router = new VueRouter({
-        routes
+        routes,
     });
 
     return shallowMount(await Shopware.Component.build('sw-landing-page-tree'), {
@@ -37,10 +37,19 @@ async function createWrapper() {
                     <div class="sw-tree">
                       <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
                     </div>
-                `
+                `,
             },
-            'sw-tree-item': true,
-            'sw-button': true
+            'sw-tree-item': {
+                props: ['item'],
+                template: `
+                    <div class="sw-tree-item">
+                      <slot name="actions" :toolTip="{ delay: 300, message: 'jest', active: true}"></slot>
+                    </div>
+                `,
+            },
+            'sw-button': true,
+            'sw-context-button': true,
+            'sw-context-menu-item': true,
         },
         provide: {
             syncService: {},
@@ -48,15 +57,15 @@ async function createWrapper() {
                 create: () => ({
                     search: () => Promise.resolve([
                         {
-                            id: '1a'
-                        }
-                    ])
-                })
+                            id: '1a',
+                        },
+                    ]),
+                }),
             },
         },
         propsData: {
-            currentLanguageId: '1a2b3c'
-        }
+            currentLanguageId: '1a2b3c',
+        },
     });
 }
 
@@ -91,11 +100,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -108,7 +117,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -121,11 +130,11 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -138,7 +147,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -151,16 +160,16 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowCreate: false
+            allowCreate: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-new-categories']).toBeUndefined();
     });
 
@@ -168,12 +177,12 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-delete-categories']).toBeDefined();
     });
 
@@ -181,16 +190,16 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['allow-delete-categories']).toBeUndefined();
     });
 
@@ -198,12 +207,12 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['display-checkbox']).toBeDefined();
     });
 
@@ -211,16 +220,16 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['display-checkbox']).toBeUndefined();
     });
 
@@ -228,16 +237,16 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBe('sw-privileges.tooltip.warning');
     });
 
@@ -245,12 +254,12 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
 
         await wrapper.vm.$nextTick();
 
-        const treeItem = wrapper.find('sw-tree-item-stub');
+        const treeItem = wrapper.find('.sw-tree-item');
         expect(treeItem.attributes()['context-menu-tooltip-text']).toBeUndefined();
     });
 
@@ -258,23 +267,23 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
-        expect(itemUrl).toEqual('#category/landingPage/1a2b');
+        expect(itemUrl).toBe('#category/landingPage/1a2b');
     });
 
     it('should get wrong landing page url', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            isLoadingInitialData: false
+            isLoadingInitialData: false,
         });
         await wrapper.vm.$nextTick();
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
-        expect(itemUrl).not.toEqual('#/landingPage/1a2b');
+        expect(itemUrl).not.toBe('#/landingPage/1a2b');
     });
 });

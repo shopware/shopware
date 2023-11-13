@@ -2,18 +2,13 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
+ * @internal
  */
+#[Package('core')]
 class LabelField extends Field
 {
     protected string $type = 'label';
-
-    /**
-     * @internal
-     */
-    public static function fromXml(\DOMElement $element): Field
-    {
-        return new self(self::parse($element));
-    }
 }

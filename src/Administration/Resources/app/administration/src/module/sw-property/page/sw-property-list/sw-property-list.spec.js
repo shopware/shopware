@@ -9,15 +9,15 @@ import Criteria from 'src/core/data/criteria.data';
 
 Shopware.Component.register('sw-property-list', swPropertyList);
 
-async function createWrapper(privileges = []) {
+async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-property-list'), {
         mocks: {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -27,29 +27,22 @@ async function createWrapper(privileges = []) {
                             {
                                 id: '1a2b3c4e',
                                 name: 'Test property',
-                                sourceEntitiy: 'property'
-                            }
+                                sourceEntitiy: 'property',
+                            },
                         ]);
-                    }
-                })
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
+                    },
+                }),
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -58,116 +51,126 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
-            'sw-button': true,
+            'sw-button': {
+                template: '<button class="sw-button" @click="$emit(`click`)"></button>',
+                props: ['disabled'],
+            },
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-entity-listing': {
-                props: ['items'],
+                props: ['items', 'allow-inline-edit'],
                 template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
-                    </div>`
+                    </div>`,
             },
             'sw-language-switch': true,
             'sw-empty-state': true,
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                props: ['disabled'],
+            },
+            'router-link': true,
+        },
     });
 }
 
 describe('module/sw-property/page/sw-property-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new property', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-property-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeTruthy();
+        expect(createButton.props('disabled')).toBe(true);
     });
 
     it('should be able to create a new property', async () => {
-        const wrapper = await createWrapper([
-            'property.creator'
-        ]);
+        global.activeAclRoles = ['property.creator'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-property-list__button-create');
 
-        expect(createButton.attributes().disabled).toBeFalsy();
+        expect(createButton.props('disabled')).toBe(false);
     });
 
     it('should not be able to inline edit', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-property-list-grid');
 
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
+        expect(entityListing.exists()).toBe(true);
+        expect(entityListing.props('allowInlineEdit')).toBe(false);
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'property.editor'
-        ]);
+        global.activeAclRoles = ['property.editor'];
+
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-property-list-grid');
-        expect(entityListing.exists()).toBeTruthy();
-        expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
+        expect(entityListing.exists()).toBe(true);
+        expect(entityListing.props('allowInlineEdit')).toBe(true);
     });
 
     it('should not be able to delete', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
-        expect(deleteMenuItem.attributes().disabled).toBeTruthy();
+        expect(deleteMenuItem.props('disabled')).toBe(true);
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'property.deleter'
-        ]);
+        global.activeAclRoles = ['property.deleter'];
+
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-property-list__delete-action');
-        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
+        expect(deleteMenuItem.props('disabled')).toBe(false);
     });
 
     it('should not be able to edit', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-property-list__edit-action');
-        expect(editMenuItem.attributes().disabled).toBeTruthy();
+        expect(editMenuItem.props('disabled')).toBe(true);
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'property.editor'
-        ]);
+        global.activeAclRoles = ['property.editor'];
+
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-property-list__edit-action');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
+        expect(editMenuItem.props('disabled')).toBe(false);
     });
 
     it('should add query score to the criteria', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -188,6 +191,8 @@ describe('module/sw-property/page/sw-property-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -207,10 +212,12 @@ describe('module/sw-property/page/sw-property-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 
-    it('should not build query score when search ranking field is null ', async () => {
+    it('should not build query score when search ranking field is null', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -232,9 +239,11 @@ describe('module/sw-property/page/sw-property-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -245,10 +254,10 @@ describe('module/sw-property/page/sw-property-list', () => {
         const emptyState = wrapper.find('sw-empty-state-stub');
 
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.exists()).toBe(true);
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBe(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

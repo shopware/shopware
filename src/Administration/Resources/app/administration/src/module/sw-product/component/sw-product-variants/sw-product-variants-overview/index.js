@@ -93,6 +93,13 @@ export default {
                 },
                 ...this.currencyColumns,
                 {
+                    property: 'sales',
+                    dataIndex: 'sales',
+                    label: this.$tc('sw-product.list.columnSales'),
+                    allowResize: true,
+                    align: 'right',
+                },
+                {
                     property: 'stock',
                     label: this.$tc('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,
@@ -178,8 +185,13 @@ export default {
         productStates() {
             this.getList();
         },
-    },
 
+        'product.id': {
+            handler() {
+                this.getList();
+            },
+        },
+    },
 
     methods: {
         removeFile(fileName, item) {
@@ -230,10 +242,13 @@ export default {
             });
         },
 
-
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
+                if (this.product.parentId) {
+                    return;
+                }
+
                 Shopware.State.commit('swProductDetail/setLoading', ['variants', true]);
 
                 // Get criteria for search and for option sorting
@@ -653,10 +668,19 @@ export default {
 
         async onEditItems() {
             await this.$nextTick();
+
+            let includesDigital = '0';
+            const digital = Object.values(this.$refs.variantGrid.selection)
+                .filter(product => product.states.includes('is-download'));
+            if (digital.length > 0) {
+                includesDigital = (digital.filter(product => product.isCloseout).length !== digital.length) ? '1' : '2';
+            }
+
             this.$router.push({
                 name: 'sw.bulk.edit.product',
                 params: {
                     parentId: this.product.id,
+                    includesDigital,
                 },
             });
         },

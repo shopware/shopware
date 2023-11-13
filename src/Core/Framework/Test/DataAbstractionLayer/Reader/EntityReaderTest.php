@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Reader;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
@@ -45,8 +46,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntityReaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private Connection $connection;
 
@@ -487,10 +488,10 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        //check red product contains full inheritance of parent
+        // check red product contains full inheritance of parent
         static::assertInstanceOf(ProductEntity::class, $red);
 
-        //has no own tax
+        // has no own tax
         static::assertNull($red->getTax());
         static::assertNull($red->getTaxId());
         static::assertNull($red->getCurrencyPrice(Defaults::CURRENCY));
@@ -519,10 +520,10 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $red */
         $red = $products->get($redId);
 
-        //check red product contains full inheritance of parent
+        // check red product contains full inheritance of parent
         static::assertInstanceOf(ProductEntity::class, $red);
 
-        //price and tax are inherited by parent
+        // price and tax are inherited by parent
         static::assertInstanceOf(Price::class, $red->getCurrencyPrice(Defaults::CURRENCY));
         static::assertInstanceOf(TaxEntity::class, $red->getTax());
         static::assertEquals($parentTax, $red->getTaxId());
@@ -788,7 +789,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertInstanceOf(ProductEntity::class, $green);
 
-        //validate parent view data contains same categories
+        // validate parent view data contains same categories
         $categoryCollectionParent = $parent->getCategories();
         static::assertNotNull($categoryCollectionParent);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollectionParent);
@@ -796,7 +797,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($categoryCollectionParent->has($category1));
         static::assertTrue($categoryCollectionParent->has($category3));
 
-        //validate red view data contains the categories of the parent
+        // validate red view data contains the categories of the parent
         $categoryCollection = $red->getCategories();
         static::assertNotNull($categoryCollection);
 
@@ -805,14 +806,14 @@ class EntityReaderTest extends TestCase
         static::assertTrue($categoryCollection->has($category1));
         static::assertTrue($categoryCollection->has($category3));
 
-        //validate green view data contains same categories
+        // validate green view data contains same categories
         $categoryCollectionGreen = $green->getCategories();
         static::assertNotNull($categoryCollectionGreen);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollectionGreen);
         static::assertCount(1, $categoryCollectionGreen);
         static::assertTrue($categoryCollectionGreen->has($category2));
 
-        //####
+        // ####
         $criteria = new Criteria([$greenId, $parentId, $redId]);
         $criteria->addAssociation('categories');
         $context->setConsiderInheritance(false);
@@ -832,18 +833,18 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertInstanceOf(ProductEntity::class, $green);
 
-        //validate parent contains own categories
+        // validate parent contains own categories
         static::assertCount(2, $categoryCollectionParent);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollectionParent);
         static::assertTrue($categoryCollectionParent->has($category1));
         static::assertTrue($categoryCollectionParent->has($category3));
 
-        //validate red contains no own categories
+        // validate red contains no own categories
         $redCategories = $red->getCategories();
         static::assertInstanceOf(CategoryCollection::class, $redCategories);
         static::assertCount(0, $redCategories);
 
-        //validate green contains own categories
+        // validate green contains own categories
         static::assertCount(1, $categoryCollectionGreen);
         static::assertInstanceOf(CategoryCollection::class, $categoryCollectionGreen);
         static::assertTrue($categoryCollectionGreen->has($category2));
@@ -920,7 +921,7 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $red);
         static::assertInstanceOf(ProductEntity::class, $green);
 
-        //validate parent view data contains same categories
+        // validate parent view data contains same categories
         $parentCategories = $parent->getCategories();
         static::assertNotNull($parentCategories);
         static::assertInstanceOf(CategoryCollection::class, $parentCategories);
@@ -928,7 +929,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($parentCategories->has($category1));
         static::assertTrue($parentCategories->has($category3));
 
-        //validate red view data contains the categories of the parent
+        // validate red view data contains the categories of the parent
         $redCategories = $red->getCategories();
         static::assertNotNull($redCategories);
         static::assertCount(2, $redCategories);
@@ -936,7 +937,7 @@ class EntityReaderTest extends TestCase
         static::assertTrue($redCategories->has($category1));
         static::assertTrue($redCategories->has($category3));
 
-        //validate green view data contains same categories
+        // validate green view data contains same categories
         static::assertInstanceOf(CategoryCollection::class, $green->getCategories());
         static::assertCount(1, $green->getCategories());
         static::assertTrue($green->getCategories()->has($category2));
@@ -953,7 +954,7 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $green */
         $green = $products->get($greenId);
 
-        //validate parent contains own categories
+        // validate parent contains own categories
         $parentCategories = $parent->getCategories();
         static::assertNotNull($parentCategories);
         static::assertCount(2, $parentCategories);
@@ -961,14 +962,14 @@ class EntityReaderTest extends TestCase
         static::assertTrue($parentCategories->has($category1));
         static::assertTrue($parentCategories->has($category3));
 
-        //validate green contains own categories
+        // validate green contains own categories
         $greenCategories = $green->getCategories();
         static::assertNotNull($greenCategories);
         static::assertCount(1, $greenCategories);
         static::assertInstanceOf(CategoryCollection::class, $greenCategories);
         static::assertTrue($greenCategories->has($category2));
 
-        //validate red contains no own categories
+        // validate red contains no own categories
         static::assertInstanceOf(CategoryCollection::class, $red->getCategories());
         static::assertCount(0, $red->getCategories());
     }
@@ -999,7 +1000,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1048,7 +1049,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1101,7 +1102,7 @@ class EntityReaderTest extends TestCase
             'lastName' => 'Test',
             'customerNumber' => 'A',
             'salutationId' => $this->getValidSalutationId(),
-            'password' => 'A',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'email' => 'test@example.com',
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
@@ -1143,10 +1144,10 @@ class EntityReaderTest extends TestCase
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(2, $mapping);
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(8, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1200,7 +1201,7 @@ class EntityReaderTest extends TestCase
             'firstName' => 'Test',
             'lastName' => 'Test',
             'customerNumber' => 'A',
-            'password' => 'A',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
@@ -1239,10 +1240,10 @@ class EntityReaderTest extends TestCase
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer WHERE id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(2, $mapping);
 
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM customer_address WHERE customer_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(6, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1325,7 +1326,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1351,9 +1352,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
-            return $e->getStreet();
-        });
+        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertEquals(['A', 'B', 'D'], array_values($streets));
 
         $criteria = new Criteria([$id]);
@@ -1365,9 +1364,7 @@ class EntityReaderTest extends TestCase
         static::assertNotNull($customer->getAddresses());
         static::assertCount(3, $customer->getAddresses());
 
-        $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
-            return $e->getStreet();
-        });
+        $streets = $customer->getAddresses()->map(fn (CustomerAddressEntity $e) => $e->getStreet());
         static::assertEquals(['X', 'E', 'D'], array_values($streets));
     }
 
@@ -1397,7 +1394,7 @@ class EntityReaderTest extends TestCase
                 'lastName' => 'Test',
                 'customerNumber' => 'A',
                 'salutationId' => $this->getValidSalutationId(),
-                'password' => 'A',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
@@ -1481,10 +1478,10 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
-        //test many to many not loaded automatically
+        // test many to many not loaded automatically
         $categories = $repository->search(new Criteria([$id1, $id2]), $context);
 
         /** @var CategoryEntity $category1 */
@@ -1602,10 +1599,10 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
-        //test that we can add the association and all products are fetched
+        // test that we can add the association and all products are fetched
         $criteria = new Criteria([$id1, $id2]);
 
         $criteria->addAssociation('products');
@@ -1682,7 +1679,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1757,7 +1754,7 @@ class EntityReaderTest extends TestCase
         );
 
         $bytes = [Uuid::fromHexToBytes($id1), Uuid::fromHexToBytes($id2)];
-        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => Connection::PARAM_STR_ARRAY]);
+        $mapping = $this->connection->fetchAllAssociative('SELECT * FROM product_category WHERE category_id IN (:ids)', ['ids' => $bytes], ['ids' => ArrayParameterType::BINARY]);
         static::assertCount(4, $mapping);
 
         $criteria = new Criteria([$id1, $id2]);
@@ -2226,6 +2223,7 @@ class EntityReaderTest extends TestCase
      * @dataProvider casesToManyPaginated
      *
      * @param list<array<string, mixed>> $data
+     * @param callable(Criteria): void $modifier
      * @param list<string> $expected
      */
     public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
@@ -2247,9 +2245,7 @@ class EntityReaderTest extends TestCase
 
         $seoUrlCollection = $result->getSeoUrls();
         static::assertNotNull($seoUrlCollection);
-        $urls = $seoUrlCollection->map(function (SeoUrlEntity $e) {
-            return $e->getSeoPathInfo();
-        });
+        $urls = $seoUrlCollection->map(fn (SeoUrlEntity $e) => $e->getSeoPathInfo());
 
         static::assertSame($expected, array_values($urls));
     }
@@ -2287,7 +2283,7 @@ class EntityReaderTest extends TestCase
     /**
      * @return iterable<string, array{0: list<array<string, mixed>>, 1: callable(Criteria): void, 2: list<string>}>
      */
-    public function casesToManyPaginated(): iterable
+    public static function casesToManyPaginated(): iterable
     {
         yield 'Multi sort' => [
             [
@@ -2459,7 +2455,7 @@ class EntityReaderTest extends TestCase
     /**
      * @return iterable<string, array{0: array<string, mixed>, 1: list<string>, 2: string}>
      */
-    public function casesToManyReadPaginatedInherited(): iterable
+    public static function casesToManyReadPaginatedInherited(): iterable
     {
         yield 'parent-data: with limit at 2 with 3 elements' => [
             ['limit' => 2], // Criteria

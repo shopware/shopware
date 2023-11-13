@@ -14,66 +14,63 @@ async function createWrapper({ permissions, modalTitle, selectedEntity }) {
         propsData: {
             permissions,
             modalTitle,
-            selectedEntity
+            selectedEntity,
         },
         mocks: {
             $tc: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
-            $te: () => true
+            $te: () => true,
         },
         stubs: {
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-modal': {
                 props: ['title'],
                 // eslint-disable-next-line max-len
-                template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>'
+                template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
             },
             'sw-extension-permissions-details-modal': true,
             'sw-icon': {
                 props: ['name', 'color'],
-                template: '<div class="icon">name:{{ name }} color:{{ color }}</div>'
-            }
-        }
+                template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
+            },
+        },
     });
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('sw-extension-permissions-details-modal', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
                 product: {
                     product: ['create', 'read'],
-                    product_visibility: ['create', 'read']
+                    product_visibility: ['create', 'read'],
                 },
                 promotion: {
-                    promotion: ['create', 'read']
-                }
-            }
+                    promotion: ['create', 'read'],
+                },
+            },
         });
 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the permissions', async () => {
-        wrapper = await createWrapper({
+    it('should display the permissions for creating and reading', async () => {
+        const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
                 product: {
                     product: ['create', 'read'],
-                    product_visibility: ['create', 'read']
+                    product_visibility: ['create', 'read'],
                 },
                 promotion: {
-                    promotion: ['create', 'read']
-                }
-            }
+                    promotion: ['create', 'read'],
+                },
+            },
         });
 
         expect(wrapper.find('.sw-modal__title').text()).toBe('Sample Extension Label');
@@ -95,7 +92,7 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(categoryHeader.at(1).text()).toBe('entityCategories.promotion.title');
 
         const entityLabels = wrapper.findAll('.sw-extension-permissions-details-modal__entity-label');
-        expect(entityLabels.length).toBe(3);
+        expect(entityLabels).toHaveLength(3);
 
         expect(entityLabels.at(0).text()).toBe('entityCategories.product.entities.product');
         expect(entityLabels.at(1).text()).toBe('entityCategories.product.entities.product_visibility');
@@ -116,25 +113,25 @@ describe('sw-extension-permissions-details-modal', () => {
             'name:regular-checkmark-xs color:#37D046',
             'name:regular-times-s color:#DE294C',
             'name:regular-checkmark-xs color:#37D046',
-            'name:regular-times-s color:#DE294C'
+            'name:regular-times-s color:#DE294C',
         ]);
     });
 
 
-    it('should display the permissions', async () => {
-        wrapper = await createWrapper({
+    it('should display the permissions for all product permissions', async () => {
+        const wrapper = await createWrapper({
             modalTitle: 'Sample Extension Label',
             selectedEntity: 'product',
             permissions: {
                 product: {
                     product: ['create', 'read', 'update', 'delete'],
-                    product_visibility: ['create']
+                    product_visibility: ['create'],
                 },
                 promotion: {
                     promotion: ['create'],
-                    promotion_individual_code: ['create', 'read', 'update', 'delete']
-                }
-            }
+                    promotion_individual_code: ['create', 'read', 'update', 'delete'],
+                },
+            },
         });
 
         expect(wrapper.find('.sw-modal__title').text()).toBe('Sample Extension Label');
@@ -156,7 +153,7 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(categoryHeader.at(1).text()).toBe('entityCategories.promotion.title');
 
         const entityLabels = wrapper.findAll('.sw-extension-permissions-details-modal__entity-label');
-        expect(entityLabels.length).toBe(4);
+        expect(entityLabels).toHaveLength(4);
 
         expect(entityLabels.at(0).text()).toBe('entityCategories.product.entities.product');
         expect(entityLabels.at(1).text()).toBe('entityCategories.product.entities.product_visibility');
@@ -182,7 +179,7 @@ describe('sw-extension-permissions-details-modal', () => {
             'name:regular-checkmark-xs color:#37D046',
             'name:regular-checkmark-xs color:#37D046',
             'name:regular-checkmark-xs color:#37D046',
-            'name:regular-checkmark-xs color:#37D046'
+            'name:regular-checkmark-xs color:#37D046',
         ]);
     });
 });

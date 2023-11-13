@@ -5,28 +5,21 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected Cart $cart;
-
-    protected SalesChannelContext $context;
-
-    protected Cart $previousCart;
-
     /**
      * @internal
      */
-    public function __construct(Cart $cart, SalesChannelContext $context, Cart $previousCart)
-    {
-        $this->cart = $cart;
-        $this->context = $context;
-        $this->previousCart = $previousCart;
+    public function __construct(
+        protected Cart $cart,
+        protected SalesChannelContext $context,
+        protected Cart $previousCart
+    ) {
     }
 
     public function getCart(): Cart

@@ -10,7 +10,7 @@ jest.mock('src/service/http-client.service', () => {
 
     const offCanvasCartTemplate = `
         <button class="offcanvas-close js-offcanvas-close">Continue shopping</button>
-        <div class="offcanvas-content-container">
+        <div class="offcanvas-body">
             <div class="cart-item cart-item-product js-cart-item">
                 <a class="cart-item-label" href="#">Kek product</a>
 
@@ -35,7 +35,7 @@ jest.mock('src/service/http-client.service', () => {
     return function () {
         return {
             post: (url, data, callback) => {
-                return callback('<div class="offcanvas-content-container">Content after update</div>');
+                return callback('<div class="offcanvas-body">Content after update</div>');
             },
             get: (url, callback) => {
                 return callback(offCanvasCartTemplate);
@@ -124,7 +124,7 @@ describe('OffCanvasCartPlugin tests', () => {
         expect(fireRequestSpy).toHaveBeenCalledTimes(1);
 
         // Verify updated content after quantity change
-        expect(document.querySelector('.offcanvas-content-container').textContent).toBe('Content after update');
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
     });
 
     test('change product quantity using number input', () => {
@@ -141,13 +141,13 @@ describe('OffCanvasCartPlugin tests', () => {
         quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Wait for debounce with time from defaults
-        jest.advanceTimersByTime(350);
+        jest.advanceTimersByTime(800);
 
         expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
         expect(fireRequestSpy).toHaveBeenCalledTimes(1);
 
         // Verify updated content after quantity change
-        expect(document.querySelector('.offcanvas-content-container').textContent).toBe('Content after update');
+        expect(document.querySelector('.offcanvas-body').textContent).toBe('Content after update');
     });
 
     test('change product quantity should not send too many requests when spamming the number input', () => {
@@ -166,13 +166,13 @@ describe('OffCanvasCartPlugin tests', () => {
         quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Wait for debounce with time from defaults
-        jest.advanceTimersByTime(350);
+        jest.advanceTimersByTime(800);
 
         // Change quantity again, this time after waiting long enough
         quantityInput.dispatchEvent(new Event('change', { bubbles: true }));
 
         // Wait for debounce with time from defaults
-        jest.advanceTimersByTime(350);
+        jest.advanceTimersByTime(800);
 
         expect(plugin.$emitter.publish).toBeCalledWith('beforeFireRequest');
 

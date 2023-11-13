@@ -4,14 +4,16 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1650444800AddDefaultSettingConfigValueForUseDefaultCookiesConsent extends MigrationStep
 {
     private const CONFIG_KEY = 'core.basicInformation.useDefaultCookieConsent';

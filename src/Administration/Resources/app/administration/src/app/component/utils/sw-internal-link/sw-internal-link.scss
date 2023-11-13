@@ -1,11 +1,10 @@
 @import "~scss/variables";
 
 .sw-internal-link {
-    display: grid;
-    grid-auto-flow: column;
-    grid-column-gap: 6px;
+    display: flex;
+    gap: 6px;
     align-items: center;
-    text-decoration: none;
+    text-decoration: underline;
     color: $color-shopware-brand-500;
     font-size: $font-size-xs;
 

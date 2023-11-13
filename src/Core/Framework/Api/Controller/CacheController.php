@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
@@ -16,40 +16,22 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package system-settings
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('system-settings')]
 class CacheController extends AbstractController
 {
-    private CacheClearer $cacheClearer;
-
-    private AdapterInterface $adapter;
-
-    private ?CacheWarmer $cacheWarmer;
-
-    private EntityIndexerRegistry $indexerRegistry;
-
     /**
      * @internal
      */
     public function __construct(
-        CacheClearer $cacheClearer,
-        AdapterInterface $adapter,
-        ?CacheWarmer $cacheWarmer,
-        EntityIndexerRegistry $indexerRegistry
+        private readonly CacheClearer $cacheClearer,
+        private readonly AdapterInterface $adapter,
+        private readonly ?CacheWarmer $cacheWarmer,
+        private readonly EntityIndexerRegistry $indexerRegistry
     ) {
-        $this->cacheClearer = $cacheClearer;
-        $this->adapter = $adapter;
-        $this->cacheWarmer = $cacheWarmer;
-        $this->indexerRegistry = $indexerRegistry;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_action/cache_info", name="api.action.cache.info", methods={"GET"}, defaults={"_acl"={"system:cache:info"}})
-     */
+    #[Route(path: '/api/_action/cache_info', name: 'api.action.cache.info', methods: ['GET'], defaults: ['_acl' => ['system:cache:info']])]
     public function info(): JsonResponse
     {
         return new JsonResponse([
@@ -59,10 +41,7 @@ class CacheController extends AbstractController
         ]);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_action/index", name="api.action.cache.index", methods={"POST"}, defaults={"_acl"={"api_action_cache_index"}})
-     */
+    #[Route(path: '/api/_action/index', name: 'api.action.cache.index', methods: ['POST'], defaults: ['_acl' => ['api_action_cache_index']])]
     public function index(RequestDataBag $dataBag): Response
     {
         $data = $dataBag->all();
@@ -73,10 +52,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_action/cache_warmup", name="api.action.cache.delete_and_warmup", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
-     */
+    #[Route(path: '/api/_action/cache_warmup', name: 'api.action.cache.delete_and_warmup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearCacheAndScheduleWarmUp(): Response
     {
         if ($this->cacheWarmer === null) {
@@ -88,10 +64,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/cache", name="api.action.cache.delete", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
-     */
+    #[Route(path: '/api/_action/cache', name: 'api.action.cache.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearCache(): Response
     {
         $this->cacheClearer->clear();
@@ -99,10 +72,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_action/cleanup", name="api.action.cache.cleanup", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
-     */
+    #[Route(path: '/api/_action/cleanup', name: 'api.action.cache.cleanup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearOldCacheFolders(): Response
     {
         $this->cacheClearer->scheduleCacheFolderCleanup();
@@ -110,10 +80,7 @@ class CacheController extends AbstractController
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_action/container_cache", name="api.action.container-cache.delete", methods={"DELETE"}, defaults={"_acl"={"system:clear:cache"}})
-     */
+    #[Route(path: '/api/_action/container_cache', name: 'api.action.container-cache.delete', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
     public function clearContainerCache(): Response
     {
         $this->cacheClearer->clearContainerCache();
@@ -125,9 +92,7 @@ class CacheController extends AbstractController
     {
         if ($adapter instanceof TagAwareAdapter || $adapter instanceof TraceableAdapter) {
             // Do not declare function as static
-            $func = \Closure::bind(function () use ($adapter) {
-                return $adapter->pool;
-            }, $adapter, \get_class($adapter));
+            $func = \Closure::bind(fn () => $adapter->pool, $adapter, $adapter::class);
 
             $adapter = $func();
         }
@@ -136,7 +101,7 @@ class CacheController extends AbstractController
             return $this->getUsedCache($adapter);
         }
 
-        $name = \get_class($adapter);
+        $name = $adapter::class;
         \assert(\is_string($name));
         $parts = explode('\\', $name);
         $name = str_replace('Adapter', '', end($parts));

@@ -37,18 +37,6 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
             return criteria;
         },
 
-        /**
-         * Only fetch custom field sets that are related to customer use context
-         * @major-deprecated tag:v6.5.0 - The computed property "customFieldSetCriteria"
-         * will be removed because the set is fetched by association of the field instead
-         * @returns {Object.Criteria}
-         */
-        customFieldSetCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            return criteria;
-        },
-
         operator: {
             get() {
                 this.ensureValueExist();
@@ -141,17 +129,6 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
 
             this.operator = null;
             this.renderedFieldValue = null;
-        },
-
-        /**
-         * Clear any further field's value if custom field set selection has changed
-         * @major-deprecated tag:v6.5.0 - The method "onFieldSetChange"
-         * will be removed because the set will instead be determined by the selected field
-         */
-        onFieldSetChange() {
-            this.selectedField = null;
-            this.operator = null;
-            this.renderedField = null;
         },
     },
 });

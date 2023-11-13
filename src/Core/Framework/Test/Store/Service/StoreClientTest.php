@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
@@ -17,10 +18,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('services-settings')]
 class StoreClientTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,7 +32,7 @@ class StoreClientTest extends TestCase
 
     private Context $storeContext;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->configService = $this->getContainer()->get(SystemConfigService::class);
         $this->storeClient = $this->getContainer()->get(StoreClient::class);

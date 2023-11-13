@@ -3,7 +3,7 @@ import './sw-cms-el-preview-category-navigation.scss';
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,

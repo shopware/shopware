@@ -10,18 +10,17 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\AdapterFactoryInterface;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\AdapterFactoryNotFoundException;
 use Shopware\Core\Framework\Adapter\Filesystem\Exception\DuplicateFilesystemFactoryException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FilesystemFactory
 {
     /**
      * @var AdapterFactoryInterface[]
      */
-    private iterable $adapterFactories;
+    private readonly iterable $adapterFactories;
 
     /**
      * @internal
@@ -34,6 +33,16 @@ class FilesystemFactory
     {
         $this->checkDuplicates($adapterFactories);
         $this->adapterFactories = $adapterFactories;
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    public function privateFactory(array $config): FilesystemOperator
+    {
+        $config['private'] = true;
+
+        return $this->factory($config);
     }
 
     /**
@@ -58,7 +67,7 @@ class FilesystemFactory
             Config::OPTION_DIRECTORY_VISIBILITY => $config['visibility'],
         ];
 
-        if ($config['visibility'] === Visibility::PUBLIC) {
+        if (!$config['private']) {
             $fsOptions['public_url'] = $config['url'] ?? $this->getFallbackUrl();
         }
 
@@ -110,11 +119,12 @@ class FilesystemFactory
         $options = new OptionsResolver();
 
         $options->setRequired(['type']);
-        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url']);
+        $options->setDefined(['config', 'visibility', 'disable_asserts', 'url', 'private']);
 
         $options->setDefault('config', []);
         $options->setDefault('visibility', Visibility::PUBLIC);
         $options->setDefault('disable_asserts', false);
+        $options->setDefault('private', false);
 
         $options->setAllowedTypes('type', 'string');
         $options->setAllowedTypes('config', 'array');
@@ -132,8 +142,7 @@ class FilesystemFactory
         $requestUrl = rtrim($basePath, '/') . '/';
 
         if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
-            /** @var string $requestUrl */
-            $requestUrl = EnvironmentHelper::getVariable('APP_URL');
+            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
         }
 
         return $requestUrl;

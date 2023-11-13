@@ -2,25 +2,38 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
+use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\NonUuidFkFieldSerializer;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityOneDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\NonUuidFkField\TestEntityTwoDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -97,7 +110,7 @@ class WriterTest extends TestCase
         $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $categories);
@@ -105,7 +118,7 @@ class WriterTest extends TestCase
         $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $translations);
@@ -124,7 +137,7 @@ class WriterTest extends TestCase
         $categories = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertEmpty($categories);
@@ -132,7 +145,7 @@ class WriterTest extends TestCase
         $translations = $this->connection->fetchAllAssociative(
             'SELECT * FROM category_translation WHERE category_id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertEmpty($translations);
@@ -157,7 +170,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertCount(2, $exists);
@@ -180,7 +193,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM category WHERE id IN (:id) ',
             ['id' => [Uuid::fromHexToBytes($id), Uuid::fromHexToBytes($id2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertEmpty($exists);
@@ -286,7 +299,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
-            ['product' => Connection::PARAM_STR_ARRAY]
+            ['product' => ArrayParameterType::BINARY]
         );
         static::assertCount(2, $exists);
 
@@ -298,7 +311,7 @@ class WriterTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product_category WHERE product_id IN (:product) AND category_id = :category',
             ['product' => [Uuid::fromHexToBytes($productId), Uuid::fromHexToBytes($productId2)], 'category' => Uuid::fromHexToBytes($categoryId)],
-            ['product' => Connection::PARAM_STR_ARRAY]
+            ['product' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
 
@@ -335,7 +348,6 @@ class WriterTest extends TestCase
         $product = $this->connection->fetchAssociative('SELECT * FROM product WHERE id=:id', [
             'id' => $this->idBytes,
         ]);
-        static::assertIsArray($product);
 
         static::assertIsArray($product);
         static::assertNotEmpty($product['id']);
@@ -479,7 +491,13 @@ class WriterTest extends TestCase
 
     public function testInsertIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
+        static::assertNotNull(
+            $this->getContainer()->get(MediaDefinition::class)
+                ->getFields()
+                ->get('url')
+                ?->getFlag(Runtime::class)
+        );
+
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
@@ -491,6 +509,7 @@ class WriterTest extends TestCase
                     'fileName' => 'testFile',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
+                    'path' => 'testFile.jpg',
                     'url' => 'www.example.com',
                 ],
             ],
@@ -501,12 +520,14 @@ class WriterTest extends TestCase
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertStringContainsString('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateIgnoresRuntimeFields(): void
     {
-        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')->getFlag(Runtime::class));
+        static::assertNotNull($this->getContainer()->get(MediaDefinition::class)->getFields()->get('url')?->getFlag(Runtime::class));
         $id = '2b9a945bb62b4122a32a3bbfbe1e6fd3';
         $writeContext = $this->createWriteContext();
         $this->getWriter()->insert(
@@ -516,6 +537,7 @@ class WriterTest extends TestCase
                     'id' => $id,
                     'name' => 'Test media',
                     'fileName' => 'testFile',
+                    'path' => 'testFile.jpg',
                     'mimeType' => 'image/jpeg',
                     'fileExtension' => 'jpg',
                 ],
@@ -535,7 +557,9 @@ class WriterTest extends TestCase
             new Criteria([$id]),
             Context::createDefaultContext()
         )->get($id);
-        static::assertStringEndsWith('/testFile.jpg', $media->getUrl());
+
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertStringContainsString('/testFile.jpg', $media->getUrl());
     }
 
     public function testUpdateWritesMultipleTranslations(): void
@@ -673,6 +697,7 @@ class WriterTest extends TestCase
             ->get($manufacturerId);
 
         static::assertNotNull($manufacturer);
+        static::assertInstanceOf(ProductManufacturerEntity::class, $manufacturer);
         static::assertEquals($mediaId, $manufacturer->getMediaId());
     }
 
@@ -713,11 +738,133 @@ class WriterTest extends TestCase
             $productRepository->create([], $context);
             $productRepository->upsert([], $context);
             $productRepository->update([], $context);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             $exceptionThrown = true;
         }
 
         static::assertFalse($exceptionThrown);
+    }
+
+    public function testCanWriteReadAndDeleteEntitiesWithFKFieldValuesThatAreNotUuids(): void
+    {
+        // Because this test creates new database tables we need to commit the current transaction. Because table
+        // creation auto-commits the current transaction on database level and would cause errors when Doctrine tries to
+        // commit the still-open transaction.
+        $this->connection->commit();
+        $container = $this->getContainer();
+        $context = Context::createDefaultContext();
+        /** @var DefinitionInstanceRegistry $definitionInstanceRegistry */
+        $definitionInstanceRegistry = $container->get(DefinitionInstanceRegistry::class);
+
+        // Prepare test entity 1 that has a non-uuid primary key
+        $this->connection->executeStatement(
+            'CREATE TABLE `test_entity_one` (
+                `technical_name` VARCHAR(255) NOT NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`technical_name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;',
+        );
+        $definitionInstanceRegistry->register(new TestEntityOneDefinition());
+        $testEntityOneRepository = new EntityRepository(
+            $definitionInstanceRegistry->getByClassOrEntityName(TestEntityOneDefinition::class),
+            $container->get(EntityReaderInterface::class),
+            $container->get(VersionManager::class),
+            $container->get(EntitySearcherInterface::class),
+            $container->get(EntityAggregatorInterface::class),
+            $container->get('event_dispatcher'),
+            $container->get(EntityLoadedEventFactory::class)
+        );
+
+        // Prepare test entity 2 that references test entity 1
+        $this->connection->executeStatement(
+            'CREATE TABLE `test_entity_two` (
+                `id` BINARY(16) NOT NULL,
+                `test_entity_one_technical_name` VARCHAR(255) NOT NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;',
+        );
+        $definitionInstanceRegistry->register(new TestEntityTwoDefinition());
+        $testEntityTwoRepository = new EntityRepository(
+            $definitionInstanceRegistry->getByClassOrEntityName(TestEntityTwoDefinition::class),
+            $container->get(EntityReaderInterface::class),
+            $container->get(VersionManager::class),
+            $container->get(EntitySearcherInterface::class),
+            $container->get(EntityAggregatorInterface::class),
+            $container->get('event_dispatcher'),
+            $container->get(EntityLoadedEventFactory::class)
+        );
+        $container->set(NonUuidFkFieldSerializer::class, new NonUuidFkFieldSerializer());
+
+        // Test creation
+        $testEntityOneRepository->create(
+            [
+                [
+                    'technicalName' => 'Some-Technical-Name',
+                ],
+            ],
+            $context,
+        );
+        $testEntityTwoId = Uuid::randomHex();
+        $testEntityTwoRepository->create(
+            [
+                [
+                    'id' => $testEntityTwoId,
+                    'testEntityOneTechnicalName' => 'Some-Technical-Name',
+                ],
+            ],
+            $context,
+        );
+
+        // Test fetch
+        $fetchedEntityOne = $testEntityOneRepository->search(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', 'Some-Technical-Name')),
+            $context,
+        );
+
+        // Test deletion
+        $testEntityOneRepository->delete([['technicalName' => 'Some-Technical-Name']], $context);
+        $testEntityTwoRepository->delete([['id' => $testEntityTwoId]], $context);
+
+        // Clean up
+        $this->connection->executeStatement(
+            'DROP TABLE `test_entity_two`;
+            DROP TABLE `test_entity_one`;',
+        );
+        $this->connection->beginTransaction();
+    }
+
+    public function testCanUpdateEntitiesToAddCustomFields(): void
+    {
+        /** @var EntityRepository $productRepository */
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productId = Uuid::randomHex();
+
+        $productRepository->create(
+            [
+                [
+                    'id' => $productId,
+                    'name' => 'foo',
+                    'productNumber' => Uuid::randomHex(),
+                    'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
+                    'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
+                    'stock' => 0,
+                ],
+            ],
+            Context::createDefaultContext(),
+        );
+
+        $productRepository->update(
+            [
+                [
+                    'id' => $productId,
+                    'customFields' => ['foo' => 'bar'],
+                ],
+            ],
+            Context::createDefaultContext(),
+        );
     }
 
     public function testCloneVariantTranslation(): void
@@ -776,7 +923,6 @@ class WriterTest extends TestCase
             'SELECT name, description FROM product_translation WHERE language_id = :language AND product_id = :id',
             ['language' => $ids->getBytes('language'), 'id' => $ids->getBytes('new-child')]
         );
-        static::assertIsArray($translations);
 
         static::assertIsArray($translations);
         static::assertNull($translations['name']);

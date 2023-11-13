@@ -17,13 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class LayoutBuilder
 {
-    protected IdsCollection $ids;
-
     protected string $id;
 
     protected ?string $name;
-
-    protected string $type;
 
     /**
      * @var mixed[]
@@ -40,12 +36,13 @@ class LayoutBuilder
      */
     protected array $sections = [];
 
-    public function __construct(IdsCollection $ids, string $key, string $type = 'landingpage')
-    {
-        $this->ids = $ids;
+    public function __construct(
+        protected IdsCollection $ids,
+        string $key,
+        protected string $type = 'landingpage'
+    ) {
         $this->id = $this->ids->create($key);
         $this->name = $key;
-        $this->type = $type;
     }
 
     /**
@@ -96,6 +93,117 @@ class LayoutBuilder
                 ['type' => 'product-listing', 'slot' => 'content', 'config' => []],
             ],
         ], self::margin(20, 20, 20, 20));
+
+        return $this;
+    }
+
+    public function image(string $key, string $section = 'main'): self
+    {
+        $this->section($section);
+
+        $this->sections[$section]['blocks'][] = array_merge(
+            [
+                'type' => 'image',
+                'position' => $this->blockPosition($section),
+                'sectionPosition' => 'main',
+                'backgroundMediaMode' => 'cover',
+                'slots' => [
+                    [
+                        'type' => 'image',
+                        'slot' => 'image',
+                        'config' => [
+                            'url' => ['source' => 'static', 'value' => 300],
+                            'media' => ['source' => 'static', 'value' => $this->ids->get($key)],
+                            'newTab' => ['source' => 'static', 'value' => false],
+                            'minHeight' => ['source' => 'static', 'value' => '340px'],
+                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                            'verticalAlign' => ['source' => 'static', 'value' => null],
+                        ],
+                    ],
+                ],
+            ],
+            self::margin(20, 20, 20, 20)
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $keys
+     */
+    public function imageSlider(array $keys, string $section = 'main'): self
+    {
+        $this->section($section);
+
+        $this->sections[$section]['blocks'][] = array_merge(
+            [
+                'type' => 'image-slider',
+                'position' => $this->blockPosition($section),
+                'sectionPosition' => 'main',
+                'backgroundMediaMode' => 'cover',
+                'slots' => [
+                    [
+                        'type' => 'image-slider',
+                        'slot' => 'imageSlider',
+                        'config' => [
+                            'sliderItems' => [
+                                'source' => 'static',
+                                'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
+                            ],
+                            'speed' => ['source' => 'static', 'value' => 300],
+                            'autoSlide' => ['source' => 'static', 'value' => false],
+                            'minHeight' => ['source' => 'static', 'value' => '300px'],
+                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                            'verticalAlign' => ['source' => 'static', 'value' => null],
+                            'navigationDots' => ['source' => 'static', 'value' => true],
+                            'autoplayTimeout' => ['source' => 'static', 'value' => 5000],
+                            'navigationArrows' => ['source' => 'static', 'value' => 'outside'],
+                        ],
+                    ],
+                ],
+            ],
+            self::margin(20, 20, 20, 20)
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string[] $keys
+     */
+    public function imageGallery(array $keys, string $section = 'main'): self
+    {
+        $this->section($section);
+
+        $this->sections[$section]['blocks'][] = array_merge(
+            [
+                'type' => 'image-gallery',
+                'position' => $this->blockPosition($section),
+                'sectionPosition' => 'main',
+                'backgroundMediaMode' => 'cover',
+                'slots' => [
+                    [
+                        'type' => 'image-gallery',
+                        'slot' => 'imageGallery',
+                        'config' => [
+                            'sliderItems' => [
+                                'source' => 'static',
+                                'value' => array_map(fn (string $id) => ['mediaId' => $id], array_values($this->ids->getList($keys))),
+                            ],
+                            'speed' => ['source' => 'static', 'value' => 300],
+                            'autoSlide' => ['source' => 'static', 'value' => false],
+                            'minHeight' => ['source' => 'static', 'value' => '300px'],
+                            'displayMode' => ['source' => 'static', 'value' => 'standard'],
+                            'verticalAlign' => ['source' => 'static', 'value' => null],
+                            'navigationDots' => ['source' => 'static', 'value' => true],
+                            'autoplayTimeout' => ['source' => 'static', 'value' => 5000],
+                            'navigationArrows' => ['source' => 'static', 'value' => 'outside'],
+                        ],
+                    ],
+                ],
+            ],
+            self::margin(20, 20, 20, 20)
+        );
 
         return $this;
     }
@@ -213,7 +321,7 @@ class LayoutBuilder
     public function productHeading(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
 
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
@@ -233,7 +341,7 @@ class LayoutBuilder
     public function galleryBuybox(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
                 'type' => 'gallery-buybox',
@@ -252,7 +360,7 @@ class LayoutBuilder
     public function descriptionReviews(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
                 'type' => 'product-description-reviews',
@@ -270,7 +378,7 @@ class LayoutBuilder
     public function crossSelling(?string $key = null, string $section = 'main'): self
     {
         $this->section($section);
-        $key = $key ?? Uuid::randomHex();
+        $key ??= Uuid::randomHex();
         $this->sections[$section]['blocks'][$key] = array_merge(
             [
                 'type' => 'cross-selling',
@@ -287,7 +395,7 @@ class LayoutBuilder
 
     private function blockPosition(string $section): int
     {
-        return \count($this->sections[$section]['blocks']);
+        return is_countable($this->sections[$section]['blocks']) ? \count($this->sections[$section]['blocks']) : 0;
     }
 
     /**

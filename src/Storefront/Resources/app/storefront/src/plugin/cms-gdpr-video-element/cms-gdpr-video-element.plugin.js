@@ -1,5 +1,9 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import HttpClient from 'src/service/http-client.service';
+import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
+import { COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS } from 'src/plugin/cookie/cookie-configuration.plugin';
+
+export const CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO = 'CmsGdprVideoElement_replaceElementWithVideo';
 
 /**
  * @package content
@@ -10,6 +14,7 @@ export default class CmsGdprVideoElement extends Plugin {
      * @type {{btnClasses: Array<String>, videoUrl: null, iframeClasses: Array<String>, overlayText: null, backdropClass: Array<String>, confirmButtonText: null}}
      */
     static options = {
+        cookieName: 'youtube-video',
         btnClasses: [],
         videoUrl: null,
         iframeClasses: [],
@@ -23,9 +28,16 @@ export default class CmsGdprVideoElement extends Plugin {
     /**
      * Plugin initializer
      *
-     * @returns {void}
+     * @returns {void|boolean}
      */
     init() {
+        document.$emitter.subscribe(COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS, this._replaceElementWithVideo.bind(this));
+        document.$emitter.subscribe(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO, this._replaceElementWithVideo.bind(this));
+
+        if (CookieStorageHelper.getItem(this.options.cookieName)) {
+            this._replaceElementWithVideo();
+        }
+
         this._client = new HttpClient();
         this.backdropElement = this.createElementBackdrop();
         this.el.appendChild(this.backdropElement);
@@ -90,11 +102,24 @@ export default class CmsGdprVideoElement extends Plugin {
      *
      * @fires click
      * @param {Event} event
-     * @returns {Boolean}
+     * @returns {boolean}
      */
     onReplaceElementWithVideo(event) {
         event.preventDefault();
 
+        CookieStorageHelper.setItem(this.options.cookieName, '1', '30');
+
+        document.$emitter.publish(CMS_GDPR_VIDEO_ELEMENT_REPLACE_ELEMENT_WITH_VIDEO);
+
+        return true;
+    }
+
+    /**
+     * Execute replacing the element with video
+     *
+     * @returns {boolean}
+     */
+    _replaceElementWithVideo() {
         const videoElement = document.createElement('iframe');
         videoElement.setAttribute('src', this.options.videoUrl);
 

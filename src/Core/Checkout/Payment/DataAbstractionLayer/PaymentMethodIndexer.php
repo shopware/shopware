@@ -9,35 +9,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentMethodIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private PaymentDistinguishableNameGenerator $distinguishableNameGenerator;
-
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $paymentMethodRepository,
-        PaymentDistinguishableNameGenerator $distinguishableNameGenerator
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly PaymentDistinguishableNameGenerator $distinguishableNameGenerator
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->distinguishableNameGenerator = $distinguishableNameGenerator;
     }
 
     public function getName(): string
@@ -46,7 +33,7 @@ class PaymentMethodIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<mixed>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {

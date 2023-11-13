@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Store\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package merchant-services
- */
+#[Package('services-settings')]
 class StoreNotAvailableException extends ShopwareHttpException
 {
     public function __construct()

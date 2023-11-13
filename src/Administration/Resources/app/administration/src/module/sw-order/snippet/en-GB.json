@@ -547,6 +547,10 @@
         "label": "Campaign code",
         "placeholder": "Select campaign code..."
       },
+      "promotionCodeFilter": {
+        "label": "Promotion code",
+        "placeholder": "Select promotion code..."
+      },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to find results."
     },

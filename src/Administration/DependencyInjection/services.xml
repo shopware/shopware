@@ -36,6 +36,7 @@
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -99,6 +100,11 @@
             <argument type="service" id="notification.repository"/>
         </service>
 
+        <service id="Shopware\Administration\Notification\Subscriber\UpdateSubscriber">
+            <argument type="service" id="Shopware\Administration\Notification\NotificationService" />
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Administration\Service\AdminSearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>
@@ -115,6 +121,7 @@
         <service id="Shopware\Administration\Snippet\AppAdministrationSnippetPersister">
             <argument type="service" id="app_administration_snippet.repository"/>
             <argument type="service" id="locale.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
         </service>
 
         <service id="Shopware\Administration\Snippet\SnippetFinder">
@@ -145,5 +152,19 @@
             <argument type="service" id="user_config.repository" />
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Administration\Dashboard\OrderAmountService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CashRounding"/>
+            <argument>%shopware.dbal.time_zone_support_enabled%</argument>
+        </service>
+
+        <service id="Shopware\Administration\Controller\DashboardController" public="true">
+            <argument type="service" id="Shopware\Administration\Dashboard\OrderAmountService"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
     </services>
 </container>

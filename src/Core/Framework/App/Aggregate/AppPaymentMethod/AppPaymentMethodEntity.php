@@ -7,12 +7,12 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class AppPaymentMethodEntity extends Entity
 {
     use EntityIdTrait;
@@ -57,11 +57,13 @@ class AppPaymentMethodEntity extends Entity
      */
     protected $finalizeUrl;
 
-    protected ?string $validateUrl;
+    protected ?string $validateUrl = null;
 
-    protected ?string $captureUrl;
+    protected ?string $captureUrl = null;
 
-    protected ?string $refundUrl;
+    protected ?string $refundUrl = null;
+
+    protected ?string $recurringUrl = null;
 
     /**
      * @var string|null
@@ -181,6 +183,16 @@ class AppPaymentMethodEntity extends Entity
     public function setRefundUrl(?string $refundUrl): void
     {
         $this->refundUrl = $refundUrl;
+    }
+
+    public function getRecurringUrl(): ?string
+    {
+        return $this->recurringUrl;
+    }
+
+    public function setRecurringUrl(?string $recurringUrl): void
+    {
+        $this->recurringUrl = $recurringUrl;
     }
 
     public function getOriginalMediaId(): ?string

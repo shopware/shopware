@@ -3,19 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class OffsetQuery implements IterableQuery
 {
-    private QueryBuilder $query;
-
     private int $offset = 0;
 
-    public function __construct(QueryBuilder $query)
+    public function __construct(private readonly QueryBuilder $query)
     {
-        $this->query = $query;
     }
 
     public function fetch(): array
@@ -37,7 +33,7 @@ class OffsetQuery implements IterableQuery
     {
         $query = clone $this->query;
 
-        //get first column for distinct selection
+        // get first column for distinct selection
         $select = $query->getQueryPart('select');
 
         $query->resetQueryPart('orderBy');

@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Validation\Constraint;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ArrayOfUuid extends Constraint
 {
-    public const INVALID_MESSAGE = 'The value "{{ string }}" is not a valid uuid.';
-    public const INVALID_TYPE_MESSAGE = 'This value should be of type array.';
-    public const INVALID_TYPE_CODE = 'FRAMEWORK__INVALID_UUID_WRITE_CONSTRAINT_VALIDATION';
+    final public const INVALID_MESSAGE = 'The value "{{ string }}" is not a valid uuid.';
+    final public const INVALID_TYPE_MESSAGE = 'This value should be of type array.';
+    final public const INVALID_TYPE_CODE = 'FRAMEWORK__INVALID_UUID_WRITE_CONSTRAINT_VALIDATION';
 }

@@ -17,7 +17,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use function print_r;
 
 /**
  * @internal
@@ -32,7 +31,7 @@ class AclAnnotationValidatorTest extends TestCase
 
     private AclAnnotationValidator $validator;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
@@ -65,16 +64,18 @@ class AclAnnotationValidatorTest extends TestCase
 
         $exception = null;
 
+        $controller = new AclTestController();
+
         try {
-            $this->validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
+            $this->validator->validate(new ControllerEvent($kernel, $controller->testRoute(...), $request, 1));
         } catch (\Exception $e) {
             $exception = $e;
         }
 
         if ($pass) {
-            static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertNull($exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         } else {
-            static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         }
     }
 
@@ -102,13 +103,15 @@ class AclAnnotationValidatorTest extends TestCase
 
         $exception = null;
 
+        $controller = new AclTestController();
+
         try {
-            $this->validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
+            $this->validator->validate(new ControllerEvent($kernel, $controller->testRoute(...), $request, 1));
         } catch (\Exception $e) {
             $exception = $e;
         }
 
-        static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+        static::assertNull($exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
     public function testValidateAppRequestFail(): void
@@ -135,19 +138,21 @@ class AclAnnotationValidatorTest extends TestCase
 
         $exception = null;
 
+        $controller = new AclTestController();
+
         try {
-            $this->validator->validate(new ControllerEvent($kernel, [new AclTestController(), 'testRoute'], $request, 1));
+            $this->validator->validate(new ControllerEvent($kernel, $controller->testRoute(...), $request, 1));
         } catch (\Exception $e) {
             $exception = $e;
         }
 
-        static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+        static::assertInstanceOf(MissingPrivilegeException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
     }
 
     /**
      * @return list<array{0: list<string>, 1: list<string>, 2: bool}>
      */
-    public function annotationProvider(): array
+    public static function annotationProvider(): array
     {
         return [
             [
@@ -183,11 +188,14 @@ class AclAnnotationValidatorTest extends TestCase
 
     private function registerActionButton(string $appName, string $actionId): void
     {
+        $iconRaw = \file_get_contents(__DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test/icon.png');
+        static::assertNotFalse($iconRaw);
+
         $this->appRepository->create([[
             'name' => $appName,
             'active' => true,
             'path' => __DIR__ . '/../../App/Manifest/_fixtures/test',
-            'iconRaw' => file_get_contents(__DIR__ . '/../../App/Manifest/_fixtures/test/icon.png'),
+            'iconRaw' => $iconRaw,
             'version' => '0.0.1',
             'label' => 'test',
             'accessToken' => 'test',
@@ -203,7 +211,6 @@ class AclAnnotationValidatorTest extends TestCase
             ],
             'integration' => [
                 'label' => $appName,
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

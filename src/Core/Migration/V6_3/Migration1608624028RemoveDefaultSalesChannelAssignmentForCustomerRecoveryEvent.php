@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryEvent extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -30,17 +33,15 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
             return;
         }
 
-        $customerRecoveryEvents = array_map(function ($event) {
-            return $event['id'];
-        }, $customerRecoveryEvents);
+        $customerRecoveryEvents = array_map(fn ($event) => $event['id'], $customerRecoveryEvents);
 
         try {
             $connection->executeStatement(
                 'DELETE FROM event_action_sales_channel WHERE event_action_id IN (:eventActionIds)',
                 ['eventActionIds' => $customerRecoveryEvents],
-                ['eventActionIds' => Connection::PARAM_STR_ARRAY]
+                ['eventActionIds' => ArrayParameterType::BINARY]
             );
-        } catch (\Exception $ex) {
+        } catch (\Exception) {
             // nth
         }
     }

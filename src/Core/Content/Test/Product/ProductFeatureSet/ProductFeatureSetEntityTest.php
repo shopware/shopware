@@ -8,13 +8,13 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetD
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductFeatureSetEntityTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -35,7 +35,7 @@ class ProductFeatureSetEntityTest extends TestCase
         $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);
 
         static::assertTrue(method_exists($definition, $method));
-        static::assertEquals($returnValue, $definition->$method());
+        static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
     }
 
     /**
@@ -94,7 +94,7 @@ class ProductFeatureSetEntityTest extends TestCase
         );
     }
 
-    public function definitionMethodProvider(): array
+    public static function definitionMethodProvider(): array
     {
         return [
             [

@@ -1,54 +1,68 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount } from '@vue/test-utils';
+import Vue from 'vue';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsSlot from 'src/module/sw-cms/component/sw-cms-slot';
 
 Shopware.Component.register('sw-cms-slot', swCmsSlot);
 
-async function createWrapper() {
+async function createWrapper(propsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-cms-slot'), {
         propsData: {
-            element: {}
+            element: {
+                type: 'example_cms_element_type',
+            },
+            ...propsData,
         },
         stubs: {
             'foo-bar': true,
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-skeleton-bar': true,
         },
         provide: {
             cmsService: {
+                getCmsServiceState: () => Vue.observable({
+                    elementRegistry: {
+                        product_list_block: null,
+                        landing_block: null,
+                        example_cms_element_type: {
+                            component: 'foo-bar',
+                            disabledConfigInfoTextKey: 'lorem',
+                            defaultConfig: {
+                                text: 'lorem',
+                            },
+                        },
+                    },
+                }),
                 getCmsElementRegistry: () => {
                     return {
                         product_list_block: null,
-                        landing_block: null
+                        landing_block: null,
                     };
                 },
-                getCmsElementConfigByName: () => ({
-                    component: 'foo-bar',
-                    disabledConfigInfoTextKey: 'lorem',
-                    defaultConfig: {
-                        text: 'lorem'
-                    }
-                }),
-                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType)
+                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType),
             },
             cmsElementFavorites: {
                 isFavorite() {
                     return false;
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
+
+jest.useFakeTimers();
+
 describe('module/sw-cms/component/sw-cms-slot', () => {
     beforeAll(() => {
         Shopware.State.registerModule('cmsPageState', {
             namespaced: true,
             state: {
                 isSystemDefaultLanguage: true,
-                currentPageType: 'product_list'
-            }
+                currentPageType: 'product_list',
+            },
         });
     });
 
@@ -62,8 +76,8 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
-                slot: 'left'
-            }
+                slot: 'left',
+            },
         });
 
         expect(wrapper.classes()).toContain('sw-cms-slot-left');
@@ -72,7 +86,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
     it('disable the custom component', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.classes()).toContain('is--disabled');
@@ -94,9 +108,10 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             element: {
-                locked: true
+                type: 'example_cms_element_type',
+                locked: true,
             },
-            active: true
+            active: true,
         });
 
         expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
@@ -105,7 +120,9 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
 
     it('test onSelectElement', async () => {
         const wrapper = await createWrapper();
-        expect(wrapper.vm.element).toEqual({});
+        expect(wrapper.vm.element).toEqual({
+            type: 'example_cms_element_type',
+        });
 
         wrapper.vm.onSelectElement({
             name: 'testElement',
@@ -136,7 +153,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
             name: 'testElement3',
             defaultData: {
                 text: 'Test text',
-            }
+            },
         });
         expect(wrapper.vm.element).toEqual({
             type: 'testElement3',
@@ -172,5 +189,27 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         const wrapper = await createWrapper();
 
         expect(Object.keys(wrapper.vm.cmsElements)).toStrictEqual(['product_list_block']);
+    });
+
+    it('should show an error state after 10s when element is not existing', async () => {
+        const wrapper = await createWrapper({
+            element: {
+                type: 'not-existing',
+            },
+        });
+
+        // Element not found should not be visible
+        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(false);
+        // Loading skeleton should be visible
+        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(true);
+
+        // Advance time by 10s
+        jest.advanceTimersByTime(10000);
+        await flushPromises();
+
+        // Element not found should be visible after 10 seconds
+        expect(wrapper.find('.sw-cms-slot__element-not-found').exists()).toBe(true);
+        // Loading skeleton should not be visible after 10 seconds
+        expect(wrapper.find('sw-skeleton-bar-stub').exists()).toBe(false);
     });
 });

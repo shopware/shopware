@@ -6,16 +6,15 @@ use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
-use Shopware\Core\Profiling\Doctrine\DebugStack;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class NullConnection extends Connection
 {
-    public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
+    final public const EXCEPTION_MESSAGE = 'Write operations are not supported when using executeQuery.';
 
     private Connection $originalConnection;
 
@@ -30,9 +29,9 @@ class NullConnection extends Connection
     /**
      * {@inheritdoc}
      */
-    public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
+    public function executeQuery(string $sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null): Result
     {
-        $matches = preg_match_all(DebugStack::$writeSqlRegex, $sql);
+        $matches = preg_match_all('/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i', $sql);
 
         if ($matches) {
             throw new \RuntimeException(self::EXCEPTION_MESSAGE);
@@ -41,7 +40,7 @@ class NullConnection extends Connection
         return $this->originalConnection->executeQuery($sql, $params, $types, $qcp);
     }
 
-    public function prepare($statement): Statement
+    public function prepare(string $statement): Statement
     {
         return $this->originalConnection->prepare($statement);
     }

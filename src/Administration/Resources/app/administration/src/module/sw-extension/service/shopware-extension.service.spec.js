@@ -26,24 +26,28 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 });
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
-describe('shopware-extension.service', () => {
+describe('src/module/sw-extension/service/shopware-extension.service', () => {
     let shopwareExtensionService;
 
     beforeAll(() => {
         shopwareExtensionService = Shopware.Service('shopwareExtensionService');
 
         initState(Shopware);
+
+        if (Shopware.State.get('extensionEntryRoutes')) {
+            Shopware.State.unregisterModule('extensionEntryRoutes');
+        }
         Shopware.State.registerModule('extensionEntryRoutes', {
             namespaced: true,
             state: {
                 routes: {
                     ExamplePlugin: {
-                        route: 'test.foo'
-                    }
-                }
-            }
+                        route: 'test.foo',
+                    },
+                },
+            },
         });
     });
 
@@ -62,7 +66,7 @@ describe('shopware-extension.service', () => {
             mockedModuleService,
             mockedExtensionStoreActionService,
             Shopware.Service('shopwareDiscountCampaignService'),
-            Shopware.Service('storeService')
+            Shopware.Service('storeService'),
         );
 
         function expectUpdateExtensionDataCalled() {
@@ -148,7 +152,7 @@ describe('shopware-extension.service', () => {
             await shopwareExtensionService.checkLogin();
 
             expect(Shopware.State.get('shopwareExtensions').loginStatus).toBe(false);
-            expect(Shopware.State.get('shopwareExtensions').userInfo).toBe(null);
+            expect(Shopware.State.get('shopwareExtensions').userInfo).toBeNull();
         });
     });
 
@@ -157,8 +161,8 @@ describe('shopware-extension.service', () => {
             const variant = {
                 netPrice: 100,
                 discountCampaign: {
-                    discountedPrice: 80
-                }
+                    discountedPrice: 80,
+                },
             };
 
             expect(shopwareExtensionService.isVariantDiscounted(variant)).toBe(true);
@@ -168,8 +172,8 @@ describe('shopware-extension.service', () => {
             const variant = {
                 netPrice: 100,
                 discountCampaign: {
-                    discountedPrice: 80
-                }
+                    discountedPrice: 80,
+                },
             };
 
             Shopware.Service('shopwareDiscountCampaignService')
@@ -219,19 +223,23 @@ describe('shopware-extension.service', () => {
                         if (isCurrentDiscounted !== !isComparatorDiscounted) {
                             // discounted index is always smaller than undiscounted
                             if (isCurrentDiscounted && !isComparatorDiscounted) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeLessThan(comparatorIndex);
                             }
 
                             if (!isCurrentDiscounted && isComparatorDiscounted) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeGreaterThan(comparatorIndex);
                             }
                         } else {
                             // variants are ordered by recommendation
                             if (currentRecommendation < comparatorRecommendation) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeLessThan(comparatorIndex);
                             }
 
                             if (currentIndex > comparatorRecommendation) {
+                                // eslint-disable-next-line jest/no-conditional-expect
                                 expect(currentIndex).toBeGreaterThan(comparatorIndex);
                             }
                         }
@@ -247,7 +255,7 @@ describe('shopware-extension.service', () => {
                 discountCampaign: {
                     discountedPrice: 80,
                 },
-            })).toEqual(80);
+            })).toBe(80);
         });
 
         it('returns net price if variant is not discounted', async () => {
@@ -259,7 +267,7 @@ describe('shopware-extension.service', () => {
                 discountCampaign: {
                     discountedPrice: 80,
                 },
-            })).toEqual(100);
+            })).toBe(100);
         });
     });
 
@@ -284,63 +292,63 @@ describe('shopware-extension.service', () => {
                 url: '/search-ids/theme',
                 status: 200,
                 response: {
-                    data: [themeId]
-                }
+                    data: [themeId],
+                },
             });
 
             const openLink = await shopwareExtensionService.getOpenLink({
                 isTheme: true,
                 type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'SwagExampleApp'
+                name: 'SwagExampleApp',
             });
 
             expect(openLink).toEqual({
                 name: 'sw.theme.manager.detail',
-                params: { id: themeId }
+                params: { id: themeId },
             });
         });
 
         it('returns valid open link for app with main module', async () => {
             Shopware.State.commit(
                 'shopwareApps/setApps',
-                appModulesFixtures
+                appModulesFixtures,
             );
 
             expect(await shopwareExtensionService.getOpenLink({
                 isTheme: false,
                 type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'testAppA'
+                name: 'testAppA',
             })).toEqual({
                 name: 'sw.extension.module',
                 params: {
-                    appName: 'testAppA'
-                }
+                    appName: 'testAppA',
+                },
             });
         });
 
-        test('returns no open link for app without main module', async () => {
+        it('returns no open link for app without main module', async () => {
             Shopware.State.commit(
                 'shopwareApps/setApps',
-                appModulesFixtures
+                appModulesFixtures,
             );
 
             expect(await shopwareExtensionService.getOpenLink({
                 isTheme: false,
                 type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'testAppB'
+                name: 'testAppB',
             })).toBeNull();
         });
 
         it('returns no open link if app can not be found', async () => {
             Shopware.State.commit(
                 'shopwareApps/setApps',
-                appModulesFixtures
+                appModulesFixtures,
             );
 
             expect(await shopwareExtensionService.getOpenLink({
                 isTheme: false,
                 type: shopwareExtensionService.EXTENSION_TYPES.APP,
-                name: 'ThisAppDoesNotExist'
+                name: 'ThisAppDoesNotExist',
             })).toBeNull();
         });
 
@@ -348,7 +356,7 @@ describe('shopware-extension.service', () => {
             expect(await shopwareExtensionService.getOpenLink({
                 isTheme: false,
                 type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
-                name: 'SwagNoModule'
+                name: 'SwagNoModule',
             })).toBeNull();
         });
 
@@ -357,10 +365,10 @@ describe('shopware-extension.service', () => {
                 isTheme: false,
                 type: shopwareExtensionService.EXTENSION_TYPES.PLUGIN,
                 name: 'ExamplePlugin',
-                active: true
+                active: true,
             })).toEqual({
                 label: null,
-                name: 'test.foo'
+                name: 'test.foo',
             });
         });
     });

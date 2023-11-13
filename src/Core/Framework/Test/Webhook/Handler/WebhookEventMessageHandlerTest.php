@@ -9,24 +9,24 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
  * @internal
  */
 class WebhookEventMessageHandlerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use GuzzleTestClientBehaviour;
+    use IntegrationTestBehaviour;
 
     private WebhookEventMessageHandler $webhookEventMessageHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->webhookEventMessageHandler = $this->getContainer()->get(WebhookEventMessageHandler::class);
     }
@@ -47,7 +47,6 @@ class WebhookEventMessageHandlerTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -81,17 +80,17 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        (($this->webhookEventMessageHandler)($webhookEventMessage));
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
 
         $timestamp = time();
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload);
+        $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body->body, 'payload');
-        static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
+        static::assertEquals($body['body'], 'payload');
+        static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
@@ -127,7 +126,6 @@ class WebhookEventMessageHandlerTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -163,17 +161,17 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $this->appendNewResponse(new Response(200));
 
-        (($this->webhookEventMessageHandler)($webhookEventMessage));
+        ($this->webhookEventMessageHandler)($webhookEventMessage);
 
         $timestamp = time();
         $request = $this->getLastRequest();
         static::assertInstanceOf(RequestInterface::class, $request);
         $payload = $request->getBody()->getContents();
-        $body = json_decode($payload);
+        $body = json_decode($payload, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals('POST', $request->getMethod());
-        static::assertEquals($body->body, 'payload');
-        static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
+        static::assertEquals($body['body'], 'payload');
+        static::assertGreaterThanOrEqual($body['timestamp'], $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
         static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');

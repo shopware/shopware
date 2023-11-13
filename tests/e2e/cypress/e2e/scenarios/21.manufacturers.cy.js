@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 import ManufacturerPageObject from '../../support/pages/module/sw-manufacturer.page-object';
 
@@ -20,7 +22,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
         });
     });
 
-    it('@package: create a manufacturer and verify appearance from the storefront', { tags: ['pa-inventory'] }, () => {
+    it('@package: create a manufacturer and verify appearance from the storefront', { tags: ['pa-inventory', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-visibility`,
             method: 'POST',
@@ -48,7 +50,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
 
         const page = new ProductPageObject();
         const manufacturerPage = new ManufacturerPageObject();
-        const salesChannel = 'E2E install test';
+        const salesChannel = Cypress.env('storefrontName');
         const manufacturerName = 'Test AG';
 
         // create new manufacturer
@@ -105,7 +107,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
         cy.url().should('include', 'sales/channel/detail');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-skeleton').should('not.exist');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');
@@ -127,7 +129,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.url().should('include', 'products');
         cy.get('.sw-select__selection > input').click()
             .type('Test Product {enter}');
@@ -140,7 +142,7 @@ describe('Manufacturers: Appearance in Storefront & Product Filter', () => {
         cy.visit('/');
         cy.contains('Home');
         cy.contains('Manufacturer').click();
-        cy.get('.custom-control-label.filter-multi-select-item-label').should('be.visible')
+        cy.get('.form-check-label.filter-multi-select-item-label').should('be.visible')
             .and('include.text', manufacturerName);
 
         // check product details

@@ -3,17 +3,17 @@
 namespace Shopware\Storefront\Framework\Cache\Annotation;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @Annotation
  *
  * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_httpCache"=true}` or `{"_httpCache"={"maxAge": 360, "states": {"logged-in", "cart-filled"}}}` instead
  */
+#[Package('storefront')]
 class HttpCache
 {
-    public const ALIAS = 'httpCache';
+    final public const ALIAS = 'httpCache';
 
     private ?int $maxAge = null;
 
@@ -22,11 +22,25 @@ class HttpCache
      */
     private ?array $states = null;
 
+    /**
+     * @param array{maxAge?: int, states?: list<string>} $values
+     */
+    public function __construct(array $values)
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
+        );
+
+        $this->maxAge = $values['maxAge'] ?? null;
+        $this->states = $values['states'] ?? null;
+    }
+
     public function getAliasName(): string
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return self::ALIAS;
@@ -36,7 +50,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return true;
@@ -46,7 +60,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return $this->maxAge;
@@ -56,7 +70,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         $this->maxAge = $maxAge;
@@ -69,7 +83,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return $this->states ?? [];
@@ -82,7 +96,7 @@ class HttpCache
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         $this->states = $states;

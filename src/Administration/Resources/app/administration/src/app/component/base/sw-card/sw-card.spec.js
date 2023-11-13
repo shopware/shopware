@@ -23,7 +23,7 @@ async function createWrapper(additionalOptions = {}) {
         propsData: {
             positionIdentifier: 'test',
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 }
 
@@ -32,8 +32,8 @@ describe('src/app/component/base/sw-card', () => {
         const options = {
             propsData: {
                 positionIdentifier: 'test',
-                title: 'test title'
-            }
+                title: 'test title',
+            },
         };
         const wrapper = await createWrapper(options);
 
@@ -44,8 +44,8 @@ describe('src/app/component/base/sw-card', () => {
         const options = {
             propsData: {
                 positionIdentifier: 'test',
-                subtitle: 'test subtitle'
-            }
+                subtitle: 'test subtitle',
+            },
         };
         const wrapper = await createWrapper(options);
 
@@ -56,8 +56,8 @@ describe('src/app/component/base/sw-card', () => {
         const options = {
             propsData: {
                 positionIdentifier: 'test',
-                isLoading: true
-            }
+                isLoading: true,
+            },
         };
         const wrapper = await createWrapper(options);
 
@@ -67,8 +67,8 @@ describe('src/app/component/base/sw-card', () => {
     it('should leave an implemented sw-card unaffected if `context-action` has not been slotted', async () => {
         const options = {
             slots: {
-                default: 'hello'
-            }
+                default: 'hello',
+            },
         };
         const emptyCard = await createWrapper(options);
 
@@ -78,8 +78,8 @@ describe('src/app/component/base/sw-card', () => {
     it('should correctly use the `context-action` slot using unscoped slots', async () => {
         const options = {
             slots: {
-                'context-actions': '<div class="unscoped-slot">Unscoped</div>'
-            }
+                'context-actions': '<div class="unscoped-slot">Unscoped</div>',
+            },
         };
         const wrapper = await createWrapper(options);
         const buttonUnscopedCard = wrapper.find('.sw-context-button__button');
@@ -94,8 +94,8 @@ describe('src/app/component/base/sw-card', () => {
     it('should correctly use the `context-action` slot using scoped slots', async () => {
         const options = {
             scopedSlots: {
-                'context-actions': '<div class="scoped-slot">Scoped</div>'
-            }
+                'context-actions': '<div class="scoped-slot">Scoped</div>',
+            },
         };
         const wrapper = await createWrapper(options);
         const buttonScopedCard = wrapper.find('.sw-context-button__button');

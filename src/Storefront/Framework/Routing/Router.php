@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Routing\Router as SymfonyRouter;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,27 +14,21 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class Router implements RouterInterface, RequestMatcherInterface, WarmableInterface, ServiceSubscriberInterface
 {
     /**
      * @var int Used to indicate the router that we only need the path info without the sales channel prefix
      */
-    public const PATH_INFO = 10;
-
-    private SymfonyRouter $decorated;
-
-    private RequestStack $requestStack;
+    final public const PATH_INFO = 10;
 
     /**
      * @internal
      */
-    public function __construct(SymfonyRouter $decorated, RequestStack $requestStack)
-    {
-        $this->decorated = $decorated;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        private readonly SymfonyRouter $decorated,
+        private readonly RequestStack $requestStack
+    ) {
     }
 
     /**
@@ -47,7 +42,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @return array<string>
      */
-    public function warmUp(string $cacheDir)
+    public function warmUp(string $cacheDir): array
     {
         return $this->decorated->warmUp($cacheDir);
     }
@@ -87,7 +82,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     {
         $basePath = $this->getBasePath();
         if ($referenceType === self::PATH_INFO) {
-            $route = $this->decorated->generate($name, $parameters, self::ABSOLUTE_PATH);
+            $route = $this->decorated->generate($name, $parameters);
 
             return $this->removePrefix($route, $basePath);
         }
@@ -102,7 +97,6 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         switch ($referenceType) {
             case self::NETWORK_PATH:
             case self::ABSOLUTE_URL:
-
                 $schema = '';
                 if ($referenceType === self::ABSOLUTE_URL) {
                     $schema = $this->getContext()->getScheme() . ':';
@@ -129,7 +123,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 );
 
                 // url contains the base path and the base url
-                    // base url /shopware/public/de
+                // base url /shopware/public/de
                 $rewrite = ltrim($salesChannelBaseUrl, '/') . $generated;
 
                 break;
@@ -191,8 +185,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        return strncmp($name, 'frontend.', 9) === 0
-            || strncmp($name, 'widgets.', 8) === 0
-            || strncmp($name, 'payment.', 8) === 0;
+        return str_starts_with($name, 'frontend.')
+            || str_starts_with($name, 'widgets.')
+            || str_starts_with($name, 'payment.');
     }
 }

@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\Framework\Plugin\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PluginPreUninstallEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var UninstallContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, UninstallContext $context)
-    {
+    public function __construct(
+        PluginEntity $plugin,
+        private readonly UninstallContext $context
+    ) {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): UninstallContext

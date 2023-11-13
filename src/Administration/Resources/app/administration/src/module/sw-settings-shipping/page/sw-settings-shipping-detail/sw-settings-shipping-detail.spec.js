@@ -15,10 +15,11 @@ async function createWrapper(privileges = []) {
     localVue.use(Vuex);
 
     const shippingMethod = {};
+    shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
     shippingMethod.prices = {
-        add: () => {}
+        add: () => {},
     };
 
     return shallowMount(await Shopware.Component.build('sw-settings-shipping-detail'), {
@@ -30,23 +31,28 @@ async function createWrapper(privileges = []) {
                     create: () => {
                         return shippingMethod;
                     },
-                    search: () => Promise.resolve([])
-                })
+                    search: () => Promise.resolve([]),
+                    get: () => Promise.resolve(shippingMethod),
+                    save: () => Promise.resolve(),
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
+            feature: {
+                isActive: () => true,
+            },
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
+                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-button': true,
             'sw-button-process': true,
@@ -55,8 +61,22 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-card': true,
             'sw-container': true,
-            'sw-field': true,
-            'sw-textarea-field': true,
+            'sw-text-field': {
+                props: ['disabled'],
+                template: '<input class="sw-field" :disabled="disabled" />',
+            },
+            'sw-number-field': {
+                props: ['disabled'],
+                template: '<input class="sw-field" :disabled="disabled" />',
+            },
+            'sw-switch-field': {
+                props: ['disabled'],
+                template: '<input class="sw-field" :disabled="disabled" />',
+            },
+            'sw-textarea-field': {
+                props: ['disabled'],
+                template: '<input class="sw-field sw-textarea-field" :disabled="disabled" />',
+            },
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
             'sw-entity-single-select': true,
@@ -66,7 +86,7 @@ async function createWrapper(privileges = []) {
             'sw-settings-shipping-tax-cost': true,
             'sw-language-info': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -74,21 +94,21 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            isProcessLoading: false
+            isProcessLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-settings-shipping-method-detail__save-action');
         expect(saveButton.attributes().disabled).toBe('true');
 
-        const swFields = wrapper.findAll('sw-field-stub');
+        const swFields = wrapper.findAll('.sw-field');
         expect(swFields.length).toBeGreaterThan(0);
 
         swFields.wrappers.forEach(swField => {
-            expect(swField.attributes().disabled).toBe('true');
+            expect(swField.attributes().disabled).toBe('disabled');
         });
 
-        const textareaField = wrapper.find('sw-textarea-field-stub');
-        expect(textareaField.attributes().disabled).toBe('true');
+        const textareaField = wrapper.find('.sw-field.sw-textarea-field');
+        expect(textareaField.attributes().disabled).toBe('disabled');
 
         const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
         expect(mediaUpload.attributes().disabled).toBe('true');
@@ -108,23 +128,23 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
 
     it('should have all fields enabled', async () => {
         const wrapper = await createWrapper([
-            'shipping.editor'
+            'shipping.editor',
         ]);
         await wrapper.setData({
-            isProcessLoading: false
+            isProcessLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-settings-shipping-method-detail__save-action');
         expect(saveButton.attributes().disabled).toBeUndefined();
 
-        const swFields = wrapper.findAll('sw-field-stub');
+        const swFields = wrapper.findAll('.sw-field');
         expect(swFields.length).toBeGreaterThan(0);
 
         swFields.wrappers.forEach(swField => {
             expect(swField.attributes().disabled).toBeUndefined();
         });
 
-        const textareaField = wrapper.find('sw-textarea-field-stub');
+        const textareaField = wrapper.find('.sw-field.sw-textarea-field');
         expect(textareaField.attributes().disabled).toBeUndefined();
 
         const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
@@ -147,7 +167,46 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 
-        expect(criteria.associations[0].association).toEqual('conditions');
+        expect(criteria.associations[0].association).toBe('conditions');
+    });
+
+    it('should load customFieldSet on loadEntityData', async () => {
+        const wrapper = await createWrapper();
+        const spyGetMethod = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
+        const spyLoadCustomFieldSets = jest.spyOn(wrapper.vm, 'loadCustomFieldSets');
+
+        wrapper.vm.loadEntityData();
+
+        await flushPromises();
+        expect(spyGetMethod).toHaveBeenCalled();
+        expect(spyLoadCustomFieldSets).toHaveBeenCalled();
+    });
+
+    it('should save sucessfully', async () => {
+        const wrapper = await createWrapper();
+        const spy = jest.spyOn(wrapper.vm.$router, 'push');
+
+        wrapper.vm.shippingMethod.prices = [];
+        wrapper.vm.$refs.mediaSidebarItem = { getList: () => {} };
+        wrapper.vm.onSave();
+
+        await flushPromises();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(spy).toHaveBeenCalled();
+    });
+
+    it('should create notification on save error', async () => {
+        const wrapper = await createWrapper();
+        const spy = jest.spyOn(wrapper.vm, 'createNotificationError');
+        const warningSpy = jest.spyOn(console, 'warn').mockImplementation();
+        const error = new Error('error');
+
+        wrapper.vm.shippingMethodRepository.save = () => Promise.reject(error);
+        wrapper.vm.shippingMethod.prices = [];
+
+        await expect(wrapper.vm.onSave()).rejects.toBe(error);
+        expect(spy).toHaveBeenCalled();
+        expect(warningSpy).toHaveBeenCalled();
+        expect(wrapper.vm.isProcessLoading).toBe(false);
     });
 });
-

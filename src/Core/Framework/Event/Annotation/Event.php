@@ -3,19 +3,27 @@
 namespace Shopware\Core\Framework\Event\Annotation;
 
 use Doctrine\Common\Annotations\Annotation;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\EventDispatcher\Event as SymfonyBaseEvent;
 
 /**
  * @Annotation
- * @Target("ALL")
  *
- * @package business-ops
+ * @Target("ALL")
  */
+#[Package('business-ops')]
 class Event
 {
+    /**
+     * @var class-string<SymfonyBaseEvent>
+     */
     private string $eventClass;
 
     private ?string $deprecationVersion = null;
 
+    /**
+     * @param array<string, mixed> $values
+     */
     public function __construct(array $values)
     {
         if (\is_array($values['value'])) {
@@ -28,6 +36,9 @@ class Event
         $this->eventClass = $values['value'];
     }
 
+    /**
+     * @return class-string<SymfonyBaseEvent>
+     */
     public function getEventClass(): string
     {
         return $this->eventClass;

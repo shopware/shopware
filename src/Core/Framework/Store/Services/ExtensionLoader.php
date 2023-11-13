@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
@@ -31,41 +32,25 @@ use Symfony\Component\Intl\Languages;
 use Symfony\Component\Intl\Locales;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('services-settings')]
 class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
-
-    private ?EntityRepository $themeRepository;
 
     /**
      * @var array<string>|null
      */
     private ?array $installedThemeNames = null;
 
-    private AbstractAppLoader $appLoader;
-
-    private ConfigurationService $configurationService;
-
-    private LocaleProvider $localeProvider;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     public function __construct(
-        ?EntityRepository $themeRepository,
-        AbstractAppLoader $appLoader,
-        ConfigurationService $configurationService,
-        LocaleProvider $localeProvider,
-        LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly ?EntityRepository $themeRepository,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly ConfigurationService $configurationService,
+        private readonly LocaleProvider $localeProvider,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
-        $this->themeRepository = $themeRepository;
-        $this->appLoader = $appLoader;
-        $this->configurationService = $configurationService;
-        $this->localeProvider = $localeProvider;
-        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     /**
@@ -170,9 +155,7 @@ class ExtensionLoader
         $codes = array_values($this->languageLocaleProvider->getLocalesForLanguageIds($languageIds));
         sort($codes);
 
-        return array_map(static function (string $locale): string {
-            return str_replace('-', '_', $locale);
-        }, $codes);
+        return array_map(static fn (string $locale): string => str_replace('-', '_', $locale), $codes);
     }
 
     private function loadFromPlugin(Context $context, PluginEntity $plugin): ExtensionStruct
@@ -235,7 +218,9 @@ class ExtensionLoader
         $language = $this->localeProvider->getLocaleFromContext($context);
 
         foreach ($apps as $name => $app) {
-            $icon = $this->appLoader->getIcon($app);
+            if ($icon = $app->getMetadata()->getIcon()) {
+                $icon = $this->appLoader->loadFile($app->getPath(), $icon);
+            }
 
             $appArray = $app->getMetadata()->toArray($language);
 
@@ -387,18 +372,14 @@ class ExtensionLoader
     private function makeLanguagesArray(AppTranslationCollection $translations): array
     {
         $languageIds = array_map(
-            static function ($translation) {
-                return $translation->getLanguageId();
-            },
+            static fn ($translation) => $translation->getLanguageId(),
             $translations->getElements()
         );
 
         $translationLocales = $this->getLocalesCodesFromLanguageIds($languageIds);
 
         return array_map(
-            static function ($translationLocale) {
-                return ['name' => $translationLocale];
-            },
+            static fn ($translationLocale) => ['name' => $translationLocale],
             $translationLocales
         );
     }

@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ProductPageObject from '../../support/pages/module/sw-product.page-object';
 
 describe('Admin & Storefront - product visibility', () => {
@@ -33,7 +35,7 @@ describe('Admin & Storefront - product visibility', () => {
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.advanced-visibility').click();
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-field__radio-option-checked [type]').check();
@@ -51,7 +53,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.url().should('include', 'products');
         cy.get('.sw-select__selection > input').click()
             .type('Product name {enter}');
@@ -88,7 +90,7 @@ describe('Admin & Storefront - product visibility', () => {
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.advanced-visibility').click();
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-grid-column--center:nth-of-type(4) [type]').check();
@@ -106,7 +108,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.url().should('include', 'products');
         cy.get('.sw-select__selection > input').click()
             .type('Product name {enter}');
@@ -143,7 +145,7 @@ describe('Admin & Storefront - product visibility', () => {
         );
         cy.contains('h2','Product name').should('be.visible');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView()
-            .typeMultiSelectAndCheck('E2E install test');
+            .typeMultiSelectAndCheck(Cypress.env('storefrontName'));
         cy.get('.advanced-visibility').click();
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-grid-column--center:nth-of-type(5) [type]').check();
@@ -160,7 +162,7 @@ describe('Admin & Storefront - product visibility', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'category/index');
         cy.get('.tree-link > .sw-tree-item__label').click();
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.url().should('include', 'products');
         cy.get('.sw-select__selection > input').click()
             .type('Product name {enter}');

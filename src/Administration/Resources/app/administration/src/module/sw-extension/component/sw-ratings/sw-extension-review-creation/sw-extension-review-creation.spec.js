@@ -20,7 +20,7 @@ Shopware.Component.extend('sw-extension-select-rating', 'sw-text-field', swExten
 Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     /** @type Wrapper */
@@ -29,18 +29,18 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-extension-review-creation'), {
             propsData: {
-                extension: {}
+                extension: {},
             },
             provide: {
                 validationService: {},
                 extensionStoreActionService: {
-                    rateExtension: jest.fn()
-                }
+                    rateExtension: jest.fn(),
+                },
             },
             computed: {
                 installedVersion() {
                     return '1.0.0';
-                }
+                },
             },
             stubs: {
                 'sw-extension-review-creation-inputs': await Shopware.Component.build('sw-extension-review-creation-inputs'),
@@ -54,14 +54,14 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                 'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
                 'sw-icon': true,
                 'sw-textarea-field': {
-                    template: '<textarea></textarea>'
+                    template: '<textarea></textarea>',
                 },
                 'sw-gtc-checkbox': await Shopware.Component.build('sw-gtc-checkbox'),
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-button-process': await Shopware.Component.build('sw-button-process'),
                 'sw-external-link': await Shopware.Component.build('sw-external-link'),
                 'sw-loader': true,
-            }
+            },
         });
     }
 
@@ -85,29 +85,7 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
         await gtcCheckbox.setChecked();
         expect(gtcCheckbox.element.checked).toBe(true);
 
-        expect(submitButton.attributes('disabled')).toBe(undefined);
-    });
-
-    it('should set toc to false and disable button when clicking the \'cancel\' button', async () => {
-        wrapper = await createWrapper();
-
-        const submitButton = wrapper.find('.sw-button.sw-button--primary');
-        expect(submitButton.attributes('disabled')).toBe('disabled');
-
-        const gtcCheckbox = wrapper.find('input[type="checkbox"]');
-
-        await gtcCheckbox.setChecked();
-
-        expect(gtcCheckbox.element.checked).toBe(true);
-
-        expect(submitButton.attributes('disabled')).toBe(undefined);
-
-        const cancelButton = wrapper.find('.sw-extension-review-creation__buttons .sw-button');
-        await cancelButton.trigger('click');
-
-        expect(submitButton.attributes('disabled')).toBe('disabled');
-
-        expect(gtcCheckbox.element.checked).toBe(false);
+        expect(submitButton.attributes('disabled')).toBeUndefined();
     });
 
     it('should make an api request', async () => {

@@ -8,16 +8,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 class ShopConfiguratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -26,7 +26,7 @@ class ShopConfiguratorTest extends TestCase
 
     private SystemConfigService $systemConfigService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->shopConfigurator = $this->getContainer()->get(ShopConfigurator::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);

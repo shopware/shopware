@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
@@ -16,13 +18,16 @@ use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Profiling\Profiler;
@@ -32,60 +37,32 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
  */
+#[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface
 {
-    private EventDispatcherInterface $dispatcher;
-
-    private Connection $connection;
-
     private ?WebhookCollection $webhooks = null;
-
-    private Client $guzzle;
-
-    private string $shopUrl;
-
-    private ContainerInterface $container;
 
     /**
      * @var array<string, mixed>
      */
     private array $privileges = [];
 
-    private HookableEventFactory $eventFactory;
-
-    private string $shopwareVersion;
-
-    private MessageBusInterface $bus;
-
-    private bool $isAdminWorkerEnabled;
-
     /**
      * @internal
      */
     public function __construct(
-        EventDispatcherInterface $dispatcher,
-        Connection $connection,
-        Client $guzzle,
-        string $shopUrl,
-        ContainerInterface $container,
-        HookableEventFactory $eventFactory,
-        string $shopwareVersion,
-        MessageBusInterface $bus,
-        bool $isAdminWorkerEnabled
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly Connection $connection,
+        private readonly Client $guzzle,
+        private readonly string $shopUrl,
+        private readonly ContainerInterface $container,
+        private readonly HookableEventFactory $eventFactory,
+        private readonly string $shopwareVersion,
+        private readonly MessageBusInterface $bus,
+        private readonly bool $isAdminWorkerEnabled
     ) {
-        $this->dispatcher = $dispatcher;
-        $this->connection = $connection;
-        $this->guzzle = $guzzle;
-        $this->shopUrl = $shopUrl;
-        // inject container, so we can later get the ShopIdProvider and the webhook repository
-        // ShopIdProvider, AppLocaleProvider and webhook repository can not be injected directly as it would lead to a circular reference
-        $this->container = $container;
-        $this->eventFactory = $eventFactory;
-        $this->shopwareVersion = $shopwareVersion;
-        $this->bus = $bus;
-        $this->isAdminWorkerEnabled = $isAdminWorkerEnabled;
     }
 
     public function dispatch(object $event, ?string $eventName = null): object
@@ -111,12 +88,11 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
-     * @param callable $listener
-     * @param int      $priority
+     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
      */
-    public function addListener($eventName, $listener, $priority = 0): void
+    public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
 
@@ -125,12 +101,9 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    /**
-     * @param string   $eventName
-     * @param callable $listener
-     */
-    public function removeListener($eventName, $listener): void
+    public function removeListener(string $eventName, callable $listener): void
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->removeListener($eventName, $listener);
     }
 
@@ -140,28 +113,20 @@ class WebhookDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string|null $eventName
-     *
-     * @return array<array-key, array<array-key, callable>|callable>
+     * @return array<array-key, array<array-key, callable(object): void>|callable(object): void>
      */
-    public function getListeners($eventName = null): array
+    public function getListeners(?string $eventName = null): array
     {
         return $this->dispatcher->getListeners($eventName);
     }
 
-    /**
-     * @param string   $eventName
-     * @param callable $listener
-     */
-    public function getListenerPriority($eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, callable $listener): ?int
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 
-    /**
-     * @param string|null $eventName
-     */
-    public function hasListeners($eventName = null): bool
+    public function hasListeners(?string $eventName = null): bool
     {
         return $this->dispatcher->hasListeners($eventName);
     }
@@ -180,6 +145,8 @@ class WebhookDispatcher implements EventDispatcherInterface
     {
         /** @var WebhookCollection $webhooksForEvent */
         $webhooksForEvent = $this->getWebhooks()->filterForEvent($event->getName());
+
+        $webhooksForEvent = $this->filterWebhooksByLiveVersion($webhooksForEvent, $event);
 
         if ($webhooksForEvent->count() === 0) {
             return;
@@ -202,6 +169,31 @@ class WebhookDispatcher implements EventDispatcherInterface
         Profiler::trace('webhook::dispatch-async', function () use ($userLocale, $languageId, $affectedRoleIds, $event, $webhooksForEvent): void {
             $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $affectedRoleIds, $languageId, $userLocale);
         });
+    }
+
+    private function filterWebhooksByLiveVersion(WebhookCollection $webhooksForEvent, Hookable $event): WebhookCollection
+    {
+        if (!$event instanceof HookableEntityWrittenEvent) {
+            return $webhooksForEvent;
+        }
+
+        return $webhooksForEvent->filter(
+            static function (Entity $struct) use ($event): bool {
+                $onlyLiveVersion = $struct->get('onlyLiveVersion');
+
+                if (!$onlyLiveVersion) {
+                    return true;
+                }
+
+                foreach ($event->getWebhookPayload() as $writeResult) {
+                    if (isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        );
     }
 
     private function getWebhooks(): WebhookCollection
@@ -270,7 +262,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException $e) {
+            } catch (AppUrlChangeDetectedException) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -278,8 +270,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             $timestamp = time();
             $webhookData['timestamp'] = $timestamp;
 
-            /** @var string $jsonPayload */
-            $jsonPayload = json_encode($webhookData);
+            $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);
 
             $headers = [
                 'Content-Type' => 'application/json',
@@ -332,7 +323,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             try {
                 $webhookData = $this->getPayloadForWebhook($webhook, $event);
-            } catch (AppUrlChangeDetectedException $e) {
+            } catch (AppUrlChangeDetectedException) {
                 // don't dispatch webhooks for apps if url changed
                 continue;
             }
@@ -365,15 +356,6 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private function getPayloadForWebhook(WebhookEntity $webhook, Hookable $event): array
     {
-        if ($event instanceof AppFlowActionEvent) {
-            return $event->getWebhookPayload();
-        }
-
-        $data = [
-            'payload' => $event->getWebhookPayload(),
-            'event' => $event->getName(),
-        ];
-
         $source = [
             'url' => $this->shopUrl,
             'eventId' => Uuid::randomHex(),
@@ -386,10 +368,39 @@ class WebhookDispatcher implements EventDispatcherInterface
             $source['shopId'] = $shopIdProvider->getShopId();
         }
 
+        if ($event instanceof AppFlowActionEvent) {
+            $source['action'] = $event->getName();
+            $payload = $event->getWebhookPayload();
+            $payload['source'] = $source;
+
+            return $payload;
+        }
+
+        $data = [
+            'payload' => $this->filterPayloadByLiveVersion($event->getWebhookPayload(), $webhook, $event),
+            'event' => $event->getName(),
+        ];
+
         return [
             'data' => $data,
             'source' => $source,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed>
+     */
+    private function filterPayloadByLiveVersion(array $payload, WebhookEntity $webhook, Hookable $event): array
+    {
+        if (!$event instanceof HookableEntityWrittenEvent || !$webhook->getOnlyLiveVersion()) {
+            return $payload;
+        }
+
+        return array_filter($payload, function ($writeResult) {
+            return isset($writeResult['versionId']) && $writeResult['versionId'] === Defaults::LIVE_VERSION;
+        });
     }
 
     private function logWebhookWithEvent(WebhookEntity $webhook, WebhookEventMessage $webhookEventMessage): void
@@ -400,12 +411,13 @@ class WebhookDispatcher implements EventDispatcherInterface
         $webhookEventLogRepository->create([
             [
                 'id' => $webhookEventMessage->getWebhookEventId(),
-                'appName' => $webhook->getApp() !== null ? $webhook->getApp()->getName() : null,
+                'appName' => $webhook->getApp()?->getName(),
                 'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED,
                 'webhookName' => $webhook->getName(),
                 'eventName' => $webhook->getEventName(),
-                'appVersion' => $webhook->getApp() !== null ? $webhook->getApp()->getVersion() : null,
+                'appVersion' => $webhook->getApp()?->getVersion(),
                 'url' => $webhook->getUrl(),
+                'onlyLiveVersion' => $webhook->getOnlyLiveVersion(),
                 'serializedWebhookMessage' => serialize($webhookEventMessage),
             ],
         ], Context::createDefaultContext());
@@ -420,7 +432,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             SELECT `id`, `privileges`
             FROM `acl_role`
             WHERE `id` IN (:aclRoleIds)
-        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => Connection::PARAM_STR_ARRAY]);
+        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => ArrayParameterType::BINARY]);
 
         if (!$roles) {
             $this->privileges[$eventName] = [];
@@ -428,7 +440,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($roles as $privilege) {
             $this->privileges[$eventName][Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode($privilege['privileges'], true));
+                = new AclPrivilegeCollection(json_decode((string) $privilege['privileges'], true, 512, \JSON_THROW_ON_ERROR));
         }
     }
 

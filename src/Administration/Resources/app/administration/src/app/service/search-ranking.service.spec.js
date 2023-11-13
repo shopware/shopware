@@ -4,13 +4,13 @@ import searchRankingModules from './_mocks/searchRankingModules.json';
 
 Shopware.Service().register('userConfigService', () => {
     return {
-        search: () => Promise.resolve({ data: {} })
+        search: () => Promise.resolve({ data: {} }),
     };
 });
 
 Shopware.Service().register('loginService', () => {
     return {
-        addOnLoginListener: () => {}
+        addOnLoginListener: () => {},
     };
 });
 
@@ -22,9 +22,9 @@ describe('app/service/search-ranking.service.js', () => {
         routes: {
             index: {
                 path: 'index',
-                component: 'sw-index'
-            }
-        }
+                component: 'sw-index',
+            },
+        },
     };
     const searchFieldsByEntityCases = [
         [
@@ -32,58 +32,58 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
                 },
                 options: {
                     name: {
                         _searchable: true,
-                        _score: searchRankingPoint.LOW_SEARCH_RANKING
-                    }
-                }
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
             },
             {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
-                'product.options.name': searchRankingPoint.LOW_SEARCH_RANKING
-            }
+                'product.options.name': searchRankingPoint.LOW_SEARCH_RANKING,
+            },
         ],
         [
             'two fields with the one have searchable is true and the other is false',
             {
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
                 },
                 options: {
                     name: {
                         _searchable: false,
-                        _score: searchRankingPoint.LOW_SEARCH_RANKING
-                    }
-                }
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
             },
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
-            }
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
         ],
         [
             'two fields with both have searchable is false',
             {
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
                 },
                 options: {
                     name: {
                         _searchable: false,
-                        _score: searchRankingPoint.LOW_SEARCH_RANKING
-                    }
-                }
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
             },
-            {}
+            {},
         ],
         [
             'empty search ranking fields',
             {},
-            {}
+            {},
         ],
         [
             'entity is unsearchable',
@@ -91,17 +91,17 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: false,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
                 },
                 options: {
                     name: {
                         _searchable: false,
-                        _score: searchRankingPoint.LOW_SEARCH_RANKING
-                    }
-                }
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                    },
+                },
             },
-            {}
-        ]
+            {},
+        ],
     ];
 
     const buildingCriteriaScoreQueryCase = [
@@ -109,25 +109,25 @@ describe('app/service/search-ranking.service.js', () => {
             'term has just one word with word has more than 1 character',
             'order',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
+                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75),
         ],
         [
             'term has just one word with word has 1 character',
             'o',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25)).setTerm('o')
+            (new Criteria(1, 25)).setTerm('o'),
         ],
         [
             'term has just two words with both have more than 1 character',
             'order category',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'order category'), searchRankingPoint.HIGH_SEARCH_RANKING)
@@ -135,61 +135,61 @@ describe('app/service/search-ranking.service.js', () => {
                 .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
                 .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75)
                 .addQuery(Criteria.equals('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75)
+                .addQuery(Criteria.contains('product.name', 'category'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75),
 
         ],
         [
             'term has just two words with one of them have less than 2 characters',
             'order c',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'order c'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'order c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
                 .addQuery(Criteria.equals('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75)
+                .addQuery(Criteria.contains('product.name', 'order'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75),
 
         ],
         [
             'term has just two words with both have less than 2 characters',
             'o c',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING)
-                .addQuery(Criteria.contains('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
+                .addQuery(Criteria.contains('product.name', 'o c'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75),
 
         ],
         [
             'term has just two words with the same',
             'same same',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             (new Criteria(1, 25))
                 .addQuery(Criteria.equals('product.name', 'same same'), searchRankingPoint.HIGH_SEARCH_RANKING)
                 .addQuery(Criteria.contains('product.name', 'same same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.75)
                 .addQuery(Criteria.equals('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5)
-                .addQuery(Criteria.contains('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75)
+                .addQuery(Criteria.contains('product.name', 'same'), searchRankingPoint.HIGH_SEARCH_RANKING * 0.5 * 0.75),
         ],
         [
             'term is undefined',
             undefined,
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25)).setTerm(undefined)
+            (new Criteria(1, 25)).setTerm(undefined),
         ],
         [
             'term has only spaces',
             '       ',
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
-            (new Criteria(1, 25)).setTerm('       ')
-        ]
+            (new Criteria(1, 25)).setTerm('       '),
+        ],
     ];
 
     const userConfigSearchPreferenceCase = [
@@ -198,52 +198,52 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
             },
             {
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
             },
-            {}
+            {},
         ],
         [
             'Overwrite the default fields from unsearchable to searchable',
             {
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
             },
             {
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
             },
             {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
-            }
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
         ],
         [
             'Overwrite the default score',
             {
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
             },
             {
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
             },
             {
-                'product.name': searchRankingPoint.LOW_SEARCH_RANKING
-            }
+                'product.name': searchRankingPoint.LOW_SEARCH_RANKING,
+            },
         ],
         [
             'Return empty when the module has default search configuration is empty',
@@ -251,11 +251,11 @@ describe('app/service/search-ranking.service.js', () => {
             {
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
-                }
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+                },
             },
-            {}
-        ]
+            {},
+        ],
     ];
 
     function clearModules() {
@@ -270,7 +270,7 @@ describe('app/service/search-ranking.service.js', () => {
 
     function addDataToRegisterUserConfigService(userConfigSearchs) {
         const data = {
-            [KEY_USER_SEARCH_PREFERENCE]: userConfigSearchs
+            [KEY_USER_SEARCH_PREFERENCE]: userConfigSearchs,
         };
 
         Shopware.Service('userConfigService').search = () => Promise.resolve({ data });
@@ -287,10 +287,10 @@ describe('app/service/search-ranking.service.js', () => {
         const actual = await service.getUserSearchPreference();
         const expected = {
             product: {
-                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             property_group: {
-                'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING
+                'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING,
             },
             order: {},
             cms_page: {},
@@ -335,19 +335,19 @@ describe('app/service/search-ranking.service.js', () => {
                         query: {
                             type: 'equals',
                             field: 'product.name',
-                            value: 'order'
-                        }
+                            value: 'order',
+                        },
                     },
                     {
                         score: searchRankingPoint.HIGH_SEARCH_RANKING * 0.75,
                         query: {
                             type: 'contains',
                             field: 'product.name',
-                            value: 'order'
-                        }
-                    }
+                            value: 'order',
+                        },
+                    },
                 ],
-                'total-count-mode': 1
+                'total-count-mode': 1,
             },
             property_group: {
                 page: 1,
@@ -358,20 +358,20 @@ describe('app/service/search-ranking.service.js', () => {
                         query: {
                             type: 'equals',
                             field: 'property_group.name',
-                            value: 'order'
-                        }
+                            value: 'order',
+                        },
                     },
                     {
                         score: searchRankingPoint.HIGH_SEARCH_RANKING * 0.75,
                         query: {
                             type: 'contains',
                             field: 'property_group.name',
-                            value: 'order'
-                        }
-                    }
+                            value: 'order',
+                        },
+                    },
                 ],
-                'total-count-mode': 1
-            }
+                'total-count-mode': 1,
+            },
         };
 
         expect(actual).toEqual(expected);
@@ -394,9 +394,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         };
 
         createModules([module]);
@@ -410,9 +410,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         };
 
         createModules([module]);
@@ -432,9 +432,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         };
 
         createModules([module]);
@@ -448,9 +448,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         };
 
         createModules([module]);
@@ -469,14 +469,14 @@ describe('app/service/search-ranking.service.js', () => {
             addDataToRegisterUserConfigService([{
                 product: {
                     _searchable: true,
-                    ...userConfigSearchFields
-                }
+                    ...userConfigSearchFields,
+                },
             }]);
             const newService = new SearchRankingService();
             const actual = await newService.getSearchFieldsByEntity('product');
 
             expect(actual).toEqual(expected);
-        }
+        },
     );
 
     it('Should add default search configuration of a new module to current user search preferences', async () => {
@@ -484,18 +484,18 @@ describe('app/service/search-ranking.service.js', () => {
             _searchable: true,
             name: {
                 _searchable: true,
-                _score: searchRankingPoint.HIGH_SEARCH_RANKING
-            }
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
         };
 
         createModules(searchRankingModules);
         addDataToRegisterUserConfigService([
             {
-                order: { ...commonSearchConfigurations }
+                order: { ...commonSearchConfigurations },
             },
             {
-                property_group: { ...commonSearchConfigurations }
-            }
+                property_group: { ...commonSearchConfigurations },
+            },
         ]);
 
         const service = new SearchRankingService();
@@ -504,7 +504,7 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual({
             product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
             order: { 'order.name': searchRankingPoint.HIGH_SEARCH_RANKING },
-            property_group: { 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING }
+            property_group: { 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING },
         });
     });
 
@@ -513,29 +513,29 @@ describe('app/service/search-ranking.service.js', () => {
             _searchable: true,
             name: {
                 _searchable: true,
-                _score: searchRankingPoint.HIGH_SEARCH_RANKING
-            }
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
+            },
         };
 
         const module = { ...defaultModule, defaultSearchConfiguration: { ...commonSearchConfigurations } };
         createModules([module]);
         addDataToRegisterUserConfigService([
             {
-                order: { ...commonSearchConfigurations }
+                order: { ...commonSearchConfigurations },
             },
             {
-                property_group: { ...commonSearchConfigurations }
+                property_group: { ...commonSearchConfigurations },
             },
             {
-                product: { ...commonSearchConfigurations }
-            }
+                product: { ...commonSearchConfigurations },
+            },
         ]);
 
         const service = new SearchRankingService();
         const actual = await service.getUserSearchPreference();
 
         expect(actual).toEqual({
-            product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING }
+            product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
         });
     });
 
@@ -546,9 +546,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         };
 
         createModules([module]);
@@ -557,9 +557,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         }]);
         const newService = new SearchRankingService();
         let actual = await newService.getSearchFieldsByEntity('product');
@@ -573,9 +573,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: false,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         }]);
 
         actual = await newService.getSearchFieldsByEntity('product');
@@ -590,9 +590,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         };
 
         createModules([module]);
@@ -601,9 +601,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: true,
                 name: {
                     _searchable: true,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         }]);
         const newService = new SearchRankingService();
         let actual = await newService.getSearchFieldsByEntity('product');
@@ -616,9 +616,9 @@ describe('app/service/search-ranking.service.js', () => {
                 _searchable: false,
                 name: {
                     _searchable: false,
-                    _score: searchRankingPoint.LOW_SEARCH_RANKING
-                }
-            }
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING,
+                },
+            },
         }]);
         newService.clearCacheUserSearchConfiguration();
 

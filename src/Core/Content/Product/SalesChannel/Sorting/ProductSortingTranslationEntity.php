@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSortingTranslationEntity extends TranslationEntity
 {
     use EntityIdTrait;

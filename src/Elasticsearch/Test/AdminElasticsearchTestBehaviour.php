@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Test;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchAdminIndexingCommand;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -12,9 +13,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 trait AdminElasticsearchTestBehaviour
 {
     /**

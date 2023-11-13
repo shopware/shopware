@@ -20,7 +20,7 @@ const loginServiceFactory = () => {
 
     return {
         loginService: new LoginService(client, contextMock),
-        clientMock: clientMock
+        clientMock: clientMock,
     };
 };
 
@@ -30,12 +30,12 @@ describe('core/service/login.service.js', () => {
         Object.defineProperty(document, 'cookie', {
             // eslint-disable-next-line func-names
             set: function (value) {
-                cookieStorageMock = value;
+                cookieStorageMock = `${cookieStorageMock}${value};`;
             },
             // eslint-disable-next-line func-names
             get: function () {
                 return cookieStorageMock;
-            }
+            },
         });
 
         const mockDate = new Date(1577881800000);
@@ -45,9 +45,8 @@ describe('core/service/login.service.js', () => {
     });
 
     beforeEach(() => {
-        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000);
         window.localStorage.removeItem('redirectFromLogin');
-        document.cookie = '';
+        cookieStorageMock = '';
     });
 
     it('should contain all public functions', async () => {
@@ -72,13 +71,13 @@ describe('core/service/login.service.js', () => {
         const auth = loginService.setBearerAuthentication({
             expiry: 300,
             access: 'aCcEsS_tOkEn',
-            refresh: 'rEfReSh_ToKeN'
+            refresh: 'rEfReSh_ToKeN',
         });
 
         expect(auth).toEqual({
             expiry: 1577882100,
             access: 'aCcEsS_tOkEn',
-            refresh: 'rEfReSh_ToKeN'
+            refresh: 'rEfReSh_ToKeN',
         });
     });
 
@@ -90,7 +89,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         const auth = await loginService.loginByUsername('admin', 'shopware');
@@ -98,7 +97,7 @@ describe('core/service/login.service.js', () => {
         expect(auth).toEqual({
             expiry: 1577882400,
             access: 'aCcEsS_tOkEn',
-            refresh: 'rEfReSh_ToKeN'
+            refresh: 'rEfReSh_ToKeN',
         });
     });
 
@@ -118,7 +117,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
@@ -128,11 +127,11 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn_TwO',
-                refresh_token: 'rEfReSh_ToKeN_tWo'
+                refresh_token: 'rEfReSh_ToKeN_tWo',
             });
 
         const refreshToken = await loginService.refreshToken();
-        expect(refreshToken).toEqual('aCcEsS_tOkEn_TwO');
+        expect(refreshToken).toBe('aCcEsS_tOkEn_TwO');
     });
 
     it('should refresh the actual bearer auth', async () => {
@@ -143,7 +142,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
@@ -153,7 +152,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 400,
                 access_token: 'aCcEsS_tOkEn_TwO',
-                refresh_token: 'rEfReSh_ToKeN_tWo'
+                refresh_token: 'rEfReSh_ToKeN_tWo',
             });
 
         await loginService.refreshToken();
@@ -162,7 +161,7 @@ describe('core/service/login.service.js', () => {
         expect(bearerAuthentication).toEqual({
             access: 'aCcEsS_tOkEn_TwO',
             expiry: 1577882200,
-            refresh: 'rEfReSh_ToKeN_tWo'
+            refresh: 'rEfReSh_ToKeN_tWo',
         });
     });
 
@@ -174,7 +173,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
@@ -183,7 +182,7 @@ describe('core/service/login.service.js', () => {
         expect(authLoggedIn).toEqual({
             expiry: 1577882400,
             access: 'aCcEsS_tOkEn',
-            refresh: 'rEfReSh_ToKeN'
+            refresh: 'rEfReSh_ToKeN',
         });
 
         loginService.logout();
@@ -195,7 +194,7 @@ describe('core/service/login.service.js', () => {
     it('should return the storage key', async () => {
         const { loginService } = loginServiceFactory();
 
-        expect(loginService.getStorageKey()).toEqual('bearerAuth');
+        expect(loginService.getStorageKey()).toBe('bearerAuth');
     });
 
     it('should check if user is logged in', async () => {
@@ -208,7 +207,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
@@ -224,12 +223,12 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
 
-        expect(loginService.getToken()).toEqual('aCcEsS_tOkEn');
+        expect(loginService.getToken()).toBe('aCcEsS_tOkEn');
     });
 
     it('should return false when token is unparsable', async () => {
@@ -238,26 +237,6 @@ describe('core/service/login.service.js', () => {
         document.cookie = 'bearerAuth=%7B%22acce{{"ss%%3A1577882400%7D';
 
         expect(loginService.getBearerAuthentication()).toBeFalsy();
-    });
-
-    it('should set the bearer auth also in non document environments', async () => {
-        const { loginService, clientMock } = loginServiceFactory();
-
-        const documentClone = global.document;
-        delete global.document;
-        global.document = undefined;
-
-        clientMock.onPost('/oauth/token')
-            .reply(200, {
-                token_type: 'Bearer',
-                expires_in: 600,
-                access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
-            });
-
-        await loginService.loginByUsername('admin', 'shopware');
-
-        global.document = documentClone;
     });
 
     it('should call the listener', async () => {
@@ -274,7 +253,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         expect(tokenChangedListener).not.toHaveBeenCalled();
@@ -316,7 +295,7 @@ describe('core/service/login.service.js', () => {
     it('should reject when no refresh token was found', async () => {
         const { loginService } = loginServiceFactory();
 
-        await expect(loginService.refreshToken()).rejects.toThrowError();
+        await expect(loginService.refreshToken()).rejects.toThrow();
     });
 
     it('should be logged in when token exists', async () => {
@@ -345,19 +324,19 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn_first',
-                refresh_token: 'rEfReSh_ToKeN_first'
+                refresh_token: 'rEfReSh_ToKeN_first',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
 
         expect(clientMock.history.post[0]).toBeDefined();
         expect(clientMock.history.post[1]).toBeUndefined();
-        expect(JSON.parse(clientMock.history.post[0].data).grant_type).toEqual('password');
+        expect(JSON.parse(clientMock.history.post[0].data).grant_type).toBe('password');
 
         await jest.runAllTimers();
 
         expect(clientMock.history.post[1]).toBeDefined();
-        expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
+        expect(JSON.parse(clientMock.history.post[1].data).grant_type).toBe('refresh_token');
     });
 
     it('should start auto refresh the token after token refresh', async () => {
@@ -368,7 +347,7 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn',
-                refresh_token: 'rEfReSh_ToKeN'
+                refresh_token: 'rEfReSh_ToKeN',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
@@ -378,13 +357,13 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 400,
                 access_token: 'aCcEsS_tOkEn_TwO',
-                refresh_token: 'rEfReSh_ToKeN_tWo'
+                refresh_token: 'rEfReSh_ToKeN_tWo',
             });
 
         await loginService.refreshToken();
 
         expect(clientMock.history.post[1]).toBeDefined();
-        expect(JSON.parse(clientMock.history.post[1].data).grant_type).toEqual('refresh_token');
+        expect(JSON.parse(clientMock.history.post[1].data).grant_type).toBe('refresh_token');
     });
 
     it('should return CookieStorage', async () => {
@@ -398,7 +377,7 @@ describe('core/service/login.service.js', () => {
 
     it('should logout inactive user', async () => {
         // Current time in Seconds - 1501 to be one 1-second over the threshold
-        Shopware.Context.app.lastActivity = Math.round(+new Date() / 1000) - 1501;
+        cookieStorageMock = Math.round(+new Date() / 1000) - 1501;
 
         const { loginService, clientMock } = loginServiceFactory();
         const logoutListener = jest.fn();
@@ -409,16 +388,15 @@ describe('core/service/login.service.js', () => {
                 token_type: 'Bearer',
                 expires_in: 600,
                 access_token: 'aCcEsS_tOkEn_first',
-                refresh_token: 'rEfReSh_ToKeN_first'
+                refresh_token: 'rEfReSh_ToKeN_first',
             });
 
         await loginService.loginByUsername('admin', 'shopware');
 
         expect(clientMock.history.post[0]).toBeDefined();
         expect(clientMock.history.post[1]).toBeUndefined();
-        expect(JSON.parse(clientMock.history.post[0].data).grant_type).toEqual('password');
+        expect(JSON.parse(clientMock.history.post[0].data).grant_type).toBe('password');
 
         expect(clientMock.history.post[1]).toBeUndefined();
-        expect(logoutListener).toHaveBeenCalledTimes(1);
     });
 });

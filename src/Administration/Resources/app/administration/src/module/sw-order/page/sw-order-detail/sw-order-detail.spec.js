@@ -3,8 +3,9 @@ import swOrderDetail from 'src/module/sw-order/page/sw-order-detail';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';
+
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-detail', swOrderDetail);
@@ -25,17 +26,17 @@ async function createWrapper(privileges = []) {
                                         name: 'sw.order.detail.general',
                                     },
                                     {
-                                        name: 'sw.order.detail.details'
+                                        name: 'sw.order.detail.details',
                                     },
                                     {
-                                        name: 'sw.order.detail.document'
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
+                                        name: 'sw.order.detail.document',
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                },
+            },
         },
         stubs: {
             'sw-page': {
@@ -44,7 +45,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-header"></slot>
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-label': true,
@@ -54,7 +55,7 @@ async function createWrapper(privileges = []) {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-alert': true,
             'sw-loader': true,
@@ -64,7 +65,7 @@ async function createWrapper(privileges = []) {
             'sw-icon': true,
         },
         propsData: {
-            orderId: Shopware.Utils.createId()
+            orderId: Shopware.Utils.createId(),
         },
         provide: {
             acl: {
@@ -72,7 +73,7 @@ async function createWrapper(privileges = []) {
                     if (!key) { return true; }
 
                     return privileges.includes(key);
-                }
+                },
             },
             repositoryFactory: {
                 create: () => ({
@@ -82,10 +83,10 @@ async function createWrapper(privileges = []) {
                     createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
                     get: () => Promise.resolve({}),
                     save: () => Promise.resolve({}),
-                })
+                }),
             },
-            orderService: {}
-        }
+            orderService: {},
+        },
     });
 }
 
@@ -110,6 +111,14 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should remove version id when beforeunload event is trigger', async () => {
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+
+        window.dispatchEvent(new Event('beforeunload'));
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
     });
 
     it('should not contain manual label', async () => {
@@ -139,6 +148,46 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         await wrapper.vm.beforeDestroyComponent();
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
+    it('should remove version context immediately when cancelling', async () => {
+        const oldVersionId = wrapper.vm.versionContext.versionId;
+        wrapper.vm.orderRepository.deleteVersion = jest.fn(() => {
+            expect(wrapper.vm.versionContext.versionId).not.toBe(oldVersionId);
+
+            return Promise.resolve();
+        });
+
+        await wrapper.vm.onCancelEditing();
+
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+    });
+
+    it('should reload entity data with orderCriteria', () => {
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getLimit()).toBe(25);
+        [
+            'currency',
+            'orderCustomer',
+            'language',
+            'lineItems',
+            'salesChannel',
+            'addresses',
+            'deliveries',
+            'transactions',
+            'documents',
+            'tags',
+            'billingAddress',
+        ].forEach(association => expect(criteria.hasAssociation(association)).toBe(true));
+    });
+
+    it('should add associations no longer autoload in the orderCriteria', async () => {
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
+        expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 });

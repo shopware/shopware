@@ -11,16 +11,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class EntityTranslationDefinition extends EntityDefinition
 {
     public function getParentDefinition(): EntityDefinition
     {
-        return parent::getParentDefinition();
+        $parentDefinition = parent::getParentDefinition();
+        if ($parentDefinition === null) {
+            throw new \RuntimeException('Translation entity definitions always need a parent definition');
+        }
+
+        return $parentDefinition;
     }
 
     public function isVersionAware(): bool
@@ -48,9 +52,6 @@ abstract class EntityTranslationDefinition extends EntityDefinition
         throw new \RuntimeException('`getParentDefinitionClass` not implemented');
     }
 
-    /**
-     * @return Field[]
-     */
     protected function getBaseFields(): array
     {
         $translatedDefinition = $this->getParentDefinition();

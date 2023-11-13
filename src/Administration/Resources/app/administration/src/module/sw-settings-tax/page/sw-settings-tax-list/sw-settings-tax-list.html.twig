@@ -79,6 +79,9 @@
             {% block sw_settings_tax_list_content_card %}
             <sw-card
                 position-identifier="sw-settings-tax-list-content"
+                class="sw-tax-card"
+                :title="$tc('sw-settings-tax.list.taxCardTitle')"
+                :is-loading="isLoading"
             >
                 <template #grid>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -124,7 +127,12 @@
                         <template #column-taxRate="{ item, isInlineEdit, compact }">
                             <template v-if="isInlineEdit">
                                 <sw-number-field
+                                    {% if VUE3 %}
+                                    v-model:value="item.taxRate"
+                                    {% else %}
                                     v-model="item.taxRate"
+                                    {% endif %}
+                                    :digits="3"
                                     :size="compact ? 'small' : 'default'"
                                 >
                                     <template #suffix>
@@ -148,7 +156,11 @@
                                 {% block sw_settings_tax_list_grid_column_default_editor %}
                                 <sw-checkbox-field
                                     :value="isSelectedDefaultRate(item)"
+                                    {% if VUE3 %}
+                                    @update:value="value => setSelectedDefaultRate(value, item.id)"
+                                    {% else %}
                                     @change="value => setSelectedDefaultRate(value, item.id)"
+                                    {% endif %}
                                 />
                                 {% endblock %}
                             </template>
@@ -250,6 +262,94 @@
                 </template>
             </sw-card>
             {% endblock %}
+
+            <sw-card
+                position-identifier="sw-settings-tax-provider-list-content"
+                class="sw-settings-tax-provider-list-content"
+                :title="$tc('sw-settings-tax.list.taxProvider.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <template #grid>
+                    <template v-if="showChangePriority">
+                        <div class="sw-settings-tax-provider-list-content__bg">
+                            <sw-button-process
+                                class="sw-settings-tax-provider-list-button__change-priority"
+                                :disabled="isLoading"
+                                :is-loading="isLoading"
+                                :process-success="false"
+                                variant="ghost"
+                                @click="showSortingModal = true"
+                            >
+                                {{ $tc('sw-settings-tax.list.taxProvider.changePriorityButton') }}
+                            </sw-button-process>
+                        </div>
+                    </template>
+
+                    <template v-if="!isLoading">
+                        <sw-empty-state
+                            v-if="noTaxProvidersFound"
+                            :title="$tc('sw-settings-tax.list.taxProvider.messageEmptyTitle')"
+                            :absolute="false"
+                            :show-description="false"
+                        />
+
+                        <div
+                            v-else
+                            class="sw-tax-provider-items"
+                        >
+                            <template
+                                v-for="taxProvider in taxProviders"
+                                {% if VUE3 %}
+                                :key="taxProvider.id"
+                                {% endif %}
+                            >
+                                <div
+                                    {% if VUE2 %}
+                                    :key="taxProvider.id"
+                                    {% endif %}
+                                    class="sw-tax-provider-item"
+                                >
+                                    <div class="sw-tax-provider__name">
+                                        {{ taxProvider.translated.name }}
+                                    </div>
+
+                                    <div class="sw-tax-provider__link">
+                                        <router-link
+                                            class="sw-tax-provider__show-detail-link"
+                                            :to="editLink(taxProvider.id)"
+                                            :disabled="!acl.can('tax.editor')"
+                                        >
+                                            {{ $tc('sw-settings-tax.list.taxProvider.editDetailsLink') }}
+                                        </router-link>
+                                    </div>
+
+                                    <sw-switch-field
+                                        :label="$tc('sw-settings-tax.list.taxProvider.labelActive')"
+                                        :disabled="!acl.can('tax.editor')"
+                                        :value="taxProvider.active"
+                                        {% if VUE3 %}
+                                        @update:value="onChangeTaxProviderActive(taxProvider)"
+                                        {% else %}
+                                        @change="onChangeTaxProviderActive(taxProvider)"
+                                        {% endif %}
+                                    />
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <sw-skeleton />
+                    </template>
+                </template>
+            </sw-card>
+
+            <sw-settings-tax-provider-sorting-modal
+                v-if="showSortingModal"
+                :tax-providers="taxProviders"
+                @modal-close="showSortingModal = false"
+                @modal-save="loadTaxProviders"
+            />
         </sw-card-view>
     </template>
     {% endblock %}

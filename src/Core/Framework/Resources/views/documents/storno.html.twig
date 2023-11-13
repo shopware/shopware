@@ -29,7 +29,7 @@ The blocks from the templates in the /includes folder can be overwritten directl
      {% block document_side_info_cancellation_date %}
          <tr>
              <td>
-                 {{ 'document.stornoDate'|trans({'%date%': config.documentDate|format_date(pattern="Y/MM/dd", locale=locale)})|sw_sanitize }}
+                 {{ 'document.stornoDate'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
              </td>
          </tr>
      {% endblock %}

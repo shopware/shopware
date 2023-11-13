@@ -14,8 +14,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,14 +28,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntityForeignKeyResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
-
-    private Connection $testConnection;
-
-    private EntityForeignKeyResolver $entityForeignKeyResolver;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
+    use IntegrationTestBehaviour;
 
     public function testItCreatesEventsForWriteProtectedCascadeDeletes(): void
     {
@@ -185,9 +179,9 @@ class EntityForeignKeyResolverTest extends TestCase
         static::assertArrayNotHasKey('sales_channel', $affected);
     }
 
-    private function getStateId(string $state, string $machine)
+    private function getStateId(string $state, string $machine): string
     {
-        return $this->getContainer()->get(Connection::class)
+        $stateId = $this->getContainer()->get(Connection::class)
             ->fetchOne('
                 SELECT LOWER(HEX(state_machine_state.id))
                 FROM state_machine_state
@@ -199,6 +193,10 @@ class EntityForeignKeyResolverTest extends TestCase
                 'state' => $state,
                 'machine' => $machine,
             ]);
+
+        static::assertIsString($stateId);
+
+        return $stateId;
     }
 
     private function createOrder(IdsCollection $ids, int $i): void
@@ -206,6 +204,8 @@ class EntityForeignKeyResolverTest extends TestCase
         $data = [
             'id' => $ids->create('order' . $i),
             'billingAddressId' => $ids->create('billing-address' . $i),
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'currencyId' => Defaults::CURRENCY,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
@@ -287,6 +287,7 @@ class EntityForeignKeyResolverTest extends TestCase
             'id' => $ids->create('shipping-method'),
             'type' => 0,
             'name' => 'Test shipping method',
+            'technicalName' => 'shipping_test',
             'bindShippingfree' => false,
             'active' => true,
             'prices' => [

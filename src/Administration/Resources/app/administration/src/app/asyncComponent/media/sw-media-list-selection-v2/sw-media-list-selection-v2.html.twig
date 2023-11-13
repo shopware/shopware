@@ -31,6 +31,8 @@
         <sw-media-list-selection-item-v2
             v-for="(mediaItem, i) in mediaItems"
             :key="i"
+            v-draggable="{ dragGroup: 'media-items', data: mediaItem, onDragEnter: onDeboundDragDrop }"
+            v-droppable="{ dragGroup: 'media-items', data: mediaItem }"
             :item="mediaItem"
             @item-remove="removeItem(mediaItem, i)"
         />

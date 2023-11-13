@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Api\Context;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AdminSalesChannelApiSource extends SalesChannelApiSource
 {
     public string $type = 'admin-sales-channel-api';
@@ -16,8 +15,10 @@ class AdminSalesChannelApiSource extends SalesChannelApiSource
      */
     protected $originalContext;
 
-    public function __construct(string $salesChannelId, Context $originalContext)
-    {
+    public function __construct(
+        string $salesChannelId,
+        Context $originalContext
+    ) {
         parent::__construct($salesChannelId);
 
         $this->originalContext = $originalContext;

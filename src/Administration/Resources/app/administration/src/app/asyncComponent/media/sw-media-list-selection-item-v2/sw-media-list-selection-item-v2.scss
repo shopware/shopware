@@ -34,6 +34,12 @@ $sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%)
             max-height: 100%;
             max-width: 100%;
         }
+
+        &::after {
+            content: "";
+            display: block;
+            padding-bottom: 100%;
+        }
     }
 
     &:hover {
@@ -66,5 +72,9 @@ $sw-media-list-selection-item-v2-placeholder-color: lighten($color-gray-300, 5%)
 
     .sw-media-list-selection-item-v2__placeholder-icon {
         color: $sw-media-list-selection-item-v2-placeholder-color;
+    }
+
+    &.is--drag-element {
+        position: absolute;
     }
 }

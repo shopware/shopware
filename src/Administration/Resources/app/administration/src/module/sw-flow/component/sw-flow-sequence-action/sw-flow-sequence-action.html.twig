@@ -81,7 +81,6 @@
                     >
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_flow_sequence_action_actions_item %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <li
                             v-for="(item, key) in sequenceData"
                             :key="item.id"
@@ -91,10 +90,13 @@
                             }"
                             class="sw-flow-sequence-action__action-item"
                             :class="{'sw-flow-sequence-action__disabled': item.disabled}"
+                            role="button"
+                            tabindex="0"
                             @click="(event) => onEditAction(item, event.target, key)"
+                            @keydown.enter="(event) => onEditAction(item, event.target, key)"
                         >
                             <sw-flow-sequence-action-error
-                                v-if="!isValidAction(item)"
+                                v-if="!isValidAction(item.actionName)"
                                 :sequence="item"
                             >
                                 <template #content>
@@ -177,7 +179,7 @@
                                         <sw-context-menu-item
                                             v-if="showMoveOption(item, 'up')"
                                             class="sw-flow-sequence-action__move-up"
-                                            @click="moveAction(item, 'up')"
+                                            @click="moveAction(item, 'up', key)"
                                         >
                                             {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
                                         </sw-context-menu-item>
@@ -188,7 +190,7 @@
                                         <sw-context-menu-item
                                             v-if="showMoveOption(item, 'down')"
                                             class="sw-flow-sequence-action__move-down"
-                                            @click="moveAction(item, 'down')"
+                                            @click="moveAction(item, 'down', key)"
                                         >
                                             {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
                                         </sw-context-menu-item>
@@ -203,7 +205,7 @@
                             {% block sw_flow_sequence_action_actions_item_description %}
                             <div
                                 class="sw-flow-sequence-action__action-description"
-                                v-html="getActionDescription(item)"
+                                v-html="getActionDescriptions(item)"
                             >
                             </div>
                             {% endblock %}
@@ -238,11 +240,15 @@
                     :groups="groups"
                     :popover-classes="['sw-flow-sequence-action__popover']"
                     :error="fieldError"
+                    :disabled="isUnknownTrigger"
+                    {% if VUE3 %}
+                    @update:value="openDynamicModal"
+                    {% else %}
                     @change="openDynamicModal"
+                    {% endif %}
                 >
                     <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
-                        <li
-                            is="sw-select-result"
+                        <sw-select-result
                             v-tooltip="{
                                 message: $tc('sw-flow.actions.tooltipActionDisabled'),
                                 disabled: !item.disabled
@@ -277,7 +283,7 @@
                                 {{ getKey(item, labelProperty) }}
                             </template>
                             {% endblock %}
-                        </li>
+                        </sw-select-result>
                     </template>
                 </sw-grouped-single-select>
                 {% endblock %}

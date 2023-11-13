@@ -10,25 +10,18 @@ use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class GrossPriceCalculator
 {
-    private TaxCalculator $taxCalculator;
-
-    private CashRounding $priceRounding;
-
     /**
      * @internal
      */
     public function __construct(
-        TaxCalculator $taxCalculator,
-        CashRounding $priceRounding
+        private readonly TaxCalculator $taxCalculator,
+        private readonly CashRounding $priceRounding
     ) {
-        $this->taxCalculator = $taxCalculator;
-        $this->priceRounding = $priceRounding;
     }
 
     public function calculate(QuantityPriceDefinition $definition, CashRoundingConfig $config): CalculatedPrice
@@ -69,7 +62,7 @@ class GrossPriceCalculator
 
     private function getUnitPrice(QuantityPriceDefinition $definition, CashRoundingConfig $config): float
     {
-        //item price already calculated?
+        // item price already calculated?
         if ($definition->isCalculated()) {
             return $this->priceRounding->cashRound($definition->getPrice(), $config);
         }

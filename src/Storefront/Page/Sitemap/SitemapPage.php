@@ -2,11 +2,10 @@
 
 namespace Shopware\Storefront\Page\Sitemap;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapPage extends Struct
 {
     /**

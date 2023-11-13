@@ -1,7 +1,8 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swModalVariantGeneration from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation';
-import 'src/app/component/base/sw-modal';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import 'src/app/component/base/sw-modal';
+import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-product-modal-variant-generation', swModalVariantGeneration);
 
@@ -164,12 +165,15 @@ async function createWrapper() {
                         },
                     ],
                 ),
-            }
+            },
         },
         stubs: {
             'sw-tabs': true,
             'sw-tabs-item': true,
-            'sw-button': true,
+            'sw-button': {
+                template: '<button><slot></slot></button>',
+                props: ['disabled'],
+            },
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-product-variants-configurator-selection': true,
             'sw-icon': true,
@@ -180,11 +184,12 @@ async function createWrapper() {
             'sw-switch-field': true,
             'sw-data-grid': true,
             'sw-card-filter': true,
+            'sw-pagination': true,
         },
         provide: {
             shortcutService: {
                 startEventListener() {},
-                stopEventListener() {}
+                stopEventListener() {},
             },
             searchRankingService: {
                 getSearchFieldsByEntity() {
@@ -194,7 +199,7 @@ async function createWrapper() {
                     return null;
                 },
             },
-        }
+        },
     });
 }
 
@@ -205,19 +210,19 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 httpClient: {
                     get() {
                         return Promise.resolve({ data: [] });
-                    }
+                    },
                 },
                 getBasicHeaders() {
                     return {};
                 },
                 sync() {
                     return Promise.resolve();
-                }
+                },
             };
         });
 
         Shopware.State.registerModule('swProductDetail', {
-            namespaced: true
+            namespaced: true,
         });
     });
 
@@ -230,7 +235,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
     it('should remove file for all variants', async () => {
         const file = {
             fileName: 'example',
-            fileExtension: 'jpg'
+            fileExtension: 'jpg',
         };
 
         const wrapper = await createWrapper();
@@ -250,34 +255,34 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             variantGenerationQueue: {
                 createQueue: [
                     {
-                        downloads: [file]
+                        downloads: [file],
                     },
                     {
-                        downloads: [file]
-                    }
-                ]
+                        downloads: [file],
+                    },
+                ],
             },
             downloadFilesForAllVariants: [
                 {
-                    id: 'random-id'
-                }
-            ]
+                    id: 'random-id',
+                },
+            ],
         });
 
         wrapper.vm.removeFileForAllVariants({
             id: 'random-id',
             fileName: 'example',
-            fileExtension: 'jpg'
+            fileExtension: 'jpg',
         });
 
         expect(wrapper.vm.downloadFilesForAllVariants).toEqual([]);
         expect(wrapper.vm.variantGenerationQueue.createQueue).toEqual([
             {
-                downloads: []
+                downloads: [],
             },
             {
-                downloads: []
-            }
+                downloads: [],
+            },
         ]);
     });
 
@@ -287,19 +292,19 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
             product: {
                 configuratorSettings: [
                     {
-                        option: { id: '1', groupId: '1' }
+                        option: { id: '1', groupId: '1' },
                     },
                     {
-                        option: { id: '2', groupId: '1' }
+                        option: { id: '2', groupId: '1' },
                     },
                     {
-                        option: { id: '3', groupId: '2' }
+                        option: { id: '3', groupId: '2' },
                     },
                     {
-                        option: { id: '4', groupId: '2' }
+                        option: { id: '4', groupId: '2' },
                     },
-                ]
-            }
+                ],
+            },
         });
 
         wrapper.vm.calcVariantsNumber();
@@ -310,7 +315,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
     it('should return an empty array if variantGenerationQueue is empty', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            variantGenerationQueue: { deleteQueue: [], createQueue: [], },
+            variantGenerationQueue: { deleteQueue: [], createQueue: [] },
         });
 
         wrapper.vm.getList();
@@ -328,41 +333,41 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         options: [{
                             entity: {
-                                name: 'Book type'
-                            }
-                        }]
+                                name: 'Book type',
+                            },
+                        }],
                     },
                     {
                         id: '2',
                         options: [{
                             entity: {
-                                name: 'Book type'
-                            }
-                        }]
+                                name: 'Book type',
+                            },
+                        }],
                     },
                     {
                         id: '3',
                         options: [{
                             entity: {
-                                name: 'Book type'
-                            }
+                                name: 'Book type',
+                            },
                         }],
                     },
                     {
                         id: '4',
                         options: [{
                             entity: {
-                                name: 'Book type'
-                            }
-                        }]
+                                name: 'Book type',
+                            },
+                        }],
                     },
-                ]
-            }
+                ],
+            },
         });
 
         wrapper.vm.handlePageChange({
             page: 1,
-            limit: 2
+            limit: 2,
         });
 
         expect(wrapper.vm.paginatedVariantArray).toEqual([
@@ -370,23 +375,23 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 options: [{
                     entity: {
-                        name: 'Book type'
-                    }
-                }]
+                        name: 'Book type',
+                    },
+                }],
             },
             {
                 id: '2',
                 options: [{
                     entity: {
-                        name: 'Book type'
-                    }
-                }]
+                        name: 'Book type',
+                    },
+                }],
             },
         ]);
 
         wrapper.vm.handlePageChange({
             page: 2,
-            limit: 2
+            limit: 2,
         });
 
         expect(wrapper.vm.paginatedVariantArray).toEqual([
@@ -394,17 +399,17 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '3',
                 options: [{
                     entity: {
-                        name: 'Book type'
-                    }
-                }]
+                        name: 'Book type',
+                    },
+                }],
             },
             {
                 id: '4',
                 options: [{
                     entity: {
-                        name: 'Book type'
-                    }
-                }]
+                        name: 'Book type',
+                    },
+                }],
             },
         ]);
     });
@@ -419,20 +424,20 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         id: '1',
                         options: [{
                             entity: {
-                                name: 'lel'
-                            }
-                        }]
+                                name: 'lel',
+                            },
+                        }],
                     },
                     {
                         id: '2',
                         options: [{
                             entity: {
-                                name: 'Book type'
-                            }
-                        }]
+                                name: 'Book type',
+                            },
+                        }],
                     },
-                ]
-            }
+                ],
+            },
         });
 
         wrapper.vm.onTermChange('lel');
@@ -442,9 +447,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 options: [{
                     entity: {
-                        name: 'lel'
-                    }
-                }]
+                        name: 'lel',
+                    },
+                }],
             },
         ]);
     });
@@ -458,27 +463,27 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
-                        downloads: []
-                    }
-                ]
-            }
+                        downloads: [],
+                    },
+                ],
+            },
         });
         wrapper.vm.mediaRepository.get = jest.fn().mockReturnValueOnce(
             Promise.resolve({
                 id: 'random-id',
                 fileName: 'example',
-                fileExtension: 'jpg'
-            })
+                fileExtension: 'jpg',
+            }),
         );
 
         await wrapper.vm.successfulUpload({
-            targetId: 'random-id'
+            targetId: 'random-id',
         });
 
         expect(wrapper.vm.downloadFilesForAllVariants).toEqual([{
             id: 'random-id',
             fileName: 'example',
-            fileExtension: 'jpg'
+            fileExtension: 'jpg',
         }]);
         expect(wrapper.vm.variantGenerationQueue.createQueue).toEqual([
             {
@@ -488,8 +493,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     id: 'random-id',
                     fileName: 'example',
                     fileExtension: 'jpg',
-                }]
-            }
+                }],
+            },
         ]);
     });
 
@@ -498,17 +503,17 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({ id: 'random-id', fileName: 'example', fileExtension: 'jpg' });
 
         const item = {
-            downloads: []
+            downloads: [],
         };
 
         await wrapper.vm.successfulUpload({
-            targetId: 'random-id'
+            targetId: 'random-id',
         }, item);
 
         expect(item).toStrictEqual({
             downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' }
-            ]
+                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
+            ],
         });
     });
 
@@ -523,12 +528,16 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                         downloads: [{
                             id: 'example-id',
                             fileName: 'example',
-                            fileExtension: 'jpg'
-                        }]
-                    }
-                ]
-            }
+                            fileExtension: 'jpg',
+                        }],
+                    },
+                ],
+            },
+            isLoading: false,
+            showUploadModal: true,
         });
+
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').props('disabled')).toBe(false);
     });
 
     it('generate button should be disabled when not every variant has downloadable files', async () => {
@@ -539,13 +548,15 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         productStates: ['is-download'],
-                        downloads: []
-                    }
-                ]
-            }
+                        downloads: [],
+                    },
+                ],
+            },
+            isLoading: false,
+            showUploadModal: true,
         });
 
-        expect(wrapper.vm.isGenerateButtonDisabled).toBe(true);
+        expect(wrapper.get('.sw-product-variant-generation__generate-action').props('disabled')).toBe(true);
     });
 
     it('should generate digital variants', async () => {
@@ -558,15 +569,15 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         downloads: [{
-                            id: 'random-id'
+                            id: 'random-id',
                         }],
                         productStates: ['is-download'],
-                    }
+                    },
                 ],
                 deleteQueue: [{
-                    id: 'delete-id'
-                }]
-            }
+                    id: 'delete-id',
+                }],
+            },
         });
 
         await wrapper.vm.generateVariants();
@@ -589,18 +600,18 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     {
                         id: 'random-id',
                         downloads: [{
-                            id: 'random-id'
+                            id: 'random-id',
                         }],
                         productStates: ['is-download'],
-                    }
+                    },
                 ],
                 deleteQueue: [{
-                    id: 'delete-id'
-                }]
+                    id: 'delete-id',
+                }],
             },
             variantsGenerator: {
-                generateVariants: () => Promise.resolve()
-            }
+                generateVariants: () => Promise.resolve(),
+            },
         });
 
         await wrapper.vm.generateVariants();
@@ -706,9 +717,9 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                             },
                         },
                         relationships: [],
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         });
 
         await wrapper.vm.showNextStep();
@@ -722,7 +733,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         const wrapper = await createWrapper();
         wrapper.vm.productRepository.save = jest.fn().mockReturnValueOnce(Promise.resolve({}));
         wrapper.vm.variantsGenerator.filterVariations = jest.fn().mockReturnValueOnce(Promise.resolve({
-            deleteQueue: [], createQueue: []
+            deleteQueue: [], createQueue: [],
         }));
 
         await wrapper.vm.showNextStep();
@@ -732,35 +743,22 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         expect(wrapper.vm.variantGenerationQueue.deleteQueue).toHaveLength(0);
     });
 
-    it('should close the modal', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            isLoading: true,
-            notificationModal: true
-        });
-
-        wrapper.vm.onCloseNotificationModal();
-
-        expect(wrapper.vm.isLoading).toBe(false);
-        expect(wrapper.vm.notificationModal).toBe(false);
-    });
-
     it('should prevent uploads of duplicate files on single variants', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.mediaRepository.get = jest.fn().mockResolvedValueOnce({ id: 'random-id', fileName: 'example', fileExtension: 'jpg' });
 
         const item = {
-            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }]
+            downloads: [{ id: 'random-id', fileName: 'example', fileExtension: 'jpg' }],
         };
 
         await wrapper.vm.successfulUpload({
-            targetId: 'random-id'
+            targetId: 'random-id',
         }, item);
 
         expect(item).toStrictEqual({
             downloads: [
-                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' }
-            ]
+                { id: 'random-id', fileName: 'example', fileExtension: 'jpg' },
+            ],
         });
     });
 
@@ -772,26 +770,26 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 {
                     id: 'random-id',
                     fileName: 'example',
-                    fileExtension: 'jpg'
-                }
-            ]
+                    fileExtension: 'jpg',
+                },
+            ],
         });
         wrapper.vm.mediaRepository.get = jest.fn().mockReturnValueOnce(
             Promise.resolve({
                 id: 'random-id',
                 fileName: 'example',
-                fileExtension: 'jpg'
-            })
+                fileExtension: 'jpg',
+            }),
         );
 
         await wrapper.vm.successfulUpload({
-            targetId: 'random-id'
+            targetId: 'random-id',
         });
 
         expect(wrapper.vm.downloadFilesForAllVariants).toEqual([{
             id: 'random-id',
             fileName: 'example',
-            fileExtension: 'jpg'
+            fileExtension: 'jpg',
         }]);
     });
 
@@ -801,29 +799,36 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 options: [{
                     entity: {
-                        name: 'test'
-                    }
+                        name: 'test',
+                    },
                 }],
                 downloads: [],
-                productStates: []
+                productStates: [],
             },
             {
                 id: '2',
                 options: [{
                     entity: {
-                        name: 'lel'
-                    }
+                        name: 'lel',
+                    },
                 }],
                 downloads: [],
-                productStates: ['is-download']
-            }
+                productStates: ['is-download'],
+            },
         ];
+
+        const file = {
+            id: 'random-id',
+            fileName: 'example',
+            fileExtension: 'jpg',
+        };
 
         const wrapper = await createWrapper();
         await wrapper.setData({
             variantGenerationQueue: {
-                createQueue: items
+                createQueue: items,
             },
+            downloadFilesForAllVariants: [file],
         });
 
         wrapper.vm.onTermChange('lel');
@@ -835,6 +840,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
         items[0].productStates = ['is-download'];
         items[1].productStates = [];
         expect(wrapper.vm.paginatedVariantArray).toEqual(items);
+        expect(wrapper.vm.paginatedVariantArray[0].downloads).toContainEqual(file);
     });
 
     it('should only add uploaded file to visible variants by using "upload to all variants"', async () => {
@@ -843,47 +849,79 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                 id: '1',
                 options: [{
                     entity: {
-                        name: 'test'
-                    }
+                        name: 'test',
+                    },
                 }],
                 downloads: [],
-                productStates: ['is-download']
+                productStates: ['is-download'],
             },
             {
                 id: '2',
                 options: [{
                     entity: {
-                        name: 'lel'
-                    }
+                        name: 'lel',
+                    },
                 }],
                 downloads: [],
-                productStates: ['is-download']
-            }
+                productStates: ['is-download'],
+            },
         ];
         const file = {
             id: 'random-id',
             fileName: 'example',
-            fileExtension: 'jpg'
+            fileExtension: 'jpg',
         };
 
         const wrapper = await createWrapper();
         await wrapper.setData({
             variantGenerationQueue: {
-                createQueue: items
+                createQueue: items,
             },
             downloadFilesForAllVariants: [file],
         });
         wrapper.vm.mediaRepository.get = jest.fn().mockReturnValueOnce(
-            Promise.resolve(file)
+            Promise.resolve(file),
         );
 
         wrapper.vm.onTermChange('test');
         await wrapper.vm.successfulUpload({
-            targetId: 'random-id'
+            targetId: 'random-id',
         });
         wrapper.vm.onTermChange('');
 
         items[0].downloads = [file];
         expect(wrapper.vm.paginatedVariantArray).toEqual(items);
+    });
+
+    it('should add files for all variants to variants changing state to digital', async () => {
+        const items = [
+            {
+                id: '1',
+                options: [{
+                    entity: {
+                        name: 'test',
+                    },
+                }],
+                downloads: [],
+                productStates: [],
+            },
+        ];
+
+        const file = {
+            id: 'random-id',
+            fileName: 'example',
+            fileExtension: 'jpg',
+        };
+
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            variantGenerationQueue: {
+                createQueue: items,
+            },
+            downloadFilesForAllVariants: [file],
+        });
+
+        wrapper.vm.onChangeVariantValue(true, items[0]);
+        expect(wrapper.vm.variantGenerationQueue.createQueue[0].downloads).toContainEqual(file);
     });
 });

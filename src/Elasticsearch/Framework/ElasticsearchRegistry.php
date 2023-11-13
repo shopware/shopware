@@ -2,24 +2,18 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ElasticsearchRegistry
 {
     /**
-     * @var AbstractElasticsearchDefinition[]
-     */
-    private iterable $definitions;
-
-    /**
      * @internal
      *
-     * @param iterable<AbstractElasticsearchDefinition> $definitions
+     * @param AbstractElasticsearchDefinition[] $definitions
      */
-    public function __construct(iterable $definitions)
+    public function __construct(private readonly iterable $definitions)
     {
-        $this->definitions = $definitions;
     }
 
     /**
@@ -28,6 +22,20 @@ class ElasticsearchRegistry
     public function getDefinitions(): iterable
     {
         return $this->definitions;
+    }
+
+    /**
+     * @return iterable<string>
+     */
+    public function getDefinitionNames(): iterable
+    {
+        $names = [];
+
+        foreach ($this->getDefinitions() as $definition) {
+            $names[] = $definition->getEntityDefinition()->getEntityName();
+        }
+
+        return $names;
     }
 
     public function get(string $entityName): ?AbstractElasticsearchDefinition

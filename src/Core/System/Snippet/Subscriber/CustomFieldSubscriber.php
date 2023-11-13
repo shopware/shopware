@@ -2,31 +2,29 @@
 
 namespace Shopware\Core\System\Snippet\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSubscriber implements EventSubscriberInterface
 {
     private const CUSTOM_FIELD_ID_FIELD = 'custom_field_id';
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -79,7 +77,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
             'DELETE FROM `snippet`
             WHERE JSON_EXTRACT(`custom_fields`, "$.custom_field_id") IN (:customFieldIds)',
             ['customFieldIds' => $event->getIds()],
-            ['customFieldIds' => Connection::PARAM_STR_ARRAY]
+            ['customFieldIds' => ArrayParameterType::BINARY]
         );
     }
 
@@ -108,7 +106,7 @@ class CustomFieldSubscriber implements EventSubscriberInterface
                 'author' => 'System',
                 'customFields' => json_encode([
                     self::CUSTOM_FIELD_ID_FIELD => $writeResult->getPrimaryKey(),
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
         }

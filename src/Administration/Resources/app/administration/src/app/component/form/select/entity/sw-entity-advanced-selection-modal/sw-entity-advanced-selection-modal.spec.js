@@ -95,7 +95,7 @@ const createAdvancedSelectionModal = async (customOptions) => {
             acl: {
                 can: () => {
                     return true;
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
@@ -108,7 +108,7 @@ const createAdvancedSelectionModal = async (customOptions) => {
             filterFactory: {
                 create: (entityName, filters) => {
                     return Object.entries(filters);
-                }
+                },
             },
             filterService: {
                 getStoredCriteria: () => {
@@ -119,7 +119,7 @@ const createAdvancedSelectionModal = async (customOptions) => {
                 startEventListener() {
                 },
                 stopEventListener() {
-                }
+                },
             },
             searchRankingService: {
                 getSearchFieldsByEntity() {
@@ -129,12 +129,12 @@ const createAdvancedSelectionModal = async (customOptions) => {
                     return null;
                 },
             },
-        }
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-advanced-selection-modal'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -169,13 +169,13 @@ describe('components/sw-entity-advanced-selection-modal', () => {
 
     it('should have the correct filter number', async () => {
         const searchModal = await createAdvancedSelectionModal();
-        expect(searchModal.vm.activeFilterNumber).toEqual(0);
+        expect(searchModal.vm.activeFilterNumber).toBe(0);
 
         // simulate applied filters
         const appliedFilters = [
             {
-                name: 'some-broken-filter'
-            }
+                name: 'some-broken-filter',
+            },
         ];
         searchModal.vm.updateCriteria(appliedFilters);
         expect(searchModal.vm.activeFilterNumber).toEqual(appliedFilters.length);
@@ -196,7 +196,7 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         expect(selectionSubmitEvent).toHaveLength(1);
         expect(selectionSubmitEvent[0]).toEqual([[
             'one',
-            'two'
+            'two',
         ]]);
         expect(searchModal.emitted('modal-close')).toHaveLength(1);
     });
@@ -205,7 +205,7 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         const searchModal = await createAdvancedSelectionModal();
 
         await searchModal.setProps({
-            entityName: 'rule'
+            entityName: 'rule',
         });
         const assignmentProperties = searchModal.vm.assignmentProperties;
 

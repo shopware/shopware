@@ -7,6 +7,8 @@
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { Route } from 'vue-router';
 import type VueRouter from 'vue-router';
+// Import explicitly global types from admin-extension-sdk
+import '@shopware-ag/admin-extension-sdk';
 import type FeatureService from 'src/app/service/feature.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
@@ -21,6 +23,13 @@ import type CartStoreService from 'src/core/service/api/cart-store-api.api.servi
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
+import type { FullState } from 'src/core/factory/state.factory';
+import type ModuleFactory from 'src/core/factory/module.factory';
+import type DirectiveFactory from 'src/core/factory/directive.factory';
+import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
+import type FilterFactoryData from 'src/core/data/filter-factory.data';
+import type UserApiService from 'src/core/service/api/user.api.service';
+import type ApiServiceFactory from 'src/core/factory/api-service.factory';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -46,6 +55,34 @@ import type OrderStateMachineApiService from './core/service/api/order-state-mac
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
 import type cmsBlockFavoritesService from './module/sw-cms/service/cms-block-favorites.service';
 import type CheckoutStoreService from './core/service/api/checkout-store.api.service';
+import type ExtensionHelperService from './app/service/extension-helper.service';
+import type AsyncComponentFactory from './core/factory/async-component.factory';
+import type FilterFactory from './core/factory/filter.factory';
+import type StateStyleService from './app/service/state-style.service';
+import type RuleConditionService from './app/service/rule-condition.service';
+import type SystemConfigApiService from './core/service/api/system-config.api.service';
+import type { UsageDataApiService } from './core/service/api/usage-data.api.service';
+import type ConfigApiService from './core/service/api/config.api.service';
+import type ImportExportService from './module/sw-import-export/service/importExport.service';
+import type WorkerNotificationFactory from './core/factory/worker-notification.factory';
+import type NotificationMixin from './app/mixin/notification.mixin';
+import type ValidationMixin from './app/mixin/validation.mixin';
+import type UserSettingsMixin from './app/mixin/user-settings.mixin';
+import type SwInlineSnippetMixin from './app/mixin/sw-inline-snippet.mixin';
+import type SalutationMixin from './app/mixin/salutation.mixin';
+import type RuleContainerMixin from './app/mixin/rule-container.mixin';
+import type RemoveApiErrorMixin from './app/mixin/remove-api-error.mixin';
+import type PositionMixin from './app/mixin/position.mixin';
+import type PlaceholderMixin from './app/mixin/placeholder.mixin';
+import type ListingMixin from './app/mixin/listing.mixin';
+import type CartNotificationMixin from './module/sw-order/mixin/cart-notification.mixin';
+import type SwExtensionErrorMixin from './module/sw-extension/mixin/sw-extension-error.mixin';
+import type CmsElementMixin from './module/sw-cms/mixin/sw-cms-element.mixin';
+import type GenericConditionMixin from './app/mixin/generic-condition.mixin';
+import type SwFormFieldMixin from './app/mixin/form-field.mixin';
+import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
+import type PrivilegesService from './app/service/privileges.service';
+import type { UsageDataModuleState } from './app/state/usage-data.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -79,6 +116,7 @@ type CmsService = {
     getCmsBlockRegistry: $TSFixMeFunction,
     getEntityMappingTypes: $TSFixMeFunction,
     getPropertyByMappingPath: $TSFixMeFunction,
+    getCmsServiceState: $TSFixMeFunction,
 };
 
 // declare global types
@@ -100,7 +138,13 @@ declare global {
      * Make the Shopware object globally available
      */
     const Shopware: ShopwareClass;
-    interface Window { Shopware: ShopwareClass; }
+    interface Window {
+        Shopware: ShopwareClass;
+        _features_: {
+            [featureName: string]: boolean
+        };
+        processingInactivityLogout?: boolean;
+    }
 
     const _features_: {
         [featureName: string]: boolean
@@ -114,7 +158,7 @@ declare global {
         loginService: LoginService,
         feature: FeatureService,
         menuService: $TSFixMe,
-        privileges: $TSFixMe,
+        privileges: PrivilegesService,
         customEntityDefinitionService: CustomEntityDefinitionService,
         cmsPageTypeService: CmsPageTypeService,
         acl: AclService,
@@ -122,12 +166,12 @@ declare global {
         validationService: $TSFixMe,
         entityValidationService: EntityValidationService,
         timezoneService: $TSFixMe,
-        ruleConditionDataProviderService: $TSFixMe,
+        ruleConditionDataProviderService: RuleConditionService,
         productStreamConditionService: $TSFixMe,
         customFieldDataProviderService: $TSFixMe,
-        extensionHelperService: $TSFixMe,
+        extensionHelperService: ExtensionHelperService,
         languageAutoFetchingService: $TSFixMe,
-        stateStyleDataProviderService: $TSFixMe,
+        stateStyleDataProviderService: StateStyleService,
         searchTypeService: $TSFixMe,
         localeToLanguageService: $TSFixMe,
         entityMappingService: $TSFixMe,
@@ -138,6 +182,9 @@ declare global {
         mediaDefaultFolderService: $TSFixMe,
         appAclService: $TSFixMe,
         appCmsService: $TSFixMe,
+        entityHydrator: $TSFixMe,
+        entityFactory: $TSFixMe,
+        userService: UserApiService,
         shopwareDiscountCampaignService: ShopwareDiscountCampaignService,
         cmsService: CmsService,
         cmsElementFavorites: cmsElementFavoritesService,
@@ -156,7 +203,33 @@ declare global {
         cartStoreService: CartStoreService,
         customSnippetApiService: CustomSnippetApiService,
         userActivityService: UserActivityService,
+        filterFactory: FilterFactoryData,
+        systemConfigApiService: SystemConfigApiService,
+        usageDataService: UsageDataApiService,
+        configService: ConfigApiService,
+        importExport: ImportExportService,
     }
+
+    interface MixinContainer {
+        notification: typeof NotificationMixin,
+        validation: typeof ValidationMixin,
+        'user-settings': typeof UserSettingsMixin,
+        'sw-inline-snippet': typeof SwInlineSnippetMixin,
+        salutation: typeof SalutationMixin,
+        ruleContainer: typeof RuleContainerMixin,
+        'remove-api-error': typeof RemoveApiErrorMixin,
+        position: typeof PositionMixin,
+        placeholder: typeof PlaceholderMixin,
+        listing: typeof ListingMixin,
+        'cart-notification': typeof CartNotificationMixin,
+        // @ts-expect-error
+        'sw-extension-error': typeof SwExtensionErrorMixin,
+        'cms-element': typeof CmsElementMixin,
+        'generic-condition': typeof GenericConditionMixin,
+        'sw-form-field': typeof SwFormFieldMixin,
+        'discard-detail-page-changes': typeof DiscardDetailPageChangesMixin,
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{
         state: $TSFixMe,
@@ -165,28 +238,28 @@ declare global {
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'>{
-        component: $TSFixMe,
+        component: typeof AsyncComponentFactory,
         template: $TSFixMe,
-        module: $TSFixMe,
+        module: typeof ModuleFactory,
         entity: $TSFixMe,
-        state: $TSFixMe,
+        state: () => FullState,
         serviceFactory: $TSFixMe,
         classesFactory: $TSFixMe,
         mixin: $TSFixMe,
-        filter: $TSFixMe,
-        directive: $TSFixMe,
+        directive: typeof DirectiveFactory,
+        filter: typeof FilterFactory,
         locale: typeof LocaleFactory,
         shortcut: $TSFixMe,
         plugin: $TSFixMe,
-        apiService: $TSFixMe,
-        entityDefinition: $TSFixMe,
-        workerNotification: $TSFixMe,
+        apiService: typeof ApiServiceFactory,
+        entityDefinition: typeof EntityDefinitionFactory,
+        workerNotification: typeof WorkerNotificationFactory,
     }
 
     interface FilterTypes {
         asset: (value: string) => string,
         currency: $TSFixMeFunction,
-        date: (value: string, options: Intl.DateTimeFormatOptions) => string,
+        date: (value: string, options?: Intl.DateTimeFormatOptions) => string,
         'file-size': $TSFixMeFunction,
         'media-name': $TSFixMeFunction,
         salutation: (entity: SalutationFilterEntityType, fallbackSnippet: string) => string,
@@ -210,7 +283,7 @@ declare global {
         paymentOverviewCardState: PaymentOverviewCardState,
         swOrder: SwOrderState,
         session: {
-            currentUser: $TSFixMe,
+            currentUser: EntitySchema.Entities['user'],
             userPending: boolean,
             languageId: string,
             currentLocale: string|null,
@@ -225,6 +298,7 @@ declare global {
         extensionEntryRoutes: $TSFixMe,
         shopwareApps: ShopwareAppsState,
         sdkLocation: SdkLocationState,
+        usageData: UsageDataModuleState
     }
 
     /**
@@ -261,6 +335,11 @@ declare global {
     }
 
     const flushPromises: () => Promise<void>;
+
+    /**
+     * @private This is a private method and should not be used outside of the test suite
+     */
+    const wrapTestComponent: (componentName: string, config?: { sync?: boolean }) => Promise<VueComponent>;
 }
 
 /**
@@ -301,6 +380,7 @@ declare module 'vue-router' {
  */
 declare module 'vue/types/vue' {
     interface Vue extends ServiceContainer {
+        $createTitle: (identifier?: string|null) => string,
         $router: VueRouter,
         $route: Route,
     }

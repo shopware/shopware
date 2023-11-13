@@ -30,9 +30,9 @@ async function createWrapper(additionalOptions = {}) {
             'icons-solid-exclamation-circle': true,
         },
         provide: {
-            validationService: {}
+            validationService: {},
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 }
 
@@ -151,24 +151,24 @@ describe('components/form/sw-url-field', () => {
     it('should show the label from the property', async () => {
         wrapper = await createWrapper({
             propsData: {
-                label: 'Label from prop'
-            }
+                label: 'Label from prop',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         wrapper = await createWrapper({
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
     it('properly detects SSL', async () => {

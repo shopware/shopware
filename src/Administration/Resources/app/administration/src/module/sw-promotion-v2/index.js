@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import './init/services.init';
 import './acl';
 

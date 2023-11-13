@@ -6,20 +6,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
 {
-    private SalesChannelContext $salesChannelContext;
+    private readonly SalesChannelContext $salesChannelContext;
 
     /**
      * @param Entity[] $entities
      */
-    public function __construct(EntityDefinition $definition, array $entities, SalesChannelContext $context)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $entities,
+        SalesChannelContext $context
+    ) {
         parent::__construct($definition, $entities, $context->getContext());
         $this->salesChannelContext = $context;
     }

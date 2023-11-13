@@ -6,7 +6,7 @@ const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -25,6 +25,11 @@ export default {
             default: false,
         },
         isTemplate: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isUnknownTrigger: {
             type: Boolean,
             required: false,
             default: false,

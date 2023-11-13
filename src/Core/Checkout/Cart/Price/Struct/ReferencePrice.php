@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ReferencePrice extends ReferencePriceDefinition
 {
     /**
@@ -14,8 +13,12 @@ class ReferencePrice extends ReferencePriceDefinition
      */
     protected $price;
 
-    public function __construct(float $price, float $purchaseUnit, float $referenceUnit, string $unitName)
-    {
+    public function __construct(
+        float $price,
+        float $purchaseUnit,
+        float $referenceUnit,
+        string $unitName
+    ) {
         parent::__construct($purchaseUnit, $referenceUnit, $unitName);
 
         $this->price = FloatComparator::cast($price);

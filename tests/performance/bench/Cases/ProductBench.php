@@ -7,12 +7,12 @@ use PhpBench\Attributes as Bench;
 use PhpBench\Attributes\BeforeMethods;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 
 /**
  * @internal - only for performance benchmarks
  */
-class ProductBench extends BenchCase
+class ProductBench extends AbstractBenchCase
 {
     #[BeforeMethods(['setup'])]
     #[AfterMethods(['tearDown'])]

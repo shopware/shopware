@@ -13,7 +13,7 @@ const debounceTimeout = 800;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -321,6 +321,8 @@ export default {
                 this.isLoading = true;
                 const defaultStorefrontId = '8A243080F92E4C719546314B577CF82B';
 
+                Shopware.State.commit('shopwareApps/setSelectedIds', [this.pageId]);
+
                 const criteria = new Criteria(1, 25);
                 criteria.addFilter(
                     Criteria.equals('typeId', defaultStorefrontId),
@@ -524,7 +526,10 @@ export default {
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', category);
 
             this.loadDemoCategoryProducts(category);
-            this.loadDemoCategoryMedia(category);
+
+            if (category.mediaId) {
+                this.loadDemoCategoryMedia(category);
+            }
         },
 
         async loadDemoCategoryProducts(entity) {
@@ -592,6 +597,12 @@ export default {
             section.sizingMode = 'boxed';
             section.position = index;
             section.pageId = this.page.id;
+
+            section.visibility = {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            };
 
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();
@@ -1146,6 +1157,14 @@ export default {
 
         onChangeDontRemindCheckbox() {
             this.cmsMissingElementDontRemind = !this.cmsMissingElementDontRemind;
+        },
+
+        async onClickBack() {
+            if (window.history.length > 2) {
+                await this.$router.back();
+            } else {
+                await this.$router.push({ name: 'sw.cms.index' });
+            }
         },
     },
 };

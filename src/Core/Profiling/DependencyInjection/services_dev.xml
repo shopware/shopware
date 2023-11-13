@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Profiling\Controller\ProfilerController">
+            <argument type="service" id="twig" />
+            <argument type="service" id="profiler" />
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+
+            <tag name="controller.service_arguments" />
+        </service>
+
+        <service id="Shopware\Core\Profiling\Routing\ProfilerWhitelist">
+            <tag name="shopware.route_scope_whitelist"/>
+        </service>
+    </services>
+</container>

@@ -8,10 +8,10 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -19,9 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptApiRouteTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use AppSystemTestBehaviour;
     use AdminApiTestBehaviour;
+    use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     public function testApiEndpoint(): void
     {
@@ -31,7 +31,8 @@ class ScriptApiRouteTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/simple-script');
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertNotFalse($browser->getResponse()->getContent());
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $traces = $this->getScriptTraces();
@@ -50,7 +51,8 @@ class ScriptApiRouteTest extends TestCase
         $browser = $this->getBrowser();
         $browser->request('POST', '/api/script/simple/script');
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertNotFalse($browser->getResponse()->getContent());
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         $traces = $this->getScriptTraces();
@@ -68,7 +70,9 @@ class ScriptApiRouteTest extends TestCase
 
         $browser = $this->getBrowser(true, [], ['app.shop-owner']);
         $browser->request('POST', '/api/script/simple-script');
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertNotFalse($browser->getResponse()->getContent());
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
         static::assertArrayHasKey('errors', $response);
@@ -109,10 +113,15 @@ class ScriptApiRouteTest extends TestCase
             'limit' => 1,
         ];
 
+        $json = \json_encode($criteria);
+        static::assertNotFalse($json);
+
         $this->kernelBrowser = null;
         $browser = $this->getBrowser();
-        $browser->request('POST', '/api/script/repository-test', [], [], [], \json_encode($criteria));
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $browser->request('POST', '/api/script/repository-test', [], [], [], $json);
+
+        static::assertNotFalse($browser->getResponse()->getContent());
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
 
@@ -138,8 +147,9 @@ class ScriptApiRouteTest extends TestCase
         $browser->request('POST', '/api/script/insufficient-permissions');
 
         static::assertEquals(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
+        static::assertNotFalse($browser->getResponse()->getContent());
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -156,8 +166,9 @@ class ScriptApiRouteTest extends TestCase
         // no admin permissions
         $this->authorizeBrowser($browser, [], []);
         $browser->request('POST', '/api/script/simple-script');
+        static::assertNotFalse($browser->getResponse()->getContent());
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
         static::assertArrayHasKey('errors', $response);
@@ -177,8 +188,9 @@ class ScriptApiRouteTest extends TestCase
 
         $browser = $this->getBrowserAuthenticatedWithIntegration($app->getIntegrationId());
         $browser->request('POST', '/api/script/simple-script');
+        static::assertNotFalse($browser->getResponse()->getContent());
 
-        $response = \json_decode($browser->getResponse()->getContent(), true);
+        $response = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
     }
 
@@ -194,9 +206,12 @@ class ScriptApiRouteTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
+        $json = \json_encode(['productId' => $ids->get('p1')], \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($json);
+
         $browser = $this->getBrowser();
         $browser->followRedirects(false);
-        $browser->request('POST', '/api/script/redirect-response', [], [], [], \json_encode(['productId' => $ids->get('p1')]));
+        $browser->request('POST', '/api/script/redirect-response', [], [], [], $json);
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -217,16 +232,20 @@ class ScriptApiRouteTest extends TestCase
 
         $this->getContainer()->get('product.repository')->create($products, Context::createDefaultContext());
 
+        $json = \json_encode(['productId' => $ids->get('p1')], \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($json);
+
         $browser = $this->getBrowser();
         $browser->followRedirects(false);
-        $browser->request('POST', '/api/script/access-inner', [], [], [], \json_encode(['productId' => $ids->get('p1')]));
+        $browser->request('POST', '/api/script/access-inner', [], [], [], $json);
         $response = $browser->getResponse();
+        static::assertNotFalse($response->getContent());
 
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
 
         $content = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $content);
         static::assertCount(1, $content['errors']);
-        static::assertEquals('FRAMEWORK__HOOK_METHOD_EXCEPTION', $content['errors'][0]['code']);
+        static::assertEquals('FRAMEWORK__ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED', $content['errors'][0]['code']);
     }
 }

@@ -4,22 +4,20 @@ namespace Shopware\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\ParametersTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScriptIdQuery implements BuilderInterface
 {
     use ParametersTrait;
 
-    private string $id;
-
     /**
      * @param array<mixed> $parameters
      */
-    public function __construct(string $id, array $parameters = [])
-    {
-        $this->id = $id;
+    public function __construct(
+        private readonly string $id,
+        array $parameters = []
+    ) {
         $this->setParameters($parameters);
     }
 

@@ -14,47 +14,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
-    public const MAX_LIMIT = 10000;
-    public const RESULT_STATE = 'loaded-by-elastic';
-
-    private Client $client;
-
-    private EntitySearcherInterface $decorated;
-
-    private ElasticsearchHelper $helper;
-
-    private CriteriaParser $criteriaParser;
-
-    private AbstractElasticsearchSearchHydrator $hydrator;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const MAX_LIMIT = 10000;
+    final public const RESULT_STATE = 'loaded-by-elastic';
 
     /**
      * @internal
      */
     public function __construct(
-        Client $client,
-        EntitySearcherInterface $searcher,
-        ElasticsearchHelper $helper,
-        CriteriaParser $criteriaParser,
-        AbstractElasticsearchSearchHydrator $hydrator,
-        EventDispatcherInterface $eventDispatcher
+        private readonly Client $client,
+        private readonly EntitySearcherInterface $decorated,
+        private readonly ElasticsearchHelper $helper,
+        private readonly CriteriaParser $criteriaParser,
+        private readonly AbstractElasticsearchSearchHydrator $hydrator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $timeout = '5s'
     ) {
-        $this->client = $client;
-        $this->decorated = $searcher;
-        $this->helper = $helper;
-        $this->criteriaParser = $criteriaParser;
-        $this->hydrator = $hydrator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
@@ -82,7 +64,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, $context->getLanguageId()),
+                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
                 'track_total_hits' => true,
                 'body' => $search,
             ]);
@@ -126,15 +108,18 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     private function convertSearch(Criteria $criteria, EntityDefinition $definition, Context $context, Search $search): array
     {
         if (!$criteria->getGroupFields()) {
-            return $search->toArray();
+            $array = $search->toArray();
+            $array['timeout'] = $this->timeout;
+
+            return $array;
         }
 
         $aggregation = $this->buildTotalCountAggregation($criteria, $definition, $context);
 
         $search->addAggregation($aggregation);
-
         $array = $search->toArray();
         $array['collapse'] = $this->parseGrouping($criteria->getGroupFields(), $definition, $context);
+        $array['timeout'] = $this->timeout;
 
         return $array;
     }

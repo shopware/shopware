@@ -2,7 +2,7 @@ import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -196,7 +196,7 @@ export default {
         },
 
         async loadSeoUrls() {
-            if (!this.customerGroup?.registrationSalesChannels.length) {
+            if (!this.customerGroup?.registrationSalesChannels?.length) {
                 this.seoUrls = [];
                 return;
             }

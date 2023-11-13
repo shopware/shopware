@@ -10,7 +10,8 @@
                     attributes: {
                         'class': 'img-fluid line-item-img',
                         'alt': (lineItem.cover.translated.alt ?: ''),
-                        'title': (lineItem.cover.translated.title ?: '')
+                        'title': (lineItem.cover.translated.title ?: ''),
+                        'loading': 'lazy'
                     }
                 } %}
             {% endblock %}
@@ -34,14 +35,23 @@
         {% endif %}
     {% endset %}
 
-    {% if productLink %}
-        <a href="{{ seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) }}"
+    {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string. Remove this if block. #}
+    {% if productLink and not lineItemLink %}
+        {% set lineItemLink = seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) %}
+
+        {% if controllerAction is same as('confirmPage') %}
+            {% set lineItemModalLink = path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) %}
+        {% endif %}
+    {% endif %}
+
+    {% if lineItemLink %}
+        <a href="{{ lineItemLink }}"
            class="line-item-img-link"
            title="{{ label }}"
-            {% if controllerAction is same as('confirmPage') %}
-                data-toggle="modal"
+            {% if lineItemModalLink %}
+                data-ajax-modal="modal"
                 data-modal-class="quickview-modal"
-                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
+                data-url="{{ lineItemModalLink }}"
             {% endif %}
         >
             {{ thumbnail }}

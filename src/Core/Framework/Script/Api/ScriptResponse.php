@@ -2,32 +2,27 @@
 
 namespace Shopware\Core\Framework\Script\Api;
 
-use Shopware\Core\Framework\Script\Exception\HookMethodException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
+use Shopware\Core\Framework\Script\ScriptException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScriptResponse
 {
-    private int $code;
-
     private ArrayFacade $body;
 
-    private ?Response $inner;
-
-    private ResponseCacheConfiguration $cache;
+    private readonly ResponseCacheConfiguration $cache;
 
     /**
      * @internal
      */
-    public function __construct(?Response $inner = null, int $code = Response::HTTP_OK)
-    {
+    public function __construct(
+        private readonly ?Response $inner = null,
+        private int $code = Response::HTTP_OK
+    ) {
         $this->body = new ArrayFacade([]);
-        $this->inner = $inner;
-        $this->code = $code;
         $this->cache = new ResponseCacheConfiguration();
     }
 
@@ -47,9 +42,9 @@ class ScriptResponse
     }
 
     /**
-     * @param array|ArrayFacade $body
+     * @param array<mixed>|ArrayFacade<mixed> $body
      */
-    public function setBody($body): void
+    public function setBody(array|ArrayFacade $body): void
     {
         if (\is_array($body)) {
             $body = new ArrayFacade($body);
@@ -69,7 +64,7 @@ class ScriptResponse
     public function getInner(): ?Response
     {
         if (ScriptExecutor::$isInScriptExecutionContext) {
-            throw HookMethodException::accessFromScriptExecutionContextNotAllowed(__CLASS__, __METHOD__);
+            throw ScriptException::accessFromScriptExecutionContextNotAllowed(self::class, __METHOD__);
         }
 
         return $this->inner;

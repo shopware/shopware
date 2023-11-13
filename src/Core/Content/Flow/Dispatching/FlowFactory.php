@@ -3,27 +3,23 @@
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Content\Flow\Dispatching\Storer\FlowStorer;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class FlowFactory
 {
     /**
-     * @var FlowStorer[]
-     */
-    private iterable $storer;
-
-    /**
      * @param FlowStorer[] $storer
      */
-    public function __construct($storer)
+    public function __construct(private $storer)
     {
-        $this->storer = $storer;
     }
 
     public function create(FlowEventAware $event): StorableFlow
@@ -39,13 +35,29 @@ class FlowFactory
      */
     public function restore(string $name, Context $context, array $stored = [], array $data = []): StorableFlow
     {
-        $flow = new StorableFlow($name, $context, $stored, $data);
+        $systemContext = new Context(
+            new SystemSource(),
+            $context->getRuleIds(),
+            $context->getCurrencyId(),
+            $context->getLanguageIdChain(),
+            $context->getVersionId(),
+            $context->getCurrencyFactor(),
+            $context->considerInheritance(),
+            $context->getTaxState(),
+            $context->getRounding(),
+        );
+        $systemContext->setExtensions($context->getExtensions());
 
-        foreach ($this->storer as $storer) {
-            $storer->restore($flow);
-        }
+        // @deprecated tag:v6.6.0 - Remove `silent` call and keep inner function
+        return Feature::silent('v6.6.0.0', function () use ($name, $systemContext, $stored, $data): StorableFlow {
+            $flow = new StorableFlow($name, $systemContext, $stored, $data);
 
-        return $flow;
+            foreach ($this->storer as $storer) {
+                $storer->restore($flow);
+            }
+
+            return $flow;
+        });
     }
 
     /**
@@ -53,11 +65,14 @@ class FlowFactory
      */
     private function getStored(FlowEventAware $event): array
     {
-        $stored = [];
-        foreach ($this->storer as $storer) {
-            $stored = $storer->store($event, $stored);
-        }
+        // @deprecated tag:v6.6.0 - Remove `silent` call and keep inner function
+        return Feature::silent('v6.6.0.0', function () use ($event) {
+            $stored = [];
+            foreach ($this->storer as $storer) {
+                $stored = $storer->store($event, $stored);
+            }
 
-        return $stored;
+            return $stored;
+        });
     }
 }

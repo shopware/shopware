@@ -49,14 +49,6 @@ export default {
             isLoading: false,
             actualProgress: 0,
             maxProgress: 0,
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed
-             */
-            notificationModal: false,
-            /**
-             * @deprecated tag:v6.5.0 - Will be removed
-             */
-            notificationInfos: {},
             progressType: '',
             variantsNumber: 0,
             variantsGenerator: null,
@@ -279,6 +271,9 @@ export default {
 
                 if (item.productStates.includes('is-download')) {
                     item.maxPurchase = 1;
+                    item.minPurchase = 1;
+                    item.isCloseout = false;
+                    item.shippingFree = false;
                 }
 
                 const mediaIds = [];
@@ -336,22 +331,6 @@ export default {
                 : 0;
         },
 
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        onConfirmNotificationModal() {
-            this.notificationModal = false;
-            this.generateVariants();
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Will be removed
-         */
-        onCloseNotificationModal() {
-            this.notificationModal = false;
-            this.isLoading = false;
-        },
-
         onChangeAllVariantValues(checked) {
             let variants = this.variantGenerationQueue.createQueue;
             if (this.term) {
@@ -369,9 +348,12 @@ export default {
             }
 
             variants.forEach((item) => {
-                item.downloads = [];
+                item.downloads = [...this.downloadFilesForAllVariants];
+                this.updateUsageForAllVariantFiles(item.id);
+
                 item.productStates = ['is-download'];
             });
+
             this.getList();
         },
 
@@ -390,6 +372,9 @@ export default {
                 item.productStates = [];
                 return;
             }
+
+            item.downloads = [...this.downloadFilesForAllVariants];
+            this.updateUsageForAllVariantFiles(item.id);
 
             item.productStates = ['is-download'];
         },
@@ -436,6 +421,12 @@ export default {
                         this.pushFileToUsageList(`${media.fileName}.${media.fileExtension}`, currentItem.id);
                     }
                 });
+            });
+        },
+
+        updateUsageForAllVariantFiles(id) {
+            this.downloadFilesForAllVariants.forEach((download) => {
+                this.pushFileToUsageList(`${download.fileName}.${download.fileExtension}`, id);
             });
         },
 

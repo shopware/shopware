@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsCountryDetail from 'src/module/sw-settings-country/page/sw-settings-country-detail';
@@ -20,21 +20,21 @@ const routes = [
         children: [
             {
                 name: 'sw.settings.country.detail.general',
-                path: '/sw/settings/country/detail/the-id/general'
+                path: '/sw/settings/country/detail/the-id/general',
             }, {
                 name: 'sw.settings.country.detail.state',
-                path: '/sw/settings/country/detail/the-id/state'
+                path: '/sw/settings/country/detail/the-id/state',
             },
             {
                 name: 'sw.settings.country.detail.address-handling',
-                path: '/sw/settings/country/detail/the-id/address-handling'
-            }
-        ]
+                path: '/sw/settings/country/detail/the-id/address-handling',
+            },
+        ],
     },
 ];
 
 const router = new VueRouter({
-    routes
+    routes,
 });
 
 async function createWrapper(privileges = []) {
@@ -51,9 +51,10 @@ async function createWrapper(privileges = []) {
         mocks: {
             $tc: key => key,
             $device: {
+                removeResizeListener: () => {},
                 getSystemKey: () => {},
-                onResize: () => {}
-            }
+                onResize: () => {},
+            },
         },
 
         provide: {
@@ -85,14 +86,14 @@ async function createWrapper(privileges = []) {
                                 translated: {},
                                 translations: [],
                                 updatedAt: '2020-08-16T06:57:40.559+00:00',
-                                vatIdRequired: false
+                                vatIdRequired: false,
                             });
                         }
 
                         return Promise.resolve({
                             systemCurrency: {
-                                symbol: '€'
-                            }
+                                symbol: '€',
+                            },
                         });
                     },
                     search: () => {
@@ -104,18 +105,18 @@ async function createWrapper(privileges = []) {
                     create: () => {
                         return {};
                     },
-                })
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
 
         stubs: {
@@ -132,7 +133,7 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': await Shopware.Component.build('sw-card-view'),
             'sw-card': await Shopware.Component.build('sw-card'),
@@ -155,7 +156,7 @@ async function createWrapper(privileges = []) {
             'sw-skeleton': true,
             'sw-settings-country-sidebar': true,
             'sw-error-summary': true,
-        }
+        },
     });
 }
 
@@ -173,7 +174,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
     it('should be render tab', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.vm.$nextTick();
@@ -186,12 +187,12 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
 
     it('should be able to save the country', async () => {
         const wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-country-detail__save-action'
+            '.sw-settings-country-detail__save-action',
         );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -202,7 +203,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
-            '.sw-settings-country-detail__save-action'
+            '.sw-settings-country-detail__save-action',
         );
 
         expect(saveButton.attributes().disabled).toBeTruthy();

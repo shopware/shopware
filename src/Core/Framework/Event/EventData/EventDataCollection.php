@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('business-ops')]
 class EventDataCollection
 {
     /**
      * @var array<string, array<string, mixed>>
      */
-    private $data = [];
+    private array $data = [];
 
     public function add(string $name, EventDataType $type): self
     {

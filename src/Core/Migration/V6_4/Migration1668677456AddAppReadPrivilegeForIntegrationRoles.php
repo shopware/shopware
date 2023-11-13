@@ -3,16 +3,18 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  *
- * @package core
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1668677456AddAppReadPrivilegeForIntegrationRoles extends MigrationStep
 {
-    public const NEW_PRIVILEGES = [
+    final public const NEW_PRIVILEGES = [
         'integration.viewer' => [
             'app:read',
         ],

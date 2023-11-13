@@ -23,13 +23,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AppFlowActionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_flow_action';
+    final public const ENTITY_NAME = 'app_flow_action';
 
     public function getEntityName(): string
     {
@@ -63,13 +62,13 @@ class AppFlowActionDefinition extends EntityDefinition
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
             (new StringField('name', 'name', 255))->addFlags(new Required()),
             new StringField('badge', 'badge', 255),
-            (new JsonField('parameters', 'parameters')),
-            (new JsonField('config', 'config')),
-            (new JsonField('headers', 'headers')),
-            (new ListField('requirements', 'requirements', StringField::class)),
-            (new BlobField('icon', 'iconRaw')),
+            new JsonField('parameters', 'parameters'),
+            new JsonField('config', 'config'),
+            new JsonField('headers', 'headers'),
+            new ListField('requirements', 'requirements', StringField::class),
+            new BlobField('icon', 'iconRaw'),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
-            (new StringField('sw_icon', 'swIcon')),
+            new StringField('sw_icon', 'swIcon'),
             (new StringField('url', 'url'))->addFlags(new Required()),
             new BoolField('delayable', 'delayable'),
             new TranslatedField('label'),

@@ -3,32 +3,17 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\IntFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class IntField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     */
-    private $storageName;
-
-    /**
-     * @var int|null
-     */
-    private $minValue;
-
-    /**
-     * @var int|null
-     */
-    private $maxValue;
-
-    public function __construct(string $storageName, string $propertyName, ?int $minValue = null, ?int $maxValue = null)
-    {
-        $this->storageName = $storageName;
-        $this->minValue = $minValue;
-        $this->maxValue = $maxValue;
+    public function __construct(
+        private readonly string $storageName,
+        string $propertyName,
+        private readonly ?int $minValue = null,
+        private readonly ?int $maxValue = null
+    ) {
         parent::__construct($propertyName);
     }
 

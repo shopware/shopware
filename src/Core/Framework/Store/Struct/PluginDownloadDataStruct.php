@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
  */
+#[Package('services-settings')]
 class PluginDownloadDataStruct extends Struct
 {
     /**
@@ -20,6 +20,14 @@ class PluginDownloadDataStruct extends Struct
      * @var string
      */
     protected $type;
+
+    protected ?int $size = null;
+
+    protected ?string $sha1 = null;
+
+    protected ?string $binaryVersion = null;
+
+    protected ?string $manifestLocation = null;
 
     public function getLocation(): string
     {

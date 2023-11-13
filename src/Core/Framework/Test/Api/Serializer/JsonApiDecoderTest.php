@@ -12,10 +12,7 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class JsonApiDecoderTest extends TestCase
 {
-    /**
-     * @var JsonApiDecoder
-     */
-    private $decoder;
+    private JsonApiDecoder $decoder;
 
     protected function setUp(): void
     {
@@ -29,7 +26,7 @@ class JsonApiDecoderTest extends TestCase
         static::assertFalse($this->decoder->supportsDecoding('yml'));
     }
 
-    public function emptyInputProvider(): array
+    public static function emptyInputProvider(): array
     {
         return [
             [null],
@@ -41,7 +38,7 @@ class JsonApiDecoderTest extends TestCase
         ];
     }
 
-    public function inputWithoutDataOnRootProvider(): array
+    public static function inputWithoutDataOnRootProvider(): array
     {
         return [
             ['randomKey' => 'randomValue'],
@@ -49,7 +46,7 @@ class JsonApiDecoderTest extends TestCase
         ];
     }
 
-    public function resourceIdentifierWIthInvalidStructureProvider(): array
+    public static function resourceIdentifierWIthInvalidStructureProvider(): array
     {
         return [
             [['data' => ['id' => 'some-id']]],
@@ -67,7 +64,7 @@ class JsonApiDecoderTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Input not a valid JSON:API data object.');
 
-        $this->decoder->decode(json_encode($input), 'jsonapi');
+        $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     /**
@@ -78,7 +75,7 @@ class JsonApiDecoderTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Input not a valid JSON:API data object.');
 
-        $this->decoder->decode(json_encode($input), 'jsonapi');
+        $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     /**
@@ -89,7 +86,7 @@ class JsonApiDecoderTest extends TestCase
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('A resource identifier must be an array containing "id" and "type".');
 
-        $this->decoder->decode(json_encode($input), 'jsonapi');
+        $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
     public function testRelationshipWithoutMatchingInclude(): void

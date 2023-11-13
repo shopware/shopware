@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swSettingsProductFeatureSetsModal from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';
@@ -29,14 +32,14 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         customFieldListCellContent: 'sw-data-grid__cell-content',
         productInformationListHeader: 'sw-data-grid__header',
         productInformationList: 'sw-data-grid',
-        productInformationListCellContent: 'sw-data-grid__cell-content'
+        productInformationListCellContent: 'sw-data-grid__cell-content',
     };
 
     const text = {
         propertyListNameHeader: 'sw-settings-product-feature-sets.modal.textPropertyLabel',
         customFieldListNameHeader: 'sw-settings-product-feature-sets.modal.labelName',
         customFieldListTypeHeader: 'sw-settings-product-feature-sets.valuesCard.labelType',
-        productInformationListNameHeader: 'sw-settings-product-feature-sets.modal.labelName'
+        productInformationListNameHeader: 'sw-settings-product-feature-sets.modal.labelName',
     };
 
     function getPageConfig(config) {
@@ -47,9 +50,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     showCustomField: false,
                     showPropertyGroups: false,
                     showProductInfo: false,
-                    ...config
+                    ...config,
                 };
-            }
+            },
         };
     }
 
@@ -63,16 +66,16 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-icon': true,
                 'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
                 'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-field': true,
+                'sw-text-field': true,
                 'sw-data-grid-skeleton': true,
-                i18n: true
+                i18n: true,
             },
             data() {
                 return {
                     showPageOne: true,
                     showCustomField: false,
                     showPropertyGroups: false,
-                    showProductInfo: false
+                    showProductInfo: false,
                 };
             },
             propsData: {
@@ -81,26 +84,26 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     name: null,
                     description: null,
                     features: [
-                        {}
-                    ]
-                }
+                        {},
+                    ],
+                },
             },
             provide: {
                 shortcutService: {
                     startEventListener: () => {
                     },
                     stopEventListener: () => {
-                    }
+                    },
                 },
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.reject()
+                        search: () => Promise.reject(),
                     }),
                     search: () => {
-                    }
-                }
+                    },
+                },
             },
-            ...additionalOptions
+            ...additionalOptions,
         });
     }
 
@@ -142,7 +145,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             classes.customFieldListToolbar,
             classes.customFieldListSearchField,
             classes.customFieldListHeader,
-            classes.customFieldList
+            classes.customFieldList,
         ].forEach((className) => {
             root.get(`.${className}`);
         });
@@ -163,7 +166,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
             classes.propertyListToolbar,
             classes.propertyListSearchField,
             classes.propertyListHeader,
-            classes.propertyList
+            classes.propertyList,
         ].forEach((className) => {
             root.get(`.${className}`);
         });
@@ -182,7 +185,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         [
             classes.productInformationListHeader,
             classes.productInformationList,
-            classes.productInformationListCellContent
+            classes.productInformationListCellContent,
         ].forEach((className) => {
             root.get(`.${className}`);
         });

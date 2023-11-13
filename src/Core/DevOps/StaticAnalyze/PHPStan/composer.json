@@ -1,0 +1,49 @@
+{
+    "name": "shopware/phpstan-extension",
+    "type": "phpstan-extension",
+    "description": "Phpstant extension with shopware specific ruleset.",
+    "keywords": [
+        "shopware",
+        "shop",
+        "phpstan"
+    ],
+    "homepage": "http://www.shopware.com",
+    "license": "MIT",
+    "autoload": {
+        "exclude-from-classmap": [
+            "*/Test/"
+        ],
+        "psr-4": {
+            "Shopware\\Core\\DevOps\\StaticAnalyze\\PHPStan": "."
+        }
+    },
+    "support": {
+        "issues": "https://issues.shopware.com",
+        "forum": "https://forum.shopware.com",
+        "wiki": "https://developer.shopware.com",
+        "docs": "https://developer.shopware.com",
+        "chat": "https://slack.shopware.com"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.5.x-dev",
+            "dev-trunk": "6.5.x-dev"
+        },
+        "phpstan": {
+            "includes": [
+                "phpstan-extension.neon",
+                "rules.neon"
+            ]
+        }
+    },
+    "require": {
+        "php": "~8.1.0 || ~8.2.0",
+        "phpstan/phpstan": "^1.9.14"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    }
+}

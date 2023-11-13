@@ -78,7 +78,7 @@ describe('Test checkout with downloadable products', () => {
         });
     });
 
-    it('@base @checkout: should checkout with downloadable and physical mixed', { tags: ['pa-checkout'] }, () => {
+    it('@base @checkout: should checkout with downloadable and physical mixed', {tags: ['pa-checkout']}, () => {
         cy.window().then(() => {
             const page = new CheckoutPageObject();
 
@@ -92,6 +92,7 @@ describe('Test checkout with downloadable products', () => {
             // Off canvas
             cy.get(page.elements.offCanvasCart).should('be.visible');
             cy.get(`${page.elements.offCanvasCart} .offcanvas-close`).click();
+            cy.get(page.elements.offCanvasCart).should('not.exist');
 
             // add physical product to cart
             cy.get('.header-search-input')

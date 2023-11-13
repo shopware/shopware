@@ -6,33 +6,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class EntitySearchedEvent extends Event implements ShopwareEvent
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var EntityDefinition
-     */
-    private $definition;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    public function __construct(Criteria $criteria, EntityDefinition $definition, Context $context)
-    {
-        $this->criteria = $criteria;
-        $this->definition = $definition;
-        $this->context = $context;
+    public function __construct(
+        private readonly Criteria $criteria,
+        private readonly EntityDefinition $definition,
+        private readonly Context $context
+    ) {
     }
 
     public function getCriteria(): Criteria

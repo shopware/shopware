@@ -14,7 +14,7 @@
 
             {% block page_checkout_change_shipping_form_redirect %}
                 <input type="hidden" name="redirectTo" value="{{ redirect }}">
-                <input type="hidden" name="redirectParameters[redirected]" value="0">
+                <input type="hidden" name="redirectParameters" value="{{ redirectParameters }}">
             {% endblock %}
 
             {% block page_checkout_change_shipping_form_fields %}

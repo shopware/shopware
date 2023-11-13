@@ -30,7 +30,7 @@ class ReturnNodeTest extends TestCase
         static::assertEquals($expected, $result, 'Failure by rendering template: ' . $template);
     }
 
-    public function nodeProvider(): \Generator
+    public static function nodeProvider(): \Generator
     {
         yield 'Test call' => ['call-case.html.twig', '1'];
         yield 'Test assign' => ['assign-case.html.twig', '1'];

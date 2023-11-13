@@ -34,21 +34,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Elasticsearch\ElasticsearchException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggregationHydrator
 {
-    private DefinitionInstanceRegistry $registry;
-
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry)
+    public function __construct(private readonly DefinitionInstanceRegistry $registry)
     {
-        $this->registry = $registry;
     }
 
     public function getDecorated(): AbstractElasticsearchAggregationHydrator
@@ -56,6 +53,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     public function hydrate(EntityDefinition $definition, Criteria $criteria, Context $context, array $result): AggregationResultCollection
     {
         if (!isset($result['aggregations'])) {
@@ -82,6 +82,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         return $aggregations;
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     private function hydrateAggregation(Aggregation $aggregation, array $result, Context $context): ?AggregationResult
     {
         switch (true) {
@@ -110,7 +113,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 $nested = $aggregation->getAggregation();
 
                 if (!$nested) {
-                    throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
+                    throw ElasticsearchException::nestedAggregationMissingInFilterAggregation($aggregation->getName());
                 }
                 $nestedResult = $result;
 
@@ -134,10 +137,13 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                 return $this->hydrateRangeAggregation($aggregation, $result);
 
             default:
-                throw new \RuntimeException(sprintf('Provided aggregation of class %s is not supported', \get_class($aggregation)));
+                throw ElasticsearchException::unsupportedAggregation($aggregation::class);
         }
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     private function hydrateEntityAggregation(EntityAggregation $aggregation, array $result, Context $context): EntityResult
     {
         if (\array_key_exists($aggregation->getName(), $result)) {
@@ -148,7 +154,7 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
 
         if (empty($ids)) {
             $definition = $this->registry->getByEntityName($aggregation->getEntity());
-            /** @var EntityCollection<Entity> $class */
+            /** @var class-string<EntityCollection<Entity>> $class */
             $class = $definition->getCollectionClass();
 
             return new EntityResult($aggregation->getName(), new $class());
@@ -160,6 +166,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         return new EntityResult($aggregation->getName(), $entities->getEntities());
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     private function hydrateDateHistogram(DateHistogramAggregation $aggregation, array $result, Context $context): ?DateHistogramResult
     {
         if (isset($result[$aggregation->getName()])) {
@@ -195,6 +204,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         return new DateHistogramResult($aggregation->getName(), $buckets);
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     private function hydrateTermsAggregation(TermsAggregation $aggregation, array $result, Context $context): ?TermsResult
     {
         if ($aggregation->getSorting()) {
@@ -259,6 +271,9 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
         return new RangeResult($aggregation->getName(), $ranges);
     }
 
+    /**
+     * @param array<string, mixed> $result
+     */
     private function hydrateSortedTermsAggregation(TermsAggregation $aggregation, array $result, Context $context): ?TermsResult
     {
         if (isset($result[$aggregation->getName()])) {

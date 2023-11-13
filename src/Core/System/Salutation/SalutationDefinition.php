@@ -19,14 +19,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
 
-/**
- * @package customer-order
- */
+#[Package('buyers-experience')]
 class SalutationDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'salutation';
+    final public const ENTITY_NAME = 'salutation';
+
+    final public const NOT_SPECIFIED = 'not_specified';
 
     public function getEntityName(): string
     {

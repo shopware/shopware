@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -10,33 +11,17 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * admin-ui > entity > detail > tabs > tab
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class Tab extends ConfigXmlElement
 {
     /**
-     * @param list<Card> $cards
+     * @var list<Card>
      */
-    private function __construct(
-        protected readonly array $cards,
-        protected readonly string $name
-    ) {
-    }
+    protected array $cards;
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        $cards = [];
-        foreach ($element->getElementsByTagName('card') as $card) {
-            $cards[] = Card::fromXml($card);
-        }
-
-        return new self(
-            $cards,
-            XmlUtils::phpize($element->getAttribute('name'))
-        );
-    }
+    protected string $name;
 
     public function getName(): string
     {
@@ -49,5 +34,18 @@ final class Tab extends ConfigXmlElement
     public function getCards(): array
     {
         return $this->cards;
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $cards = [];
+        foreach ($element->getElementsByTagName('card') as $card) {
+            $cards[] = Card::fromXml($card);
+        }
+
+        return [
+            'cards' => $cards,
+            'name' => XmlUtils::phpize($element->getAttribute('name')),
+        ];
     }
 }

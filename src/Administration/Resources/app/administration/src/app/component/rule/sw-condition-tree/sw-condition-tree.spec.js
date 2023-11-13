@@ -14,8 +14,8 @@ function createInitialConditionsCollection() {
             position: 0,
             ruleId: 'r_id1',
             type: 'customerCustomerGroup',
-            updatedAt: null
-        }
+            updatedAt: null,
+        },
     ]);
 }
 
@@ -23,10 +23,10 @@ async function createWrapper(customProps = {}) {
     return shallowMount(await Shopware.Component.build('sw-condition-tree'), {
         stubs: {
             'sw-loader': true,
-            'sw-condition-tree-node': true
+            'sw-condition-tree-node': true,
         },
         mocks: {
-            $tc: v => v
+            $tc: v => v,
         },
         propsData: {
             conditionDataProviderService: {
@@ -48,14 +48,14 @@ async function createWrapper(customProps = {}) {
                         ruleId: 'r_id1',
                         type: 'orContainer',
                         updatedAt: null,
-                        value: {}
+                        value: {},
                     };
-                }
+                },
             },
             associationField: 'foo',
             associationValue: 'bar',
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -78,7 +78,7 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
     it('should have disabled condition type select', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
         await wrapper.setData({ conditionTree: {} });
 
@@ -89,7 +89,7 @@ describe('src/app/component/rule/sw-condition-tree', () => {
 
     it('should add root container to initial conditions', async () => {
         const wrapper = await createWrapper({
-            initialConditions: createInitialConditionsCollection()
+            initialConditions: createInitialConditionsCollection(),
         });
 
         await flushPromises();
@@ -98,13 +98,13 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             expect.arrayContaining([
                 expect.objectContaining({
                     type: 'customerCustomerGroup',
-                    parentId: 'p_id1'
+                    parentId: 'p_id1',
                 }),
                 expect.objectContaining({
                     type: 'orContainer',
-                    parentId: null
-                })
-            ])
+                    parentId: null,
+                }),
+            ]),
         );
     });
 });

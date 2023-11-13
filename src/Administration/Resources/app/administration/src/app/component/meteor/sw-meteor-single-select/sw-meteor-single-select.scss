@@ -43,10 +43,31 @@
 }
 
 .sw-meteor-single-select__popover {
-    width: 250px;
+    .sw-select-result-list__content {
+        max-height: 420px;
+        min-width: 240px;
+        max-width: 320px;
+        padding: 0;
 
-    .sw-simple-search-field {
-        margin-top: 12px;
-        margin-bottom: 8px;
+        .sw-select-result-list__item-list {
+            padding: 0 8px 8px;
+            margin-top: 8px;
+        }
+
+        .sw-simple-search-field {
+            --search-field-padding: 12px;
+
+            position: sticky;
+            top: 0;
+            border-radius: 3px 3px 0 0;
+            border-bottom: 1px solid $color-gray-300;
+            padding: var(--search-field-padding);
+            background: $color-white;
+            margin: 0;
+
+            .sw-simple-search-field__search-icon {
+                right: calc(var(--search-field-padding) + 12px);
+            }
+        }
     }
 }

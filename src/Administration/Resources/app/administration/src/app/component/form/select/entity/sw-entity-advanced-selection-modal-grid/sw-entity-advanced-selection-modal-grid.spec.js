@@ -22,7 +22,7 @@ async function createWrapper(isSelectable, tooltip) {
         update(el, binding) {
             el.setAttribute('data-tooltip-message', binding.value.message);
             el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-        }
+        },
     });
 
     // mock entity functions
@@ -30,12 +30,12 @@ async function createWrapper(isSelectable, tooltip) {
         { name: 'Apple' },
         { name: 'Shopware' },
         { name: 'Google' },
-        { name: 'Microsoft' }
+        { name: 'Microsoft' },
     ];
     items.total = 4;
     items.criteria = {
         page: 1,
-        limit: 25
+        limit: 25,
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-advanced-selection-modal-grid'), {
@@ -53,7 +53,7 @@ async function createWrapper(isSelectable, tooltip) {
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-context-menu-item': true,
             'sw-field-error': true,
-            'sw-base-field': await Shopware.Component.build('sw-base-field')
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
         },
         provide: {},
         propsData: {
@@ -61,17 +61,17 @@ async function createWrapper(isSelectable, tooltip) {
                 return { isSelectable, tooltip };
             },
             columns: [
-                { property: 'name', label: 'Name' }
+                { property: 'name', label: 'Name' },
             ],
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
-                { id: 'id2', name: 'item2' }
+                { id: 'id2', name: 'item2' },
             ]),
             repository: {
-                search: () => {}
+                search: () => {},
             },
             detailRoute: 'sw.manufacturer.detail',
-        }
+        },
     });
 }
 

@@ -2,7 +2,7 @@ import template from './sw-settings-rule-detail-base.html.twig';
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -11,6 +11,11 @@ export default {
         'ruleConditionDataProviderService',
         'acl',
         'customFieldDataProviderService',
+    ],
+
+    emits: [
+        'conditions-changed',
+        'tree-finished-loading',
     ],
 
     props: {
@@ -57,10 +62,7 @@ export default {
 
         moduleTypes: {
             get() {
-                if (!this.rule || !this.rule.moduleTypes) {
-                    return [];
-                }
-                return this.rule.moduleTypes.types;
+                return this.rule?.moduleTypes?.types ?? [];
             },
             set(value) {
                 if (value === null || value.length === 0) {
@@ -89,10 +91,6 @@ export default {
             this.customFieldDataProviderService.getCustomFieldSets('rule').then((sets) => {
                 this.customFieldSets = sets;
             });
-        },
-
-        onConditionsChanged(event) {
-            this.$emit('conditions-changed', event);
         },
     },
 };

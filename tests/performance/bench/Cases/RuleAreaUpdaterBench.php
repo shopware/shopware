@@ -5,12 +5,12 @@ namespace Shopware\Tests\Bench\Cases;
 use PhpBench\Attributes as Bench;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 
 /**
  * @internal - only for performance benchmarks
  */
-class RuleAreaUpdaterBench extends BenchCase
+class RuleAreaUpdaterBench extends AbstractBenchCase
 {
     public function setUp(): void
     {

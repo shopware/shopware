@@ -61,7 +61,7 @@ EOF;
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE IF EXISTS `_test_lock`');
@@ -205,6 +205,6 @@ EOF;
         $violation = $violationException->getViolations()->findByCodes(LockValidator::VIOLATION_LOCKED);
 
         static::assertNotNull($violation);
-        static::assertEquals(LockValidator::VIOLATION_LOCKED, $violation[0]->getCode());
+        static::assertEquals(LockValidator::VIOLATION_LOCKED, $violation->get(0)->getCode());
     }
 }

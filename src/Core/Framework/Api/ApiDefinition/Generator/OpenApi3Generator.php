@@ -12,43 +12,32 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 
 /**
  * @internal
- * @phpstan-import-type OpenApiSpec from DefinitionService
  *
- * @package core
+ * @phpstan-import-type OpenApiSpec from DefinitionService
  */
+#[Package('core')]
 class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'openapi-3';
+    final public const FORMAT = 'openapi-3';
 
-    private OpenApiSchemaBuilder $openApiBuilder;
-
-    private OpenApiPathBuilder $pathBuilder;
-
-    private OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder;
-
-    private string $schemaPath;
-
-    private BundleSchemaPathCollection $bundleSchemaPathCollection;
+    private readonly string $schemaPath;
 
     /**
      * @param array{Framework: array{path: string}} $bundles
      */
     public function __construct(
-        OpenApiSchemaBuilder $openApiBuilder,
-        OpenApiPathBuilder $pathBuilder,
-        OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
+        private readonly OpenApiSchemaBuilder $openApiBuilder,
+        private readonly OpenApiPathBuilder $pathBuilder,
+        private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
     ) {
-        $this->openApiBuilder = $openApiBuilder;
-        $this->pathBuilder = $pathBuilder;
-        $this->definitionSchemaBuilder = $definitionSchemaBuilder;
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
-        $this->bundleSchemaPathCollection = $bundleSchemaPathCollection;
     }
 
     public function supports(string $format, string $api): bool
@@ -57,11 +46,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     }
 
     /**
-     * @param array<string, EntityDefinition>|list<EntityDefinition&SalesChannelDefinitionInterface>  $definitions
+     * @param array<string, EntityDefinition>|array<string, EntityDefinition&SalesChannelDefinitionInterface> $definitions
      *
      * @return OpenApiSpec
      */
-    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TypeJsonApi): array
+    public function generate(array $definitions, string $api, string $apiType = DefinitionService::TYPE_JSON_API, ?string $bundleName = null): array
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
@@ -75,15 +64,10 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            switch ($apiType) {
-                case DefinitionService::TypeJson:
-                    $onlyFlat = true;
-
-                    break;
-                case DefinitionService::TypeJsonApi:
-                default:
-                    $onlyFlat = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
-            }
+            $onlyFlat = match ($apiType) {
+                DefinitionService::TYPE_JSON => true,
+                default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
+            };
 
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
                 $definition,
@@ -99,17 +83,23 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if ($apiType === DefinitionService::TypeJsonApi) {
+            if ($apiType === DefinitionService::TYPE_JSON_API) {
                 $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
         }
 
-        $data = json_decode($openApi->toJson(), true);
-        $data['paths'] = $data['paths'] ?? [];
+        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
+        $data['paths'] ??= [];
 
         $schemaPaths = [$this->schemaPath];
-        $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api));
+
+        if (!empty($bundleName)) {
+            $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+            $data['paths'] = [];
+        } else {
+            $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
+        }
 
         $loader = new OpenApiFileLoader($schemaPaths);
 
@@ -143,8 +133,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
             try {
                 $definition->getEntityName();
-            } catch (\Exception $e) {
-                //mapping tables has no repository, skip them
+            } catch (\Exception) {
+                // mapping tables has no repository, skip them
                 continue;
             }
 
@@ -153,7 +143,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             if ($schema === null) {
                 throw new \RuntimeException('Invalid schema detected. Aborting');
             }
-            $schema = json_decode($schema->toJson(), true);
+            $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
             $schema = $schema['allOf'][1]['properties'];
 
             $relationships = [];
@@ -249,11 +239,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
     private function shouldDefinitionBeIncluded(EntityDefinition $definition): bool
     {
-        if (preg_match('/_translation$/', $definition->getEntityName())) {
+        if (str_ends_with($definition->getEntityName(), '_translation')) {
             return false;
         }
 
-        if (mb_strpos($definition->getEntityName(), 'version') === 0) {
+        if (str_starts_with($definition->getEntityName(), 'version')) {
             return false;
         }
 

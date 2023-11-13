@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
 
@@ -93,6 +96,10 @@ export default {
                     label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
                 },
             ];
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 

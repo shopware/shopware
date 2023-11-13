@@ -21,8 +21,13 @@ export default () => {
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const login = () => {
-    const context = require.context('./sw-login', true, /\.\/index\.[jt]s/);
+    let context = require.context('./sw-login', true, /\.\/index\.[jt]s/);
 
     // import login dependencies
-    return context.keys().map((key) => context(key).default);
+    const dependencies = context.keys().map((key) => context(key).default);
+
+    context = require.context('./sw-inactivity-login', true, /\.\/index\.[jt]s/);
+    dependencies.push(context.keys().map((key) => context(key).default));
+
+    return dependencies;
 };

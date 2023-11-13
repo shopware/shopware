@@ -19,13 +19,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('buyers-experience')]
 class PromotionDiscountDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'promotion_discount';
+    final public const ENTITY_NAME = 'promotion_discount';
 
     public function getEntityName(): string
     {
@@ -63,11 +62,11 @@ class PromotionDiscountDefinition extends EntityDefinition
             (new BoolField('consider_advanced_rules', 'considerAdvancedRules'))->addFlags(new Required()),
             new FloatField('max_value', 'maxValue'),
 
-            (new StringField('sorter_key', 'sorterKey', 32)),
-            (new StringField('applier_key', 'applierKey', 32)),
-            (new StringField('usage_key', 'usageKey', 32)),
-            (new StringField('picker_key', 'pickerKey', 32)),
-            (new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'))->addFlags(),
+            new StringField('sorter_key', 'sorterKey', 32),
+            new StringField('applier_key', 'applierKey', 32),
+            new StringField('usage_key', 'usageKey', 32),
+            new StringField('picker_key', 'pickerKey', 32),
+            new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('discountRules', RuleDefinition::class, PromotionDiscountRuleDefinition::class, 'discount_id', 'rule_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('promotionDiscountPrices', PromotionDiscountPriceDefinition::class, 'discount_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

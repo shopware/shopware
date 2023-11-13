@@ -13,33 +13,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
-    public const ROUTE_NAME = 'frontend.navigation.page';
-    public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
-
-    /**
-     * @var CategoryDefinition
-     */
-    private $categoryDefinition;
-
-    /**
-     * @var CategoryBreadcrumbBuilder
-     */
-    private $breadcrumbBuilder;
+    final public const ROUTE_NAME = 'frontend.navigation.page';
+    final public const DEFAULT_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
 
     /**
      * @internal
      */
-    public function __construct(CategoryDefinition $categoryDefinition, CategoryBreadcrumbBuilder $breadcrumbBuilder)
-    {
-        $this->categoryDefinition = $categoryDefinition;
-        $this->breadcrumbBuilder = $breadcrumbBuilder;
+    public function __construct(
+        private readonly CategoryDefinition $categoryDefinition,
+        private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
+    ) {
     }
 
     public function getConfig(): SeoUrlRouteConfig

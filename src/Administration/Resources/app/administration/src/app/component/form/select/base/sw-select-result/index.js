@@ -40,9 +40,9 @@ Component.register('sw-select-result', {
             type: String,
             required: false,
             default: 'right',
-            validValues: ['bottom', 'right'],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return ['bottom', 'right'].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
     },
@@ -81,11 +81,25 @@ Component.register('sw-select-result', {
 
     methods: {
         createdComponent() {
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.$parent.$on('active-item-change', this.checkIfActive);
+                this.$parent.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
+
+                return;
+            }
+
             this.$parent.$parent.$on('active-item-change', this.checkIfActive);
             this.$parent.$parent.$on('item-select-by-keyboard', this.checkIfSelected);
         },
 
         destroyedComponent() {
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.$parent.$off('active-item-change', this.checkIfActive);
+                this.$parent.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
+
+                return;
+            }
+
             this.$parent.$parent.$off('active-item-change', this.checkIfActive);
             this.$parent.$parent.$off('item-select-by-keyboard', this.checkIfSelected);
         },
@@ -100,6 +114,12 @@ Component.register('sw-select-result', {
 
         onClickResult() {
             if (this.disabled) {
+                return;
+            }
+
+            if (this.feature.isActive('VUE3')) {
+                this.$parent.$parent.$parent.$emit('item-select', this.item);
+
                 return;
             }
 

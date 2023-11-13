@@ -2,39 +2,53 @@
 
 namespace Shopware\Core\Framework\Api\Converter\Exceptions;
 
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package core
+ * @deprecated tag:v6.6.0 - Will be removed as it is not used anymore
  */
+#[Package('core')]
 class ApiConversionException extends ShopwareHttpException
 {
     /**
-     * @var array<string, \Throwable[]>
+     * @param array<string, \Throwable[]> $exceptions
      */
-    private $exceptions;
-
-    public function __construct(array $exceptions = [])
+    public function __construct(private array $exceptions = [])
     {
-        $this->exceptions = $exceptions;
-
         parent::__construct('Api Version conversion failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
     }
 
     public function add(\Throwable $exception, string $pointer): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         $this->exceptions[$pointer][] = $exception;
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return Response::HTTP_BAD_REQUEST;
     }
 
     public function tryToThrow(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         if (empty($this->exceptions)) {
             return;
         }
@@ -44,6 +58,11 @@ class ApiConversionException extends ShopwareHttpException
 
     public function getErrors(bool $withTrace = false): \Generator
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         foreach ($this->exceptions as $pointer => $innerExceptions) {
             /** @var ShopwareException $exception */
             foreach ($innerExceptions as $exception) {
@@ -77,6 +96,11 @@ class ApiConversionException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+        );
+
         return 'FRAMEWORK__API_VERSION_CONVERSION';
     }
 }

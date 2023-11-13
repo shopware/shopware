@@ -3,20 +3,16 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
-use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class DeleteAddressRoute extends AbstractDeleteAddressRoute
 {
     use CustomerAddressValidationTrait;
@@ -39,10 +35,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-    * @Since("6.3.2.0")
-    * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"}, defaults={"_loginRequired"=true, "_loginRequiredAllowGuest"=true})
-    */
+    #[Route(path: '/store-api/account/address/{addressId}', name: 'store-api.account.address.delete', methods: ['DELETE'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);
@@ -51,7 +44,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             $addressId === $customer->getDefaultBillingAddressId()
             || $addressId === $customer->getDefaultShippingAddressId()
         ) {
-            throw new CannotDeleteDefaultAddressException($addressId);
+            throw CustomerException::cannotDeleteDefaultAddress($addressId);
         }
 
         $activeBillingAddress = $customer->getActiveBillingAddress();
@@ -61,7 +54,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
             ($activeBillingAddress && $addressId === $activeBillingAddress->getId())
             || ($activeShippingAddress && $addressId === $activeShippingAddress->getId())
         ) {
-            throw new CannotDeleteActiveAddressException($addressId);
+            throw CustomerException::cannotDeleteActiveAddress($addressId);
         }
 
         $this->addressRepository->delete([['id' => $addressId]], $context->getContext());

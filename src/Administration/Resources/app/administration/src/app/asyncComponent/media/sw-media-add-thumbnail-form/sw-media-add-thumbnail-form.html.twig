@@ -7,10 +7,13 @@
     <div class="sw-media-add-thumbnail-form__form-container">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_width %}
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="width"
+            {% else %}
             v-model="width"
+            {% endif %}
             class="sw-media-add-thumbnail-form__input-width"
-            type="number"
             :label="$tc('global.sw-media-add-thumbnail-form.labelMaximumSize')"
             :min="1"
             :step="1"
@@ -26,16 +29,22 @@
             :class="lockedButtonClass"
             @click="onLockSwitch"
         >
-            <sw-icon :name="isLocked ? 'regular-lock' : 'regular-lock-open'" />
+            <sw-icon
+                :name="isLocked ? 'regular-lock' : 'regular-lock-open'"
+                size="16px"
+            />
         </button>
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_add_thumbnail_form_height %}
-        <sw-field
+        <sw-number-field
+            {% if VUE3 %}
+            v-model:value="height"
+            {% else %}
             v-model="height"
+            {% endif %}
             class="sw-media-add-thumbnail-form__input-height"
-            type="number"
             :min="1"
             :validation="height > 0"
             :step="1"

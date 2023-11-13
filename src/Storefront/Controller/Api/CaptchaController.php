@@ -2,38 +2,26 @@
 
 namespace Shopware\Storefront\Controller\Api;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package storefront
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('storefront')]
 class CaptchaController extends AbstractController
 {
     /**
-     * @var iterable|AbstractCaptcha[]
-     */
-    private $captchas;
-
-    /**
      * @internal
+     *
+     * @param AbstractCaptcha[] $captchas
      */
-    public function __construct(iterable $captchas)
+    public function __construct(private readonly iterable $captchas)
     {
-        $this->captchas = $captchas;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * Returns the IDs of all available captchas
-     *
-     * @Route("/api/_action/captcha_list", name="api.action.captcha.list", methods={"GET"})
-     */
+    #[Route(path: '/api/_action/captcha_list', name: 'api.action.captcha.list', methods: ['GET'])]
     public function list(): JsonResponse
     {
         $ids = [];

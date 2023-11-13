@@ -2,15 +2,11 @@
 
 namespace Shopware\Core\Content\Media\File;
 
-use Shopware\Core\Content\Media\Exception\DisabledUrlUploadFeatureException;
-use Shopware\Core\Content\Media\Exception\IllegalUrlException;
-use Shopware\Core\Content\Media\Exception\MissingFileExtensionException;
-use Shopware\Core\Content\Media\Exception\UploadException;
+use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class FileFetcher
 {
     private const ALLOWED_PROTOCOLS = ['http', 'https', 'ftp', 'sftp'];
@@ -19,10 +15,10 @@ class FileFetcher
      * @internal
      */
     public function __construct(
-        private FileUrlValidatorInterface $fileUrlValidator,
-        private bool $enableUrlUploadFeature = true,
-        private bool $enableUrlValidation = true,
-        private int $maxFileSize = 0
+        private readonly FileUrlValidatorInterface $fileUrlValidator,
+        private readonly bool $enableUrlUploadFeature = true,
+        private readonly bool $enableUrlValidation = true,
+        private readonly int $maxFileSize = 0
     ) {
     }
 
@@ -42,7 +38,7 @@ class FileFetcher
         }
 
         if ($expectedLength !== $bytesWritten) {
-            throw new UploadException('expected content-length did not match actual size');
+            throw MediaException::invalidContentLength();
         }
 
         return new MediaFile(
@@ -57,13 +53,13 @@ class FileFetcher
     public function fetchFileFromURL(Request $request, string $fileName): MediaFile
     {
         if (!$this->enableUrlUploadFeature) {
-            throw new DisabledUrlUploadFeatureException();
+            throw MediaException::disableUrlUploadFeature();
         }
 
         $url = $this->getUrlFromRequest($request);
 
         if ($this->enableUrlValidation && !$this->fileUrlValidator->isValid($url)) {
-            throw new IllegalUrlException($url);
+            throw MediaException::illegalUrl($url);
         }
 
         $extension = $this->getExtensionFromRequest($request);
@@ -106,38 +102,38 @@ class FileFetcher
     }
 
     /**
-     * @throws MissingFileExtensionException
+     * @throws MediaException
      */
     private function getExtensionFromRequest(Request $request): string
     {
         $extension = (string) $request->query->get('extension');
         if ($extension === '') {
-            throw new MissingFileExtensionException();
+            throw MediaException::missingFileExtension();
         }
 
         return $extension;
     }
 
     /**
-     * @throws UploadException
+     * @throws MediaException
      */
     private function getUrlFromRequest(Request $request): string
     {
         $url = (string) $request->request->get('url');
 
         if ($url === '') {
-            throw new UploadException('You must provide a valid url.');
+            throw MediaException::missingUrlParameter();
         }
 
         if (!$this->isUrlValid($url)) {
-            throw new UploadException('malformed url: ' . $url);
+            throw MediaException::invalidUrl($url);
         }
 
         return $url;
     }
 
     /**
-     * @throws UploadException
+     * @throws MediaException
      *
      * @return resource
      */
@@ -152,19 +148,19 @@ class FileFetcher
 
         try {
             $inputStream = @fopen($url, 'rb', false, $streamContext);
-        } catch (\Throwable $e) {
-            throw new UploadException("Could not open source stream from {$url}");
+        } catch (\Throwable) {
+            throw MediaException::cannotOpenSourceStreamToRead($url);
         }
 
         if ($inputStream === false) {
-            throw new UploadException("Could not open source stream from {$url}");
+            throw MediaException::cannotOpenSourceStreamToRead($url);
         }
 
         return $inputStream;
     }
 
     /**
-     * @throws UploadException
+     * @throws MediaException
      *
      * @return resource
      */
@@ -172,12 +168,12 @@ class FileFetcher
     {
         try {
             $inputStream = @fopen($filename, 'wb');
-        } catch (\Throwable $e) {
-            throw new UploadException("Could not open Stream to write upload data: {$filename}");
+        } catch (\Throwable) {
+            throw MediaException::cannotOpenSourceStreamToWrite($filename);
         }
 
         if ($inputStream === false) {
-            throw new UploadException("Could not open Stream to write upload data: {$filename}");
+            throw MediaException::cannotOpenSourceStreamToWrite($filename);
         }
 
         return $inputStream;
@@ -185,14 +181,14 @@ class FileFetcher
 
     /**
      * @param resource $sourceStream
-     * @param resource        $destStream
+     * @param resource $destStream
      */
     private function copyStreams($sourceStream, $destStream, int $maxFileSize = 0): int
     {
         if ($maxFileSize === 0) {
             $writtenBytes = stream_copy_to_stream($sourceStream, $destStream);
             if ($writtenBytes === false) {
-                throw new UploadException('Error while copying media from source');
+                throw MediaException::cannotCopyMedia();
             }
 
             return $writtenBytes;
@@ -200,11 +196,11 @@ class FileFetcher
 
         $writtenBytes = stream_copy_to_stream($sourceStream, $destStream, $maxFileSize, 0);
         if ($writtenBytes === false) {
-            throw new UploadException('Error while copying media from source');
+            throw MediaException::cannotCopyMedia();
         }
 
         if ($writtenBytes === $maxFileSize) {
-            throw new UploadException('Source file exceeds maximum file size limit');
+            throw MediaException::fileSizeLimitExceeded();
         }
 
         return $writtenBytes;

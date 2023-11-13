@@ -5,42 +5,37 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Comparator;
 use Doctrine\DBAL\Schema\Schema;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
- * @phpstan-import-type CustomEntityField from SchemaUpdater
  *
- * @package core
+ * @phpstan-import-type CustomEntityField from SchemaUpdater
  */
+#[Package('core')]
 class CustomEntitySchemaUpdater
 {
     private const COMMENT = 'custom-entity-element';
 
-    private Connection $connection;
-
-    private LockFactory $lockFactory;
-
-    private SchemaUpdater $schemaUpdater;
-
-    public function __construct(Connection $connection, LockFactory $lockFactory, SchemaUpdater $schemaUpdater)
-    {
-        $this->connection = $connection;
-        $this->lockFactory = $lockFactory;
-        $this->schemaUpdater = $schemaUpdater;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly LockFactory $lockFactory,
+        private readonly SchemaUpdater $schemaUpdater
+    ) {
     }
 
     public function update(): void
     {
+        $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+
         $this->lock(function (): void {
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
 
-            $schema = $this->getSchemaManager()->introspectSchema();
+            $schema = $this->connection->createSchemaManager()->introspectSchema();
 
             $this->cleanup($schema);
 
@@ -63,10 +58,8 @@ class CustomEntitySchemaUpdater
 
     private function applyNewSchema(Schema $update): void
     {
-        $baseSchema = $this->getSchemaManager()->createSchema();
-        $queries = (new Comparator())
-            ->compare($baseSchema, $update)
-            ->toSql($this->getPlatform());
+        $baseSchema = $this->connection->createSchemaManager()->introspectSchema();
+        $queries = $this->getPlatform()->getAlterSchemaSQL((new Comparator())->compareSchemas($baseSchema, $update));
 
         foreach ($queries as $query) {
             try {
@@ -79,19 +72,6 @@ class CustomEntitySchemaUpdater
                 }
             }
         }
-    }
-
-    /**
-     * @return AbstractSchemaManager<MySQLPlatform>
-     */
-    private function getSchemaManager(): AbstractSchemaManager
-    {
-        $manager = $this->connection->getSchemaManager();
-        if (!$manager instanceof AbstractSchemaManager) {
-            throw new \RuntimeException('The schema manager could not be found.');
-        }
-
-        return $manager;
     }
 
     private function getPlatform(): AbstractPlatform

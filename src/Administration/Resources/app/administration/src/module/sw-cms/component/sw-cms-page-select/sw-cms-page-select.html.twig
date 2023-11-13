@@ -4,7 +4,11 @@
     <sw-entity-single-select
         v-bind="bind"
         ref="component"
+        {% if VUE3 %}
+        v-model:value="currentValue"
+        {% else %}
         v-model="currentValue"
+        {% endif %}
         class="sw-cms-page-select-box"
         entity="cms_page"
         :criteria="pageTypeCriteria"

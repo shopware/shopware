@@ -2,27 +2,23 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('buyers-experience')]
 class PromotionExclusionUpdater
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -47,21 +43,21 @@ class PromotionExclusionUpdater
                 $firstResult = array_shift($exclusions);
                 if (\array_key_exists('exclusion_ids', $firstResult)) {
                     // if there are exclusions, set them in array
-                    $promotionExclusions = json_decode($firstResult['exclusion_ids']);
+                    $promotionExclusions = json_decode((string) $firstResult['exclusion_ids'], null, 512, \JSON_THROW_ON_ERROR);
                 }
             }
 
             $this->deleteFromJSON($id, $promotionExclusions);
 
             // if there are no references in exclusions we don't need to update anything
-            if (\count($promotionExclusions) === 0) {
+            if ((is_countable($promotionExclusions) ? \count($promotionExclusions) : 0) === 0) {
                 continue;
             }
 
             // check for corrupted data in database. If a excluded promotion could not be found it will not be present in results
             $results = $this->getExistingIds($promotionExclusions);
 
-            if (\count($results) === \count($promotionExclusions)) {
+            if (\count($results) === (is_countable($promotionExclusions) ? \count($promotionExclusions) : 0)) {
                 // if there is no corrupted data we will add id to all excluded promotions too
                 $this->addToJSON($id, $promotionExclusions);
 
@@ -118,10 +114,10 @@ class PromotionExclusionUpdater
         if (\count($excludeThisIds) > 0) {
             $sqlStatement .= ' AND id NOT IN (:excludedIds)';
             $params['excludedIds'] = $this->convertHexArrayToByteArray($excludeThisIds);
-            $types['excludedIds'] = Connection::PARAM_STR_ARRAY;
+            $types['excludedIds'] = ArrayParameterType::BINARY;
         }
 
-        $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAll();
+        $results = $this->connection->executeQuery($sqlStatement, $params, $types)->fetchAllAssociative();
 
         if (\count($results) === 0) {
             return [];
@@ -140,7 +136,7 @@ class PromotionExclusionUpdater
                 WHERE id IN(:affectedIds)
             ';
 
-            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => Connection::PARAM_STR_ARRAY]);
+            $this->connection->executeStatement($sqlStatement, ['value' => $deleteId, 'affectedIds' => $affectedIds], ['affectedIds' => ArrayParameterType::BINARY]);
         });
 
         return $tags;
@@ -168,7 +164,7 @@ class PromotionExclusionUpdater
                     'addToTheseIds' => $this->convertHexArrayToByteArray($ids),
                 ],
                 [
-                    'addToTheseIds' => Connection::PARAM_STR_ARRAY,
+                    'addToTheseIds' => ArrayParameterType::BINARY,
                 ]
             );
         });
@@ -186,7 +182,7 @@ class PromotionExclusionUpdater
     {
         $value = '[]';
         if (\count($onlyAddThisExistingIds) > 0) {
-            $value = json_encode($onlyAddThisExistingIds);
+            $value = json_encode($onlyAddThisExistingIds, \JSON_THROW_ON_ERROR);
         }
 
         $query = new RetryableQuery(
@@ -211,11 +207,11 @@ class PromotionExclusionUpdater
 
         $params = ['ids' => $bytes];
 
-        $type = ['ids' => Connection::PARAM_STR_ARRAY];
+        $type = ['ids' => ArrayParameterType::BINARY];
 
         $rows = $this->connection
             ->executeQuery($sqlStatement, $params, $type)
-            ->fetchAll(FetchMode::ASSOCIATIVE);
+            ->fetchAllAssociative();
 
         $results = [];
         foreach ($rows as $row) {
@@ -257,17 +253,13 @@ class PromotionExclusionUpdater
             return [];
         }
 
-        $validValues = array_values(array_filter($hexIds, function ($hexId) {
-            return Uuid::isValid((string) $hexId);
-        }));
+        $validValues = array_values(array_filter($hexIds, fn ($hexId) => Uuid::isValid((string) $hexId)));
 
         if (\count($validValues) === 0) {
             return [];
         }
 
-        $bytes = array_map(function (string $id) {
-            return Uuid::fromHexToBytes($id);
-        }, $validValues);
+        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $validValues);
 
         return $bytes;
     }

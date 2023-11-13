@@ -28,7 +28,10 @@ class TranslatedVersionsTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private $languages = [
+    /**
+     * @var string[]
+     */
+    private array $languages = [
         'en-GB', 'de-DE',
     ];
 
@@ -251,7 +254,7 @@ class TranslatedVersionsTest extends TestCase
         }
     }
 
-    private function assertProductName($name, string $id, Context $context): void
+    private function assertProductName(string $name, string $id, Context $context): void
     {
         $context->setConsiderInheritance(true);
 
@@ -264,7 +267,7 @@ class TranslatedVersionsTest extends TestCase
         static::assertSame($name, $product->getTranslated()['name'], sprintf(
             'Expected %s with language chain %s but got %s, version context: %s',
             $name,
-            print_r($context->getLanguageIdChain(), true),
+            (string) print_r($context->getLanguageIdChain(), true),
             $product->getName(),
             $context->getVersionId() === Defaults::LIVE_VERSION ? 'NO' : 'YES'
         ));

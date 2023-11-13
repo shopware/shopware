@@ -24,7 +24,8 @@ $sw-order-list-color-success: $color-emerald-500;
         padding: 0 25px;
     }
 
-    .sw-order-list__manual-order-label {
+    .sw-order-list__manual-order-label,
+    .sw-order-list__tooltip-order-comment {
         margin-left: 12px;
         text-align: center;
     }

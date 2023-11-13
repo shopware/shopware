@@ -21,31 +21,23 @@ use Symfony\Bundle\FrameworkBundle\Routing\Router;
  */
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
-    use KernelTestBehaviour;
+    use BasicTestDataBehaviour;
     use DatabaseTransactionBehaviour;
 
-    use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandler;
+    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         /** @var Router|MockObject $router */
         $router = $this->createMock(Router::class);
         $router->method('generate')
-            ->willReturnCallback(function ($name, $params) {
-                switch ($name) {
-                    case 'frontend.detail.page':
-                        return '/detail/' . ($params['productId'] ?? '');
-                    case 'frontend.navigation.page':
-                        return '/navigation/' . ($params['navigationId'] ?? '');
-                    default:
-                        return '';
-                }
+            ->willReturnCallback(fn ($name, $params) => match ($name) {
+                'frontend.detail.page' => '/detail/' . ($params['productId'] ?? ''),
+                'frontend.navigation.page' => '/navigation/' . ($params['navigationId'] ?? ''),
+                default => '',
             });
 
         $this->seoUrlPlaceholderHandler = new SeoUrlPlaceholderHandler(

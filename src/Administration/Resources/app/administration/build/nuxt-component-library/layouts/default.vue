@@ -11,6 +11,13 @@
                     <input type="text" v-model="searchTerm" class="search-query" autocomplete="off" spellcheck="false" placeholder="Search">
                 </div>
                 <ul class="nav-tree--category">
+                    <span class="nav-tree--main-entry-headline">Additional information</span>
+                    <li class="nav-tree--sub-entry">
+                        <nuxt-link to="/faq/" class="nav--link">
+                            FAQ
+                        </nuxt-link>
+                    </li>
+
                     <li class="nav-tree--main-entry" v-for="mainEntry in menu" :key="mainEntry.name">
                         <span class="nav-tree--main-entry-headline">{{ mainEntry.name }} components</span>
 
@@ -26,9 +33,9 @@
                     <li class="nav-tree--main-entry">
                         <span class="nav-tree--main-entry-headline">Cheat Sheets</span>
                         <ul class="nav-tree--sub-entries">
-                            <nuxt-link to="/icons/" class="nav--link">
+                            <a href="https://shopware.github.io/meteor-icon-kit/" class="nav--link" target="_blank">
                                 Icon set
-                            </nuxt-link>
+                            </a>
                         </ul>
                     </li>
                 </ul>

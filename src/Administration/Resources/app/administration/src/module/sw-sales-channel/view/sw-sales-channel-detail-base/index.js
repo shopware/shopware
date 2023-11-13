@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import template from './sw-sales-channel-detail-base.html.twig';
@@ -330,6 +330,20 @@ export default {
             return null;
         },
 
+        helpTextTaxCalculation() {
+            const link = {
+                name: 'sw.settings.tax.index',
+            };
+
+            return this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.label', 0, {
+                link: `<sw-internal-link
+                           :router-link=${JSON.stringify(link)}
+                           :inline="true">
+                           ${this.$tc('sw-sales-channel.detail.helpTextTaxCalculation.linkText')}
+                      </sw-internal-link>`,
+            });
+        },
+
         taxCalculationTypeOptions() {
             return [
                 {
@@ -449,6 +463,18 @@ export default {
             criteria.addSorting(Criteria.sort('name', 'ASC'));
 
             return criteria;
+        },
+
+        shippingMethodCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 

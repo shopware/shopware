@@ -40,6 +40,7 @@ import swBulkEditSaveModalError from 'src/module/sw-bulk-edit/component/sw-bulk-
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
+import 'src/app/component/utils/sw-inherit-wrapper';
 
 Shopware.Component.register('sw-bulk-edit-order', swBulkEditOrder);
 Shopware.Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', swBulkEditCustomFields);
@@ -131,11 +132,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 'sw-bulk-edit-order-documents-generate-credit-note': true,
                 'sw-bulk-edit-order-documents-download-documents': true,
                 'sw-entity-tag-select': true,
-                'sw-inherit-wrapper': true,
+                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-error-summary': true,
             },
             props: {
-                title: 'Foo bar'
+                title: 'Foo bar',
             },
             provide: {
                 validationService: {},
@@ -150,17 +151,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                         name: 'customFieldName',
                                         type: 'text',
                                         config: {
-                                            label: 'configFieldLabel'
-                                        }
-                                    }]
+                                            label: 'configFieldLabel',
+                                        },
+                                    }],
                                 }])),
-                                get: () => Promise.resolve({ id: '' })
+                                get: () => Promise.resolve({ id: '' }),
                             };
                         }
 
                         if (entity === 'state_machine_state') {
                             return {
-                                searchIds: jest.fn()
+                                searchIds: jest.fn(),
                             };
                         }
 
@@ -169,37 +170,37 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                 if (entity === 'custom_field_set') {
                                     return {
                                         search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
-                                        get: () => Promise.resolve({ id: '' })
+                                        get: () => Promise.resolve({ id: '' }),
                                     };
                                 }
 
                                 return {
                                     id: '1a2b3c',
-                                    name: 'Test order'
+                                    name: 'Test order',
                                 };
                             },
                             search: () => Promise.resolve([
                                 {
                                     id: 1,
-                                    name: 'Invoice'
+                                    name: 'Invoice',
                                 },
                                 {
                                     id: 2,
-                                    name: 'Credit note'
-                                }
+                                    name: 'Credit note',
+                                },
                             ]),
                             get: () => Promise.resolve({
                                 id: 1,
-                                name: 'Order'
+                                name: 'Order',
                             }),
                             searchIds: () => Promise.resolve([
                                 {
                                     data: [1],
-                                    total: 1
-                                }
-                            ])
+                                    total: 1,
+                                },
+                            ]),
                         };
-                    }
+                    },
                 },
                 bulkEditApiFactory: {
                     getHandler: () => {
@@ -226,9 +227,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                 }
 
                                 return Promise.resolve();
-                            }
+                            },
                         };
-                    }
+                    },
                 },
                 orderDocumentApiService: {
                     create: () => {
@@ -247,9 +248,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
                 shortcutService: {
                     startEventListener: () => {},
-                    stopEventListener: () => {}
-                }
-            }
+                    stopEventListener: () => {},
+                },
+            },
         });
     }
 
@@ -257,17 +258,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         routes = [
             {
                 name: 'sw.bulk.edit.order',
-                path: 'index'
+                path: 'index',
             },
             {
                 name: 'sw.bulk.edit.order.save',
                 path: '',
                 component: await Shopware.Component.build('sw-bulk-edit-save-modal'),
                 meta: { $module: {
-                    title: 'sw-bulk-edit-order.general.mainMenuTitle'
+                    title: 'sw-bulk-edit-order.general.mainMenuTitle',
                 } },
                 redirect: {
-                    name: 'sw.bulk.edit.order.save.confirm'
+                    name: 'sw.bulk.edit.order.save.confirm',
                 },
                 children: [
                     {
@@ -275,38 +276,38 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                         path: 'confirm',
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-confirm'),
                         meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle'
-                        } }
+                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                        } },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.process',
                         path: 'process',
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-process'),
                         meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle'
-                        } }
+                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                        } },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.success',
                         path: 'success',
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-success'),
                         meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle'
-                        } }
+                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                        } },
                     },
                     {
                         name: 'sw.bulk.edit.order.save.error',
                         path: 'error',
                         component: await Shopware.Component.build('sw-bulk-edit-save-modal-error'),
                         meta: { $module: {
-                            title: 'sw-bulk-edit-order.general.mainMenuTitle'
-                        } }
-                    }
-                ]
-            }
+                            title: 'sw-bulk-edit-order.general.mainMenuTitle',
+                        } },
+                    },
+                ],
+            },
         ];
         router = new VueRouter({
-            routes
+            routes,
         });
         const orgPush = router.push;
         router.push = (location) => {
@@ -325,11 +326,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     {
                         id: Shopware.Utils.createId(),
                         attributes: {
-                            id: Shopware.Utils.createId()
-                        }
-                    }
-                ]
-            }
+                            id: Shopware.Utils.createId(),
+                        },
+                    },
+                ],
+            },
         });
 
         mockResponses.addResponse({
@@ -337,8 +338,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             url: '/user-config',
             status: 200,
             response: {
-                data: []
-            }
+                data: [],
+            },
         });
 
         Shopware.State.commit('shopwareApps/setSelectedIds', [selectedOrderId]);
@@ -347,10 +348,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     afterEach(() => {
         wrapper.destroy();
         wrapper.vm.$router.push({ path: 'confirm' });
-    });
-
-    beforeAll(() => {
-        jest.spyOn(global.console, 'error').mockImplementation(() => {});
     });
 
     it('should show all form fields', async () => {
@@ -379,9 +376,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 ...wrapper.vm.bulkEditData,
                 orderTransactions: {
                     isChanged: true,
-                    value: '1'
-                }
-            }
+                    value: '1',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -399,9 +396,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 ...wrapper.vm.bulkEditData,
                 orderTransactions: {
                     isChanged: true,
-                    value: '1'
-                }
-            }
+                    value: '1',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -456,20 +453,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 ...wrapper.vm.bulkEditData,
                 orderTransactions: {
                     isChanged: true,
-                    value: '1'
+                    value: '1',
                 },
                 documents: {
                     isChanged: true,
-                    value: '1'
-                }
+                    value: '1',
+                },
             },
             order: {
                 documents: {
                     documentType: {
-                        credit_note: true
-                    }
-                }
-            }
+                        credit_note: true,
+                    },
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -493,19 +490,19 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 ...wrapper.vm.bulkEditData,
                 orderTransactions: {
                     isChanged: true,
-                    value: '1'
+                    value: '1',
                 },
                 documents: {
-                    isChanged: false
-                }
+                    isChanged: false,
+                },
             },
             order: {
                 documents: {
                     documentType: {
-                        credit_note: true
-                    }
-                }
-            }
+                        credit_note: true,
+                    },
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -524,11 +521,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         Shopware.State.commit('shopwareApps/setSelectedIds', []);
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
         await flushPromises();
 
-        expect(wrapper.vm.selectedIds.length).toBe(0);
+        expect(wrapper.vm.selectedIds).toHaveLength(0);
 
         const emptyState = wrapper.find('.sw-empty-state');
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
@@ -543,7 +540,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
-        expect(wrapper.vm.$route.path).toEqual('/confirm');
+        expect(wrapper.vm.$route.path).toBe('/confirm');
     });
 
     it('should close confirm modal', async () => {
@@ -560,7 +557,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         await footerLeft.find('button').trigger('click');
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.$route.path).toEqual('index');
+        expect(wrapper.vm.$route.path).toBe('index');
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeFalsy();
     });
 
@@ -577,7 +574,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const footerRight = wrapper.find('.footer-right');
         await footerRight.find('button').trigger('click');
 
-        expect(wrapper.vm.$route.path).toEqual('/process');
+        expect(wrapper.vm.$route.path).toBe('/process');
     });
 
     it('should open success modal', async () => {
@@ -595,7 +592,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.$route.path).toEqual('/success');
+        expect(wrapper.vm.$route.path).toBe('/success');
     });
 
     it('should open error modal', async () => {
@@ -607,9 +604,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 ...wrapper.vm.bulkEditData,
                 orderTransactions: {
                     isChanged: true,
-                    value: '1'
-                }
-            }
+                    value: '1',
+                },
+            },
         });
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
@@ -623,7 +620,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.$route.path).toEqual('/error');
+        expect(wrapper.vm.$route.path).toBe('/error');
     });
 
     it('should show tags and custom fields card', async () => {
@@ -637,7 +634,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(customFieldsCard).toBeTruthy();
 
         wrapper.vm.bulkEditData.customFields.value = {
-            field1: 'abc'
+            field1: 'abc',
         };
 
         await tagsCard.find('.sw-bulk-edit-change-field__change input').setChecked();
@@ -660,7 +657,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper.vm.setRouteMetaModule = jest.fn();
 
         wrapper.vm.createdComponent();
-        expect(wrapper.vm.setRouteMetaModule).toBeCalled();
+        expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
         expect(wrapper.vm.$route.meta.$module.color).toBe('#A092F0');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 
@@ -682,18 +679,24 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenCalledTimes(6);
 
-        orderStateCriteria.addFilter(Criteria.equalsAny('orders.id', [selectedOrderId]));
-        orderStateCriteria.addFilter(Criteria.equals('orders.versionId', liveVersionId));
+        orderStateCriteria.addFilter(Criteria.multi('AND', [
+            Criteria.equalsAny('orders.id', [selectedOrderId]),
+            Criteria.equals('orders.versionId', liveVersionId),
+        ]));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(1, orderStateCriteria);
 
         const orderTransactionStateCriteria = new Criteria(1, null);
-        orderTransactionStateCriteria.addFilter(Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]));
-        orderTransactionStateCriteria.addFilter(Criteria.equals('orderTransactions.orderVersionId', liveVersionId));
+        orderTransactionStateCriteria.addFilter(Criteria.multi('AND', [
+            Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]),
+            Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
+        ]));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(2, orderTransactionStateCriteria);
 
         const orderDeliveryStateCriteria = new Criteria(1, null);
-        orderDeliveryStateCriteria.addFilter(Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]));
-        orderDeliveryStateCriteria.addFilter(Criteria.equals('orderDeliveries.orderVersionId', liveVersionId));
+        orderDeliveryStateCriteria.addFilter(Criteria.multi('AND', [
+            Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]),
+            Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
+        ]));
         expect(wrapper.vm.stateMachineStateRepository.searchIds).toHaveBeenNthCalledWith(3, orderDeliveryStateCriteria);
 
         wrapper.vm.fetchStatusOptions.mockClear();
@@ -772,5 +775,19 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orderDeliveries.order.id');
         expect(wrapper.vm.fetchStatusOptions).toHaveBeenCalledWith('orders.id');
         wrapper.vm.fetchStatusOptions.mockRestore();
+    });
+
+    it('should restrict fields on including orders without delivery', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.statusFormFields).toHaveLength(5);
+        expect(wrapper.vm.statusFormFields[1].name).toBe('orderDeliveries');
+
+        wrapper.vm.$router.push({ name: 'sw.bulk.edit.order', params: { parentId: 'null', excludeDelivery: '1' } });
+
+        await flushPromises();
+
+        expect(wrapper.vm.statusFormFields).toHaveLength(4);
+        expect(wrapper.vm.statusFormFields[1].name).not.toBe('orderDeliveries');
     });
 });

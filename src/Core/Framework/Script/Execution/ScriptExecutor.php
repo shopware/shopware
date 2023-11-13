@@ -4,55 +4,43 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
+use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppLifecycleHook;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
-use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\AppSpecificHook;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
+use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Script\ServiceStubs;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScriptExecutor
 {
     public static bool $isInScriptExecutionContext = false;
-
-    private LoggerInterface $logger;
-
-    private ScriptLoader $loader;
-
-    private ScriptTraces $traces;
-
-    private ContainerInterface $container;
-
-    private TranslationExtension $translationExtension;
 
     /**
      * @internal
      */
     public function __construct(
-        ScriptLoader $loader,
-        LoggerInterface $logger,
-        ScriptTraces $traces,
-        ContainerInterface $container,
-        TranslationExtension $translationExtension
+        private readonly ScriptLoader $loader,
+        private readonly LoggerInterface $logger,
+        private readonly ScriptTraces $traces,
+        private readonly ContainerInterface $container,
+        private readonly TranslationExtension $translationExtension,
+        private readonly string $shopwareVersion,
     ) {
-        $this->logger = $logger;
-        $this->loader = $loader;
-        $this->traces = $traces;
-        $this->container = $container;
-        $this->translationExtension = $translationExtension;
     }
 
     public function execute(Hook $hook): void
@@ -62,10 +50,7 @@ class ScriptExecutor
         }
 
         if ($hook instanceof InterfaceHook) {
-            throw new \RuntimeException(sprintf(
-                'Tried to execute InterfaceHook "%s", butInterfaceHooks should not be executed, execute the functions of the hook instead',
-                \get_class($hook)
-            ));
+            throw ScriptException::interfaceHookExecutionNotAllowed($hook::class);
         }
 
         $scripts = $this->loader->get($hook->getName());
@@ -86,8 +71,8 @@ class ScriptExecutor
                 static::$isInScriptExecutionContext = true;
                 $this->render($hook, $script);
             } catch (\Throwable $e) {
-                $scriptException = new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
-                $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
+                $scriptException = ScriptException::scriptExecutionFailed($hook->getName(), $script->getName(), $e);
+                $this->logger->error($scriptException->getMessage(), ['exception' => $scriptException]);
 
                 throw $scriptException;
             } finally {
@@ -131,11 +116,7 @@ class ScriptExecutor
             }
 
             if (!$hook instanceof OptionalFunctionHook) {
-                throw new \RuntimeException(sprintf(
-                    'Required function "%s" missing in script "%s", please make sure you add the required block in your script.',
-                    $hook->getFunctionName(),
-                    $script->getName()
-                ));
+                throw ScriptException::requiredFunctionMissingInInterfaceHook($hook->getFunctionName(), $script->getName());
             }
 
             $requiredFromVersion = $hook->willBeRequiredInVersion();
@@ -161,10 +142,17 @@ class ScriptExecutor
 
         $twig->addExtension(new PhpSyntaxExtension());
         $twig->addExtension($this->translationExtension);
+        $twig->addExtension(new SecurityExtension([]));
+        $twig->addExtension(new PcreExtension());
+        $twig->addExtension(new ReplaceRecursiveFilter());
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());
         }
+
+        $twig->addGlobal('shopware', new ArrayStruct([
+            'version' => $this->shopwareVersion,
+        ]));
 
         return $twig;
     }
@@ -180,7 +168,7 @@ class ScriptExecutor
 
             $service = $this->container->get($serviceId);
             if (!$service instanceof HookServiceFactory) {
-                throw new NoHookServiceFactoryException($serviceId);
+                throw ScriptException::noHookServiceFactory($serviceId);
             }
 
             $services->add($service->getName(), $service->factory($hook, $script), $deprecatedServices[$serviceId] ?? null);
@@ -198,7 +186,7 @@ class ScriptExecutor
 
             $factory = $this->container->get($serviceId);
             if (!$factory instanceof HookServiceFactory) {
-                throw new NoHookServiceFactoryException($serviceId);
+                throw ScriptException::noHookServiceFactory($serviceId);
             }
 
             $service = $services->get($factory->getName());

@@ -2,37 +2,25 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+
 /**
- * @package system-settings
- *
  * @internal
  */
-final class AdminSearchIndexingMessage
+#[Package('system-settings')]
+final class AdminSearchIndexingMessage implements AsyncMessageInterface
 {
-    private string $entity;
-
-    private string $indexer;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $indices;
-
-    /**
-     * @var array<string>
-     */
-    private array $ids;
-
     /**
      * @param array<string, string> $indices
      * @param array<string> $ids
      */
-    public function __construct(string $entity, string $indexer, array $indices, array $ids)
-    {
-        $this->entity = $entity;
-        $this->indexer = $indexer;
-        $this->indices = $indices;
-        $this->ids = $ids;
+    public function __construct(
+        private readonly string $entity,
+        private readonly string $indexer,
+        private readonly array $indices,
+        private readonly array $ids
+    ) {
     }
 
     public function getEntity(): string

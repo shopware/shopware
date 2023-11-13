@@ -2,25 +2,15 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class LineItemQuantity
 {
-    /**
-     * @var string
-     */
-    private $lineItemId;
-
-    /**
-     * @var int
-     */
-    private $quantity;
-
-    public function __construct(string $lineItemId, int $quantity)
-    {
-        $this->lineItemId = $lineItemId;
-        $this->quantity = $quantity;
+    public function __construct(
+        private readonly string $lineItemId,
+        private int $quantity
+    ) {
     }
 
     /**

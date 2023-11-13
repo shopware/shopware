@@ -109,7 +109,9 @@
             <argument type="tagged" tag="document.renderer"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer" />
+        <service id="Shopware\Core\Checkout\Document\Service\PdfRenderer">
+            <argument>%shopware.dompdf.options%</argument>
+        </service>
 
         <service id="Shopware\Core\Checkout\Document\Service\DocumentGenerator">
             <argument type="service" id="Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry" />

@@ -10,15 +10,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class ImportExportProfileRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,10 +33,7 @@ class ImportExportProfileRepositoryTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -45,7 +42,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         // Clean up system defaults before testing.
-        $this->connection->exec('DELETE FROM `import_export_profile`');
+        $this->connection->executeStatement('DELETE FROM `import_export_profile`');
     }
 
     public function testImportExportProfileSingleCreateSuccess(): void
@@ -77,7 +74,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         static::assertEquals($expect['fileType'], $record['file_type']);
         static::assertEquals($expect['delimiter'], $record['delimiter']);
         static::assertEquals($expect['enclosure'], $record['enclosure']);
-        static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+        static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
     }
 
     public function testImportExportProfileSingleCreateMissingRequired(): void
@@ -122,7 +119,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -137,7 +134,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         foreach ($requiredProperties as $property) {
             $entry = array_shift($incompleteData);
             unset($entry[$property]);
-            array_push($data, $entry);
+            $data[] = $entry;
         }
 
         try {
@@ -154,9 +151,7 @@ class ImportExportProfileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(function ($property) {
-                return '/' . $property;
-            }, $requiredProperties);
+            $missingPropertyPaths = array_map(fn ($property) => '/' . $property, $requiredProperties);
 
             static::assertEquals($missingPropertyPaths, $foundViolations);
         }
@@ -227,13 +222,14 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
 
     public function testImportExportProfileUpdatePartial(): void
     {
+        $upsertData = [];
         $data = $this->prepareImportExportProfileTestData();
         $properties = array_keys(array_pop($data));
 
@@ -273,7 +269,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(json_encode($expect['mapping'], \JSON_THROW_ON_ERROR), $record['mapping']);
             unset($data[$record['id']]);
         }
     }

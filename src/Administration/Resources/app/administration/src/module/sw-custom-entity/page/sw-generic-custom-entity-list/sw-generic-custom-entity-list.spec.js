@@ -17,7 +17,7 @@ testEntityData.total = 1;
 async function createWrapper(query = {}) {
     config.mocks.$route = {
         params: {
-            entityName: testEntityName
+            entityName: testEntityName,
         },
         meta: {
             $module: {
@@ -42,15 +42,15 @@ async function createWrapper(query = {}) {
                                         ref: 'title',
                                     }, {
                                         ref: 'description',
-                                        hidden: true
+                                        hidden: true,
                                     }, {
                                         ref: 'position',
                                     }],
                                 },
-                            }
-                        }
+                            },
+                        },
                     };
-                }
+                },
             },
             repositoryFactory: {
                 create(name) {
@@ -61,12 +61,12 @@ async function createWrapper(query = {}) {
                                 testEntityData.criteria = criteria;
 
                                 return testEntityData;
-                            })
+                            }),
                         };
                     }
 
                     throw new Error(`Repository for ${name} is not mocked`);
-                }
+                },
             },
         },
         stubs: {
@@ -77,15 +77,15 @@ async function createWrapper(query = {}) {
                 template: '<div class="sw-search-bar"></div>',
                 props: [
                     'initial-search-type',
-                    'initial-search'
-                ]
+                    'initial-search',
+                ],
             },
             'sw-button': {
                 template: '<div class="sw-button"></div>',
                 props: [
                     'router-link',
-                    'variant'
-                ]
+                    'variant',
+                ],
             },
             'sw-entity-listing': {
                 template: '<div class="sw-entity-listing"></div>',
@@ -99,17 +99,17 @@ async function createWrapper(query = {}) {
                     'sort-direction',
                     'natural-sorting',
                     'criteria-limit',
-                    'disable-data-fetching'
-                ]
+                    'disable-data-fetching',
+                ],
             },
             'sw-empty-state': {
                 template: '<div class="sw-empty-state"><slot name="icon"/></div>',
                 props: ['title'],
             },
             'sw-language-switch': {
-                template: '<div class="sw-language-switch"></div>'
-            }
-        }
+                template: '<div class="sw-language-switch"></div>',
+            },
+        },
     });
 }
 
@@ -130,7 +130,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
 
         await wrapper.setData({
-            customEntityInstances: false
+            customEntityInstances: false,
         });
 
         expect(wrapper.vm.customEntityInstances).toBe(false);
@@ -141,7 +141,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         expect(imageElement.attributes()).toStrictEqual({
             src: 'administration/static/img/empty-states/custom-entity-empty-state.svg',
-            alt: 'custom_test_entity.list.emptyState'
+            alt: 'custom_test_entity.list.emptyState',
         });
     });
 
@@ -170,19 +170,19 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             visible: true,
             label: 'custom_test_entity.list.title',
             property: 'title',
-            routerLink: 'sw.custom.entity.detail'
+            routerLink: 'sw.custom.entity.detail',
         },
         {
             visible: false,
             label: 'custom_test_entity.list.description',
             property: 'description',
-            routerLink: 'sw.custom.entity.detail'
+            routerLink: 'sw.custom.entity.detail',
         },
         {
             visible: true,
             label: 'custom_test_entity.list.position',
             property: 'position',
-            routerLink: 'sw.custom.entity.detail'
+            routerLink: 'sw.custom.entity.detail',
         }]);
 
         const criteriaData = entityListingProps.items.criteria.getCriteriaData();
@@ -202,10 +202,10 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             sortings: [{
                 field: 'title',
                 naturalSorting: false,
-                order: 'ASC'
+                order: 'ASC',
             }],
             term: '',
-            totalCountMode: 1
+            totalCountMode: 1,
         });
 
         expect(entityListingProps.items).toStrictEqual(testEntityData);
@@ -273,10 +273,10 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             sortings: [{
                 field: 'position',
                 naturalSorting: false,
-                order: 'ASC'
+                order: 'ASC',
             }],
             term: 'some-search-term',
-            totalCountMode: 1
+            totalCountMode: 1,
         });
     });
 
@@ -410,10 +410,10 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             sortings: [{
                 field: 'position',
                 naturalSorting: false,
-                order: 'ASC'
+                order: 'ASC',
             }],
             term: 'some-search-term',
-            totalCountMode: 1
+            totalCountMode: 1,
         });
     });
 });

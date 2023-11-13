@@ -5,12 +5,11 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartSavedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
@@ -23,8 +22,10 @@ class CartSavedEvent extends Event implements ShopwareSalesChannelEvent
      */
     protected $cart;
 
-    public function __construct(SalesChannelContext $context, Cart $cart)
-    {
+    public function __construct(
+        SalesChannelContext $context,
+        Cart $cart
+    ) {
         $this->context = $context;
         $this->cart = $cart;
     }

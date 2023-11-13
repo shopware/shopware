@@ -1,7 +1,7 @@
 import type Bottle from 'bottlejs';
 import Vue from 'vue';
-import type ViewAdapter from './adapter/view.adapter';
 import type { ContextState } from '../app/state/context.store';
+import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
  * @package admin
  *
@@ -37,7 +37,7 @@ interface bundlesPluginResponse {
 class ApplicationBootstrapper {
     public $container: Bottle;
 
-    public view: null | ViewAdapter;
+    public view: null | VueAdapter;
 
     /**
      * Provides the necessary class properties for the class to work probably
@@ -213,7 +213,7 @@ class ApplicationBootstrapper {
      */
     addServiceProviderMiddleware<SERVICE extends keyof ServiceContainer>(
         nameOrMiddleware: SERVICE|Bottle.Middleware,
-        middleware? : Bottle.Middleware,
+        middleware? : ((service: ServiceContainer[SERVICE], next: (error?: Error) => void) => void),
     ): ApplicationBootstrapper {
         return this._addMiddleware('service', nameOrMiddleware, middleware);
     }
@@ -323,7 +323,7 @@ class ApplicationBootstrapper {
     /**
      * Returns the root of the application e.g. a new Vue instance
      */
-    getApplicationRoot(): Vue | boolean {
+    getApplicationRoot(): Vue | false {
         if (!this.view?.root) {
             return false;
         }
@@ -331,7 +331,7 @@ class ApplicationBootstrapper {
         return this.view.root;
     }
 
-    setViewAdapter(viewAdapterInstance: ViewAdapter): void {
+    setViewAdapter(viewAdapterInstance: VueAdapter): void {
         this.view = viewAdapterInstance;
     }
 
@@ -348,7 +348,7 @@ class ApplicationBootstrapper {
         // if user is not logged in
         if (!isUserLoggedIn) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            loginService.logout();
+            loginService.logout(false, false);
             return this.bootLogin();
         }
 
@@ -519,7 +519,7 @@ class ApplicationBootstrapper {
             'baseComponents',
             'locale',
             'apiServices',
-            'svgIcons',
+            'coreDirectives',
         ];
 
         const initContainer = this.getContainer('init');
@@ -572,7 +572,15 @@ class ApplicationBootstrapper {
             plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         }
 
-        const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
+        // prioritize main swag-commercial plugin because other plugins depend on the license handling
+        if (plugins['swag-commercial']) {
+            await this.injectPlugin(plugins['swag-commercial']);
+        }
+
+        const injectAllPlugins = Object.entries(plugins).filter(([pluginName]) => {
+            // Filter the swag-commercial plugin because it was loaded beforehand
+            return pluginName !== 'swag-commercial';
+        }).map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

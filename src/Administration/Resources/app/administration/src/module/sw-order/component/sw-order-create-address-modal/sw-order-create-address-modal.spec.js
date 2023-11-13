@@ -6,7 +6,7 @@ import 'src/app/component/base/sw-container';
 import 'src/app/component/base/sw-card';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-create-address-modal', swOrderCreateAddressModal);
@@ -39,12 +39,12 @@ async function createWrapper() {
                     search: () => {
                         return Promise.resolve();
                     },
-                })
+                }),
             },
             shortcutService: {
                 stopEventListener: () => {},
                 startEventListener: () => {},
-            }
+            },
         },
         propsData: {
             customer: {
@@ -55,7 +55,7 @@ async function createWrapper() {
             addAddressModalTitle: '',
             editAddressModalTitle: '',
             cart: {},
-        }
+        },
     });
 }
 

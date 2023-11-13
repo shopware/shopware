@@ -40,7 +40,7 @@
             class="sw-extension-my-extensions-listing__empty-state"
         >
             <img
-                :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
 
@@ -60,7 +60,7 @@
 
             <sw-button
                 variant="ghost"
-                @click="openStore"
+                @click="isThemeRoute ? openThemesStore() : openStore()"
             >
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </sw-button>
@@ -78,7 +78,7 @@
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
                     <img
-                        :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                        :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                         alt=""
                     >
 
@@ -91,12 +91,19 @@
                 </sw-meteor-card>
 
                 <template v-else>
-                    <template v-for="entry in extensionListPaginated">
+                    <template
+                        v-for="entry in extensionListPaginated"
+                        {% if VUE3 %}
+                        :key="entry.name"
+                        {% endif %}
+                    >
                         <component
                             :is="entry.storeLicense ? 'sw-extension-card-bought' : 'sw-self-maintained-extension-card'"
+                            {% if VUE2 %}
                             :key="entry.name"
+                            {% endif %}
                             :extension="entry"
-                            @updateList="updateList"
+                            @update-list="updateList"
                         />
                     </template>
 

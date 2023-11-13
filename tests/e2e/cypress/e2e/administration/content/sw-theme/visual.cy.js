@@ -1,10 +1,9 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-describe('Theme: Visual tests', () => {
+describe('Theme: Visual tests', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.viewport(1920, 1080);
         cy.openInitialPage(Cypress.env('admin'));
@@ -17,10 +16,6 @@ describe('Theme: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
             method: 'PATCH',
         }).as('saveData');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/theme`,
-            method: 'POST',
-        }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/theme/manager/index',
@@ -28,8 +23,6 @@ describe('Theme: Visual tests', () => {
             subMenuId: 'sw-theme-manager',
         });
 
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-theme-list__list').should('be.visible');

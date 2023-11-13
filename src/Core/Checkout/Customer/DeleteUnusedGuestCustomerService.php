@@ -9,28 +9,21 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class DeleteUnusedGuestCustomerService
 {
-    public const DELETE_CUSTOMERS_BATCH_SIZE = 100;
-
-    private EntityRepository $customerRepository;
-
-    private SystemConfigService $systemConfigService;
+    final public const DELETE_CUSTOMERS_BATCH_SIZE = 100;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        SystemConfigService $systemConfigService
+        private readonly EntityRepository $customerRepository,
+        private readonly SystemConfigService $systemConfigService
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function countUnusedCustomers(Context $context): int
@@ -66,9 +59,7 @@ class DeleteUnusedGuestCustomerService
 
         /** @var list<string> $ids */
         $ids = $this->customerRepository->searchIds($criteria, $context)->getIds();
-        $ids = \array_values(\array_map(static function (string $id) {
-            return ['id' => $id];
-        }, $ids));
+        $ids = \array_values(\array_map(static fn (string $id) => ['id' => $id], $ids));
 
         $this->customerRepository->delete($ids, $context);
 
@@ -109,6 +100,6 @@ class DeleteUnusedGuestCustomerService
             return null;
         }
 
-        return new \DateTime(\sprintf('- %s seconds', $maxLifeTime));
+        return new \DateTime(\sprintf('- %d seconds', $maxLifeTime));
     }
 }

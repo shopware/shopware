@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class RemoveDeprecatedServicesPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

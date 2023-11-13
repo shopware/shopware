@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Serializer;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class JsonApiEncodingResult implements \JsonSerializable
 {
     /**
@@ -28,7 +28,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     protected $single = false;
 
     /**
-     * @var array<mixed>
+     * @var array<string, mixed>
      */
     protected $metaData = [];
 
@@ -137,7 +137,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @param array<mixed> $metaData
+     * @param array<string, mixed> $metaData
      */
     public function setMetaData(array $metaData): void
     {
@@ -145,7 +145,7 @@ class JsonApiEncodingResult implements \JsonSerializable
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function getMetaData(): array
     {

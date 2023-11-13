@@ -13,12 +13,13 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Shopware\Core\Test\TestDefaults;
@@ -28,58 +29,24 @@ use Shopware\Core\Test\TestDefaults;
  */
 class StateMachineRegistryTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var string
-     */
-    private $stateMachineId;
+    private string $stateMachineId;
 
-    /**
-     * @var string
-     */
-    private $openId;
+    private string $openId;
 
-    /**
-     * @var string
-     */
-    private $inProgressId;
+    private string $inProgressId;
 
-    /**
-     * @var string
-     */
-    private $closedId;
+    private string $closedId;
 
-    /**
-     * @var string
-     */
-    private $stateMachineName;
+    private string $stateMachineName;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var EntityRepository
-     */
-    private $stateMachineRepository;
-
-    /**
-     * @var string
-     */
-    private $stateMachineWithoutInitialId;
-
-    /**
-     * @var string
-     */
-    private $stateMachineWithoutInitialName;
+    private EntityRepository $stateMachineRepository;
 
     protected function setUp(): void
     {
@@ -93,9 +60,6 @@ class StateMachineRegistryTest extends TestCase
         $this->inProgressId = Uuid::randomHex();
         $this->closedId = Uuid::randomHex();
 
-        $this->stateMachineWithoutInitialId = Uuid::randomHex();
-        $this->stateMachineWithoutInitialName = 'test_broken_state_machine';
-
         $nullableTable = <<<EOF
 DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
@@ -104,11 +68,11 @@ CREATE TABLE `_test_nullable` (
   PRIMARY KEY `id` (`id`)
 );
 EOF;
-        $this->connection->executeUpdate($nullableTable);
+        $this->connection->executeStatement($nullableTable);
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_test_nullable`');
@@ -116,7 +80,7 @@ EOF;
 
     public function testNonExistingStateMachine(): void
     {
-        $this->expectException(StateMachineNotFoundException::class);
+        $this->expectException(StateMachineException::class);
 
         $context = Context::createDefaultContext();
 
@@ -130,7 +94,6 @@ EOF;
 
         $stateMachine = $this->stateMachineRegistry->getStateMachine($this->stateMachineName, $context);
 
-        static::assertNotNull($stateMachine);
         static::assertNotNull($stateMachine->getStates());
         static::assertEquals(3, $stateMachine->getStates()->count());
         static::assertNotNull($stateMachine->getTransitions());
@@ -152,12 +115,12 @@ EOF;
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()->getTechnicalName());
+                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()?->getTechnicalName());
             }
 
             if ($transition->getActionName() === 'retour') {
                 $retourActionExisted = true;
-                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()->getTechnicalName());
+                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()?->getTechnicalName());
             }
         }
 
@@ -212,6 +175,8 @@ EOF;
 
         $order = [
             'id' => $orderId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(
                 10,
@@ -324,20 +289,6 @@ EOF;
         ], $context);
     }
 
-    private function createStateMachineWithoutInitialState(Context $context): void
-    {
-        $this->stateMachineRepository->upsert([
-            [
-                'id' => $this->stateMachineWithoutInitialId,
-                'technicalName' => $this->stateMachineWithoutInitialName,
-                'translations' => [
-                    'en-GB' => ['name' => 'Order state'],
-                    'de-DE' => ['name' => 'Bestellungsstatus'],
-                ],
-            ],
-        ], $context);
-    }
-
     private function fetchFirstIdFromTable(string $table): string
     {
         $connection = $this->getContainer()->get(Connection::class);
@@ -358,7 +309,7 @@ EOF;
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'email' => Uuid::randomHex() . '@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

@@ -2,36 +2,24 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 
-/**
- * @package core
- */
+#[Package('core')]
 class KernelPluginCollection
 {
     /**
-     * @var Plugin[]
-     */
-    private $plugins;
-
-    /**
      * @internal
      *
-     * @param Plugin[] $plugin
+     * @param array<class-string<Plugin>, Plugin> $plugins
      */
-    public function __construct(array $plugin = [])
+    public function __construct(private array $plugins = [])
     {
-        $this->plugins = $plugin;
     }
 
     public function add(Plugin $plugin): void
     {
-        /** @var string|false $class */
-        $class = \get_class($plugin);
-
-        if ($class === false) {
-            return;
-        }
+        $class = $plugin::class;
 
         if ($this->has($class)) {
             return;
@@ -40,6 +28,9 @@ class KernelPluginCollection
         $this->plugins[$class] = $plugin;
     }
 
+    /**
+     * @param list<Plugin> $plugins
+     */
     public function addList(array $plugins): void
     {
         foreach ($plugins as $plugin) {
@@ -58,7 +49,7 @@ class KernelPluginCollection
     }
 
     /**
-     * @return Plugin[]
+     * @return array<class-string<Plugin>, Plugin>
      */
     public function all(): array
     {
@@ -66,7 +57,7 @@ class KernelPluginCollection
     }
 
     /**
-     * @return Plugin[]
+     * @return array<class-string<Plugin>, Plugin>
      */
     public function getActives(): array
     {
@@ -74,9 +65,7 @@ class KernelPluginCollection
             return [];
         }
 
-        return array_filter($this->plugins, static function (Plugin $plugin) {
-            return $plugin->isActive();
-        });
+        return array_filter($this->plugins, static fn (Plugin $plugin) => $plugin->isActive());
     }
 
     public function filter(\Closure $closure): KernelPluginCollection

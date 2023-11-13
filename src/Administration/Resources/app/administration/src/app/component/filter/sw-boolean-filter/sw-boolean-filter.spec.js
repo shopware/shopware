@@ -19,8 +19,8 @@ async function createWrapper() {
             'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
             'sw-icon': true,
             'sw-field-error': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         propsData: {
             filter: {
@@ -28,10 +28,10 @@ async function createWrapper() {
                 name: 'manufacturerId',
                 label: 'Manufacturer ID',
                 filterCriteria: null,
-                value: null
+                value: null,
             },
-            active: true
-        }
+            active: true,
+        },
     });
 }
 
@@ -46,7 +46,7 @@ describe('components/sw-boolean-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', true)],
-            'true'
+            'true',
         ]);
     });
 
@@ -60,7 +60,7 @@ describe('components/sw-boolean-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', false)],
-            'false'
+            'false',
         ]);
     });
 
@@ -99,7 +99,7 @@ describe('components/sw-boolean-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', false)],
-            'false'
+            'false',
         ]);
     });
 
@@ -115,7 +115,7 @@ describe('components/sw-boolean-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'manufacturerId',
             [Criteria.equals('manufacturerId', true)],
-            'true'
+            'true',
         ]);
     });
 
@@ -128,8 +128,8 @@ describe('components/sw-boolean-filter', () => {
 
         await wrapper.setProps({ active: false });
 
-        expect(wrapper.vm.value).toEqual(null);
-        expect(wrapper.vm.filter.value).toEqual(null);
+        expect(wrapper.vm.value).toBeNull();
+        expect(wrapper.vm.filter.value).toBeNull();
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
 

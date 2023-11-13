@@ -8,29 +8,29 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620820321AddDefaultDomainForHeadlessSaleschannel;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->removeAddedDefaultDomains();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeAddedDefaultDomains();
         $this->removeAddedSalesChannel();
@@ -98,7 +98,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         /** @var EntityRepository $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        //$salesChannelRepository->delete([$ids], Context::createDefaultContext());
+        // $salesChannelRepository->delete([$ids], Context::createDefaultContext());
     }
 
     private function addSalesChannel(string $salesChannelType): string

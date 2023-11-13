@@ -7,39 +7,13 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
-use function sprintf;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class RedisReverseProxyGateway extends AbstractReverseProxyGateway
 {
-    /**
-     * @var array{'method': string, 'headers': array<string, string>}
-     */
-    protected array $singlePurge;
-
-    /**
-     * @var array{'method': string, 'headers': array<string, string>, 'urls': array<string>}
-     */
-    protected array $entirePurge;
-
-    /**
-     * @var array<string>
-     */
-    private array $hosts;
-
-    private Client $client;
-
-    private int $concurrency;
-
-    /**
-     * @var \Redis|\RedisCluster
-     */
-    private $redis;
-
     private string $keyScript = <<<LUA
 local list = {}
 
@@ -62,18 +36,19 @@ LUA;
 
     /**
      * @param string[] $hosts
-     * @param \Redis|\RedisCluster $redis
+     * param cannot be natively typed, as symfony might change the type in the future
+     * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay $redis
      * @param array{'method': string, 'headers': array<string, string>} $singlePurge
      * @param array{'method': string, 'headers': array<string, string>, 'urls': array<string>} $entirePurge
      */
-    public function __construct(array $hosts, array $singlePurge, array $entirePurge, int $concurrency, $redis, Client $client)
-    {
-        $this->hosts = $hosts;
-        $this->client = $client;
-        $this->concurrency = $concurrency;
-        $this->redis = $redis;
-        $this->singlePurge = $singlePurge;
-        $this->entirePurge = $entirePurge;
+    public function __construct(
+        private readonly array $hosts,
+        protected array $singlePurge,
+        protected array $entirePurge,
+        private readonly int $concurrency,
+        private $redis,
+        private readonly Client $client
+    ) {
     }
 
     /**
@@ -82,7 +57,7 @@ LUA;
     public function tag(array $tags, string $url, Response $response): void
     {
         foreach ($tags as $tag) {
-            $this->redis->lPush($tag, $url);
+            $this->redis->lPush($tag, $url); // @phpstan-ignore-line - because multiple redis implementations phpstan doesn't like this
         }
     }
 
@@ -111,7 +86,7 @@ LUA;
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
                 }
 
                 throw $reason;
@@ -135,7 +110,7 @@ LUA;
             'concurrency' => $this->concurrency,
             'rejected' => function (\Throwable $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
                 }
 
                 throw $reason;

@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -28,14 +31,13 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class ScriptRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $ruleRepository;
 
@@ -65,6 +67,9 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
+     * @param array<string, string> $values
+     *
      * @dataProvider scriptProvider
      */
     public function testRuleScriptExecution(string $path, array $values, bool $expectedTrue): void
@@ -87,7 +92,7 @@ class ScriptRuleTest extends TestCase
         }
     }
 
-    public function scriptProvider(): \Generator
+    public static function scriptProvider(): \Generator
     {
         yield 'simple script return true' => ['/_fixture/scripts/simple.twig', ['test' => 'foo'], true];
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
@@ -95,6 +100,7 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
      * @depends testRuleScriptExecution
      */
     public function testRuleScriptIsCached(): void
@@ -116,6 +122,7 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     *
      * @depends testRuleScriptIsCached
      */
     public function testCachedRuleScriptIsInvalidated(): void
@@ -148,13 +155,15 @@ class ScriptRuleTest extends TestCase
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(Rule::class, $payload);
 
-        static::assertFalse($rule->getPayload()->match($expectedFalseScope));
+        static::assertFalse($payload->match($expectedFalseScope));
 
-        static::assertTrue($rule->getPayload()->match($expectedTrueScope));
+        static::assertTrue($payload->match($expectedTrueScope));
     }
 
-    public function testRuleValidation(): void
+    public function testRuleValidationFails(): void
     {
         $this->installApp();
 
@@ -190,6 +199,72 @@ class ScriptRuleTest extends TestCase
         }
     }
 
+    public static function manifestPathProvider(): \Generator
+    {
+        yield 'Default fixture App with customerGroupIds property' => [
+            '/test/manifest.xml',
+            [
+                'operator' => '=',
+                'customerGroupIds' => [Uuid::randomHex()],
+            ],
+        ];
+
+        yield 'App with firstName as rule property' => [
+            '/test/manifest_arbitraryRule_firstName.xml',
+            [
+                'operator' => '=',
+                'firstName' => 'hello',
+            ],
+        ];
+
+        yield 'App with existing constraints name as rule property' => [
+            '/test/manifest_arbitraryRule_constraints.xml',
+            [
+                'operator' => '=',
+                'constraints' => 'broken',
+            ],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $value
+     *
+     * @dataProvider manifestPathProvider
+     */
+    public function testRuleValidationSucceedsWithArbitraryProperties(string $manifestPath, array $value): void
+    {
+        $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
+        $manifest = Manifest::createFromXmlFile($fixturesPath . $manifestPath);
+        $this->setupApp($manifest);
+
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        $id = Uuid::randomHex();
+        $this->conditionRepository->create([
+            [
+                'id' => $id,
+                'type' => (new ScriptRule())->getName(),
+                'ruleId' => $ruleId,
+                'scriptId' => $this->scriptId,
+                'value' => $value,
+            ],
+        ], $this->context);
+
+        /** @var RuleEntity $rule */
+        $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(AndRule::class, $payload);
+
+        $scriptRule = $payload->getRules()[0];
+        static::assertInstanceOf(ScriptRule::class, $scriptRule);
+        static::assertSame($value, $scriptRule->getValues());
+        static::assertSame([], $scriptRule->getConstraints());
+    }
+
     public function testRuleWithInactiveScript(): void
     {
         $this->installApp();
@@ -200,15 +275,18 @@ class ScriptRuleTest extends TestCase
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-
-        static::assertFalse($rule->getPayload()->match($scope));
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(Rule::class, $payload);
+        static::assertFalse($payload->match($scope));
 
         $this->appStateService->activateApp($this->appId, $this->context);
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(Rule::class, $payload);
 
-        static::assertTrue($rule->getPayload()->match($scope));
+        static::assertTrue($payload->match($scope));
     }
 
     public function testRuleWithUninstalledApp(): void
@@ -219,15 +297,30 @@ class ScriptRuleTest extends TestCase
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
-
-        static::assertTrue($rule->getPayload()->match($scope));
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(Rule::class, $payload);
+        static::assertTrue($payload->match($scope));
 
         $this->appLifecycle->delete('test', ['id' => $this->appId], $this->context);
 
         /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search(new Criteria([$ruleId]), $this->context)->get($ruleId);
 
-        static::assertFalse($rule->getPayload()->match($scope));
+        $payload = $rule->getPayload();
+        static::assertInstanceOf(Rule::class, $payload);
+        static::assertFalse($payload->match($scope));
+    }
+
+    public function testRuleValueAssignment(): void
+    {
+        $rule = new ScriptRule();
+        $value = [
+            'operator' => '=',
+            'customerGroupIds' => [Uuid::randomHex()],
+        ];
+        $rule->assignValues($value);
+
+        static::assertSame($value, $rule->getValues());
     }
 
     private function getCheckoutScope(string $ruleId): CheckoutRuleScope
@@ -263,7 +356,14 @@ class ScriptRuleTest extends TestCase
 
     private function installApp(): void
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../App/Manifest/_fixtures/test/manifest.xml');
+        $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';
+
+        $manifest = Manifest::createFromXmlFile($fixturesPath . '/test/manifest.xml');
+        $this->setupApp($manifest);
+    }
+
+    private function setupApp(Manifest $manifest): void
+    {
         $this->appLifecycle->install($manifest, false, $this->context);
         /** @var AppEntity $app */
         $app = $this->appRepository->search((new Criteria())->addAssociation('scriptConditions'), $this->context)->first();

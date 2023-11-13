@@ -7,28 +7,16 @@ use Shopware\Core\Content\Sitemap\Struct\Sitemap;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Asset\Package;
 
-/**
- * @package sales-channel
- */
+#[\Shopware\Core\Framework\Log\Package('sales-channel')]
 class SitemapLister implements SitemapListerInterface
 {
     /**
-     * @var FilesystemOperator
-     */
-    private $filesystem;
-
-    /**
-     * @var Package
-     */
-    private $package;
-
-    /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem, Package $package)
-    {
-        $this->filesystem = $filesystem;
-        $this->package = $package;
+    public function __construct(
+        private readonly FilesystemOperator $filesystem,
+        private readonly Package $package
+    ) {
     }
 
     /**

@@ -4,20 +4,20 @@ declare(strict_types=1);
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class DateFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
@@ -27,7 +27,7 @@ class DateFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof DateField) {
-            throw new InvalidSerializerFieldException(DateField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(DateField::class, $field);
         }
 
         $value = $data->getValue();
@@ -43,7 +43,7 @@ class DateFieldSerializer extends AbstractFieldSerializer
         $data->setValue($value);
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        if ($value === null) {
+        if (!$value instanceof \DateTime && !$value instanceof \DateTimeImmutable) {
             yield $field->getStorageName() => null;
 
             return;

@@ -26,7 +26,7 @@ class ScheduledTaskHandlerTest extends TestCase
 
     private EntityRepository $scheduledTaskRepo;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
@@ -49,6 +49,7 @@ class ScheduledTaskHandlerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => $interval,
+                'defaultRunInterval' => $interval,
                 'status' => $status,
                 'nextExecutionTime' => $originalNextExecution,
             ],
@@ -78,7 +79,7 @@ class ScheduledTaskHandlerTest extends TestCase
     /**
      * @return list<array{0: string}>
      */
-    public function allowedStatus(): array
+    public static function allowedStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_QUEUED],
@@ -100,6 +101,7 @@ class ScheduledTaskHandlerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => $interval,
+                'defaultRunInterval' => $interval,
                 'status' => ScheduledTaskDefinition::STATUS_QUEUED,
                 'nextExecutionTime' => $originalNextExecution,
             ],
@@ -137,6 +139,7 @@ class ScheduledTaskHandlerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
+                'defaultRunInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_QUEUED,
                 'nextExecutionTime' => $originalNextExecution,
             ],
@@ -192,6 +195,7 @@ class ScheduledTaskHandlerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
+                'defaultRunInterval' => 300,
                 'status' => $status,
                 'nextExecutionTime' => new \DateTime(),
             ],
@@ -213,7 +217,7 @@ class ScheduledTaskHandlerTest extends TestCase
     /**
      * @return list<array{0: string}>
      */
-    public function notAllowedStatus(): array
+    public static function notAllowedStatus(): array
     {
         return [
             [ScheduledTaskDefinition::STATUS_RUNNING],

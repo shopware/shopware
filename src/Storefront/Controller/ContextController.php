@@ -2,9 +2,8 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -17,40 +16,28 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package storefront
- *
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class ContextController extends StorefrontController
 {
-    private AbstractContextSwitchRoute $contextSwitchRoute;
-
-    private RequestStack $requestStack;
-
-    private RouterInterface $router;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractContextSwitchRoute $contextSwitchRoute,
-        RequestStack $requestStack,
-        RouterInterface $router
+        private readonly AbstractContextSwitchRoute $contextSwitchRoute,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router
     ) {
-        $this->contextSwitchRoute = $contextSwitchRoute;
-        $this->requestStack = $requestStack;
-        $this->router = $router;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/configure", name="frontend.checkout.configure", methods={"POST"}, options={"seo"="false"}, defaults={"XmlHttpRequest": true})
-     */
+    #[Route(path: '/checkout/configure', name: 'frontend.checkout.configure', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: ['POST'])]
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->contextSwitchRoute->switchContext($data, $context);
@@ -58,37 +45,32 @@ class ContextController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/checkout/language", name="frontend.checkout.switch-language", methods={"POST"})
-     */
+    #[Route(path: '/checkout/language', name: 'frontend.checkout.switch-language', methods: ['POST'])]
     public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse
     {
-        if (!$request->request->has('languageId')) {
-            throw new MissingRequestParameterException('languageId');
-        }
-
         $languageId = $request->request->get('languageId');
+        if (!$languageId || !\is_string($languageId)) {
+            throw RoutingException::missingRequestParameter('languageId');
+        }
 
         try {
             $newTokenResponse = $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::LANGUAGE_ID => $languageId]),
                 $context
             );
-        } catch (ConstraintViolationException $e) {
-            throw new LanguageNotFoundException($languageId);
-        }
-
-        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
-
-        if (empty($route)) {
-            $route = 'frontend.home.page';
+        } catch (ConstraintViolationException) {
+            throw RoutingException::languageNotFound($languageId);
         }
 
         $params = $request->get('redirectParameters', '[]');
-
         if (\is_string($params)) {
             $params = json_decode($params, true);
+        }
+
+        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
+        if (empty($route) || $this->routeTargetExists($route, $params) === false) {
+            $route = 'frontend.home.page';
+            $params = [];
         }
 
         if ($newTokenResponse->getRedirectUrl() === null) {
@@ -123,7 +105,7 @@ class ContextController extends StorefrontController
         $parsedUrl = parse_url($newTokenResponse->getRedirectUrl());
 
         if (!$parsedUrl) {
-            throw new LanguageNotFoundException($languageId);
+            throw RoutingException::languageNotFound($languageId);
         }
 
         $routerContext = $this->router->getContext();
@@ -140,5 +122,19 @@ class ContextController extends StorefrontController
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);
 
         return new RedirectResponse($url);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function routeTargetExists(string $route, array $params): bool
+    {
+        try {
+            $this->router->generate($route, $params);
+
+            return true;
+        } catch (RouteNotFoundException) {
+            return false;
+        }
     }
 }

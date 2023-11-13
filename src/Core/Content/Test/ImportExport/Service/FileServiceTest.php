@@ -8,14 +8,14 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class FileServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -33,7 +33,7 @@ class FileServiceTest extends TestCase
         $filePath = $fileData['file'];
         $file = fopen($filePath, 'wb');
         static::assertIsResource($file);
-        fwrite($file, $fileData['content']);
+        fwrite($file, (string) $fileData['content']);
         fclose($file);
 
         $uploadedFile = new UploadedFile($filePath, $filePath, $fileData['providedType']);
@@ -68,7 +68,7 @@ class FileServiceTest extends TestCase
         static::assertSame('testfile.csv', $dbFile->getOriginalName());
     }
 
-    public function fileTypesProvider(): iterable
+    public static function fileTypesProvider(): iterable
     {
         yield 'CSV file with correct type' => [
             [

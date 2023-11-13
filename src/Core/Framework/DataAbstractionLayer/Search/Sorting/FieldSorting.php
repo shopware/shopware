@@ -3,11 +3,10 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FieldSorting extends Struct implements CriteriaPartInterface
 {
     public const ASCENDING = 'ASC';

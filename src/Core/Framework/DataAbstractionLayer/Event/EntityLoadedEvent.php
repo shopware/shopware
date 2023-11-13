@@ -8,11 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
+ * @implements \IteratorAggregate<array-key, Entity>
  */
-class EntityLoadedEvent extends NestedEvent implements GenericEvent
+#[Package('core')]
+class EntityLoadedEvent extends NestedEvent implements GenericEvent, \IteratorAggregate
 {
     /**
      * @var Entity[]
@@ -37,12 +39,20 @@ class EntityLoadedEvent extends NestedEvent implements GenericEvent
     /**
      * @param Entity[] $entities
      */
-    public function __construct(EntityDefinition $definition, array $entities, Context $context)
-    {
+    public function __construct(
+        EntityDefinition $definition,
+        array $entities,
+        Context $context
+    ) {
         $this->entities = $entities;
         $this->definition = $definition;
         $this->context = $context;
         $this->name = $this->definition->getEntityName() . '.loaded';
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return new \ArrayIterator($this->entities);
     }
 
     /**

@@ -6,32 +6,24 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class ShippingMethodRoute extends AbstractShippingMethodRoute
 {
     /**
-     * @var SalesChannelRepository
-     */
-    private $shippingMethodRepository;
-
-    /**
      * @internal
+     *
+     * @param SalesChannelRepository<ShippingMethodCollection> $shippingMethodRepository
      */
-    public function __construct(
-        SalesChannelRepository $shippingMethodRepository
-    ) {
-        $this->shippingMethodRepository = $shippingMethodRepository;
+    public function __construct(private readonly SalesChannelRepository $shippingMethodRepository)
+    {
     }
 
     public function getDecorated(): AbstractShippingMethodRoute
@@ -39,10 +31,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"}, defaults={"_entity"="shipping_method"})
-     */
+    #[Route(path: '/store-api/shipping-method', name: 'store-api.shipping.method', methods: ['GET', 'POST'], defaults: ['_entity' => 'shipping_method'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
         $criteria
@@ -55,10 +44,9 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $result = $this->shippingMethodRepository->search($criteria, $context);
 
-        /** @var ShippingMethodCollection $shippingMethods */
         $shippingMethods = $result->getEntities();
 
-        if ($request->query->getBoolean('onlyAvailable', false)) {
+        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }
 

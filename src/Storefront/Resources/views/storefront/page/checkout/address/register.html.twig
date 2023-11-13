@@ -27,12 +27,6 @@
     {{ parent() }}
 {% endblock %}
 
-{% block component_account_register_form_action %}
-    <input type="hidden"
-           name="errorRoute"
-           value="frontend.checkout.register.page"/>
-{% endblock %}
-
 {% block component_account_register_create_account %}
     {# Block intentionally left blank to make the account creation configurable #}
 {% endblock %}

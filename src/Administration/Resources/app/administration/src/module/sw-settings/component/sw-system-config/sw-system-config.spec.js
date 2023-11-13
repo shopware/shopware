@@ -1,8 +1,9 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
 import { kebabCase } from 'lodash';
 import uuid from 'src/../test/_helper_/uuid';
 import 'src/app/component/form/sw-custom-field-set-renderer';
@@ -65,7 +66,7 @@ async function createWrapper(defaultValues = {}) {
         localVue,
         propsData: {
             salesChannelSwitchable: true,
-            domain: 'ConfigRenderer.config'
+            domain: 'ConfigRenderer.config',
         },
         stubs: {
             'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
@@ -89,7 +90,7 @@ async function createWrapper(defaultValues = {}) {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
+                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
             },
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
@@ -113,6 +114,7 @@ async function createWrapper(defaultValues = {}) {
             'sw-datepicker': await Shopware.Component.build('sw-text-field'),
             'sw-text-editor': await Shopware.Component.build('sw-text-field'),
             'sw-extension-component-section': true,
+            'sw-ai-copilot-badge': true,
         },
         provide: {
             systemConfigApiService: {
@@ -123,7 +125,7 @@ async function createWrapper(defaultValues = {}) {
                     }
 
                     return Promise.resolve({});
-                }
+                },
             },
             repositoryFactory: {
                 create: (entity) => ({
@@ -133,13 +135,13 @@ async function createWrapper(defaultValues = {}) {
                                 {
                                     name: 'Storefront',
                                     translated: { name: 'Storefront' },
-                                    id: uuid.get('storefront')
+                                    id: uuid.get('storefront'),
                                 },
                                 {
                                     name: 'Headless',
                                     translated: { name: 'Headless' },
-                                    id: uuid.get('headless')
-                                }
+                                    id: uuid.get('headless'),
+                                },
                             ]));
                         }
 
@@ -147,12 +149,12 @@ async function createWrapper(defaultValues = {}) {
                             return Promise.resolve([
                                 {
                                     id: uuid.get('pullover'),
-                                    name: 'Pullover'
+                                    name: 'Pullover',
                                 },
                                 {
                                     id: uuid.get('shirt'),
-                                    name: 'Shirt'
-                                }
+                                    name: 'Shirt',
+                                },
                             ].filter(product => {
                                 if (criteria.ids.length <= 0) {
                                     return true;
@@ -167,14 +169,14 @@ async function createWrapper(defaultValues = {}) {
                                     hasFile: true,
                                     fileName: 'good-image',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('good-image')
+                                    id: uuid.get('good-image'),
                                 },
                                 {
                                     hasFile: true,
                                     fileName: 'funny-image',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('funny-image')
-                                }
+                                    id: uuid.get('funny-image'),
+                                },
                             ]);
                         }
 
@@ -185,14 +187,14 @@ async function createWrapper(defaultValues = {}) {
                             if (id === uuid.get('pullover')) {
                                 return Promise.resolve({
                                     id: uuid.get('pullover'),
-                                    name: 'Pullover'
+                                    name: 'Pullover',
                                 });
                             }
 
                             if (id === uuid.get('shirt')) {
                                 return Promise.resolve({
                                     id: uuid.get('shirt'),
-                                    name: 'Shirt'
+                                    name: 'Shirt',
                                 });
                             }
                         }
@@ -203,7 +205,7 @@ async function createWrapper(defaultValues = {}) {
                                     hasFile: true,
                                     fileName: 'funny-image',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('funny-image')
+                                    id: uuid.get('funny-image'),
                                 });
                             }
 
@@ -212,18 +214,18 @@ async function createWrapper(defaultValues = {}) {
                                     hasFile: true,
                                     fileName: 'good-image',
                                     fileExtension: 'jpg',
-                                    id: uuid.get('good-image')
+                                    id: uuid.get('good-image'),
                                 });
                             }
                         }
 
                         return Promise.resolve({});
-                    }
-                })
+                    },
+                }),
             },
             validationService: {},
-            mediaService: {}
-        }
+            mediaService: {},
+        },
     });
 }
 
@@ -237,10 +239,11 @@ function createConfig() {
                     name: 'ConfigRenderer.config.textField',
                     type: 'text',
                     config: {
+                        required: true,
                         label: {
-                            'en-GB': 'text field'
+                            'en-GB': 'text field',
                         },
-                        defaultValue: 'Amazing field'
+                        defaultValue: 'Amazing field',
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -251,17 +254,17 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.textareaField',
                     type: 'textarea',
                     config: {
                         label: {
-                            'en-GB': 'textarea field'
+                            'en-GB': 'textarea field',
                         },
-                        defaultValue: 'This is a textarea with much content.'
+                        defaultValue: 'This is a textarea with much content.',
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -272,8 +275,8 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('textarea').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.urlField',
@@ -281,8 +284,8 @@ function createConfig() {
                     config: {
                         defaultValue: 'https://www.shopware.com',
                         label: {
-                            'en-GB': 'url field'
-                        }
+                            'en-GB': 'url field',
+                        },
                     },
                     _test: {
                         defaultValueDom: 'www.shopware.com',
@@ -297,8 +300,8 @@ function createConfig() {
                             // change input value
                             await field.find('input').setValue(afterValue);
                             await field.find('input').trigger('blur');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.passwordField',
@@ -306,8 +309,8 @@ function createConfig() {
                     config: {
                         defaultValue: 'V3RY_S3CR3T',
                         label: {
-                            'en-GB': 'password field'
-                        }
+                            'en-GB': 'password field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -318,8 +321,8 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('input').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.intField',
@@ -327,8 +330,8 @@ function createConfig() {
                     config: {
                         defaultValue: 7,
                         label: {
-                            'en-GB': 'int field'
-                        }
+                            'en-GB': 'int field',
+                        },
                     },
                     _test: {
                         defaultValueDom: '7',
@@ -344,8 +347,8 @@ function createConfig() {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
                             await field.find('input[type="text"]').trigger('change');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.floatField',
@@ -353,8 +356,8 @@ function createConfig() {
                     config: {
                         defaultValue: 1.23,
                         label: {
-                            'en-GB': 'float field'
-                        }
+                            'en-GB': 'float field',
+                        },
                     },
                     _test: {
                         defaultValueDom: '1.23',
@@ -370,8 +373,8 @@ function createConfig() {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
                             await field.find('input[type="text"]').trigger('change');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.boolField',
@@ -379,8 +382,8 @@ function createConfig() {
                     config: {
                         defaultValue: true,
                         label: {
-                            'en-GB': 'bool field'
-                        }
+                            'en-GB': 'bool field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -393,8 +396,8 @@ function createConfig() {
                             // change input value
                             await field.find('input[type="checkbox"]').trigger('click');
                             await field.find('input[type="checkbox"]').trigger('change');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.checkboxField',
@@ -402,8 +405,8 @@ function createConfig() {
                     config: {
                         defaultValue: true,
                         label: {
-                            'en-GB': 'checkbox field'
-                        }
+                            'en-GB': 'checkbox field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -416,8 +419,8 @@ function createConfig() {
                             // change input value
                             await field.find('input[type="checkbox"]').trigger('click');
                             await field.find('input[type="checkbox"]').trigger('change');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.datetimeField',
@@ -425,8 +428,8 @@ function createConfig() {
                     config: {
                         defaultValue: '2000-01-01T12:00:00+00:00',
                         label: {
-                            'en-GB': 'datetime field'
-                        }
+                            'en-GB': 'datetime field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -437,8 +440,8 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.dateField',
@@ -446,8 +449,8 @@ function createConfig() {
                     config: {
                         defaultValue: '2000-01-01T00:00:00+00:00',
                         label: {
-                            'en-GB': 'date field'
-                        }
+                            'en-GB': 'date field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -458,8 +461,8 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.timeField',
@@ -467,8 +470,8 @@ function createConfig() {
                     config: {
                         defaultValue: '12:00:00+00:00',
                         label: {
-                            'en-GB': 'time field'
-                        }
+                            'en-GB': 'time field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -479,8 +482,8 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.colorpickerField',
@@ -488,8 +491,8 @@ function createConfig() {
                     config: {
                         defaultValue: '#123abc',
                         label: {
-                            'en-GB': 'colorpicker field'
-                        }
+                            'en-GB': 'colorpicker field',
+                        },
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -500,8 +503,8 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // change input value
                             await field.find('input[type="text"]').setValue(afterValue);
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.singleSelectField',
@@ -509,31 +512,31 @@ function createConfig() {
                     config: {
                         defaultValue: 'blue',
                         label: {
-                            'en-GB': 'single-select field'
+                            'en-GB': 'single-select field',
                         },
                         options: [
                             {
                                 id: 'yellow',
                                 value: 'yellow',
                                 name: {
-                                    'en-GB': 'yellow'
-                                }
+                                    'en-GB': 'yellow',
+                                },
                             },
                             {
                                 id: 'blue',
                                 value: 'blue',
                                 name: {
-                                    'en-GB': 'blue'
-                                }
+                                    'en-GB': 'blue',
+                                },
                             },
                             {
                                 id: 'green',
                                 value: 'green',
                                 name: {
-                                    'en-GB': 'green'
-                                }
-                            }
-                        ]
+                                    'en-GB': 'green',
+                                },
+                            },
+                        ],
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -551,8 +554,8 @@ function createConfig() {
 
                             // click on second option
                             await optionChoice.trigger('click');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.multiSelectField',
@@ -560,28 +563,28 @@ function createConfig() {
                     config: {
                         defaultValue: ['blue'],
                         label: {
-                            'en-GB': 'multi-select field'
+                            'en-GB': 'multi-select field',
                         },
                         options: [
                             {
                                 id: 'yellow',
                                 name: {
-                                    'en-GB': 'yellow'
-                                }
+                                    'en-GB': 'yellow',
+                                },
                             },
                             {
                                 id: 'blue',
                                 name: {
-                                    'en-GB': 'blue'
-                                }
+                                    'en-GB': 'blue',
+                                },
                             },
                             {
                                 id: 'green',
                                 name: {
-                                    'en-GB': 'green'
-                                }
-                            }
-                        ]
+                                    'en-GB': 'green',
+                                },
+                            },
+                        ],
                     },
                     _test: {
                         domValueCheck: (field, domValue) => {
@@ -603,8 +606,8 @@ function createConfig() {
 
                             // click on third option
                             await optionChoice.trigger('click');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.entitySelectField',
@@ -613,8 +616,8 @@ function createConfig() {
                         componentName: 'sw-entity-single-select',
                         entity: 'product',
                         label: {
-                            'en-GB': 'Choose a product'
-                        }
+                            'en-GB': 'Choose a product',
+                        },
                     },
                     _test: {
                         defaultValueDom: 'Pullover',
@@ -637,8 +640,8 @@ function createConfig() {
 
                             // click on second option
                             await optionChoice.trigger('click');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.mediaField',
@@ -646,8 +649,8 @@ function createConfig() {
                         defaultValue: uuid.get('funny-image'),
                         componentName: 'sw-media-field',
                         label: {
-                            'en-GB': 'Upload media or choose one from the media manager'
-                        }
+                            'en-GB': 'Upload media or choose one from the media manager',
+                        },
                     },
                     _test: {
                         defaultValueDom: 'funny-image.jpg',
@@ -668,8 +671,8 @@ function createConfig() {
                             await field.find('.sw-media-field__toggle-button').trigger('click');
                             await wrapper.vm.$nextTick();
                             await field.find('.sw-media-field__suggestion-list-entry:first-child .sw-media-base-item').trigger('click');
-                        }
-                    }
+                        },
+                    },
                 },
                 {
                     name: 'ConfigRenderer.config.textEditorField',
@@ -677,8 +680,8 @@ function createConfig() {
                         defaultValue: '<p>I am a paragraph</p>',
                         componentName: 'sw-text-editor',
                         label: {
-                            'en-GB': 'Write some nice text with WYSIWYG editor'
-                        }
+                            'en-GB': 'Write some nice text with WYSIWYG editor',
+                        },
                     },
                     _test: {
                         // defaultValueDom: 'funny-image.jpg',
@@ -690,11 +693,17 @@ function createConfig() {
                         childValue: '<p>Children which is fresh and new</p>',
                         changeValueFunction: async (field, afterValue) => {
                             await field.find('input').setValue(afterValue);
-                        }
-                    }
-                }
-            ]
-        }
+                        },
+                    },
+                },
+            ],
+        },
+        {
+            name: null,
+            title: { 'en-GB': 'Card with AI badge' },
+            elements: [],
+            aiBadge: true,
+        },
     ];
 }
 
@@ -740,11 +749,30 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(selectionText.text()).toBe('Headless');
     });
 
+    it('should return ShopwareError when has error', async () => {
+        await Shopware.State.dispatch('error/addApiError', {
+            expression: 'SYSTEM_CONFIG.null.dummyKey',
+            error: new ShopwareError({ code: 'dummyCode' }),
+        });
+
+        wrapper = await createWrapper({
+            SYSTEM_CONFIG: {
+                null: {
+                    dummyKey: 'Default value',
+                },
+            },
+        });
+
+        const error = wrapper.vm.getFieldError('dummyKey');
+
+        expect(error).toBeInstanceOf(ShopwareError);
+    });
+
     createConfig()[0].elements.forEach(({
         name,
         type,
         config,
-        _test
+        _test,
     }) => {
         it(`should render field with type "${type || name}" with the default value and should be able to change it`, async () => {
             const domValue = _test.defaultValueDom || config.defaultValue;
@@ -753,9 +781,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
                     null: {
-                        [name]: config.defaultValue
-                    }
-                }
+                        [name]: config.defaultValue,
+                    },
+                },
             });
 
             await flushPromises();
@@ -784,9 +812,9 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
                     null: {
-                        [name]: config.defaultValue
-                    }
-                }
+                        [name]: config.defaultValue,
+                    },
+                },
             });
 
             await flushPromises();
@@ -815,7 +843,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             await _test.domValueCheck(field, domValue);
 
             // check if value in actualConfigData is right (null or undefined)
-            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(undefined);
+            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
 
             // check if inheritance switch is visible
             let inheritanceSwitch = field.find('.sw-inheritance-switch');
@@ -848,12 +876,12 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
                     [uuid.get('headless')]: {
-                        [name]: childValue
+                        [name]: childValue,
                     },
                     null: {
-                        [name]: config.defaultValue
-                    }
-                }
+                        [name]: config.defaultValue,
+                    },
+                },
             });
 
             await flushPromises();
@@ -904,7 +932,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             await _test.domValueCheck(field, domValue);
 
             // check if value in actualConfigData is null to inherit value from parent
-            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(null);
+            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
         });
 
         it(`should render field with type "${type || name}" with the his value and should be able to restore parent value (when parent has no value)`, async () => {
@@ -915,10 +943,10 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper({
                 'ConfigRenderer.config': {
                     [uuid.get('headless')]: {
-                        [name]: childValue
+                        [name]: childValue,
                     },
-                    null: {}
-                }
+                    null: {},
+                },
             });
 
             await flushPromises();
@@ -969,7 +997,15 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             await _test.domValueCheck(field, fallbackValue);
 
             // check if value in actualConfigData is null to inherit value from parent
-            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toEqual(null);
+            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeNull();
         });
+    });
+
+    it('should contain ai badge in second card', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-system-config__card--0 sw-ai-copilot-badge-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
     });
 });

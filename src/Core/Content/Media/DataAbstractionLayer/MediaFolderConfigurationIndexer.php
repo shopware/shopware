@@ -13,36 +13,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class MediaFolderConfigurationIndexer extends EntityIndexer
 {
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaFolderConfigurationCollection> $repository
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -88,8 +77,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        /** @var MediaFolderConfigurationCollection $configs */
-        $configs = $this->repository->search($criteria, $context);
+        $configs = $this->repository->search($criteria, $context)->getEntities();
 
         $update = new RetryableQuery(
             $this->connection,

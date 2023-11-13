@@ -6,27 +6,18 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListingResolvePreviewEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected SalesChannelContext $context;
-
-    protected Criteria $criteria;
-
-    protected array $mapping;
-
-    protected bool $hasOptionFilter;
-
-    public function __construct(SalesChannelContext $context, Criteria $criteria, array $mapping, bool $hasOptionFilter)
-    {
-        $this->context = $context;
-        $this->criteria = $criteria;
-        $this->mapping = $mapping;
-        $this->hasOptionFilter = $hasOptionFilter;
+    public function __construct(
+        protected SalesChannelContext $context,
+        protected Criteria $criteria,
+        protected array $mapping,
+        protected bool $hasOptionFilter
+    ) {
     }
 
     public function getCriteria(): Criteria

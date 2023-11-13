@@ -4,27 +4,23 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 {
-    private AbstractNavigationRoute $decorated;
-
     /**
      * @internal
      */
-    public function __construct(AbstractNavigationRoute $decorated)
+    public function __construct(private readonly AbstractNavigationRoute $decorated)
     {
-        $this->decorated = $decorated;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -32,11 +28,7 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"}, defaults={"_entity"="payment_method"})
-     */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'payment_method'])]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
@@ -90,18 +82,21 @@ class TreeBuildingNavigationRoute extends AbstractNavigationRoute
 
     private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): string
     {
+        $name = $salesChannelEntity->getTranslation('name') ?? '';
+        \assert(\is_string($name));
+
         switch ($id) {
             case 'main-navigation':
                 return $salesChannelEntity->getNavigationCategoryId();
             case 'service-navigation':
                 if ($salesChannelEntity->getServiceCategoryId() === null) {
-                    throw new \RuntimeException(\sprintf('Service category, for sales channel %s, is not set', $salesChannelEntity->getTranslation('name')));
+                    throw CategoryException::serviceCategoryNotFoundForSalesChannel($name);
                 }
 
                 return $salesChannelEntity->getServiceCategoryId();
             case 'footer-navigation':
                 if ($salesChannelEntity->getFooterCategoryId() === null) {
-                    throw new \RuntimeException(\sprintf('Footer category, for sales channel %s, is not set', $salesChannelEntity->getTranslation('name')));
+                    throw CategoryException::footerCategoryNotFoundForSalesChannel($name);
                 }
 
                 return $salesChannelEntity->getFooterCategoryId();

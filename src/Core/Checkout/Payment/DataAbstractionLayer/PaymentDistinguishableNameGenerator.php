@@ -7,21 +7,16 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentDistinguishableNameGenerator
 {
-    private EntityRepository $paymentMethodRepository;
-
     /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $paymentMethodRepository
-    ) {
-        $this->paymentMethodRepository = $paymentMethodRepository;
+    public function __construct(private readonly EntityRepository $paymentMethodRepository)
+    {
     }
 
     public function generateDistinguishablePaymentNames(Context $context): void
@@ -93,6 +88,7 @@ class PaymentDistinguishableNameGenerator
         $pluginLabel = $payment->getPlugin()->getTranslations()->filterByProperty('languageId', $languageId)->first()
             ? $payment->getPlugin()->getTranslations()->filterByProperty('languageId', $languageId)->first()->getLabel()
             : $payment->getPlugin()->getTranslation('label');
+        \assert(\is_string($pluginLabel));
 
         return sprintf(
             '%s | %s',
@@ -118,6 +114,7 @@ class PaymentDistinguishableNameGenerator
         $appLabel = $payment->getAppPaymentMethod()->getApp()->getTranslations()->filterByProperty('languageId', $languageId)->first()
             ? $payment->getAppPaymentMethod()->getApp()->getTranslations()->filterByProperty('languageId', $languageId)->first()->getLabel()
             : $payment->getAppPaymentMethod()->getApp()->getTranslation('label');
+        \assert(\is_string($appLabel));
 
         return sprintf(
             '%s | %s',

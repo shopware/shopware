@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class QueryLimitExceededException extends ShopwareHttpException
 {
-    public function __construct($maxLimit, $limit)
-    {
+    public function __construct(
+        ?int $maxLimit,
+        ?int $limit
+    ) {
         parent::__construct(
             'The limit must be lower than or equal to MAX_LIMIT(={{ maxLimit }}). Given: {{ limit }}',
             ['maxLimit' => $maxLimit, 'limit' => $limit]

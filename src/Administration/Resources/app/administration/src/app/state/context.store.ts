@@ -16,6 +16,8 @@ interface ContextState {
         config: {
             adminWorker: null | {
                 enableAdminWorker: boolean,
+                enableQueueStatsWorker: boolean,
+                enableNotificationWorker: boolean,
                 transports: string[]
             },
             bundles: null | {
@@ -39,6 +41,7 @@ interface ContextState {
         systemCurrencyISOCode: null | string,
         systemCurrencyId: null | string,
         disableExtensions: boolean,
+        /** @deprecated tag:v6.6.0 - Will be removed. Use cookie `lastActivity` instead */
         lastActivity: number,
     },
     api: {
@@ -53,6 +56,7 @@ interface ContextState {
         languageId: null | string,
         language: null | {
             name: string,
+            parentId?: string,
         },
         apiVersion: null | string,
         liveVersionId: null | string,
@@ -168,6 +172,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 
         setAppConfigAdminWorker(state, value: {
             enableAdminWorker: boolean,
+            enableQueueStatsWorker: boolean,
+            enableNotificationWorker: boolean,
             transports: string[]
         }) {
             state.app.config.adminWorker = value;

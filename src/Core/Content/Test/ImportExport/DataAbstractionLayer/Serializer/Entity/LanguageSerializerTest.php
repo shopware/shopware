@@ -9,15 +9,15 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class LanguageSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +28,7 @@ class LanguageSerializerTest extends TestCase
 
     private string $languageId = '1a9e90835a634ffd900b5a441251f551';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);

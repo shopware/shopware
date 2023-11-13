@@ -98,6 +98,7 @@ describe('Checkout: Use different taxes in products while checkout', () => {
                 cy.get(page.elements.offCanvasCart).should('be.visible');
                 cy.get('.line-item-label').contains(productName);
                 cy.get(`${page.elements.offCanvasCart} .offcanvas-close`).click();
+                cy.get(page.elements.offCanvasCart).should('not.exist');
 
                 // Product detail - Second product
                 cy.get('.header-search-input')

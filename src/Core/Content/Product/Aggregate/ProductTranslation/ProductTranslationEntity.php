@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductTranslation;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
@@ -17,6 +16,11 @@ class ProductTranslationEntity extends TranslationEntity
      * @var string
      */
     protected $productId;
+
+    /**
+     * @var string
+     */
+    protected $productVersionId;
 
     /**
      * @var string|null
@@ -176,5 +180,15 @@ class ProductTranslationEntity extends TranslationEntity
     public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
         $this->customSearchKeywords = $customSearchKeywords;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
     }
 }

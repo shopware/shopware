@@ -4,6 +4,7 @@ namespace Shopware\Administration\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -11,10 +12,11 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\User\UserDefinition;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
 {
     private const CONFIG_KEY = 'sales-channel-favorites';
@@ -42,7 +44,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'user_id' => $userId,
                 '`key`' => self::CONFIG_KEY,
-                '`value`' => json_encode($slicedIds),
+                '`value`' => json_encode($slicedIds, \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
@@ -82,7 +84,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfig extends MigrationStep
             ->innerJoin('user', LanguageDefinition::ENTITY_NAME, 'language', 'user.locale_id = language.locale_id')
             ->innerJoin('language', SalesChannelTranslationDefinition::ENTITY_NAME, 'translation', 'translation.language_id = language.id')
             ->orderBy('translation.name', 'ASC')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return $result;

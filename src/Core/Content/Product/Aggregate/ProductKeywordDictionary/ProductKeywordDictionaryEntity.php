@@ -4,11 +4,10 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductKeywordDictionaryEntity extends Entity
 {
     use EntityIdTrait;

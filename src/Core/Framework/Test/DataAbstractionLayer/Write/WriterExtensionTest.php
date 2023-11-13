@@ -23,8 +23,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class WriterExtensionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private Connection $connection;
 
@@ -42,7 +42,7 @@ class WriterExtensionTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('
+        $this->connection->executeStatement('
             DROP TABLE IF EXISTS `extended_product`;
             CREATE TABLE `extended_product` (
                 `id` BINARY(16) NOT NULL,
@@ -63,7 +63,7 @@ class WriterExtensionTest extends TestCase
     protected function tearDown(): void
     {
         $this->connection->rollBack();
-        $this->connection->executeUpdate('DROP TABLE `extended_product`');
+        $this->connection->executeStatement('DROP TABLE `extended_product`');
         $this->connection->beginTransaction();
 
         $this->removeExtension(ProductExtension::class);
@@ -97,9 +97,7 @@ class WriterExtensionTest extends TestCase
 
         /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
-        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
-            return $a->get('name') <=> $b->get('name');
-        });
+        $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);
@@ -131,9 +129,7 @@ class WriterExtensionTest extends TestCase
 
         /** @var EntityCollection<ArrayEntity> $productExtensions */
         $productExtensions = $product->getExtension('oneToMany');
-        $productExtensions->sort(static function (ArrayEntity $a, ArrayEntity $b) {
-            return $a->get('name') <=> $b->get('name');
-        });
+        $productExtensions->sort(static fn (ArrayEntity $a, ArrayEntity $b) => $a->get('name') <=> $b->get('name'));
 
         static::assertInstanceOf(EntityCollection::class, $productExtensions);
         static::assertCount(2, $productExtensions);

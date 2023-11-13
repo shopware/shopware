@@ -1,15 +1,13 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 const uuid = require('uuid/v4');
 
-describe('Theme: Test Inheritance', () => {
+describe('Theme: Test Inheritance', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.createDefaultSalesChannel().then(() => {
-            cy.viewport(1920, 1080);
             cy.openInitialPage(`${Cypress.env('admin')}#`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');

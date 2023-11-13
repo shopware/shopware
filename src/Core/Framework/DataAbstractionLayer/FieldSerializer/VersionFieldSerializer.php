@@ -2,19 +2,19 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class VersionFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -24,7 +24,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
             $value = $parameters->getContext()->getContext()->getVersionId();
         }
 
-        //write version id of current object to write context
+        // write version id of current object to write context
         $parameters->getContext()->set($parameters->getDefinition()->getEntityName(), 'versionId', $value);
 
         $data[$field->getPropertyName()] = $value;
@@ -39,7 +39,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof VersionField) {
-            throw new InvalidSerializerFieldException(VersionField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(VersionField::class, $field);
         }
 
         if ($data->getValue() === null) {
@@ -54,7 +54,7 @@ class VersionFieldSerializer implements FieldSerializerInterface
     {
         try {
             return Uuid::fromBytesToHex($value);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }

@@ -6,37 +6,18 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var ProductCrossSellingEntity
-     */
-    private $crossSelling;
-
-    /**
-     * @var Criteria
-     */
-    private $criteria;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
     public function __construct(
-        ProductCrossSellingEntity $crossSelling,
-        Criteria $criteria,
-        SalesChannelContext $salesChannelContext
+        private readonly ProductCrossSellingEntity $crossSelling,
+        private readonly Criteria $criteria,
+        private readonly SalesChannelContext $salesChannelContext
     ) {
-        $this->crossSelling = $crossSelling;
-        $this->criteria = $criteria;
-        $this->salesChannelContext = $salesChannelContext;
     }
 
     public function getCrossSelling(): ProductCrossSellingEntity

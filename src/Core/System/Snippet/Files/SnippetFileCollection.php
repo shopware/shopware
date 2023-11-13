@@ -2,21 +2,27 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\Snippet\Exception\InvalidSnippetFileException;
 
 /**
  * @extends Collection<AbstractSnippetFile>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFileCollection extends Collection
 {
+    /**
+     * @var array<string, bool>|null
+     */
+    private ?array $mapping = null;
+
     /**
      * @param AbstractSnippetFile $snippetFile
      */
     public function add($snippetFile): void
     {
+        $this->mapping = null;
         $this->set(null, $snippetFile);
     }
 
@@ -27,6 +33,24 @@ class SnippetFileCollection extends Collection
         }
 
         return $this->getByName($key);
+    }
+
+    public function set($key, $element): void
+    {
+        $this->mapping = null;
+        parent::set($key, $element);
+    }
+
+    public function clear(): void
+    {
+        $this->mapping = null;
+        parent::clear();
+    }
+
+    public function remove($key): void
+    {
+        $this->mapping = null;
+        parent::remove($key);
     }
 
     public function getByName(string $key): ?AbstractSnippetFile
@@ -45,9 +69,7 @@ class SnippetFileCollection extends Collection
      */
     public function getFilesArray(bool $isBase = true): array
     {
-        return array_filter($this->toArray(), function ($file) use ($isBase) {
-            return $file['isBase'] === $isBase;
-        });
+        return array_filter($this->toArray(), fn ($file) => $file['isBase'] === $isBase);
     }
 
     /**
@@ -112,15 +134,14 @@ class SnippetFileCollection extends Collection
 
     public function hasFileForPath(string $filePath): bool
     {
-        $filePath = realpath($filePath);
-
-        $filesWithMatchingPath = $this->filter(
-            static function (AbstractSnippetFile $file) use ($filePath): bool {
-                return realpath($file->getPath()) === $filePath;
+        if ($this->mapping === null) {
+            $this->mapping = [];
+            foreach ($this->elements as $element) {
+                $this->mapping[(string) realpath($element->getPath())] = true;
             }
-        );
+        }
 
-        return $filesWithMatchingPath->count() > 0;
+        return isset($this->mapping[realpath($filePath)]);
     }
 
     protected function getExpectedClass(): ?string

@@ -4,19 +4,19 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class AggregatorResult extends Struct
 {
     public function __construct(
-        private  AggregationResultCollection $aggregations,
-        private  Context $context,
-        private Criteria $criteria
+        private readonly AggregationResultCollection $aggregations,
+        private readonly Context $context,
+        private readonly Criteria $criteria
     ) {
     }
 

@@ -3,24 +3,17 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TaxFreeConfig extends Struct
 {
-    protected bool $enabled;
-
-    protected string $currencyId;
-
-    protected float $amount;
-
-    public function __construct(bool $enabled = false, string $currencyId = Defaults::CURRENCY, float $amount = 0)
-    {
-        $this->enabled = $enabled;
-        $this->currencyId = $currencyId;
-        $this->amount = $amount;
+    public function __construct(
+        protected bool $enabled = false,
+        protected string $currencyId = Defaults::CURRENCY,
+        protected float $amount = 0
+    ) {
     }
 
     public function getEnabled(): bool

@@ -5,15 +5,15 @@ namespace Shopware\Core\Checkout\Cart\Cleanup;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package checkout
- *
  *  @internal
  */
 #[AsMessageHandler(handles: CleanupCartTask::class)]
+#[Package('checkout')]
 final class CleanupCartTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -21,8 +21,8 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private Connection $connection,
-        private int $days
+        private readonly Connection $connection,
+        private readonly int $days
     ) {
         parent::__construct($repository);
     }
@@ -30,14 +30,14 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $time = new \DateTime();
-        $time->modify(sprintf('-%s day', $this->days));
+        $time->modify(sprintf('-%d day', $this->days));
 
         do {
             $result = $this->connection->executeStatement(
                 <<<'SQL'
                 DELETE FROM cart
-                    WHERE (updated_at IS NULL AND created_at <= :timestamp)
-                        OR (updated_at IS NOT NULL AND updated_at <= :timestamp) LIMIT 1000;
+                    WHERE created_at <= :timestamp
+                        AND (updated_at IS NULL OR updated_at <= :timestamp) LIMIT 1000;
             SQL,
                 ['timestamp' => $time->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
             );

@@ -25,11 +25,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class EntityDefinition
 {
     protected ?CompiledFieldCollection $fields = null;
@@ -102,7 +101,7 @@ abstract class EntityDefinition
     final public function removeExtension(EntityExtension $toDelete): void
     {
         foreach ($this->extensions as $key => $extension) {
-            if (\get_class($extension) === \get_class($toDelete)) {
+            if ($extension::class === $toDelete::class) {
                 unset($this->extensions[$key]);
                 $this->fields = null;
 
@@ -223,8 +222,8 @@ abstract class EntityDefinition
     }
 
     /**
-     * Phpstan will complain that we should specify the generic type if we hint that class strings
-     * of EntityColllection should be returned.
+     * PHPStan will complain that we should specify the generic type if we hint that class strings
+     * of EntityCollection should be returned.
      *
      * @return class-string
      */
@@ -283,6 +282,11 @@ abstract class EntityDefinition
         return $this->getField('autoIncrement') instanceof AutoIncrementField;
     }
 
+    final public function hasCreatedAndUpdatedAtFields(): bool
+    {
+        return $this->getField('createdAt') instanceof CreatedAtField && $this->getField('updatedAt') instanceof UpdatedAtField;
+    }
+
     final public function getPrimaryKeys(): CompiledFieldCollection
     {
         if ($this->primaryKeys !== null) {
@@ -301,13 +305,16 @@ abstract class EntityDefinition
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string, mixed>
      */
     public function getDefaults(): array
     {
         return [];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getChildDefaults(): array
     {
         return [];
@@ -315,7 +322,7 @@ abstract class EntityDefinition
 
     public function isChildrenAware(): bool
     {
-        //used in VersionManager
+        // used in VersionManager
         return $this->getFields()->getChildrenAssociationField() !== null;
     }
 
@@ -374,11 +381,17 @@ abstract class EntityDefinition
         return $field->getSerializer()->decode($field, $value);
     }
 
+    /**
+     * @return array<string, TranslatedField>
+     */
     public function getTranslatedFields(): array
     {
         return $this->getFields()->getTranslatedFields();
     }
 
+    /**
+     * @return array<string, Field>
+     */
     public function getExtensionFields(): array
     {
         return $this->getFields()->getExtensionFields();
@@ -390,7 +403,7 @@ abstract class EntityDefinition
     }
 
     /**
-     * @return Field[]
+     * @return list<Field>
      */
     protected function defaultFields(): array
     {
@@ -407,6 +420,9 @@ abstract class EntityDefinition
         return new EntityProtectionCollection();
     }
 
+    /**
+     * @return list<Field>
+     */
     protected function getBaseFields(): array
     {
         return [];

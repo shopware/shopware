@@ -23,20 +23,11 @@ class CustomFieldEntityRepositoryTest extends TestCase
      */
     private $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var int
-     */
-    private $basicSize = 15;
+    private int $basicSize = 15;
 
-    /**
-     * @var string
-     */
-    private $basicColor = 'blue';
+    private string $basicColor = 'blue';
 
     protected function setUp(): void
     {

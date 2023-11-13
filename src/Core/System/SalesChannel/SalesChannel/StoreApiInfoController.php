@@ -4,8 +4,8 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,45 +13,30 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
-/**
- * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('buyers-experience')]
 class StoreApiInfoController
 {
-    protected DefinitionService $definitionService;
-
-    private Environment $twig;
-
-    /**
-     * @var array{administration?: string}
-     */
-    private $cspTemplates;
-
     /**
      * @internal
      *
      * @param array{administration?: string} $cspTemplates
      */
-    public function __construct(DefinitionService $definitionService, Environment $twig, array $cspTemplates)
-    {
-        $this->definitionService = $definitionService;
-        $this->twig = $twig;
-        $this->cspTemplates = $cspTemplates;
+    public function __construct(
+        protected DefinitionService $definitionService,
+        private readonly Environment $twig,
+        private readonly array $cspTemplates
+    ) {
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
-     */
+    #[Route(path: '/store-api/_info/openapi3.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.openapi3', methods: ['GET'])]
     public function info(Request $request): JsonResponse
     {
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
 
         $apiType = $this->definitionService->toApiType($apiType);
         if ($apiType === null) {
-            throw new InvalidRequestParameterException('type');
+            throw RoutingException::invalidRequestParameter('type');
         }
 
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::STORE_API, $apiType);
@@ -59,10 +44,7 @@ class StoreApiInfoController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.open-api-schema", methods={"GET"})
-     */
+    #[Route(path: '/store-api/_info/open-api-schema.json', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.open-api-schema', methods: ['GET'])]
     public function openApiSchema(): JsonResponse
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::STORE_API);
@@ -70,14 +52,11 @@ class StoreApiInfoController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.swagger", methods={"GET"})
-     */
+    #[Route(path: '/store-api/_info/swagger.html', defaults: ['auth_required' => '%shopware.api.api_browser.auth_required_str%'], name: 'store-api.info.swagger', methods: ['GET'])]
     public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-        $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
+        $apiType = $request->query->getAlpha('type', DefinitionService::TYPE_JSON_API);
         $response = new Response($this->twig->render(
             '@Framework/swagger.html.twig',
             [

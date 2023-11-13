@@ -12,14 +12,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductKeywordDictionaryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'product_keyword_dictionary';
+    final public const ENTITY_NAME = 'product_keyword_dictionary';
 
     public function getEntityName(): string
     {

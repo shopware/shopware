@@ -19,67 +19,42 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SendMailAction extends FlowAction implements DelayableAction
 {
-    public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
-    public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
+    final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
+    final public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
+
     private const RECIPIENT_CONFIG_ADMIN = 'admin';
     private const RECIPIENT_CONFIG_CUSTOM = 'custom';
     private const RECIPIENT_CONFIG_CONTACT_FORM_MAIL = 'contactFormMail';
-
-    private EntityRepository $mailTemplateRepository;
-
-    private LoggerInterface $logger;
-
-    private AbstractMailService $emailService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $mailTemplateTypeRepository;
-
-    private Translator $translator;
-
-    private Connection $connection;
-
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
-    private bool $updateMailTemplate;
 
     /**
      * @internal
      */
     public function __construct(
-        AbstractMailService $emailService,
-        EntityRepository $mailTemplateRepository,
-        LoggerInterface $logger,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $mailTemplateTypeRepository,
-        Translator $translator,
-        Connection $connection,
-        LanguageLocaleCodeProvider $languageLocaleProvider,
-        bool $updateMailTemplate
+        private readonly AbstractMailService $emailService,
+        private readonly EntityRepository $mailTemplateRepository,
+        private readonly LoggerInterface $logger,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $mailTemplateTypeRepository,
+        private readonly Translator $translator,
+        private readonly Connection $connection,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly bool $updateMailTemplate
     ) {
-        $this->mailTemplateRepository = $mailTemplateRepository;
-        $this->logger = $logger;
-        $this->emailService = $emailService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
-        $this->translator = $translator;
-        $this->connection = $connection;
-        $this->languageLocaleProvider = $languageLocaleProvider;
-        $this->updateMailTemplate = $updateMailTemplate;
     }
 
     public static function getName(): string
@@ -111,13 +86,13 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        if (!$flow->hasStore(MailAware::MAIL_STRUCT) || !$flow->hasStore(MailAware::SALES_CHANNEL_ID)) {
-            throw new MailEventConfigurationException('Not have data from MailAware', \get_class($flow));
+        if (!$flow->hasData(MailAware::MAIL_STRUCT) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {
+            throw new MailEventConfigurationException('Not have data from MailAware', $flow::class);
         }
 
         $eventConfig = $flow->getConfig();
         if (empty($eventConfig['recipient'])) {
-            throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', \get_class($flow));
+            throw new MailEventConfigurationException('The recipient value in the flow action configuration is missing.', $flow::class);
         }
 
         if (!isset($eventConfig['mailTemplateId'])) {
@@ -130,14 +105,17 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getStore(MailAware::SALES_CHANNEL_ID));
+        $injectedTranslator = $this->injectTranslator($flow->getContext(), $flow->getData(MailAware::SALES_CHANNEL_ID));
 
         $data = new DataBag();
 
+        /** @var MailRecipientStruct $mailStruct */
+        $mailStruct = $flow->getData(MailAware::MAIL_STRUCT);
+
         $recipients = $this->getRecipients(
             $eventConfig['recipient'],
-            $flow->getStore(MailAware::MAIL_STRUCT)['recipients'],
-            $flow->getStore('contactFormData', []),
+            $mailStruct->getRecipients(),
+            $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []),
         );
 
         if (empty($recipients)) {
@@ -146,7 +124,7 @@ class SendMailAction extends FlowAction implements DelayableAction
 
         $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
-        $data->set('salesChannelId', $flow->getStore(MailAware::SALES_CHANNEL_ID));
+        $data->set('salesChannelId', $flow->getData(MailAware::SALES_CHANNEL_ID));
 
         $data->set('templateId', $mailTemplate->getId());
         $data->set('customFields', $mailTemplate->getCustomFields());
@@ -160,10 +138,10 @@ class SendMailAction extends FlowAction implements DelayableAction
             $mailTemplate,
             $extension,
             $eventConfig,
-            $flow->getStore(OrderAware::ORDER_ID),
+            $flow->getData(OrderAware::ORDER_ID),
         ));
 
-        $this->setReplyTo($data, $eventConfig, $flow->getStore('contactFormData', []));
+        $this->setReplyTo($data, $eventConfig, $flow->getData(FlowMailVariables::CONTACT_FORM_DATA, []));
 
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $flow));
 
@@ -176,7 +154,12 @@ class SendMailAction extends FlowAction implements DelayableAction
             );
         }
 
-        $this->send($data, $flow->getContext(), $flow->data(), $extension, $injectedTranslator);
+        $templateData = [
+            'eventName' => $flow->getName(),
+            ...$flow->data(),
+        ];
+
+        $this->send($data, $flow->getContext(), $templateData, $extension, $injectedTranslator);
     }
 
     /**
@@ -196,7 +179,7 @@ class SendMailAction extends FlowAction implements DelayableAction
                 . $e->getMessage() . "\n"
                 . 'Error Code:' . $e->getCode() . "\n"
                 . "Template data: \n"
-                . json_encode($data->all()) . "\n"
+                . json_encode($data->all(), \JSON_THROW_ON_ERROR) . "\n"
             );
         }
 
@@ -254,9 +237,12 @@ class SendMailAction extends FlowAction implements DelayableAction
         $criteria->addAssociation('media.media');
         $criteria->setLimit(1);
 
-        return $this->mailTemplateRepository
+        /** @var ?MailTemplateEntity $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository
             ->search($criteria, $context)
             ->first();
+
+        return $mailTemplate;
     }
 
     private function injectTranslator(Context $context, ?string $salesChannelId): bool
@@ -281,12 +267,12 @@ class SendMailAction extends FlowAction implements DelayableAction
 
     /**
      * @param array<string, mixed> $recipients
-     * @param array<string, mixed> $mailStructRecipients
+     * @param array<string, string> $mailStructRecipients
      * @param array<int|string, mixed> $contactFormData
      *
      * @return array<int|string, string>
      */
-    private function getRecipients(array $recipients, array $mailStructRecipients, array $contactFormData): array
+    private function getRecipients(array $recipients, $mailStructRecipients, array $contactFormData): array
     {
         switch ($recipients['type']) {
             case self::RECIPIENT_CONFIG_CUSTOM:

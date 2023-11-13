@@ -1,11 +1,12 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
+import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
-const { Defaults } = Shopware;
+const { Defaults, EntityDefinition } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -95,7 +96,8 @@ export default {
 
         countryCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addSorting(Criteria.sort('position', 'ASC', true))
+                .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -105,7 +107,9 @@ export default {
             }
 
             const criteria = new Criteria(1, 25);
-            criteria.addFilter(Criteria.equals('countryId', this.countryId));
+            criteria.addFilter(Criteria.equals('countryId', this.countryId))
+                .addSorting(Criteria.sort('position', 'ASC', true))
+                .addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -124,7 +128,7 @@ export default {
         },
 
         isBusinessAccountType() {
-            return this.customer.company !== null;
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
     },
 
@@ -154,6 +158,36 @@ export default {
             }
 
             this.customer.company = newVal;
+        },
+
+        'country.forceStateInRegistration'(newVal) {
+            if (!newVal) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    {
+                        expression: `${this.address.getEntityName()}.${this.address.id}.countryStateId`,
+                    },
+                );
+            }
+
+            const definition = EntityDefinition.get(this.address.getEntityName());
+
+            definition.properties.countryStateId.flags.required = newVal;
+        },
+
+        'country.postalCodeRequired'(newVal) {
+            if (!newVal) {
+                Shopware.State.dispatch(
+                    'error/removeApiError',
+                    {
+                        expression: `${this.address.getEntityName()}.${this.address.id}.zipcode`,
+                    },
+                );
+            }
+
+            const definition = EntityDefinition.get(this.address.getEntityName());
+
+            definition.properties.zipcode.flags.required = newVal;
         },
     },
 

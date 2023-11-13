@@ -13,11 +13,11 @@ async function createWrapper(category = {}) {
     const defaultCategory = {
         navigationSalesChannels: [],
         footerSalesChannels: [],
-        serviceSalesChannels: []
+        serviceSalesChannels: [],
     };
     const mergedCategory = {
         ...defaultCategory,
-        ...category
+        ...category,
     };
 
 
@@ -29,11 +29,11 @@ async function createWrapper(category = {}) {
             'sw-single-select': true,
             'sw-category-sales-channel-multi-select': true,
             'router-link': true,
-            'sw-button': true
+            'sw-button': true,
         },
         propsData: {
-            category: mergedCategory
-        }
+            category: mergedCategory,
+        },
     });
 }
 
@@ -83,13 +83,13 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
-            navigationSalesChannels: salesChannels
+            navigationSalesChannels: salesChannels,
         });
 
         expect(wrapper.vm.getInitialEntryPointFromCategory()).toBe('navigationSalesChannels');
@@ -103,13 +103,13 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
-            footerSalesChannels: salesChannels
+            footerSalesChannels: salesChannels,
         });
 
         expect(wrapper.vm.getInitialEntryPointFromCategory()).toBe('footerSalesChannels');
@@ -123,13 +123,13 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
-            serviceSalesChannels: salesChannels
+            serviceSalesChannels: salesChannels,
         });
 
         expect(wrapper.vm.getInitialEntryPointFromCategory()).toBe('serviceSalesChannels');
@@ -143,33 +143,33 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
         const footerSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
         const serviceSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
             navigationSalesChannels,
             footerSalesChannels,
-            serviceSalesChannels
+            serviceSalesChannels,
         });
 
         expect(wrapper.vm.getInitialEntryPointFromCategory()).toBe('navigationSalesChannels');
@@ -177,9 +177,9 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
         // it should stay on 'navigationSalesChannels' but the other collections should be cleared.
         expect(wrapper.vm.getInitialEntryPointFromCategory()).toBe('navigationSalesChannels');
 
-        expect(navigationSalesChannels.length).toBe(1);
-        expect(footerSalesChannels.length).toBe(0);
-        expect(serviceSalesChannels.length).toBe(0);
+        expect(navigationSalesChannels).toHaveLength(1);
+        expect(footerSalesChannels).toHaveLength(0);
+        expect(serviceSalesChannels).toHaveLength(0);
     });
 
     it('should add newly selected sales channels', async () => {
@@ -190,27 +190,27 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
         const footerSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
         const serviceSalesChannels = new EntityCollection('/sales_channel', 'sales_channel', Context.api, null, [
             {
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
 
 
@@ -219,20 +219,20 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
                 id: '',
                 name: '',
                 translated: {
-                    name: ''
-                }
-            }
+                    name: '',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
             navigationSalesChannels,
             footerSalesChannels,
-            serviceSalesChannels
+            serviceSalesChannels,
         });
 
         wrapper.vm.onSalesChannelChange(selectionSalesChannels);
 
         // the category should now have two sales channels in its 'navigationSalesChannel' collection.
-        expect(wrapper.vm.category[wrapper.vm.selectedEntryPoint].length).toBe(2);
+        expect(wrapper.vm.category[wrapper.vm.selectedEntryPoint]).toHaveLength(2);
     });
 });

@@ -10,11 +10,14 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_company_field %}
         <sw-text-field
-            v-if="isBusinessAccountType"
+            {% if VUE3 %}
+            v-model:value="address.company"
+            {% else %}
             v-model="address.company"
-            required
+            {% endif %}
+            :required="isBusinessAccountType"
             :label="$tc('sw-customer.addressForm.labelCompany')"
-            :error="addressCompanyError"
+            :error="disabled ? null : addressCompanyError"
             :disabled="disabled"
             :placeholder="$tc('sw-customer.addressForm.placeholderCompany')"
         />
@@ -23,10 +26,13 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_department_field %}
         <sw-text-field
-            v-if="isBusinessAccountType"
+            {% if VUE3 %}
+            v-model:value="address.department"
+            {% else %}
             v-model="address.department"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelDepartment')"
-            :error="addressDepartmentError"
+            :error="disabled ? null : addressDepartmentError"
             :disabled="disabled"
             :placeholder="$tc('sw-customer.addressForm.placeholderDepartment')"
         />
@@ -37,26 +43,33 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_salutation_field %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="address.salutationId"
+            {% else %}
             v-model="address.salutationId"
+            {% endif %}
             class="sw-customer-address-form__salutation-select"
             entity="salutation"
             :label="$tc('sw-customer.addressForm.labelSalutation')"
             :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
-            :error="addressSalutationIdError"
+            :error="disabled ? null : addressSalutationIdError"
             :disabled="disabled"
             :criteria="salutationCriteria"
             label-property="displayName"
-            show-clearable-button
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_title_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.title"
+            {% else %}
             v-model="address.title"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelTitle')"
             :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
-            :error="addressTitleError"
+            :error="disabled ? null : addressTitleError"
             :disabled="disabled"
         />
         {% endblock %}
@@ -65,12 +78,16 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_first_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.firstName"
+            {% else %}
             v-model="address.firstName"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelFirstName')"
             :placeholder="$tc('sw-customer.addressForm.placeholderFirstName')"
             validation="required"
             required
-            :error="addressFirstNameError"
+            :error="disabled ? null : addressFirstNameError"
             :disabled="disabled"
         />
         {% endblock %}
@@ -78,12 +95,16 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_last_name_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.lastName"
+            {% else %}
             v-model="address.lastName"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelLastName')"
             :placeholder="$tc('sw-customer.addressForm.placeholderLastName')"
             validation="required"
             required
-            :error="addressLastNameError"
+            :error="disabled ? null : addressLastNameError"
             :disabled="disabled"
         />
         {% endblock %}
@@ -91,12 +112,16 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_street_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.street"
+            {% else %}
             v-model="address.street"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelStreet')"
             :placeholder="$tc('sw-customer.addressForm.placeholderStreet')"
             validation="required"
             required
-            :error="addressStreetError"
+            :error="disabled ? null : addressStreetError"
             :disabled="disabled"
         />
         {% endblock %}
@@ -104,10 +129,14 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_additional_address_line_1_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.additionalAddressLine1"
+            {% else %}
             v-model="address.additionalAddressLine1"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine1')"
             :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine1')"
-            :error="addressAdditionalAddressLine1Error"
+            :error="disabled ? null : addressAdditionalAddressLine1Error"
             :disabled="disabled"
         />
         {% endblock %}
@@ -115,10 +144,14 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_additional_address_line_2_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.additionalAddressLine2"
+            {% else %}
             v-model="address.additionalAddressLine2"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelAdditionalAddressLine2')"
             :placeholder="$tc('sw-customer.addressForm.placeholderAdditionalAddressLine2')"
-            :error="addressAdditionalAddressLine2Error"
+            :error="disabled ? null : addressAdditionalAddressLine2Error"
             :disabled="disabled"
         />
         {% endblock %}
@@ -128,12 +161,16 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_zipcode_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.zipcode"
+            {% else %}
             v-model="address.zipcode"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelZipcode')"
             :placeholder="$tc('sw-customer.addressForm.placeholderZipcode')"
             validation="required"
-            required
-            :error="addressZipcodeError"
+            :required="country && country.postalCodeRequired"
+            :error="disabled ? null : addressZipcodeError"
             :disabled="disabled"
         />
         {% endblock %}
@@ -141,12 +178,16 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_city_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.city"
+            {% else %}
             v-model="address.city"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelCity')"
             :placeholder="$tc('sw-customer.addressForm.placeholderCity')"
             validation="required"
             required
-            :error="addressCityError"
+            :error="disabled ? null : addressCityError"
             :disabled="disabled"
         />
         {% endblock %}
@@ -155,7 +196,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_country_field %}
         <sw-entity-single-select
+            {% if VUE3 %}
+            v-model:value="countryId"
+            {% else %}
             v-model="countryId"
+            {% endif %}
             class="sw-customer-address-form__country-select"
             entity="country"
             :criteria="countryCriteria"
@@ -163,7 +208,7 @@
             :placeholder="$tc('sw-customer.addressForm.placeholderCountry')"
             validation="required"
             required
-            :error="addressCountryIdError"
+            :error="disabled ? null : addressCountryIdError"
             :disabled="disabled"
             show-clearable-button
         />
@@ -176,14 +221,18 @@
             class="sw-customer-address-form__state-select-placeholder"
         >
             <sw-entity-single-select
+                {% if VUE3 %}
+                v-model:value="address.countryStateId"
+                {% else %}
                 v-model="address.countryStateId"
+                {% endif %}
                 class="sw-customer-address-form__state-select"
                 entity="country_state"
                 :criteria="stateCriteria"
                 :label="$tc('sw-customer.addressForm.labelState')"
                 :placeholder="$tc('sw-customer.addressForm.placeholderState')"
                 :required="country && country.forceStateInRegistration"
-                :error="addressCountryStateIdError"
+                :error="disabled ? null : addressCountryStateIdError"
                 :disabled="disabled"
                 show-clearable-button
             />
@@ -193,17 +242,22 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_address_form_phone_number_field %}
         <sw-text-field
+            {% if VUE3 %}
+            v-model:value="address.phoneNumber"
+            {% else %}
             v-model="address.phoneNumber"
+            {% endif %}
             :label="$tc('sw-customer.addressForm.labelPhoneNumber')"
             :placeholder="$tc('sw-customer.addressForm.placeholderPhoneNumber')"
-            :error="addressPhoneNumberError"
+            :error="disabled ? null : addressPhoneNumberError"
             :disabled="disabled"
         />
         {% endblock %}
 
         <slot v-bind="{ disabled }">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_customer_address_form_extension_slot %} {% endblock %}
+            {% block sw_customer_address_form_extension_slot %}
+            {% endblock %}
         </slot>
     </sw-container>
     {% endblock %}

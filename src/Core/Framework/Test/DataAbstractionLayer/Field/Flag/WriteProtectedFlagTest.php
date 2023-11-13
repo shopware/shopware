@@ -24,8 +24,8 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
  */
 class WriteProtectedFlagTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 
@@ -80,7 +80,7 @@ EOF;
         );
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
 
@@ -115,7 +115,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/protected', $fieldException->getPath());
     }
 
@@ -183,7 +183,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relation'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/relation', $fieldException->getPath());
     }
 
@@ -236,7 +236,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'wp'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/wp', $fieldException->getPath());
     }
 
@@ -292,7 +292,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex, 'relations'));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/relations', $fieldException->getPath());
     }
 
@@ -344,7 +344,7 @@ EOF;
         static::assertEquals('This field is write-protected.', $this->getValidationExceptionMessage($ex));
 
         $fieldException = $ex->getExceptions()[0];
-        static::assertEquals(WriteConstraintViolationException::class, \get_class($fieldException));
+        static::assertEquals(WriteConstraintViolationException::class, $fieldException::class);
         static::assertEquals('/0/protected', $fieldException->getPath());
     }
 
@@ -387,7 +387,7 @@ EOF;
             $message = $exception->getMessage();
 
             if ($exception instanceof WriteConstraintViolationException && $exception->getPath() === '/0/' . $field) {
-                return $exception->getViolations()[0]->getMessage();
+                return $exception->getViolations()->get(0)->getMessage();
             }
         }
 

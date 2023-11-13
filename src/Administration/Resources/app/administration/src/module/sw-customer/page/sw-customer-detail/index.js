@@ -4,11 +4,12 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { ShopwareError } = Shopware.Classes;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -16,7 +17,6 @@ export default {
     template,
 
     inject: [
-        'systemConfigApiService',
         'repositoryFactory',
         'customerGroupRegistrationService',
         'acl',
@@ -143,6 +143,18 @@ export default {
                 this.customer.company?.trim().length : true;
         },
 
+        salutationRepository() {
+            return this.repositoryFactory.create('salutation');
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addFilter(Criteria.equals('salutationKey', 'not_specified'));
+
+            return criteria;
+        },
+
         ...mapPageErrors(errorConfig),
     },
 
@@ -157,7 +169,9 @@ export default {
     },
 
     methods: {
-        createdComponent() {
+        async loadCustomer() {
+            const defaultSalutationId = await this.getDefaultSalutation();
+
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-customer-detail__customer',
                 path: 'customer',
@@ -171,15 +185,31 @@ export default {
                 this.defaultCriteria,
             ).then((customer) => {
                 this.customer = customer;
-                this.customer.accountType = this.customer.company?.trim().length ?
-                    CUSTOMER.ACCOUNT_TYPE_BUSINESS : CUSTOMER.ACCOUNT_TYPE_PRIVATE;
+                if (!this.customer?.salutationId) {
+                    this.customer.salutationId = defaultSalutationId;
+                }
+
+                this.customer.addresses?.map((address) => {
+                    if (!address.salutationId) {
+                        address.salutationId = defaultSalutationId;
+                    }
+
+                    return address;
+                });
+
                 this.isLoading = false;
             });
+        },
+
+        async createdComponent() {
+            await this.loadCustomer();
         },
 
         saveFinish() {
             this.isSaveSuccessful = false;
             this.editMode = false;
+            this.createdComponent();
+            this.isLoading = false;
         },
 
         validateEmail() {
@@ -207,7 +237,7 @@ export default {
                     'error/addApiError',
                     {
                         expression: `customer.${this.customer.id}.email`,
-                        error: exception.response.data.errors[0],
+                        error: new ShopwareError(exception.response.data.errors[0]),
                     },
                 );
             });
@@ -220,17 +250,29 @@ export default {
                 return false;
             }
 
+            let hasError = false;
             if (this.customer.email && this.emailHasChanged) {
                 const response = await this.validateEmail();
 
                 if (!response || !response.isValid) {
-                    this.isLoading = false;
-                    return false;
+                    hasError = true;
                 }
             }
 
             if (!this.validCompanyField) {
                 this.createErrorMessageForCompanyField();
+                hasError = true;
+            }
+
+            if (!(await this.validPassword(this.customer))) {
+                hasError = true;
+            }
+
+            if (hasError) {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                });
+                this.isLoading = false;
                 return false;
             }
 
@@ -240,23 +282,16 @@ export default {
                 this.customer.birthday = null;
             }
 
-            if (!(await this.validPassword(this.customer))) {
-                this.isLoading = false;
-                return false;
-            }
-
             if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
             }
 
             if (this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_PRIVATE) {
-                this.customer.company = null;
+                this.customer.vatIds = [];
             }
 
             return this.customerRepository.save(this.customer).then(() => {
-                this.isLoading = false;
                 this.isSaveSuccessful = true;
-                this.createdComponent();
                 this.createNotificationSuccess({
                     message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
                         name: `${this.customer.firstName} ${this.customer.lastName}`,
@@ -271,9 +306,10 @@ export default {
             });
         },
 
-        onAbortButtonClick() {
+        async onAbortButtonClick() {
             this.discardChanges();
             this.editMode = false;
+            await this.loadCustomer();
         },
 
         onActivateCustomerEditMode() {
@@ -294,29 +330,22 @@ export default {
         },
 
         async validPassword(customer) {
-            const config = await this.systemConfigApiService.getValues('core.register');
-
             const { passwordNew, passwordConfirm } = customer;
             const passwordSet = (passwordNew || passwordConfirm);
             const passwordNotEquals = (passwordNew !== passwordConfirm);
-            const invalidLength = (passwordNew && passwordNew.length < config['core.register.minPasswordLength']);
 
-            if (passwordSet) {
-                if (passwordNotEquals) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage'),
-                    });
+            if (passwordSet && passwordNotEquals) {
+                Shopware.State.dispatch('error/addApiError', {
+                    expression: `customer.${this.customer.id}.passwordConfirm`,
+                    error: new ShopwareError(
+                        {
+                            detail: this.$tc('sw-customer.error.passwordDoNotMatch'),
+                            code: 'password_not_match',
+                        },
+                    ),
+                });
 
-                    return false;
-                }
-
-                if (invalidLength) {
-                    this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage'),
-                    });
-
-                    return false;
-                }
+                return false;
             }
 
             return true;
@@ -354,16 +383,18 @@ export default {
             this.isLoading = false;
             Shopware.State.dispatch('error/addApiError', {
                 expression: `customer.${this.customer.id}.company`,
-                error: new Shopware.Classes.ShopwareError(
+                error: new ShopwareError(
                     {
                         code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                     },
                 ),
             });
+        },
 
-            this.createNotificationError({
-                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
-            });
+        async getDefaultSalutation() {
+            const res = await this.salutationRepository.searchIds(this.salutationCriteria);
+
+            return res.data?.[0];
         },
     },
 };

@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class JsonUpdateCommand extends UpdateCommand
 {
     /**
@@ -18,7 +18,7 @@ class JsonUpdateCommand extends UpdateCommand
      */
     public function __construct(
         EntityDefinition $definition,
-        private string $storageName,
+        private readonly string $storageName,
         array $payload,
         array $primaryKey,
         EntityExistence $existence,

@@ -5,13 +5,15 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1659257496OrderLineItemDownload extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -24,7 +26,7 @@ class Migration1659257496OrderLineItemDownload extends MigrationStep
         if (!EntityDefinitionQueryHelper::columnExists($connection, 'order_line_item', 'states')) {
             $connection->executeStatement('
                 ALTER TABLE `order_line_item`
-                ADD COLUMN `states` JSON NULL AFTER `promotion_id`,
+                ADD COLUMN `states` JSON NULL,
                 ADD CONSTRAINT `json.order_line_item.states` CHECK (JSON_VALID(`states`))
             ');
             $connection->executeStatement('
@@ -34,7 +36,7 @@ class Migration1659257496OrderLineItemDownload extends MigrationStep
             ', ['states' => json_encode([State::IS_PHYSICAL])]);
         }
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `order_line_item_download` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,

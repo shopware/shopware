@@ -86,6 +86,18 @@
                 },
                 "profiler": {
                   "$ref": "#/definitions/profiler"
+                },
+                "twig": {
+                    "$ref": "#/definitions/twig"
+                },
+                "dompdf": {
+                    "$ref": "#/definitions/dompdf"
+                },
+                "stock": {
+                    "$ref": "#/definitions/stock"
+                },
+                "usage_data": {
+                  "$ref": "#/definitions/usage_data"
                 }
             },
             "title": "Shopware"
@@ -112,6 +124,58 @@
             },
             "title": "Enabled profiler, available since 6.4.11.0"
         },
+        "usage_data": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "gateway": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "base_uri": {
+                            "type": "string"
+                        },
+                        "batch_size": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            },
+            "title": "Usage data"
+        },
+        "twig": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "allowed_php_functions": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "dompdf": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "options": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "stock": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enable_stock_management": {
+                    "type": "boolean",
+                    "title": "Disable Shopware's default stock management system. This setting should be used if your ERP system manages the stock."
+                }
+            }
+        },
         "mail": {
             "type": "object",
             "additionalProperties": false,
@@ -128,6 +192,12 @@
             "additionalProperties": false,
             "properties": {
                 "enable_admin_worker": {
+                    "type": "boolean"
+                },
+                "enable_queue_stats_worker": {
+                    "type": "boolean"
+                },
+                "enable_notification_worker": {
                     "type": "boolean"
                 },
                 "poll_interval": {
@@ -147,7 +217,14 @@
             "additionalProperties": false,
             "properties": {
                 "max_limit": {
-                    "type": "integer"
+                    "type": ["integer", "null"],
+                    "default": 100
+                },
+                "access_token_ttl": {
+                    "type": "string"
+                },
+                "refresh_token_ttl": {
+                    "type": "string"
                 },
                 "api_browser": {
                     "$ref": "#/definitions/api_browser"
@@ -157,6 +234,9 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
+                },
+                "jwt_key": {
+                    "$ref": "#/definitions/jwt_key"
                 }
             },
             "title": "API"
@@ -233,9 +313,31 @@
             "properties": {
                 "context_lifetime": {
                     "type": "string"
+                },
+                "max_limit": {
+                    "type": ["integer", "null"],
+                    "default": 100
                 }
             },
             "title": "API store"
+        },
+        "jwt_key": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "private_key_path": {
+                    "type": "string",
+                    "description": "Path to the private key file."
+                },
+                "private_key_passphrase": {
+                    "type": "string",
+                    "description": "Passphrase for the private key file."
+                },
+                "public_key_path": {
+                    "type": "string",
+                    "description": "Path to the public key file."
+                }
+            }
         },
         "auto_update": {
             "type": "object",
@@ -254,11 +356,40 @@
                 "redis_prefix": {
                     "type": "string"
                 },
+                "cache_compression": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Controls the cache compression before the storage"
+                },
                 "invalidation": {
                     "$ref": "#/definitions/cache_invalidation"
+                },
+                "tagging": {
+                    "$ref": "#/definitions/cache_tags"
                 }
             },
             "title": "Cache"
+        },
+        "cache_tags": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "each_snippet": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If enabled, each snippet will be cached with a unique tag. This allows to invalidate a single snippet. If disabled, the whole page will be invalidated on each snippet change."
+                },
+                "each_config": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If enabled, each config will be cached with a unique tag. This allows to invalidate a single config. If disabled, the whole page will be invalidated on each config change."
+                },
+                "each_theme_config": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "If enabled, each theme config will be cached with a unique tag. This allows to invalidate a single theme config. If disabled, the whole page will be invalidated on each theme config change."
+                }
+            }
         },
         "cache_invalidation": {
             "type": "object",
@@ -266,6 +397,24 @@
             "properties": {
                 "delay": {
                     "type": "integer"
+                },
+                "delay_options": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "storage": {
+                            "type": "string",
+                            "default": "cache",
+                            "enum": [
+                                "cache",
+                                "redis"
+                            ]
+                        },
+                        "dsn": {
+                            "type": "string",
+                            "default": "redis://localhost"
+                        }
+                    }
                 },
                 "count": {
                     "type": "integer"
@@ -420,7 +569,10 @@
             "additionalProperties": false,
             "properties": {
                 "blue_green": {
-                    "type": "string"
+                    "type": "boolean"
+                },
+                "cluster_setup": {
+                    "type": "boolean"
                 }
             },
             "title": "Deployment"
@@ -481,6 +633,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
                 "cache_dir": {
                     "type": "string"
                 },
@@ -506,6 +661,26 @@
                                 "type": "array",
                                 "items": {
                                     "type": "string"
+                                }
+                            },
+                            "custom_attributes": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "attributes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
                                 }
                             },
                             "options": {
@@ -614,6 +789,16 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "exclude_events": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "error_code_log_levels": {
+                    "type": "object",
+                    "additionalProperties": {"type": "string"}
                 }
             },
             "title": "Logger"
@@ -674,27 +859,6 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "csrf": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "properties": {
-                        "enabled": {
-                            "type": "boolean",
-                            "default": true,
-                            "title": "Toggles CSRF"
-                        },
-                        "mode": {
-                            "type": "string",
-                            "enum": [
-                                "ajax",
-                                "twig"
-                            ],
-                            "default": "twig",
-                            "title": "CSRF implementation type"
-                        }
-                    },
-                    "title": "CSRF configuration for the PHP storefront"
-                },
                 "reverse_proxy": {
                     "type": "object",
                     "additionalProperties": false,
@@ -826,6 +990,11 @@
                         },
                         "available_theme_provider": {
                             "type": "string"
+                        },
+                        "file_delete_delay": {
+                            "type": "integer",
+                            "description": "Delay in seconds until old theme files will be deleted after a new theme compile",
+                            "default": 900
                         }
                     },
                     "title": "Theme loader configuration"

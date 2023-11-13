@@ -2,27 +2,20 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartBehavior extends Struct
 {
     /**
-     * @var array<mixed>
+     * @param array<string, bool> $permissions
      */
-    private array $permissions = [];
-
-    private bool $hookAware;
-
-    /**
-     * @param array<mixed> $permissions
-     */
-    public function __construct(array $permissions = [], bool $hookAware = true)
-    {
-        $this->permissions = $permissions;
-        $this->hookAware = $hookAware;
+    public function __construct(
+        private readonly array $permissions = [],
+        private bool $hookAware = true,
+        private readonly bool $isRecalculation = false
+    ) {
     }
 
     public function hasPermission(string $permission): bool
@@ -40,10 +33,19 @@ class CartBehavior extends Struct
         return $this->hookAware;
     }
 
+    public function isRecalculation(): bool
+    {
+        return $this->isRecalculation;
+    }
+
     /**
      * @internal
      *
-     * @return mixed
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
      */
     public function disableHooks(\Closure $closure)
     {

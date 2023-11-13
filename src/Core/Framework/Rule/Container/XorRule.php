@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @package business-ops
  * XorRule returns true, if exactly one child rule is true
  */
+#[Package('services-settings')]
 class XorRule extends Container
 {
-    public const RULE_NAME = 'xorContainer';
+    final public const RULE_NAME = 'xorContainer';
 
     public function match(RuleScope $scope): bool
     {

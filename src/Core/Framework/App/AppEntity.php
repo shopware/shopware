@@ -6,27 +6,32 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
- * @package core
- *
- * @internal
+ * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
  */
+#[Package('core')]
 class AppEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -76,20 +81,23 @@ class AppEntity extends Entity
     protected ?string $baseAppUrl = null;
 
     /**
-     * @var array
+     * @var list<Module>
      */
-    protected $modules;
+    protected array $modules;
 
     /**
-     * @var array|null
+     * @var Module|null
      */
-    protected $mainModule;
+    protected ?array $mainModule = null;
 
     /**
-     * @var array
+     * @var list<Cookie>
      */
-    protected $cookies;
+    protected array $cookies;
 
+    /**
+     * @var list<string>|null
+     */
     protected ?array $allowedHosts = null;
 
     /**
@@ -191,6 +199,8 @@ class AppEntity extends Entity
      */
     protected $paymentMethods;
 
+    protected ?TaxProviderCollection $taxProviders = null;
+
     /**
      * @internal
      *
@@ -209,6 +219,16 @@ class AppEntity extends Entity
      * @var AppFlowActionCollection|null
      */
     protected $flowActions;
+
+    /**
+     * @var AppFlowEventCollection|null
+     */
+    protected $flowEvents;
+
+    /**
+     * @var EntityCollection<AppShippingMethodEntity>|null
+     */
+    protected ?EntityCollection $appShippingMethods = null;
 
     /**
      * @var int
@@ -308,41 +328,65 @@ class AppEntity extends Entity
         $this->baseAppUrl = $baseAppUrl;
     }
 
+    /**
+     * @return list<Module>
+     */
     public function getModules(): array
     {
         return $this->modules;
     }
 
+    /**
+     * @param list<Module> $modules
+     */
     public function setModules(array $modules): void
     {
         $this->modules = $modules;
     }
 
+    /**
+     * @return Module|null
+     */
     public function getMainModule(): ?array
     {
         return $this->mainModule;
     }
 
+    /**
+     * @param Module $mainModule
+     */
     public function setMainModule(array $mainModule): void
     {
         $this->mainModule = $mainModule;
     }
 
+    /**
+     * @return list<Cookie>
+     */
     public function getCookies(): array
     {
         return $this->cookies;
     }
 
+    /**
+     * @param list<Cookie> $cookies
+     */
     public function setCookies(array $cookies): void
     {
         $this->cookies = $cookies;
     }
 
+    /**
+     * @return list<string>|null
+     */
     public function getAllowedHosts(): ?array
     {
         return $this->allowedHosts;
     }
 
+    /**
+     * @param list<string>|null $allowedHosts
+     */
     public function setAllowedHosts(?array $allowedHosts): void
     {
         $this->allowedHosts = $allowedHosts;
@@ -562,6 +606,16 @@ class AppEntity extends Entity
         $this->paymentMethods = $paymentMethods;
     }
 
+    public function getTaxProviders(): ?TaxProviderCollection
+    {
+        return $this->taxProviders;
+    }
+
+    public function setTaxProviders(TaxProviderCollection $taxProviders): void
+    {
+        $this->taxProviders = $taxProviders;
+    }
+
     /**
      * @internal
      */
@@ -604,6 +658,32 @@ class AppEntity extends Entity
     public function setFlowActions(AppFlowActionCollection $flowActions): void
     {
         $this->flowActions = $flowActions;
+    }
+
+    public function getFlowEvents(): ?AppFlowEventCollection
+    {
+        return $this->flowEvents;
+    }
+
+    public function setFlowEvents(AppFlowEventCollection $flowEvents): void
+    {
+        $this->flowEvents = $flowEvents;
+    }
+
+    /**
+     * @return EntityCollection<AppShippingMethodEntity>|null
+     */
+    public function getAppShippingMethods(): ?EntityCollection
+    {
+        return $this->appShippingMethods;
+    }
+
+    /**
+     * @param EntityCollection<AppShippingMethodEntity> $appShippingMethods
+     */
+    public function setAppShippingMethods(EntityCollection $appShippingMethods): void
+    {
+        $this->appShippingMethods = $appShippingMethods;
     }
 
     public function jsonSerialize(): array

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
@@ -13,47 +14,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class MediaFolderIndexer extends EntityIndexer
 {
-    public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
-    public const TREE_UPDATER = 'media_folder.tree';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $folderRepository;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ChildCountUpdater $childCountUpdater;
-
-    private TreeUpdater $treeUpdater;
+    final public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
+    final public const TREE_UPDATER = 'media_folder.tree';
 
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        ChildCountUpdater $childCountUpdater,
-        TreeUpdater $treeUpdater
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $folderRepository,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ChildCountUpdater $childCountUpdater,
+        private readonly TreeUpdater $treeUpdater
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->folderRepository = $repository;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->childCountUpdater = $childCountUpdater;
-        $this->treeUpdater = $treeUpdater;
     }
 
     public function getName(): string
@@ -184,7 +166,7 @@ class MediaFolderIndexer extends EntityIndexer
         $childIds = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media_folder WHERE parent_id IN (:ids) AND use_parent_configuration = 1',
             ['ids' => Uuid::fromHexToBytesList($parentIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $childIds = array_column($childIds, 'id');
@@ -205,7 +187,7 @@ class MediaFolderIndexer extends EntityIndexer
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(media_folder.parent_id)) as id FROM media_folder WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return array_unique(array_filter($parentIds));

@@ -7,7 +7,7 @@ import ExtensionErrorService from './extension-error.service';
 const { Application } = Shopware;
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 declare global {
     interface ServiceContainer extends SubContainer<'service'>{
@@ -59,6 +59,10 @@ Application.addServiceProvider('extensionErrorService', () => {
                     },
                 },
             ],
+        },
+        FRAMEWORK__APP_NOT_COMPATIBLE: {
+            title: 'global.default.error',
+            message: 'sw-extension.errors.appIsNotCompatible',
         },
     }, {
         title: 'global.default.error',

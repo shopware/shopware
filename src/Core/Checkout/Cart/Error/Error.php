@@ -2,29 +2,28 @@
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\AssignArrayTrait;
 use Shopware\Core\Framework\Struct\CreateFromTrait;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 abstract class Error extends \Exception implements \JsonSerializable
 {
-    //allows json_encode and to decode object via json serializer
-    use JsonSerializableTrait;
-
-    //allows to assign array data to this object
+    // allows to assign array data to this object
     use AssignArrayTrait;
 
-    //allows to create a new instance with all data of the provided object
+    // allows to create a new instance with all data of the provided object
     use CreateFromTrait;
 
-    public const LEVEL_NOTICE = 0;
+    // allows json_encode and to decode object via json serializer
+    use JsonSerializableTrait;
 
-    public const LEVEL_WARNING = 10;
+    final public const LEVEL_NOTICE = 0;
 
-    public const LEVEL_ERROR = 20;
+    final public const LEVEL_WARNING = 10;
+
+    final public const LEVEL_ERROR = 20;
 
     abstract public function getId(): string;
 
@@ -33,6 +32,11 @@ abstract class Error extends \Exception implements \JsonSerializable
     abstract public function getLevel(): int;
 
     abstract public function blockOrder(): bool;
+
+    public function blockResubmit(): bool
+    {
+        return $this->blockOrder();
+    }
 
     /**
      * @return array<string, mixed>

@@ -18,7 +18,7 @@ class EventDataCollectionTest extends TestCase
         $collection = (new EventDataCollection())
             ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('myBool', new ScalarValueType(ScalarValueType::TYPE_BOOL))
-            ;
+        ;
 
         $expected = [
             'customer' => [

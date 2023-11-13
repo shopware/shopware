@@ -11,16 +11,16 @@ import 'src/app/component/utils/sw-loader';
 const strategies = [
     {
         description: '',
-        name: 'move-shop-permanently'
+        name: 'move-shop-permanently',
     },
     {
         description: '',
-        name: 'reinstall-apps'
+        name: 'reinstall-apps',
     },
     {
         description: '',
-        name: 'uninstall-apps'
-    }
+        name: 'uninstall-apps',
+    },
 ];
 
 describe('sw-app-app-url-changed-modal', () => {
@@ -37,19 +37,19 @@ describe('sw-app-app-url-changed-modal', () => {
             propsData: {
                 urlDiff: {
                     oldUrl: 'https://old-url',
-                    newUrl: 'https://new-url'
-                }
+                    newUrl: 'https://new-url',
+                },
             },
             provide: {
                 appUrlChangeService: {
                     fetchResolverStrategies: () => Promise.resolve(strategies),
-                    resolveUrlChange: jest.fn(() => Promise.resolve())
+                    resolveUrlChange: jest.fn(() => Promise.resolve()),
                 },
                 shortcutService: {
                     startEventListener() {},
-                    stopEventListener() {}
-                }
-            }
+                    stopEventListener() {},
+                },
+            },
         });
     }
 
@@ -60,14 +60,14 @@ describe('sw-app-app-url-changed-modal', () => {
             'sw-loader': await Shopware.Component.build('sw-loader'),
             'sw-icon': true,
             'icons-default-basic-shape-circle-filled': {
-                template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>'
+                template: '<span class="sw-icon sw-icon--default-basic-shape-circle-filled"></span>',
             },
             'icons-regular-circle': {
-                template: '<span class="sw-icon sw-icon--regular-circle"></span>'
+                template: '<span class="sw-icon sw-icon--regular-circle"></span>',
             },
             'icons-regular-times-s': {
-                template: '<span class="sw-icon sw-icon--regular-times-s"></span>'
-            }
+                template: '<span class="sw-icon sw-icon--regular-times-s"></span>',
+            },
         };
     });
 
@@ -91,7 +91,7 @@ describe('sw-app-app-url-changed-modal', () => {
         expect(wrapper.vm.$data.selectedStrategy.name).toMatch(strategies[0].name);
         expect(wrapper.vm.getActiveStyle(strategies[0]))
             .toEqual({
-                'sw-app-app-url-changed-modal__content-migration-strategy--active': true
+                'sw-app-app-url-changed-modal__content-migration-strategy--active': true,
             });
     });
 

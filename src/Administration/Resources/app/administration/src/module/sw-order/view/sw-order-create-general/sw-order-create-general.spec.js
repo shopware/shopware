@@ -4,7 +4,7 @@ import swOrderCreateGeneral from 'src/module/sw-order/view/sw-order-create-gener
 import orderStore from 'src/module/sw-order/state/order.store';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-create-general', swOrderCreateGeneral);
@@ -20,12 +20,13 @@ async function createWrapper() {
                     <div class="sw-card__content">
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-container': true,
             'sw-card-section': true,
             'sw-description-list': true,
             'sw-order-line-items-grid-sales-channel': true,
+            'sw-extension-component-section': true,
         },
     });
 }
@@ -54,9 +55,9 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
                     key: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339',
                     level: 0,
                     message: 'Discount discount has been added',
-                    messageKey: 'promotion-discount-added'
-                }
-            }
+                    messageKey: 'promotion-discount-added',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -80,9 +81,9 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
                     key: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339',
                     level: 20,
                     message: 'Promotion with code promotion-code not found!',
-                    messageKey: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339'
-                }
-            }
+                    messageKey: 'promotion-discount-added-1b8d2c67e3cf435ab3cb64ec394d4339',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -106,9 +107,9 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
                     key: 'promotion-warning',
                     level: 10,
                     message: 'Promotion with code promotion-code warning!',
-                    messageKey: 'promotion-warning'
-                }
-            }
+                    messageKey: 'promotion-warning',
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -125,8 +126,8 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
             token: null,
             lineItems: [],
             price: {
-                taxStatus: 'tax-free'
-            }
+                taxStatus: 'tax-free',
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -142,7 +143,7 @@ describe('src/module/sw-order/view/sw-order-create-general', () => {
 
         Shopware.State.commit('swOrder/setCart', {
             token: null,
-            lineItems: []
+            lineItems: [],
         });
 
         await wrapper.vm.$nextTick();

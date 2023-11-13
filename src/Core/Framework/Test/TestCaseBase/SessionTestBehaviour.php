@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -19,7 +20,7 @@ trait SessionTestBehaviour
         $session = $this->getSession();
         $session->clear();
 
-        if (method_exists($session, 'getFlashBag')) {
+        if ($session instanceof FlashBagAwareSessionInterface) {
             $session->getFlashBag()->clear();
         }
     }

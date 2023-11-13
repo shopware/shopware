@@ -10,21 +10,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProductCrossSellingSerializer extends EntitySerializer
 {
-    private EntityRepository $assignedProductsRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $assignedProductsRepository)
+    public function __construct(private readonly EntityRepository $assignedProductsRepository)
     {
-        $this->assignedProductsRepository = $assignedProductsRepository;
     }
 
     /**

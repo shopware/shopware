@@ -1,0 +1,10 @@
+/vendor
+/.phpunit.cache
+/shop
+/backup.zip
+/shopware.sql
+/install.zip
+/update.zip
+/node_modules
+/vendor-bin/*/vendor
+/shopware-installer.phar.php

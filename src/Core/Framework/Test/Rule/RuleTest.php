@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
-use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,18 +17,18 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CartRuleHelperTrait;
+    use IntegrationTestBehaviour;
 
     private EntityRepository $conditionRepository;
 
@@ -36,7 +36,7 @@ class RuleTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->conditionRegistry = $this->getContainer()->get(RuleConditionRegistry::class);
@@ -115,7 +115,7 @@ class RuleTest extends TestCase
             try {
                 $constraints = $rule->getConstraints();
                 $config = $rule->getConfig();
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 continue;
             }
 
@@ -144,9 +144,7 @@ class RuleTest extends TestCase
                 ));
             }
 
-            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
-                return $operatorConstraints instanceof Choice;
-            }));
+            $choiceConstraint = current(array_filter($constraints['operator'], fn (Constraint $operatorConstraints) => $operatorConstraints instanceof Choice));
 
             if (!$choiceConstraint) {
                 continue;
@@ -163,7 +161,7 @@ class RuleTest extends TestCase
     {
         /** @var Rule $rule */
         foreach ($this->getRules() as $rule) {
-            $ruleNameConstant = $rule::RULE_NAME;
+            $ruleNameConstant = $rule::RULE_NAME; /* @phpstan-ignore-line */
 
             static::assertNotNull($ruleNameConstant, sprintf(
                 'Rule name constant is empty in condition %s',
@@ -181,7 +179,7 @@ class RuleTest extends TestCase
         foreach ($this->getRules() as $rule) {
             try {
                 $constraints = $rule->getConstraints();
-            } catch (\Throwable $exception) {
+            } catch (\Throwable) {
                 continue;
             }
 
@@ -190,9 +188,7 @@ class RuleTest extends TestCase
                 continue;
             }
 
-            $choiceConstraint = current(array_filter($constraints['operator'], function (Constraint $operatorConstraints) {
-                return $operatorConstraints instanceof Choice;
-            }));
+            $choiceConstraint = current(array_filter($constraints['operator'], fn (Constraint $operatorConstraints) => $operatorConstraints instanceof Choice));
 
             if (!$choiceConstraint) {
                 continue;
@@ -242,7 +238,7 @@ class RuleTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
-                'password' => 'password',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

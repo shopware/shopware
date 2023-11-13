@@ -2,19 +2,16 @@
 
 namespace Shopware\Core\System\Snippet\Files;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class SnippetFileCollectionFactory
 {
-    private SnippetFileLoaderInterface $snippetFileLoader;
-
     /**
      * @internal
      */
-    public function __construct(SnippetFileLoaderInterface $snippetFileLoader)
+    public function __construct(private readonly SnippetFileLoaderInterface $snippetFileLoader)
     {
-        $this->snippetFileLoader = $snippetFileLoader;
     }
 
     public function createSnippetFileCollection(): SnippetFileCollection

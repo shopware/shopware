@@ -2,40 +2,27 @@
 
 namespace Shopware\Core\Maintenance\System\Service;
 
+use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class AppUrlVerifier
 {
-    private Client $guzzle;
-
-    private EntityRepository $appRepository;
-
-    private string $appEnv;
-
-    private bool $appUrlCheckDisabled;
-
-    public function __construct(Client $guzzle, EntityRepository $appRepository, string $appEnv, bool $appUrlCheckDisabled)
-    {
-        $this->guzzle = $guzzle;
-        $this->appRepository = $appRepository;
-        $this->appEnv = $appEnv;
-        $this->appUrlCheckDisabled = $appUrlCheckDisabled;
+    public function __construct(
+        private readonly Client $guzzle,
+        private readonly Connection $connection,
+        private readonly string $appEnv,
+        private readonly bool $appUrlCheckDisabled
+    ) {
     }
 
     public function isAppUrlReachable(Request $request): bool
@@ -67,18 +54,17 @@ class AppUrlVerifier
             if ($response->getStatusCode() === Response::HTTP_OK) {
                 return true;
             }
-        } catch (GuzzleException $e) {
+        } catch (GuzzleException) {
             return false;
         }
 
         return false;
     }
 
-    public function hasAppsThatNeedAppUrl(Context $context): bool
+    public function hasAppsThatNeedAppUrl(): bool
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('appSecret', null)]));
+        $foundApp = $this->connection->fetchOne('SELECT 1 FROM app WHERE app_secret IS NOT NULL');
 
-        return $this->appRepository->searchIds($criteria, $context)->getTotal() > 0;
+        return $foundApp === '1';
     }
 }

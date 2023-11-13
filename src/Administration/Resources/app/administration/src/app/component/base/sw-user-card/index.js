@@ -89,5 +89,9 @@ Component.register('sw-user-card', {
             }
             return this.$route.meta.$module.color;
         },
+
+        salutationFilter() {
+            return Shopware.Filter.getByName('salutation');
+        },
     },
 });

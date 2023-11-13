@@ -10,29 +10,26 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
-
-    private EntityRepository $customerGroupRepository;
+    private readonly Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepository $customerGroupRepository
+        private readonly EntityRepository $customerGroupRepository
     ) {
         $this->connection = $connection;
-        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public static function getName(): string
@@ -50,11 +47,11 @@ class SetCustomerGroupCustomFieldAction extends FlowAction implements DelayableA
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(CustomerGroupAware::CUSTOMER_GROUP_ID)) {
+        if (!$flow->hasData(CustomerGroupAware::CUSTOMER_GROUP_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(CustomerGroupAware::CUSTOMER_GROUP_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerGroupAware::CUSTOMER_GROUP_ID));
     }
 
     /**

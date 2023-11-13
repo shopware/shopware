@@ -7,17 +7,16 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class OrderAddressEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -50,7 +49,9 @@ class OrderAddressEntity extends Entity
     protected $street;
 
     /**
-     * @var string
+     * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
+     *
+     * @var string|null
      */
     protected $zipcode;
 
@@ -124,6 +125,11 @@ class OrderAddressEntity extends Entity
      */
     protected $orderId;
 
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
+
     public function getCountryId(): string
     {
         return $this->countryId;
@@ -184,11 +190,24 @@ class OrderAddressEntity extends Entity
         $this->street = $street;
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
+     */
     public function getZipcode(): string
     {
+        /**
+         * @decrecated tag:v6.6.0 - Remove as return type will be nullable
+         */
+        if ($this->zipcode === null) {
+            return '';
+        }
+
         return $this->zipcode;
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - Will be nullable, use `?string` instead `string`
+     */
     public function setZipcode(string $zipcode): void
     {
         $this->zipcode = $zipcode;
@@ -332,5 +351,15 @@ class OrderAddressEntity extends Entity
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

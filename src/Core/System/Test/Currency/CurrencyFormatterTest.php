@@ -17,8 +17,8 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
  */
 class CurrencyFormatterTest extends TestCase
 {
-    use KernelTestBehaviour;
     use BasicTestDataBehaviour;
+    use KernelTestBehaviour;
 
     public function testFormatByLanguage(): void
     {
@@ -95,7 +95,7 @@ class CurrencyFormatterTest extends TestCase
     /**
      * @return array<array<float|int|string>>
      */
-    public function digitProvider(): array
+    public static function digitProvider(): array
     {
         return [
             [19.9999, 2, '20,00 €'],

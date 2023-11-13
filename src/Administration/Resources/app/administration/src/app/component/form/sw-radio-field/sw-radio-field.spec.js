@@ -22,13 +22,13 @@ const createWrapper = async () => {
                 options: [
                     { value: 1, name: 'option 1' },
                     { value: 2, name: 'option 2' },
-                    { value: 3, name: 'option 3' }
+                    { value: 3, name: 'option 3' },
                 ],
                 currentValue: 1,
                 block: false,
-                description: null
+                description: null,
             };
-        }
+        },
     };
 
     return shallowMount(baseComponent, {
@@ -36,9 +36,9 @@ const createWrapper = async () => {
             'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
-                template: '<div></div>'
-            }
-        }
+                template: '<div></div>',
+            },
+        },
     });
 };
 
@@ -57,7 +57,7 @@ describe('components/form/sw-radio-field', () => {
         const wrapper = await createWrapper();
 
         const radioInputs = wrapper.findAll('.sw-field__radio-option');
-        expect(radioInputs.length).toEqual(wrapper.vm.options.length);
+        expect(radioInputs).toHaveLength(wrapper.vm.options.length);
     });
 
     it('should pass slot scoped to children slot correctly', async () => {
@@ -97,8 +97,8 @@ describe('components/form/sw-radio-field', () => {
             options: [
                 { value: 1, name: 'option 1', description: 'option 1' },
                 { value: 2, name: 'option 2', description: 'option 2' },
-                { value: 3, name: 'option 3', description: 'option 3' }
-            ]
+                { value: 3, name: 'option 3', description: 'option 3' },
+            ],
         });
 
         optionDescription = wrapper.find('.sw-field__radio-option-description');
@@ -108,35 +108,35 @@ describe('components/form/sw-radio-field', () => {
     it('should show the label from the property', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-radio-field'), {
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
-                    template: '<div></div>'
-                }
-            }
+                    template: '<div></div>',
+                },
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-radio-field'), {
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
-                    template: '<div></div>'
-                }
+                    template: '<div></div>',
+                },
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 });

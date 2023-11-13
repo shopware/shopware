@@ -8,35 +8,33 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package checkout
+ * @final LineItem class should not be extended because it is serialized into the storage and should not depend on individual implementations.
  */
+#[Package('checkout')]
 class LineItem extends Struct
 {
-    public const CREDIT_LINE_ITEM_TYPE = 'credit';
-    public const PRODUCT_LINE_ITEM_TYPE = 'product';
-    public const CUSTOM_LINE_ITEM_TYPE = 'custom';
-    public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
-    public const DISCOUNT_LINE_ITEM = 'discount';
-    public const CONTAINER_LINE_ITEM = 'container';
+    final public const CREDIT_LINE_ITEM_TYPE = 'credit';
+    final public const PRODUCT_LINE_ITEM_TYPE = 'product';
+    final public const CUSTOM_LINE_ITEM_TYPE = 'custom';
+    final public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
+    final public const DISCOUNT_LINE_ITEM = 'discount';
+    final public const CONTAINER_LINE_ITEM = 'container';
 
     /**
      * @var array<mixed>
      */
     protected array $payload = [];
 
-    protected string $id;
-
-    protected ?string $referencedId = null;
-
     protected ?string $label = null;
 
     protected int $quantity;
-
-    protected string $type;
 
     protected ?PriceDefinitionInterface $priceDefinition = null;
 
@@ -75,23 +73,37 @@ class LineItem extends Struct
     protected ?string $dataContextHash = null;
 
     /**
+     * Used as a unique id to identify a line item over multiple nested levels
+     */
+    protected string $uniqueIdentifier;
+
+    /**
      * @var array<int, string>
      */
     protected array $states = [];
 
+    protected bool $modifiedByApp = false;
+
+    /**
+     * @var array<string, bool>
+     */
+    private array $payloadProtection = [];
+
     /**
      * @throws CartException
      */
-    public function __construct(string $id, string $type, ?string $referencedId = null, int $quantity = 1)
-    {
-        $this->id = $id;
-        $this->type = $type;
+    public function __construct(
+        protected string $id,
+        protected string $type,
+        protected ?string $referencedId = null,
+        int $quantity = 1
+    ) {
+        $this->uniqueIdentifier = Uuid::randomHex();
         $this->children = new LineItemCollection();
 
         if ($quantity < 1) {
             throw CartException::invalidQuantity($quantity);
         }
-        $this->referencedId = $referencedId;
         $this->quantity = $quantity;
     }
 
@@ -103,7 +115,7 @@ class LineItem extends Struct
         $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         foreach (get_object_vars($lineItem) as $property => $value) {
-            $self->$property = $value;
+            $self->$property = $value; /* @phpstan-ignore-line */
         }
 
         return $self;
@@ -222,31 +234,50 @@ class LineItem extends Struct
             throw CartException::payloadKeyNotFound($key, $this->getId());
         }
         unset($this->payload[$key]);
+        unset($this->payloadProtection[$key]);
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protected will be added in v6.6.0
+     *
      * @param mixed|null $value
      *
      * @throws CartException
      */
-    public function setPayloadValue(string $key, $value): self
+    public function setPayloadValue(string $key, $value/* , ?bool $protected = null */): self
     {
+        $protected = false;
+        if (\func_num_args() === 3) {
+            $protected = func_get_arg(2);
+        }
+
         if ($value !== null && !\is_scalar($value) && !\is_array($value)) {
             throw CartException::invalidPayload($key, $this->getId());
         }
 
         $this->payload[$key] = $value;
 
+        if ($protected !== null) {
+            $this->addPayloadProtection([$key => $protected]);
+        }
+
         return $this;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     *
      * @param array<string, mixed> $payload
      *
      * @throws CartException
      */
-    public function setPayload(array $payload): self
+    public function setPayload(array $payload/* , array $protection = [] */): self
     {
+        $protection = [];
+        if (\func_num_args() === 2) {
+            $protection = func_get_arg(1);
+        }
+
         foreach ($payload as $key => $value) {
             if (\is_string($key)) {
                 $this->setPayloadValue($key, $value);
@@ -257,17 +288,39 @@ class LineItem extends Struct
             throw CartException::invalidPayload((string) $key, $this->getId());
         }
 
+        return $this->addPayloadProtection($protection);
+    }
+
+    /**
+     * @param array<string, bool> $protection
+     */
+    public function addPayloadProtection(array $protection): self
+    {
+        $this->payloadProtection = \array_replace($this->payloadProtection, $protection);
+
         return $this;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     * @deprecated tag:v6.6.0 - reason:behavior-change - The method will replace recursively anymore but only on the first level
+     *
      * @param array<string, mixed> $payload
      */
-    public function replacePayload(array $payload): self
+    public function replacePayload(array $payload/* , array $protection = [] */): self
     {
-        $this->payload = array_replace_recursive($this->payload, $payload);
+        $protection = [];
+        if (\func_num_args() === 2) {
+            $protection = func_get_arg(1);
+        }
 
-        return $this;
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->payload = \array_replace($this->payload, $payload);
+        } else {
+            $this->payload = \array_replace_recursive($this->payload, $payload);
+        }
+
+        return $this->addPayloadProtection($protection);
     }
 
     public function getPriceDefinition(): ?PriceDefinitionInterface
@@ -473,6 +526,11 @@ class LineItem extends Struct
         $this->dataContextHash = $dataContextHash;
     }
 
+    public function getUniqueIdentifier(): string
+    {
+        return $this->uniqueIdentifier;
+    }
+
     /**
      * @return array<int, string>
      */
@@ -494,6 +552,38 @@ class LineItem extends Struct
     public function hasState(string $state): bool
     {
         return \in_array($state, $this->states, true);
+    }
+
+    public function markUnModifiedByApp(): void
+    {
+        $this->modifiedByApp = false;
+    }
+
+    public function markModifiedByApp(): void
+    {
+        $this->modifiedByApp = true;
+    }
+
+    public function isModifiedByApp(): bool
+    {
+        return $this->modifiedByApp;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+
+        $payload = [];
+
+        foreach ($data['payload'] as $key => $value) {
+            if (isset($this->payloadProtection[$key]) && $this->payloadProtection[$key] === true) {
+                continue;
+            }
+            $payload[$key] = $value;
+        }
+        $data['payload'] = $payload;
+
+        return $data;
     }
 
     /**

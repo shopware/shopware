@@ -10,15 +10,15 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 
 /**
- * @package core
- *
  * @internal
  *
  * @implements Rule<StaticCall>
  */
+#[Package('core')]
 class NoEnvironmentHelperInsideCompilerPassRule implements Rule
 {
     public function getNodeType(): string

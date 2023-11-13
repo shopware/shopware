@@ -47,7 +47,7 @@ class TokenFilterTest extends TestCase
     /**
      * @return array<array{list<string>, list<string>, list<string>}>
      */
-    public function cases(): array
+    public static function cases(): array
     {
         return [
             [
@@ -101,7 +101,7 @@ class TokenFilterTest extends TestCase
         $this->connection->executeStatement(
             'UPDATE `product_search_config` SET `excluded_terms` = :excludedTerms WHERE `language_id` = UNHEX(:id)',
             [
-                'excludedTerms' => json_encode($excludedTerms),
+                'excludedTerms' => json_encode($excludedTerms, \JSON_THROW_ON_ERROR),
                 'id' => $this->context->getLanguageId(),
             ]
         );

@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
@@ -14,42 +15,26 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class FirstRunWizardSubscriber implements EventSubscriberInterface
 {
-    private ThemeService $themeService;
-
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private EntityRepository $themeRepository;
-
-    private EntityRepository $themeSalesChannelRepository;
-
-    private EntityRepository $salesChannelRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        ThemeService $themeService,
-        ThemeLifecycleService $themeLifecycleService,
-        EntityRepository $themeRepository,
-        EntityRepository $themeSalesChannelRepository,
-        EntityRepository $salesChannelRepository
+        private readonly ThemeService $themeService,
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly EntityRepository $themeRepository,
+        private readonly EntityRepository $themeSalesChannelRepository,
+        private readonly EntityRepository $salesChannelRepository
     ) {
-        $this->themeService = $themeService;
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->themeRepository = $themeRepository;
-        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
-        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FirstRunWizardFinishedEvent::class => 'frwFinished',
@@ -67,11 +52,11 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
 
         $this->themeLifecycleService->refreshThemes($context);
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('salesChannels');
-        $criteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
+        $themeCriteria = new Criteria();
+        $themeCriteria->addAssociation('salesChannels');
+        $themeCriteria->addFilter(new EqualsFilter('technicalName', 'Storefront'));
         /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
+        $theme = $this->themeRepository->search($themeCriteria, $context)->first();
         if (!$theme) {
             throw new \RuntimeException('Default theme not found');
         }
@@ -82,9 +67,9 @@ class FirstRunWizardSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
-        $salesChannelIds = $this->salesChannelRepository->search($criteria, $context)->getIds();
+        $salesChannelCriteria = new Criteria();
+        $salesChannelCriteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+        $salesChannelIds = $this->salesChannelRepository->search($salesChannelCriteria, $context)->getIds();
         foreach ($salesChannelIds as $id) {
             $this->themeService->compileTheme($id, $theme->getId(), $context);
             $this->themeSalesChannelRepository->upsert([[

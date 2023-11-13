@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Profiling\Integration;
 
+use Shopware\Core\Framework\Log\Package;
 use Tideways\Profiler;
 
 /**
- * @package core
- *
  * @internal experimental atm
  */
+#[Package('core')]
 class Tideways implements ProfilerInterface
 {
     private array $spans = [];

@@ -6,11 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -28,8 +27,11 @@ class BeforeLineItemQuantityChangedEvent implements ShopwareSalesChannelEvent
      */
     protected $salesChannelContext;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $salesChannelContext)
-    {
+    public function __construct(
+        LineItem $lineItem,
+        Cart $cart,
+        SalesChannelContext $salesChannelContext
+    ) {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;

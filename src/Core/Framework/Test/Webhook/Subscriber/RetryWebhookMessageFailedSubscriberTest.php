@@ -9,12 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber;
+use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
@@ -23,12 +23,12 @@ use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
  */
 class RetryWebhookMessageFailedSubscriberTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use GuzzleTestClientBehaviour;
+    use IntegrationTestBehaviour;
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
     }
@@ -52,7 +52,6 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],

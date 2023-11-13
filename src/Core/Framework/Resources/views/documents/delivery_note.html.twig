@@ -24,6 +24,10 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
 
 {% block document_recipient %}
+    {% if config.displayCompanyAddress and config.companyAddress is not empty %}
+        {{ config.companyAddress }}<br><br>
+    {% endif %}
+
     {% sw_include '@Framework/snippets/render.html.twig' with {
         format: deliveryAddress.country.translated.addressFormat,
         address: deliveryAddress

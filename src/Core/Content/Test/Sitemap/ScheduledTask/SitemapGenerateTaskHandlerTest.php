@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -22,15 +23,14 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class SitemapGenerateTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
     use SalesChannelFunctionalTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private SitemapGenerateTaskHandler $sitemapHandler;
 
@@ -40,7 +40,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
     private MockObject&MessageBusInterface $messageBusMock;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->messageBusMock = $this->createMock(MessageBusInterface::class);
@@ -118,10 +118,8 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
         $this->salesChannelRepository->delete($nonDefaults, Context::createDefaultContext());
 
-        $newSalesChannelId = Uuid::randomHex();
-        while ($newSalesChannelId < TestDefaults::SALES_CHANNEL) {
-            $newSalesChannelId = Uuid::randomHex();
-        }
+        // trick the sorting by making sure the new sales channel id is greater than the default sales channel id
+        $newSalesChannelId = substr_replace(TestDefaults::SALES_CHANNEL, 'f', 0, 1);
 
         $paymentMethod = $this->getAvailablePaymentMethod();
 

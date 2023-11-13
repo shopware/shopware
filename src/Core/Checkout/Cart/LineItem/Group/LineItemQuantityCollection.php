@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package checkout
- *
  * @extends Collection<LineItemQuantity>
  */
+#[Package('checkout')]
 class LineItemQuantityCollection extends Collection
 {
     /**

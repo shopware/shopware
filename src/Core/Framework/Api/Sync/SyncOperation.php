@@ -2,36 +2,26 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SyncOperation extends Struct
 {
-    public const ACTION_UPSERT = 'upsert';
-    public const ACTION_DELETE = 'delete';
-
-    protected string $entity;
-
-    /**
-     * @var array<int, mixed>
-     */
-    protected array $payload;
-
-    protected string $action;
-
-    protected string $key;
+    final public const ACTION_UPSERT = 'upsert';
+    final public const ACTION_DELETE = 'delete';
 
     /**
      * @param array<int, mixed> $payload
+     * @param array<int, mixed> $criteria
      */
-    public function __construct(string $key, string $entity, string $action, array $payload)
-    {
-        $this->entity = $entity;
-        $this->payload = $payload;
-        $this->action = $action;
-        $this->key = $key;
+    public function __construct(
+        protected string $key,
+        protected string $entity,
+        protected string $action,
+        protected array $payload,
+        protected array $criteria = []
+    ) {
     }
 
     public function getEntity(): string
@@ -100,5 +90,28 @@ class SyncOperation extends Struct
         }
 
         return $errors;
+    }
+
+    /**
+     * @internal used to replace payload in case of api shorthands (e.g. delete mappings with wild cards, etc)
+     *
+     * @param array<int, mixed> $payload
+     */
+    public function replacePayload(array $payload): void
+    {
+        $this->payload = $payload;
+    }
+
+    /**
+     * @return array<int, mixed> $criteria
+     */
+    public function getCriteria(): array
+    {
+        return $this->criteria;
+    }
+
+    public function hasCriteria(): bool
+    {
+        return !empty($this->criteria);
     }
 }

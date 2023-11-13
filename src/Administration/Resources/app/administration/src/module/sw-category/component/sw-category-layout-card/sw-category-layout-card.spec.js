@@ -14,19 +14,19 @@ async function createWrapper() {
         stubs: {
             'sw-button': {
                 template: '<button @click="$emit(`click`)"></button>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-cms-list-item': {
                 template: '<div class="sw-cms-list-item"></div>',
-                props: ['disabled']
+                props: ['disabled'],
             },
             'sw-card': true,
             'sw-icon': true,
         },
         mocks: {
             $route: {
-                params: {}
-            }
+                params: {},
+            },
         },
         provide: {
             cmsPageTypeService: {
@@ -34,15 +34,15 @@ async function createWrapper() {
                     return {
                         title: type,
                     };
-                }
-            }
+                },
+            },
         },
         propsData: {
             category: {
                 id: categoryId,
-                cmsPageId
-            }
-        }
+                cmsPageId,
+            },
+        },
     });
 }
 
@@ -134,7 +134,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         await wrapper.setProps({
             cmsPage: {
                 type: 'landingpage',
-            }
+            },
         });
 
         await flushPromises();
@@ -155,8 +155,8 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
             name: 'sw.cms.create',
             params: {
                 id: categoryId,
-                type: 'category'
-            }
+                type: 'category',
+            },
         });
     });
 

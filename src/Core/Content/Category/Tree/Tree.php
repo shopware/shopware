@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Category\Tree;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
+#[Package('inventory')]
 class Tree extends Struct
 {
     /**
@@ -20,8 +19,13 @@ class Tree extends Struct
      */
     protected $active;
 
-    public function __construct(?CategoryEntity $active, array $tree)
-    {
+    /**
+     * @param TreeItem[] $tree
+     */
+    public function __construct(
+        ?CategoryEntity $active,
+        array $tree
+    ) {
         $this->tree = $tree;
         $this->active = $active;
     }
@@ -45,11 +49,17 @@ class Tree extends Struct
         return \in_array($category->getId(), $ids, true);
     }
 
+    /**
+     * @return TreeItem[]
+     */
     public function getTree(): array
     {
         return $this->tree;
     }
 
+    /**
+     * @param TreeItem[] $tree
+     */
     public function setTree(array $tree): void
     {
         $this->tree = $tree;

@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
@@ -14,8 +14,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
-use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
@@ -44,6 +42,8 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
+use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -54,13 +54,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class ControllerRateLimiterTest extends TestCase
 {
-    use RateLimiterTestTrait;
     use CustomerTestTrait;
     use OrderFixture;
+    use RateLimiterTestTrait;
     use StorefrontControllerTestBehaviour;
 
     private Context $context;
@@ -87,7 +88,7 @@ class ControllerRateLimiterTest extends TestCase
         KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection();
@@ -183,7 +184,7 @@ class ControllerRateLimiterTest extends TestCase
     public function testAuthControllerLoginShowsRateLimit(): void
     {
         $loginRoute = $this->createMock(LoginRoute::class);
-        $loginRoute->method('login')->willThrowException(new CustomerAuthThrottledException(5));
+        $loginRoute->method('login')->willThrowException(CustomerException::customerAuthThrottledException(5));
 
         $controller = new AuthController(
             $this->getContainer()->get(AccountLoginPageLoader::class),
@@ -218,7 +219,7 @@ class ControllerRateLimiterTest extends TestCase
 
         $errorContent = $crawler->filterXPath('//form[@class="login-form"]//div[@class="alert-content"]')->text();
 
-        static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5]), $errorContent);
+        static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5], 'messages', 'en-GB'), $errorContent);
     }
 
     public function testFormControllerRateLimit(): void
@@ -259,7 +260,7 @@ class ControllerRateLimiterTest extends TestCase
             $this->getContainer()->get('promotion.repository'),
             $this->mockResetLimiter([
                 RateLimiter::GUEST_LOGIN => 1,
-            ], $this),
+            ]),
         );
 
         $order = $this->createCustomerWithOrder();
@@ -341,7 +342,7 @@ class ControllerRateLimiterTest extends TestCase
     private function createCustomerWithOrder(): OrderEntity
     {
         $orderId = Uuid::randomHex();
-        $customerId = $this->createCustomer('shopware', 'orderTest@example.com', true);
+        $customerId = $this->createCustomer('orderTest@example.com', true);
 
         $this->getContainer()->get('customer.repository')->update([
             [
@@ -363,6 +364,7 @@ class ControllerRateLimiterTest extends TestCase
         $order = $orderRepsitory->search(new Criteria([$orderId]), $this->context)->first();
 
         static::assertNotNull($order);
+        static::assertInstanceOf(OrderEntity::class, $order);
 
         return $order;
     }
@@ -373,6 +375,10 @@ class ControllerRateLimiterTest extends TestCase
         static::assertIsString($rawParams);
 
         \parse_str($rawParams, $params);
+
+        static::assertIsArray($params);
+        static::assertArrayHasKey($param, $params);
+        static::assertIsString($params[$param]);
 
         return $params[$param];
     }

@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
@@ -18,8 +18,8 @@ function getBlockData(position, id = '1a2b') {
         position,
         sectionPosition: 0,
         slots: [{
-            id: 'some-slot-id'
-        }]
+            id: 'some-slot-id',
+        }],
     };
 }
 
@@ -40,7 +40,7 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
         },
         update(el, binding) {
             el.setAttribute('tooltip-message', binding.value.message);
-        }
+        },
     });
 
     localStorage.clear();
@@ -54,9 +54,27 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
         state: {
             isSystemDefaultLanguage: true,
             currentPageType: 'product_list',
-            selectedBlock: {},
-            selectedSection: {}
-        }
+            selectedBlock: {
+                id: '1a2b',
+                sectionPosition: 'main',
+                type: 'foo-bar',
+                slots: [],
+                visibility: {
+                    desktop: true,
+                    tablet: true,
+                    mobile: true,
+                },
+            },
+            selectedSection: {
+                id: '1111',
+                blocks: [],
+                visibility: {
+                    desktop: true,
+                    tablet: true,
+                    mobile: true,
+                },
+            },
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-cms-sidebar'), {
@@ -71,27 +89,27 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                                 id: '1a2b',
                                 sectionPosition: 'main',
                                 type: 'foo-bar',
-                                slots: []
+                                slots: [],
                             },
                             {
                                 id: '3cd4',
                                 sectionPosition: 'sidebar',
                                 type: 'foo-bar',
-                                slots: []
+                                slots: [],
                             },
                             {
                                 id: '5ef6',
                                 sectionPosition: 'sidebar',
                                 type: 'foo-bar-removed',
-                                slots: []
+                                slots: [],
                             },
                             {
                                 id: '7gh8',
                                 sectionPosition: 'main',
                                 type: 'foo-bar-removed',
-                                slots: []
-                            }
-                        ])
+                                slots: [],
+                            },
+                        ]),
                     }),
                     new Entity('2222', 'section', {
                         type: 'sidebar',
@@ -99,23 +117,25 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                             id: 'abcd',
                             sectionPosition: 'main',
                             type: 'some-type',
-                            slots: []
-                        }])
-                    })
+                            slots: [],
+                        }]),
+                    }),
                 ],
-                type: 'product_list'
-            }
+                type: 'product_list',
+            },
         },
         stubs: {
             'sw-button': {
-                template: '<div class="sw-button" @click="$emit(`click`)"></div>'
+                template: '<div class="sw-button" @click="$emit(`click`)"></div>',
             },
             'sw-sidebar': true,
             'sw-sidebar-item': {
                 template: '<div class="sw-sidebar-item"><slot #default /></div>',
                 props: ['disabled'],
             },
-            'sw-sidebar-collapse': await Shopware.Component.build('sw-sidebar-collapse'),
+            'sw-sidebar-collapse': {
+                template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
+            },
             'sw-text-field': true,
             'sw-select-field': true,
             'sw-cms-block-config': true,
@@ -127,9 +147,11 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
             'sw-entity-single-select': true,
             'sw-modal': true,
             'sw-checkbox-field': true,
-            'sw-collapse': await Shopware.Component.build('sw-collapse'),
             'sw-icon': true,
-            'sw-cms-visibility-config': true
+            'sw-cms-visibility-config': {
+                template: '<div class="sw-cms-visibility-config"></div>',
+                props: ['visibility'],
+            },
         },
         provide: {
             repositoryFactory: {
@@ -139,16 +161,16 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                         mockCollection.add = function add(e) { this.push(e); };
                         return {
                             id: null,
-                            slots: mockCollection
+                            slots: mockCollection,
                         };
                     },
-                    save: () => {}
-                })
+                    save: () => {},
+                }),
             },
             cmsBlockFavorites: {
                 isFavorite() {
                     return false;
-                }
+                },
             },
             cmsService: {
                 getCmsBlockRegistry: () => {
@@ -164,25 +186,25 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                                 marginTop: '20px',
                                 marginLeft: '20px',
                                 marginRight: '20px',
-                                sizingMode: 'boxed'
+                                sizingMode: 'boxed',
                             },
                             slots: {
                                 image: {
                                     type: 'image',
                                     default: {
                                         config: {
-                                            displayMode: { source: 'static', value: 'standard' }
+                                            displayMode: { source: 'static', value: 'standard' },
                                         },
                                         data: {
-                                            media: { value: 'preview_mountain_large.jpg', source: 'default' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                                            media: { value: 'preview_mountain_large.jpg', source: 'default' },
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     };
                 },
-                isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType)
+                isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType),
             },
             cmsPageTypeService: {
                 getTypes: () => {
@@ -195,9 +217,9 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                     }, {
                         name: 'product_detail',
                     }];
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -215,11 +237,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('disable all sidebar items', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const sidebarItems = wrapper.findAll('.sw-sidebar-item');
-        expect(sidebarItems.length).toBe(5);
+        expect(sidebarItems).toHaveLength(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.props('disabled')).toBe(true);
@@ -230,7 +252,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = await createWrapper();
 
         const sidebarItems = wrapper.findAll('.sw-sidebar-item');
-        expect(sidebarItems.length).toBe(5);
+        expect(sidebarItems).toHaveLength(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.props('disabled')).toBe(false);
@@ -245,7 +267,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const blockDrag = {
             block: getBlockData(0, '1a2b'),
             sectionIndex: 0,
-            position: 0
+            position: 0,
         };
         const blockDrop = {
             block: getBlockData(3, '7gh8'),
@@ -269,11 +291,11 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         const blockDrag = {
             block: getBlockData(0, '1a2b'),
-            sectionIndex: 0
+            sectionIndex: 0,
         };
         const blockDrop = {
             block: getBlockData(2, '7gh8'),
-            sectionIndex: 1
+            sectionIndex: 1,
         };
 
         wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
@@ -292,7 +314,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         expect(Array.from(sections[0]._origin.blocks.getIds())).toStrictEqual(['3cd4', '5ef6', '7gh8']);
 
-        expect(blockDrag.block.sectionId).toEqual('2222');
+        expect(blockDrag.block.sectionId).toBe('2222');
     });
 
     it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', async () => {
@@ -368,8 +390,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await wrapper.setProps({
             page: {
                 ...wrapper.props().page,
-                type: 'product_detail'
-            }
+                type: 'product_detail',
+            },
         });
 
         await flushPromises();
@@ -388,8 +410,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await wrapper.setProps({
             page: {
                 ...wrapper.props().page,
-                type: 'page'
-            }
+                type: 'page',
+            },
         });
 
         const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
@@ -431,13 +453,41 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                     name: 'product_list_different_category',
                     category: 'product',
                     hidden: false,
-                }
-            }
+                },
+            },
         });
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.cmsBlocksBySelectedBlockCategory.map(block => block.name)).toStrictEqual(['product_list_block']);
+    });
+
+    it('should allow editing of the visibility setting of blocks', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.get('.sw-cms-sidebar__visibility-config-block').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        wrapper.get('.sw-cms-sidebar__visibility-config-block').vm.$emit('visibility-change', 'desktop', false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selectedBlock.visibility).toStrictEqual({
+            desktop: false,
+            tablet: true,
+            mobile: true,
+        });
+    });
+
+    it('should allow editing of the visibility setting of sections', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.get('.sw-cms-sidebar__visibility-config-section').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        wrapper.get('.sw-cms-sidebar__visibility-config-section').vm.$emit('visibility-change', 'desktop', false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selectedSection.visibility).toStrictEqual({
+            desktop: false,
+            tablet: true,
+            mobile: true,
+        });
     });
 
     it('should apply default data when dropping new elements', async () => {
@@ -455,7 +505,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                     marginTop: '20px',
                     marginLeft: '20px',
                     marginRight: '20px',
-                    sizingMode: 'boxed'
+                    sizingMode: 'boxed',
                 },
                 slots: {
                     image: {
@@ -464,16 +514,16 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                             config: {
                                 displayMode: {
                                     source: 'static',
-                                    value: 'standard'
-                                }
+                                    value: 'standard',
+                                },
                             },
                             data: {
-                                media: {}
-                            }
-                        }
-                    }
-                }
-            }
+                                media: {},
+                            },
+                        },
+                    },
+                },
+            },
         };
 
         const dropData = {
@@ -481,7 +531,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             section: {
                 position: 0,
             },
-            sectionPosition: 'main'
+            sectionPosition: 'main',
         };
 
         wrapper.vm.onBlockStageDrop(dragData, dropData);
@@ -499,29 +549,34 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
                     config: {
                         displayMode: {
                             source: 'static',
-                            value: 'standard'
+                            value: 'standard',
                         },
                         media: {
                             value: 'preview_mountain_large.jpg',
-                            source: 'default'
-                        }
+                            source: 'default',
+                        },
                     },
                     data: {
                         media: {
                             value: 'preview_mountain_large.jpg',
-                            source: 'default'
-                        }
-                    }
-                }
+                            source: 'default',
+                        },
+                    },
+                },
             ],
             type: 'image',
+            visibility: {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            },
             position: 0,
             sectionPosition: 'main',
             marginBottom: '20px',
             marginTop: '20px',
             marginLeft: '20px',
             marginRight: '20px',
-            sizingMode: 'boxed'
+            sizingMode: 'boxed',
         };
 
         expect(JSON.parse(JSON.stringify(wrapper.vm.page.sections[0].blocks[0]))).toStrictEqual(expectedData);

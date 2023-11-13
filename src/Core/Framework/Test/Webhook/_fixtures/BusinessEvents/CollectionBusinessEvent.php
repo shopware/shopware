@@ -14,14 +14,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
  */
 class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var TaxCollection
-     */
-    private $taxes;
-
-    public function __construct(TaxCollection $taxes)
+    public function __construct(private readonly TaxCollection $taxes)
     {
-        $this->taxes = $taxes;
     }
 
     public static function getAvailableData(): EventDataCollection
@@ -30,6 +24,9 @@ class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTes
             ->add('taxes', new EntityCollectionType(TaxDefinition::class));
     }
 
+    /**
+     * @return array<string, array<mixed>>
+     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         $taxes = [];
@@ -40,18 +37,13 @@ class CollectionBusinessEvent implements FlowEventAware, BusinessEventEncoderTes
                 '_uniqueIdentifier' => $tax->getId(),
                 'versionId' => null,
                 'name' => $tax->getName(),
-                'taxRate' => (int) $tax->getTaxRate(),
+                'taxRate' => $tax->getTaxRate(),
                 'position' => $tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED),
+                'createdAt' => $tax->getCreatedAt() ? $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [
-                    'foreignKeys' => [
-                        'extensions' => [],
-                        'apiAlias' => null,
-                    ],
-                ],
+                'extensions' => [],
                 'apiAlias' => 'tax',
             ];
         }

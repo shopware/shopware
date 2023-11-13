@@ -4,7 +4,7 @@ import errorConfig from '../../error-config.json';
 import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin, Defaults } = Shopware;
@@ -44,15 +44,15 @@ export default {
 
     computed: {
         hasActionSlot() {
-            return !!this.$slots.actions;
+            return !!this.$slots.actions?.[0];
         },
 
         hasAdditionalDataSlot() {
-            return !!this.$slots['data-additional'];
+            return !!this.$slots['data-additional']?.[0];
         },
 
         hasSummarySlot() {
-            return !!this.$slots.summary;
+            return !!this.$slots.summary?.[0];
         },
 
         moduleColor() {
@@ -81,7 +81,10 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer, 'company']),
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
 
         accountTypeOptions() {
             return [{
@@ -93,6 +96,21 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+    },
+
+    watch: {
+        'customer.accountType'(value) {
+            if (value === CUSTOMER.ACCOUNT_TYPE_BUSINESS || !this.customerCompanyError) {
+                return;
+            }
+
+            Shopware.State.dispatch(
+                'error/removeApiError',
+                {
+                    expression: `customer.${this.customer.id}.company`,
+                },
+            );
         },
     },
 

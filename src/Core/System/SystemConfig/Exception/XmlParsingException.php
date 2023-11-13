@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\System\SystemConfig\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class XmlParsingException extends ShopwareHttpException
 {
-    public function __construct(string $xmlFile, string $message)
-    {
+    public function __construct(
+        string $xmlFile,
+        string $message
+    ) {
         parent::__construct(
             'Unable to parse file "{{ file }}". Message: {{ message }}',
             ['file' => $xmlFile, 'message' => $message]

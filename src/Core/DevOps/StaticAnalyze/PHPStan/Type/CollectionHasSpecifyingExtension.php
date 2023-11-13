@@ -10,14 +10,15 @@ use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
+use PHPStan\Type\NullType;
 use PHPStan\Type\TypeCombinator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     private TypeSpecifier $typeSpecifier;
@@ -30,20 +31,28 @@ class CollectionHasSpecifyingExtension implements MethodTypeSpecifyingExtension,
     public function isMethodSupported(MethodReflection $methodReflection, MethodCall $node, TypeSpecifierContext $context): bool
     {
         return (
-                $methodReflection->getDeclaringClass()->getName() === Collection::class
-                || $methodReflection->getDeclaringClass()->isSubclassOf(Collection::class)
-            )
-            && $methodReflection->getName() === 'has' && $context->truthy();
+            $methodReflection->getDeclaringClass()->getName() === Collection::class
+            || $methodReflection->getDeclaringClass()->isSubclassOf(Collection::class)
+        )
+            && $methodReflection->getName() === 'has' && !$context->null();
     }
 
     public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
     {
         $getExpr = new MethodCall($node->var, 'get', $node->args);
 
-        return $this->typeSpecifier->create(
+        $getterTypes = $this->typeSpecifier->create(
             $getExpr,
             TypeCombinator::removeNull($scope->getType($getExpr)),
             $context
+        );
+
+        return $getterTypes->unionWith(
+            $this->typeSpecifier->create(
+                $getExpr,
+                new NullType(),
+                $context->negate()
+            )
         );
     }
 

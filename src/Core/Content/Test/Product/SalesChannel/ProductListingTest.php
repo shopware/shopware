@@ -4,16 +4,14 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
-use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Content\Test\Product\SalesChannel\Fixture\ListingTestData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -23,46 +21,26 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class ProductListingTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var string
-     */
-    private $categoryId;
+    private string $categoryId;
 
-    /**
-     * @var ListingTestData
-     */
-    private $testData;
+    private ListingTestData $testData;
 
-    /**
-     * @var string
-     */
-    private $categoryStreamId;
+    private string $categoryStreamId;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var string
-     */
-    private $productIdWidth100;
+    private string $productIdWidth100;
 
-    /**
-     * @var string
-     */
-    private $productIdWidth150;
+    private string $productIdWidth150;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private string $salesChannelId;
 
     protected function setUp(): void
     {
@@ -100,17 +78,18 @@ class ProductListingTest extends TestCase
             ->get(ProductListingRoute::class)
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
+        $products = $listing->getEntities();
 
-        static::assertSame(10, $listing->getTotal());
-        static::assertFalse($listing->has($this->testData->getId('product1')));
+        static::assertCount(10, $products);
+        static::assertFalse($products->has($this->testData->getId('product1')));
 
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product1-red-l-steel'),
             $this->testData->getId('product1-red-xl-steel'),
             $this->testData->getId('product1-red-l-iron'),
             $this->testData->getId('product1-red-xl-iron'),
         ]);
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product1-green-l-steel'),
             $this->testData->getId('product1-green-xl-steel'),
             $this->testData->getId('product1-green-l-iron'),
@@ -118,40 +97,40 @@ class ProductListingTest extends TestCase
         ]);
 
         // product 2 should display only the both color variants
-        static::assertFalse($listing->has($this->testData->getId('product2')));
-        static::assertTrue($listing->has($this->testData->getId('product2-green')));
-        static::assertTrue($listing->has($this->testData->getId('product2-red')));
+        static::assertFalse($products->has($this->testData->getId('product2')));
+        static::assertTrue($products->has($this->testData->getId('product2-green')));
+        static::assertTrue($products->has($this->testData->getId('product2-red')));
 
         // product 3 has no variants
-        static::assertTrue($listing->has($this->testData->getId('product3')));
+        static::assertTrue($products->has($this->testData->getId('product3')));
 
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product4-red-l-iron'),
             $this->testData->getId('product4-red-xl-iron'),
         ]);
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product4-red-l-steel'),
             $this->testData->getId('product4-red-xl-steel'),
         ]);
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product4-green-l-iron'),
             $this->testData->getId('product4-green-xl-iron'),
         ]);
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product4-green-l-steel'),
             $this->testData->getId('product4-green-xl-steel'),
         ]);
 
-        self::assertVariationsInListing($listing, [
+        self::assertVariationsInListing($products, [
             $this->testData->getId('product5-red'),
             $this->testData->getId('product5-green'),
         ]);
 
-        /** @var EntityResult $result */
         $result = $listing->getAggregations()->get('properties');
+        static::assertInstanceOf(EntityResult::class, $result);
 
-        /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
+        static::assertInstanceOf(PropertyGroupCollection::class, $options);
         $ids = array_keys($options->getOptionIdMap());
 
         static::assertContains($this->testData->getId('green'), $ids);
@@ -224,13 +203,12 @@ class ProductListingTest extends TestCase
             ->load($this->categoryId, $request, $context, new Criteria())
             ->getResult();
 
-        /** @var EntityResult $result */
+        /** @var EntityResult<PropertyGroupCollection> $result */
         $result = $listing->getAggregations()->get('properties');
-
         $propertyGroups = $result->getEntities();
+
         $propertyGroupIds = [];
 
-        /** @var PropertyGroupEntity $propertyGroup */
         foreach ($propertyGroups as $propertyGroup) {
             $propertyGroupIds[] = $propertyGroup->getId();
         }
@@ -246,7 +224,7 @@ class ProductListingTest extends TestCase
      *
      * @param array<string> $pool
      */
-    private static function assertVariationsInListing(EntitySearchResult $result, array $pool): void
+    private static function assertVariationsInListing(ProductCollection $result, array $pool): void
     {
         $match = null;
         // find matching id
@@ -370,9 +348,7 @@ class ProductListingTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static function ($id) {
-                        return ['id' => $id];
-                    }, $combination),
+                    'options' => array_map(static fn ($id) => ['id' => $id], $combination),
                 ];
             }
         }
@@ -447,9 +423,7 @@ class ProductListingTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repo */
-        $repo = $this->getContainer()->get('property_group.repository');
-        $repo->create($data, Context::createDefaultContext());
+        $this->getContainer()->get('property_group.repository')->create($data, Context::createDefaultContext());
     }
 
     private function createTestProductStreamEntity(string $categoryStreamId): void

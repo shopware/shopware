@@ -7,26 +7,34 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\Exception\StorefrontException;
+use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\Attribute\Required;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 abstract class StorefrontController extends AbstractController
 {
     public const SUCCESS = 'success';
@@ -34,11 +42,27 @@ abstract class StorefrontController extends AbstractController
     public const INFO = 'info';
     public const WARNING = 'warning';
 
-    private Environment $twig;
+    private ?Environment $twig = null;
 
+    #[Required]
     public function setTwig(Environment $twig): void
     {
         $this->twig = $twig;
+    }
+
+    public static function getSubscribedServices(): array
+    {
+        $services = parent::getSubscribedServices();
+
+        $services['event_dispatcher'] = EventDispatcherInterface::class;
+        $services[SystemConfigService::class] = SystemConfigService::class;
+        $services[TemplateFinder::class] = TemplateFinder::class;
+        $services[SeoUrlPlaceholderHandlerInterface::class] = SeoUrlPlaceholderHandlerInterface::class;
+        $services[ScriptExecutor::class] = ScriptExecutor::class;
+        $services['translator'] = TranslatorInterface::class;
+        $services[RequestTransformerInterface::class] = RequestTransformerInterface::class;
+
+        return $services;
     }
 
     /**
@@ -64,16 +88,14 @@ abstract class StorefrontController extends AbstractController
             IconCacheTwigFilter::enable();
         }
 
-        $response = Profiler::trace('twig-rendering', function () use ($view, $event) {
-            return $this->render($view, $event->getParameters(), new StorefrontResponse());
-        });
+        $response = Profiler::trace('twig-rendering', fn () => $this->render($view, $event->getParameters(), new StorefrontResponse()));
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::disable();
         }
 
         if (!$response instanceof StorefrontResponse) {
-            throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
+            throw StorefrontException::unSupportStorefrontResponse();
         }
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
@@ -88,7 +110,7 @@ abstract class StorefrontController extends AbstractController
 
         $response->setData($parameters);
         $response->setContext($salesChannelContext);
-        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+
         $response->headers->set('Content-Type', 'text/html');
 
         return $response;
@@ -196,8 +218,8 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getMainRequest();
         $exists = [];
 
-        if ($request && $request->hasSession() && method_exists($session = $request->getSession(), 'getFlashBag')) {
-            $exists = $session->getFlashBag()->peekAll();
+        if ($request && $request->hasSession() && $request->getSession() instanceof FlashBagAwareSessionInterface) {
+            $exists = $request->getSession()->getFlashBag()->peekAll();
         }
 
         $flat = [];
@@ -235,17 +257,30 @@ abstract class StorefrontController extends AbstractController
     /**
      * @param array<string, mixed> $parameters
      */
+    protected function redirectToRoute(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
+    {
+        $event = new StorefrontRedirectEvent($route, $parameters, $status);
+        $this->container->get('event_dispatcher')->dispatch($event);
+
+        return parent::redirectToRoute($event->getRoute(), $event->getParameters(), $event->getStatus());
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
     protected function renderView(string $view, array $parameters = []): string
     {
         $view = $this->getTemplateFinder()->find($view);
 
-        if (isset($this->twig)) {
-            return $this->twig->render($view, $parameters);
+        if ($this->twig !== null) {
+            try {
+                return $this->twig->render($view, $parameters);
+            } catch (LoaderError|RuntimeError|SyntaxError $e) {
+                throw StorefrontException::cannotRenderView($view, $e->getMessage(), $parameters);
+            }
         }
 
-        throw new \Exception(
-            sprintf('Class %s does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', static::class)
-        );
+        throw StorefrontException::dontHaveTwigInjected(static::class);
     }
 
     protected function getTemplateFinder(): TemplateFinder

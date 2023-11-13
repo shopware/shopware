@@ -5,20 +5,15 @@ namespace Shopware\Core\System\SalesChannel\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContextRestorerOrderCriteriaEvent extends NestedEvent
 {
-    protected Context $context;
-
-    protected Criteria $criteria;
-
-    public function __construct(Criteria $criteria, Context $context)
-    {
-        $this->context = $context;
-        $this->criteria = $criteria;
+    public function __construct(
+        protected Criteria $criteria,
+        protected Context $context
+    ) {
     }
 
     public function getContext(): Context

@@ -26,7 +26,7 @@ class PriceFieldSerializerTest extends TestCase
 
     protected PriceFieldSerializer $serializer;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->serializer = $this->getContainer()->get(PriceFieldSerializer::class);
     }
@@ -304,7 +304,7 @@ class PriceFieldSerializerTest extends TestCase
     private function encode(array $data): string
     {
         $field = new PriceField('test', 'test');
-        $existence = new EntityExistence('test', ['someId'], true, false, false, []);
+        $existence = new EntityExistence('test', ['someId' => true], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
             $this->getContainer()->get(ProductDefinition::class),

@@ -5,25 +5,18 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartVerifyPersistEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected SalesChannelContext $context;
-
-    protected Cart $cart;
-
-    protected bool $shouldPersist;
-
-    public function __construct(SalesChannelContext $context, Cart $cart, bool $shouldPersist)
-    {
-        $this->context = $context;
-        $this->cart = $cart;
-        $this->shouldPersist = $shouldPersist;
+    public function __construct(
+        protected SalesChannelContext $context,
+        protected Cart $cart,
+        protected bool $shouldPersist
+    ) {
     }
 
     public function getContext(): Context

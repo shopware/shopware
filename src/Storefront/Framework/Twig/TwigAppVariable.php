@@ -2,39 +2,33 @@
 
 namespace Shopware\Storefront\Framework\Twig;
 
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Bridge\Twig\AppVariable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @package core
- *
  * To allow custom server parameters,
  */
+#[Package('core')]
 class TwigAppVariable extends AppVariable
 {
     private ?Request $request = null;
-
-    private AppVariable $appVariable;
-
-    /**
-     * @var list<string>
-     */
-    private array $allowList;
 
     /**
      * @internal
      *
      * @param list<string> $allowList
      */
-    public function __construct(AppVariable $appVariable, array $allowList = [])
-    {
-        $this->allowList = $allowList;
-        $this->appVariable = $appVariable;
+    public function __construct(
+        private readonly AppVariable $appVariable,
+        private readonly array $allowList = []
+    ) {
     }
 
     public function getRequest(): ?Request
@@ -46,7 +40,7 @@ class TwigAppVariable extends AppVariable
         $request = $this->appVariable->getRequest();
 
         if ($request === null) {
-            throw new \RuntimeException('The "app.request" variable is not available.');
+            throw StorefrontFrameworkException::appRequestNotAvailable();
         }
 
         $clonedRequest = clone $request;
@@ -94,7 +88,7 @@ class TwigAppVariable extends AppVariable
         return $this->appVariable->getUser();
     }
 
-    public function getSession(): ?Session
+    public function getSession(): ?SessionInterface
     {
         return $this->appVariable->getSession();
     }

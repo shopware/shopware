@@ -8,17 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CountrySerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $countryRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -27,9 +24,8 @@ class CountrySerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $countryRepository)
+    public function __construct(private readonly EntityRepository $countryRepository)
     {
-        $this->countryRepository = $countryRepository;
     }
 
     /**

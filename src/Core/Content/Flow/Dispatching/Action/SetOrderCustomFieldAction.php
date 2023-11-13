@@ -10,29 +10,26 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 {
     use CustomFieldActionTrait;
 
-    private Connection $connection;
-
-    private EntityRepository $orderRepository;
+    private readonly Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
         Connection $connection,
-        EntityRepository $orderRepository
+        private readonly EntityRepository $orderRepository
     ) {
         $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
     }
 
     public static function getName(): string
@@ -50,11 +47,11 @@ class SetOrderCustomFieldAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**

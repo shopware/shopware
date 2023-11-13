@@ -4,6 +4,7 @@ namespace Shopware\Core\Maintenance\System\Command;
 
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
@@ -16,20 +17,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'system:install',
     description: 'Installs the Shopware 6 system',
 )]
+#[Package('core')]
 class SystemInstallCommand extends Command
 {
     public function __construct(
-        private string $projectDir,
-        private SetupDatabaseAdapter $setupDatabaseAdapter,
-        private DatabaseConnectionFactory $databaseConnectionFactory
+        private readonly string $projectDir,
+        private readonly SetupDatabaseAdapter $setupDatabaseAdapter,
+        private readonly DatabaseConnectionFactory $databaseConnectionFactory
     ) {
         parent::__construct();
     }
@@ -179,22 +179,29 @@ class SystemInstallCommand extends Command
     private function runCommands(array $commands, OutputInterface $output): int
     {
         $application = $this->getApplication();
-        if ($application === null) {
-            throw new \RuntimeException('No application initialised');
-        }
 
+        \assert($application !== null);
+
+        return $this->runCommandByApplication($application, $commands, $output);
+    }
+
+    /**
+     * @param array<int, array<string, string|bool|null>> $commands
+     */
+    private function runCommandByApplication(Application $application, array $commands, OutputInterface $output): int
+    {
         foreach ($commands as $parameters) {
             // remove params with null value
             $parameters = array_filter($parameters);
 
             $output->writeln('');
 
-            $command = $application->find((string) $parameters['command']);
             $allowedToFail = $parameters['allowedToFail'] ?? false;
-            unset($parameters['command'], $parameters['allowedToFail']);
+            unset($parameters['allowedToFail']);
 
             try {
-                $returnCode = $command->run(new ArrayInput($parameters, $command->getDefinition()), $output);
+                $returnCode = $application->doRun(new ArrayInput($parameters), $output);
+
                 if ($returnCode !== 0 && !$allowedToFail) {
                     return $returnCode;
                 }

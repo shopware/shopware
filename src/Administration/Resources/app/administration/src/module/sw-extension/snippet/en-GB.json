@@ -75,6 +75,7 @@
       "messagePluginUpdateFailed": "The extension could not be updated: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Extension deactivated.",
       "messagePluginRequirementMismatch": "The extension has technical requirements that are not compatible with those of the installed Shopware version. Please contact the manufacturer.",
+      "appIsNotCompatible": "Extension \"{name}\" is not compatible with this Shopware version",
       "appLicenseCouldNotBeVerified": {
         "title": "The licence of this extension could not be verified",
         "message": "Ensure that your licence domain is set correctly and that you are logged in with your Shopware Account to which this extension is licensed.",
@@ -207,7 +208,7 @@
           "textProblem": "A problem occurred while installing your extension. We will inform the manufacturer.",
           "notificationLicense": "Please note that the subscription to this extension remains active.",
           "textSupport": "If you have any questions about the licence, please contact Shopware Financial Services. Available via email at {0} or via phone at {1}.",
-          "supportEmail": "financial.services@shopware.com",
+          "supportEmail": "financial.services{'@'}shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
         }
       },
@@ -226,8 +227,8 @@
           "labelRating": "No ratings | {numberOfRatings} rating | {numberOfRatings} ratings"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "By {author} on {lastChangeDate}",
-          "labelExtensionVersion": "Extension version {extensionVersion}"
+          "labelLastChangeDate": "{author}, {lastChangeDate}",
+          "labelExtensionVersion": "Version: {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Ratings and reviews",

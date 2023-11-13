@@ -17,7 +17,7 @@ class Migration1 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        //nth
+        // nth
     }
 
     public function updateDestructive(Connection $connection): void

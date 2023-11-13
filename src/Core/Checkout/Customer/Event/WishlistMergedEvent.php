@@ -4,12 +4,11 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
@@ -22,8 +21,10 @@ class WishlistMergedEvent extends Event implements ShopwareSalesChannelEvent
      */
     protected $context;
 
-    public function __construct(array $product, SalesChannelContext $context)
-    {
+    public function __construct(
+        array $product,
+        SalesChannelContext $context
+    ) {
         $this->products = $product;
         $this->context = $context;
     }

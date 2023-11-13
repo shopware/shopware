@@ -39,7 +39,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     private string $template2Id;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->templateRepository = $this->getContainer()->get('app_template.repository');
         $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
@@ -181,7 +181,6 @@ class EntityTemplateLoaderTest extends TestCase
                     'active' => true,
                     'integration' => [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'test',
                         'secretAccessKey' => 'test',
                     ],
@@ -204,7 +203,6 @@ class EntityTemplateLoaderTest extends TestCase
                     'active' => false,
                     'integration' => [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'test',
                         'secretAccessKey' => 'test',
                     ],

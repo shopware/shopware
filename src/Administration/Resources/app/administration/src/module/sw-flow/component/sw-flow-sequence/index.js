@@ -3,7 +3,7 @@ import './sw-flow-sequence.scss';
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -14,6 +14,11 @@ export default {
             required: true,
         },
         disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isUnknownTrigger: {
             type: Boolean,
             required: false,
             default: false,

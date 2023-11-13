@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
@@ -24,48 +26,19 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class AccountService
 {
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var LegacyPasswordVerifier
-     */
-    private $legacyPasswordVerifier;
-
-    /**
-     * @var AbstractSwitchDefaultAddressRoute
-     */
-    private $switchDefaultAddressRoute;
-
-    private CartRestorer $restorer;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        LegacyPasswordVerifier $legacyPasswordVerifier,
-        AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        CartRestorer $restorer
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
+        private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
+        private readonly CartRestorer $restorer
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->legacyPasswordVerifier = $legacyPasswordVerifier;
-        $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
-        $this->restorer = $restorer;
     }
 
     /**
@@ -95,7 +68,7 @@ class AccountService
     public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
         if (empty($email)) {
-            throw new BadCredentialsException();
+            throw CustomerException::badCredentials();
         }
 
         $event = new CustomerBeforeLoginEvent($context, $email);
@@ -117,7 +90,7 @@ class AccountService
     public function loginById(string $id, SalesChannelContext $context): string
     {
         if (!Uuid::isValid($id)) {
-            throw new BadCredentialsException();
+            throw CustomerException::badCredentials();
         }
 
         try {
@@ -143,7 +116,7 @@ class AccountService
 
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
-                throw new BadCredentialsException();
+                throw CustomerException::badCredentials();
             }
 
             $this->updatePasswordHash($password, $customer, $context->getContext());
@@ -153,12 +126,12 @@ class AccountService
 
         if ($customer->getPassword() === null
             || !password_verify($password, $customer->getPassword())) {
-            throw new BadCredentialsException();
+            throw CustomerException::badCredentials();
         }
 
         if (!$this->isCustomerConfirmed($customer)) {
             // Make sure to only throw this exception after it has been verified it was a valid login
-            throw new CustomerOptinNotCompletedException($customer->getId());
+            throw CustomerException::customerOptinNotCompleted($customer->getId());
         }
 
         return $customer;
@@ -197,7 +170,7 @@ class AccountService
 
         $customer = $this->fetchCustomer($criteria, $context, $includeGuest);
         if ($customer === null) {
-            throw new CustomerNotFoundException($email);
+            throw CustomerException::customerNotFound($email);
         }
 
         return $customer;
@@ -212,7 +185,7 @@ class AccountService
 
         $customer = $this->fetchCustomer($criteria, $context, true);
         if ($customer === null) {
-            throw new CustomerNotFoundByIdException($id);
+            throw CustomerException::customerNotFoundByIdException($id);
         }
 
         return $customer;
@@ -262,12 +235,15 @@ class AccountService
         // for guest accounts, real customer accounts should only occur once, otherwise the
         // wrong password will be validated
         if ($result->count() > 1) {
-            $result->sort(function (CustomerEntity $a, CustomerEntity $b) {
-                return ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1;
-            });
+            $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
         }
 
-        return $result->first();
+        $customer = $result->first();
+        if (!$customer instanceof CustomerEntity) {
+            return null;
+        }
+
+        return $customer;
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void

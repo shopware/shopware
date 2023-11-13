@@ -2,20 +2,20 @@
 
 namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package customer-order
- */
+#[Package('buyers-experience')]
 class CustomerNewsletterSalesChannelsUpdater
 {
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -83,7 +83,7 @@ SQL;
             $this->connection->executeStatement(
                 $resetSql,
                 $parameters,
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -91,7 +91,7 @@ SQL;
             $this->connection->executeStatement(
                 $sql,
                 $parameters,
-                ['ids' => Connection::PARAM_STR_ARRAY, 'states' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::BINARY, 'states' => ArrayParameterType::STRING]
             );
         });
     }
@@ -122,9 +122,7 @@ SQL;
             $sqlTemplate
         );
 
-        $customerIds = RetryableQuery::retryable($this->connection, function () use ($sql): array {
-            return $this->connection->fetchFirstColumn($sql);
-        });
+        $customerIds = RetryableQuery::retryable($this->connection, fn (): array => $this->connection->fetchFirstColumn($sql));
 
         if (empty($customerIds)) {
             return;
@@ -143,7 +141,7 @@ SQL;
         $customers = $this->connection->fetchAllAssociative(
             'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $parameters = [];
@@ -155,7 +153,7 @@ SQL;
 
             $parameters[] = [
                 'newsletter_ids' => array_keys(
-                    json_decode((string) $customer['newsletter_sales_channel_ids'], true)
+                    json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR)
                 ),
                 'email' => $customer['email'],
                 'first_name' => $customer['first_name'],
@@ -177,7 +175,7 @@ SQL;
                         'firstName' => $parameter['first_name'],
                         'lastName' => $parameter['last_name'],
                     ],
-                    ['ids' => Connection::PARAM_STR_ARRAY],
+                    ['ids' => ArrayParameterType::BINARY],
                 );
             });
         }

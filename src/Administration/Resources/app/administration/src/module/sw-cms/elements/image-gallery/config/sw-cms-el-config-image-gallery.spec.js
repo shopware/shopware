@@ -1,27 +1,29 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigImageGallery from 'src/module/sw-cms/elements/image-gallery/config';
 import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
+import swMediaListSelectionV2 from 'src/app/asyncComponent/media/sw-media-list-selection-v2';
 
 Shopware.Component.register('sw-cms-el-config-image-gallery', swCmsElConfigImageGallery);
 Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
+Shopware.Component.register('sw-media-list-selection-v2', swMediaListSelectionV2);
 
 const mediaDataMock = [
     {
         media: {
             id: '1',
-            url: 'http://shopware.com/image1.jpg'
-        }
+            url: 'http://shopware.com/image1.jpg',
+        },
     },
     {
         media: {
             id: '2',
-            url: 'http://shopware.com/image2.jpg'
-        }
-    }
+            url: 'http://shopware.com/image2.jpg',
+        },
+    },
 ];
 
 async function createWrapper(activeTab = 'content') {
@@ -33,99 +35,124 @@ async function createWrapper(activeTab = 'content') {
                 },
                 getCmsElementRegistry: () => {
                     return { 'image-gallery': {} };
-                }
+                },
             },
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(mediaDataMock)
+                        search: () => Promise.resolve(mediaDataMock),
                     };
-                }
-            }
+                },
+            },
+            mediaService: {},
         },
         stubs: {
             'sw-tabs': {
                 data() {
                     return { active: activeTab };
                 },
-                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>'
+                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
             },
             'sw-tabs-item': true,
             'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
             'sw-media-modal-v2': true,
-            'sw-media-list-selection-v2': true,
+            'sw-media-list-selection-v2': await Shopware.Component.build('sw-media-list-selection-v2'),
             'sw-field': true,
             'sw-switch-field': true,
             'sw-select-field': {
                 // eslint-disable-next-line max-len
                 template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options']
+                props: ['value', 'options'],
             },
             'sw-text-field': true,
             'sw-alert': true,
-            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field')
+            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
+            'sw-upload-listener': true,
+            'sw-media-upload-v2': true,
+            'sw-media-list-selection-item-v2': {
+                template: '<div class="sw-media-item">{{item.id}}</div>',
+                props: ['item'],
+            },
         },
         propsData: {
             element: {
                 config: {
                     sliderItems: {
                         source: 'static',
-                        value: []
+                        value: [],
                     },
                     navigationArrows: {
                         source: 'static',
-                        value: 'inside'
+                        value: 'inside',
                     },
                     navigationDots: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     galleryPosition: {
                         source: 'static',
-                        value: 'left'
+                        value: 'left',
                     },
                     displayMode: {
                         source: 'static',
-                        value: 'standard'
+                        value: 'standard',
                     },
                     minHeight: {
                         source: 'static',
-                        value: '340px'
+                        value: '340px',
                     },
                     verticalAlign: {
                         source: 'static',
-                        value: null
+                        value: null,
                     },
                     zoom: {
                         source: 'static',
-                        value: false
+                        value: false,
                     },
                     fullScreen: {
                         source: 'static',
-                        value: false
+                        value: false,
                     },
                     keepAspectRatioOnZoom: {
                         source: 'static',
-                        value: true
+                        value: true,
                     },
                     magnifierOverGallery: {
                         source: 'static',
-                        value: false
-                    }
+                        value: false,
+                    },
                 },
-                data: {}
+                data: {},
             },
-            defaultConfig: {}
+            defaultConfig: {},
         },
         data() {
             return {
                 cmsPageState: {
                     currentPage: {
-                        type: 'ladingpage'
-                    }
-                }
+                        type: 'ladingpage',
+                    },
+                },
+                mediaItems: [
+                    {
+                        id: '0',
+                        position: 0,
+                    },
+                    {
+                        id: '1',
+                        position: 1,
+                    },
+                    {
+                        id: '2',
+                        position: 2,
+                    },
+                    {
+                        id: '3',
+                        position: 3,
+                    },
+                ],
             };
-        }
+        },
     });
 }
 
@@ -135,20 +162,20 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
             namespaced: true,
             state: {
                 currentMappingTypes: {},
-                currentDemoEntity: null
+                currentDemoEntity: null,
             },
             mutations: {
                 setCurrentDemoEntity(state, entity) {
                     state.currentDemoEntity = entity;
-                }
-            }
+                },
+            },
         });
     });
 
     it('should media selection if sliderItems config source is static', async () => {
         const wrapper = await createWrapper();
 
-        const mediaList = wrapper.find('sw-media-list-selection-v2-stub');
+        const mediaList = wrapper.find('.sw-media-list-selection-v2');
         const mappingValue = wrapper.find('.sw-cms-mapping-field__mapping-value');
         const mappingPreview = wrapper.find('.sw-cms-mapping-field__preview');
 
@@ -165,11 +192,11 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
                 config: {
                     sliderItems: {
                         source: 'mapped',
-                        value: 'product.media'
-                    }
+                        value: 'product.media',
+                    },
                 },
-                data: {}
-            }
+                data: {},
+            },
         });
 
         const mediaList = wrapper.find('sw-media-list-selection-v2-stub');
@@ -193,5 +220,21 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
 
         // Should still have the previous value
         expect(wrapper.vm.element.config.minHeight.value).toBe('340px');
+    });
+
+    it('should sort the item list on drag and drop', async () => {
+        const wrapper = await createWrapper('content');
+
+        const mediaListSelectionV2Vm = wrapper.find('.sw-media-list-selection-v2').vm;
+        mediaListSelectionV2Vm.$emit('item-sort', mediaListSelectionV2Vm.mediaItems[1], mediaListSelectionV2Vm.mediaItems[2], true);
+        await wrapper.vm.$nextTick();
+
+        const items = wrapper.findAll('.sw-media-item');
+
+        expect(items).toHaveLength(4);
+        expect(items.at(0).text()).toBe('0');
+        expect(items.at(1).text()).toBe('2');
+        expect(items.at(2).text()).toBe('1');
+        expect(items.at(3).text()).toBe('3');
     });
 });

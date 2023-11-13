@@ -11,8 +11,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class MockThemeCompilerConcatenatedSubscriber implements EventSubscriberInterface
 {
-    public const STYLES_CONCAT = '.mock-selector {}';
-    public const SCRIPTS_CONCAT = 'console.log(\'bar\');';
+    final public const STYLES_CONCAT = '.mock-selector {}';
+    final public const SCRIPTS_CONCAT = 'console.log(\'bar\');';
 
     public static function getSubscribedEvents(): array
     {

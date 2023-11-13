@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -17,32 +18,24 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package checkout
+ * @final tag:v6.6.0
  */
+#[Package('checkout')]
 class LineItemFactoryRegistry
 {
-    /**
-     * @var LineItemFactoryInterface[]|iterable
-     */
-    private iterable $handlers;
-
-    private DataValidator $validator;
-
-    private DataValidationDefinition $validatorDefinition;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly DataValidationDefinition $validatorDefinition;
 
     /**
      * @param LineItemFactoryInterface[]|iterable $handlers
      *
      * @internal
      */
-    public function __construct(iterable $handlers, DataValidator $validator, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->handlers = $handlers;
-        $this->validator = $validator;
+    public function __construct(
+        private readonly iterable $handlers,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         $this->validatorDefinition = $this->createValidatorDefinition();
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -56,7 +49,7 @@ class LineItemFactoryRegistry
 
         $this->validate($data);
 
-        $handler = $this->getHandler($data['type']);
+        $handler = $this->getHandler($data['type'] ?? '');
 
         $lineItem = $handler->create($data, $context);
         $lineItem->markModified();
@@ -72,16 +65,24 @@ class LineItemFactoryRegistry
         $identifier = $data['id'];
 
         if (!$lineItem = $cart->getLineItems()->get($identifier)) {
-            throw CartException::lineItemNotFound($identifier);
+            throw CartException::lineItemNotFound($identifier ?? '');
         }
 
+        $this->updateLineItem($cart, $data, $lineItem, $context);
+    }
+
+    /**
+     * @param array<string|int, mixed> $data
+     */
+    public function updateLineItem(Cart $cart, array $data, LineItem $lineItem, SalesChannelContext $context): void
+    {
         if (!isset($data['type'])) {
             $data['type'] = $lineItem->getType();
         }
 
         $this->validate($data);
 
-        $handler = $this->getHandler($data['type']);
+        $handler = $this->getHandler($data['type'] ?? '');
 
         if (isset($data['quantity'])) {
             $lineItem->setQuantity($data['quantity']);

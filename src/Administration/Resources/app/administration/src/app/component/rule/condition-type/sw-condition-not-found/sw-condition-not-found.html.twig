@@ -11,7 +11,11 @@
 {% block sw_condition_value_content %}
 <div class="sw-condition-not-found">
     <sw-textarea-field
+        {% if VUE3 %}
+        v-model:value="value"
+        {% else %}
         v-model="value"
+        {% endif %}
         size="medium"
         :disabled="true"
     />

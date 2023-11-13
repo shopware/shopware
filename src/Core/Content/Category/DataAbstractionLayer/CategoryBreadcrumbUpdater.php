@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -11,30 +13,26 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
-/**
- * @package content
- */
+#[Package('inventory')]
 class CategoryBreadcrumbUpdater
 {
-    private Connection $connection;
-
-    private EntityRepository $categoryRepository;
-
-    private EntityRepository $languageRepository;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EntityRepository $categoryRepository, EntityRepository $languageRepository)
-    {
-        $this->connection = $connection;
-        $this->categoryRepository = $categoryRepository;
-        $this->languageRepository = $languageRepository;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityRepository $categoryRepository,
+        private readonly EntityRepository $languageRepository
+    ) {
     }
 
+    /**
+     * @param string[] $ids
+     */
     public function update(array $ids, Context $context): void
     {
         if (empty($ids)) {
@@ -49,7 +47,7 @@ class CategoryBreadcrumbUpdater
         $query->where('category.id IN (:ids)');
         $query->andWhere('category.version_id = :version');
         $query->setParameter('version', $versionId);
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
 
         $paths = $query->executeQuery()->fetchFirstColumn();
 
@@ -79,6 +77,10 @@ class CategoryBreadcrumbUpdater
         }
     }
 
+    /**
+     * @param string[] $ids
+     * @param string[] $all
+     */
     private function updateLanguage(array $ids, Context $context, array $all): void
     {
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
@@ -99,7 +101,7 @@ class CategoryBreadcrumbUpdater
         foreach ($ids as $id) {
             try {
                 $path = $this->buildBreadcrumb($id, $categories);
-            } catch (CategoryNotFoundException $e) {
+            } catch (CategoryNotFoundException) {
                 continue;
             }
 
@@ -107,17 +109,20 @@ class CategoryBreadcrumbUpdater
                 'categoryId' => Uuid::fromHexToBytes($id),
                 'versionId' => $versionId,
                 'languageId' => $languageId,
-                'breadcrumb' => json_encode($path),
+                'breadcrumb' => json_encode($path, \JSON_THROW_ON_ERROR),
             ]);
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function buildBreadcrumb(string $id, CategoryCollection $categories): array
     {
         $category = $categories->get($id);
 
         if (!$category) {
-            throw new CategoryNotFoundException($id);
+            throw CategoryException::categoryNotFound($id);
         }
 
         $breadcrumb = [];

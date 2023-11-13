@@ -2,42 +2,34 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
-use function preg_replace_callback;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
 {
-    public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
-
-    private RouterInterface $router;
-
-    private RequestStack $requestStack;
-
-    private Connection $connection;
+    final public const DOMAIN_PLACEHOLDER = '124c71d524604ccbad6042edce3ac799';
 
     /**
      * @internal
      */
     public function __construct(
-        RequestStack $requestStack,
-        RouterInterface $router,
-        Connection $connection
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly Connection $connection
     ) {
-        $this->router = $router;
-        $this->requestStack = $requestStack;
-        $this->connection = $connection;
     }
 
     /**
      * @param string $name
+     * @param array<string, string> $parameters
      */
     public function generate($name, array $parameters = []): string
     {
@@ -62,15 +54,18 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
                     $seoMapping[$key] = $host . '/' . ltrim($value, '/');
                 }
 
-                return (string) preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static function (array $match) use ($seoMapping) {
-                    return $seoMapping[$match[0]];
-                }, $content);
+                return (string) \preg_replace_callback('/' . self::DOMAIN_PLACEHOLDER . '[^#]*#/', static fn (array $match) => $seoMapping[$match[0]], $content);
             }
 
             return $content;
         });
     }
 
+    /**
+     * @param array<string, string> $matches
+     *
+     * @return array<string, string>
+     */
     private function createDefaultMapping(array $matches): array
     {
         $mapping = [];
@@ -78,40 +73,55 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         foreach ($matches as $match) {
             // remove self::DOMAIN_PLACEHOLDER from start
             // remove # from end
-            $mapping[$match] = substr($match, $placeholder, -1);
+            $mapping[$match] = substr((string) $match, $placeholder, -1);
         }
 
         return $mapping;
     }
 
+    /**
+     * @param array<string, string> $mapping
+     *
+     * @return array<string, string>
+     */
     private function createSeoMapping(SalesChannelContext $context, array $mapping): array
     {
         if (empty($mapping)) {
             return [];
         }
 
-        $query = $this->connection->createQueryBuilder();
-        $query->addSelect(['seo_path_info', 'path_info']);
+        $query = new QueryBuilder($this->connection);
+        $query->setTitle('seo_url::replacement');
+        $query->addSelect(['seo_path_info', 'path_info', 'sales_channel_id']);
 
         $query->from('seo_url');
         $query->andWhere('seo_url.is_canonical = 1');
         $query->andWhere('seo_url.path_info IN (:pathInfo)');
         $query->andWhere('seo_url.language_id = :languageId');
         $query->andWhere('seo_url.sales_channel_id = :salesChannelId OR seo_url.sales_channel_id IS NULL');
-        $query->andWhere('is_deleted = 0');
-        $query->setParameter('pathInfo', $mapping, Connection::PARAM_STR_ARRAY);
+        $query->andWhere('seo_url.is_deleted = 0');
+        $query->setParameter('pathInfo', $mapping, ArrayParameterType::STRING);
         $query->setParameter('languageId', Uuid::fromHexToBytes($context->getContext()->getLanguageId()));
         $query->setParameter('salesChannelId', Uuid::fromHexToBytes($context->getSalesChannelId()));
-        $query->addOrderBy('seo_url.sales_channel_id');
 
         $seoUrls = $query->executeQuery()->fetchAllAssociative();
+
+        $mapped = [];
+
         foreach ($seoUrls as $seoUrl) {
-            $seoPathInfo = trim($seoUrl['seo_path_info']);
+            $key = self::DOMAIN_PLACEHOLDER . $seoUrl['path_info'] . '#';
+
+            // prefer sales channel specific seo urls
+            if ($seoUrl['sales_channel_id'] === null && isset($mapped[$key])) {
+                continue;
+            }
+
+            $seoPathInfo = trim((string) $seoUrl['seo_path_info']);
             if ($seoPathInfo === '') {
                 continue;
             }
-            $key = self::DOMAIN_PLACEHOLDER . $seoUrl['path_info'] . '#';
             $mapping[$key] = $seoPathInfo;
+            $mapped[$key] = true;
         }
 
         return $mapping;

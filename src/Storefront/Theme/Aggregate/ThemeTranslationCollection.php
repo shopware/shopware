@@ -3,12 +3,12 @@
 namespace Shopware\Storefront\Theme\Aggregate;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @extends EntityCollection<ThemeTranslationEntity>
  */
+#[Package('storefront')]
 class ThemeTranslationCollection extends EntityCollection
 {
     /**
@@ -16,16 +16,12 @@ class ThemeTranslationCollection extends EntityCollection
      */
     public function getThemeIds(): array
     {
-        return $this->fmap(function (ThemeTranslationEntity $themeTranslation) {
-            return $themeTranslation->getThemeId();
-        });
+        return $this->fmap(fn (ThemeTranslationEntity $themeTranslation) => $themeTranslation->getThemeId());
     }
 
     public function filterByThemeId(string $id): self
     {
-        return $this->filter(function (ThemeTranslationEntity $themeTranslation) use ($id) {
-            return $themeTranslation->getThemeId() === $id;
-        });
+        return $this->filter(fn (ThemeTranslationEntity $themeTranslation) => $themeTranslation->getThemeId() === $id);
     }
 
     /**
@@ -33,16 +29,12 @@ class ThemeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(function (ThemeTranslationEntity $themeTranslation) {
-            return $themeTranslation->getLanguageId();
-        });
+        return $this->fmap(fn (ThemeTranslationEntity $themeTranslation) => $themeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(function (ThemeTranslationEntity $themeTranslation) use ($id) {
-            return $themeTranslation->getLanguageId() === $id;
-        });
+        return $this->filter(fn (ThemeTranslationEntity $themeTranslation) => $themeTranslation->getLanguageId() === $id);
     }
 
     protected function getExpectedClass(): string

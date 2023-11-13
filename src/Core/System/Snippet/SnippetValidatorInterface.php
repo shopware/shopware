@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Snippet;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 interface SnippetValidatorInterface
 {
     public function validate(): array;

@@ -4,28 +4,18 @@ namespace Shopware\Core\Framework\Api\OAuth\Client;
 
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\Traits\ClientTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ApiClient implements ClientEntityInterface
 {
     use ClientTrait;
 
-    /**
-     * @var bool
-     */
-    private $writeAccess;
-
-    /**
-     * @var string
-     */
-    private $identifier;
-
-    public function __construct(string $identifier, bool $writeAccess, string $name = '')
-    {
-        $this->writeAccess = $writeAccess;
-        $this->identifier = $identifier;
+    public function __construct(
+        private readonly string $identifier,
+        private readonly bool $writeAccess,
+        string $name = ''
+    ) {
         $this->name = $name;
     }
 

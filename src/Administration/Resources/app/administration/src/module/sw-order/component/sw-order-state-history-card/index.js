@@ -1,7 +1,7 @@
 import template from './sw-order-state-history-card.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;

@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\ReadProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
@@ -47,23 +46,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Schema\DynamicEntityDefinition;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 {
-    public const FORMAT = 'entity-schema';
+    final public const FORMAT = 'entity-schema';
 
     public function supports(string $format, string $api): bool
     {
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): never
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi', ?string $bundleName = null): never
     {
         throw new \RuntimeException();
     }
@@ -155,7 +154,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
                 return $property;
 
-            // fields with uuid
+                // fields with uuid
             case $field instanceof VersionField:
             case $field instanceof ReferenceVersionField:
             case $field instanceof ParentFkField:
@@ -163,7 +162,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof IdField:
                 return ['type' => 'uuid', 'flags' => $flags];
 
-            // json fields
+                // json fields
             case $field instanceof CustomFields:
             case $field instanceof VersionDataPayloadField:
             case $field instanceof CalculatedPriceField:
@@ -180,14 +179,10 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
             case $field instanceof JsonField:
                 return $this->createJsonObjectType($definition, $field, $flags);
 
-            // association fields
-            case $field instanceof OneToManyAssociationField:
+                // association fields
             case $field instanceof ChildrenAssociationField:
             case $field instanceof TranslationsAssociationField:
-                if (!$field instanceof OneToManyAssociationField) {
-                    throw new \RuntimeException('Field should extend OneToManyAssociationField');
-                }
-
+            case $field instanceof OneToManyAssociationField:
                 $reference = $field->getReferenceDefinition();
                 $localField = $definition->getFields()->getByStorageName($field->getLocalField());
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
@@ -209,10 +204,6 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
 
             case $field instanceof ParentAssociationField:
             case $field instanceof ManyToOneAssociationField:
-                if (!$field instanceof AssociationField) {
-                    throw new \RuntimeException('Field should extend AssociationField');
-                }
-
                 $reference = $field->getReferenceDefinition();
                 $localField = $definition->getFields()->getByStorageName($field->getStorageName());
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
@@ -272,25 +263,25 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                     'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
                 ];
 
-            // int fields
+                // int fields
             case $field instanceof ChildCountField:
             case $field instanceof TreeLevelField:
             case $field instanceof IntField:
                 return ['type' => 'int', 'flags' => $flags];
 
-            // long text fields
+                // long text fields
             case $field instanceof TreePathField:
             case $field instanceof LongTextField:
                 return ['type' => 'text', 'flags' => $flags];
 
-            // date fields
+                // date fields
             case $field instanceof UpdatedAtField:
             case $field instanceof CreatedAtField:
             case $field instanceof DateTimeField:
             case $field instanceof DateField:
                 return ['type' => 'date', 'flags' => $flags];
 
-            // scalar fields
+                // scalar fields
             case $field instanceof PasswordField:
                 return ['type' => 'password', 'flags' => $flags];
 
@@ -307,7 +298,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 return ['type' => 'boolean', 'flags' => $flags];
 
             default:
-                return ['type' => \get_class($field), 'flags' => $flags];
+                return ['type' => $field::class, 'flags' => $flags];
         }
     }
 

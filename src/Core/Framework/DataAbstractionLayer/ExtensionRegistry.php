@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
- *
  * Contains all registered entity extensions in the system
  */
+#[Package('core')]
 class ExtensionRegistry
 {
     /**
@@ -16,7 +16,7 @@ class ExtensionRegistry
      *
      * @param iterable<EntityExtension> $extensions
      */
-    public function __construct(private iterable $extensions)
+    public function __construct(private readonly iterable $extensions)
     {
     }
 

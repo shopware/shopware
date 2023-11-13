@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ListPrice extends Struct
 {
     /**
@@ -25,8 +24,11 @@ class ListPrice extends Struct
      */
     protected $percentage;
 
-    private function __construct(float $price, float $discount, float $percentage)
-    {
+    private function __construct(
+        float $price,
+        float $discount,
+        float $percentage
+    ) {
         $this->price = FloatComparator::cast($price);
         $this->discount = FloatComparator::cast($discount);
         $this->percentage = FloatComparator::cast($percentage);

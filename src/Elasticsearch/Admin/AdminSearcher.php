@@ -10,27 +10,23 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package system-settings
- *
  * @internal
  *
  * @final
  */
+#[Package('system-settings')]
 class AdminSearcher
 {
-    private Client $client;
-
-    private AdminSearchRegistry $registry;
-
-    private AdminElasticsearchHelper $adminEsHelper;
-
-    public function __construct(Client $client, AdminSearchRegistry $registry, AdminElasticsearchHelper $adminEsHelper)
-    {
-        $this->client = $client;
-        $this->registry = $registry;
-        $this->adminEsHelper = $adminEsHelper;
+    public function __construct(
+        private readonly Client $client,
+        private readonly AdminSearchRegistry $registry,
+        private readonly AdminElasticsearchHelper $adminEsHelper,
+        private readonly string $timeout = '5s',
+        private readonly int $termMaxLength = 300,
+    ) {
     }
 
     /**
@@ -40,6 +36,8 @@ class AdminSearcher
      */
     public function search(string $term, array $entities, Context $context, int $limit = 5): array
     {
+        $term = mb_substr(trim($term), 0, $this->termMaxLength);
+
         $index = [];
         $term = (string) mb_eregi_replace('\s(or)\s', '|', $term);
         $term = (string) mb_eregi_replace('\s(and)\s', ' + ', $term);
@@ -53,8 +51,10 @@ class AdminSearcher
             $indexer = $this->registry->getIndexer($entityName);
             $alias = $this->adminEsHelper->getIndex($indexer->getName());
             $index[] = ['index' => $alias];
+            $query = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
+            $query['timeout'] = $this->timeout;
 
-            $index[] = $indexer->globalCriteria($term, $this->buildSearch($term, $limit))->toArray();
+            $index[] = $query;
         }
 
         $responses = $this->client->msearch(['body' => $index]);

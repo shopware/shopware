@@ -26,10 +26,10 @@ async function createWrapper({ propsData = {}, privileges = [] } = {}) {
                 ...match,
                 privilege: undefined,
                 meta: {
-                    privilege: match.privilege
-                }
+                    privilege: match.privilege,
+                },
             };
-        }
+        },
     };
 
     const can = (privilege) => {
@@ -49,14 +49,14 @@ async function createWrapper({ propsData = {}, privileges = [] } = {}) {
             'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
             'router-link': {
                 template: '<a class="router-link"></a>',
-                props: ['to']
-            }
+                props: ['to'],
+            },
         },
         mocks: {
             $route: {
-                meta: { $module: { name: '' } }
+                meta: { $module: { name: '' } },
             },
-            $router
+            $router,
         },
         provide: {
             acl: {
@@ -72,23 +72,27 @@ async function createWrapper({ propsData = {}, privileges = [] } = {}) {
                     return can(match.meta.privilege);
                 },
                 hasActiveSettingModules: aclService.hasActiveSettingModules,
-                state: aclService.state
-            }
-        }
+                state: aclService.state,
+            },
+        },
     });
 }
 
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeAll(() => {
+        if (Shopware.State.get('settingsItems')) {
+            Shopware.State.unregisterModule('settingsItems');
+        }
+
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,
             state: {
                 settingsGroups: {
                     shop: [],
-                    system: []
-                }
-            }
+                    system: [],
+                },
+            },
         });
     });
 
@@ -100,8 +104,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                entry: catalogues
-            }
+                entry: catalogues,
+            },
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -110,12 +114,12 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     it('should contain all menu entries', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                entry: catalogues
-            }
+                entry: catalogues,
+            },
         });
 
         const children = wrapper.findAll('.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item');
-        expect(children.length).toBe(8);
+        expect(children).toHaveLength(8);
 
         expect(wrapper.classes()).toContain('navigation-list-item__sw-catalogue');
         expect(children.at(0).classes()).toContain('navigation-list-item__sw-product');
@@ -139,13 +143,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     parent: 'sw-catalogue',
                     position: 10,
-                    children: []
-                }
-            }
+                    children: [],
+                },
+            },
         });
 
         const children = wrapper.findAll('sw-admin-menu-item-stub');
-        expect(children.length).toBe(0);
+        expect(children).toHaveLength(0);
 
         expect(wrapper.classes()).toContain('navigation-list-item__sw-product');
     });
@@ -163,23 +167,23 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     level: 1,
                     moduleType: 'core',
-                    children: []
-                }
-            }
+                    children: [],
+                },
+            },
         });
 
         const routerLink = wrapper.find('.navigation-list-item__sw-product .router-link');
 
         expect(routerLink.props().to).toMatchObject({
-            name: 'sw.product.index'
+            name: 'sw.product.index',
         });
     });
 
     it('should not show a link when no path is provided', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                entry: catalogues
-            }
+                entry: catalogues,
+            },
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
@@ -200,9 +204,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     moduleType: 'core',
                     level: 1,
-                    children: []
-                }
-            }
+                    children: [],
+                },
+            },
         });
 
         expect(wrapper.html()).toBe('');
@@ -223,9 +227,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     moduleType: 'core',
                     level: 1,
-                    children: []
-                }
-            }
+                    children: [],
+                },
+            },
         });
 
         expect(wrapper.html().length).toBeGreaterThan(1);
@@ -256,7 +260,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         level: 2,
                         moduleType: 'core',
                         privilege: 'product.viewer',
-                        children: []
+                        children: [],
                     }, {
                         id: 'sw-review',
                         label: 'sw-review.general.mainMenuItemList',
@@ -267,10 +271,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         position: 20,
                         level: 2,
                         moduleType: 'core',
-                        children: []
-                    }]
-                }
-            }
+                        children: [],
+                    }],
+                },
+            },
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
@@ -302,9 +306,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         level: 2,
                         moduleType: 'core',
                         meta: {
-                            privilege: 'product.viewer'
+                            privilege: 'product.viewer',
                         },
-                        children: []
+                        children: [],
                     }, {
                         id: 'sw-review',
                         label: 'sw-review.general.mainMenuItemList',
@@ -315,10 +319,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         position: 20,
                         level: 2,
                         moduleType: 'core',
-                        children: []
-                    }]
-                }
-            }
+                        children: [],
+                    }],
+                },
+            },
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
@@ -326,7 +330,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         expect(navigationLink.element.tagName).toBe('A');
 
         expect(navigationLink.props().to).toMatchObject({
-            name: 'sw.product.index'
+            name: 'sw.product.index',
         });
     });
 
@@ -356,7 +360,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         level: 2,
                         moduleType: 'core',
                         privilege: 'product.viewer',
-                        children: []
+                        children: [],
                     }, {
                         id: 'sw-review',
                         label: 'sw-review.general.mainMenuItemList',
@@ -368,10 +372,10 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         position: 20,
                         level: 2,
                         moduleType: 'core',
-                        children: []
-                    }]
-                }
-            }
+                        children: [],
+                    }],
+                },
+            },
         });
 
         expect(wrapper.html()).toBe('');
@@ -401,7 +405,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         level: 2,
                         moduleType: 'core',
                         privilege: 'product.viewer',
-                        children: []
+                        children: [],
                     }, {
                         id: 'sw-review',
                         label: 'sw-review.general.mainMenuItemList',
@@ -413,17 +417,17 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         position: 20,
                         level: 2,
                         moduleType: 'core',
-                        children: []
-                    }]
-                }
-            }
+                        children: [],
+                    }],
+                },
+            },
         });
 
         expect(wrapper.html()).toBe('');
     });
 
     // eslint-disable-next-line max-len
-    test('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
+    it('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
         const wrapper = await createWrapper({
             privileges: [],
             propsData: {
@@ -448,7 +452,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         level: 2,
                         moduleType: 'core',
                         privilege: 'product.viewer',
-                        children: []
+                        children: [],
                     }, {
                         id: 'sw-review',
                         label: 'sw-review.general.mainMenuItemList',
@@ -460,22 +464,22 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                         position: 20,
                         level: 2,
                         moduleType: 'core',
-                        children: []
-                    }]
-                }
-            }
+                        children: [],
+                    }],
+                },
+            },
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
         expect(navigationLink.element.tagName).toBe('A');
         expect(navigationLink.props().to).toMatchObject({
-            name: 'sw.cms.index'
+            name: 'sw.cms.index',
         });
     });
 
-    test('should hide settings menu if no item is visible', async () => {
+    it('should hide settings menu if no item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
-            { privilege: 'no-set', path: 'test' }
+            { privilege: 'no-set', path: 'it' },
         ];
 
         const wrapper = await createWrapper({
@@ -489,19 +493,19 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     icon: 'default-symbol-products',
                     level: 1,
                     moduleType: 'core',
-                    position: 10
-                }
-            }
+                    position: 10,
+                },
+            },
         });
 
         expect(wrapper.html()).toBe('');
     });
 
 
-    test('settings should be shown if all item is visible', async () => {
+    it('settings should be shown if all item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
-            { privilege: 'priv-2' }
+            { privilege: 'priv-2' },
         ];
 
         const wrapper = await createWrapper({
@@ -516,18 +520,18 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     level: 1,
                     moduleType: 'core',
-                    children: []
-                }
-            }
+                    children: [],
+                },
+            },
         });
 
         expect(wrapper.html()).not.toBe('');
     });
 
-    test('settings should be shown if one item is visible', async () => {
+    it('settings should be shown if one item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
             { privilege: 'priv-1' },
-            { privilege: 'priv-2' }
+            { privilege: 'priv-2' },
         ];
 
         const wrapper = await createWrapper({
@@ -542,15 +546,15 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     level: 1,
                     moduleType: 'core',
-                    children: []
-                }
-            }
+                    children: [],
+                },
+            },
         });
 
         expect(wrapper.html()).not.toBe('');
     });
 
-    test('get the first plugin menu entry', async () => {
+    it('get the first plugin menu entry', async () => {
         const wrapper = await createWrapper({
             privileges: [],
             propsData: {
@@ -562,9 +566,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     parent: 'sw-catalogue',
                     position: 1010,
                     children: [],
-                    level: 2
-                }
-            }
+                    level: 2,
+                },
+            },
         });
 
         expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
@@ -578,14 +582,14 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                 parent: 'sw-catalogue',
                 position: 1010,
                 children: [],
-                level: 2
-            }
+                level: 2,
+            },
         });
 
         expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
     });
 
-    test('should match route', async () => {
+    it('should match route', async () => {
         const entries = [...catalogues.children];
         entries.unshift({
             id: 'sw-catalogue',
@@ -594,7 +598,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             color: '#57D9A3',
             icon: 'default-symbol-products',
             position: 20,
-            level: 1
+            level: 1,
         });
 
         Shopware.State.commit('adminMenu/setAdminModuleNavigation', entries);
@@ -610,11 +614,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     parent: 'sw-catalogue',
                     position: 1010,
                     children: [],
-                    level: 2
-                }
-            }
+                    level: 2,
+                },
+            },
         });
 
-        expect(wrapper.vm.subIsActive('sw.foo.index'));
+        await flushPromises();
+
+        expect(wrapper.vm.subIsActive('sw.foo.index')).toBe(false);
     });
 });

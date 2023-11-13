@@ -7,16 +7,15 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationCollection;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected ?string $technicalName = null;
 
@@ -39,6 +38,11 @@ class ThemeEntity extends Entity
     protected ?string $previewMediaId = null;
 
     protected ?string $parentThemeId = null;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $themeJson = null;
 
     /**
      * @var array<string, mixed>|null
@@ -152,6 +156,22 @@ class ThemeEntity extends Entity
     public function setParentThemeId(?string $parentThemeId): void
     {
         $this->parentThemeId = $parentThemeId;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getThemeJson(): ?array
+    {
+        return $this->themeJson;
+    }
+
+    /**
+     * @param array<string, mixed>|null $themeJson
+     */
+    public function setThemeJson(?array $themeJson): void
+    {
+        $this->themeJson = $themeJson;
     }
 
     /**

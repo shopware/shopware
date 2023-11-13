@@ -3,47 +3,25 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class DefaultConfig extends XmlElement
 {
-    protected ?string $marginTop;
+    protected ?string $marginTop = null;
 
-    protected ?string $marginRight;
+    protected ?string $marginRight = null;
 
-    protected ?string $marginBottom;
+    protected ?string $marginBottom = null;
 
-    protected ?string $marginLeft;
+    protected ?string $marginLeft = null;
 
-    protected ?string $sizingMode;
+    protected ?string $sizingMode = null;
 
-    protected ?string $backgroundColor;
-
-    private function __construct(array $defaultConfig)
-    {
-        foreach ($defaultConfig as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        $defaultConfig = [];
-
-        foreach ($element->childNodes as $config) {
-            if ($config instanceof \DOMText) {
-                continue;
-            }
-
-            $defaultConfig[self::kebabCaseToCamelCase($config->nodeName)] = $config->nodeValue;
-        }
-
-        return new self($defaultConfig);
-    }
+    protected ?string $backgroundColor = null;
 
     public function getMarginTop(): ?string
     {
@@ -73,5 +51,20 @@ class DefaultConfig extends XmlElement
     public function getBackgroundColor(): ?string
     {
         return $this->backgroundColor;
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $defaultConfig = [];
+
+        foreach ($element->childNodes as $config) {
+            if ($config instanceof \DOMText) {
+                continue;
+            }
+
+            $defaultConfig[self::kebabCaseToCamelCase($config->nodeName)] = $config->nodeValue;
+        }
+
+        return $defaultConfig;
     }
 }

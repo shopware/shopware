@@ -21,21 +21,21 @@ async function createWrapper() {
                 methods: {
                     onChange(e) {
                         this.$emit('input', e.target.value);
-                    }
-                }
+                    },
+                },
             },
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
-            }
+                template: '<div class="sw-container"><slot></slot></div>',
+            },
         },
         propsData: {
             filter: {
                 property: 'releaseDate',
                 name: 'releaseDate',
-                label: 'Release Date'
+                label: 'Release Date',
             },
-            active: true
-        }
+            active: true,
+        },
     });
 }
 
@@ -59,7 +59,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-22' })],
-            { from: '2021-01-22', to: null, timeframe: 'custom' }
+            { from: '2021-01-22', to: null, timeframe: 'custom' },
         ]);
     });
 
@@ -73,7 +73,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { lte: '2021-01-25' })],
-            { from: null, to: '2021-01-25', timeframe: 'custom' }
+            { from: null, to: '2021-01-25', timeframe: 'custom' },
         ]);
     });
 
@@ -88,7 +88,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19' })],
-            { from: '2021-01-19', to: null, timeframe: 'custom' }
+            { from: '2021-01-19', to: null, timeframe: 'custom' },
         ]);
 
         const toInput = wrapper.find('.sw-date-filter__to').find('input');
@@ -99,7 +99,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19', lte: '2021-01-25' })],
-            { from: '2021-01-19', to: '2021-01-25', timeframe: 'custom' }
+            { from: '2021-01-19', to: '2021-01-25', timeframe: 'custom' },
         ]);
     });
 
@@ -110,8 +110,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
             dateValue: {
                 from: '2021-01-22',
                 to: null,
-                timeframe: null
-            }
+                timeframe: null,
+            },
         });
 
         // Trigger click Reset button
@@ -128,8 +128,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
             dateValue: {
                 from: null,
                 to: '2021-02-01',
-                timeframe: null
-            }
+                timeframe: null,
+            },
         });
 
         // Trigger click Reset button
@@ -147,11 +147,11 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 property: 'releaseDate',
                 name: 'releaseDate',
                 label: 'Release Date',
-                dateType: 'anytype'
-            }
+                dateType: 'anytype',
+            },
         });
 
-        expect(wrapper.vm.dateType).toEqual('date');
+        expect(wrapper.vm.dateType).toBe('date');
     });
 
     it('should render From field and To field on the same line', async () => {
@@ -162,8 +162,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 property: 'releaseTime',
                 name: 'releaseTime',
                 label: 'Release Time',
-                dateType: 'time'
-            }
+                dateType: 'time',
+            },
         });
 
         const container = wrapper.find('.sw-container');
@@ -181,8 +181,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 property: 'releaseDate',
                 name: 'releaseDate',
                 label: 'Release Date',
-                dateType: 'datetime-local'
-            }
+                dateType: 'datetime-local',
+            },
         });
 
         const container = wrapper.find('.sw-container');
@@ -201,8 +201,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 name: 'releaseDate',
                 label: 'Release Date',
                 dateType: 'date',
-                showTimeframe: true
-            }
+                showTimeframe: true,
+            },
         });
 
         const timeframe = wrapper.find('.sw-date-filter__timeframe');
@@ -214,28 +214,28 @@ describe('src/app/component/filter/sw-date-filter', () => {
         'a year': {
             timeframe: -365,
             expectedFrom: '1336-12-31T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z'
+            expectedTo: '1337-12-31T00:00:00.000Z',
         },
         'a quarter': {
             timeframe: 'lastQuarter',
             expectedFrom: '1337-07-01T00:00:00.000Z',
-            expectedTo: '1337-09-30T23:59:59.000Z'
+            expectedTo: '1337-09-30T23:59:59.000Z',
         },
         'a month': {
             timeframe: -30,
             expectedFrom: '1337-12-01T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z'
+            expectedTo: '1337-12-31T00:00:00.000Z',
         },
         'a week': {
             timeframe: -7,
             expectedFrom: '1337-12-24T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z'
+            expectedTo: '1337-12-31T00:00:00.000Z',
         },
         'a day': {
             timeframe: -1,
             expectedFrom: '1337-12-30T00:00:00.000Z',
-            expectedTo: '1337-12-31T00:00:00.000Z'
-        }
+            expectedTo: '1337-12-31T00:00:00.000Z',
+        },
     };
 
     Object.entries(cases).forEach(([key, timeCase]) => {
@@ -248,17 +248,17 @@ describe('src/app/component/filter/sw-date-filter', () => {
                             field: 'releaseDate',
                             parameters: {
                                 gte: timeCase.expectedFrom,
-                                lte: timeCase.expectedTo
+                                lte: timeCase.expectedTo,
                             },
-                            type: 'range'
-                        }
+                            type: 'range',
+                        },
                     ],
                     {
                         from: timeCase.expectedFrom,
                         timeframe: timeCase.timeframe,
-                        to: timeCase.expectedTo
-                    }
-                ]
+                        to: timeCase.expectedTo,
+                    },
+                ],
             ];
 
             const wrapper = await createWrapper();
@@ -269,8 +269,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
                     name: 'releaseDate',
                     label: 'Release Date',
                     dateType: 'date',
-                    showTimeframe: true
-                }
+                    showTimeframe: true,
+                },
             });
 
             const timeframe = wrapper.find('.sw-date-filter__timeframe');
@@ -291,8 +291,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
                 name: 'releaseDate',
                 label: 'Release Date',
                 dateType: 'date',
-                showTimeframe: true
-            }
+                showTimeframe: true,
+            },
         });
 
         const timeframe = wrapper.find('.sw-date-filter__timeframe');
@@ -307,6 +307,6 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         global.console.error.mockReset();
 
-        expect(wrapper.emitted()['filter-update']).toBe(undefined);
+        expect(wrapper.emitted()['filter-update']).toBeUndefined();
     });
 });

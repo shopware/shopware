@@ -2,14 +2,14 @@
 
 namespace Shopware\Core\Checkout\Document\Renderer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 abstract class AbstractDocumentRenderer
 {
     abstract public function supports(): string;
@@ -37,7 +37,7 @@ abstract class AbstractDocumentRenderer
             AND `language_id` IS NOT NULL
             GROUP BY `language_id`',
             ['ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes($versionId)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 }

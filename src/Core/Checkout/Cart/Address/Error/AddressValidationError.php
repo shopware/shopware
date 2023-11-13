@@ -8,29 +8,18 @@
 namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class AddressValidationError extends Error
 {
     private const KEY = 'address-invalid';
 
-    /**
-     * @var bool
-     */
-    private $isBillingAddress;
-
-    /**
-     * @var ConstraintViolationList
-     */
-    private $violations;
-
-    public function __construct(bool $isBillingAddress, ConstraintViolationList $violations)
-    {
-        $this->isBillingAddress = $isBillingAddress;
-        $this->violations = $violations;
+    public function __construct(
+        private readonly bool $isBillingAddress,
+        private readonly ConstraintViolationList $violations
+    ) {
         $this->message = sprintf(
             'Please check your %s address for missing or invalid values.',
             $isBillingAddress ? 'billing' : 'shipping'

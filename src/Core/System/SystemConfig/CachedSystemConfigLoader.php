@@ -3,27 +3,22 @@
 namespace Shopware\Core\System\SystemConfig;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class CachedSystemConfigLoader extends AbstractSystemConfigLoader
 {
-    public const CACHE_TAG = 'system-config';
-
-    private AbstractSystemConfigLoader $decorated;
-
-    private CacheInterface $cache;
+    final public const CACHE_TAG = 'system-config';
 
     /**
      * @internal
      */
-    public function __construct(AbstractSystemConfigLoader $decorated, CacheInterface $cache)
-    {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
+    public function __construct(
+        private readonly AbstractSystemConfigLoader $decorated,
+        private readonly CacheInterface $cache
+    ) {
     }
 
     public function getDecorated(): AbstractSystemConfigLoader

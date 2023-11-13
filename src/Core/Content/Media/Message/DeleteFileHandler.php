@@ -5,21 +5,24 @@ namespace Shopware\Core\Content\Media\Message;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\Visibility;
+use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package content
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('buyers-experience')]
 final class DeleteFileHandler
 {
     /**
      * @internal
      */
-    public function __construct(private FilesystemOperator $filesystemPublic, private FilesystemOperator $filesystemPrivate)
-    {
+    public function __construct(
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate
+    ) {
     }
 
     public function __invoke(DeleteFileMessage $message): void
@@ -27,21 +30,18 @@ final class DeleteFileHandler
         foreach ($message->getFiles() as $file) {
             try {
                 $this->getFileSystem($message->getVisibility())->delete($file);
-            } catch (UnableToDeleteFile $e) {
-                //ignore file is already deleted
+            } catch (UnableToDeleteFile) {
+                // ignore file is already deleted
             }
         }
     }
 
     private function getFileSystem(string $visibility): FilesystemOperator
     {
-        switch ($visibility) {
-            case Visibility::PUBLIC:
-                return $this->filesystemPublic;
-            case Visibility::PRIVATE:
-                return $this->filesystemPrivate;
-            default:
-                throw new \RuntimeException('Invalid filesystem visibility.');
-        }
+        return match ($visibility) {
+            Visibility::PUBLIC => $this->filesystemPublic,
+            Visibility::PRIVATE => $this->filesystemPrivate,
+            default => throw MediaException::invalidFilesystemVisibility(),
+        };
     }
 }

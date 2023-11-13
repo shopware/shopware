@@ -2,32 +2,28 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleException;
 
 /**
  * @internal
- *
- * @package administration
  */
+#[Package('administration')]
 class AppAdministrationSnippetPersister
 {
-    private EntityRepository $appAdministrationSnippetRepository;
-
-    private EntityRepository $localeRepository;
-
     public function __construct(
-        EntityRepository $appAdministrationSnippetRepository,
-        EntityRepository $localeRepository
+        private readonly EntityRepository $appAdministrationSnippetRepository,
+        private readonly EntityRepository $localeRepository,
+        private readonly CacheInvalidator $cacheInvalidator
     ) {
-        $this->appAdministrationSnippetRepository = $appAdministrationSnippetRepository;
-        $this->localeRepository = $localeRepository;
     }
 
     /**
@@ -41,11 +37,11 @@ class AppAdministrationSnippetPersister
 
         $firstLevelSnippetKeys = [];
         foreach ($snippets as $snippetString) {
-            $decodedSnippets = json_decode($snippetString, true);
+            $decodedSnippets = json_decode($snippetString, true, 512, \JSON_THROW_ON_ERROR);
             $firstLevelSnippetKeys = array_keys($decodedSnippets);
         }
 
-        if ($duplicatedKeys = array_intersect(array_keys($coreSnippets), $firstLevelSnippetKeys)) {
+        if ($duplicatedKeys = array_values(array_intersect(array_keys($coreSnippets), $firstLevelSnippetKeys))) {
             throw SnippetException::extendOrOverwriteCore($duplicatedKeys);
         }
 
@@ -90,6 +86,8 @@ class AppAdministrationSnippetPersister
         // if locale is given --> upsert, if not given --> delete
         $deletedIds = array_values($existingLocales);
         $this->deleteSnippets($deletedIds, $context);
+
+        $this->cacheInvalidator->invalidate([CachedSnippetFinder::CACHE_TAG]);
     }
 
     private function getExistingSnippets(string $appId, Context $context): AppAdministrationSnippetCollection
@@ -115,7 +113,7 @@ class AppAdministrationSnippetPersister
             return [];
         }
 
-        return json_decode($snippets, true);
+        return json_decode($snippets, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**

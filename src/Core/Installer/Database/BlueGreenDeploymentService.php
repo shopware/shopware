@@ -4,16 +4,16 @@ namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class BlueGreenDeploymentService
 {
-    public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';
+    final public const ENV_NAME = 'BLUE_GREEN_DEPLOYMENT';
 
     public function setEnvironmentVariable(Connection $connection, SessionInterface $session): void
     {
@@ -28,7 +28,7 @@ class BlueGreenDeploymentService
         try {
             $connection->executeQuery($this->getCreateTableQuery());
             $connection->executeQuery($this->getTriggerQuery());
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         } finally {
             $connection->executeQuery('DROP TABLE IF EXISTS example');

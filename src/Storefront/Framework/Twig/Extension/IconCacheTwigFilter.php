@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class IconCacheTwigFilter extends AbstractExtension
 {
     protected static bool $enabled = false;
@@ -21,7 +20,7 @@ class IconCacheTwigFilter extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('sw_icon_cache', [$this, 'iconCache']),
+            new TwigFilter('sw_icon_cache', $this->iconCache(...)),
         ];
     }
 
@@ -31,8 +30,8 @@ class IconCacheTwigFilter extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('sw_icon_cache_enable', [$this, 'enable']),
-            new TwigFunction('sw_icon_cache_disable', [$this, 'disable']),
+            new TwigFunction('sw_icon_cache_enable', $this->enable(...)),
+            new TwigFunction('sw_icon_cache_disable', $this->disable(...)),
         ];
     }
 

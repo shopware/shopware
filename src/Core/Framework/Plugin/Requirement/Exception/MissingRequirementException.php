@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MissingRequirementException extends RequirementException
 {
-    public function __construct(string $requirement, string $requiredVersion)
-    {
+    public function __construct(
+        string $requirement,
+        string $requiredVersion
+    ) {
         parent::__construct(
             'Required plugin/package "{{ requirement }} {{ version }}" is missing or not installed and activated',
             ['requirement' => $requirement, 'version' => $requiredVersion]

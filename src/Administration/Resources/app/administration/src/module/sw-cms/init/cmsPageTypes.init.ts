@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 const defaultPageTypes = [{
     name: 'page',
     icon: 'regular-lightbulb',

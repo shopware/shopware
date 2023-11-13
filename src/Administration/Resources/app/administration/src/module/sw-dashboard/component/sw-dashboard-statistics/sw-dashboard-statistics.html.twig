@@ -51,7 +51,7 @@
                         <div class="sw-dashboard-statistics__intro-stats-today-single-stat">
                             <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-type">{{ $tc('sw-dashboard.todayStats.turnover') }}</span>
                             {# price aggregations do not support currencies yet, see NEXT-5069 #}
-                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ orderSumToday | currency(systemCurrencyISOCode, 2) }}</span>
+                            <span class="sw-dashboard-statistics__intro-stats-today-single-stat-number-value">{{ currencyFilter(orderSumToday, systemCurrencyISOCode, 2) }}</span>
                         </div>
                         {% endblock %}
                     </div>
@@ -78,12 +78,12 @@
                         <template
                             #column-orderDateTime="{ item }"
                         >
-                            {{ item.orderDateTime | date({
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                year: undefined,
-                                month: undefined,
-                                day: undefined
+                            {{ dateFilter(item.orderDateTime, {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            year: undefined,
+                            month: undefined,
+                            day: undefined
                             }) }}
                         </template>
                         {% endblock %}
@@ -105,7 +105,7 @@
                         <template
                             #column-amountTotal="{ item }"
                         >
-                            {{ item.amountTotal | currency(item.currency.shortName) }}
+                            {{ currencyFilter(item.amountTotal, item.currency.shortName) }}
                         </template>
                         {% endblock %}
 
@@ -147,6 +147,10 @@
             </sw-card>
         </template>
 
+        <sw-extension-component-section
+            position-identifier="sw-chart-card__before"
+        />
+
         <template v-if="hasOrderInMonth">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_dashboard_statistics_count %}
@@ -159,6 +163,7 @@
                 :fill-empty-values="ordersDateRange.aggregate"
                 type="line"
                 sort
+                position-identifier="sw-chart-card__statistics-count"
                 @sw-chart-card-range-update="onOrdersRangeUpdate"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -188,6 +193,7 @@
                 :fill-empty-values="turnoverDateRange.aggregate"
                 type="line"
                 sort
+                position-identifier="sw-chart-card__statistics-sum"
                 @sw-chart-card-range-update="onTurnoverRangeUpdate"
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -210,6 +216,10 @@
             </sw-chart-card>
             {% endblock %}
         </template>
+
+        <sw-extension-component-section
+            position-identifier="sw-chart-card__after"
+        />
     </template>
 </div>
 {% endblock %}

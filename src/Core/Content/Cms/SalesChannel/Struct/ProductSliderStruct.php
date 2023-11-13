@@ -3,17 +3,16 @@
 namespace Shopware\Core\Content\Cms\SalesChannel\Struct;
 
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class ProductSliderStruct extends Struct
 {
     /**
      * @var ProductCollection|null
      */
-    protected $products = null;
+    protected $products;
 
     protected ?string $streamId = null;
 

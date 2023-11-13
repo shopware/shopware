@@ -8,30 +8,29 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 class FlowSequenceEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     protected string $flowId;
 
     protected ?FlowEntity $flow = null;
 
-    protected ?string $parentId;
+    protected ?string $parentId = null;
 
     protected ?FlowSequenceEntity $parent = null;
 
     protected ?FlowSequenceCollection $children = null;
 
-    protected ?string $ruleId;
+    protected ?string $ruleId = null;
 
     protected ?RuleEntity $rule = null;
 
-    protected ?string $actionName;
+    protected ?string $actionName = null;
 
     protected array $config;
 

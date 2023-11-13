@@ -3,13 +3,13 @@
 namespace Shopware\Core\Framework\App\Cms;
 
 use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class BlockTemplateLoader extends AbstractBlockTemplateLoader
 {
     public function getTemplateForBlock(CmsExtensions $cmsExtensions, string $blockName): string
@@ -23,7 +23,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
             foreach ($templateFiles as $templateFile) {
                 return $templateFile->getContents();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         throw new AppCmsExtensionException(sprintf('Preview file for block "%s" is missing', $blockName));
@@ -40,7 +40,7 @@ class BlockTemplateLoader extends AbstractBlockTemplateLoader
             foreach ($styleFiles as $styleFile) {
                 return $styleFile->getContents();
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
         }
 
         throw new AppCmsExtensionException(sprintf('Style file for block "%s" is missing', $blockName));

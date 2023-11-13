@@ -67,9 +67,7 @@ class NotFoundSubscriberTest extends TestCase
         $cacheTracer
             ->expects(static::once())
             ->method('trace')
-            ->willReturnCallback(function (string $name, \Closure $closure) {
-                return $closure();
-            });
+            ->willReturnCallback(fn (string $name, \Closure $closure) => $closure());
 
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getMainRequest')->willReturn(new Request());
@@ -174,7 +172,7 @@ class NotFoundSubscriberTest extends TestCase
     /**
      * @return iterable<string, array<mixed>>
      */
-    public function providerSystemConfigKeys(): iterable
+    public static function providerSystemConfigKeys(): iterable
     {
         yield 'key matches' => [
             'core.basicInformation.http404Page',
@@ -189,26 +187,8 @@ class NotFoundSubscriberTest extends TestCase
 
     public function testSubscribedEvents(): void
     {
-        $featureAll = $_SERVER['FEATURE_ALL'] ?? null;
-
-        if (isset($featureAll)) {
-            unset($_SERVER['FEATURE_ALL']);
-        }
-
-        $defaultVar = $_SERVER['v6_5_0_0'] ?? null;
-
         static::assertArrayHasKey(SystemConfigChangedEvent::class, NotFoundSubscriber::getSubscribedEvents());
 
         static::assertArrayHasKey(KernelEvents::EXCEPTION, NotFoundSubscriber::getSubscribedEvents());
-
-        if ($defaultVar !== null) {
-            $_SERVER['V6_5_0_0'] = $defaultVar;
-        } else {
-            unset($_SERVER['V6_5_0_0']);
-        }
-
-        if (isset($featureAll)) {
-            $_SERVER['FEATURE_ALL'] = $featureAll;
-        }
     }
 }

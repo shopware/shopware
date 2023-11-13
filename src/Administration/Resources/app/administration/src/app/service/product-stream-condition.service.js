@@ -72,6 +72,7 @@ export default function conditionService() {
             'createdAt',
             'coverId',
             'markAsTopseller',
+            'states',
         ],
     };
 

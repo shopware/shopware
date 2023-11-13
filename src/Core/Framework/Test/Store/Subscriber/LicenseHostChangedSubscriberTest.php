@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -29,8 +30,8 @@ class LicenseHostChangedSubscriberTest extends TestCase
 
     public function testIsSubscribedToSystemConfigChangedEvents(): void
     {
-        static::assertArrayHasKey(SystemConfigChangedEvent::class, $this->subscriber::getSubscribedEvents());
-        static::assertEquals('onLicenseHostChanged', $this->subscriber::getSubscribedEvents()[SystemConfigChangedEvent::class]);
+        static::assertArrayHasKey(SystemConfigChangedEvent::class, $this->subscriber->getSubscribedEvents());
+        static::assertEquals('onLicenseHostChanged', $this->subscriber->getSubscribedEvents()[SystemConfigChangedEvent::class]);
     }
 
     public function testOnlyHandlesLicenseHostChangedEvents(): void
@@ -57,7 +58,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
             [
                 'localeId' => $adminUser->getLocaleId(),
                 'username' => 'admin2',
-                'password' => 'v3rys3cr3t',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'admin2',
                 'lastName' => 'admin2',
                 'email' => 'admin2@shopware.com',
@@ -66,7 +67,7 @@ class LicenseHostChangedSubscriberTest extends TestCase
             [
                 'localeId' => $adminUser->getLocaleId(),
                 'username' => 'admin3',
-                'password' => 'v3rys3cr3t',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'admin3',
                 'lastName' => 'admin3',
                 'email' => 'admin3@shopware.com',

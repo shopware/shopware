@@ -2,28 +2,27 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductStatesBeforeChangeEvent;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[Package('core')]
 class StatesUpdater
 {
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
     }
 
     /**
@@ -49,13 +48,13 @@ class StatesUpdater
         $products = $this->connection->fetchAllAssociative(
             $sql,
             $params,
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $updates = [];
         foreach ($products as $product) {
             $newStates = $this->getNewStates($product);
-            $oldStates = $product['states'] ? json_decode($product['states'], true) : [];
+            $oldStates = $product['states'] ? json_decode((string) $product['states'], true, 512, \JSON_THROW_ON_ERROR) : [];
 
             if (\count(array_diff($newStates, $oldStates)) === 0) {
                 continue;
@@ -78,7 +77,7 @@ class StatesUpdater
 
         foreach ($event->getUpdatedStates() as $updatedStates) {
             $query->execute([
-                'states' => json_encode($updatedStates->getNewStates()),
+                'states' => json_encode($updatedStates->getNewStates(), \JSON_THROW_ON_ERROR),
                 'id' => Uuid::fromHexToBytes($updatedStates->getId()),
                 'version' => Uuid::fromHexToBytes($context->getVersionId()),
             ]);

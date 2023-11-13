@@ -3,82 +3,44 @@
 namespace Shopware\Core\Framework\Plugin;
 
 use Composer\IO\IOInterface;
+use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackageInterface;
+use Composer\Package\Version\VersionParser;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\Changelog\ChangelogService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
-use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Language\LanguageCollection;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class PluginService
 {
-    public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
+    final public const COMPOSER_AUTHOR_ROLE_MANUFACTURER = 'Manufacturer';
 
     /**
-     * @var string
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<LanguageCollection> $languageRepo
      */
-    private $pluginDir;
-
-    /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
-     * @var EntityRepository
-     */
-    private $pluginRepo;
-
-    /**
-     * @var EntityRepository
-     */
-    private $languageRepo;
-
-    /**
-     * @var ChangelogService
-     */
-    private $changelogService;
-
-    /**
-     * @var PluginFinder
-     */
-    private $pluginFinder;
-
-    /**
-     * @var VersionSanitizer
-     */
-    private $versionSanitizer;
-
     public function __construct(
-        string $pluginDir,
-        string $projectDir,
-        EntityRepository $pluginRepo,
-        EntityRepository $languageRepo,
-        ChangelogService $changelogService,
-        PluginFinder $pluginFinder,
-        VersionSanitizer $versionSanitizer
+        private readonly string $pluginDir,
+        private readonly string $projectDir,
+        private readonly EntityRepository $pluginRepo,
+        private readonly EntityRepository $languageRepo,
+        private readonly PluginFinder $pluginFinder,
+        private readonly VersionSanitizer $versionSanitizer
     ) {
-        $this->pluginDir = $pluginDir;
-        $this->projectDir = $projectDir;
-        $this->pluginRepo = $pluginRepo;
-        $this->languageRepo = $languageRepo;
-        $this->changelogService = $changelogService;
-        $this->pluginFinder = $pluginFinder;
-        $this->versionSanitizer = $versionSanitizer;
     }
 
     public function refreshPlugins(Context $shopwareContext, IOInterface $composerIO): ExceptionCollection
@@ -104,9 +66,16 @@ class PluginService
                 continue;
             }
 
-            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($info->getVersion());
+            $version = $info->getVersion();
+
+            // default branches are normalized to alias internally @see https://github.com/composer/composer/blob/95dca79fc2e18c3a4e33f207c1fcaa7d5b559400/src/Composer/Package/Locker.php#L353,
+            // when showing the version name, they will be normalized back to real name of the alias @see https://github.com/composer/composer/blob/95dca79fc2e18c3a4e33f207c1fcaa7d5b559400/src/Composer/Command/ShowCommand.php#L752
+            if ($version === VersionParser::DEFAULT_BRANCH_ALIAS && $info instanceof AliasPackage) {
+                $version = $info->getAliasOf()->getVersion();
+            }
+
+            $pluginVersion = $this->versionSanitizer->sanitizePluginVersion($version);
             $extra = $info->getExtra();
-            $authors = $this->getAuthors($info);
             $license = $info->getLicense();
             $pluginIconPath = $extra['plugin-icon'] ?? 'src/Resources/config/plugin.png';
 
@@ -114,8 +83,8 @@ class PluginService
                 'name' => $pluginFromFileSystem->getName(),
                 'baseClass' => $baseClass,
                 'composerName' => $info->getName(),
-                'path' => str_replace($this->projectDir . '/', '', $pluginPath),
-                'author' => $authors,
+                'path' => (new Filesystem())->makePathRelative($pluginPath, $this->projectDir),
+                'author' => $this->getAuthors($info),
                 'copyright' => $extra['copyright'] ?? null,
                 'license' => implode(', ', $license),
                 'version' => $pluginVersion,
@@ -125,24 +94,6 @@ class PluginService
             ];
 
             $pluginData['translations'] = $this->getTranslations($shopwareContext, $extra);
-
-            if ($changelogFiles = $this->changelogService->getChangelogFiles($pluginPath)) {
-                foreach ($changelogFiles as $file) {
-                    $languageId = $this->getLanguageIdForLocale(
-                        $this->changelogService->getLocaleFromChangelogFile($file),
-                        $shopwareContext
-                    );
-                    if ($languageId === '') {
-                        continue;
-                    }
-
-                    try {
-                        $pluginData['translations'][$languageId]['changelog'] = $this->changelogService->parseChangelog($file);
-                    } catch (PluginChangelogInvalidException $changelogInvalidException) {
-                        $errors->add($changelogInvalidException);
-                    }
-                }
-            }
 
             /** @var PluginEntity $currentPluginEntity */
             $currentPluginEntity = $installedPlugins->filterByProperty('baseClass', $baseClass)->first();
@@ -223,14 +174,11 @@ class PluginService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
-        $result = $this->languageRepo->search($criteria, $context);
+        $languageEntity = $this->languageRepo->search($criteria, $context)->getEntities()->first();
 
-        if ($result->getTotal() === 0) {
+        if ($languageEntity === null) {
             return '';
         }
-
-        /** @var LanguageEntity $languageEntity */
-        $languageEntity = $result->first();
 
         return $languageEntity->getId();
     }
@@ -241,31 +189,35 @@ class PluginService
             return null;
         }
 
-        return file_get_contents($pluginIconPath);
-    }
+        $rawContent = file_get_contents($pluginIconPath);
 
-    private function getAuthors(CompletePackageInterface $info): ?string
-    {
-        $authors = null;
-        /** @var array|null $composerAuthors */
-        $composerAuthors = $info->getAuthors();
-
-        if ($composerAuthors !== null) {
-            $manufacturersAuthors = array_filter($composerAuthors, static function (array $author): bool {
-                return ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER;
-            });
-
-            if (empty($manufacturersAuthors)) {
-                $manufacturersAuthors = $composerAuthors;
-            }
-
-            $authorNames = array_column($manufacturersAuthors, 'name');
-            $authors = implode(', ', $authorNames);
+        if (!\is_string($rawContent)) {
+            return null;
         }
 
-        return $authors;
+        return $rawContent;
     }
 
+    private function getAuthors(CompletePackageInterface $info): string
+    {
+        $composerAuthors = $info->getAuthors();
+
+        $manufacturerAuthors = array_filter($composerAuthors, static fn (array $author): bool => ($author['role'] ?? '') === self::COMPOSER_AUTHOR_ROLE_MANUFACTURER);
+
+        if (empty($manufacturerAuthors)) {
+            $manufacturerAuthors = $composerAuthors;
+        }
+
+        $authorNames = array_column($manufacturerAuthors, 'name');
+
+        return implode(', ', $authorNames);
+    }
+
+    /**
+     * @param array<string, mixed> $extra
+     *
+     * @return array<string, array<string, string>>
+     */
     private function getTranslations(Context $context, array $extra): array
     {
         $properties = ['label', 'description', 'manufacturerLink', 'supportLink'];

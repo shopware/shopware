@@ -6,31 +6,22 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class BeforeCartMergeEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected Cart $customerCart;
-
-    protected Cart $guestCart;
-
-    protected LineItemCollection $mergeableLineItems;
-
-    protected SalesChannelContext $context;
-
     /**
      * @internal
      */
-    public function __construct(Cart $customerCart, Cart $guestCart, LineItemCollection $mergeableLineItems, SalesChannelContext $context)
-    {
-        $this->customerCart = $customerCart;
-        $this->guestCart = $guestCart;
-        $this->mergeableLineItems = $mergeableLineItems;
-        $this->context = $context;
+    public function __construct(
+        protected Cart $customerCart,
+        protected Cart $guestCart,
+        protected LineItemCollection $mergeableLineItems,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getCustomerCart(): Cart

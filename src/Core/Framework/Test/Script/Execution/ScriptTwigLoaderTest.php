@@ -16,7 +16,7 @@ class ScriptTwigLoaderTest extends TestCase
 
     private ScriptTwigLoader $scriptLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->script = new Script(
             'simple-function-case.twig',

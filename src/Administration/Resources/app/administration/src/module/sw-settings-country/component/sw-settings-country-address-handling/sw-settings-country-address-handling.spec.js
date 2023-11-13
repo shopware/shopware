@@ -20,7 +20,7 @@ const addressFormat = [
     ['address/first_name', 'address/last_name'],
     ['address/street'],
     ['address/zipcode', 'address/city'],
-    ['address/country']
+    ['address/country'],
 ];
 
 async function createWrapper(privileges = [], customPropsData = {}) {
@@ -36,13 +36,13 @@ async function createWrapper(privileges = [], customPropsData = {}) {
             $tc: key => key,
             $route: {
                 params: {
-                    id: 'id'
-                }
+                    id: 'id',
+                },
             },
             $device: {
                 getSystemKey: () => {},
-                onResize: () => {}
-            }
+                onResize: () => {},
+            },
         },
 
         propsData: {
@@ -51,7 +51,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                 addressFormat,
                 ...customPropsData,
             },
-            isLoading: false
+            isLoading: false,
         },
 
         provide: {
@@ -69,9 +69,9 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                                 zipcode: '48624',
                                 city: 'Schöppingen',
                                 country: {
-                                    name: 'Germany'
-                                }
-                            }
+                                    name: 'Germany',
+                                },
+                            },
                         }]);
                     },
                 }),
@@ -81,30 +81,30 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customSnippetApiService: {
                 snippets: () => {
                     return Promise.resolve({
-                        data: ['symbol/dash', 'symbol/comma', 'address/country_state', 'address/salutation']
+                        data: ['symbol/dash', 'symbol/comma', 'address/country_state', 'address/salutation'],
                     });
                 },
 
                 render: () => Promise.resolve({
-                    rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>'
+                    rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
                 }),
             },
             countryApiService: {
                 defaultCountryAddressFormat: () => Promise.resolve({
-                    data: addressFormat
-                })
+                    data: addressFormat,
+                }),
             },
             userInputSanitizeService: {},
         },
 
         stubs: {
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-container': true,
             'sw-ignore-class': true,
@@ -127,17 +127,17 @@ async function createWrapper(privileges = [], customPropsData = {}) {
                         <slot name="modal-header" @click.prevent="$emit('modal-close')"></slot>
                         <slot></slot>
                         <slot name="modal-footer"></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-context-menu-item': {
                 template: `
                     <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
             'sw-popover': await Shopware.Component.build('sw-popover'),
@@ -145,7 +145,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': true,
             'sw-loader': true,
-        }
+        },
     });
 }
 
@@ -164,25 +164,25 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     it('should be able to edit the address handling tab', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ], {
-            defaultPostalCodePattern: '\\d{5}'
+            defaultPostalCodePattern: '\\d{5}',
         });
 
         const countryForceStateInRegistrationField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]',
         );
 
         const countryPostalCodeRequiredField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelPostalCodeRequired"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelPostalCodeRequired"]',
         );
 
         const countryCheckPostalCodePatternField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
         );
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
         );
 
         expect(countryForceStateInRegistrationField.attributes().disabled).toBeUndefined();
@@ -199,19 +199,19 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.vm.$nextTick();
 
         const countryForceStateInRegistrationField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]',
         );
 
         const countryPostalCodeRequiredField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelPostalCodeRequired"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelPostalCodeRequired"]',
         );
 
         const countryCheckPostalCodePatternField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
         );
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
         );
 
         expect(countryForceStateInRegistrationField.attributes().disabled).toBeTruthy();
@@ -222,16 +222,16 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     it('should be able to toggle advanced postal code pattern', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ], {
-            defaultPostalCodePattern: '\\d{5}'
+            defaultPostalCodePattern: '\\d{5}',
         });
 
         await wrapper.setProps({
             country: {
                 ...wrapper.vm.country,
                 checkPostalCodePattern: false,
-            }
+            },
         });
 
         expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
@@ -246,9 +246,9 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     it('should be not able to toggle advanced postal code pattern', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ], {
-            defaultPostalCodePattern: '\\d{5}'
+            defaultPostalCodePattern: '\\d{5}',
         });
 
         await wrapper.setProps({
@@ -256,7 +256,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 ...wrapper.vm.country,
                 checkAdvancedPostalCodePattern: true,
                 checkPostalCodePattern: true,
-            }
+            },
         });
 
         expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeFalsy();
@@ -270,7 +270,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         expect(wrapper.find('.advanced-postal-code > .sw-field--switch.is--disabled').exists()).toBeTruthy();
 
         const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
+            'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
         );
 
         expect(countryCheckAdvancedPostalCodePatternField.attributes().disabled).toBeTruthy();
@@ -278,7 +278,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     it('should revert advanced postal code pattern when toggle on Advanced validation rules', async () => {
         wrapper = await createWrapper(['country.editor'], {
-            defaultPostalCodePattern: '\\d{5}'
+            defaultPostalCodePattern: '\\d{5}',
         });
 
         await wrapper.setProps({
@@ -287,7 +287,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 checkPostalCodePattern: true,
                 checkAdvancedPostalCodePattern: true,
                 advancedPostalCodePattern: '/^\\d{5}(?:[- ]?\\d{4})?$/',
-            }
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -310,7 +310,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             .find('.sw-field--switch__input input')
             .setChecked();
 
-        expect(wrapper.vm.country.advancedPostalCodePattern).toEqual('/^\\d{5}(?:[- ]?\\d{4})?$/');
+        expect(wrapper.vm.country.advancedPostalCodePattern).toBe('/^\\d{5}(?:[- ]?\\d{4})?$/');
     });
 
     it('should disable postal code validation', async () => {
@@ -320,31 +320,31 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 checkPostalCodePattern: true,
                 checkAdvancedPostalCodePattern: true,
             },
-            {}
+            {},
         ]) {
             // eslint-disable-next-line no-await-in-loop
             wrapper = await createWrapper(['country.editor'], prop);
 
             const countryCheckPostalCodePatternField = wrapper.find(
-                'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]'
+                'sw-base-field-stub[label="sw-settings-country.detail.labelCheckPostalCodePattern"]',
             );
 
             const countryCheckAdvancedPostalCodePatternField = wrapper.find(
-                'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]'
+                'sw-base-field-stub[label="sw-settings-country.detail.labelCheckAdvancedPostalCodePattern"]',
             );
 
             expect(countryCheckPostalCodePatternField.attributes().disabled).toBeDefined();
-            expect(countryCheckAdvancedPostalCodePatternField.attributes().disabled).not.toBeDefined();
+            expect(countryCheckAdvancedPostalCodePatternField.attributes().disabled).toBeUndefined();
         }
     });
 
     it('should able to show the modal with insert new snippet', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         expect(wrapper.find('.sw-settings-country-new-snippet-modal').exists()).toBeFalsy();
-        expect(wrapper.vm.currentPosition).toEqual(null);
+        expect(wrapper.vm.currentPosition).toBeNull();
         expect(wrapper.vm.isOpenModal).toBe(false);
 
         const swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop').at(0);
@@ -353,23 +353,23 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         await menuContextButton.trigger('click');
         expect(wrapper.find('.sw-settings-country-new-snippet-modal').exists()).toBeTruthy();
-        expect(wrapper.vm.currentPosition).toEqual(0);
+        expect(wrapper.vm.currentPosition).toBe(0);
         expect(wrapper.vm.isOpenModal).toBe(true);
     });
 
     it('should be able to add a new row above than current row', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
-            country: { addressFormat }
+            country: { addressFormat },
         });
 
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(5);
-        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(4);
+        expect(swMultiSnippet).toHaveLength(5);
+        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li')).toHaveLength(4);
 
         const menuContextButton = swMultiSnippet.at(0).findAll('.sw-context-menu-item').at(1);
 
@@ -379,24 +379,24 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(6);
-        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(1);
+        expect(swMultiSnippet).toHaveLength(6);
+        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li')).toHaveLength(1);
     });
 
     it('should be able to add a new row below than current row', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
-            country: { addressFormat }
+            country: { addressFormat },
         });
 
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(5);
-        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(4);
-        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(3);
+        expect(swMultiSnippet).toHaveLength(5);
+        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li')).toHaveLength(4);
+        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li')).toHaveLength(3);
 
         const menuContextButton = swMultiSnippet.at(0).findAll('.sw-context-menu-item').at(2);
 
@@ -404,18 +404,18 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(6);
-        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(4);
-        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(1);
+        expect(swMultiSnippet).toHaveLength(6);
+        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li')).toHaveLength(4);
+        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li')).toHaveLength(1);
     });
 
     it('should be able to move the current row to the top', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
-            country: { addressFormat }
+            country: { addressFormat },
         });
 
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
@@ -425,11 +425,11 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             ['address/first_name', 'address/last_name'],
             ['address/street'],
             ['address/zipcode', 'address/city'],
-            ['address/country']
+            ['address/country'],
         ]);
 
-        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(4);
-        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li').length).toEqual(2);
+        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li')).toHaveLength(4);
+        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li')).toHaveLength(2);
 
         const menuContextButton = swMultiSnippet.at(4).findAll('.sw-context-menu-item').at(3);
 
@@ -442,21 +442,21 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             ['address/company', 'symbol/dash', 'address/department'],
             ['address/first_name', 'address/last_name'],
             ['address/street'],
-            ['address/zipcode', 'address/city']
+            ['address/zipcode', 'address/city'],
         ]);
 
-        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li').length).toEqual(2);
-        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(4);
-        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li').length).toEqual(3);
+        expect(swMultiSnippet.at(0).findAll('.sw-select-selection-list > li')).toHaveLength(2);
+        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li')).toHaveLength(4);
+        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li')).toHaveLength(3);
     });
 
     it('should be able to move the current row to the bottom', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
-            country: { addressFormat }
+            country: { addressFormat },
         });
 
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
@@ -469,8 +469,8 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             ['address/country'],
         ]);
 
-        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(3);
-        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li').length).toEqual(2);
+        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li')).toHaveLength(3);
+        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li')).toHaveLength(2);
 
         const menuContextButton = swMultiSnippet.at(1).findAll('.sw-context-menu-item').at(4);
 
@@ -485,23 +485,23 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
             ['address/country'],
             ['address/first_name', 'address/last_name'],
         ]);
-        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li').length).toEqual(2);
-        expect(swMultiSnippet.at(3).findAll('.sw-select-selection-list > li').length).toEqual(2);
-        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li').length).toEqual(3);
+        expect(swMultiSnippet.at(1).findAll('.sw-select-selection-list > li')).toHaveLength(2);
+        expect(swMultiSnippet.at(3).findAll('.sw-select-selection-list > li')).toHaveLength(2);
+        expect(swMultiSnippet.at(4).findAll('.sw-select-selection-list > li')).toHaveLength(3);
     });
 
     it('should be able to delete the current row', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
-            country: { addressFormat }
+            country: { addressFormat },
         });
 
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(5);
+        expect(swMultiSnippet).toHaveLength(5);
 
         const menuContextButton = swMultiSnippet.at(0).findAll('.sw-context-menu-item').at(5);
 
@@ -509,30 +509,30 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(4);
+        expect(swMultiSnippet).toHaveLength(4);
     });
 
     it('should be able to save config when starting drag', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department']
-            }
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
+            },
         });
 
         expect(wrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
     });
 
     it('should not be able to save config with an invalid item when ending drag', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         expect(wrapper.vm.draggedItem).toBeNull();
@@ -546,18 +546,18 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department']
-            }
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
+            },
         });
 
         expect(wrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
         await wrapper.vm.onDragEnter({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         }, null);
 
         expect(wrapper.vm.droppedItem).toBeNull();
@@ -565,7 +565,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
     it('should be able to save config when drag ends', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         expect(wrapper.vm.draggedItem).toBeNull();
@@ -574,69 +574,69 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         await wrapper.vm.onDragStart({
             data: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department']
-            }
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
+            },
         });
 
         expect(wrapper.vm.draggedItem).toEqual({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
         await wrapper.vm.onDragEnter({
             index: 0,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         }, {
             index: 1,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
 
         expect(wrapper.vm.droppedItem).toEqual({
             index: 1,
-            snippet: ['address/company', 'symbol/dash', 'address/department']
+            snippet: ['address/company', 'symbol/dash', 'address/department'],
         });
     });
 
     it('should be able to sort the list on dragging', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company', 'symbol/dash', 'address/department'
+            'address/company', 'symbol/dash', 'address/department',
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name', 'address/last_name'
+            'address/first_name', 'address/last_name',
         ]);
 
         await wrapper.setData({
             draggedItem: {
                 index: 1,
-                snippet: ['address/company', 'symbol/dash', 'address/department']
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
             },
             droppedItem: {
                 index: 0,
-                snippet: ['address/company', 'symbol/dash', 'address/department']
-            }
+                snippet: ['address/company', 'symbol/dash', 'address/department'],
+            },
         });
 
         await wrapper.vm.onDrop();
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/first_name', 'address/last_name'
+            'address/first_name', 'address/last_name',
         ]);
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/company', 'symbol/dash', 'address/department'
+            'address/company', 'symbol/dash', 'address/department',
         ]);
     });
 
     it('should be able to add a new snippet to another line on dragging', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual(
-            ['address/company', 'symbol/dash', 'address/department']
+            ['address/company', 'symbol/dash', 'address/department'],
         );
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
             'address/first_name', 'address/last_name',
@@ -648,40 +648,40 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 dragData: {
                     index: 2,
                     linePosition: 0,
-                    snippet: 'address/department'
+                    snippet: 'address/department',
                 },
                 dropData: {
                     index: 1,
-                    snippet: ['address/first_name', 'address/last_name']
-                }
-            }
+                    snippet: ['address/first_name', 'address/last_name'],
+                },
+            },
         );
 
         expect(wrapper.vm.country.addressFormat[0]).toEqual([
-            'address/company', 'symbol/dash'
+            'address/company', 'symbol/dash',
         ]);
 
         expect(wrapper.vm.country.addressFormat[1]).toEqual([
-            'address/first_name', 'address/last_name', 'address/department'
+            'address/first_name', 'address/last_name', 'address/department',
         ]);
     });
 
     it('should be able to swap positions in different lines', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
             country: {
                 addressFormat: [
                     ['address/company', 'symbol/dash', 'address/department'],
-                    ['address/first_name', 'address/last_name']
-                ]
-            }
+                    ['address/first_name', 'address/last_name'],
+                ],
+            },
         });
 
-        expect(wrapper.vm.country.addressFormat[0][2]).toEqual('address/department');
-        expect(wrapper.vm.country.addressFormat[1][1]).toEqual('address/last_name');
+        expect(wrapper.vm.country.addressFormat[0][2]).toBe('address/department');
+        expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/last_name');
 
         await wrapper.vm.onDropEnd(
             1,
@@ -689,28 +689,28 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
                 dragData: {
                     index: 1,
                     linePosition: 1,
-                    snippet: 'address/last_name'
+                    snippet: 'address/last_name',
                 },
                 dropData: {
                     index: 2,
                     linePosition: 0,
-                    snippet: 'address/department'
-                }
-            }
+                    snippet: 'address/department',
+                },
+            },
         );
 
-        expect(wrapper.vm.country.addressFormat[0][2]).toEqual('address/last_name');
-        expect(wrapper.vm.country.addressFormat[1][1]).toEqual('address/department');
+        expect(wrapper.vm.country.addressFormat[0][2]).toBe('address/last_name');
+        expect(wrapper.vm.country.addressFormat[1][1]).toBe('address/department');
     });
 
     it('should be able to preview formatting with the customer', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         let previewTemplate = wrapper.find('.sw-settings-country-preview-template > div');
 
-        expect(previewTemplate.html()).toEqual('<div></div>');
+        expect(previewTemplate.html()).toBe('<div></div>');
 
         const selection = wrapper.find('.sw-entity-single-select');
 
@@ -726,21 +726,21 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         previewTemplate = wrapper.find('.sw-settings-country-preview-template > div');
 
-        expect(previewTemplate.html()).toEqual('<div>Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>');
+        expect(previewTemplate.html()).toBe('<div>Christa Stracke<br> \\n \\n Philip Inlet<br> \\n \\n \\n \\n 22005-3637 New Marilyneside<br> \\n \\n Moldova (Republic of)<br><br></div>');
     });
 
     it('should be able to revert address to the default', async () => {
         wrapper = await createWrapper([
-            'country.editor'
+            'country.editor',
         ]);
 
         await wrapper.setProps({
-            country: { addressFormat }
+            country: { addressFormat },
         });
 
         let swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(5);
+        expect(swMultiSnippet).toHaveLength(5);
 
         const menuContextButton = swMultiSnippet.at(0).findAll('.sw-context-menu-item').at(5);
 
@@ -748,7 +748,7 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(4);
+        expect(swMultiSnippet).toHaveLength(4);
 
         const buttonReset = wrapper.find('.sw-settings-country-address-handling__button-reset');
 
@@ -758,6 +758,6 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
 
         swMultiSnippet = wrapper.findAll('.sw-multi-snippet-drag-and-drop');
 
-        expect(swMultiSnippet.length).toEqual(5);
+        expect(swMultiSnippet).toHaveLength(5);
     });
 });

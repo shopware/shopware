@@ -16,9 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\FkFieldPrimaryDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\MultiFkFieldPrimaryDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\FkFieldPrimaryTestDefinition;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\MultiFkFieldPrimaryTestDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -31,6 +32,11 @@ class FkFieldPrimarySearcherTest extends TestCase
     private EntityRepository $productRepository;
 
     private string $productId;
+
+    public static function tearDownAfterClass(): void
+    {
+        KernelLifecycleManager::getKernel()->getContainer()->get(Connection::class)->executeStatement('DROP TABLE IF EXISTS multi_fk_field_primary');
+    }
 
     protected function tearDown(): void
     {
@@ -45,7 +51,7 @@ class FkFieldPrimarySearcherTest extends TestCase
     {
         $this->addPrimaryFkField();
 
-        $definition = new FkFieldPrimaryDefinition();
+        $definition = new FkFieldPrimaryTestDefinition();
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->productId = Uuid::randomHex();
 
@@ -155,7 +161,7 @@ class FkFieldPrimarySearcherTest extends TestCase
               `updated_at` DATETIME(3) NULL
         )');
 
-        $definition = new FkFieldPrimaryDefinition();
+        $definition = new FkFieldPrimaryTestDefinition();
 
         if (!$this->getContainer()->has($definition->getEntityName() . '.repository')) {
             $repository = new EntityRepository(
@@ -192,7 +198,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             )'
         );
 
-        $definition = new MultiFkFieldPrimaryDefinition();
+        $definition = new MultiFkFieldPrimaryTestDefinition();
 
         if (!$this->getContainer()->has($definition->getEntityName() . '.repository')) {
             $repository = new EntityRepository(

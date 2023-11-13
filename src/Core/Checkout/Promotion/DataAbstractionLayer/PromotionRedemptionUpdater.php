@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -9,30 +10,27 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('buyers-experience')]
 class PromotionRedemptionUpdater implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             CheckoutOrderPlacedEvent::class => 'orderPlaced',
@@ -67,7 +65,7 @@ SQL;
         $promotions = $this->connection->fetchAllAssociative(
             $sql,
             ['type' => PromotionProcessor::LINE_ITEM_TYPE, 'ids' => Uuid::fromHexToBytesList($ids), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($promotions)) {
@@ -87,7 +85,7 @@ SQL;
             $update->execute([
                 'id' => Uuid::fromHexToBytes($id),
                 'count' => (int) $total,
-                'customerCount' => json_encode($totals),
+                'customerCount' => json_encode($totals, \JSON_THROW_ON_ERROR),
             ]);
         }
     }
@@ -135,7 +133,7 @@ SQL;
 
             $update->execute([
                 'id' => Uuid::fromHexToBytes($promotionId),
-                'customerCount' => json_encode($allCustomerCounts[$promotionId]),
+                'customerCount' => json_encode($allCustomerCounts[$promotionId], \JSON_THROW_ON_ERROR),
             ]);
         }
     }
@@ -168,7 +166,7 @@ SQL;
         $countResult = $this->connection->fetchAllAssociative(
             'SELECT `id`, `orders_per_customer_count` FROM `promotion` WHERE `id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($promotionIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         foreach ($countResult as $row) {
@@ -178,7 +176,7 @@ SQL;
                 continue;
             }
 
-            $customerCount = json_decode($row['orders_per_customer_count'], true);
+            $customerCount = json_decode($row['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
             if (!$customerCount) {
                 $allCustomerCounts[Uuid::fromBytesToHex($row['id'])] = [];
 

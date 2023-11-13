@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\Api\OAuth\Scope;
 
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class AdminScope implements ScopeEntityInterface
 {
-    public const IDENTIFIER = 'admin';
+    final public const IDENTIFIER = 'admin';
 
     /**
      * @return string

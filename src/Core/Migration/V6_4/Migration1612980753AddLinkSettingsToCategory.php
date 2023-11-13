@@ -3,13 +3,15 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1612980753AddLinkSettingsToCategory extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -33,7 +35,7 @@ SQL;
             ->where('translation.external_link IS NOT NULL')
             ->orWhere('translation.category_id IN (SELECT id FROM category WHERE translation.category_id = category.id AND category.type = \'link\')')
             ->setParameter('linkType', 'external')
-            ->execute();
+            ->executeStatement();
     }
 
     public function updateDestructive(Connection $connection): void

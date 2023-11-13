@@ -3,26 +3,22 @@
 namespace Shopware\Core\Framework\App\Cms;
 
 use Shopware\Core\Framework\App\Cms\Xml\Blocks;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class CmsExtensions
 {
     private const XSD_FILE = __DIR__ . '/Schema/cms-1.0.xsd';
 
-    private string $path;
-
-    private ?Blocks $blocks;
-
-    private function __construct(string $path, ?Blocks $blocks)
-    {
-        $this->path = $path;
-        $this->blocks = $blocks;
+    private function __construct(
+        private string $path,
+        private readonly ?Blocks $blocks
+    ) {
     }
 
     public static function createFromXmlFile(string $xmlFile): self

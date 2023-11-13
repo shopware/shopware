@@ -104,6 +104,9 @@
         "favicon": "Favicon",
         "shopLogo": "Shop Logo"
       },
+      "placeholder": {
+        "selectSalesChannel": "Verkaufskanal auswählen ..."
+      },
       "error": {
         "themeCompile": {
           "title": "Das Theme konnte nicht kompiliert werden",

@@ -1,21 +1,21 @@
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-preview-product-listing', () => import('./preview'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-config-product-listing', () => import('./config'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register('sw-cms-el-product-listing', () => import('./component'));
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Component.register(
     'sw-cms-el-config-product-listing-config-sorting-grid',
@@ -24,7 +24,7 @@ Shopware.Component.register(
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',

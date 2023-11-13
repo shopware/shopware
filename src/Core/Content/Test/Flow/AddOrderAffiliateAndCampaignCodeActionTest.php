@@ -8,14 +8,14 @@ use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCo
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -79,7 +79,7 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
     /**
      * @return array<int, mixed>
      */
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             // existed data / update data / expect data

@@ -18,18 +18,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeChildDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'theme';
+    final public const ENTITY_NAME = 'theme';
 
     public function getEntityName(): string
     {
@@ -64,6 +63,7 @@ class ThemeDefinition extends EntityDefinition
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new FkField('preview_media_id', 'previewMediaId', MediaDefinition::class))->addFlags(new ApiAware()),
             (new FkField('parent_theme_id', 'parentThemeId', self::class))->addFlags(new ApiAware()),
+            new JsonField('theme_json', 'themeJson'),
             (new JsonField('base_config', 'baseConfig'))->addFlags(new ApiAware()),
             (new JsonField('config_values', 'configValues'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware(), new Required()),

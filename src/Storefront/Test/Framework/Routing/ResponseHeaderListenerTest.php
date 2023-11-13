@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Routing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
@@ -38,7 +39,7 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testHomeController(): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
@@ -54,7 +55,7 @@ class ResponseHeaderListenerTest extends TestCase
     {
         try {
             $this->toggleNotFoundSubscriber(false);
-            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+            $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
             $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
@@ -78,7 +79,7 @@ class ResponseHeaderListenerTest extends TestCase
         ]);
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
-        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, Uuid::randomHex());
         $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 
@@ -88,11 +89,16 @@ class ResponseHeaderListenerTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $routeParameters
+     *
      * @dataProvider dataProviderRevalidateRoutes
      */
-    public function testNoStoreHeaderPresent(string $route): void
+    public function testNoStoreHeaderPresent(string $routeName, array $routeParameters): void
     {
-        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel(), false);
+        $router = $this->getContainer()->get('router');
+        $route = $router->generate($routeName, $routeParameters);
+
+        $browser = KernelLifecycleManager::createBrowser(KernelLifecycleManager::getKernel());
         $browser->request('GET', $_SERVER['APP_URL'] . $route);
         $response = $browser->getResponse();
 
@@ -102,14 +108,12 @@ class ResponseHeaderListenerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string>>
+     * @return iterable<string, array{string, array<string>}>
      */
-    public function dataProviderRevalidateRoutes(): iterable
+    public static function dataProviderRevalidateRoutes(): iterable
     {
-        $router = $this->getContainer()->get('router');
-
         foreach (self::REVALIDATE_ROUTES as $route => $parameters) {
-            yield $route => [$router->generate($route, $parameters)];
+            yield $route => [$route, $parameters];
         }
     }
 

@@ -33,7 +33,7 @@ trait BasicTestDataBehaviour
         return $language->getId();
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
     protected function getValidPaymentMethodId(?string $salesChannelId = null): string
     {

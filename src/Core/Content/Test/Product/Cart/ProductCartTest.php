@@ -47,7 +47,7 @@ class ProductCartTest extends TestCase
         static::assertEquals($expected, $item->getPrice()->getTotalPrice());
     }
 
-    public function priceInCartProvider(): \Generator
+    public static function priceInCartProvider(): \Generator
     {
         $ids = new IdsCollection();
 

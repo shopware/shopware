@@ -4,32 +4,33 @@ namespace Shopware\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\HandlerInterface;
+use Monolog\LogRecord;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ExcludeExceptionHandler extends AbstractHandler
 {
-    private HandlerInterface $handler;
-
-    private array $excludeExceptionList;
-
     /**
      * @internal
+     *
+     * @param array<int, string> $excludeExceptionList
      */
-    public function __construct(HandlerInterface $handler, array $excludeExceptionList)
-    {
+    public function __construct(
+        private readonly HandlerInterface $handler,
+        private readonly array $excludeExceptionList
+    ) {
         parent::__construct();
-        $this->handler = $handler;
-        $this->excludeExceptionList = $excludeExceptionList;
     }
 
-    public function handle(array $record): bool
+    /**
+     * {@inheritdoc}
+     */
+    public function handle(LogRecord $record): bool
     {
         if (
-            isset($record['context']['exception'])
-            && \is_object($record['context']['exception'])
-            && \in_array(\get_class($record['context']['exception']), $this->excludeExceptionList, true)
+            isset($record->context['exception'])
+            && \is_object($record->context['exception'])
+            && \in_array($record->context['exception']::class, $this->excludeExceptionList, true)
         ) {
             return true;
         }

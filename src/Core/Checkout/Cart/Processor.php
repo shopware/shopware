@@ -5,33 +5,14 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class Processor
 {
-    private Validator $validator;
-
-    private AmountCalculator $amountCalculator;
-
-    private TransactionProcessor $transactionProcessor;
-
-    /**
-     * @var iterable<CartProcessorInterface>
-     */
-    private iterable $processors;
-
-    /**
-     * @var iterable<CartDataCollectorInterface>
-     */
-    private iterable $collectors;
-
-    private ScriptExecutor $executor;
-
     /**
      * @internal
      *
@@ -39,30 +20,32 @@ class Processor
      * @param iterable<CartDataCollectorInterface> $collectors
      */
     public function __construct(
-        Validator $validator,
-        AmountCalculator $amountCalculator,
-        TransactionProcessor $transactionProcessor,
-        iterable $processors,
-        iterable $collectors,
-        ScriptExecutor $executor
+        private readonly Validator $validator,
+        private readonly AmountCalculator $amountCalculator,
+        private readonly TransactionProcessor $transactionProcessor,
+        private readonly iterable $processors,
+        private readonly iterable $collectors,
+        private readonly ScriptExecutor $executor
     ) {
-        $this->validator = $validator;
-        $this->amountCalculator = $amountCalculator;
-        $this->transactionProcessor = $transactionProcessor;
-        $this->processors = $processors;
-        $this->collectors = $collectors;
-        $this->executor = $executor;
     }
 
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
     {
         return Profiler::trace('cart::process', function () use ($original, $context, $behavior) {
-            $cart = new Cart($original->getName(), $original->getToken());
+            $cart = new Cart($original->getToken());
             $cart->setCustomerComment($original->getCustomerComment());
             $cart->setAffiliateCode($original->getAffiliateCode());
             $cart->setCampaignCode($original->getCampaignCode());
+            $cart->setSource($original->getSource());
             $cart->setBehavior($behavior);
             $cart->addState(...$original->getStates());
+
+            if ($behavior->hookAware()) {
+                // reset modified state that apps always have the same entry state
+                foreach ($original->getLineItems()->getFlat() as $item) {
+                    $item->markUnModifiedByApp();
+                }
+            }
 
             // move data from previous calculation into new cart
             $cart->setData($original->getData());

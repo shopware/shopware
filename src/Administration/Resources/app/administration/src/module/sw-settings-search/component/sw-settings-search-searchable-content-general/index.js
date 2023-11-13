@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-searchable-content-general.html.twig';
 
@@ -54,6 +54,12 @@ export default {
         },
     },
 
+    computed: {
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+    },
+
     methods: {
 
         getMatchingFields(fieldName) {
@@ -98,6 +104,10 @@ export default {
 
         onInlineEditCancel() {
             this.$emit('data-load');
+        },
+
+        onInlineEditItem(item) {
+            this.$refs.swSettingsSearchableContentGrid.onDbClickCell(item);
         },
 
         onResetRanking(currentField) {

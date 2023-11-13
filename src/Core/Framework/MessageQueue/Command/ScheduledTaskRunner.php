@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -12,39 +13,23 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'scheduled-task:run',
     description: 'Runs scheduled tasks',
 )]
+#[Package('core')]
 class ScheduledTaskRunner extends Command
 {
-    /**
-     * @var TaskScheduler
-     */
-    private $scheduler;
-
-    /**
-     * @var bool
-     */
-    private $shouldStop = false;
-
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $restartSignalCachePool;
+    private bool $shouldStop = false;
 
     /**
      * @internal
      */
-    public function __construct(TaskScheduler $scheduler, CacheItemPoolInterface $restartSignalCachePool)
-    {
+    public function __construct(
+        private readonly TaskScheduler $scheduler,
+        private readonly CacheItemPoolInterface $restartSignalCachePool
+    ) {
         parent::__construct();
-
-        $this->scheduler = $scheduler;
-        $this->restartSignalCachePool = $restartSignalCachePool;
     }
 
     protected function configure(): void
@@ -52,16 +37,24 @@ class ScheduledTaskRunner extends Command
         $this
             ->addOption('memory-limit', 'm', InputOption::VALUE_REQUIRED, 'The memory limit the worker can consume')
             ->addOption('time-limit', 't', InputOption::VALUE_REQUIRED, 'The time limit in seconds the worker can run')
-            ->setDescription('Worker that runs scheduled task.');
+            ->addOption('no-wait', null, InputOption::VALUE_NONE, 'Do not wait for next cycle of scheduled tasks');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if ($input->getOption('no-wait')) {
+            $this->scheduler->queueScheduledTasks();
+
+            $output->writeln('Scheduled tasks has been queued');
+
+            return Command::SUCCESS;
+        }
+
         $startTime = microtime(true);
         $endTime = null;
-        $timeLimit = $input->getOption('time-limit');
+        $timeLimit = (int) $input->getOption('time-limit');
         if ($timeLimit) {
-            $endTime = $startTime + (int) $timeLimit;
+            $endTime = $startTime + $timeLimit;
         }
 
         $memoryLimit = $input->getOption('memory-limit');
@@ -100,7 +93,7 @@ class ScheduledTaskRunner extends Command
             }
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function shouldRestart(float $workerStartedAt): bool

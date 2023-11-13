@@ -1,13 +1,11 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-view-live-search.html.twig';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
-
-    inject: ['feature'],
 
     props: {
         currentSalesChannelId: {
@@ -34,6 +32,12 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+        },
+    },
+
+    computed: {
+        storefrontEsEnable() {
+            return Shopware.Context.app.storefrontEsEnable ?? false;
         },
     },
 };

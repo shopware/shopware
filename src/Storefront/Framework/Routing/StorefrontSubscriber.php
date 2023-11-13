@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
@@ -23,6 +24,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -33,48 +35,23 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class StorefrontSubscriber implements EventSubscriberInterface
 {
-    private RequestStack $requestStack;
-
-    private RouterInterface $router;
-
-    private MaintenanceModeResolver $maintenanceModeResolver;
-
-    private HreflangLoaderInterface $hreflangLoader;
-
-    private ShopIdProvider $shopIdProvider;
-
-    private ActiveAppsLoader $activeAppsLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private StorefrontPluginRegistryInterface $themeRegistry;
-
     /**
      * @internal
      */
     public function __construct(
-        RequestStack $requestStack,
-        RouterInterface $router,
-        HreflangLoaderInterface $hreflangLoader,
-        MaintenanceModeResolver $maintenanceModeResolver,
-        ShopIdProvider $shopIdProvider,
-        ActiveAppsLoader $activeAppsLoader,
-        SystemConfigService $systemConfigService,
-        StorefrontPluginRegistryInterface $themeRegistry
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly HreflangLoaderInterface $hreflangLoader,
+        private readonly MaintenanceModeResolver $maintenanceModeResolver,
+        private readonly ShopIdProvider $shopIdProvider,
+        private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly StorefrontPluginRegistryInterface $themeRegistry
     ) {
-        $this->requestStack = $requestStack;
-        $this->router = $router;
-        $this->maintenanceModeResolver = $maintenanceModeResolver;
-        $this->hreflangLoader = $hreflangLoader;
-        $this->shopIdProvider = $shopIdProvider;
-        $this->activeAppsLoader = $activeAppsLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->themeRegistry = $themeRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -205,7 +182,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         $parameters = [
             'redirectTo' => $request->attributes->get('_route'),
-            'redirectParameters' => json_encode($request->attributes->get('_route_params')),
+            'redirectParameters' => json_encode($request->attributes->get('_route_params'), \JSON_THROW_ON_ERROR),
         ];
 
         $redirectResponse = new RedirectResponse($this->router->generate('frontend.account.login.page', $parameters));
@@ -238,6 +215,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @var callable(): Response $controller */
         $controller = $event->getController();
 
         // happens if Controller is a closure
@@ -245,7 +223,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest', false);
+        $isAllowed = $event->getRequest()->attributes->getBoolean('XmlHttpRequest');
 
         if ($isAllowed) {
             return;
@@ -274,6 +252,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         if ($canonical = $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK)) {
+            \assert(\is_string($canonical));
             $canonical = sprintf('<%s>; rel="canonical"', $canonical);
             $event->getResponse()->headers->set('Link', $canonical);
         }
@@ -302,7 +281,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         try {
             $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException $e) {
+        } catch (AppUrlChangeDetectedException) {
             return;
         }
 

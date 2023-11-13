@@ -8,16 +8,30 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\System\User\UserCollection;
+use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @internal
+ */
+#[Package('services-settings')]
 trait StoreClientBehaviour
 {
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, use ::getStoreRequestHandler() instead
+     */
     public function getRequestHandler(): MockHandler
+    {
+        return $this->getStoreRequestHandler();
+    }
+
+    public function getStoreRequestHandler(): MockHandler
     {
         /** @var MockHandler $handler */
         $handler = $this->getContainer()->get('shopware.store.mock_handler');
@@ -25,13 +39,32 @@ trait StoreClientBehaviour
         return $handler;
     }
 
+    public function getFrwRequestHandler(): MockHandler
+    {
+        /** @var MockHandler $handler */
+        $handler = $this->getContainer()->get('shopware.frw.mock_handler');
+
+        return $handler;
+    }
+
     /**
      * @after
+     *
      * @before
      */
     public function resetStoreMock(): void
     {
-        $this->getRequestHandler()->reset();
+        $this->getStoreRequestHandler()->reset();
+    }
+
+    /**
+     * @after
+     *
+     * @before
+     */
+    public function resetFrwMock(): void
+    {
+        $this->getFrwRequestHandler()->reset();
     }
 
     protected function createAdminStoreContext(): Context
@@ -71,14 +104,20 @@ trait StoreClientBehaviour
             throw new \RuntimeException('No user id found in context');
         }
 
-        /** @var UserCollection $user */
-        $user = $this->getUserRepository()->search(new Criteria([$userId]), $context)->getEntities();
+        /** @var UserCollection $users */
+        $users = $this->getUserRepository()->search(new Criteria([$userId]), $context)->getEntities();
 
-        if ($user->count() === 0) {
+        if ($users->count() === 0) {
             throw new \RuntimeException('No user found with id ' . $userId);
         }
 
-        return $user->first()->getStoreToken();
+        $user = $users->first();
+        static::assertInstanceOf(UserEntity::class, $user);
+
+        $token = $user->getStoreToken();
+        static::assertIsString($token);
+
+        return $token;
     }
 
     protected function getFrwUserTokenFromContext(Context $context): ?string

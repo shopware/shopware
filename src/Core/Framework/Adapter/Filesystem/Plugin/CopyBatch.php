@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Adapter\Filesystem\Plugin;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CopyBatch
 {
     public static function copy(FilesystemOperator $filesystem, CopyBatchInput ...$files): void

@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import template from './sw-import-export-activity.html.twig';
 import './sw-import-export-activity.scss';
@@ -85,7 +85,8 @@ export default {
                         Criteria.equals('activity', 'dryrun'),
                     ],
                 ));
-                criteria.addAssociation('invalidRecordsLog');
+                criteria.getAssociation('invalidRecordsLog')
+                    .addAssociation('file');
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
             }
@@ -193,6 +194,10 @@ export default {
                 this.$tc('sw-import-export.activity.emptyState.titleExport') :
                 this.$tc('sw-import-export.activity.emptyState.titleImport');
         },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -245,6 +250,7 @@ export default {
         async updateActivitiesInProgress() {
             const criteria = Criteria.fromCriteria(this.activityCriteria);
             criteria.setIds(this.logs.filter(log => log.state === 'progress').getIds());
+            criteria.addAssociation('file');
             const currentInProgress = await this.logRepository.search(criteria);
 
             this.updateActivitiesFromLogs(currentInProgress);
@@ -268,7 +274,7 @@ export default {
                 }
 
                 const config = {
-                    message: this.$t(this.stateText[log.activity][log.state], {
+                    message: this.$t((this.stateText?.[log.activity]?.[log.state] ?? ''), {
                         profile: log.profileName,
                     }),
                     autoClose: false,

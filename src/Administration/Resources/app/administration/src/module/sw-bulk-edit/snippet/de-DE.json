@@ -18,6 +18,17 @@
       "alertInheritance": {
         "message": "Diese Varianten besitzen vererbte Felder. Der Inhalt der vererbten Felder wird vom jeweiligen Hauptprodukt übernommen. Sie können Vererbungen aktivieren und deaktivieren, indem Sie auf das Kettensymbol anklicken."
       },
+      "alertRestrictedFields": {
+        "title": "Eingeschränkte Mehrfachänderung",
+        "message": "Mehrfachänderungen können nur für Felder vorgenommen werden, die für alle ausgewählten Produkte verfügbar sind.<br><br>Nicht für alle ausgewählten Produkte verfügbar:",
+        "stock": "Lagerbestand",
+        "isCloseout": "Im Abverkauf",
+        "restockTime": "Dauer der Wiederauffüllung",
+        "maxPurchase": "Maximale Bestellmenge",
+        "purchaseSteps": "Staffelung",
+        "minPurchase": "Minimale Bestellmenge",
+        "shippingFree": "Versandkostenfrei"
+      },
       "generalInformation": {
         "cardTitle": "Allgemeine Informationen",
         "description": {
@@ -266,6 +277,11 @@
       "textTitle": "Mehrfachänderung: {orderTotal} Bestellung | Mehrfachänderung: {orderTotal} Bestellungen",
       "messageEmptyTitle": "Keine Bestellungen ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Bestellungen aus.",
+      "alertRestrictedFields": {
+        "title": "Eingeschränkte Mehrfachänderungen",
+        "message": "Mehrfachänderungen können nur für Felder vorgenommen werden, die für alle ausgewählten Bestellungen verfügbar sind.<br><br>Nicht für alle ausgewählten Bestellungen verfügbar:",
+        "orderDeliveries": "Versandstatus"
+      },
       "status": {
         "cardTitle": "Status",
         "payment": {

@@ -17,7 +17,7 @@ import 'src/app/component/base/sw-product-variant-info';
 import 'src/app/component/base/sw-icon';
 
 const fixture = [
-    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] }
+    { id: utils.createId(), name: 'first entry', variation: [{ group: 'Size', option: 'M' }] },
 ];
 
 const propertyFixture = [
@@ -25,23 +25,23 @@ const propertyFixture = [
         id: utils.createId(),
         name: 'first entry',
         group: {
-            name: 'example'
-        }
+            name: 'example',
+        },
     },
     {
         id: utils.createId(),
         name: 'second entry',
         group: {
-            name: 'example'
-        }
+            name: 'example',
+        },
     },
     {
         id: utils.createId(),
         name: 'third',
         group: {
-            name: 'entry'
-        }
-    }
+            name: 'entry',
+        },
+    },
 ];
 
 function getCollection() {
@@ -52,7 +52,7 @@ function getCollection() {
         { isShopwareContext: true },
         fixture,
         fixture.length,
-        null
+        null,
     );
 }
 
@@ -64,7 +64,7 @@ function getPropertyCollection() {
         { isShopwareContext: true },
         propertyFixture,
         propertyFixture.length,
-        null
+        null,
     );
 }
 
@@ -82,39 +82,34 @@ const createEntityMultiSelect = async (customOptions) => {
             'sw-icon': await Shopware.Component.build('sw-icon'),
             'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-label': true,
             'sw-loader': await Shopware.Component.build('sw-loader'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
             'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
             'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
-            'icons-regular-checkmark-xs': {
-                template: '<div></div>'
-            },
-            'icons-regular-chevron-down-xs': {
-                template: '<div></div>'
-            }
+            'sw-label': true,
         },
         propsData: {
             entity: 'test',
-            entityCollection: getCollection()
+            entityCollection: getCollection(),
+            showClearableButton: true,
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
                         get: (value) => Promise.resolve({ id: value, name: value }),
-                        search: () => Promise.resolve(getCollection())
+                        search: () => Promise.resolve(getCollection()),
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-multi-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -129,27 +124,23 @@ describe('components/sw-entity-multi-select', () => {
         const swEntityMultiSelect = await createEntityMultiSelect({
             propsData: {
                 entity: 'property_group_option',
-                entityCollection: getPropertyCollection()
+                entityCollection: getPropertyCollection(),
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
-
-        swEntityMultiSelect.vm.loadData();
-        await swEntityMultiSelect.vm.$nextTick();
-        await swEntityMultiSelect.vm.$nextTick();
 
         await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
         await swEntityMultiSelect.find('input').setValue('first');
         await swEntityMultiSelect.find('input').trigger('change');
-        await swEntityMultiSelect.vm.$nextTick();
+        await flushPromises();
 
         expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
@@ -158,7 +149,7 @@ describe('components/sw-entity-multi-select', () => {
         const swEntityMultiSelect = await createEntityMultiSelect();
         const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
 
-        expect(productVariantInfo.exists()).toBeFalsy();
+        expect(productVariantInfo.exists()).toBe(false);
     });
 
     it('should display variations', async () => {
@@ -167,13 +158,13 @@ describe('components/sw-entity-multi-select', () => {
                 value: fixture[0].id,
                 entity: 'test',
                 entityCollection: getCollection(),
-                displayVariants: true
-            }
+                displayVariants: true,
+            },
         });
 
         const productVariantInfo = swEntityMultiSelect.find('.sw-product-variant-info');
 
-        expect(productVariantInfo.exists()).toBeTruthy();
+        expect(productVariantInfo.exists()).toBe(true);
 
         expect(productVariantInfo.find('.sw-product-variant-info__product-name').text())
             .toContain(fixture[0].name);
@@ -193,25 +184,22 @@ describe('components/sw-entity-multi-select', () => {
                     </template>`,
                 'result-description-property': `<template>
                         {{ props.item.group.name }}
-                    </template>`
+                    </template>`,
             },
             propsData: {
                 entity: 'property_group_option',
-                entityCollection: getPropertyCollection()
+                entityCollection: getPropertyCollection(),
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
-
-        swEntityMultiSelect.vm.loadData();
-        await flushPromises();
 
         await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
         await swEntityMultiSelect.find('input').trigger('change');
@@ -235,27 +223,35 @@ describe('components/sw-entity-multi-select', () => {
                     { isShopwareContext: true },
                     [getPropertyCollection().at(0)],
                     1,
-                    null
-                )
+                    null,
+                ),
             },
             provide: {
                 repositoryFactory: {
                     create: () => {
                         return {
-                            search: () => Promise.resolve(getPropertyCollection())
+                            search: () => Promise.resolve(getPropertyCollection()),
                         };
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
-
-        swEntityMultiSelect.vm.loadData();
-        await flushPromises();
 
         await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .sw-icon').exists()).toBeTruthy();
+        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .sw-icon').exists()).toBe(true);
+    });
+
+    it('should be possible to clear the selection', async () => {
+        const wrapper = await createEntityMultiSelect();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('input').trigger('change');
+        await flushPromises();
+
+        await wrapper.find('.sw-select__select-indicator-clear').trigger('click');
+        expect(wrapper.emitted('change')[0][0].total).toBeNull();
     });
 });

@@ -50,7 +50,9 @@ export default {
                 'manufacturer-filter',
                 'visibilities-filter',
                 'categories-filter',
+                'sales-filter',
                 'tags-filter',
+                'product-states-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
@@ -161,6 +163,14 @@ export default {
                     placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
                     displayPath: true,
                 },
+                'sales-filter': {
+                    property: 'sales',
+                    label: this.$tc('sw-product.filters.salesFilter.label'),
+                    digits: 20,
+                    min: 0,
+                    fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
+                },
                 'price-filter': {
                     property: 'price',
                     label: this.$tc('sw-product.filters.priceFilter.label'),
@@ -173,6 +183,22 @@ export default {
                     property: 'tags',
                     label: this.$tc('sw-product.filters.tagsFilter.label'),
                     placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder'),
+                },
+                'product-states-filter': {
+                    property: 'states',
+                    label: this.$tc('sw-product.filters.productStatesFilter.label'),
+                    placeholder: this.$tc('sw-product.filters.productStatesFilter.placeholder'),
+                    type: 'multi-select-filter',
+                    options: [
+                        {
+                            label: this.$tc('sw-product.filters.productStatesFilter.options.physical'),
+                            value: 'is-physical',
+                        },
+                        {
+                            label: this.$tc('sw-product.filters.productStatesFilter.options.digital'),
+                            value: 'is-download',
+                        },
+                    ],
                 },
                 'release-date-filter': {
                     property: 'releaseDate',
@@ -194,6 +220,22 @@ export default {
                 const { inlineEdit, ...restParams } = item;
                 return restParams;
             });
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
         },
     },
 
@@ -352,6 +394,11 @@ export default {
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center',
+            }, {
+                property: 'sales',
+                label: this.$tc('sw-product.list.columnSales'),
+                allowResize: true,
+                align: 'right',
             },
             ...this.currenciesColumns,
             {
@@ -415,10 +462,17 @@ export default {
         },
 
         onBulkEditItems() {
+            let includesDigital = '0';
+            const digital = Object.values(this.selection).filter(product => product.states.includes('is-download'));
+            if (digital.length > 0) {
+                includesDigital = (digital.filter(product => product.isCloseout).length !== digital.length) ? '1' : '2';
+            }
+
             this.$router.push({
                 name: 'sw.bulk.edit.product',
                 params: {
                     parentId: 'null',
+                    includesDigital,
                 },
             });
         },

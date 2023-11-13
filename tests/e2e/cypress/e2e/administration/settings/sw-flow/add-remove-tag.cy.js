@@ -135,7 +135,7 @@ describe('Flow builder: Add remove tag testing', () => {
         cy.visit('/account/address');
         cy.get('.address-list .address-card').eq(1).get('.col-auto').contains('Edit')
             .click();
-        cy.get('#addressAddressCountry').select('USA');
+        cy.get('#addressAddressCountry').select('United States of America');
         cy.contains('.address-form-submit', 'Save address').click();
 
         cy.get('.address-action-set-default-billing').click();

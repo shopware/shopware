@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Page;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\PaymentMethodRouteRequestEvent;
@@ -17,60 +17,20 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- *
- * @Decoratable()
- */
+#[Package('storefront')]
 class GenericPageLoader implements GenericPageLoaderInterface
 {
-    /**
-     * @var HeaderPageletLoaderInterface
-     */
-    private $headerLoader;
-
-    /**
-     * @var FooterPageletLoaderInterface
-     */
-    private $footerLoader;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var AbstractPaymentMethodRoute
-     */
-    private $paymentMethodRoute;
-
-    /**
-     * @var AbstractShippingMethodRoute
-     */
-    private $shippingMethodRoute;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     /**
      * @internal
      */
     public function __construct(
-        HeaderPageletLoaderInterface $headerLoader,
-        FooterPageletLoaderInterface $footerLoader,
-        SystemConfigService $systemConfigService,
-        AbstractPaymentMethodRoute $paymentMethodRoute,
-        AbstractShippingMethodRoute $shippingMethodRoute,
-        EventDispatcherInterface $eventDispatcher
+        private readonly HeaderPageletLoaderInterface $headerLoader,
+        private readonly FooterPageletLoaderInterface $footerLoader,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractPaymentMethodRoute $paymentMethodRoute,
+        private readonly AbstractShippingMethodRoute $shippingMethodRoute,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->headerLoader = $headerLoader;
-        $this->footerLoader = $footerLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->paymentMethodRoute = $paymentMethodRoute;
-        $this->shippingMethodRoute = $shippingMethodRoute;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(Request $request, SalesChannelContext $context): Page

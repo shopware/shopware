@@ -19,12 +19,12 @@ describe('sw-app-wrong-app-url-modal', () => {
     async function createWrapper() {
         stubs = {
             'sw-modal': {
-                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
+                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
             },
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': await Shopware.Component.build('sw-icon'),
             'icons-small-default-x-line-medium': {
-                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
+                template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>',
             },
         };
         const localVue = createLocalVue();
@@ -52,6 +52,10 @@ describe('sw-app-wrong-app-url-modal', () => {
     }
 
     beforeAll(() => {
+        if (Shopware.State.get('context')) {
+            Shopware.State.unregisterModule('context');
+        }
+
         Shopware.State.registerModule('context', {
             namespaced: true,
             state: {
@@ -70,7 +74,7 @@ describe('sw-app-wrong-app-url-modal', () => {
         Shopware.State.registerModule('notification', {
             namespaced: true,
             mutations: {
-                removeNotification: deleteNotificationMock
+                removeNotification: deleteNotificationMock,
             },
         });
     });
@@ -97,8 +101,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(notificationMock).toBeCalledTimes(0);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
     it('should not show modal if APP_URL is reachable', async () => {
@@ -110,8 +114,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toBeCalledTimes(0);
-        expect(deleteNotificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(1);
     });
 
     it('should not show modal if no apps are require app url, but it should show notification', async () => {
@@ -123,8 +127,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
     it('should not show modal if it was shown, but it should show notification', async () => {
@@ -136,8 +140,8 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.exists()).toBe(false);
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
     });
 
     it('should create notification and set localstorage on close', async () => {
@@ -149,12 +153,18 @@ describe('sw-app-wrong-app-url-modal', () => {
 
         const modal = wrapper.findComponent(stubs['sw-modal']);
         expect(modal.isVisible()).toBe(true);
-        expect(notificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(0);
 
         modal.vm.$emit('modal-close');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
-        expect(notificationMock).toBeCalledTimes(1);
-        expect(deleteNotificationMock).toBeCalledTimes(0);
+        expect(notificationMock).toHaveBeenCalledTimes(1);
+        expect(deleteNotificationMock).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return filters from filter registry', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
     });
 });

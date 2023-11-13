@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Flow;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Handler\TestHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -33,7 +34,9 @@ use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -47,16 +50,15 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class GenerateDocumentActionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
     use AdminApiTestBehaviour;
     use ImportTranslationsTrait;
+    use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private Connection $connection;
 
@@ -158,7 +160,7 @@ class GenerateDocumentActionTest extends TestCase
             $this->addCreditItemToVersionedOrder($order->getId(), $context);
         }
 
-        $handler = new TestHandler(Logger::ERROR);
+        $handler = new TestHandler(Level::Error);
 
         $this->logger->pushHandler($handler);
 
@@ -177,7 +179,7 @@ class GenerateDocumentActionTest extends TestCase
                 str_replace('_', ' ', $documentType),
                 $order->getId(),
             ),
-            $record['message']
+            $record->message
         );
     }
 
@@ -233,7 +235,7 @@ class GenerateDocumentActionTest extends TestCase
     /**
      * @return iterable<string, array<int, string|bool>>
      */
-    public function genDocumentProvider(): iterable
+    public static function genDocumentProvider(): iterable
     {
         yield 'Generate invoice' => ['invoice', 'document_invoice'];
         yield 'Generate multiple doc' => ['invoice', 'document_invoice', false, true];
@@ -245,7 +247,7 @@ class GenerateDocumentActionTest extends TestCase
     /**
      * @return iterable<string, array<int, string>>
      */
-    public function genErrorDocumentProvider(): iterable
+    public static function genErrorDocumentProvider(): iterable
     {
         yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
         yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];
@@ -314,7 +316,7 @@ class GenerateDocumentActionTest extends TestCase
             [
                 'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
             ],
-            json_encode($data) ?: ''
+            json_encode($data, \JSON_THROW_ON_ERROR) ?: ''
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -341,7 +343,7 @@ class GenerateDocumentActionTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-        $content = json_decode($response->getContent() ?: '', true);
+        $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         $versionId = $content['versionId'];
         static::assertEquals($orderId, $content['id']);
         static::assertEquals('order', $content['entity']);
@@ -358,6 +360,8 @@ class GenerateDocumentActionTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
             'orderNumber' => Uuid::randomHex(),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
@@ -521,13 +525,12 @@ class GenerateDocumentActionTest extends TestCase
 }
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class CustomDocRenderer extends AbstractDocumentRenderer
 {
-    public const TYPE = 'customDoc';
+    final public const TYPE = 'customDoc';
 
     public function supports(): string
     {

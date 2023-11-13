@@ -4,15 +4,14 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -31,46 +30,22 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}, "_contextTokenRequired"=true})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
-    private EntityRepository $customerRepository;
-
-    private EntityRepository $customerRecoveryRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DataValidator $validator;
-
-    private SystemConfigService $systemConfigService;
-
-    private RequestStack $requestStack;
-
-    private RateLimiter $rateLimiter;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerRecoveryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        SystemConfigService $systemConfigService,
-        RequestStack $requestStack,
-        RateLimiter $rateLimiter
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly RequestStack $requestStack,
+        private readonly RateLimiter $rateLimiter
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerRecoveryRepository = $customerRecoveryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->systemConfigService = $systemConfigService;
-        $this->requestStack = $requestStack;
-        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractResetPasswordRoute
@@ -78,10 +53,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route(path="/store-api/account/recovery-password-confirm", name="store-api.account.recovery.password", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/recovery-password-confirm', name: 'store-api.account.recovery.password', methods: ['POST'])]
     public function resetPassword(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {
         $this->validateResetPassword($data, $context);
@@ -89,7 +61,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
         $hash = $data->get('hash');
 
         if (!$this->checkHash($hash, $context->getContext())) {
-            throw new CustomerRecoveryHashExpiredException($hash);
+            throw CustomerException::customerRecoveryHashExpired($hash);
         }
 
         $customerHashCriteria = new Criteria();
@@ -98,19 +70,19 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $customerRecovery = $this->customerRecoveryRepository->search($customerHashCriteria, $context->getContext())->first();
 
-        if (!$customerRecovery) {
-            throw new CustomerNotFoundByHashException($hash);
+        if (!$customerRecovery instanceof CustomerRecoveryEntity) {
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         $customer = $customerRecovery->getCustomer();
 
         if (!$customer) {
-            throw new CustomerNotFoundByHashException($hash);
+            throw CustomerException::customerNotFoundByHash($hash);
         }
 
         // reset login and pw-reset limit when password was changed
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $cacheKey = strtolower($customer->getEmail()) . '-' . $request->getClientIp();
+            $cacheKey = strtolower((string) $customer->getEmail()) . '-' . $request->getClientIp();
 
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
             $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
@@ -154,6 +126,8 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     }
 
     /**
+     * @param array<string|int, string> $data
+     *
      * @throws ConstraintViolationException
      */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
@@ -164,13 +138,12 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        /** @var array $fieldValidations */
+        /** @var array<ConstraintInterface> $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
-        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;
@@ -188,7 +161,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

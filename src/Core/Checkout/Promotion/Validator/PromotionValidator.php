@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\Checkout\Promotion\Validator;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -20,9 +22,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @package checkout
  */
+#[Package('buyers-experience')]
 class PromotionValidator implements EventSubscriberInterface
 {
     /**
@@ -37,8 +38,6 @@ class PromotionValidator implements EventSubscriberInterface
      */
     private const DISCOUNT_PERCENTAGE_MAX_VALUE = 100.0;
 
-    private Connection $connection;
-
     /**
      * @var list<array<string, mixed>>
      */
@@ -52,9 +51,8 @@ class PromotionValidator implements EventSubscriberInterface
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -83,15 +81,14 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch (\get_class($command->getDefinition())) {
+            switch ($command->getDefinition()::class) {
                 case PromotionDefinition::class:
-
                     /** @var string $promotionId */
                     $promotionId = $command->getPrimaryKey()['id'];
 
                     try {
                         $promotion = $this->getPromotionById($promotionId);
-                    } catch (ResourceNotFoundException $ex) {
+                    } catch (PromotionException) {
                         $promotion = [];
                     }
 
@@ -105,13 +102,12 @@ class PromotionValidator implements EventSubscriberInterface
                     break;
 
                 case PromotionDiscountDefinition::class:
-
                     /** @var string $discountId */
                     $discountId = $command->getPrimaryKey()['id'];
 
                     try {
                         $discount = $this->getDiscountById($discountId);
-                    } catch (ResourceNotFoundException $ex) {
+                    } catch (PromotionException) {
                         $discount = [];
                     }
 
@@ -135,9 +131,9 @@ class PromotionValidator implements EventSubscriberInterface
      * This function collects all database data that might be
      * required for any of the received entities and values.
      *
-     * @param list<WriteCommand> $writeCommands
+     * @param array<WriteCommand> $writeCommands
      *
-     * @throws ResourceNotFoundException
+     * @throws PromotionException
      * @throws Exception
      */
     private function collect(array $writeCommands): void
@@ -150,7 +146,7 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch (\get_class($command->getDefinition())) {
+            switch ($command->getDefinition()::class) {
                 case PromotionDefinition::class:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
 
@@ -172,7 +168,7 @@ class PromotionValidator implements EventSubscriberInterface
             $promotionQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion` WHERE `id` IN (:ids)',
                 ['ids' => $promotionIds],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->databasePromotions = $promotionQuery->fetchAllAssociative();
@@ -183,7 +179,7 @@ class PromotionValidator implements EventSubscriberInterface
             $discountQuery = $this->connection->executeQuery(
                 'SELECT * FROM `promotion_discount` WHERE `id` IN (:ids)',
                 ['ids' => $discountIds],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->databaseDiscounts = $discountQuery->fetchAllAssociative();
@@ -373,7 +369,7 @@ class PromotionValidator implements EventSubscriberInterface
     }
 
     /**
-     * @throws ResourceNotFoundException
+     * @throws PromotionException
      *
      * @return array<string, mixed>
      */
@@ -385,11 +381,11 @@ class PromotionValidator implements EventSubscriberInterface
             }
         }
 
-        throw new ResourceNotFoundException('promotion', [$id]);
+        throw PromotionException::promotionsNotFound([$id]);
     }
 
     /**
-     * @throws ResourceNotFoundException
+     * @throws PromotionException
      *
      * @return array<string, mixed>
      */
@@ -401,7 +397,7 @@ class PromotionValidator implements EventSubscriberInterface
             }
         }
 
-        throw new ResourceNotFoundException('promotion_discount', [$id]);
+        throw PromotionException::discountsNotFound([$id]);
     }
 
     /**
@@ -416,7 +412,7 @@ class PromotionValidator implements EventSubscriberInterface
      *
      * @return ConstraintViolationInterface the built constraint violation
      */
-    private function buildViolation(string $message, $invalidValue, string $propertyPath, string $code, int $index): ConstraintViolationInterface
+    private function buildViolation(string $message, mixed $invalidValue, string $propertyPath, string $code, int $index): ConstraintViolationInterface
     {
         $formattedPath = "/{$index}/{$propertyPath}";
 

@@ -48,7 +48,7 @@ class RouteScopeListenerTest extends TestCase
         $event = $this->createEvent($request);
         /** @var ProfilerController $profilerController */
         $profilerController = $this->getContainer()->get('web_profiler.controller.profiler');
-        $event->setController([$profilerController, 'panelAction']);
+        $event->setController($profilerController->panelAction(...));
 
         $listener->checkScope($event);
     }
@@ -111,9 +111,11 @@ class RouteScopeListenerTest extends TestCase
 
     private function createEvent(Request $request): ControllerEvent
     {
+        $controller = $this->getContainer()->get(ApiController::class);
+
         return new ControllerEvent(
             $this->getContainer()->get('kernel'),
-            [$this->getContainer()->get(ApiController::class), 'clone'],
+            $controller->clone(...),
             $request,
             HttpKernelInterface::SUB_REQUEST
         );

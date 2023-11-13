@@ -14,10 +14,11 @@
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Event\BusinessEventCollector">
+        <service id="Shopware\Core\Framework\Event\BusinessEventCollector" public="true">
 
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\Event\Command\DebugDumpBusinessEventsCommand">

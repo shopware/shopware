@@ -5,12 +5,11 @@ namespace Shopware\Storefront\Page\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CheckoutCartPage extends Page
 {
     /**

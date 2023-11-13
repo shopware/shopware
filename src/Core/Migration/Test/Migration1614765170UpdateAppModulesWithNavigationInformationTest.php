@@ -8,15 +8,15 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1614765170UpdateAppModulesWithNavigationInformation;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -27,7 +27,7 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
 
     private Context $context;
 
-    public function setup(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->appRepository = $this->getContainer()->get('app.repository');
@@ -173,18 +173,21 @@ class Migration1614765170UpdateAppModulesWithNavigationInformationTest extends T
     private function insertAppWithModule(string $name, ?array $modules): string
     {
         $appId = Uuid::randomHex();
+
+        $path = \realpath(__DIR__ . '/../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test');
+        static::assertNotFalse($path);
+
         $this->appRepository->create([
             [
                 'id' => $appId,
                 'name' => $name,
                 'label' => $name,
-                'path' => realpath(__DIR__ . '/../../Framework/Test/App/Manifest/_fixtures/test'),
+                'path' => $path,
                 'active' => true,
                 'modules' => $modules,
                 'version' => '1.0.0',
                 'integration' => [
                     'label' => 'App1',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

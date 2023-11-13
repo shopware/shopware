@@ -1,5 +1,5 @@
 /**
- * @package business-ops
+ * @package services-settings
  */
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
@@ -14,6 +14,7 @@ Shopware.Service('privileges')
                     'customer_group:read',
                     'sales_channel:read',
                     'tax:read',
+                    'tax_provider:read',
                     'payment_method:read',
                     'shipping_method:read',
                     'shipping_method_price:read',

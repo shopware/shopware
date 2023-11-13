@@ -6,18 +6,6 @@ Custom skin styling for bootstrap forms.
 https://getbootstrap.com/docs/5.2/forms/overview
 */
 
-.form-label {
-    margin-bottom: 3px;
-}
-
 .form-group {
     margin-bottom: 20px;
-}
-
-.form-control {
-    /* Workaround for missing placeholder color in chrome */
-    /* stylelint-disable-next-line selector-no-vendor-prefix */
-    &::-webkit-input-placeholder {
-        color: $input-placeholder-color;
-    }
 }

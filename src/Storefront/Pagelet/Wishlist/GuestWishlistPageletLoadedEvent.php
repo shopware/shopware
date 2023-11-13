@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Pagelet\Wishlist;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class GuestWishlistPageletLoadedEvent extends PageletLoadedEvent
 {
     /**
@@ -16,8 +15,11 @@ class GuestWishlistPageletLoadedEvent extends PageletLoadedEvent
      */
     protected $pagelet;
 
-    public function __construct(GuestWishlistPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        GuestWishlistPagelet $pagelet,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }

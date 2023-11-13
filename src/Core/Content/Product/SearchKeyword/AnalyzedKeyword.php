@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class AnalyzedKeyword extends Struct
 {
     /**
@@ -19,8 +18,10 @@ class AnalyzedKeyword extends Struct
      */
     protected $ranking;
 
-    public function __construct(string $keyword, float $ranking)
-    {
+    public function __construct(
+        string $keyword,
+        float $ranking
+    ) {
         $this->keyword = $keyword;
         $this->ranking = $ranking;
     }

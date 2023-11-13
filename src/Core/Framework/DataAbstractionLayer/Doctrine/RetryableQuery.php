@@ -5,32 +5,32 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Doctrine;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\Statement;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RetryableQuery
 {
-    /**
-     * @var Connection|null
-     */
-    private $connection;
-
-    private Statement $query;
-
-    public function __construct(Connection $connection, Statement $query)
-    {
-        $this->connection = $connection;
-        $this->query = $query;
+    public function __construct(
+        private readonly ?Connection $connection,
+        private readonly Statement $query
+    ) {
     }
 
+    /**
+     * @param array<string, mixed> $params
+     */
     public function execute(array $params = []): int
     {
-        return self::retry($this->connection, function () use ($params) {
-            return $this->query->executeStatement($params);
-        }, 0);
+        return self::retry($this->connection, fn () => $this->query->executeStatement($params), 0);
     }
 
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
     public static function retryable(Connection $connection, \Closure $closure)
     {
         return self::retry($connection, $closure, 0);
@@ -41,6 +41,13 @@ class RetryableQuery
         return $this->query;
     }
 
+    /**
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     *
+     * @return TReturn
+     */
     private static function retry(?Connection $connection, \Closure $closure, int $counter)
     {
         ++$counter;

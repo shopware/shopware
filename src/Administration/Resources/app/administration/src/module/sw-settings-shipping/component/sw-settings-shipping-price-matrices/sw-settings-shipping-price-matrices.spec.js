@@ -43,29 +43,29 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 'sw-number-field': {
                     template: '<input type="number" v-model="value" />',
                     props: {
-                        value: 0
-                    }
+                        value: 0,
+                    },
                 },
                 'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
                 'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
                 'sw-checkbox-field': true,
                 'sw-data-grid-settings': true,
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch')
+                'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
             },
             mocks: {
-                $te: () => false
+                $te: () => false,
             },
             provide: {
                 ruleConditionDataProviderService: {
-                    getRestrictedRules: () => Promise.resolve([])
+                    getRestrictedRules: () => Promise.resolve([]),
                 },
                 repositoryFactory: {
                     create: (name) => {
                         if (name === 'rule') {
                             return {
                                 search: () => Promise.resolve([]),
-                                get: () => Promise.resolve({})
+                                get: () => Promise.resolve({}),
                             };
                         }
 
@@ -75,14 +75,14 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
 
                         if (name === 'shipping_method_price') {
                             return {
-                                create: () => Promise.resolve([])
+                                create: () => Promise.resolve([]),
                             };
                         }
 
                         return null;
-                    }
-                }
-            }
+                    },
+                },
+            },
         });
     };
 
@@ -94,7 +94,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         Shopware.State.commit('swShippingDetail/setCurrencies', [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },
-            { id: 'pound', translated: { name: 'Pound' } }
+            { id: 'pound', translated: { name: 'Pound' } },
         ]);
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: '12345',
@@ -112,9 +112,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 50,
                             net: 25,
-                            linked: false
-                        }
-                    ]
+                            linked: false,
+                        },
+                    ],
                 },
                 {
                     id: 'b2',
@@ -129,11 +129,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 40,
                             net: 20,
-                            linked: false
-                        }
-                    ]
-                }
-            ]
+                            linked: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
@@ -156,8 +156,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
                 { ruleId: '1' },
-                { ruleId: '1' }
-            ]
+                { ruleId: '1' },
+            ],
         });
 
         const matrices = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
@@ -171,8 +171,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         await Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
                 { ruleId: '1' },
-                { ruleId: '2' }
-            ]
+                { ruleId: '2' },
+            ],
         });
 
         const matrices = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
@@ -190,8 +190,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 { ruleId: '2' },
                 { ruleId: '3' },
                 { ruleId: '4' },
-                { ruleId: '5' }
-            ]
+                { ruleId: '5' },
+            ],
         });
 
         const matrices = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
@@ -205,8 +205,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
                 { ruleId: '1' },
-                { ruleId: '2' }
-            ]
+                { ruleId: '2' },
+            ],
         });
 
         const addPriceMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions .sw-button');
@@ -225,7 +225,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     quantityEnd: 30,
                     shippingMethodId: 123,
                     calculationRule: 987,
-                    currencyPrice: 444
+                    currencyPrice: 444,
                 },
                 {
                     ruleId: '1',
@@ -233,7 +233,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     quantityEnd: 35,
                     shippingMethodId: 345,
                     calculationRule: 876,
-                    currencyPrice: 555
+                    currencyPrice: 555,
                 },
                 {
                     ruleId: '1',
@@ -241,10 +241,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                     quantityEnd: 60,
                     shippingMethodId: 678,
                     calculationRule: 765,
-                    currencyPrice: 666
+                    currencyPrice: 666,
                 },
-                { ruleId: '2' }
-            ]
+                { ruleId: '2' },
+            ],
         });
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).not.toContain(' null');
@@ -266,7 +266,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             expect(duplication.shippingMethodId).toEqual(price.shippingMethodId);
             expect(duplication.calculationRule).toEqual(price.calculationRule);
             expect(duplication.currencyPrice).toEqual(price.currencyPrice);
-            expect(duplication.ruleId).toEqual(null);
+            expect(duplication.ruleId).toBeNull();
         });
     });
 
@@ -279,8 +279,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 { ruleId: '1' },
                 { ruleId: '2' },
                 { ruleId: '2' },
-                { ruleId: '3' }
-            ]
+                { ruleId: '3' },
+            ],
         });
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('2');
@@ -299,8 +299,8 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                 { ruleId: '1' },
                 { ruleId: '2' },
                 { ruleId: '2' },
-                { ruleId: '3' }
-            ]
+                { ruleId: '3' },
+            ],
         });
 
         Shopware.State.get('swShippingDetail').shippingMethod.prices.add = (value) => {
@@ -322,10 +322,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         const rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.element.value).toEqual('1');
-        expect(rowOneQuantityEnd.element.value).toEqual('20');
-        expect(rowTwoQuantityStart.element.value).toEqual('21');
-        expect(rowTwoQuantityEnd.element.value).toEqual('');
+        expect(rowOneQuantityStart.element.value).toBe('1');
+        expect(rowOneQuantityEnd.element.value).toBe('20');
+        expect(rowTwoQuantityStart.element.value).toBe('21');
+        expect(rowTwoQuantityEnd.element.value).toBe('');
     });
 
     it('should show all rules with weight and up to three decimal places', async () => {
@@ -345,9 +345,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 50,
                             net: 25,
-                            linked: false
-                        }
-                    ]
+                            linked: false,
+                        },
+                    ],
                 },
                 {
                     id: 'b2',
@@ -362,9 +362,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 40,
                             net: 20,
-                            linked: false
-                        }
-                    ]
+                            linked: false,
+                        },
+                    ],
                 },
                 {
                     id: 'b3',
@@ -379,9 +379,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 40,
                             net: 20,
-                            linked: false
-                        }
-                    ]
+                            linked: false,
+                        },
+                    ],
                 },
                 {
                     id: 'b4',
@@ -396,11 +396,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 40,
                             net: 20,
-                            linked: false
-                        }
-                    ]
-                }
-            ]
+                            linked: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
@@ -421,14 +421,14 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const rowFourQuantityStart = wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--quantityStart input');
         const rowFourQuantityEnd = wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.element.value).toEqual('0');
-        expect(rowOneQuantityEnd.element.value).toEqual('2.5');
-        expect(rowTwoQuantityStart.element.value).toEqual('2.6');
-        expect(rowTwoQuantityEnd.element.value).toEqual('3.52');
-        expect(rowThreeQuantityStart.element.value).toEqual('3.53');
-        expect(rowThreeQuantityEnd.element.value).toEqual('3.621');
-        expect(rowFourQuantityStart.element.value).toEqual('3.621');
-        expect(rowFourQuantityEnd.element.value).toEqual('');
+        expect(rowOneQuantityStart.element.value).toBe('0');
+        expect(rowOneQuantityEnd.element.value).toBe('2.5');
+        expect(rowTwoQuantityStart.element.value).toBe('2.6');
+        expect(rowTwoQuantityEnd.element.value).toBe('3.52');
+        expect(rowThreeQuantityStart.element.value).toBe('3.53');
+        expect(rowThreeQuantityEnd.element.value).toBe('3.621');
+        expect(rowFourQuantityStart.element.value).toBe('3.621');
+        expect(rowFourQuantityEnd.element.value).toBe('');
     });
 
     it('all rules should have the right min and max values', async () => {
@@ -439,46 +439,46 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         const rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.attributes().min).toEqual('0');
-        expect(rowOneQuantityStart.attributes().max).toEqual('20');
+        expect(rowOneQuantityStart.attributes().min).toBe('0');
+        expect(rowOneQuantityStart.attributes().max).toBe('20');
 
-        expect(rowOneQuantityEnd.attributes().min).toEqual('1');
-        expect(rowOneQuantityEnd.attributes().max).toEqual(undefined);
+        expect(rowOneQuantityEnd.attributes().min).toBe('1');
+        expect(rowOneQuantityEnd.attributes().max).toBeUndefined();
 
-        expect(rowTwoQuantityStart.attributes().min).toEqual('20');
-        expect(rowTwoQuantityStart.attributes().max).toEqual(undefined);
+        expect(rowTwoQuantityStart.attributes().min).toBe('20');
+        expect(rowTwoQuantityStart.attributes().max).toBeUndefined();
 
-        expect(rowTwoQuantityEnd.attributes().min).toEqual('21');
-        expect(rowTwoQuantityEnd.attributes().max).toEqual(undefined);
+        expect(rowTwoQuantityEnd.attributes().min).toBe('21');
+        expect(rowTwoQuantityEnd.attributes().max).toBeUndefined();
     });
 
     it('should add a new pricing rule and change the values', async () => {
         const wrapper = await createWrapper();
 
         const addNewPriceRuleButton = wrapper.find('.sw-settings-shipping-price-matrix__top-container .sw-button__content');
-        expect(addNewPriceRuleButton.text()).toEqual('sw-settings-shipping.priceMatrix.addNewShippingPrice');
+        expect(addNewPriceRuleButton.text()).toBe('sw-settings-shipping.priceMatrix.addNewShippingPrice');
 
         let lastRowStart = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityStart input');
         let lastRowEnd = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityEnd input');
-        expect(lastRowStart.element.value).toEqual('21');
-        expect(lastRowEnd.element.value).toEqual('');
+        expect(lastRowStart.element.value).toBe('21');
+        expect(lastRowEnd.element.value).toBe('');
 
         await addNewPriceRuleButton.trigger('click');
 
         lastRowStart = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityStart input');
         lastRowEnd = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityEnd input');
-        expect(lastRowStart.element.value).toEqual('22');
-        expect(lastRowEnd.element.value).toEqual('');
+        expect(lastRowStart.element.value).toBe('22');
+        expect(lastRowEnd.element.value).toBe('');
 
         const beforeLastRowStart = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input'
+            '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input',
         );
         const beforeLastRowEnd = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input'
+            '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input',
         );
 
-        expect(beforeLastRowStart.element.value).toEqual('21');
-        expect(beforeLastRowEnd.element.value).toEqual('21');
+        expect(beforeLastRowStart.element.value).toBe('21');
+        expect(beforeLastRowEnd.element.value).toBe('21');
     });
 
     it('should delete the last pricing rule and change the values', async () => {
@@ -489,14 +489,14 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         let rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityStart input');
         let rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.element.value).toEqual('1');
-        expect(rowOneQuantityEnd.element.value).toEqual('20');
+        expect(rowOneQuantityStart.element.value).toBe('1');
+        expect(rowOneQuantityEnd.element.value).toBe('20');
 
-        expect(rowTwoQuantityStart.element.value).toEqual('21');
-        expect(rowTwoQuantityEnd.element.value).toEqual('');
+        expect(rowTwoQuantityStart.element.value).toBe('21');
+        expect(rowTwoQuantityEnd.element.value).toBe('');
 
         const firstRowContextButton = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--0 .sw-data-grid__cell--actions .sw-context-button__button'
+            '.sw-data-grid__row.sw-data-grid__row--0 .sw-data-grid__cell--actions .sw-context-button__button',
         );
 
         await firstRowContextButton.trigger('click');
@@ -514,11 +514,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         rowTwoQuantityStart = wrapper.find('.sw-data-grid__row--1');
         rowTwoQuantityEnd = wrapper.find('.sw-data-grid__row--1');
 
-        expect(rowOneQuantityStart.element.value).toEqual('1');
-        expect(rowOneQuantityEnd.element.value).toEqual('');
+        expect(rowOneQuantityStart.element.value).toBe('1');
+        expect(rowOneQuantityEnd.element.value).toBe('');
 
-        expect(rowTwoQuantityStart.exists()).toEqual(false);
-        expect(rowTwoQuantityEnd.exists()).toEqual(false);
+        expect(rowTwoQuantityStart.exists()).toBe(false);
+        expect(rowTwoQuantityEnd.exists()).toBe(false);
     });
 
     it('should delete a pricing rule and change the values', async () => {
@@ -538,9 +538,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 50,
                             net: 25,
-                            linked: false
-                        }
-                    ]
+                            linked: false,
+                        },
+                    ],
                 },
                 {
                     id: 'b2',
@@ -555,9 +555,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 40,
                             net: 20,
-                            linked: false
-                        }
-                    ]
+                            linked: false,
+                        },
+                    ],
                 },
                 {
                     id: 'c3',
@@ -572,11 +572,11 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                             currencyId: 'euro',
                             gross: 40,
                             net: 20,
-                            linked: false
-                        }
-                    ]
-                }
-            ]
+                            linked: false,
+                        },
+                    ],
+                },
+            ],
         });
 
         const shippingMethod = Shopware.State.get('swShippingDetail').shippingMethod;
@@ -595,17 +595,17 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         let rowThreeQuantityStart = wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--quantityStart input');
         let rowThreeQuantityEnd = wrapper.find('.sw-data-grid__row--2 .sw-data-grid__cell--quantityEnd input');
 
-        expect(rowOneQuantityStart.element.value).toEqual('1');
-        expect(rowOneQuantityEnd.element.value).toEqual('20');
+        expect(rowOneQuantityStart.element.value).toBe('1');
+        expect(rowOneQuantityEnd.element.value).toBe('20');
 
-        expect(rowTwoQuantityStart.element.value).toEqual('21');
-        expect(rowTwoQuantityEnd.element.value).toEqual('25');
+        expect(rowTwoQuantityStart.element.value).toBe('21');
+        expect(rowTwoQuantityEnd.element.value).toBe('25');
 
-        expect(rowThreeQuantityStart.element.value).toEqual('26');
-        expect(rowThreeQuantityEnd.element.value).toEqual('');
+        expect(rowThreeQuantityStart.element.value).toBe('26');
+        expect(rowThreeQuantityEnd.element.value).toBe('');
 
         const firstRowContextButton = wrapper.find(
-            '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--actions .sw-context-button__button'
+            '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--actions .sw-context-button__button',
         );
 
         await firstRowContextButton.trigger('click');
@@ -625,21 +625,21 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         rowThreeQuantityStart = wrapper.find('.sw-data-grid__row--2');
         rowThreeQuantityEnd = wrapper.find('.sw-data-grid__row--2');
 
-        expect(rowOneQuantityStart.element.value).toEqual('1');
-        expect(rowOneQuantityEnd.element.value).toEqual('20');
+        expect(rowOneQuantityStart.element.value).toBe('1');
+        expect(rowOneQuantityEnd.element.value).toBe('20');
 
-        expect(rowTwoQuantityStart.element.value).toEqual('21');
-        expect(rowTwoQuantityEnd.element.value).toEqual('');
+        expect(rowTwoQuantityStart.element.value).toBe('21');
+        expect(rowTwoQuantityEnd.element.value).toBe('');
 
-        expect(rowThreeQuantityStart.exists()).toEqual(false);
-        expect(rowThreeQuantityEnd.exists()).toEqual(false);
+        expect(rowThreeQuantityStart.exists()).toBe(false);
+        expect(rowThreeQuantityEnd.exists()).toBe(false);
     });
 
     it('should have all fields disabled when property disabled is true', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         const addMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions-add-matrix');

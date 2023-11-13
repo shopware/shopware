@@ -41,11 +41,18 @@ Component.register('sw-button', {
             type: String,
             required: false,
             default: '',
+            /**
+             * @deprecated tag:v6.6.0 - "large" value will be removed
+             */
             validValues: ['x-small', 'small', 'large'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
+
+                /**
+                 * @deprecated tag:v6.6.0 - "large" value will be removed
+                 */
                 return ['x-small', 'small', 'large'].includes(value);
             },
         },

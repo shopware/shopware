@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Framework\Plugin\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PluginComposerJsonInvalidException extends ShopwareHttpException
 {
-    public function __construct(string $composerJsonPath, array $errors)
-    {
+    public function __construct(
+        string $composerJsonPath,
+        array $errors
+    ) {
         parent::__construct(
             'The file "{{ composerJsonPath }}" is invalid. Errors:' . \PHP_EOL . '{{ errorsString }}',
             ['composerJsonPath' => $composerJsonPath, 'errorsString' => implode(\PHP_EOL, $errors), 'errors' => $errors]

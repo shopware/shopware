@@ -13,12 +13,17 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/utils/sw-popover';
+import 'src/app/component/base/sw-icon';
 import Entity from 'src/core/data/entity.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const localVue = createLocalVue();
 localVue.directive('popover', {});
-localVue.directive('tooltip', {});
+localVue.directive('tooltip', {
+    bind(el, binding) {
+        el.setAttribute('data-tooltip-message', binding.value);
+    },
+});
 
 const defaultUserConfig = {
     createdAt: '2021-01-21T06:52:41.857+00:00',
@@ -32,33 +37,33 @@ const defaultUserConfig = {
                 dataIndex: 'name',
                 label: 'Name',
                 property: 'name',
-                visible: false
+                visible: false,
             },
             {
                 dataIndex: 'company',
                 label: 'Company',
                 property: 'company',
-                visible: false
-            }
+                visible: false,
+            },
         ],
         compact: true,
-        previews: false
-    }
+        previews: false,
+    },
 };
 
 const defaultProps = {
     identifier: 'sw-customer-list',
     columns: [
         { property: 'name', label: 'Name' },
-        { property: 'company', label: 'Company' }
+        { property: 'company', label: 'Company' },
     ],
     dataSource: [
         { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
         { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
         { id: 'uuid3', company: 'Skidoo', name: 'Arturo Staker' },
         { id: 'uuid4', company: 'Meetz', name: 'Dalston Top' },
-        { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' }
-    ]
+        { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' },
+    ],
 };
 
 
@@ -74,7 +79,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-data-grid-settings': await Shopware.Component.build('sw-data-grid-settings'),
-            'sw-icon': true,
+            'sw-icon': await Shopware.Component.build('sw-icon'),
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
@@ -83,7 +88,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-context-menu-divider': true,
-            'sw-button-group': true
+            'sw-button-group': true,
         };
 
         return shallowMount(await Shopware.Component.build('sw-data-grid'), {
@@ -98,12 +103,12 @@ describe('components/data-grid/sw-data-grid', () => {
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () => Promise.resolve({})
-                    })
+                        get: () => Promise.resolve({}),
+                    }),
                 },
-                acl: { can: () => true }
+                acl: { can: () => true },
             },
-            propsData: props ?? defaultProps
+            propsData: props ?? defaultProps,
         });
     }
 
@@ -121,7 +126,7 @@ describe('components/data-grid/sw-data-grid', () => {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
             'sw-context-menu-divider': true,
-            'sw-button-group': true
+            'sw-button-group': true,
         };
     });
 
@@ -155,7 +160,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper({
             showSelection: false,
             showActions: false,
-            showHeader: false
+            showHeader: false,
         });
 
         const header = wrapper.find('.sw-data-grid__header');
@@ -172,12 +177,12 @@ describe('components/data-grid/sw-data-grid', () => {
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
-        expect(rows.length).toBe(5);
+        expect(rows).toHaveLength(5);
     });
 
     it('should change appearance class based on prop', async () => {
         const wrapper = await createWrapper({
-            plainAppearance: true
+            plainAppearance: true,
         });
 
         expect(wrapper.classes()).toContain('sw-data-grid--plain-appearance');
@@ -185,7 +190,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
     it('should load and apply user configuration', async () => {
         const wrapper = await createWrapper({
-            showSettings: true
+            showSettings: true,
         });
 
         expect(wrapper.vm.showSettings).toBe(true);
@@ -202,7 +207,7 @@ describe('components/data-grid/sw-data-grid', () => {
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
         expect(popover.exists()).toBe(true);
-        expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(2);
+        expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(2);
 
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(defaultUserConfig.value.columns[0].visible);
@@ -224,12 +229,12 @@ describe('components/data-grid/sw-data-grid', () => {
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
-                { property: 'name', label: 'Name' }
+                { property: 'name', label: 'Name' },
             ],
             dataSource: [
                 { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' }
-            ]
+                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
+            ],
         }, {
             createdAt: '2021-01-21T06:52:41.857+00:00',
             id: '021150d043ee49e18642daef58e92c96',
@@ -242,18 +247,18 @@ describe('components/data-grid/sw-data-grid', () => {
                         dataIndex: 'name',
                         label: 'Name',
                         property: 'name',
-                        visible: false
+                        visible: false,
                     },
                     {
                         dataIndex: 'company',
                         label: 'Company',
                         property: 'company',
-                        visible: false
-                    }
+                        visible: false,
+                    },
                 ],
                 compact: true,
-                previews: true
-            }
+                previews: true,
+            },
         }, true);
 
         expect(wrapper.vm.showSettings).toBe(true);
@@ -270,12 +275,12 @@ describe('components/data-grid/sw-data-grid', () => {
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
         expect(popover.exists()).toBe(true);
-        expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(1);
+        expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(1);
 
 
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
-        expect(wrapper.vm.currentColumns[1]).toBe(undefined);
+        expect(wrapper.vm.currentColumns[1]).toBeUndefined();
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
@@ -287,12 +292,12 @@ describe('components/data-grid/sw-data-grid', () => {
             identifier: 'sw-customer-list',
             columns: [
                 { property: 'name', label: 'Name' },
-                { property: 'company', label: 'Company' }
+                { property: 'company', label: 'Company' },
             ],
             dataSource: [
                 { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' }
-            ]
+                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
+            ],
         }, {
             createdAt: '2021-01-21T06:52:41.857+00:00',
             id: '021150d043ee49e18642daef58e92c96',
@@ -305,12 +310,12 @@ describe('components/data-grid/sw-data-grid', () => {
                         dataIndex: 'name',
                         label: 'Name',
                         property: 'name',
-                        visible: false
-                    }
+                        visible: false,
+                    },
                 ],
                 compact: true,
-                previews: true
-            }
+                previews: true,
+            },
         }, true);
 
         expect(wrapper.vm.showSettings).toBe(true);
@@ -327,7 +332,7 @@ describe('components/data-grid/sw-data-grid', () => {
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
         expect(popover.exists()).toBe(true);
-        expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(2);
+        expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(2);
 
 
         // check default columns
@@ -343,11 +348,11 @@ describe('components/data-grid/sw-data-grid', () => {
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
-                { property: 'name', label: 'Name', mockProperty: true }
+                { property: 'name', label: 'Name', mockProperty: true },
             ],
             dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
-            ]
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            ],
         }, {
             createdAt: '2021-01-21T06:52:41.857+00:00',
             id: '021150d043ee49e18642daef58e92c96',
@@ -360,18 +365,18 @@ describe('components/data-grid/sw-data-grid', () => {
                         dataIndex: 'name',
                         label: 'Name',
                         property: 'name',
-                        visible: false
+                        visible: false,
                     },
                     {
                         dataIndex: 'company',
                         label: 'Company',
                         property: 'company',
-                        visible: false
-                    }
+                        visible: false,
+                    },
                 ],
                 compact: true,
-                previews: true
-            }
+                previews: true,
+            },
         }, true);
 
         expect(wrapper.vm.showSettings).toBe(true);
@@ -388,7 +393,7 @@ describe('components/data-grid/sw-data-grid', () => {
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
         expect(popover.exists()).toBe(true);
-        expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(1);
+        expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(1);
 
 
         // check default columns
@@ -404,12 +409,12 @@ describe('components/data-grid/sw-data-grid', () => {
             showSettings: true,
             identifier: 'sw-customer-list',
             columns: [
-                { property: 'name', label: 'Name' }
+                { property: 'name', label: 'Name' },
             ],
             dataSource: [
                 { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
-                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' }
-            ]
+                { id: 'uuid2', company: 'Twitternation', name: 'Baxy Eardley' },
+            ],
         }, {
             createdAt: '2021-01-21T06:52:41.857+00:00',
             id: '021150d043ee49e18642daef58e92c96',
@@ -423,12 +428,12 @@ describe('components/data-grid/sw-data-grid', () => {
                         label: 'Name',
                         property: 'name',
                         visible: false,
-                        mockProperty: true
-                    }
+                        mockProperty: true,
+                    },
                 ],
                 compact: true,
-                previews: true
-            }
+                previews: true,
+            },
         }, true);
 
         expect(wrapper.vm.showSettings).toBe(true);
@@ -445,11 +450,11 @@ describe('components/data-grid/sw-data-grid', () => {
         // show popover
         const popover = wrapper.findComponent(stubs['sw-context-menu']);
         expect(popover.exists()).toBe(true);
-        expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(1);
+        expect(popover.findAll('.sw-data-grid__settings-column-item')).toHaveLength(1);
 
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
-        expect(wrapper.vm.currentColumns[0].mockProperty).toBe(undefined);
+        expect(wrapper.vm.currentColumns[0].mockProperty).toBeUndefined();
 
 
         expect(wrapper.vm.compact).toBe(true);
@@ -462,22 +467,22 @@ describe('components/data-grid/sw-data-grid', () => {
         'translated field with accessor': { accessor: 'translated.name', expected: 'translated' },
         'nested object with simple field': {
             accessor: 'manufacturer.description',
-            expected: 'manufacturer-description'
+            expected: 'manufacturer-description',
         },
         'nested object with translated field': {
             accessor: 'manufacturer.name',
-            expected: 'manufacturer-translated'
+            expected: 'manufacturer-translated',
         },
         'nested object with translated field with accessor': {
             accessor: 'manufacturer.translated.name',
-            expected: 'manufacturer-translated'
+            expected: 'manufacturer-translated',
         },
         'unknown field': { accessor: 'unknown', expected: undefined },
         'nested unknown field': { accessor: 'manufacturer.unknown', expected: undefined },
         'unknown nested object': {
             accessor: 'unknown.unknown',
             expected: undefined,
-            errorMsg: '[[sw-data-grid] Can not resolve accessor: unknown.unknown]'
+            errorMsg: '[[sw-data-grid] Can not resolve accessor: unknown.unknown]',
         },
 
         'test last function': { accessor: 'transactions.last().name', expected: 'last' },
@@ -494,8 +499,8 @@ describe('components/data-grid/sw-data-grid', () => {
         'test nested null object': {
             accessor: 'customer.type.name',
             expected: null,
-            errorMsg: '[[sw-data-grid] Can not resolve accessor: customer.type.name]'
-        }
+            errorMsg: '[[sw-data-grid] Can not resolve accessor: customer.type.name]',
+        },
     };
 
     Object.entries(cases).forEach(([key, testCase]) => {
@@ -507,24 +512,24 @@ describe('components/data-grid/sw-data-grid', () => {
             const data = {
                 name: 'original',
                 translated: {
-                    name: 'translated'
+                    name: 'translated',
                 },
                 manufacturer: new Entity('test', 'product_manufacturer', {
                     description: 'manufacturer-description',
                     name: 'manufacturer',
-                    translated: { name: 'manufacturer-translated' }
+                    translated: { name: 'manufacturer-translated' },
                 }),
                 plainObject: {
-                    name: 'object'
+                    name: 'object',
                 },
                 transactions: new EntityCollection('', 'order_transaction', {}, {}, [
                     { name: 'first' },
                     { name: 'second' },
-                    { name: 'last' }
+                    { name: 'last' },
                 ], 1, null),
                 arrayField: [1, 2, 3],
                 payload: null,
-                customer: { type: null }
+                customer: { type: null },
             };
 
             const entity = new Entity('123', 'test', data);
@@ -535,8 +540,10 @@ describe('components/data-grid/sw-data-grid', () => {
             const result = grid.renderColumn(entity, column);
 
             if (typeof testCase.errorMsg === 'string') {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).toHaveBeenCalledWith(testCase.errorMsg);
             } else {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).not.toHaveBeenCalled();
             }
             expect(result).toBe(testCase.expected);
@@ -550,24 +557,24 @@ describe('components/data-grid/sw-data-grid', () => {
             const data = {
                 name: 'original',
                 translated: {
-                    name: 'translated'
+                    name: 'translated',
                 },
                 manufacturer: new Entity('test', 'product_manufacturer', {
                     description: 'manufacturer-description',
                     name: 'manufacturer',
-                    translated: { name: 'manufacturer-translated' }
+                    translated: { name: 'manufacturer-translated' },
                 }),
                 plainObject: {
-                    name: 'object'
+                    name: 'object',
                 },
                 transactions: new EntityCollection('', 'order_transaction', { }, { }, [
                     { name: 'first' },
                     { name: 'second' },
-                    { name: 'last' }
+                    { name: 'last' },
                 ], 1, null),
                 arrayField: [1, 2, 3],
                 payload: null,
-                customer: { type: null }
+                customer: { type: null },
             };
 
             const entity = new Entity('123', 'test', data);
@@ -579,8 +586,10 @@ describe('components/data-grid/sw-data-grid', () => {
             expect(result).toBe(testCase.expected);
 
             if (typeof testCase.errorMsg === 'string') {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).toHaveBeenCalledWith(testCase.errorMsg);
             } else {
+                // eslint-disable-next-line jest/no-conditional-expect
                 expect(warningSpy).not.toHaveBeenCalled();
             }
         });
@@ -588,12 +597,12 @@ describe('components/data-grid/sw-data-grid', () => {
 
     it('should pre select grid using preSelection prop', async () => {
         const preSelection = {
-            uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
+            uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
         };
 
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list-identifier',
-            preSelection
+            preSelection,
         });
 
         expect(wrapper.vm.selection).toEqual(preSelection);
@@ -609,8 +618,8 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
-            }
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
         });
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -639,8 +648,8 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
-            }
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            },
         });
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -657,7 +666,7 @@ describe('components/data-grid/sw-data-grid', () => {
     it('should add all records to grid selection when clicking select all', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            identifier: 'sw-customer-list'
+            identifier: 'sw-customer-list',
         });
 
         const header = wrapper.find('.sw-data-grid__header');
@@ -678,7 +687,7 @@ describe('components/data-grid/sw-data-grid', () => {
     it('should remove all records to grid state when deselected all items', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            identifier: 'sw-customer-list'
+            identifier: 'sw-customer-list',
         });
 
         const curentGridState = {};
@@ -688,7 +697,7 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         await wrapper.setData({
-            selection: curentGridState
+            selection: curentGridState,
         });
 
         const header = wrapper.find('.sw-data-grid__header');
@@ -703,10 +712,10 @@ describe('components/data-grid/sw-data-grid', () => {
     it('should selectionCount equals to grid state count', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            identifier: 'sw-customer-list'
+            identifier: 'sw-customer-list',
         });
 
-        expect(wrapper.vm.selectionCount).toEqual(0);
+        expect(wrapper.vm.selectionCount).toBe(0);
 
         const curentGridState = {};
 
@@ -715,19 +724,19 @@ describe('components/data-grid/sw-data-grid', () => {
         });
 
         await wrapper.setData({
-            selection: curentGridState
+            selection: curentGridState,
         });
 
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.selectionCount).toEqual(5);
+        expect(wrapper.vm.selectionCount).toBe(5);
     });
 
     it('should persist selected items when dataSource change', async () => {
         const wrapper = await createWrapper();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(rows.length).toBe(5);
+        expect(rows).toHaveLength(5);
 
         const checkbox = rows.at(0).find('.sw-field__checkbox input');
 
@@ -738,14 +747,14 @@ describe('components/data-grid/sw-data-grid', () => {
                 { id: 'uuid6', company: 'Woops', name: 'Portia Jobson' },
                 { id: 'uuid7', company: 'Laprta', name: 'Baxy Eardley' },
                 { id: 'uuid8', company: 'Manen', name: 'Arturo Staker' },
-                { id: 'uuid9', company: 'Ginpo', name: 'Dalston Top' }
-            ]
+                { id: 'uuid9', company: 'Ginpo', name: 'Dalston Top' },
+            ],
         });
 
         await wrapper.vm.$nextTick();
 
         const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(newRows.length).toBe(4);
+        expect(newRows).toHaveLength(4);
 
         const newCheckbox = newRows.at(0).find('.sw-field__checkbox input');
 
@@ -755,23 +764,23 @@ describe('components/data-grid/sw-data-grid', () => {
 
         await wrapper.setProps({
             dataSource: [
-                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
-            ]
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            ],
         });
 
         const previousRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(previousRows.length).toBe(1);
+        expect(previousRows).toHaveLength(1);
 
         const previousCheckbox = newRows.at(0).find('.sw-field__checkbox input');
-        expect(previousCheckbox.element.checked).toEqual(true);
+        expect(previousCheckbox.element.checked).toBe(true);
     });
 
     it('should not show deselect all action', async () => {
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' }
-            }
+                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },
+            },
         });
         const bulkActions = wrapper.find('.sw-data-grid__bulk');
         const deselectAll = bulkActions.findAll('.bulk-deselect-all');
@@ -783,8 +792,8 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid10: { id: 'uuid10', company: 'Quartz', name: 'Tinto' }
-            }
+                uuid10: { id: 'uuid10', company: 'Quartz', name: 'Tinto' },
+            },
         });
 
         const bulkActions = wrapper.find('.sw-data-grid__bulk');
@@ -798,8 +807,8 @@ describe('components/data-grid/sw-data-grid', () => {
             maximumSelectItems: 3,
             identifier: 'sw-customer-list',
             preSelection: {
-                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' }
-            }
+                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -813,8 +822,8 @@ describe('components/data-grid/sw-data-grid', () => {
             selection: {
                 uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },
                 uuid2: { id: 'uuid2', company: 'Quartz2', name: 'Tinto' },
-                uuid3: { id: 'uuid3', company: 'Quartz3', name: 'Tinto' }
-            }
+                uuid3: { id: 'uuid3', company: 'Quartz3', name: 'Tinto' },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -831,8 +840,8 @@ describe('components/data-grid/sw-data-grid', () => {
             preSelection: {
                 uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },
                 uuid2: { id: 'uuid2', company: 'Quartz2', name: 'Tinto' },
-                uuid3: { id: 'uuid3', company: 'Quartz3', name: 'Tinto' }
-            }
+                uuid3: { id: 'uuid3', company: 'Quartz3', name: 'Tinto' },
+            },
         });
 
         await wrapper.vm.$nextTick();
@@ -841,7 +850,7 @@ describe('components/data-grid/sw-data-grid', () => {
 
         // selected items are de-selectable
         const checkedBox = rows.at(0).find('.sw-field__checkbox input');
-        expect(checkedBox.attributes().disabled).toBe(undefined);
+        expect(checkedBox.attributes().disabled).toBeUndefined();
 
         // unselected items are selectable
         const uncheckedBox = rows.at(4).find('.sw-field__checkbox input');
@@ -853,8 +862,8 @@ describe('components/data-grid/sw-data-grid', () => {
             dataSource: [
                 { id: 'uuid4', company: 'Quartz4', name: 'Tinto' },
                 { id: 'uuid5', company: 'Quartz5', name: 'Tinto' },
-                { id: 'uuid6', company: 'Quartz6', name: 'Tinto' }
-            ]
+                { id: 'uuid6', company: 'Quartz6', name: 'Tinto' },
+            ],
         });
 
         await wrapper.vm.$nextTick();
@@ -870,5 +879,36 @@ describe('components/data-grid/sw-data-grid', () => {
         const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
 
         expect(selectionAll.attributes().disabled).toBe('disabled');
+    });
+
+    it('should render icon column header', async () => {
+        const wrapper = await createWrapper({
+            columns: [
+                { property: 'name', label: 'Name', iconLabel: 'regular-file-text' },
+                { property: 'company', label: 'Company' },
+            ],
+            dataSource: [
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            ],
+        });
+        expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes()).not.toContain('data-tooltip-message');
+    });
+
+    it('should render icon column header with tooltip', async () => {
+        const wrapper = await createWrapper({
+            columns: [
+                { property: 'name', label: 'Name', iconLabel: 'regular-file-text', iconTooltip: 'tooltip message' },
+                { property: 'company', label: 'Company' },
+            ],
+            dataSource: [
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' },
+            ],
+        });
+
+        expect(wrapper.find('.sw-data-grid__cell--icon-label').exists()).toBe(true);
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').classes()).toContain('icon--regular-file-text');
+        expect(wrapper.find('.sw-data-grid__cell--icon-label .sw-icon').attributes('data-tooltip-message')).toBe('tooltip message');
     });
 });

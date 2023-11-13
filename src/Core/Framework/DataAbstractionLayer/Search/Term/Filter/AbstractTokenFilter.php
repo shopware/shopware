@@ -3,13 +3,23 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package core
- */
-abstract class AbstractTokenFilter
+#[Package('core')]
+abstract class AbstractTokenFilter implements ResetInterface
 {
+    public function reset(): void
+    {
+        $this->getDecorated()->reset();
+    }
+
     abstract public function getDecorated(): AbstractTokenFilter;
 
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
     abstract public function filter(array $tokens, Context $context): array;
 }

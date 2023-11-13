@@ -7,32 +7,40 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryCollection;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\System\User\UserException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UserRecoveryService
 {
     /**
+     * @param EntityRepository<UserRecoveryCollection> $userRecoveryRepo
+     * @param EntityRepository<UserCollection> $userRepo
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
+     *
      * @internal
      */
     public function __construct(
-        private EntityRepository $userRecoveryRepo,
-        private EntityRepository $userRepo,
-        private RouterInterface $router,
-        private EventDispatcherInterface $dispatcher,
-        private SalesChannelContextService $salesChannelContextService,
-        private EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $userRecoveryRepo,
+        private readonly EntityRepository $userRepo,
+        private readonly RouterInterface $router,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly SalesChannelContextService $salesChannelContextService,
+        private readonly EntityRepository $salesChannelRepository,
     ) {
     }
 
@@ -71,19 +79,21 @@ class UserRecoveryService
 
         try {
             $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
-        } catch (RouteNotFoundException $e) {
+        } catch (RouteNotFoundException) {
             // fallback if admin bundle is not installed, the url should work once the bundle is installed
             $url = EnvironmentHelper::getVariable('APP_URL') . '/admin';
         }
 
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
 
+        $salesChannel = $this->getSalesChannel($context);
+
         $salesChannelContext = $this->salesChannelContextService->get(
             new SalesChannelContextServiceParameters(
-                $this->getSalesChannelId($context),
+                $salesChannel->getId(),
                 Uuid::randomHex(),
-                $context->getLanguageId(),
-                null,
+                $salesChannel->getLanguageId(),
+                $salesChannel->getCurrencyId(),
                 null,
                 $context,
                 null,
@@ -142,26 +152,23 @@ class UserRecoveryService
 
         $user = $this->getUserRecovery($criteria, $context);
 
-        if ($user === null) {
-            return null;
-        }
-
-        return $user->getUser();
+        return $user?->getUser();
     }
 
     private function getUserByEmail(string $userEmail, Context $context): ?UserEntity
     {
         $criteria = new Criteria();
+
         $criteria->addFilter(
             new EqualsFilter('email', $userEmail)
         );
 
-        return $this->userRepo->search($criteria, $context)->first();
+        return $this->userRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function getUserRecovery(Criteria $criteria, Context $context): ?UserRecoveryEntity
     {
-        return $this->userRecoveryRepo->search($criteria, $context)->first();
+        return $this->userRecoveryRepo->search($criteria, $context)->getEntities()->first();
     }
 
     private function deleteRecoveryForUser(UserRecoveryEntity $userRecoveryEntity, Context $context): void
@@ -173,14 +180,17 @@ class UserRecoveryService
         $this->userRecoveryRepo->delete([$recoveryData], $context);
     }
 
-    private function getSalesChannelId(Context $context): string
+    /**
+     * pick a random sales channel to form sales channel context as flow builder requires it
+     */
+    private function getSalesChannel(Context $context): SalesChannelEntity
     {
-        $id = $this->salesChannelRepository->searchIds(new Criteria(), $context)->firstId();
+        $salesChannel = $this->salesChannelRepository->search((new Criteria())->setLimit(1), $context)->first();
 
-        if ($id === null) {
-            throw new \RuntimeException('No sales channel found');
+        if (!$salesChannel instanceof SalesChannelEntity) {
+            throw UserException::salesChannelNotFound();
         }
 
-        return $id;
+        return $salesChannel;
     }
 }

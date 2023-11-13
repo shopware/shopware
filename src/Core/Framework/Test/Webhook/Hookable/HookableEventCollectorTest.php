@@ -19,7 +19,7 @@ class HookableEventCollectorTest extends TestCase
      */
     private $hookableEventCollector;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->hookableEventCollector = $this->getContainer()->get(HookableEventCollector::class);
     }

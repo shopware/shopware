@@ -14,12 +14,12 @@ async function createWrapper() {
             'sw-card': true,
             'sw-text-field': {
                 template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength']
+                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
             },
             'sw-textarea-field': {
                 template: '<textarea class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
-                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength']
-            }
+                props: ['value', 'label', 'help-text', 'placeholder', 'maxlength'],
+            },
         },
     });
 }

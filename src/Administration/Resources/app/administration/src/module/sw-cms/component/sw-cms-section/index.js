@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -174,14 +174,6 @@ export default {
 
     created() {
         this.createdComponent();
-
-        if (!this.section.visibility) {
-            this.section.visibility = {
-                mobile: true,
-                tablet: true,
-                desktop: true,
-            };
-        }
     },
 
     methods: {

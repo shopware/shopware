@@ -34,6 +34,7 @@
         min-width: 60px;
         opacity: 0.35;
         padding: 3px;
+        margin-bottom: $spacer-sm;
         transition: border-color 0.45s cubic-bezier(0.3, 0, 0.15, 1), background-color 0.45s cubic-bezier(0.3, 0, 0.15, 1);
 
         &.is-display-text {

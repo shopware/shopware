@@ -13,18 +13,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Struct\StructCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
+use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class StructEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -203,7 +204,7 @@ class StructEncoderTest extends TestCase
             'description' => 'test',
         ]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = $this->createMock(DefinitionRegistryChain::class);
         $registry->method('has')
             ->willReturn(true);
 
@@ -292,7 +293,7 @@ class StructEncoderTest extends TestCase
             'description' => 'test',
         ]);
 
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = $this->createMock(DefinitionRegistryChain::class);
         $registry->method('has')
             ->willReturn(true);
 
@@ -325,14 +326,10 @@ class StructEncoderTest extends TestCase
  */
 class MyTestStruct extends Struct
 {
-    public $foo;
-
-    public $bar;
-
-    public function __construct($foo = null, $bar = null)
-    {
-        $this->foo = $foo;
-        $this->bar = $bar;
+    public function __construct(
+        public mixed $foo = null,
+        public mixed $bar = null
+    ) {
     }
 
     public function getApiAlias(): string

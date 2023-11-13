@@ -3,22 +3,45 @@
 return [
     'filePatterns' => [
         '**/Test/**', // Testing
+        '**/src/WebInstaller/**', // WebInstaller
+        '**/src/Core/Framework/Update/**', // Updater
         '**/src/Core/TestBootstrapper.php', // Testing
         '**/src/Core/Framework/Demodata/Faker/Commerce.php', // dev dependency
         '**/src/Core/DevOps/StaticAnalyze/**', // dev dependency
+        '**/src/Core/Profiling/Doctrine/BacktraceDebugDataHolder.php', // dev dependency
         '**/src/Core/Migration/Traits/MigrationUntouchedDbTestTrait.php', // Test code in prod
-        '**/src/Elasticsearch/Framework/Command/ElasticsearchTestAnalyzerCommand.php', // Why?
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
-        '**/src/Core/Migration/**', // Temporary until all migrations are internal
+        '**/src/Core/DevOps/System/Command/SyncComposerVersionCommand.php', // symfony configure
+        '**/src/Core/Framework/Adapter/Asset/AssetInstallCommand.php', // symfony configure
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)
         'Shopware\\\\Core\\\\Framework\\\\Migration\\\\Exception\\\\UnknownMigrationSourceExceptionBase', // Can not be inspected through reflection if() {class Foo {} }
-        'Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\RetryableTransaction::retryable()', // This is a static method so extending this class is not necessary
+        'Unable to compile initializer in method', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
+        'Could not locate constant .* while trying to evaluate constant expression', // Can not be inspected through reflection https://github.com/Roave/BackwardCompatibilityCheck/issues/698
         'Value.+of.+constant', // Changing const values in not a BC per se
-        '.+#__construct().+', // Todo make service constructors @internal
 
-        // Should be safe
-        'Method Shopware\\\\Storefront\\\\Framework\\\\Cache\\\\ReverseProxy\\\\FastlyReverseProxyGateway\\#\\_\\_destruct\\(\\) was removed'
+        // Renaming of arguments
+        'Parameter 1 of Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\IndexerOffset#__construct\(\) changed name from definitions to mappingDefinitions',
+
+        // Property type change from int to float
+        'Type of property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\DaysSinceRule#$daysPassed changed from int|null to float|null',
+
+        // added Predis support, can be removed after 6.5.6.0 release
+        'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
+        'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
+
+        // Removed boot method from Bundle
+        'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
+
+        // Internal flag added
+        'The number of required arguments for Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator#generate\(\) increased from 3 to 4',
+        'Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator was marked \"@internal\"',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront',
+        'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\MainModule',
+
+        // Removed property, which was unintentionally added
+        'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
     ],
 ];

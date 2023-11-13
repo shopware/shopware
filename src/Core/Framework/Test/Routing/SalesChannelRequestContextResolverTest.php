@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,17 +22,17 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
-use function print_r;
 
 /**
  * @internal
  */
 class SalesChannelRequestContextResolverTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use CustomerTestTrait;
+    use IntegrationTestBehaviour;
 
     private TestDataCollection $ids;
 
@@ -41,7 +40,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
     private SalesChannelContextServiceInterface $contextService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
@@ -98,7 +97,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     /**
      * @return list<array{0: string, 1: string, 2: string}>
      */
-    public function domainData(): array
+    public static function domainData(): array
     {
         return [
             [
@@ -147,16 +146,16 @@ class SalesChannelRequestContextResolverTest extends TestCase
         }
 
         if ($pass) {
-            static::assertNull($exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertNull($exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         } else {
-            static::assertInstanceOf(CustomerNotLoggedInException::class, $exception, 'Exception: ' . ($exception !== null ? print_r($exception->getMessage(), true) : 'No Exception'));
+            static::assertInstanceOf(CustomerNotLoggedInException::class, $exception, 'Exception: ' . ($exception !== null ? \print_r($exception->getMessage(), true) : 'No Exception'));
         }
     }
 
     /**
      * @return list<array{0: bool, 1: bool, 2: array<string, bool>, 3: bool}>
      */
-    public function loginRequiredAnnotationData(): array
+    public static function loginRequiredAnnotationData(): array
     {
         $loginRequiredNotAllowGuest = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true];
         $loginRequiredAllowGuest = [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true, PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true];
@@ -241,8 +240,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
     private function loginCustomer(bool $isGuest): string
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $customerId = $this->createCustomer($password, $email, $isGuest);
+        $customerId = $this->createCustomer($email, $isGuest);
 
         $token = Random::getAlphanumericString(32);
         $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, ['customerId' => $customerId], TestDefaults::SALES_CHANNEL);

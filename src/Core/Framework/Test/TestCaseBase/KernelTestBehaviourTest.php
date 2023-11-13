@@ -11,7 +11,7 @@ class KernelTestBehaviourTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private $kernelId;
+    private string $kernelId;
 
     protected function setUp(): void
     {

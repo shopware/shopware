@@ -211,7 +211,11 @@
             "displayModeContain": "Contain",
             "autoSlide": "Auto slide",
             "autoplayTimeout": "Delay",
-            "speed": "Animation delay"
+            "speed": "Animation delay",
+            "horizontalAlign": "Horizontal align",
+            "horizontalAlignLeft": "Left",
+            "horizontalAlignCenter": "Center",
+            "horizontalAlignRight": "Right"
           },
           "helpText": {
             "autoSlide": "The slide will be slided automatically.",
@@ -472,7 +476,7 @@
           "placeholder": {
             "firstName": "John",
             "lastName": "Doe",
-            "email": "john@doe.com",
+            "email": "john{'@'}doe.com",
             "phone": "+4920 3920173",
             "subject": "Lorem ipsum dolor sit amet.",
             "message": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum."

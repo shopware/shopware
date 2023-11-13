@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -15,6 +16,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
+use Symfony\Component\Intl\Locale;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
@@ -25,38 +27,21 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Contracts\Translation\TranslatorTrait;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Translator extends AbstractTranslator
 {
     use TranslatorTrait;
-
-    /**
-     * @var TranslatorInterface|TranslatorBagInterface|WarmableInterface
-     */
-    private $translator;
-
-    private RequestStack $requestStack;
-
-    private CacheInterface $cache;
 
     /**
      * @var array<string, MessageCatalogueInterface>
      */
     private array $isCustomized = [];
 
-    private MessageFormatterInterface $formatter;
-
-    private SnippetService $snippetService;
-
     private ?string $snippetSetId = null;
 
     private ?string $salesChannelId = null;
 
     private ?string $localeBeforeInject = null;
-
-    private string $environment;
 
     /**
      * @var array<string, bool>
@@ -68,42 +53,31 @@ class Translator extends AbstractTranslator
      */
     private array $traces = [];
 
-    private EntityRepository $snippetSetRepository;
-
     /**
      * @var array<string, string>
      */
     private array $snippets = [];
 
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
     /**
      * @internal
      */
     public function __construct(
-        TranslatorInterface $translator,
-        RequestStack $requestStack,
-        CacheInterface $cache,
-        MessageFormatterInterface $formatter,
-        SnippetService $snippetService,
-        string $environment,
-        EntityRepository $snippetSetRepository,
-        LanguageLocaleCodeProvider $languageLocaleProvider
+        private readonly TranslatorInterface&TranslatorBagInterface&LocaleAwareInterface $translator,
+        private readonly RequestStack $requestStack,
+        private readonly CacheInterface $cache,
+        private readonly MessageFormatterInterface $formatter,
+        private readonly string $environment,
+        private readonly Connection $connection,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
+        private readonly SnippetService $snippetService,
+        private readonly bool $fineGrainedCache
     ) {
-        $this->translator = $translator;
-        $this->requestStack = $requestStack;
-        $this->cache = $cache;
-        $this->formatter = $formatter;
-        $this->snippetService = $snippetService;
-        $this->environment = $environment;
-        $this->snippetSetRepository = $snippetSetRepository;
-        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public static function buildName(string $id): string
     {
-        if (\strpbrk($id, ItemInterface::RESERVED_CHARACTERS) !== false) {
-            $id = \str_replace(\str_split(ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
+        if (\strpbrk($id, (string) ItemInterface::RESERVED_CHARACTERS) !== false) {
+            $id = \str_replace(\str_split((string) ItemInterface::RESERVED_CHARACTERS, 1), '_r_', $id);
         }
 
         return 'translator.' . $id;
@@ -114,9 +88,6 @@ class Translator extends AbstractTranslator
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return mixed|null All kind of data could be cached
-     */
     public function trace(string $key, \Closure $param)
     {
         $this->traces[$key] = [];
@@ -129,9 +100,6 @@ class Translator extends AbstractTranslator
         return $result;
     }
 
-    /**
-     * @return array<int, string>
-     */
     public function getTrace(string $key): array
     {
         $trace = isset($this->traces[$key]) ? array_keys($this->traces[$key]) : [];
@@ -145,7 +113,6 @@ class Translator extends AbstractTranslator
      */
     public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
-        \assert($this->translator instanceof TranslatorBagInterface);
         $catalog = $this->translator->getCatalogue($locale);
 
         $fallbackLocale = $this->getFallbackLocale();
@@ -154,7 +121,7 @@ class Translator extends AbstractTranslator
         if ($this->isShopwareLocaleCatalogue($catalog) && !$this->isFallbackLocaleCatalogue($catalog, $localization)) {
             $catalog->addFallbackCatalogue($this->translator->getCatalogue($localization));
         } else {
-            //fallback locale and current locale has the same localization -> reset fallback
+            // fallback locale and current locale has the same localization -> reset fallback
             // or locale is symfony style locale so we shouldn't add shopware fallbacks as it may lead to circular references
             $fallbackLocale = null;
         }
@@ -164,23 +131,36 @@ class Translator extends AbstractTranslator
             $fallbackLocale = null;
         }
 
-        return $this->getCustomizedCatalog($catalog, $fallbackLocale, $locale);
+        return $this->getCustomizedCatalog($catalog, $fallbackLocale);
     }
 
     /**
      * @param array<string, string> $parameters
      */
-    public function trans($id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
+    public function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         if ($domain === null) {
             $domain = 'messages';
         }
 
-        foreach (array_keys($this->keys) as $trace) {
-            $this->traces[$trace][self::buildName($id)] = true;
+        if ($this->fineGrainedCache) {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace][self::buildName($id)] = true;
+            }
+        } else {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace]['shopware.translator'] = true;
+            }
         }
 
-        return $this->formatter->format($this->getCatalogue($locale)->get($id, $domain), $locale ?? $this->getFallbackLocale(), $parameters);
+        $catalogue = $this->getCatalogue($locale);
+
+        // the formatter expects 2 char locale or underscore locales, `Locale::getFallback()` transforms the codes
+        // We use the locale from the catalogue here as that may be the fallback locale,
+        // so we always format the translations in the actual locale of the catalogue
+        $formatLocale = Locale::getFallback($catalogue->getLocale()) ?? $catalogue->getLocale();
+
+        return $this->formatter->format($catalogue->get($id, $domain), $formatLocale, $parameters);
     }
 
     /**
@@ -188,7 +168,6 @@ class Translator extends AbstractTranslator
      */
     public function setLocale(string $locale): void
     {
-        \assert($this->translator instanceof LocaleAwareInterface);
         $this->translator->setLocale($locale);
     }
 
@@ -197,14 +176,9 @@ class Translator extends AbstractTranslator
      */
     public function getLocale(): string
     {
-        \assert($this->translator instanceof LocaleAwareInterface);
-
         return $this->translator->getLocale();
     }
 
-    /**
-     * @param string $cacheDir
-     */
     public function warmUp($cacheDir): void
     {
         if ($this->translator instanceof WarmableInterface) {
@@ -212,14 +186,35 @@ class Translator extends AbstractTranslator
         }
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, use `reset` instead
+     */
     public function resetInMemoryCache(): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use reset() instead')
+        );
+        $this->reset();
+    }
+
+    public function reset(): void
+    {
+        $this->resetInjection();
+
         $this->isCustomized = [];
+        $this->snippets = [];
+        $this->traces = [];
+        $this->keys = ['all' => true];
         $this->snippetSetId = null;
+        $this->salesChannelId = null;
+        $this->localeBeforeInject = null;
+        $this->locale = null;
         if ($this->translator instanceof SymfonyTranslator) {
             // Reset FallbackLocale in memory cache of symfony implementation
             // set fallback values from Framework/Resources/config/translation.yaml
             $this->translator->setFallbackLocales(['en_GB', 'en']);
+            $this->translator->setLocale('en-GB');
         }
     }
 
@@ -232,13 +227,17 @@ class Translator extends AbstractTranslator
         $this->localeBeforeInject = $this->getLocale();
         $this->salesChannelId = $salesChannelId;
         $this->setLocale($locale);
-        $this->resolveSnippetSetId($salesChannelId, $languageId, $locale, $context);
+        $this->resolveSnippetSetId($salesChannelId, $languageId, $locale);
         $this->getCatalogue($locale);
     }
 
     public function resetInjection(): void
     {
-        \assert($this->localeBeforeInject !== null);
+        if ($this->localeBeforeInject === null) {
+            // Nothing was injected, so no need to reset
+            return;
+        }
+
         $this->setLocale($this->localeBeforeInject);
         $this->snippetSetId = null;
         $this->salesChannelId = null;
@@ -246,32 +245,32 @@ class Translator extends AbstractTranslator
 
     public function getSnippetSetId(?string $locale = null): ?string
     {
-        if ($locale !== null) {
-            if (\array_key_exists($locale, $this->snippets)) {
-                return $this->snippets[$locale];
-            }
+        $snippetSetId = $this->snippetSetId;
+        $currentRequest = $this->requestStack->getMainRequest();
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('iso', $locale));
-
-            $snippetSetId = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
-            if ($snippetSetId !== null) {
-                return $this->snippets[$locale] = $snippetSetId;
-            }
+        // when document is rendered from admin, SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID is not set thus we use snippetSetId from injectSetting method
+        if ($currentRequest !== null && $currentRequest->attributes->has(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID)) {
+            $snippetSetId = $currentRequest->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
         }
 
-        if ($this->snippetSetId !== null) {
-            return $this->snippetSetId;
+        if ($locale === null) {
+            return $this->snippetSetId = $snippetSetId;
+        }
+        // If locale parameter is using, prioritize it over snippet set of request
+        if (\array_key_exists($locale, $this->snippets)) {
+            return $this->snippets[$locale];
         }
 
-        $request = $this->requestStack->getCurrentRequest();
-        if (!$request) {
-            return null;
+        // get snippet set by locale but in case there are more than one sets with a same locale, we should prioritize the domain's snippet set
+        $snippetSetIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = :iso', ['iso' => $locale]);
+
+        if (!empty($snippetSetIds)) {
+            $snippetSetId = \in_array($snippetSetId, $snippetSetIds, true) ? $snippetSetId : $snippetSetIds[0];
         }
 
-        $this->snippetSetId = $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID);
+        $this->snippets[$locale] = $snippetSetId;
 
-        return $this->snippetSetId;
+        return $this->snippetSetId = $snippetSetId;
     }
 
     /**
@@ -297,22 +296,24 @@ class Translator extends AbstractTranslator
         return mb_strpos($catalog->getLocale(), '-') !== false;
     }
 
-    private function resolveSnippetSetId(string $salesChannelId, string $languageId, string $locale, Context $context): void
+    private function resolveSnippetSetId(string $salesChannelId, string $languageId, string $locale): void
     {
-        $snippetSet = $this->snippetService->getSnippetSet($salesChannelId, $languageId, $locale, $context);
-        if ($snippetSet === null) {
-            $this->snippetSetId = null;
-        } else {
-            $this->snippetSetId = $snippetSet->getId();
-        }
+        $snippetSetId = $this->snippetService->findSnippetSetId($salesChannelId, $languageId, $locale);
+
+        $this->snippetSetId = $snippetSetId;
     }
 
     /**
      * Add language specific snippets provided by the admin
      */
-    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale, ?string $locale = null): MessageCatalogueInterface
+    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId($locale);
+        try {
+            $snippetSetId = $this->getSnippetSetId($catalog->getLocale());
+        } catch (DriverException) {
+            // this allows us to use the translator even if there's no db connection yet
+            return $catalog;
+        }
 
         if (!$snippetSetId) {
             return $catalog;
@@ -335,15 +336,15 @@ class Translator extends AbstractTranslator
      */
     private function loadSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale): array
     {
-        $salesChannelId = $this->resolveSalesChannelId() ?? 'DEFAULT';
+        $this->resolveSalesChannelId();
 
-        $key = sprintf('translation.catalog.%s.%s', $salesChannelId, $snippetSetId);
+        $key = sprintf('translation.catalog.%s.%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId);
 
-        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $salesChannelId, $fallbackLocale) {
+        return $this->cache->get($key, function (ItemInterface $item) use ($catalog, $snippetSetId, $fallbackLocale) {
             $item->tag('translation.catalog.' . $snippetSetId);
-            $item->tag('translation.catalog.' . $salesChannelId);
+            $item->tag(sprintf('translation.catalog.%s', $this->salesChannelId ?: 'DEFAULT'));
 
-            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale);
+            return $this->snippetService->getStorefrontSnippets($catalog, $snippetSetId, $fallbackLocale, $this->salesChannelId);
         });
     }
 
@@ -351,29 +352,24 @@ class Translator extends AbstractTranslator
     {
         try {
             return $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
-        } catch (ConnectionException $_) {
+        } catch (ConnectionException) {
             // this allows us to use the translator even if there's no db connection yet
             return 'en-GB';
         }
     }
 
-    private function resolveSalesChannelId(): ?string
+    private function resolveSalesChannelId(): void
     {
-        $salesChannelId = $this->salesChannelId;
-
-        if ($salesChannelId !== null) {
-            return $salesChannelId;
+        if ($this->salesChannelId !== null) {
+            return;
         }
 
-        $request = $this->requestStack->getCurrentRequest();
+        $request = $this->requestStack->getMainRequest();
 
         if (!$request) {
-            return null;
+            return;
         }
 
-        /** @var string|null $salesChannelId */
-        $salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
-
-        return $salesChannelId;
+        $this->salesChannelId = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
     }
 }

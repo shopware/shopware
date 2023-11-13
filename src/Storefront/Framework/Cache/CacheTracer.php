@@ -3,31 +3,24 @@
 namespace Shopware\Storefront\Framework\Cache;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 
 /**
- * @package storefront
- *
  * @extends AbstractCacheTracer<mixed|null>
  */
+#[Package('storefront')]
 class CacheTracer extends AbstractCacheTracer
 {
-    /**
-     * @var AbstractCacheTracer<mixed|null>
-     */
-    private AbstractCacheTracer $decorated;
-
-    private ThemeConfigValueAccessor $themeConfigAccessor;
-
     /**
      * @internal
      *
      * @param AbstractCacheTracer<mixed|null> $decorated
      */
-    public function __construct(AbstractCacheTracer $decorated, ThemeConfigValueAccessor $themeConfigAccessor)
-    {
-        $this->decorated = $decorated;
-        $this->themeConfigAccessor = $themeConfigAccessor;
+    public function __construct(
+        private readonly AbstractCacheTracer $decorated,
+        private readonly ThemeConfigValueAccessor $themeConfigAccessor
+    ) {
     }
 
     public function getDecorated(): AbstractCacheTracer
@@ -37,9 +30,7 @@ class CacheTracer extends AbstractCacheTracer
 
     public function trace(string $key, \Closure $param)
     {
-        return $this->themeConfigAccessor->trace($key, function () use ($key, $param) {
-            return $this->getDecorated()->trace($key, $param);
-        });
+        return $this->themeConfigAccessor->trace($key, fn () => $this->getDecorated()->trace($key, $param));
     }
 
     public function get(string $key): array

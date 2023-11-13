@@ -20,6 +20,5 @@
         <service id="Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
-
     </services>
 </container>

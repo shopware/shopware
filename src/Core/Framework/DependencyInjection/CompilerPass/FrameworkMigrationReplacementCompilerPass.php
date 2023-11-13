@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FrameworkMigrationReplacementCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -26,5 +25,8 @@ class FrameworkMigrationReplacementCompilerPass implements CompilerPassInterface
 
         $migrationSourceV6 = $container->getDefinition(MigrationSource::class . '.core.V6_6');
         $migrationSourceV6->addMethodCall('addDirectory', [$bundleRoot . '/Migration/V6_6', 'Shopware\Core\Migration\V6_6']);
+
+        $migrationSourceV6 = $container->getDefinition(MigrationSource::class . '.core.V6_7');
+        $migrationSourceV6->addMethodCall('addDirectory', [$bundleRoot . '/Migration/V6_7', 'Shopware\Core\Migration\V6_7']);
     }
 }

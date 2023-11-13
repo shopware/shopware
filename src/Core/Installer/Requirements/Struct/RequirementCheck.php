@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Installer\Requirements\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 abstract class RequirementCheck extends Struct
 {
     public const STATUS_SUCCESS = 'success';
@@ -17,12 +17,14 @@ abstract class RequirementCheck extends Struct
 
     private const ALLOWED_STATUS = [self::STATUS_SUCCESS, self::STATUS_ERROR, self::STATUS_WARNING];
 
-    private string $name;
+    private readonly string $name;
 
-    private string $status;
+    private readonly string $status;
 
-    public function __construct(string $name, string $status)
-    {
+    public function __construct(
+        string $name,
+        string $status
+    ) {
         if (empty($name)) {
             throw new \RuntimeException('Empty name for RequirementCheck provided.');
         }

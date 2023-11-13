@@ -11,17 +11,17 @@ describe('components/base/sw-empty-state', () => {
     beforeEach(async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
             stubs: {
-                'sw-icon': true
+                'sw-icon': true,
             },
             mocks: {
-                $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } }
+                $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
             },
             propsData: {
-                title: 'Oh no, nothing was found.'
+                title: 'Oh no, nothing was found.',
             },
             slots: {
-                actions: '<button class="sw-button">Primary action</button>'
-            }
+                actions: '<button class="sw-button">Primary action</button>',
+            },
         });
     });
 
@@ -43,7 +43,7 @@ describe('components/base/sw-empty-state', () => {
 
     it('should render the subtitle instead of the module description', async () => {
         await wrapper.setProps({
-            subline: 'Alternative description'
+            subline: 'Alternative description',
         });
 
         expect(wrapper.find('.sw-empty-state__description-content').text()).toBe('Alternative description');
@@ -51,7 +51,7 @@ describe('components/base/sw-empty-state', () => {
 
     it('should not render the description if configured', async () => {
         await wrapper.setProps({
-            showDescription: false
+            showDescription: false,
         });
 
         expect(wrapper.find('.sw-empty-state__description-content').exists()).toBeFalsy();

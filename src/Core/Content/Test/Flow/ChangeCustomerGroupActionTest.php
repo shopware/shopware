@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -22,15 +23,14 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class ChangeCustomerGroupActionTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private EntityRepository $flowRepository;
 
@@ -60,8 +60,7 @@ class ChangeCustomerGroupActionTest extends TestCase
         $this->createDataTest();
 
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -102,7 +101,7 @@ class ChangeCustomerGroupActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Test group'));
@@ -136,7 +135,7 @@ class ChangeCustomerGroupActionTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    private function createCustomer(string $password, ?string $email = null): void
+    private function createCustomer(?string $email = null): void
     {
         $this->customerRepository->create([
             [
@@ -156,7 +155,7 @@ class ChangeCustomerGroupActionTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

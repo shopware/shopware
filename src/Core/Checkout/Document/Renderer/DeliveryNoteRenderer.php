@@ -12,51 +12,29 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'delivery_note';
-
-    private DocumentConfigLoader $documentConfigLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DocumentTemplateRenderer $documentTemplateRenderer;
-
-    private string $rootDir;
-
-    private EntityRepository $orderRepository;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $orderRepository,
-        DocumentConfigLoader $documentConfigLoader,
-        EventDispatcherInterface $eventDispatcher,
-        DocumentTemplateRenderer $documentTemplateRenderer,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        string $rootDir,
-        Connection $connection
+        private readonly EntityRepository $orderRepository,
+        private readonly DocumentConfigLoader $documentConfigLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly string $rootDir,
+        private readonly Connection $connection
     ) {
-        $this->documentConfigLoader = $documentConfigLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->documentTemplateRenderer = $documentTemplateRenderer;
-        $this->rootDir = $rootDir;
-        $this->orderRepository = $orderRepository;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->connection = $connection;
     }
 
     public function supports(): string
@@ -70,9 +48,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/delivery_note.html.twig';
 
-        $ids = \array_map(function (DocumentGenerateOperation $operation) {
-            return $operation->getOrderId();
-        }, $operations);
+        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
         if (empty($ids)) {
             return $result;
@@ -81,9 +57,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
         foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(explode(',', $ids), $rendererConfig->deepLinkCode);
+            $criteria = OrderDocumentCriteriaFactory::create(explode(',', (string) $ids), $rendererConfig->deepLinkCode);
             $context = $context->assign([
-                'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+                'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
             ]);
 
             // TODO: future implementation (only fetch required data and associations)

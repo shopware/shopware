@@ -78,7 +78,7 @@ class TimeZoneFieldTest extends TestCase
         static::assertNull($array[$name]);
     }
 
-    public function validTimeZones(): array
+    public static function validTimeZones(): array
     {
         return [
             ['UTC'],
@@ -86,7 +86,7 @@ class TimeZoneFieldTest extends TestCase
         ];
     }
 
-    public function inValidTimeZones(): array
+    public static function inValidTimeZones(): array
     {
         return [
             ['+01:00'],

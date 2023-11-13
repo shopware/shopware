@@ -2,40 +2,40 @@
 
 namespace Shopware\Storefront\Framework\App\Template;
 
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Symfony\Component\Finder\Finder;
 
 /**
- * @package core
+ * @internal
  */
+#[Package('core')]
 class IconTemplateLoader extends AbstractTemplateLoader
 {
-    private AbstractTemplateLoader $inner;
-
-    private AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory;
-
-    private string $projectDir;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractTemplateLoader $inner,
-        AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
-        string $projectDir
+        private readonly AbstractTemplateLoader $inner,
+        private readonly AbstractStorefrontPluginConfigurationFactory $storefrontPluginConfigurationFactory,
+        private readonly AbstractAppLoader $appLoader,
+        private readonly string $projectDir
     ) {
-        $this->inner = $inner;
-        $this->storefrontPluginConfigurationFactory = $storefrontPluginConfigurationFactory;
-        $this->projectDir = $projectDir;
     }
 
     public function getTemplatePathsForApp(Manifest $app): array
     {
         $viewPaths = $this->inner->getTemplatePathsForApp($app);
 
-        $resourceDirectory = $app->getPath() . '/Resources';
+        $resourceDirectory = $this->appLoader->locatePath($app->getPath(), 'Resources');
+
+        if ($resourceDirectory === null) {
+            return $viewPaths;
+        }
 
         $relativeAppPath = str_replace($this->projectDir . '/', '', $app->getPath());
         $storefrontConfig = $this->storefrontPluginConfigurationFactory->createFromApp($app->getMetadata()->getName(), $relativeAppPath);
@@ -71,10 +71,10 @@ class IconTemplateLoader extends AbstractTemplateLoader
             return $this->inner->getTemplateContent($path, $app);
         }
 
-        $content = @file_get_contents($app->getPath() . '/Resources/' . $path);
+        $content = $this->appLoader->loadFile($app->getPath(), 'Resources/' . $path);
 
-        if ($content === false) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . '/Resources/' . $path));
+        if ($content === null) {
+            throw StorefrontFrameworkException::appTemplateFileNotReadable($app->getPath() . '/Resources/' . $path);
         }
 
         return $content;

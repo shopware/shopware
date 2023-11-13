@@ -28,11 +28,11 @@ async function createWrapper(privileges = []) {
                     swProductDetail: {
                         namespaced: true,
                         getters: {
-                            isLoading: () => false
-                        }
-                    }
-                }
-            })
+                            isLoading: () => false,
+                        },
+                    },
+                },
+            }),
         },
         provide: {
             repositoryFactory: {},
@@ -41,8 +41,8 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
 
         },
         stubs: {
@@ -55,8 +55,8 @@ async function createWrapper(privileges = []) {
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-context-button': await Shopware.Component.build('sw-context-button')
-        }
+            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+        },
     });
 }
 
@@ -68,8 +68,8 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
                 position: 1,
                 id: '520a8b95abc2446db77b173fcd718567',
                 media: {
-                    id: 'c621b5f556424911964e848fa1b7e8a5'
-                }
+                    id: 'c621b5f556424911964e848fa1b7e8a5',
+                },
             },
             coverId: '520a8b95abc2446db77b173fcd718567',
             media: [
@@ -78,26 +78,26 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
                     position: 1,
                     id: '520a8b95abc2446db77b173fcd718567',
                     media: {
-                        id: 'c621b5f556424911964e848fa1b7e8a5'
-                    }
+                        id: 'c621b5f556424911964e848fa1b7e8a5',
+                    },
                 },
                 {
                     mediaId: 'c621b5f556424911964e848fa1b7e8a5',
                     position: 1,
                     id: '5a73a7f88b544a9ab52b2e795c95c7a7',
                     media: {
-                        id: 'c621b5f556424911964e848fa1b7e8a5'
-                    }
-                }
-            ]
+                        id: 'c621b5f556424911964e848fa1b7e8a5',
+                    },
+                },
+            ],
         };
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
-                product: product
-            }
+                product: product,
+            },
         });
     });
 
@@ -109,7 +109,7 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
 
     it('should show the sw-media-upload-v2 component', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeTruthy();
@@ -132,7 +132,7 @@ describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-f
         await wrapper.vm.$nextTick();
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
-        expect(buttons.length).toBe(1);
+        expect(buttons).toHaveLength(1);
         expect(buttons.at(0).text()).toContain('Remove');
     });
 });

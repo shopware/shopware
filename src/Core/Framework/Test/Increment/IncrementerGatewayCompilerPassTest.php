@@ -104,7 +104,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
             }
         };
 
-        $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition(\get_class($customGateway)));
+        $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition($customGateway::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
         $entityCompilerPass->process($container);
@@ -112,7 +112,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertNotNull($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals(\get_class($customGateway), $definition->getClass());
+        static::assertEquals($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -130,7 +130,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
             }
         };
 
-        $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition(\get_class($customGateway)));
+        $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition($customGateway::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
         $entityCompilerPass->process($container);
@@ -138,7 +138,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertNotNull($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals(\get_class($customGateway), $definition->getClass());
+        static::assertEquals($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 

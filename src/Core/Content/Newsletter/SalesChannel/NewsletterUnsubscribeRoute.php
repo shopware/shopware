@@ -4,13 +4,13 @@ namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
-use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
+use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -22,39 +22,18 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package customer-order
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('buyers-experience')]
 class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
 {
-    /**
-     * @var EntityRepository
-     */
-    private $newsletterRecipientRepository;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $newsletterRecipientRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        private readonly EntityRepository $newsletterRecipientRepository,
+        private readonly DataValidator $validator,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->newsletterRecipientRepository = $newsletterRecipientRepository;
-        $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractNewsletterUnsubscribeRoute
@@ -62,18 +41,11 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/newsletter/unsubscribe", name="store-api.newsletter.unsubscribe", methods={"POST"})
-     */
+    #[Route(path: '/store-api/newsletter/unsubscribe', name: 'store-api.newsletter.unsubscribe', methods: ['POST'])]
     public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): NoContentResponse
     {
         $data = $dataBag->only('email');
         $recipient = $this->getNewsletterRecipient($data['email'], $context);
-
-        if (!$recipient) {
-            throw new NewsletterRecipientNotFoundException('email', $data['email']);
-        }
 
         $data['id'] = $recipient->getId();
         $data['status'] = NewsletterSubscribeRoute::STATUS_OPT_OUT;
@@ -89,7 +61,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         return new NoContentResponse();
     }
 
-    private function getNewsletterRecipient(string $email, SalesChannelContext $context): ?NewsletterRecipientEntity
+    private function getNewsletterRecipient(string $email, SalesChannelContext $context): NewsletterRecipientEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -100,9 +72,17 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
-        return $this->newsletterRecipientRepository
-            ->search($criteria, $context->getContext())
-            ->first();
+        /** @var NewsletterRecipientEntity|null $newsletterRecipient */
+        $newsletterRecipient = $this->newsletterRecipientRepository->search(
+            $criteria,
+            $context->getContext()
+        )->getEntities()->first();
+
+        if (!$newsletterRecipient) {
+            throw NewsletterException::recipientNotFound('email', $email);
+        }
+
+        return $newsletterRecipient;
     }
 
     private function getOptOutValidation(): DataValidationDefinition

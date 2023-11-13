@@ -13,13 +13,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductTranslationDefinition extends EntityTranslationDefinition
 {
-    public const ENTITY_NAME = 'product_translation';
+    final public const ENTITY_NAME = 'product_translation';
 
     public function getEntityName(): string
     {

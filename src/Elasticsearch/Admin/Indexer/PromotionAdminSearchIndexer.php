@@ -2,7 +2,9 @@
 
 namespace Shopware\Elasticsearch\Admin\Indexer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
@@ -11,36 +13,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package system-settings
- *
- * @internal
- *
  * @final
  */
+#[Package('system-settings')]
 class PromotionAdminSearchIndexer extends AbstractAdminIndexer
 {
-    private Connection $connection;
-
-    private IteratorFactory $factory;
-
-    private EntityRepository $repository;
-
-    private int $indexingBatchSize;
-
+    /**
+     * @internal
+     */
     public function __construct(
-        Connection $connection,
-        IteratorFactory $factory,
-        EntityRepository $repository,
-        int $indexingBatchSize
+        private readonly Connection $connection,
+        private readonly IteratorFactory $factory,
+        private readonly EntityRepository $repository,
+        private readonly int $indexingBatchSize
     ) {
-        $this->connection = $connection;
-        $this->factory = $factory;
-        $this->repository = $repository;
-        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     public function getDecorated(): AbstractAdminIndexer
@@ -81,7 +72,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
     /**
      * @param array<string>|array<int, array<string>> $ids
      *
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      *
      * @return array<int|string, array<string, mixed>>
      */
@@ -101,7 +92,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

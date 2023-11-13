@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
@@ -14,17 +15,16 @@ use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 use Shopware\Core\Migration\V6_4\Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLog;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->connection->rollBack();

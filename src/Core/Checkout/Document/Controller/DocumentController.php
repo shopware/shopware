@@ -7,8 +7,8 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\DocumentMerger;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,32 +16,20 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class DocumentController extends AbstractController
 {
-    private DocumentGenerator $documentGenerator;
-
-    private DocumentMerger $documentMerger;
-
     /**
      * @internal
      */
     public function __construct(
-        DocumentGenerator $documentGenerator,
-        DocumentMerger $documentMerger
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly DocumentMerger $documentMerger
     ) {
-        $this->documentGenerator = $documentGenerator;
-        $this->documentMerger = $documentMerger;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"}, defaults={"_acl"={"document.viewer"}})
-     */
+    #[Route(path: '/api/_action/document/{documentId}/{deepLinkCode}', name: 'api.action.download.document', methods: ['GET'], defaults: ['_acl' => ['document:read']])]
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
     {
         $download = $request->query->getBoolean('download');
@@ -60,15 +48,7 @@ class DocumentController extends AbstractController
         );
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route(
-     *     "/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
-     *     name="api.action.document.preview",
-     *     methods={"GET"},
-     *     defaults={"_acl"={"document.viewer"}}
-     * )
-     */
+    #[Route(path: '/api/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview', name: 'api.action.document.preview', methods: ['GET'], defaults: ['_acl' => ['document:read']])]
     public function previewDocument(
         Request $request,
         string $orderId,
@@ -95,16 +75,13 @@ class DocumentController extends AbstractController
         );
     }
 
-    /**
-     * @Since("6.4.12.0")
-     * @Route("/api/_action/order/document/download", name="api.action.download.documents", methods={"POST"}, defaults={"_acl"={"document.viewer"}})
-     */
+    #[Route(path: '/api/_action/order/document/download', name: 'api.action.download.documents', methods: ['POST'], defaults: ['_acl' => ['document:read']])]
     public function downloadDocuments(Request $request, Context $context): Response
     {
         $documentIds = $request->get('documentIds', []);
 
         if (!\is_array($documentIds) || empty($documentIds)) {
-            throw new InvalidRequestParameterException('documentIds');
+            throw RoutingException::invalidRequestParameter('documentIds');
         }
 
         $download = $request->query->getBoolean('download', true);

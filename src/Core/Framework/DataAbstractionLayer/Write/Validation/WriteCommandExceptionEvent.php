@@ -5,27 +5,20 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WriteCommandExceptionEvent extends Event implements ShopwareEvent
 {
-    private \Throwable $exception;
-
     /**
-     * @var WriteCommand[]
+     * @param WriteCommand[] $commands
      */
-    private array $commands;
-
-    private Context $context;
-
-    public function __construct(\Throwable $exception, array $commands, Context $context)
-    {
-        $this->exception = $exception;
-        $this->commands = $commands;
-        $this->context = $context;
+    public function __construct(
+        private readonly \Throwable $exception,
+        private readonly array $commands,
+        private readonly Context $context
+    ) {
     }
 
     public function getException(): \Throwable

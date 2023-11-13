@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Profiling;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Integration\ProfilerInterface;
 
 /**
- * @package core
- *
  * @internal experimental atm
  */
+#[Package('core')]
 class Profiler
 {
     /**
@@ -16,7 +16,7 @@ class Profiler
      *
      * All enabled profilers will be added here
      *
-     * @var ProfilerInterface[]
+     * @var array<string, ProfilerInterface>
      */
     private static array $profilers = [];
 
@@ -33,10 +33,13 @@ class Profiler
     private static array $openTraces = [];
 
     /**
+     * @param \Traversable<ProfilerInterface> $profilers
      * @param array<string> $activeProfilers
      */
-    public function __construct(\Traversable $profilers, array $activeProfilers)
-    {
+    public function __construct(
+        \Traversable $profilers,
+        array $activeProfilers
+    ) {
         $profilers = iterator_to_array($profilers);
         self::$profilers = array_intersect_key($profilers, array_flip($activeProfilers));
         self::$tags = [];
@@ -45,7 +48,12 @@ class Profiler
     }
 
     /**
-     * @return mixed
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $closure
+     * @param array<string> $tags
+     *
+     * @return TReturn
      */
     public static function trace(string $name, \Closure $closure, string $category = 'shopware', array $tags = [])
     {
@@ -66,6 +74,9 @@ class Profiler
         return $result;
     }
 
+    /**
+     * @param array<string> $tags
+     */
     public static function start(string $title, string $category, array $tags): void
     {
         self::$openTraces[] = $title;

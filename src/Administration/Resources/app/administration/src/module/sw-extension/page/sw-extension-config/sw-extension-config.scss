@@ -7,6 +7,7 @@
 
     .sw-meteor-page__smart-bar .sw-meteor-page__smart-bar-module-info .sw-meteor-page__smart-bar-header .sw-meteor-page__smart-bar-title {
         line-height: 36px;
+        font-size: $font-size-l;
     }
 
     .sw-meteor-page__smart-bar-content {
@@ -20,12 +21,14 @@
     }
 
     &__extension-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 4px;
+        width: 72px;
+        height: 72px;
+        border-radius: $border-radius-lg;
+        border: 1px solid rgba(0, 0, 0, 8%);
     }
 
     &__producer-link {
         text-decoration: none;
+        font-weight: $font-weight-medium;
     }
 }

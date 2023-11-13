@@ -2,18 +2,14 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class InvalidPageQueryException extends ShopwareHttpException
 {
-    /**
-     * @param mixed $page
-     */
-    public function __construct($page)
+    public function __construct(mixed $page)
     {
         parent::__construct('The page parameter must be a positive integer. Given: {{ page }}', ['page' => $page]);
     }

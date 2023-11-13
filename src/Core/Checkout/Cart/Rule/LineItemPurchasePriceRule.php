@@ -4,35 +4,27 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 class LineItemPurchasePriceRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemPurchasePrice';
-
-    protected ?float $amount;
-
-    protected string $operator;
-
-    protected bool $isNet;
+    final public const RULE_NAME = 'cartLineItemPurchasePrice';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null, bool $isNet = true)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?float $amount = null,
+        protected bool $isNet = true
+    ) {
         parent::__construct();
-
-        $this->isNet = $isNet;
-        $this->operator = $operator;
-        $this->amount = $amount;
     }
 
     public function match(RuleScope $scope): bool
@@ -88,17 +80,14 @@ class LineItemPurchasePriceRule extends Rule
         if (!$purchasePricePayload) {
             return null;
         }
-        $purchasePrice = json_decode($purchasePricePayload);
-        if (!$purchasePrice) {
-            return null;
+        $purchasePrice = json_decode((string) $purchasePricePayload, true, 512, \JSON_THROW_ON_ERROR);
+
+        if ($this->isNet && \array_key_exists('net', $purchasePrice)) {
+            return $purchasePrice['net'];
         }
 
-        if ($this->isNet && property_exists($purchasePrice, 'net')) {
-            return $purchasePrice->net;
-        }
-
-        if (property_exists($purchasePrice, 'gross')) {
-            return $purchasePrice->gross;
+        if (\array_key_exists('gross', $purchasePrice)) {
+            return $purchasePrice['gross'];
         }
 
         return null;

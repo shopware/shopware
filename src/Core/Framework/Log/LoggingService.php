@@ -2,23 +2,23 @@
 
 namespace Shopware\Core\Framework\Log;
 
+use Monolog\Level;
 use Monolog\Logger;
 use Shopware\Core\Framework\Event\FlowLogEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class LoggingService implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private string $environment,
-        private Logger $logger
+        private readonly string $environment,
+        private readonly Logger $logger
     ) {
     }
 
@@ -27,7 +27,7 @@ class LoggingService implements EventSubscriberInterface
         $innerEvent = $event->getEvent();
 
         $additionalData = [];
-        $logLevel = Logger::DEBUG;
+        $logLevel = Level::Debug;
 
         if ($innerEvent instanceof LogAware) {
             $logLevel = $innerEvent->getLogLevel();

@@ -10,6 +10,7 @@ use Shopware\Core\Migration\V6_5\Migration1669291632MigrateLineItemsInCartRule;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1669291632MigrateLineItemsInCartRule
  */
 class Migration1669291632MigrateLineItemsInCartRuleTest extends TestCase
@@ -28,7 +29,7 @@ class Migration1669291632MigrateLineItemsInCartRuleTest extends TestCase
      */
     private array $testCondition;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 

@@ -49,8 +49,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo(): MetaInfo {
         return {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            title: this.$createTitle() as string,
+            title: this.$createTitle(),
         };
     },
 
@@ -178,7 +177,6 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$tc('sw-settings-payment.overview.notification.activationSuccess', 0, { name }) :
                 this.$tc('sw-settings-payment.overview.notification.deactivationSuccess', 0, { name });
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.createNotificationSuccess({ message });
         },
 
@@ -187,7 +185,6 @@ export default Shopware.Component.wrapComponentConfig({
                 this.$tc('sw-settings-payment.overview.notification.activationError', 0, { name }) :
                 this.$tc('sw-settings-payment.overview.notification.deactivationError', 0, { name });
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.createNotificationError({ message });
         },
     },

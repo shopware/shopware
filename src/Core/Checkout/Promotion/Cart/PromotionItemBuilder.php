@@ -13,19 +13,18 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
 
-/**
- * @package checkout
- */
+#[Package('buyers-experience')]
 class PromotionItemBuilder
 {
     /**
      * will be used as prefix for the key
      * within placeholder items
      */
-    public const PLACEHOLDER_PREFIX = 'promotion-';
+    final public const PLACEHOLDER_PREFIX = 'promotion-';
 
     /**
      * Builds a new placeholder promotion line item that does not have
@@ -63,7 +62,7 @@ class PromotionItemBuilder
      */
     public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, string $currencyId, float $currencyFactor = 1.0): LineItem
     {
-        //get the rules collection of discount
+        // get the rules collection of discount
         $discountRuleCollection = $discount->getDiscountRules();
 
         // this is our target Filter that may be null if discount has no filters

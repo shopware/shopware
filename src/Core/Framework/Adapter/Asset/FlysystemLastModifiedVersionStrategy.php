@@ -3,29 +3,21 @@
 namespace Shopware\Core\Framework\Adapter\Asset;
 
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 {
-    private FilesystemOperator $filesystem;
-
-    private TagAwareAdapterInterface $cacheAdapter;
-
-    private string $cacheTag;
-
     /**
      * @internal
      */
-    public function __construct(string $cacheTag, FilesystemOperator $filesystem, TagAwareAdapterInterface $cacheAdapter)
-    {
-        $this->filesystem = $filesystem;
-        $this->cacheAdapter = $cacheAdapter;
-        $this->cacheTag = $cacheTag;
+    public function __construct(
+        private readonly string $cacheTag,
+        private readonly FilesystemOperator $filesystem,
+        private readonly TagAwareAdapterInterface $cacheAdapter
+    ) {
     }
 
     public function getVersion(string $path): string
@@ -48,7 +40,6 @@ class FlysystemLastModifiedVersionStrategy implements VersionStrategyInterface
 
         $cacheKey = 'metaDataFlysystem-' . md5($path);
 
-        /** @var ItemInterface $item */
         $item = $this->cacheAdapter->getItem($cacheKey);
 
         if ($item->isHit()) {

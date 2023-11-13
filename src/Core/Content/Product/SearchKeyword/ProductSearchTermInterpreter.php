@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SearchKeyword;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
@@ -11,37 +12,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\ArrayNormalizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
     private const RELEVANT_KEYWORD_COUNT = 8;
-
-    private Connection $connection;
-
-    private TokenizerInterface $tokenizer;
-
-    private LoggerInterface $logger;
-
-    private AbstractTokenFilter $tokenFilter;
 
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        TokenizerInterface $tokenizer,
-        LoggerInterface $logger,
-        AbstractTokenFilter $tokenFilter
+        private readonly Connection $connection,
+        private readonly TokenizerInterface $tokenizer,
+        private readonly LoggerInterface $logger,
+        private readonly AbstractTokenFilter $tokenFilter
     ) {
-        $this->connection = $connection;
-        $this->tokenizer = $tokenizer;
-        $this->logger = $logger;
-        $this->tokenFilter = $tokenFilter;
     }
 
     public function interpret(string $word, Context $context): SearchPattern
@@ -130,9 +118,18 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $slopSize = mb_strlen($token) > 4 ? 2 : 1;
             $length = mb_strlen($token);
 
+            // is too short
             if (mb_strlen($token) <= 2) {
                 $slops['normal'][] = $token . '%';
                 $slops['reversed'][] = $token . '%';
+                $tokenSlops[$token] = $slops;
+
+                continue;
+            }
+
+            // looks like a number
+            if (\preg_match('/\d/', $token) === 1) {
+                $slops['normal'][] = $token . '%';
                 $tokenSlops[$token] = $slops;
 
                 continue;
@@ -268,9 +265,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
             $scoring[$match] = $score / 10;
         }
 
-        uasort($scoring, function ($a, $b) {
-            return $b <=> $a;
-        });
+        uasort($scoring, fn ($a, $b) => $b <=> $a);
 
         return $scoring;
     }
@@ -297,7 +292,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $configurations = $this->connection->fetchAllAssociative(
             'SELECT `and_logic`, `language_id` FROM `product_search_config` WHERE `language_id` IN (:language)',
             ['language' => Uuid::fromHexToBytesList([$currentLanguageId, Defaults::LANGUAGE_SYSTEM])],
-            ['language' => Connection::PARAM_STR_ARRAY]
+            ['language' => ArrayParameterType::BINARY]
         );
         foreach ($configurations as $configuration) {
             $andLogic = (bool) $configuration['and_logic'];

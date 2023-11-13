@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -9,19 +10,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ResponseExceptionListener implements EventSubscriberInterface
 {
-    private bool $debug;
-
     /**
      * @internal
      */
-    public function __construct(bool $debug = false)
+    public function __construct(private readonly bool $debug = false)
     {
-        $this->debug = $debug;
     }
 
     public static function getSubscribedEvents(): array

@@ -28,7 +28,7 @@ class IncrementRedisStorageTest extends TestCase
 
     private IncrementRedisStorage $storage;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->numberRangeRepository = $this->getContainer()->get('number_range.repository');
         $this->lockFactoryMock = $this->createMock(LockFactory::class);
@@ -214,7 +214,6 @@ class IncrementRedisStorageTest extends TestCase
         $keys = array_map(fn (string $id) => [$this->getKey($id)], $numberRangeIds);
         $this->redisMock->expects(static::exactly(\count($keys)))
             ->method('get')
-            ->withConsecutive(...$keys)
             ->willReturnOnConsecutiveCalls(10, 5, false);
 
         static::assertEquals([

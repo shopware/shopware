@@ -30,7 +30,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
     private EntityLoadedEventFactory $entityLoadedEventFactory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->entityLoadedEventFactory = $this->getContainer()->get(EntityLoadedEventFactory::class);
@@ -61,9 +61,7 @@ class EntityLoadedEventFactoryTest extends TestCase
         ]));
         $events = $this->entityLoadedEventFactory->create([$product], Context::createDefaultContext());
 
-        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
-            return $event->getName();
-        });
+        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertEquals([
@@ -82,9 +80,7 @@ class EntityLoadedEventFactoryTest extends TestCase
 
         $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], Context::createDefaultContext());
 
-        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
-            return $event->getName();
-        });
+        $createdEvents = $events->getEvents()->map(fn (EntityLoadedEvent $event): string => $event->getName());
         sort($createdEvents);
 
         static::assertEquals([

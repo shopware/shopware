@@ -6,31 +6,24 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MediaExtension extends AbstractExtension
 {
     /**
-     * @var EntityRepository
-     */
-    private $mediaRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $mediaRepository)
+    public function __construct(private readonly EntityRepository $mediaRepository)
     {
-        $this->mediaRepository = $mediaRepository;
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('searchMedia', [$this, 'searchMedia']),
+            new TwigFunction('searchMedia', $this->searchMedia(...)),
         ];
     }
 

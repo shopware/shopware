@@ -1,7 +1,7 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const defaultSearchConfiguration = {
@@ -245,6 +245,14 @@ const defaultSearchConfiguration = {
             documentNumber: {
                 _searchable: false,
                 _score: searchRankingPoint.LOW_SEARCH_RANKING,
+            },
+        },
+    },
+    lineItems: {
+        payload: {
+            code: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING,
             },
         },
     },

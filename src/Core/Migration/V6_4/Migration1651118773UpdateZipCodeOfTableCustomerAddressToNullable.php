@@ -3,13 +3,15 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +21,7 @@ class Migration1651118773UpdateZipCodeOfTableCustomerAddressToNullable extends M
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
         ALTER TABLE `customer_address`
         MODIFY COLUMN `zipcode` varchar(50) NULL
         SQL;

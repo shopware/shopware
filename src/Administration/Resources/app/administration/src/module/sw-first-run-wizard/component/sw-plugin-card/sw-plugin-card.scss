@@ -1,9 +1,11 @@
 @import "~scss/variables";
 
 .sw-plugin-card {
-    &__icon {
-        object-fit: contain;
-    }
+    display: grid;
+    grid-template-columns: 128px 1fr;
+    column-gap: 32px;
+    align-items: start;
+    justify-content: left;
 
     &__info {
         display: flex;

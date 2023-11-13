@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class Migration1659425718AddFlagsToCustomEntities extends MigrationStep
 {
     public function getCreationTimestamp(): int

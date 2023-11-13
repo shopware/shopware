@@ -3,27 +3,19 @@
 namespace Shopware\Core\Checkout\Cart\Event;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartBeforeSerializationEvent extends Event
 {
-    protected Cart $cart;
-
     /**
-     * @var array<mixed>
+     * @param array<string> $customFieldAllowList
      */
-    private array $customFieldAllowList;
-
-    /**
-     * @param array<mixed> $customFieldAllowList
-     */
-    public function __construct(Cart $cart, array $customFieldAllowList)
-    {
-        $this->cart = $cart;
-        $this->customFieldAllowList = $customFieldAllowList;
+    public function __construct(
+        protected Cart $cart,
+        private array $customFieldAllowList
+    ) {
     }
 
     public function getCart(): Cart
@@ -32,7 +24,7 @@ class CartBeforeSerializationEvent extends Event
     }
 
     /**
-     * @return array<mixed>
+     * @return array<string>
      */
     public function getCustomFieldAllowList(): array
     {
@@ -40,10 +32,15 @@ class CartBeforeSerializationEvent extends Event
     }
 
     /**
-     * @param array<mixed> $customFieldAllowList
+     * @param array<string> $customFieldAllowList
      */
     public function setCustomFieldAllowList(array $customFieldAllowList): void
     {
         $this->customFieldAllowList = $customFieldAllowList;
+    }
+
+    public function addCustomFieldToAllowList(string $customField): void
+    {
+        $this->customFieldAllowList[] = $customField;
     }
 }

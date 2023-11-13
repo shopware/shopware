@@ -17,7 +17,8 @@ shopware.installer:
     start: Avvia
     start_installation: 'Avvia installazione'
     select_language_de: Tedesco
-    select_language_en: Inglese
+    select_language_en: Inglese (Regno Unito)
+    select_language_us: Inglese (Stati Uniti d'America)
     select_language_nl: Olandese
     select_language_it: Italiano
     select_language_fr: Francese

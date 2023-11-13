@@ -14,14 +14,13 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class OrderLineItemEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -46,7 +45,7 @@ class OrderLineItemEntity extends Entity
     /**
      * @internal
      */
-    protected ?string $promotionId;
+    protected ?string $promotionId = null;
 
     /**
      * @var int
@@ -164,10 +163,22 @@ class OrderLineItemEntity extends Entity
 
     protected ?OrderLineItemDownloadCollection $downloads = null;
 
+    protected ?PromotionEntity $promotion = null;
+
     /**
-     * @internal
+     * @var string
      */
-    protected ?PromotionEntity $promotion;
+    protected $orderVersionId;
+
+    /**
+     * @var string
+     */
+    protected $productVersionId;
+
+    /**
+     * @var string
+     */
+    protected $parentVersionId;
 
     public function getOrderId(): string
     {
@@ -435,33 +446,21 @@ class OrderLineItemEntity extends Entity
         $this->orderTransactionCaptureRefundPositions = $orderTransactionCaptureRefundPositions;
     }
 
-    /**
-     * @internal
-     */
     public function getPromotionId(): ?string
     {
         return $this->promotionId;
     }
 
-    /**
-     * @internal
-     */
     public function setPromotionId(?string $promotionId): void
     {
         $this->promotionId = $promotionId;
     }
 
-    /**
-     * @internal
-     */
     public function getPromotion(): ?PromotionEntity
     {
         return $this->promotion;
     }
 
-    /**
-     * @internal
-     */
     public function setPromotion(?PromotionEntity $promotion): void
     {
         $this->promotion = $promotion;
@@ -491,5 +490,35 @@ class OrderLineItemEntity extends Entity
     public function setDownloads(OrderLineItemDownloadCollection $downloads): void
     {
         $this->downloads = $downloads;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
+    }
+
+    public function getProductVersionId(): string
+    {
+        return $this->productVersionId;
+    }
+
+    public function setProductVersionId(string $productVersionId): void
+    {
+        $this->productVersionId = $productVersionId;
+    }
+
+    public function getParentVersionId(): string
+    {
+        return $this->parentVersionId;
+    }
+
+    public function setParentVersionId(string $parentVersionId): void
+    {
+        $this->parentVersionId = $parentVersionId;
     }
 }

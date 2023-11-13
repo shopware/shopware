@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ScheduledTaskEntity extends Entity
 {
     use EntityIdTrait;
@@ -26,6 +25,8 @@ class ScheduledTaskEntity extends Entity
      * @var int
      */
     protected $runInterval;
+
+    protected int $defaultRunInterval;
 
     /**
      * @var string
@@ -70,6 +71,16 @@ class ScheduledTaskEntity extends Entity
     public function setRunInterval(int $runInterval): void
     {
         $this->runInterval = $runInterval;
+    }
+
+    public function getDefaultRunInterval(): int
+    {
+        return $this->defaultRunInterval;
+    }
+
+    public function setDefaultRunInterval(int $defaultRunInterval): void
+    {
+        $this->defaultRunInterval = $defaultRunInterval;
     }
 
     public function getStatus(): string

@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class FindProductVariantRouteResponse extends StoreApiResponse
 {
     /**

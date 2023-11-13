@@ -4,20 +4,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TreeBreadcrumbField extends JsonField
 {
-    /**
-     * @var string
-     */
-    private $nameField;
-
-    public function __construct(string $storageName = 'breadcrumb', string $propertyName = 'breadcrumb', string $nameField = 'name')
-    {
-        $this->nameField = $nameField;
+    public function __construct(
+        string $storageName = 'breadcrumb',
+        string $propertyName = 'breadcrumb',
+        private readonly string $nameField = 'name'
+    ) {
         parent::__construct($storageName, $propertyName);
 
         $this->addFlags(new WriteProtected(Context::SYSTEM_SCOPE));

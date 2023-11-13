@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Address;
 
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
-use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -13,16 +12,13 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class AddressValidator implements CartValidatorInterface, ResetInterface
 {
-    private EntityRepository $repository;
-
     /**
      * @var array<string, bool>
      */
@@ -31,9 +27,8 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $repository)
+    public function __construct(private readonly EntityRepository $repository)
     {
-        $this->repository = $repository;
     }
 
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
@@ -62,12 +57,6 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
         }
 
         if ($customer === null) {
-            return;
-        }
-
-        if (!$customer->getSalutationId()) {
-            $errors->add(new ProfileSalutationMissingError($customer));
-
             return;
         }
 

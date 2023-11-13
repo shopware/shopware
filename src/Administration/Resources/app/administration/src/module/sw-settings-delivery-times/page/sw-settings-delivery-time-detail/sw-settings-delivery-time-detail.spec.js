@@ -2,7 +2,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsDeliveryTimeDetail from 'src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-detail';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-settings-delivery-time-detail', swSettingsDeliveryTimeDetail);
@@ -16,9 +16,9 @@ async function createWrapper(privileges = []) {
         mocks: {
             $route: {
                 params: {
-                    id: '1'
-                }
-            }
+                    id: '1',
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -29,7 +29,7 @@ async function createWrapper(privileges = []) {
                             min: 0,
                             max: 0,
                             unit: '',
-                            isNew: () => true
+                            isNew: () => true,
                         };
                     },
 
@@ -41,7 +41,7 @@ async function createWrapper(privileges = []) {
                                 min: 1,
                                 max: 3,
                                 unit: 'week',
-                                isNew: () => false
+                                isNew: () => false,
                             },
                             {
                                 id: 2,
@@ -49,26 +49,26 @@ async function createWrapper(privileges = []) {
                                 min: 2,
                                 max: 5,
                                 unit: 'day',
-                                isNew: () => false
-                            }
+                                isNew: () => false,
+                            },
                         ];
 
                         return Promise.resolve(deliveryTimes.find((deliveryTime) => {
                             return deliveryTime.id === id;
                         }));
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([])
-            }
+                getCustomFieldSets: () => Promise.resolve([]),
+            },
         },
         stubs: {
             'sw-page': {
@@ -77,7 +77,7 @@ async function createWrapper(privileges = []) {
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-button': true,
             'sw-button-process': true,
@@ -85,12 +85,12 @@ async function createWrapper(privileges = []) {
             'sw-card-view': true,
             'sw-card': true,
             'sw-container': true,
-            'sw-field': true,
+            'sw-text-field': true,
             'sw-number-field': true,
             'sw-language-info': true,
             'sw-single-select': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -101,7 +101,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
@@ -116,19 +116,19 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'sw-privileges.tooltip.warning',
             disabled: false,
-            showOnDisabledElements: true
+            showOnDisabledElements: true,
         });
     });
 
     it('should be able to save the delivery time', async () => {
         const wrapper = await createWrapper([
-            'delivery_times.editor'
+            'delivery_times.editor',
         ]);
 
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
@@ -142,14 +142,14 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'CTRL + S',
-            appearance: 'light'
+            appearance: 'light',
         });
     });
 
     it('should be able to create new delivery time', async () => {
         const wrapper = await createWrapper([
             'delivery_times.creator',
-            'delivery_times.editor'
+            'delivery_times.editor',
         ]);
 
         await wrapper.vm.$nextTick();
@@ -160,7 +160,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-delivery-time-detail__save');
-        const nameField = wrapper.find('sw-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
+        const nameField = wrapper.find('sw-text-field-stub[label="sw-settings-delivery-time.detail.labelName"]');
         const maxNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMax"]');
         const minNumberField = wrapper.find('sw-number-field-stub[label="sw-settings-delivery-time.detail.labelMin"]');
         const unitSingleSelect = wrapper.find('sw-single-select-stub[label="sw-settings-delivery-time.detail.labelUnit"]');
@@ -174,7 +174,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
 
         expect(wrapper.vm.tooltipSave).toStrictEqual({
             message: 'CTRL + S',
-            appearance: 'light'
+            appearance: 'light',
         });
     });
 });

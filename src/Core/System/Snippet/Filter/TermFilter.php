@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class TermFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**

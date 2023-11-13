@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\Script;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal only for use by the app-system
  *
  * @extends EntityCollection<ScriptEntity>
  */
+#[Package('core')]
 class ScriptCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

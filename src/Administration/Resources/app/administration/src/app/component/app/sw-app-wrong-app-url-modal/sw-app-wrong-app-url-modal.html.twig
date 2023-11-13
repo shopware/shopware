@@ -9,7 +9,7 @@
         <div class="sw-app-wrong-app-url-modal__content-description">
             <img
                 class="sw-app-wrong-app-url-modal__content-image"
-                :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                :src="assetFilter('administration/static/img/empty-states/extensions-empty-state.svg')"
                 alt=""
             >
             <h3>{{ $tc('sw-app.component.sw-app-wrong-app-url-modal.explanationHeader') }}</h3>
@@ -34,5 +34,4 @@
             </div>
         </div>
     </template>
-
 </sw-modal>

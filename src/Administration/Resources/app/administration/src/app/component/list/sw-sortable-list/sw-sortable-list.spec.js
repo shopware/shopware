@@ -22,11 +22,11 @@ async function createWrapper(userConfig = {}) {
         scopedSlots: {
             item: (propsData) => {
                 return propsData.item.id;
-            }
+            },
         },
         provide: {
             repositoryFactory: {
-                create: () => ({ save: () => Promise.resolve() })
+                create: () => ({ save: () => Promise.resolve() }),
             },
         },
         mocks: {
@@ -59,7 +59,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         const items = list.findAll('.sw-sortable-list__item');
 
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -69,11 +69,11 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper = await createWrapper();
         wrapper.vm.onDragEnter(listItems[0], listItems[2]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const items = wrapper.findAll('.sw-sortable-list__item');
 
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('1');
         expect(items.at(1).text()).toBe('2');
         expect(items.at(2).text()).toBe('0');
@@ -89,11 +89,11 @@ describe('src/component/list/sw-sortable-list', () => {
 
         wrapper.vm.onDragEnter(listItems[0], listItems[2]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.onDrop();
 
-        expect(wrapper.emitted().itemsSorted[0][0]).toEqual(expect.arrayContaining(expectedListItems));
+        expect(wrapper.emitted()['items-sorted'][0][0]).toEqual(expect.arrayContaining(expectedListItems));
     });
 
     it('should not sort if disabled', async () => {
@@ -106,11 +106,11 @@ describe('src/component/list/sw-sortable-list', () => {
 
         wrapper.vm.onDragEnter(listItems[0], listItems[2]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const items = wrapper.findAll('.sw-sortable-list__item');
 
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -132,19 +132,19 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper = await createWrapper();
 
         wrapper.vm.onDragEnter(listItems[0]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         let items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
 
         wrapper.vm.onDragEnter(null, listItems[0]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -161,10 +161,10 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper.vm.onDragEnter(brokenItems[0], brokenItems[2]);
         wrapper.vm.onDragEnter(brokenItems[1], brokenItems[2]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -181,10 +181,10 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper.vm.onDragEnter(brokenItems[0], brokenItems[2]);
         wrapper.vm.onDragEnter(brokenItems[1], brokenItems[2]);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const items = wrapper.findAll('.sw-sortable-list__item');
-        expect(items.length).toBe(3);
+        expect(items).toHaveLength(3);
         expect(items.at(0).text()).toBe('0');
         expect(items.at(1).text()).toBe('1');
         expect(items.at(2).text()).toBe('2');
@@ -196,18 +196,18 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper.vm.onDragEnter(listItems[0], listItems[1]);
         wrapper.vm.onDrop();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // reset the previous drag-drop => order should be reset
         wrapper.vm.onDragEnter(listItems[1], listItems[0]);
         wrapper.vm.onDrop();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.emitted().itemsSorted.length).toEqual(2);
+        expect(wrapper.emitted()['items-sorted']).toHaveLength(2);
 
-        expect(wrapper.emitted().itemsSorted[0][1]).toBeFalsy();
-        expect(wrapper.emitted().itemsSorted[1][1]).toBeTruthy();
+        expect(wrapper.emitted()['items-sorted'][0][1]).toBeFalsy();
+        expect(wrapper.emitted()['items-sorted'][1][1]).toBeTruthy();
     });
 
     it('should set dragElement', async () => {
@@ -219,7 +219,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
         wrapper.vm.onDragStart({}, {}, dragElement);
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.dragElement).toEqual(dragElement);
     });
@@ -228,7 +228,7 @@ describe('src/component/list/sw-sortable-list', () => {
         wrapper = await createWrapper({
             propsData: {
                 scrollOnDrag: true,
-            }
+            },
         });
 
         wrapper.vm.$el = {
@@ -236,7 +236,7 @@ describe('src/component/list/sw-sortable-list', () => {
             clientHeight: 0,
             id: 'element',
             addEventListener(type, callback) {
-                expect(type).toEqual('scroll');
+                expect(type).toBe('scroll');
                 expect(callback).toEqual(wrapper.vm.onScroll);
             },
         };
@@ -276,7 +276,7 @@ describe('src/component/list/sw-sortable-list', () => {
                     speed: 10,
                     margin: 10,
                     accelerationMargin: 0,
-                }
+                },
             },
         });
 
@@ -308,11 +308,11 @@ describe('src/component/list/sw-sortable-list', () => {
 
         wrapper.vm.scroll();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(scrollByOptions.length).toEqual(2);
-        expect(scrollByOptions[0].top).toEqual(-10);
-        expect(scrollByOptions[1].top).toEqual(10);
+        expect(scrollByOptions).toHaveLength(2);
+        expect(scrollByOptions[0].top).toBe(-10);
+        expect(scrollByOptions[1].top).toBe(10);
     });
 
     it('should scroll accelerated when in acceleration margin', async () => {
@@ -323,7 +323,7 @@ describe('src/component/list/sw-sortable-list', () => {
                     speed: 10,
                     margin: 10,
                     accelerationMargin: 0,
-                }
+                },
             },
         });
 
@@ -355,9 +355,9 @@ describe('src/component/list/sw-sortable-list', () => {
 
         wrapper.vm.scroll();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(scrollByOptions.length).toEqual(2);
+        expect(scrollByOptions).toHaveLength(2);
         expect(scrollByOptions[0].top).toBeLessThan(-10);
         expect(scrollByOptions[1].top).toBeGreaterThan(10);
     });
@@ -370,7 +370,7 @@ describe('src/component/list/sw-sortable-list', () => {
                     speed: 10,
                     margin: 10,
                     accelerationMargin: 0,
-                }
+                },
             },
         });
 
@@ -402,8 +402,8 @@ describe('src/component/list/sw-sortable-list', () => {
 
         wrapper.vm.scroll();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(scrollByOptions.length).toEqual(0);
+        expect(scrollByOptions).toHaveLength(0);
     });
 });

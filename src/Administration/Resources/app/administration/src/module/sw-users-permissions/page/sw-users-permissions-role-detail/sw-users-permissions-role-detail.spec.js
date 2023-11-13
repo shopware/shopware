@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swUsersPermissionsRoleDetail from 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
@@ -19,11 +19,11 @@ const appAclService = new AppAclService(
                 return Promise.resolve([
                     {
                         name: 'JestAppName',
-                    }
+                    },
                 ]);
-            }
-        }
-    }
+            },
+        },
+    },
 );
 
 function isNew() {
@@ -34,11 +34,11 @@ async function createWrapper(
     {
         privileges = [],
         privilegeMappingEntries = [],
-        aclPrivileges = []
+        aclPrivileges = [],
     } = {},
     options = {
-        isNew: false
-    }
+        isNew: false,
+    },
 ) {
     privilegeMappingEntries.forEach(mappingEntry => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
@@ -64,12 +64,13 @@ async function createWrapper(
             'sw-users-permissions-additional-permissions': true,
             'sw-verify-user-modal': true,
             'sw-tabs': true,
+            'sw-tabs-item': true,
             'router-view': true,
             'sw-skeleton': true,
             'sw-loader': true,
         },
         mocks: {
-            $route: $route
+            $route: $route,
         },
         propsData: {},
         provide: {
@@ -78,27 +79,27 @@ async function createWrapper(
                     if (!identifier) { return true; }
 
                     return aclPrivileges.includes(identifier);
-                }
+                },
             },
             loginService: {},
             repositoryFactory: {
                 create: () => ({
                     create: () => ({
                         isNew: () => true,
-                        name: ''
+                        name: '',
                     }),
                     get: () => Promise.resolve({
                         isNew: isNew,
                         name: 'demoRole',
-                        privileges: privileges
+                        privileges: privileges,
                     }),
-                    save: jest.fn(() => Promise.resolve())
-                })
+                    save: jest.fn(() => Promise.resolve()),
+                }),
             },
             userService: {},
             privileges: privilegesService,
             appAclService: appAclService,
-        }
+        },
     });
 }
 
@@ -120,12 +121,12 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should not contain any privileges', async () => {
         wrapper = await createWrapper({
-            privileges: ['system:clear:cache', 'system.clear_cache']
+            privileges: ['system:clear:cache', 'system.clear_cache'],
         });
 
         await flushPromises();
 
-        expect(wrapper.vm.role.privileges.length).toBe(0);
+        expect(wrapper.vm.role.privileges).toHaveLength(0);
     });
 
     it('should contain only role privileges', async () => {
@@ -139,11 +140,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         clear_cache: {
                             privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
         });
 
         await flushPromises();
@@ -163,9 +164,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         clear_cache: {
                             privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
+                            dependencies: [],
+                        },
+                    },
                 },
                 {
                     category: 'additional_permissions',
@@ -174,11 +175,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         create_discounts: {
                             privileges: ['order:create:discount'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
         });
 
         await flushPromises();
@@ -200,9 +201,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         clear_cache: {
                             privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
+                            dependencies: [],
+                        },
+                    },
                 },
                 {
                     category: 'additional_permissions',
@@ -211,11 +212,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         create_discounts: {
                             privileges: ['order:create:discount'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
         });
 
         await flushPromises();
@@ -229,7 +230,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         expect(wrapper.vm.detailedPrivileges).toEqual([
             'product:update',
-            'order:read'
+            'order:read',
         ]);
     });
 
@@ -244,11 +245,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         clear_cache: {
                             privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
         });
 
         await flushPromises();
@@ -265,10 +266,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 privileges: [
                     'system.clear_cache',
                     'system:clear:cache',
-                    ...wrapper.vm.privileges.getRequiredPrivileges()
-                ].sort()
+                    ...wrapper.vm.privileges.getRequiredPrivileges(),
+                ].sort(),
             },
-            contextMock
+            contextMock,
         );
     });
 
@@ -283,9 +284,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         clear_cache: {
                             privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
+                            dependencies: [],
+                        },
+                    },
                 },
                 {
                     category: 'additional_permissions',
@@ -294,63 +295,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         create_discounts: {
                             privileges: ['order:create:discount'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
-        });
-
-        await flushPromises();
-
-        expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
-
-        const contextMock = { access: '1a2b3c' };
-        wrapper.vm.saveRole(contextMock);
-
-        expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
-            {
-                isNew: isNew,
-                name: 'demoRole',
-                privileges: [
-                    'system.clear_cache',
-                    'system:clear:cache',
-                    'orders.create_discounts',
-                    'order:create:discount',
-                    ...wrapper.vm.privileges.getRequiredPrivileges()
-                ].sort()
-            },
-            contextMock
-        );
-    });
-
-    it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
-        wrapper = await createWrapper({
-            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
-            privilegeMappingEntries: [
-                {
-                    category: 'additional_permissions',
-                    parent: null,
-                    key: 'system',
-                    roles: {
-                        clear_cache: {
-                            privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
+                            dependencies: [],
+                        },
+                    },
                 },
-                {
-                    category: 'additional_permissions',
-                    parent: null,
-                    key: 'orders',
-                    roles: {
-                        create_discounts: {
-                            privileges: ['order:create:discount'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
+            ],
         });
 
         await flushPromises();
@@ -370,10 +319,62 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'orders.create_discounts',
                     'order:create:discount',
                     ...wrapper.vm.privileges.getRequiredPrivileges(),
-                    'product:read'
-                ].sort()
+                ].sort(),
             },
-            contextMock
+            contextMock,
+        );
+    });
+
+    it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
+        wrapper = await createWrapper({
+            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privilegeMappingEntries: [
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'system',
+                    roles: {
+                        clear_cache: {
+                            privileges: ['system:clear:cache'],
+                            dependencies: [],
+                        },
+                    },
+                },
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'orders',
+                    roles: {
+                        create_discounts: {
+                            privileges: ['order:create:discount'],
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
+
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
+
+        expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
+            {
+                isNew: isNew,
+                name: 'demoRole',
+                privileges: [
+                    'system.clear_cache',
+                    'system:clear:cache',
+                    'orders.create_discounts',
+                    'order:create:discount',
+                    ...wrapper.vm.privileges.getRequiredPrivileges(),
+                    'product:read',
+                ].sort(),
+            },
+            contextMock,
         );
     });
 
@@ -388,9 +389,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         clear_cache: {
                             privileges: ['system:clear:cache'],
-                            dependencies: []
-                        }
-                    }
+                            dependencies: [],
+                        },
+                    },
                 },
                 {
                     category: 'additional_permissions',
@@ -399,11 +400,11 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         create_discounts: {
                             privileges: ['order:create:discount'],
-                            dependencies: []
-                        }
-                    }
-                }
-            ]
+                            dependencies: [],
+                        },
+                    },
+                },
+            ],
         });
 
         await flushPromises();
@@ -426,10 +427,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'order:create:discount',
                     ...wrapper.vm.privileges.getRequiredPrivileges(),
                     'product:read',
-                    'currency:update'
-                ].sort()
+                    'currency:update',
+                ].sort(),
             },
-            contextMock
+            contextMock,
         );
     });
 
@@ -444,22 +445,22 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         viewer: {
                             privileges: ['rule:read'],
-                            dependencies: []
+                            dependencies: [],
                         },
                         editor: {
                             privileges: ['rule:update'],
                             dependencies: [
-                                'rule.viewer'
-                            ]
+                                'rule.viewer',
+                            ],
                         },
                         creator: {
                             privileges: ['rule:create'],
                             dependencies: [
                                 'rule.viewer',
-                                'rule.editor'
-                            ]
-                        }
-                    }
+                                'rule.editor',
+                            ],
+                        },
+                    },
                 },
                 {
                     category: 'permissions',
@@ -468,29 +469,29 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     roles: {
                         viewer: {
                             privileges: ['promotion:read'],
-                            dependencies: []
+                            dependencies: [],
                         },
                         editor: {
                             privileges: [
-                                'promotion:update'
+                                'promotion:update',
                             ],
                             dependencies: [
-                                'promotion.viewer'
-                            ]
+                                'promotion.viewer',
+                            ],
                         },
                         creator: {
                             privileges: [
                                 'promotion:create',
-                                privilegesService.getPrivileges('rule.creator')
+                                privilegesService.getPrivileges('rule.creator'),
                             ],
                             dependencies: [
                                 'promotion.viewer',
-                                'promotion.editor'
-                            ]
-                        }
-                    }
-                }
-            ]
+                                'promotion.editor',
+                            ],
+                        },
+                    },
+                },
+            ],
         });
 
         await flushPromises();
@@ -514,19 +515,19 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'rule:create',
                     'rule:read',
                     'rule:update',
-                    ...wrapper.vm.privileges.getRequiredPrivileges()
-                ].sort()
+                    ...wrapper.vm.privileges.getRequiredPrivileges(),
+                ].sort(),
             },
-            contextMock
+            contextMock,
         );
     });
 
     it('should open the confirm password modal on save', async () => {
         wrapper = await createWrapper({
-            aclPrivileges: ['users_and_permissions.editor']
+            aclPrivileges: ['users_and_permissions.editor'],
         });
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         let verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
@@ -562,10 +563,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should show the create new role snippet as the title', async () => {
         wrapper = await createWrapper({}, {
-            isNew: true
+            isNew: true,
         });
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const title = wrapper.find('h2');
@@ -574,10 +575,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should replace the create new role snippet as the title when user types name', async () => {
         wrapper = await createWrapper({}, {
-            isNew: true
+            isNew: true,
         });
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const title = wrapper.find('h2');
@@ -591,10 +592,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should disable the button and fields when no aclPrivileges exists', async () => {
         wrapper = await createWrapper({
-            aclPrivileges: []
+            aclPrivileges: [],
         });
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
@@ -603,10 +604,10 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
         wrapper = await createWrapper({
-            aclPrivileges: ['users_and_permissions.editor']
+            aclPrivileges: ['users_and_permissions.editor'],
         });
         await wrapper.setData({
-            isLoading: false
+            isLoading: false,
         });
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');

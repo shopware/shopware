@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
@@ -13,28 +14,23 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TreeUpdater
 {
-    private DefinitionInstanceRegistry $registry;
-
-    private Connection $connection;
-
     private ?Statement $updateEntityStatement = null;
 
     /**
      * @internal
      */
-    public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
-    {
-        $this->registry = $registry;
-        $this->connection = $connection;
+    public function __construct(
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly Connection $connection
+    ) {
     }
 
     /**
@@ -88,6 +84,7 @@ class TreeUpdater
 
     private function updateRecursive(array $entity, EntityDefinition $definition, Context $context): array
     {
+        $ids = [];
         $ids[] = $this->updateTree($entity, $definition, $context);
         foreach ($this->getChildren($entity, $definition, $context) as $child) {
             $child['parent'] = $entity;
@@ -161,7 +158,7 @@ class TreeUpdater
 
         try {
             $path[] = Uuid::fromBytesToHex($parent[$field->getPathField()]);
-        } catch (InvalidUuidException | InvalidUuidLengthException $e) {
+        } catch (InvalidUuidException|InvalidUuidLengthException) {
             $path[] = $parent[$field->getPathField()];
         }
 
@@ -274,7 +271,7 @@ class TreeUpdater
         $query->from($escaped);
         $query->select('id', 'parent_id');
         $query->andWhere($column . ' IN (:ids)');
-        $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', $ids, ArrayParameterType::BINARY);
         $this->makeQueryVersionAware($definition, Uuid::fromHexToBytes($context->getVersionId()), $query);
 
         $fetchedIds = [];
@@ -363,7 +360,7 @@ class TreeUpdater
             $update['level'] = $entity['level'];
         }
 
-        $this->updateEntityStatement->execute($update);
+        $this->updateEntityStatement->executeStatement($update);
 
         $bag->addUpdated($entity['id']);
     }
@@ -397,7 +394,7 @@ class TreeUpdater
         $entity['path'] = '';
         if ($parent !== null) {
             $path = $parent['path'] ?? '';
-            $path = array_filter(explode('|', $path));
+            $path = array_filter(explode('|', (string) $path));
             $path[] = Uuid::fromBytesToHex($parent['id']);
             $entity['path'] = '|' . implode('|', $path) . '|';
         }

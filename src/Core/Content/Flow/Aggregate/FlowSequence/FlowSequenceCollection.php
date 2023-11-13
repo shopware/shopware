@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Flow\Aggregate\FlowSequence;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
  * @extends EntityCollection<FlowSequenceEntity>
  */
+#[Package('services-settings')]
 class FlowSequenceCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -96,8 +96,18 @@ Component.register('sw-modal', {
             };
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - will be removed
+         */
         identifierClass() {
             return `sw-modal--${this.id}`;
+        },
+
+        modalDialogClasses() {
+            return [
+                `sw-modal--${this.id}`,
+                { 'has--header': this.showHeader },
+            ];
         },
 
         hasFooterSlot() {

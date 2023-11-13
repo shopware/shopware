@@ -24,6 +24,7 @@
         </service>
 
         <service id="Shopware\Core\Profiling\Doctrine\ConnectionProfiler">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <tag name="data_collector"
                  template="@Profiling/Collector/db.html.twig"
                  id="app.connection_collector"

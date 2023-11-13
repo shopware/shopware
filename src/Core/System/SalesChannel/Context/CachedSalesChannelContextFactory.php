@@ -4,25 +4,15 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
-    public const ALL_TAG = 'sales-channel-context';
-
-    private AbstractSalesChannelContextFactory $decorated;
-
-    private CacheInterface $cache;
-
-    /**
-     * @var AbstractCacheTracer<SalesChannelContext>
-     */
-    private AbstractCacheTracer $tracer;
+    final public const ALL_TAG = 'sales-channel-context';
 
     /**
      * @internal
@@ -30,13 +20,10 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
      * @param AbstractCacheTracer<SalesChannelContext> $tracer
      */
     public function __construct(
-        AbstractSalesChannelContextFactory $decorated,
-        CacheInterface $cache,
-        AbstractCacheTracer $tracer
+        private readonly AbstractSalesChannelContextFactory $decorated,
+        private readonly CacheInterface $cache,
+        private readonly AbstractCacheTracer $tracer
     ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->tracer = $tracer;
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory
@@ -57,9 +44,7 @@ class CachedSalesChannelContextFactory extends AbstractSalesChannelContextFactor
         $key = implode('-', [$name, md5(json_encode($options, \JSON_THROW_ON_ERROR))]);
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($name, $token, $salesChannelId, $options) {
-            $context = $this->tracer->trace($name, function () use ($token, $salesChannelId, $options) {
-                return $this->getDecorated()->create($token, $salesChannelId, $options);
-            });
+            $context = $this->tracer->trace($name, fn () => $this->getDecorated()->create($token, $salesChannelId, $options));
 
             $keys = array_unique(array_merge(
                 $this->tracer->get($name),

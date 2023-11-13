@@ -3,12 +3,11 @@
 namespace Shopware\Core\Checkout;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CheckoutRuleScope extends RuleScope
 {
     /**

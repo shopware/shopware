@@ -2,48 +2,22 @@
 
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapMessage implements AsyncMessageInterface
 {
     /**
-     * @var string
-     */
-    private $lastSalesChannelId;
-
-    /**
-     * @var string
-     */
-    private $lastLanguageId;
-
-    /**
-     * @var string
-     */
-    private $lastProvider;
-
-    /**
-     * @var int|null
-     */
-    private $nextOffset;
-
-    /**
-     * @var bool
-     */
-    private $finished;
-
-    /**
      * @internal
      */
-    public function __construct(?string $lastSalesChannelId, ?string $lastLanguageId, ?string $lastProvider, ?int $nextOffset, bool $finished)
-    {
-        $this->lastSalesChannelId = $lastSalesChannelId;
-        $this->lastLanguageId = $lastLanguageId;
-        $this->lastProvider = $lastProvider;
-        $this->nextOffset = $nextOffset;
-        $this->finished = $finished;
+    public function __construct(
+        private readonly ?string $lastSalesChannelId,
+        private readonly ?string $lastLanguageId,
+        private readonly ?string $lastProvider,
+        private readonly ?int $nextOffset,
+        private readonly bool $finished
+    ) {
     }
 
     public function getLastSalesChannelId(): ?string

@@ -76,8 +76,7 @@
 
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_entity_many_to_many_assignment_card_results_list_list_item %}
-                                    <li
-                                        is="sw-select-result"
+                                    <sw-select-result
                                         :selected="isSelected(item)"
                                         v-bind="{ item, index }"
                                         @item-select="onItemSelect"
@@ -101,7 +100,7 @@
                                             </template>
                                         </slot>
                                         {% endblock %}
-                                    </li>
+                                    </sw-select-result>
                                     {% endblock %}
                                 </slot>
                                 {% endblock %}

@@ -18,12 +18,12 @@ async function createWrapper(category = {}) {
                 {
                     id: Shopware.Utils.createId(),
                     attributes: {
-                        id: Shopware.Utils.createId()
+                        id: Shopware.Utils.createId(),
                     },
                     relationships: [],
-                }
-            ]
-        }
+                },
+            ],
+        },
     });
 
     return shallowMount(await Shopware.Component.build('sw-category-link-settings'), {
@@ -33,11 +33,11 @@ async function createWrapper(category = {}) {
             'sw-single-select': true,
             'sw-entity-single-select': true,
             'sw-switch-field': true,
-            'sw-category-tree-field': true
+            'sw-category-tree-field': true,
         },
         propsData: {
-            category
-        }
+            category,
+        },
     });
 }
 
@@ -56,7 +56,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         global.activeAclRoles = ['category.editor'];
         const wrapper = await createWrapper({
             linkType: null,
-            externalLink: 'https://'
+            externalLink: 'https://',
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');
@@ -75,7 +75,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         global.activeAclRoles = ['category.editor'];
 
         const wrapper = await createWrapper({
-            linkType: 'external'
+            linkType: 'external',
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');
@@ -94,7 +94,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         global.activeAclRoles = ['category.editor'];
 
         const wrapper = await createWrapper({
-            linkType: 'product'
+            linkType: 'product',
         });
 
         const selects = wrapper.findAll('sw-single-select-stub');
@@ -112,7 +112,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const productSelectField = wrapper.find('sw-entity-single-select-stub');
         expect(productSelectField.attributes().disabled).toBeFalsy();
-        expect(productSelectField.attributes().entity).toEqual('product');
+        expect(productSelectField.attributes().entity).toBe('product');
 
         const newTabField = wrapper.find('sw-switch-field-stub');
         expect(newTabField.attributes().disabled).toBeFalsy();
@@ -123,11 +123,11 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'product',
-            internalLink: 'someUuid'
+            internalLink: 'someUuid',
         });
 
         const productSelectField = wrapper.find('sw-entity-single-select-stub');
-        expect(productSelectField.attributes().entity).toEqual('product');
+        expect(productSelectField.attributes().entity).toBe('product');
         expect(wrapper.vm.category.internalLink).toBe('someUuid');
     });
 
@@ -136,11 +136,11 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'external',
-            externalLink: 'https://'
+            externalLink: 'https://',
         });
 
         await wrapper.setData({
-            mainType: 'internal'
+            mainType: 'internal',
         });
         await wrapper.vm.$nextTick();
 
@@ -152,11 +152,11 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'internal',
-            internalLink: 'someUuid'
+            internalLink: 'someUuid',
         });
 
         await wrapper.setData({
-            mainType: 'external'
+            mainType: 'external',
         });
 
         expect(wrapper.vm.category.internalLink).toBeNull();
@@ -164,7 +164,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
     it('should have disabled fields with no rights', async () => {
         const wrapper = await createWrapper({
-            linkType: 'external'
+            linkType: 'external',
         });
 
         const linkTypeField = wrapper.find('sw-single-select-stub');
@@ -182,7 +182,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'category',
-            internalLink: 'someUuid'
+            internalLink: 'someUuid',
         });
 
         wrapper.find('sw-category-tree-field-stub');
@@ -197,7 +197,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const wrapper = await createWrapper({
             linkType: 'category',
-            internalLink: 'someUuid'
+            internalLink: 'someUuid',
         });
 
         wrapper.find('sw-category-tree-field-stub');

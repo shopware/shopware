@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\Language;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,28 +21,24 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class LanguageValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';
+    final public const VIOLATION_PARENT_HAS_PARENT = 'parent_has_parent_violation';
 
-    public const VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
+    final public const VIOLATION_CODE_REQUIRED_FOR_ROOT_LANGUAGE = 'code_required_for_root_language';
 
-    public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
+    final public const VIOLATION_DELETE_DEFAULT_LANGUAGE = 'delete_default_language_violation';
 
-    public const VIOLATION_DEFAULT_LANGUAGE_PARENT = 'default_language_parent_violation';
-
-    private Connection $connection;
+    final public const VIOLATION_DEFAULT_LANGUAGE_PARENT = 'default_language_parent_violation';
 
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -128,9 +125,9 @@ class LanguageValidator implements EventSubscriberInterface
              WHERE (child.id IN (:ids) OR child.parent_id IN (:ids))
              AND parent.parent_id IS NOT NULL',
             ['ids' => $affectedIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
-        $ids = $statement->fetchAll(FetchMode::COLUMN);
+        $ids = $statement->fetchFirstColumn();
 
         $violations = new ConstraintViolationList();
         foreach ($ids as $binId) {
@@ -162,9 +159,9 @@ class LanguageValidator implements EventSubscriberInterface
              AND lang.parent_id IS NULL # root
              AND lang.id IN (:ids)',
             ['ids' => $affectedIds],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
-        $ids = $statement->fetchAll(FetchMode::COLUMN);
+        $ids = $statement->fetchFirstColumn();
 
         $violations = new ConstraintViolationList();
         foreach ($ids as $binId) {

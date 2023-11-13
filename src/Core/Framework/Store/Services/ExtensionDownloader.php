@@ -7,42 +7,32 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('services-settings')]
 class ExtensionDownloader
 {
-    /**
-     * @var EntityRepository
-     */
-    private $pluginRepository;
-
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
+    private readonly string $relativePluginDir;
 
     public function __construct(
-        EntityRepository $pluginRepository,
-        StoreClient $storeClient,
-        PluginManagementService $pluginManagementService
+        private readonly EntityRepository $pluginRepository,
+        private readonly StoreClient $storeClient,
+        private readonly PluginManagementService $pluginManagementService,
+        string $pluginDir,
+        string $projectDir
     ) {
-        $this->pluginRepository = $pluginRepository;
-        $this->storeClient = $storeClient;
-        $this->pluginManagementService = $pluginManagementService;
+        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     public function download(string $technicalName, Context $context): PluginDownloadDataStruct
@@ -53,8 +43,12 @@ class ExtensionDownloader
         /** @var PluginEntity|null $plugin */
         $plugin = $this->pluginRepository->search($criteria, $context)->first();
 
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
+        if ($plugin !== null && $plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw StoreException::cannotDeleteManaged($plugin->getName());
+            }
+
+            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
         }
 
         try {

@@ -8,9 +8,9 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,31 +19,11 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package system-settings
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('system-settings')]
 class CachedProductSuggestRoute extends AbstractProductSuggestRoute
 {
     private const NAME = 'product-suggest-route';
-
-    private AbstractProductSuggestRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<ProductSuggestRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
 
     /**
      * @internal
@@ -52,19 +32,13 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
      * @param array<string> $states
      */
     public function __construct(
-        AbstractProductSuggestRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
+        private readonly AbstractProductSuggestRoute $decorated,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $states
     ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
     }
 
     public function getDecorated(): AbstractProductSuggestRoute
@@ -72,10 +46,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/search-suggest", name="store-api.search.suggest", methods={"POST"}, defaults={"_entity"="product"})
-     */
+    #[Route(path: '/store-api/search-suggest', name: 'store-api.search.suggest', methods: ['POST'], defaults: ['_entity' => 'product'])]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSuggestRouteResponse
     {
         if ($context->hasState(...$this->states)) {
@@ -89,9 +60,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
         }
 
         $value = $this->cache->get($key, function (ItemInterface $item) use ($request, $context, $criteria) {
-            $response = $this->tracer->trace(self::NAME, function () use ($request, $context, $criteria) {
-                return $this->getDecorated()->load($request, $context, $criteria);
-            });
+            $response = $this->tracer->trace(self::NAME, fn () => $this->getDecorated()->load($request, $context, $criteria));
 
             $item->tag($this->generateTags($request, $response, $context, $criteria));
 
@@ -116,7 +85,7 @@ class CachedProductSuggestRoute extends AbstractProductSuggestRoute
             return null;
         }
 
-        return self::NAME . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::NAME . '-' . md5(Json::encode($event->getParts()));
     }
 
     /**

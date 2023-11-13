@@ -1,11 +1,15 @@
 import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
+import errorConfig from '../../error-config.json';
+
+import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Criteria } = Shopware.Data;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -75,6 +79,23 @@ export default {
             criteria.addFilter(Criteria.equals('order.orderCustomer.customerId', this.$route.params.id));
 
             return criteria;
+        },
+
+        ...mapPropertyErrors(
+            'customer',
+            [...errorConfig['sw.customer.detail.base'].customer],
+        ),
+
+        isBusinessAccountType() {
+            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
         },
     },
 

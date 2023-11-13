@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -15,29 +17,23 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'es:status',
     description: 'Show the status of the elasticsearch index',
 )]
+#[Package('core')]
 class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;
 
-    private Client $client;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Client $client, Connection $connection)
-    {
+    public function __construct(
+        private readonly Client $client,
+        private readonly Connection $connection
+    ) {
         parent::__construct();
-        $this->client = $client;
-        $this->connection = $connection;
     }
 
     /**
@@ -45,14 +41,12 @@ class ElasticsearchStatusCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Shows current status of Elasticsearch');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->client->ping()) {
-            throw new \RuntimeException('Elasticsearch server is not accessible');
+            throw ElasticsearchException::serverNotAvailable();
         }
 
         $table = new Table($output);
@@ -89,11 +83,14 @@ class ElasticsearchStatusCommand extends Command
             $output->writeln('');
         }
 
+        /** @var list<string> $usedIndices */
         $usedIndices = array_keys($this->client->indices()->getAlias(['name' => $indexTask['alias']]));
 
-        if (!\in_array($indexTask['index'], $usedIndices, true)) {
+        $indexName = $indexTask['index'];
+        \assert(\is_string($indexName));
+        if (!\in_array($indexName, $usedIndices, true)) {
             $io = new SymfonyStyle($input, $output);
-            $io->warning(sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexTask['index']));
+            $io->warning(sprintf('Alias will swap at the end of the indexing process from %s to %s', $usedIndices[0], $indexName));
         }
 
         return self::SUCCESS;

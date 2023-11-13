@@ -3,8 +3,8 @@
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Checkout\Payment\PaymentService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -14,32 +14,17 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @package checkout
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 {
-    /**
-     * @var PaymentService
-     */
-    private $paymentService;
-
-    /**
-     * @var DataValidator
-     */
-    private $dataValidator;
-
     /**
      * @internal
      */
     public function __construct(
-        PaymentService $paymentService,
-        DataValidator $dataValidator
+        private readonly PaymentService $paymentService,
+        private readonly DataValidator $dataValidator
     ) {
-        $this->paymentService = $paymentService;
-        $this->dataValidator = $dataValidator;
     }
 
     public function getDecorated(): AbstractHandlePaymentMethodRoute
@@ -47,13 +32,10 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/handle-payment", name="store-api.payment.handle", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
-        $data = array_merge($request->query->all(), $request->request->all());
+        $data = [...$request->query->all(), ...$request->request->all()];
         $this->dataValidator->validate($data, $this->createDataValidation());
 
         $response = $this->paymentService->handlePaymentByOrder(

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\Snippet\Filter;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Snippet\Exception\FilterNotFoundException;
 use Shopware\Core\System\Snippet\Filter\AddedFilter;
@@ -16,9 +17,8 @@ use Shopware\Core\System\Snippet\Filter\TranslationKeyFilter;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class SnippetFilterFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,7 +39,7 @@ class SnippetFilterFactoryTest extends TestCase
         static::assertInstanceOf($expectedResult, $result);
     }
 
-    public function dataProviderForTestGetFilter(): array
+    public static function dataProviderForTestGetFilter(): array
     {
         return [
             ['', null, true],

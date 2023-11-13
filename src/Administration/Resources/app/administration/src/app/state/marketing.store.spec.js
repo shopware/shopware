@@ -22,11 +22,11 @@ describe('src/app/state/marketing.store', () => {
 
     it('should set a new campaign', async () => {
         Shopware.State.commit('marketing/setCampaign', {
-            name: 'Example campaign'
+            name: 'Example campaign',
         });
 
         expect(Shopware.State.get('marketing').campaign).toEqual({
-            name: 'Example campaign'
+            name: 'Example campaign',
         });
     });
 
@@ -37,11 +37,11 @@ describe('src/app/state/marketing.store', () => {
         Shopware.State.commit('marketing/setCampaign', {
             name: 'Active campaign',
             startDate: '2005-08-15T15:52:01',
-            endDate: '2005-08-20T15:52:01'
+            endDate: '2005-08-20T15:52:01',
         });
 
         const activeCampaign = Shopware.State.getters['marketing/getActiveCampaign'];
-        expect(activeCampaign?.name).toEqual('Active campaign');
+        expect(activeCampaign?.name).toBe('Active campaign');
     });
 
     it('should return null when times does not match', async () => {
@@ -51,11 +51,11 @@ describe('src/app/state/marketing.store', () => {
         Shopware.State.commit('marketing/setCampaign', {
             name: 'Inactive campaign',
             startDate: '2005-08-15T15:52:01',
-            endDate: '2005-08-20T15:52:01'
+            endDate: '2005-08-20T15:52:01',
         });
 
         const activeCampaign = Shopware.State.getters['marketing/getActiveCampaign'];
-        expect(activeCampaign).toEqual(null);
+        expect(activeCampaign).toBeNull();
     });
 
     it('should return the correct component for the store banner when time match', async () => {
@@ -66,37 +66,37 @@ describe('src/app/state/marketing.store', () => {
             background: {
                 color: '#ffffff',
                 image: 'http://www.company.org/cum/sonoras',
-                position: 'string'
+                position: 'string',
             },
             content: {
                 textColor: '#000000',
                 headline: {
                     'de-DE': 'string (max 40 Zeichen)',
-                    'en-GB': 'string (max 40 characters)'
+                    'en-GB': 'string (max 40 characters)',
                 },
                 description: {
                     'de-DE': 'string (max 90 Zeichen)',
-                    'en-GB': 'string (max 90 characters)'
+                    'en-GB': 'string (max 90 characters)',
                 },
                 cta: {
                     category: 'CategoryXY',
                     'de-DE': 'string (max 40 Zeichen)',
-                    'en-GB': 'string (max 40 characters)'
-                }
-            }
+                    'en-GB': 'string (max 40 characters)',
+                },
+            },
         };
 
         Shopware.State.commit('marketing/setCampaign', {
             name: 'Active campaign',
             startDate: '2005-08-15T15:52:01',
             endDate: '2005-08-20T15:52:01',
-            components: { storeBanner: storeBanner }
+            components: { storeBanner: storeBanner },
         });
 
         const storeComponent = Shopware.State.getters['marketing/getActiveCampaignDataForComponent']('storeBanner');
         expect(storeComponent).toEqual({
             campaignName: 'Active campaign',
-            component: storeBanner
+            component: storeBanner,
         });
     });
 
@@ -108,24 +108,24 @@ describe('src/app/state/marketing.store', () => {
             background: {
                 color: '#ffffff',
                 image: 'http://www.company.org/cum/sonoras',
-                position: 'string'
+                position: 'string',
             },
             content: {
                 textColor: '#000000',
                 headline: {
                     'de-DE': 'string (max 40 Zeichen)',
-                    'en-GB': 'string (max 40 characters)'
+                    'en-GB': 'string (max 40 characters)',
                 },
                 description: {
                     'de-DE': 'string (max 90 Zeichen)',
-                    'en-GB': 'string (max 90 characters)'
+                    'en-GB': 'string (max 90 characters)',
                 },
                 cta: {
                     category: 'CategoryXY',
                     'de-DE': 'string (max 40 Zeichen)',
-                    'en-GB': 'string (max 40 characters)'
-                }
-            }
+                    'en-GB': 'string (max 40 characters)',
+                },
+            },
         };
 
         Shopware.State.commit('marketing/setCampaign', {
@@ -133,14 +133,14 @@ describe('src/app/state/marketing.store', () => {
             startDate: '2005-08-15T15:52:01',
             endDate: '2005-08-20T15:52:01',
             components: {
-                storeBanner: storeBanner
-            }
+                storeBanner: storeBanner,
+            },
         });
 
         const storeComponent = Shopware.State.getters['marketing/getActiveCampaignDataForComponent']('storeBanner');
         expect(storeComponent).toEqual({
             campaignName: undefined,
-            component: null
+            component: null,
         });
     });
 });

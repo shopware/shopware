@@ -17,7 +17,7 @@ async function createWrapper() {
     return mount(await Shopware.Component.build('sw-login-recovery'), {
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),
-            $router: { push: jest.fn() }
+            $router: { push: jest.fn() },
         },
         provide: {
             userRecoveryService: {
@@ -25,7 +25,7 @@ async function createWrapper() {
                     return new Promise((resolve, reject) => {
                         const response = {
                             config: {
-                                url: 'test.test.de'
+                                url: 'test.test.de',
                             },
                             response: {
                                 data: {
@@ -33,20 +33,20 @@ async function createWrapper() {
                                         status: 429,
                                         meta: {
                                             parameters: {
-                                                seconds: 1
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                                                seconds: 1,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
                         };
 
                         reject(response);
                     });
-                }
+                },
             },
             userService: {},
-            licenseViolationService: {}
+            licenseViolationService: {},
         },
         stubs: {
             'router-view': true,
@@ -55,17 +55,17 @@ async function createWrapper() {
                 props: {
                     value: {
                         required: true,
-                        type: String
-                    }
+                        type: String,
+                    },
                 },
-                template: '<div><input id="email" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>'
+                template: '<div><input id="email" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>',
             },
             'sw-contextual-field': true,
             'router-link': true,
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-alert': await Shopware.Component.build('sw-alert'),
-            'sw-icon': true
-        }
+            'sw-icon': true,
+        },
     });
 }
 
@@ -96,8 +96,8 @@ describe('module/sw-login/recovery.spec.js', () => {
         expect(wrapper.vm.$router.push).toHaveBeenLastCalledWith({
             name: 'sw.login.index.recoveryInfo',
             params: {
-                waitTime: 1
-            }
+                waitTime: 1,
+            },
         });
     });
 });

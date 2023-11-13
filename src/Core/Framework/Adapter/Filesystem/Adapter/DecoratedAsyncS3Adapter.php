@@ -13,18 +13,20 @@ use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\PathPrefixer;
 use League\Flysystem\UrlGeneration\PublicUrlGenerator;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal can be removed when https://github.com/thephpleague/flysystem/pull/1621 is removed
  */
+#[Package('core')]
 class DecoratedAsyncS3Adapter implements FilesystemAdapter, PublicUrlGenerator, ChecksumProvider, TemporaryUrlGenerator
 {
-    private PathPrefixer $prefixer;
+    private readonly PathPrefixer $prefixer;
 
     public function __construct(
-        private AsyncAwsS3Adapter $inner,
-        private string $bucket,
-        private S3Client $client,
+        private readonly AsyncAwsS3Adapter $inner,
+        private readonly string $bucket,
+        private readonly S3Client $client,
         string $prefix
     ) {
         $this->prefixer = new PathPrefixer($prefix);

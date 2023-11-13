@@ -4,48 +4,36 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\InvalidOptionsException;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
 /**
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  *
- * @package core
+ * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
  */
+#[Package('core')]
 class EntityExists extends Constraint
 {
-    public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';
+    final public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';
 
     protected const ERROR_NAMES = [
         self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
     ];
 
-    /**
-     * @var string
-     */
-    public $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.';
+    public string $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.';
 
-    /**
-     * @var string
-     */
-    public $entity;
+    protected string $entity;
 
-    /**
-     * @var Context
-     */
-    public $context;
+    protected Context $context;
 
-    /**
-     * @var Criteria
-     */
-    public $criteria;
+    protected Criteria $criteria;
 
-    /**
-     * @var string
-     */
-    public $primaryProperty = 'id';
+    protected string $primaryProperty = 'id';
 
     /**
      * @internal
@@ -55,23 +43,23 @@ class EntityExists extends Constraint
     public function __construct(array $options)
     {
         $options = array_merge(
-            ['entity' => null, 'context' => null, 'criteria' => new Criteria()],
+            ['criteria' => new Criteria()],
             $options
         );
 
-        parent::__construct($options);
-
-        if ($this->entity === null) {
+        if (!\is_string($options['entity'] ?? null)) {
             throw new MissingOptionsException(sprintf('Option "entity" must be given for constraint %s', self::class), ['entity']);
         }
 
-        if ($this->context === null) {
+        if (!($options['context'] ?? null) instanceof Context) {
             throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
 
-        if (!($this->criteria instanceof Criteria)) {
+        if (!($options['criteria'] ?? null) instanceof Criteria) {
             throw new InvalidOptionsException(sprintf('Option "criteria" must be an instance of Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria for constraint %s', self::class), ['criteria']);
         }
+
+        parent::__construct($options);
     }
 
     public function getContext(): Context

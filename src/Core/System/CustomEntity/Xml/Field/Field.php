@@ -3,25 +3,18 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @package core
  */
-class Field extends XmlElement
+#[Package('core')]
+abstract class Field extends XmlElement
 {
     protected string $name;
 
     protected bool $storeApiAware;
-
-    public function __construct(array $data)
-    {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
 
     public function jsonSerialize(): array
     {
@@ -45,12 +38,13 @@ class Field extends XmlElement
     {
         $values = [];
 
-        if (is_iterable($element->attributes)) {
-            foreach ($element->attributes as $attribute) {
-                $name = self::kebabCaseToCamelCase($attribute->name);
-
-                $values[$name] = XmlUtils::phpize($attribute->value);
+        foreach ($element->attributes as $attribute) {
+            if (!$attribute instanceof \DOMAttr) {
+                continue;
             }
+            $name = self::kebabCaseToCamelCase($attribute->name);
+
+            $values[$name] = XmlUtils::phpize($attribute->value);
         }
 
         foreach ($element->childNodes as $child) {

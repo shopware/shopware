@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
@@ -23,38 +25,26 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListingLoader
 {
-    private SalesChannelRepository $repository;
-
-    private SystemConfigService $systemConfigService;
-
-    private Connection $connection;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory;
-
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        SalesChannelRepository $repository,
-        SystemConfigService $systemConfigService,
-        Connection $connection,
-        EventDispatcherInterface $eventDispatcher,
-        AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+        private readonly SalesChannelRepository $productRepository,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
-        $this->repository = $repository;
-        $this->systemConfigService = $systemConfigService;
-        $this->connection = $connection;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->productCloseoutFilterFactory = $productCloseoutFilterFactory;
     }
 
+    /**
+     * @return EntitySearchResult<ProductCollection>
+     */
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
         $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -63,10 +53,10 @@ class ProductListingLoader
         $this->addGrouping($criteria);
         $this->handleAvailableStock($criteria, $context);
 
-        $ids = $this->repository->searchIds($criteria, $context);
+        $ids = $this->productRepository->searchIds($criteria, $context);
         /** @var list<string> $keys */
         $keys = $ids->getIds();
-        $aggregations = $this->repository->aggregate($criteria, $context);
+        $aggregations = $this->productRepository->aggregate($criteria, $context);
 
         // no products found, no need to continue
         if (empty($keys)) {
@@ -94,11 +84,11 @@ class ProductListingLoader
         $read = $criteria->cloneForRead(array_values($mapping));
         $read->addAssociation('options.group');
 
-        $entities = $this->repository->search($read, $context);
+        $searchResult = $this->productRepository->search($read, $context);
 
-        $this->addExtensions($ids, $entities, $mapping);
+        $this->addExtensions($ids, $searchResult, $mapping);
 
-        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $ids->getTotal(), $entities->getEntities(), $aggregations, $origin, $context->getContext());
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $ids->getTotal(), $searchResult->getEntities(), $aggregations, $origin, $context->getContext());
         $result->addState(...$ids->getStates());
 
         return $result;
@@ -113,9 +103,7 @@ class ProductListingLoader
             array_push($fields, ...$filter->getFields());
         }
 
-        $fields = array_map(function (string $field) {
-            return preg_replace('/^product./', '', $field);
-        }, $fields);
+        $fields = array_map(fn (string $field) => preg_replace('/^product./', '', $field), $fields);
 
         if (\in_array('options.id', $fields, true)) {
             return true;
@@ -181,7 +169,7 @@ class ProductListingLoader
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
                 'version' => Uuid::fromHexToBytes($context->getContext()->getVersionId()),
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $mapping = [];
@@ -189,13 +177,13 @@ class ProductListingLoader
             if ($item['variantListingConfig'] === null) {
                 continue;
             }
-            $variantListingConfig = json_decode($item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
+            $variantListingConfig = json_decode((string) $item['variantListingConfig'], true, 512, \JSON_THROW_ON_ERROR);
 
-            if ($variantListingConfig['mainVariantId']) {
+            if (isset($variantListingConfig['mainVariantId']) && $variantListingConfig['mainVariantId']) {
                 $mapping[$item['id']] = $variantListingConfig['mainVariantId'];
             }
 
-            if ($variantListingConfig['displayParent']) {
+            if (isset($variantListingConfig['displayParent']) && $variantListingConfig['displayParent']) {
                 $mapping[$item['id']] = $item['parentId'];
             }
         }
@@ -214,7 +202,7 @@ class ProductListingLoader
             new ProductListingPreviewCriteriaEvent($criteria, $context)
         );
 
-        $available = $this->repository->searchIds($criteria, $context);
+        $available = $this->productRepository->searchIds($criteria, $context);
 
         $remapped = [];
         // replace existing ids with main variant id
@@ -244,6 +232,7 @@ class ProductListingLoader
     }
 
     /**
+     * @param EntitySearchResult<ProductCollection> $entities
      * @param array<string> $mapping
      */
     private function addExtensions(IdSearchResult $ids, EntitySearchResult $entities, array $mapping): void

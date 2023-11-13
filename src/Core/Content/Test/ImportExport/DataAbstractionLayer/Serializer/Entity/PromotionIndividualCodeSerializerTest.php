@@ -11,13 +11,13 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class PromotionIndividualCodeSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -36,7 +36,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 
     private string $promoCodeId = '';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->promoRepository = $this->getContainer()->get('promotion.repository');
         $this->promoCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');

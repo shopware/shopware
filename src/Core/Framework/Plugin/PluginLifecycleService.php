@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Composer\InstalledVersions;
+use Composer\IO\NullIO;
+use Composer\Semver\Comparator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -10,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -41,39 +45,43 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
-use Shopware\Core\Kernel;
+use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class PluginLifecycleService
 {
-    public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
+    final public const STATE_SKIP_ASSET_BUILDING = 'skip-asset-building';
 
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     */
     public function __construct(
-        private EntityRepository $pluginRepo,
+        private readonly EntityRepository $pluginRepo,
         private EventDispatcherInterface $eventDispatcher,
-        private KernelPluginCollection $pluginCollection,
+        private readonly KernelPluginCollection $pluginCollection,
         private ContainerInterface $container,
-        private MigrationCollectionLoader $migrationLoader,
-        private AssetService $assetInstaller,
-        private CommandExecutor $executor,
-        private RequirementsValidator $requirementValidator,
-        private CacheItemPoolInterface $restartSignalCachePool,
-        private string $shopwareVersion,
-        private SystemConfigService $systemConfigService,
+        private readonly MigrationCollectionLoader $migrationLoader,
+        private readonly AssetService $assetInstaller,
+        private readonly CommandExecutor $executor,
+        private readonly RequirementsValidator $requirementValidator,
+        private readonly CacheItemPoolInterface $restartSignalCachePool,
+        private readonly string $shopwareVersion,
+        private readonly SystemConfigService $systemConfigService,
         private readonly CustomEntityPersister $customEntityPersister,
         private readonly CustomEntitySchemaUpdater $customEntitySchemaUpdater,
-        private readonly CustomEntityLifecycleService $customEntityLifecycleService
+        private readonly CustomEntityLifecycleService $customEntityLifecycleService,
+        private readonly PluginService $pluginService,
+        private readonly VersionSanitizer $versionSanitizer,
     ) {
     }
 
@@ -82,6 +90,7 @@ class PluginLifecycleService
      */
     public function installPlugin(PluginEntity $plugin, Context $shopwareContext): InstallContext
     {
+        $pluginData = [];
         $pluginBaseClass = $this->getPluginBaseClass($plugin->getBaseClass());
         $pluginVersion = $plugin->getVersion();
 
@@ -97,52 +106,55 @@ class PluginLifecycleService
             return $installContext;
         }
 
-        if ($pluginBaseClass->executeComposerCommands()) {
-            $pluginComposerName = $plugin->getComposerName();
-            if ($pluginComposerName === null) {
-                throw new PluginComposerJsonInvalidException(
-                    $pluginBaseClass->getPath() . '/composer.json',
-                    ['No name defined in composer.json']
-                );
-            }
+        $didRunComposerRequire = false;
 
-            $this->executor->require($pluginComposerName, $plugin->getName());
+        if ($pluginBaseClass->executeComposerCommands()) {
+            $didRunComposerRequire = $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $pluginVersion, $shopwareContext);
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
         }
 
-        $pluginData['id'] = $plugin->getId();
+        try {
+            $pluginData['id'] = $plugin->getId();
 
-        // Makes sure the version is updated in the db after a re-installation
-        $updateVersion = $plugin->getUpgradeVersion();
-        if ($updateVersion !== null && $this->hasPluginUpdate($updateVersion, $pluginVersion)) {
-            $pluginData['version'] = $updateVersion;
-            $plugin->setVersion($updateVersion);
-            $pluginData['upgradeVersion'] = null;
-            $plugin->setUpgradeVersion(null);
-            $upgradeDate = new \DateTime();
-            $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-            $plugin->setUpgradedAt($upgradeDate);
+            // Makes sure the version is updated in the db after a re-installation
+            $updateVersion = $plugin->getUpgradeVersion();
+            if ($updateVersion !== null && $this->hasPluginUpdate($updateVersion, $pluginVersion)) {
+                $pluginData['version'] = $updateVersion;
+                $plugin->setVersion($updateVersion);
+                $pluginData['upgradeVersion'] = null;
+                $plugin->setUpgradeVersion(null);
+                $upgradeDate = new \DateTime();
+                $pluginData['upgradedAt'] = $upgradeDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                $plugin->setUpgradedAt($upgradeDate);
+            }
+
+            $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
+
+            $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
+
+            $pluginBaseClass->install($installContext);
+
+            $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
+
+            $this->runMigrations($installContext);
+
+            $installDate = new \DateTime();
+            $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+            $plugin->setInstalledAt($installDate);
+
+            $this->updatePluginData($pluginData, $shopwareContext);
+
+            $pluginBaseClass->postInstall($installContext);
+
+            $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
+        } catch (\Throwable $e) {
+            if ($didRunComposerRequire && $plugin->getComposerName()) {
+                $this->executor->remove($plugin->getComposerName(), $plugin->getName());
+            }
+
+            throw $e;
         }
-
-        $this->eventDispatcher->dispatch(new PluginPreInstallEvent($plugin, $installContext));
-
-        $this->systemConfigService->savePluginConfiguration($pluginBaseClass, true);
-
-        $pluginBaseClass->install($installContext);
-        $this->customEntityLifecycleService->updatePlugin($plugin->getId(), $plugin->getPath() ?? '');
-
-        $this->runMigrations($installContext);
-
-        $installDate = new \DateTime();
-        $pluginData['installedAt'] = $installDate->format(Defaults::STORAGE_DATE_TIME_FORMAT);
-        $plugin->setInstalledAt($installDate);
-
-        $this->updatePluginData($pluginData, $shopwareContext);
-
-        $pluginBaseClass->postInstall($installContext);
-
-        $this->eventDispatcher->dispatch(new PluginPostInstallEvent($plugin, $installContext));
 
         return $installContext;
     }
@@ -165,17 +177,6 @@ class PluginLifecycleService
 
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
-
-        if ($pluginBaseClass->executeComposerCommands()) {
-            $pluginComposerName = $plugin->getComposerName();
-            if ($pluginComposerName === null) {
-                throw new PluginComposerJsonInvalidException(
-                    $pluginBaseClass->getPath() . '/composer.json',
-                    ['No name defined in composer.json']
-                );
-            }
-            $this->executor->remove($pluginComposerName, $plugin->getName());
-        }
 
         $uninstallContext = new UninstallContext(
             $pluginBaseClass,
@@ -216,6 +217,20 @@ class PluginLifecycleService
             $this->removeCustomEntities($plugin->getId());
         }
 
+        if ($pluginBaseClass->executeComposerCommands()) {
+            $pluginComposerName = $plugin->getComposerName();
+            if ($pluginComposerName === null) {
+                throw new PluginComposerJsonInvalidException(
+                    $pluginBaseClass->getPath() . '/composer.json',
+                    ['No name defined in composer.json']
+                );
+            }
+            $this->executor->remove($pluginComposerName, $plugin->getName());
+
+            // running composer require may have consequences for other plugins, when they are required by the plugin being uninstalled
+            $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
+        }
+
         $this->eventDispatcher->dispatch(new PluginPostUninstallEvent($plugin, $uninstallContext));
 
         return $uninstallContext;
@@ -243,14 +258,7 @@ class PluginLifecycleService
         );
 
         if ($pluginBaseClass->executeComposerCommands()) {
-            $pluginComposerName = $plugin->getComposerName();
-            if ($pluginComposerName === null) {
-                throw new PluginComposerJsonInvalidException(
-                    $pluginBaseClass->getPath() . '/composer.json',
-                    ['No name defined in composer.json']
-                );
-            }
-            $this->executor->require($pluginComposerName, $plugin->getName());
+            $this->executeComposerRequireWhenNeeded($plugin, $pluginBaseClass, $updateContext->getUpdatePluginVersion(), $shopwareContext);
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
         }
@@ -265,7 +273,7 @@ class PluginLifecycleService
             if ($plugin->getActive()) {
                 try {
                     $this->deactivatePlugin($plugin, $shopwareContext);
-                } catch (\Throwable $deactivateException) {
+                } catch (\Throwable) {
                     $this->updatePluginData(
                         [
                             'id' => $plugin->getId(),
@@ -391,8 +399,7 @@ class PluginLifecycleService
             throw new PluginNotActivatedException($plugin->getName());
         }
 
-        /** @var PluginEntity[] $dependantPlugins */
-        $dependantPlugins = $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getElements();
+        $dependantPlugins = $this->getEntities($this->pluginCollection->all(), $shopwareContext)->getEntities()->getElements();
 
         $dependants = $this->requirementValidator->resolveActiveDependants(
             $plugin,
@@ -537,7 +544,6 @@ class PluginLifecycleService
 
     private function rebuildContainerWithNewPluginState(PluginEntity $plugin): void
     {
-        /** @var Kernel $kernel */
         $kernel = $this->container->get('kernel');
 
         $pluginDir = $kernel->getContainer()->getParameter('kernel.plugin_dir');
@@ -564,7 +570,7 @@ class PluginLifecycleService
 
         try {
             $newContainer = $kernel->getContainer();
-        } catch (\LogicException $e) {
+        } catch (\LogicException) {
             // If symfony throws an exception when calling getContainer on a not booted kernel and catch it here
             throw new \RuntimeException('Failed to reboot the kernel');
         }
@@ -598,16 +604,50 @@ class PluginLifecycleService
      * Takes plugin base classes and returns the corresponding entities.
      *
      * @param Plugin[] $plugins
+     *
+     * @return EntitySearchResult<PluginCollection>
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {
-        $names = array_map(static function (Plugin $plugin) {
-            return $plugin->getName();
-        }, $plugins);
+        $names = array_map(static fn (Plugin $plugin) => $plugin->getName(), $plugins);
 
         return $this->pluginRepo->search(
             (new Criteria())->addFilter(new EqualsAnyFilter('name', $names)),
             $context
         );
+    }
+
+    private function executeComposerRequireWhenNeeded(PluginEntity $plugin, Plugin $pluginBaseClass, string $pluginVersion, Context $shopwareContext): bool
+    {
+        $pluginComposerName = $plugin->getComposerName();
+        if ($pluginComposerName === null) {
+            throw new PluginComposerJsonInvalidException(
+                $pluginBaseClass->getPath() . '/composer.json',
+                ['No name defined in composer.json']
+            );
+        }
+
+        try {
+            $installedVersion = InstalledVersions::getVersion($pluginComposerName);
+        } catch (\OutOfBoundsException) {
+            // plugin is not installed using composer yet
+            $installedVersion = null;
+        }
+
+        if ($installedVersion !== null) {
+            $sanitizedVersion = $this->versionSanitizer->sanitizePluginVersion($installedVersion);
+
+            if (Comparator::equalTo($sanitizedVersion, $pluginVersion)) {
+                // plugin was already required at build time, no need to do so again at runtime
+                return false;
+            }
+        }
+
+        $this->executor->require($pluginComposerName . ':' . $pluginVersion, $plugin->getName());
+
+        // running composer require may have consequences for other plugins, when they are required by the plugin being installed
+        $this->pluginService->refreshPlugins($shopwareContext, new NullIO());
+
+        return true;
     }
 }

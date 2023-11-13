@@ -4,7 +4,7 @@ import './sw-extension-card-base.scss';
 const { Utils, Filter } = Shopware;
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {
@@ -197,7 +197,11 @@ export default {
             this.openLink = await this.shopwareExtensionService.getOpenLink(this.extension);
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - will emit hypernated event only.
+         */
         emitUpdateList() {
+            this.$emit('update-list');
             this.$emit('updateList');
         },
 

@@ -2,20 +2,20 @@
     {# The platform returns a table for the explanation (e.g. MySQL), display all columns #}
     <table style="margin: 5px 0;">
         <thead>
-            <tr>
-                {% for label in data[0]|keys %}
-                    <th>{{ label }}</th>
-                {% endfor %}
-            </tr>
+        <tr>
+            {% for label in data[0]|keys %}
+                <th>{{ label }}</th>
+            {% endfor %}
+        </tr>
         </thead>
         <tbody>
-            {% for row in data %}
+        {% for row in data %}
             <tr>
                 {% for key, item in row %}
                     <td>{{ item|replace({',': ', '}) }}</td>
                 {% endfor %}
             </tr>
-            {% endfor %}
+        {% endfor %}
         </tbody>
     </table>
 {% else %}

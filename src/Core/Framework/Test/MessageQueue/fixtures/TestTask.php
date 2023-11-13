@@ -11,7 +11,7 @@ class TestTask extends ScheduledTask
 {
     public static function getTaskName(): string
     {
-        return __CLASS__;
+        return self::class;
     }
 
     public static function getDefaultInterval(): int

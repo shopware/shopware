@@ -11,6 +11,7 @@ use Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue
  */
 class Migration1669298267AddIconCacheDefaultValueTest extends TestCase
@@ -76,7 +77,7 @@ class Migration1669298267AddIconCacheDefaultValueTest extends TestCase
             return $value;
         }
 
-        return json_decode($value, true)['_value'];
+        return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR)['_value'];
     }
 
     private function getId(Connection $connection): string|bool

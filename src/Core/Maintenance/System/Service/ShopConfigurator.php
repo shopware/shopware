@@ -5,23 +5,19 @@ namespace Shopware\Core\Maintenance\System\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Exception\ShopConfigurationException;
 use Symfony\Component\Intl\Currencies;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ShopConfigurator
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function updateBasicInformation(?string $shopName, ?string $email): void
@@ -114,7 +110,7 @@ class ShopConfigurator
             throw new ShopConfigurationException('Default currency not found');
         }
 
-        if (\mb_strtoupper($currentCurrencyIso) === \mb_strtoupper($currencyCode)) {
+        if (\mb_strtoupper((string) $currentCurrencyIso) === \mb_strtoupper($currencyCode)) {
             return;
         }
 
@@ -127,13 +123,13 @@ class ShopConfigurator
             $stmt = $conn->prepare('UPDATE currency SET id = :newId WHERE id = :oldId');
 
             // assign new uuid to old DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             ]);
 
             // change id to DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::fromHexToBytes(Defaults::CURRENCY),
                 'oldId' => $newDefaultCurrencyId,
             ]);
@@ -334,7 +330,7 @@ class ShopConfigurator
             WHERE LOWER(language.name) = LOWER("english")'
         );
 
-        //Always use the English name since we don't have the name in the language itself
+        // Always use the English name since we don't have the name in the language itself
         $name = $this->connection->fetchOne(
             '
             SELECT locale_translation.name
@@ -370,13 +366,13 @@ class ShopConfigurator
             );
 
             // assign new uuid to old DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::randomBytes(),
                 'oldId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             ]);
 
             // change id to DEFAULT
-            $stmt->execute([
+            $stmt->executeStatement([
                 'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
                 'oldId' => $newLanguageId,
             ]);
@@ -411,7 +407,7 @@ class ShopConfigurator
         $this->connection->executeStatement('
             INSERT INTO `currency` (`id`, `iso_code`, `factor`, `symbol`, `position`, `item_rounding`, `total_rounding`, `created_at`)
             VALUES (:id, :currency, 1, :symbol, 1, :rounding, :rounding, NOW())
-        ', ['id' => $id, 'currency' => $currencyCode, 'symbol' => Currencies::getSymbol($currencyCode), 'rounding' => json_encode($rounding)]);
+        ', ['id' => $id, 'currency' => $currencyCode, 'symbol' => Currencies::getSymbol($currencyCode), 'rounding' => json_encode($rounding, \JSON_THROW_ON_ERROR)]);
 
         $locale = $this->getCurrentSystemLocale();
         if ($locale) {

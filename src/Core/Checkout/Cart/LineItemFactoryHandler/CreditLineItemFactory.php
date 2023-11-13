@@ -8,24 +8,19 @@ use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CreditLineItemFactory implements LineItemFactoryInterface
 {
-    private PriceDefinitionFactory $priceDefinitionFactory;
-
-    private EntityRepository $mediaRepository;
-
     /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory, EntityRepository $mediaRepository)
-    {
-        $this->priceDefinitionFactory = $priceDefinitionFactory;
-        $this->mediaRepository = $mediaRepository;
+    public function __construct(
+        private readonly PriceDefinitionFactory $priceDefinitionFactory,
+        private readonly EntityRepository $mediaRepository
+    ) {
     }
 
     public function supports(string $type): bool

@@ -2,115 +2,227 @@
 
 namespace Shopware\Core\Profiling\Doctrine;
 
-use Doctrine\DBAL\Logging\DebugStack;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\DBAL\Types\Type;
-use Shopware\Core\Kernel;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Bridge\Doctrine\DataCollector\ObjectParameter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
+use Symfony\Component\HttpKernel\DataCollector\DataCollector;
+use Symfony\Component\HttpKernel\DataCollector\LateDataCollectorInterface;
+use Symfony\Component\VarDumper\Cloner\Data;
 
 /**
- * @package core
+ * @internal
+ *
+ * @phpstan-import-type Backtrace from BacktraceDebugDataHolder
+ * @phpstan-import-type QueryInfo from BacktraceDebugDataHolder
+ *
+ * @phpstan-type SanitizedQueryInfo array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace}
+ * @phpstan-type SanitizedQueryInfoGroup array{sql: string, executionMS: float, types: array<(int | string), int>, params: Data, runnable: bool, explainable: bool, backtrace?: Backtrace, count: int, index: int, executionPercent?: float}
  */
-class ConnectionProfiler implements DataCollectorInterface
+#[Package('core')]
+class ConnectionProfiler extends DataCollector implements LateDataCollectorInterface
 {
-    private array $data = [];
+    private ?BacktraceDebugDataHolder $dataHolder = null;
 
     /**
-     * @var DebugStack|null
+     * @var ?array<string, array<string, SanitizedQueryInfoGroup>>
      */
-    private $logger;
+    private ?array $groupedQueries = null;
+
+    /**
+     * @var array<string>
+     */
+    private array $connections = ['default'];
 
     /**
      * @internal
      */
-    public function __construct()
+    public function __construct(private readonly Connection $connection)
     {
-        $logger = Kernel::getConnection()->getConfiguration()->getSQLLogger();
-        if (!$logger instanceof DebugStack) {
+        $profilingMiddleware = current(array_filter(
+            $this->connection->getConfiguration()->getMiddlewares(),
+            fn (MiddlewareInterface $middleware) => $middleware instanceof ProfilingMiddleware
+        ));
+
+        if ($profilingMiddleware === false) {
             return;
         }
 
-        $this->logger = $logger;
+        $this->dataHolder = $profilingMiddleware->debugDataHolder;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'app.connection_collector';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
-    {
-        if (!$this->logger || !$this->logger instanceof DebugStack) {
-            $this->data['queries'] = [];
-
-            return;
-        }
-
-        $queries = $this->sanitizeQueries($this->logger->queries);
-
-        $this->data = ['queries' => $queries];
     }
 
     public function reset(): void
     {
         $this->data = [
             'queries' => [],
+            'connections' => $this->connections,
         ];
-        if (!$this->logger) {
+        if ($this->dataHolder === null) {
             return;
         }
 
-        $this->logger->queries = [];
-        $this->logger->currentQuery = 0;
+        $this->dataHolder->reset();
     }
 
-    public function getQueryCount()
+    /**
+     * @return array<string>
+     */
+    public function getConnections(): array
     {
-        return \count($this->data['queries']);
+        return $this->data['connections'];
     }
 
-    public function getQueries()
+    public function getQueryCount(): int
+    {
+        return array_sum(array_map('count', $this->data['queries']));
+    }
+
+    /**
+     * @return array<string, array<int, SanitizedQueryInfo>>
+     */
+    public function getQueries(): array
     {
         return $this->data['queries'];
     }
 
-    public function getTime()
+    public function getTime(): float
     {
         $time = 0;
-        foreach ($this->data['queries'] as $query) {
-            $time += $query['executionMS'];
+        foreach ($this->data['queries'] as $queries) {
+            foreach ($queries as $query) {
+                $time += $query['executionMS'];
+            }
         }
 
         return $time;
     }
 
-    private function sanitizeQueries(array $queries)
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
-        foreach ($queries as $i => $query) {
-            $queries[$i] = $this->sanitizeQuery($query);
+        // noop
+    }
+
+    public function lateCollect(): void
+    {
+        if ($this->dataHolder === null) {
+            $this->data['queries'] = [];
+            $this->data['connections'] = $this->connections;
+
+            return;
+        }
+
+        $this->data = ['queries' => $this->collectQueries(), 'connections' => $this->connections];
+        $this->groupedQueries = null;
+
+        $this->dataHolder->reset();
+    }
+
+    /**
+     * @return array<string, array<string, SanitizedQueryInfoGroup>>
+     */
+    public function getGroupedQueries(): array
+    {
+        if ($this->groupedQueries !== null) {
+            return $this->groupedQueries;
+        }
+
+        $this->groupedQueries = [];
+        $totalExecutionMS = 0;
+        foreach ($this->getQueries() as $connection => $queries) {
+            $connectionGroupedQueries = [];
+            foreach ($queries as $i => $query) {
+                $key = $query['sql'];
+                if (!isset($connectionGroupedQueries[$key])) {
+                    $connectionGroupedQueries[$key] = $query;
+                    $connectionGroupedQueries[$key]['executionMS'] = 0;
+                    $connectionGroupedQueries[$key]['count'] = 0;
+                    $connectionGroupedQueries[$key]['index'] = $i; // "Explain query" relies on query index in 'queries'.
+                }
+
+                $connectionGroupedQueries[$key]['executionMS'] += $query['executionMS'];
+                ++$connectionGroupedQueries[$key]['count'];
+                $totalExecutionMS += $query['executionMS'];
+            }
+
+            usort($connectionGroupedQueries, static fn ($a, $b) => $b['executionMS'] <=> $a['executionMS']);
+            $this->groupedQueries[$connection] = $connectionGroupedQueries;
+        }
+
+        foreach ($this->groupedQueries as $connection => $queries) {
+            foreach ($queries as $i => $query) {
+                $this->groupedQueries[$connection][$i]['executionPercent']
+                    = $this->executionTimePercentage($query['executionMS'], $totalExecutionMS);
+            }
+        }
+
+        return $this->groupedQueries;
+    }
+
+    public function getGroupedQueryCount(): int
+    {
+        return array_sum(
+            array_map(
+                fn (array $connectionGroupedQueries) => \count($connectionGroupedQueries),
+                $this->getGroupedQueries()
+            )
+        );
+    }
+
+    /**
+     * @return array<string, array<int, SanitizedQueryInfo>>
+     */
+    private function collectQueries(): array
+    {
+        if ($this->dataHolder === null) {
+            return [];
+        }
+
+        $queries = [];
+
+        foreach ($this->dataHolder->getData() as $connection => $connectionQueries) {
+            $queries[$connection] = $this->sanitizeQueries($connectionQueries);
         }
 
         return $queries;
     }
 
-    private function sanitizeQuery($query)
+    /**
+     * @param array<QueryInfo> $queries
+     *
+     * @return array<SanitizedQueryInfo>
+     */
+    private function sanitizeQueries(array $queries): array
+    {
+        return array_map(fn (array $query) => $this->sanitizeQuery($query), $queries);
+    }
+
+    /**
+     * @param QueryInfo $query
+     *
+     * @return SanitizedQueryInfo
+     */
+    private function sanitizeQuery(array $query): array
     {
         $query['explainable'] = true;
-        if ($query['params'] === null) {
-            $query['params'] = [];
-        }
+        $query['runnable'] = true;
+        $query['params'] ??= [];
         if (!\is_array($query['params'])) {
             $query['params'] = [$query['params']];
         }
+        if (!\is_array($query['types'])) {
+            $query['types'] = [];
+        }
         foreach ($query['params'] as $j => $param) {
+            $e = null;
             if (isset($query['types'][$j])) {
                 // Transform the param according to the type
                 $type = $query['types'][$j];
@@ -121,21 +233,24 @@ class ConnectionProfiler implements DataCollectorInterface
                     $query['types'][$j] = $type->getBindingType();
 
                     try {
-                        $param = $type->convertToDatabaseValue($param, Kernel::getConnection()->getDatabasePlatform());
-                    } catch (\TypeError $e) {
-                        // Error thrown while processing params, query is not explainable.
-                        $query['explainable'] = false;
+                        $param = $type->convertToDatabaseValue($param, $this->connection->getDatabasePlatform());
+                    } catch (\TypeError $e) { // @phpstan-ignore-line
                     } catch (ConversionException $e) {
-                        $query['explainable'] = false;
                     }
                 }
             }
 
-            list($query['params'][$j], $explainable) = $this->sanitizeParam($param);
+            [$query['params'][$j], $explainable, $runnable] = $this->sanitizeParam($param, $e);
             if (!$explainable) {
                 $query['explainable'] = false;
             }
+
+            if (!$runnable) {
+                $query['runnable'] = false;
+            }
         }
+
+        $query['params'] = $this->cloneVar($query['params']);
 
         return $query;
     }
@@ -144,35 +259,46 @@ class ConnectionProfiler implements DataCollectorInterface
      * Sanitizes a param.
      *
      * The return value is an array with the sanitized value and a boolean
-     * indicating if the original value was kept (allowing to use the sanitized
-     * value to explain the query).
+     * indicating if the original value was kept (allowing to use the sanitized value to explain the query).
+     *
+     * @return array{0: mixed, 1: bool, 2: bool}
      */
-    private function sanitizeParam($var): array
+    private function sanitizeParam(mixed $var, ?\Throwable $error): array
     {
         if (\is_object($var)) {
-            $className = \get_class($var);
+            return [$o = new ObjectParameter($var, $error), false, $o->isStringable() && !$error];
+        }
 
-            return method_exists($var, '__toString')
-                ? [sprintf('/* Object(%s): */"%s"', $className, $var->__toString()), false]
-                : [sprintf('/* Object(%s) */', $className), false];
+        if ($error) {
+            return ['⚠ ' . $error->getMessage(), false, false];
         }
 
         if (\is_array($var)) {
             $a = [];
-            $original = true;
+            $explainable = $runnable = true;
             foreach ($var as $k => $v) {
-                list($value, $orig) = $this->sanitizeParam($v);
-                $original = $original && $orig;
+                [$value, $e, $r] = $this->sanitizeParam($v, null);
+                $explainable = $explainable && $e;
+                $runnable = $runnable && $r;
                 $a[$k] = $value;
             }
 
-            return [$a, $original];
+            return [$a, $explainable, $runnable];
         }
 
         if (\is_resource($var)) {
-            return [sprintf('/* Resource(%s) */', get_resource_type($var)), false];
+            return [sprintf('/* Resource(%s) */', get_resource_type($var)), false, false];
         }
 
-        return [$var, true];
+        return [$var, true, true];
+    }
+
+    private function executionTimePercentage(float $executionTimeMS, float $totalExecutionTimeMS): float
+    {
+        if (!$totalExecutionTimeMS) {
+            return 0;
+        }
+
+        return $executionTimeMS / $totalExecutionTimeMS * 100;
     }
 }

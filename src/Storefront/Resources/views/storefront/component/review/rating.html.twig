@@ -1,5 +1,5 @@
 {% block component_review_rating %}
-    {% set full = points|round(0, 'floor')   %}
+    {% set full = points|round(0, 'floor') %}
     {% set left = ((points - full) * 4)|round %}
     {% set left = left / 4 %}
 
@@ -7,7 +7,7 @@
         {% set half = 1 %}
     {% endif %}
 
-    {% set blank = 5 - full - half  %}
+    {% set blank = 5 - full - half %}
 
     {% block component_review_rating_output %}
         <div class="product-review-rating">

@@ -2,12 +2,12 @@ import template from './sw-cms-el-config-image-gallery.html.twig';
 import './sw-cms-el-config-image-gallery.scss';
 
 const { Mixin } = Shopware;
-const { cloneDeep } = Shopware.Utils.object;
+const { moveItem, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -22,7 +22,9 @@ export default {
         return {
             mediaModalIsOpen: false,
             initialFolderId: null,
+            /* @deprecated tag:v6.6.0 - Will be removed use entity instead. */
             enitiy: this.element,
+            entity: this.element,
             mediaItems: [],
             columnWidth: '100px',
         };
@@ -246,6 +248,14 @@ export default {
                     this.$set(this.element.data, 'sliderItems', sliderItems);
                 }
             }
+        },
+
+        onItemSort(dragData, dropData) {
+            moveItem(this.mediaItems, dragData.position, dropData.position);
+            moveItem(this.element.config.sliderItems.value, dragData.position, dropData.position);
+
+            this.updateMediaDataValue();
+            this.emitUpdateEl();
         },
 
         onChangeMinHeight(value) {

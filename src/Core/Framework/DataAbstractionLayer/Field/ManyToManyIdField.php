@@ -3,16 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ManyToManyIdField extends ListField
 {
     public function __construct(
         string $storageName,
         string $propertyName,
-        private string $associationName
+        private readonly string $associationName
     ) {
         parent::__construct($storageName, $propertyName, IdField::class);
         $this->addFlags(new WriteProtected());

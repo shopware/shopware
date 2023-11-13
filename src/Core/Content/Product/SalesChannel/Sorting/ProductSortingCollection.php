@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductSortingEntity>
- *
- * @package inventory
  */
+#[Package('inventory')]
 class ProductSortingCollection extends EntityCollection
 {
     public function sortByKeyArray(array $keys): void
@@ -28,6 +28,15 @@ class ProductSortingCollection extends EntityCollection
     public function getByKey(string $key): ?ProductSortingEntity
     {
         return $this->filterByProperty('key', $key)->first();
+    }
+
+    public function removeByKey(string $key): void
+    {
+        foreach ($this->elements as $element) {
+            if ($element->getKey() === $key) {
+                $this->remove($element->getId());
+            }
+        }
     }
 
     public function getApiAlias(): string

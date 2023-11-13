@@ -43,8 +43,8 @@ use Shopware\Core\System\Tax\TaxEntity;
  */
 class EntityExtensionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
     /**
      * @var Connection
@@ -96,7 +96,7 @@ class EntityExtensionTest extends TestCase
 
         try {
             $this->connection->executeStatement('ALTER TABLE `product` ADD COLUMN my_tax_id binary(16) NULL');
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         $this->connection->beginTransaction();
@@ -143,7 +143,7 @@ class EntityExtensionTest extends TestCase
 
         $this->connection->rollBack();
 
-        $this->connection->executeUpdate('ALTER TABLE `product` DROP COLUMN my_tax_id');
+        $this->connection->executeStatement('ALTER TABLE `product` DROP COLUMN my_tax_id');
 
         $this->connection->beginTransaction();
 

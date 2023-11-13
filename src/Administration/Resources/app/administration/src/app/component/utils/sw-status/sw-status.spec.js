@@ -4,9 +4,9 @@ import 'src/app/component/utils/sw-status';
 async function createWrapper(customOptions = {}) {
     return shallowMount(await Shopware.Component.build('sw-status'), {
         stubs: {
-            'sw-color-badge': true
+            'sw-color-badge': true,
         },
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -26,7 +26,7 @@ describe('src/app/component/utils/sw-status', () => {
 
     it('should render the color green', async () => {
         wrapper = await createWrapper({
-            propsData: { color: 'green' }
+            propsData: { color: 'green' },
         });
 
         expect(wrapper.classes()).toContain('sw-status--green');
@@ -34,7 +34,7 @@ describe('src/app/component/utils/sw-status', () => {
 
     it('should render the color red', async () => {
         wrapper = await createWrapper({
-            propsData: { color: 'red' }
+            propsData: { color: 'red' },
         });
 
         expect(wrapper.classes()).toContain('sw-status--red');
@@ -43,8 +43,8 @@ describe('src/app/component/utils/sw-status', () => {
     it('should render the content of the slot', async () => {
         wrapper = await createWrapper({
             slots: {
-                default: '<h1>Hello from the slot</h1>'
-            }
+                default: '<h1>Hello from the slot</h1>',
+            },
         });
 
         expect(wrapper.text()).toContain('Hello from the slot');
@@ -52,7 +52,7 @@ describe('src/app/component/utils/sw-status', () => {
 
     it('should render the color badge', async () => {
         wrapper = await createWrapper({
-            propsData: { color: 'red' }
+            propsData: { color: 'red' },
         });
 
         const colorBadge = await wrapper.find('sw-color-badge-stub');

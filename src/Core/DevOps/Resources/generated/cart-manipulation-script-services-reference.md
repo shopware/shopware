@@ -107,6 +107,51 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
+### get()
+
+* `get()` returns the line-item with the given id from this collection.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
+
+    The line-item with the given id, or null if it does not exist.
+* **Arguments:**
+    * *`string`* **id**: The id of the line-item that should be returned.
+### has()
+
+* `has()` checks if a line-item with the given id exists in this collection.
+
+    
+* **Returns** `bool`
+
+    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
+### remove()
+
+* `remove()` removes the given line-item or the line-item with the given id from this collection.
+
+    
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
+* **Examples:**
+    * Add and then remove a product line-item from the cart.
+
+        {% raw %}
+        ```twig
+        {% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% do services.cart.products.remove(hook.ids.get('p1')) %}
+        ```
+        {% endraw %}
 ### surcharge()
 
 * The `surcharge()` methods creates a new surcharge line-item with the given type and value.
@@ -150,51 +195,6 @@ You can use the cart service to add line-items, change prices, add discounts, et
 		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
-### get()
-
-* `get()` returns the line-item with the given id from this collection.
-
-    
-* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
-
-    The line-item with the given id, or null if it does not exist.
-* **Arguments:**
-    * *`string`* **id**: The id of the line-item that should be returned.
-### remove()
-
-* `remove()` removes the given line-item or the line-item with the given id from this collection.
-
-    
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
-* **Examples:**
-    * Add and then remove a product line-item from the cart.
-
-        {% raw %}
-        ```twig
-        {% do services.cart.products.add(hook.ids.get('p1')) %}
-		
-		{% do services.cart.products.remove(hook.ids.get('p1')) %}
-        ```
-        {% endraw %}
-### has()
-
-* `has()` checks if a line-item with the given id exists in this collection.
-
-    
-* **Returns** `bool`
-
-    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\CartPriceFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/CartPriceFacade.php) {#cartpricefacade}
 
@@ -261,6 +261,270 @@ The CartPriceFacade is a wrapper around the calculated price of a cart.
         {% set price = services.cart.price.create({
 		    'default': { 'gross': 19.99, 'net': 19.99}
 		}) %}
+        ```
+        {% endraw %}
+_________
+## [`Shopware\Core\Checkout\Cart\Facade\ContainerFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/ContainerFacade.php) {#containerfacade}
+
+The ContainerFacade allows you to wrap multiple line-items inside a container line-item.
+
+
+### products()
+
+* The `product()` method returns all products inside the current container for further manipulation.
+
+    Similar to the `children()` method, but the line-items are filtered, to only contain product line items.
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ProductsFacade`](./cart-manipulation-script-services-reference.md#productsfacade)
+
+    A `ProductsFacade` containing all product line-items inside the current container as a collection.
+### add()
+
+* Use the `add()` method to add an item to this container.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade)
+
+    The item that was added to the container.
+* **Arguments:**
+    * *[`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade)* **item**: The item that should be added.
+* **Examples:**
+    * Add a product to the container and reduce the quantity of the original line-item.
+
+        {% raw %}
+        ```twig
+        
+        ```
+        {% endraw %}
+### getPrice()
+
+* `getPrice()` returns the calculated price of the line-item.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\PriceFacade`](./cart-manipulation-script-services-reference.md#pricefacade) | `null`
+
+    Returns the price of the line-item as a `PriceFacade` or null if the line-item has no calculated price.
+### take()
+
+* `take()` splits an existing line-item by a given quantity.
+
+    It removes the given quantity from the existing line-item and returns a new line-item with exactly that quantity.
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
+
+    Returns the new line-item as an `ItemFacade` or null if taking is not possible because the line-item has no sufficient quantity.
+* **Arguments:**
+    * *`int`* **quantity**: The quantity that should be taken.
+    * *`string` | `null`* **key**: Optional: The id of the new line-item. A random UUID will be used if none is provided.
+
+        Default: `null`
+* **Examples:**
+    * Take a quantity of 2 from an existing product line-item and add it to the cart again.
+
+        {% raw %}
+        ```twig
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+		
+		{% do services.cart.products.add(hook.ids.get('p1'), 5) %}
+		
+		{% set product = services.cart.products.get(hook.ids.get('p1')) %}
+		
+		{% set split = product.take(2, 'new-key') %}
+		
+		{% do services.cart.products.add(split) %}
+        ```
+        {% endraw %}
+### getId()
+
+* `getId()` returns the id of the line-item.
+
+    
+* **Returns** `string`
+
+    Returns the id.
+### getReferencedId()
+
+* `getReferenceId()` returns the id of the referenced entity of the line-item.
+
+    E.g. for product line-items this will return the id of the referenced product.
+* **Returns** `string` | `null`
+
+    Returns the id of the referenced entity, or null if no entity is referenced.
+### getQuantity()
+
+* `getQuantity()` returns the quantity of the line-item.
+
+    
+* **Returns** `int`
+
+    Returns the quantity.
+### getLabel()
+
+* `getLabel()` returns the translated label of the line-item.
+
+    
+* **Returns** `string` | `null`
+
+    Returns the translated label, or null if none exists.
+### getPayload()
+
+* `getPayload()` returns the payload of this line-item.
+
+    
+* **Returns** [`Shopware\Core\Framework\Script\Facade\ArrayFacade`](./miscellaneous-script-services-reference.md#arrayfacade)
+
+    Returns the payload as `ArrayFacade`.
+### getChildren()
+
+* `getChildren()` returns the child line-items of this line-item.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemsFacade`](./cart-manipulation-script-services-reference.md#itemsfacade)
+
+    Returns the children as a `ItemsFacade`, that may be empty if no children exist.
+### getType()
+
+* `getType()` returns the type of this line-item.
+
+    Possible types include `product`, `discount`, `container`, etc.
+* **Returns** `string`
+
+    The type of the line-item.
+### discount()
+
+* The `discount()` methods creates a new discount line-item with the given type and value.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\DiscountFacade`](./cart-manipulation-script-services-reference.md#discountfacade)
+
+    Returns the newly created discount line-item.
+* **Arguments:**
+    * *`string`* **key**: The id for the new discount.
+    * *`string`* **type**: The type of the discount, e.g. `percentage`, `absolute`
+    * *`float|\PriceCollection`* **value**: The value of the discount, a float for percentage discounts or a `PriceCollection` for absolute discounts.
+    * *`string`* **label**: The label of the discount line-item.
+* **Examples:**
+    * Add an absolute discount to the cart.
+
+        {% raw %}
+        ```twig
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+		{% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% if services.cart.items.count <= 0 %}
+		    {% return %}
+		{% endif %}
+		
+		{% if services.cart.items.has('my-discount') %}
+		    {% return %}
+		{% endif %}
+		
+		{% set price = services.cart.price.create({
+		    'default': { 'gross': -19.99, 'net': -19.99}
+		}) %}
+		
+		{% do services.cart.discount('my-discount', 'absolute', price, 'Fanzy discount') %}
+        ```
+        {% endraw %}
+    * Add a relative discount to the cart.
+
+        {% raw %}
+        ```twig
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+		
+		{% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% if services.cart.has('my-discount') %}
+		    {% return %}
+		{% endif %}
+		
+		{% do services.cart.discount('my-discount', 'percentage', -10, 'Fanzy discount') %}
+        ```
+        {% endraw %}
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
+### get()
+
+* `get()` returns the line-item with the given id from this collection.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\ItemFacade`](./cart-manipulation-script-services-reference.md#itemfacade) | `null`
+
+    The line-item with the given id, or null if it does not exist.
+* **Arguments:**
+    * *`string`* **id**: The id of the line-item that should be returned.
+### has()
+
+* `has()` checks if a line-item with the given id exists in this collection.
+
+    
+* **Returns** `bool`
+
+    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
+### remove()
+
+* `remove()` removes the given line-item or the line-item with the given id from this collection.
+
+    
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id of the line-item or the line-item that should be removed.
+* **Examples:**
+    * Add and then remove a product line-item from the cart.
+
+        {% raw %}
+        ```twig
+        {% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% do services.cart.products.remove(hook.ids.get('p1')) %}
+        ```
+        {% endraw %}
+### surcharge()
+
+* The `surcharge()` methods creates a new surcharge line-item with the given type and value.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Facade\DiscountFacade`](./cart-manipulation-script-services-reference.md#discountfacade)
+
+    Returns the newly created surcharge line-item.
+* **Arguments:**
+    * *`string`* **key**: The id for the new surcharge.
+    * *`string`* **type**: The type of the surcharge, e.g. `percentage`, `absolute`
+    * *`float|\PriceCollection`* **value**: The value of the surcharge, a float for percentage surcharges or a `PriceCollection` for absolute surcharges.
+    * *`string`* **label**: The label of the surcharge line-item.
+* **Examples:**
+    * Add an absolute surcharge to the cart.#
+
+        {% raw %}
+        ```twig
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+		{% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% set price = services.cart.price.create({
+		    'default': { 'gross': 19.99, 'net': 19.99}
+		}) %}
+		
+		{% do services.cart.surcharge('my-surcharge', 'absolute', price, 'Fanzy surcharge') %}
+        ```
+        {% endraw %}
+    * Add a relative surcharge to the cart.
+
+        {% raw %}
+        ```twig
+        {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
+		
+		{% do services.cart.products.add(hook.ids.get('p1')) %}
+		
+		{% if services.cart.has('my-surcharge') %}
+		    {% return %}
+		{% endif %}
+		
+		{% do services.cart.surcharge('my-surcharge', 'percentage', -10, 'Fanzy discount') %}
         ```
         {% endraw %}
 _________
@@ -371,6 +635,20 @@ You can use it to add new errors to the cart or remove existing ones.
         {% do services.cart.errors.notice('MESSAGE_WITH_PARAMETERS', null, {'foo': 'bar'}) %}
         ```
         {% endraw %}
+### resubmittable()
+
+* The `resubmittable()` method adds a new error of type `error` to the cart.
+
+    The notice will be displayed to the user, the order will be blocked, but the user can submit the order again.
+* **Arguments:**
+    * *`string`* **key**: The snippet-key of the message that should be displayed to the user.
+    * *`string` | `null`* **id**: An optional id that can be used to reference the error, if none is provided the $key will be used as id.
+
+        Default: `null`
+    * *`array`* **parameters**: Optional: Any parameters that the snippet for the error message may need.
+
+        Default: `array (
+)`
 ### has()
 
 * The `has()` method, checks if an error with a given id exists.
@@ -546,6 +824,14 @@ The ItemsFacade is a wrapper around a collection of line-items.
     The line-item with the given id, or null if it does not exist.
 * **Arguments:**
     * *`string`* **id**: The id of the line-item that should be returned.
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
 ### has()
 
 * `has()` checks if a line-item with the given id exists in this collection.
@@ -573,14 +859,6 @@ The ItemsFacade is a wrapper around a collection of line-items.
 		{% do services.cart.products.remove(hook.ids.get('p1')) %}
         ```
         {% endraw %}
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\PriceFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/PriceFacade.php) {#pricefacade}
 
@@ -611,6 +889,112 @@ The PriceFacade is a wrapper around a price.
 * **Returns** `int`
 
     Returns the quantity.
+### getTaxes()
+
+* `getTaxes()` returns the calculated taxes of the price.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/CalculatedTaxCollection.php)
+
+    Returns the calculated taxes.
+### getRules()
+
+* `getRules()` returns the tax rules that were used to calculate the price.
+
+    
+* **Returns** [`Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Tax/Struct/TaxRuleCollection.php)
+
+    Returns the tax rules.
+### change()
+
+* `change()` allows a price overwrite of the current price scope. The provided price will be recalculated
+over the quantity price calculator to consider quantity, tax rule and cash rounding configurations.
+
+    
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Overwrite prices with a static defined collection
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrices.change([
+		    { to: 20, price: services.price.create({ 'default': { 'gross': 15, 'net': 15} }) },
+		    { to: 30, price: services.price.create({ 'default': { 'gross': 10, 'net': 10} }) },
+		    { to: null, price: services.price.create({ 'default': { 'gross': 5, 'net': 5} }) },
+		]) %}
+        ```
+        {% endraw %}
+### plus()
+
+* `plus()` allows a price addition of the current price scope. The provided price will be recalculated via the quantity price calculator.
+
+    The provided price is interpreted as a unit price and will be added to the current unit price. The total price
+	is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Plus a static defined price to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.plus(price) %}
+        ```
+        {% endraw %}
+### minus()
+
+* `minus()` allows a price subtraction of the current price scope. The provided price will be recalculated via the quantity price calculator.
+
+    The provided price is interpreted as a unit price and will reduce to the current unit price. The total price
+	is calculated afterwards considering quantity, tax rule and cash rounding configurations.
+* **Arguments:**
+    * *[`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)* **price**: The provided price can be a fetched price from the database or generated over the `PriceFactory` statically
+* **Examples:**
+    * Minus a static defined price to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% set price = services.price.create({
+		    'default': { 'gross': 1.5, 'net': 1.5}
+		}) %}
+		
+		{% do product.calculatedPrice.minus(price) %}
+        ```
+        {% endraw %}
+### discount()
+
+* `discount()` allows a percentage discount calculation of the current price scope. The provided value will be ensured to be negative via `abs(value) * -1`.
+
+    The provided discount is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+* **Arguments:**
+    * *`float`* **value**: The percentage value of the discount. The value will be ensured to be negative via `abs(value) * -1`.
+* **Examples:**
+    * Adds a 10% discount to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrice.discount(10) %}
+        ```
+        {% endraw %}
+### surcharge()
+
+* `surcharge()` allows a percentage surcharge calculation of the current price scope. The provided value will be ensured to be negative via `abs(value)`.
+
+    The provided surcharge is interpreted as a percentage value and will be applied to the unit price and the total price as well.
+* **Arguments:**
+    * *`float`* **value**: The percentage value of the surcharge. The value will be ensured to be negative via `abs(value)`.
+* **Examples:**
+    * Adds a 10% surcharge to the existing calculated price
+
+        {% raw %}
+        ```twig
+        {% do product.calculatedPrice.surcharge(10) %}
+        ```
+        {% endraw %}
 ### create()
 
 * `create()` creates a new `PriceCollection` based on an array of prices.
@@ -621,6 +1005,32 @@ The PriceFacade is a wrapper around a price.
     Returns the newly created `PriceCollection`.
 * **Arguments:**
     * *`array`* **price**: The prices for the new collection, indexed by the currency-id or iso-code of the currency.
+* **Examples:**
+    * Create a new Price in the default currency.
+
+        {% raw %}
+        ```twig
+        {% set price = services.cart.price.create({
+		    'default': { 'gross': 19.99, 'net': 19.99}
+		}) %}
+        ```
+        {% endraw %}
+_________
+## [services.price (`Shopware\Core\Checkout\Cart\Facade\PriceFactory`)](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/PriceFactory.php) {#pricefactory}
+
+The PriceFacade is a wrapper around a price.
+
+
+### create()
+
+* `create()` creates a new `PriceCollection` based on an array of prices.
+
+    
+* **Returns** [`Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection`](https://github.com/shopware/platform/blob/trunk/src/Core/Framework/DataAbstractionLayer/Pricing/PriceCollection.php)
+
+    Returns the newly created `PriceCollection`.
+* **Arguments:**
+    * *`array`* **prices**: The prices for the new collection, indexed by the currency-id or iso-code of the currency.
 * **Examples:**
     * Create a new Price in the default currency.
 
@@ -689,6 +1099,24 @@ The ProductsFacade is a wrapper around a collection of product line-items.
     * *`int`* **quantity**: Optionally provide the quantity with which the product line-item should be created, defaults to 1.
 
         Default: `1`
+### count()
+
+* `count()` returns the count of line-items in this collection.
+
+    Note that it does only count the line-items directly in this collection and not child line-items of those.
+* **Returns** `int`
+
+    The number of line-items in this collection.
+### has()
+
+* `has()` checks if a line-item with the given id exists in this collection.
+
+    
+* **Returns** `bool`
+
+    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
+* **Arguments:**
+    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
 ### remove()
 
 * `remove()` removes the given line-item or the line-item with the given id from this collection.
@@ -706,24 +1134,6 @@ The ProductsFacade is a wrapper around a collection of product line-items.
 		{% do services.cart.products.remove(hook.ids.get('p1')) %}
         ```
         {% endraw %}
-### has()
-
-* `has()` checks if a line-item with the given id exists in this collection.
-
-    
-* **Returns** `bool`
-
-    Returns true if the given line-item or a line-item with the given id already exists in the collection, false otherwise.
-* **Arguments:**
-    * *`string|\ItemFacade`* **id**: The id or a line-item that should be checked if it already exists in the collection.
-### count()
-
-* `count()` returns the count of line-items in this collection.
-
-    Note that it does only count the line-items directly in this collection and not child line-items of those.
-* **Returns** `int`
-
-    The number of line-items in this collection.
 _________
 ## [`Shopware\Core\Checkout\Cart\Facade\StatesFacade`](https://github.com/shopware/platform/blob/trunk/src/Core/Checkout/Cart/Facade/StatesFacade.php) {#statesfacade}
 

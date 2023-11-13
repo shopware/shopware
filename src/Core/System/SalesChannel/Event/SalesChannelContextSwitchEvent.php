@@ -5,28 +5,17 @@ namespace Shopware\Core\System\SalesChannel\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContextSwitchEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var DataBag
-     */
-    private $requestDataBag;
-
-    public function __construct(SalesChannelContext $context, DataBag $requestDataBag)
-    {
-        $this->salesChannelContext = $context;
-        $this->requestDataBag = $requestDataBag;
+    public function __construct(
+        private readonly SalesChannelContext $salesChannelContext,
+        private readonly DataBag $requestDataBag
+    ) {
     }
 
     public function getContext(): Context

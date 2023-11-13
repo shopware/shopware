@@ -85,6 +85,7 @@ $sw-button-transition: all 0.15s ease-out;
             line-height: $line-height-lg;
         }
 
+        // @deprecated tag:v6.6.0 - "large" value will be removed
         &.sw-button--large {
             line-height: 44px;
         }
@@ -129,6 +130,7 @@ $sw-button-transition: all 0.15s ease-out;
             line-height: $line-height-lg;
         }
 
+        // @deprecated tag:v6.6.0 - "large" value will be removed
         &.sw-button--large {
             line-height: 44px;
         }
@@ -174,6 +176,7 @@ $sw-button-transition: all 0.15s ease-out;
             line-height: $line-height-lg;
         }
 
+        // @deprecated tag:v6.6.0 - "large" value will be removed
         &.sw-button--large {
             line-height: 44px;
         }
@@ -299,6 +302,7 @@ $sw-button-transition: all 0.15s ease-out;
         }
     }
 
+    // @deprecated tag:v6.6.0 - "large" value will be removed
     &.sw-button--large {
         padding-left: 28px;
         padding-right: 28px;

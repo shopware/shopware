@@ -3,30 +3,48 @@
 namespace Shopware\Core\Framework\Log;
 
 /**
- * @interal
+ * @internal
+ *
+ * @phpstan-type PackageString 'stranger-codes'|'buyers-experience'|'services-settings'|'business-ops'|'inventory'|'content'|'system-settings'|'sales-channel'|'customer-order'|'checkout'|'merchant-services'|'storefront'|'core'|'administration'
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
+#[Package('core')]
 final class Package
 {
     public const PACKAGE_TRACE_ATTRIBUTE_KEY = 'pTrace';
 
-    public string $package;
-
-    public function __construct(string $package)
+    /**
+     * @param PackageString $package
+     */
+    public function __construct(public string $package)
     {
-        $this->package = $package;
     }
 
-    public static function getPackageName(string $class): ?string
+    public static function getPackageName(string $class, bool $tryParentClass = false): ?string
     {
         if (!class_exists($class)) {
             return null;
         }
 
-        $reflection = new \ReflectionClass($class);
-        if (!method_exists($reflection, 'getAttributes')) {
-            return null;
+        $package = self::evaluateAttributes($class);
+        if ($package || !$tryParentClass) {
+            return $package;
         }
+
+        $parentClass = get_parent_class($class);
+        if ($parentClass && $package = self::evaluateAttributes($parentClass)) {
+            return $package;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param class-string $class
+     */
+    private static function evaluateAttributes(string $class): ?string
+    {
+        $reflection = new \ReflectionClass($class);
 
         $attrs = $reflection->getAttributes(Package::class);
 

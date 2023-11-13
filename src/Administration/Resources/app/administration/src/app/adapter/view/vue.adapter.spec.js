@@ -5,42 +5,87 @@
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
-import ComponentFactory from 'src/core/factory/async-component.factory';
+import Bottle from 'bottlejs';
+import ApplicationBootstrapper from 'src/core/application';
+import LocaleFactory from 'src/core/factory/locale.factory';
+import DirectiveFactory from 'src/core/factory/directive.factory';
+import FilterFactory from 'src/core/factory/filter.factory';
+import VueRouter from 'vue-router';
+import AsyncComponentFactory from 'src/core/factory/async-component.factory';
+import ModuleFactory from 'src/core/factory/module.factory';
+import initializeRouter from 'src/app/init/router.init';
+import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
+import Vue from 'vue';
 
-jest.mock('vue-i18n', () => (function MockI18n() {}));
+jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
+    return jest.fn();
+});
+
 Shopware.Service().register('localeHelper', () => {
     return {
-        setLocaleWithId: jest.fn()
+        setLocaleWithId: jest.fn(),
     };
 });
 
+function createApplication() {
+    // create application instance
+    Bottle.config = { strict: false };
+    const container = new Bottle();
+
+    return new ApplicationBootstrapper(container);
+}
+
 describe('ASYNC app/adapter/view/vue.adapter.js', () => {
+    let application;
     let vueAdapter;
 
     beforeEach(async () => {
+        application = createApplication();
+
         // delete global $router and $routes mocks
         delete config.mocks.$router;
         delete config.mocks.$route;
 
-        // mock vue adapter
-        vueAdapter = new VueAdapter({
-            getContainer: () => ({
-                component: '',
-                locale: { getLocaleRegistry: () => [], getLastKnownLocale: () => 'en-GB' }
-            })
-        });
+        if (!Shopware.Service('loginService')) {
+            Shopware.Service().register('loginService', () => {
+                return {
+                    isLoggedIn: () => true,
+                };
+            });
+        }
 
-        // mock localeHelper Service
-        Shopware.Service('localeHelper').setLocaleWithId.mockReset();
+        if (!Shopware.Service('localeToLanguageService')) {
+            Shopware.Service().register('localeToLanguageService', () => {
+                return {
+                    localeToLanguage: () => Promise.resolve(),
+                };
+            });
+        }
+
+        Shopware.State.get('system').locales = ['en-GB', 'de-DE'];
+
+        // create vue adapter
+        vueAdapter = new VueAdapter(application);
+
+        // reset node env
+        process.env.NODE_ENV = 'test';
+
+        // reset vue spies
+        if (Vue.set.mock) {
+            Vue.set.mockReset();
+        }
+        if (Vue.delete.mock) {
+            Vue.delete.mockReset();
+        }
     });
 
     afterEach(() => {
-        ComponentFactory.markComponentTemplatesAsNotResolved();
+        AsyncComponentFactory.markComponentTemplatesAsNotResolved();
     });
 
     it('should be an class', async () => {
         const type = typeof VueAdapter;
-        expect(type).toEqual('function');
+        expect(type).toBe('function');
     });
 
     it('should extends the view adapter', async () => {
@@ -49,13 +94,21 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
     });
 
     it('initLocales should call setLocaleFromuser', async () => {
+        application = createApplication()
+            .addFactory('locale', () => {
+                return LocaleFactory;
+            });
+
+        // create vueAdapter with custom application
+        vueAdapter = new VueAdapter(application);
+
         // Mock function
         vueAdapter.setLocaleFromUser = jest.fn();
 
         vueAdapter.initLocales({
             subscribe: () => {},
             dispatch: () => {},
-            state: { session: { currentLocale: 'en-GB' } }
+            state: { session: { currentLocale: 'en-GB' } },
         });
 
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
@@ -63,7 +116,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     it('setLocaleFromUser should not set the user when user does not exists', async () => {
         vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: null } }
+            state: { session: { currentUser: null } },
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
@@ -71,7 +124,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     it('setLocaleFromUser should set the user when user does not exists', async () => {
         vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: '12345' } } }
+            state: { session: { currentUser: { localeId: '12345' } } },
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalled();
@@ -81,7 +134,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         const expectedId = '12345678';
 
         vueAdapter.setLocaleFromUser({
-            state: { session: { currentUser: { localeId: expectedId } } }
+            state: { session: { currentUser: { localeId: expectedId } } },
         });
 
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalledWith(expectedId);
@@ -92,8 +145,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component1', {
@@ -101,21 +154,22 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component1',
             data() {
                 return {
-                    title: 'testComponent'
+                    title: 'testComponent',
                 };
             },
             mixins: [
-                Shopware.Mixin.getByName('foo1')
+                Shopware.Mixin.getByName('foo1'),
             ],
             methods: {
                 bar() {
                     return 'bar';
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component1'))();
-        const wrapper = shallowMount(await buildComp.component);
+
+        const wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -128,8 +182,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component2', {
@@ -137,34 +191,34 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component2',
             data() {
                 return {
-                    title: 'testComponent'
+                    title: 'testComponent',
                 };
             },
             mixins: [
-                Shopware.Mixin.getByName('foo2')
+                Shopware.Mixin.getByName('foo2'),
             ],
             methods: {
                 bar() {
                     return 'bar';
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.override('test-component2', {
             data() {
                 return {
-                    title: 'testComponentOverride'
+                    title: 'testComponentOverride',
                 };
             },
             methods: {
                 buz() {
                     return 'buz';
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component2'))();
-        const wrapper = shallowMount(await buildComp.component);
+        const wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -179,8 +233,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component3', {
@@ -188,19 +242,19 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component3',
             data() {
                 return {
-                    title: 'testComponent3'
+                    title: 'testComponent3',
                 };
             },
             mixins: [
-                'foo3'
+                'foo3',
             ],
             methods: {
-                bar() {}
-            }
+                bar() {},
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component3'))();
-        const wrapper = shallowMount(await buildComp.component);
+        const wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -212,8 +266,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component4', {
@@ -221,30 +275,30 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component4',
             data() {
                 return {
-                    title: 'testComponent4'
+                    title: 'testComponent4',
                 };
             },
             mixins: [
-                'foo4'
+                'foo4',
             ],
             methods: {
-                bar() {}
-            }
+                bar() {},
+            },
         });
 
         Shopware.Component.override('test-component4', {
             data() {
                 return {
-                    title: 'testComponentOverride4'
+                    title: 'testComponentOverride4',
                 };
             },
             methods: {
-                buz() {}
-            }
+                buz() {},
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component4'))();
-        const wrapper = shallowMount(await buildComp.component);
+        const wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -256,14 +310,14 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         Shopware.Mixin.register('foo-with-data', {
             data() {
                 return {
-                    sortBy: null
+                    sortBy: null,
                 };
             },
             methods: {
                 fooBar() {
                     return this.sortBy;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('test-component-foobar-with-mixin', {
@@ -271,22 +325,22 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'test-component',
             data() {
                 return {
-                    sortBy: 'date'
+                    sortBy: 'date',
                 };
             },
             mixins: [
-                'foo-with-data'
+                'foo-with-data',
             ],
             methods: {
                 bar() {},
                 fooBar() {
                     return this.sortBy;
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
-        let wrapper = shallowMount(await buildComp.component);
+        let wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -296,7 +350,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         Shopware.Component.override('test-component-foobar-with-mixin', {});
 
         const buildOverrideComp = (await vueAdapter.createComponent('test-component-foobar-with-mixin'))();
-        wrapper = shallowMount(await buildOverrideComp.component);
+        wrapper = shallowMount(await buildOverrideComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -308,8 +362,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             methods: {
                 fooBar() {
                     return this.title;
-                }
-            }
+                },
+            },
         });
 
         Shopware.Mixin.register('swBar', {
@@ -319,8 +373,8 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 },
                 buz() {
                     return 'mixin';
-                }
-            }
+                },
+            },
         });
 
         Shopware.Component.register('extendable-component', {
@@ -328,36 +382,36 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             name: 'extendable-component',
             data() {
                 return {
-                    title: 'testComponent'
+                    title: 'testComponent',
                 };
             },
             mixins: [
-                'swFoo'
+                'swFoo',
             ],
             methods: {
-                bar() {}
-            }
+                bar() {},
+            },
         });
 
         Shopware.Component.extend('sw-test-component-extended', 'extendable-component', {
             template: '{% block foo %}<div>bbbbb</div>{% endblock %}',
             mixins: [
-                'swBar'
+                'swBar',
             ],
             data() {
                 return {
-                    title: 'testComponentExtended'
+                    title: 'testComponentExtended',
                 };
             },
             methods: {
                 buz() {
                     return 'component';
-                }
-            }
+                },
+            },
         });
 
         const buildComp = (await vueAdapter.createComponent('sw-test-component-extended'))();
-        const wrapper = shallowMount(await buildComp.component);
+        const wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.fooBar).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
@@ -374,37 +428,37 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 lifecycleSpy();
             },
             methods: {
-                foo() { return 'foo'; }
-            }
+                foo() { return 'foo'; },
+            },
         });
 
         Shopware.Mixin.register('second-mixin', {
             methods: {
-                bar() { return 'bar'; }
-            }
+                bar() { return 'bar'; },
+            },
         });
 
         Shopware.Component.register('base-component', {
-            template: '<div class="base-component"></div>'
+            template: '<div class="base-component"></div>',
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['first-mixin']
+            mixins: ['first-mixin'],
         });
 
         Shopware.Component.override('base-component', {
-            mixins: ['second-mixin', 'first-mixin']
+            mixins: ['second-mixin', 'first-mixin'],
         });
 
         const buildComp = (await vueAdapter.createComponent('base-component'))();
-        const wrapper = shallowMount(await buildComp.component);
+        const wrapper = shallowMount(await buildComp);
 
         expect(wrapper.vm.foo).toBeDefined();
         expect(wrapper.vm.bar).toBeDefined();
         expect(wrapper.vm.foo()).toBe('foo');
         expect(wrapper.vm.bar()).toBe('bar');
 
-        expect(lifecycleSpy).toBeCalledTimes(1);
+        expect(lifecycleSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should build & create a vue.js component', async () => {
@@ -414,14 +468,177 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             render(h) {
                 return h('div', {
                     class: {
-                        'sw-foo': true
-                    }
+                        'sw-foo': true,
+                    },
                 }, ['Some text']);
-            }
+            },
         };
 
         const component = vueAdapter.buildAndCreateComponent(componentDefinition);
         const mountedComponent = shallowMount(component);
         expect(mountedComponent.vm).toBeTruthy();
+    });
+
+    describe('should initialize everything correctly', () => {
+        let rootComponent;
+
+        beforeEach(async () => {
+            process.env.NODE_ENV = 'development';
+
+            application = createApplication()
+                .addFactory('locale', () => {
+                    return LocaleFactory;
+                })
+                .addFactory('directive', () => {
+                    return DirectiveFactory;
+                })
+                .addFactory('filter', () => {
+                    return FilterFactory;
+                })
+                .addFactory('component', () => {
+                    return AsyncComponentFactory;
+                })
+                .addFactory('module', () => {
+                    return ModuleFactory;
+                });
+
+            application.addInitializer('router', initializeRouter);
+
+            const locale = Shopware.Application.getContainer('factory').locale;
+            if (!locale.getLocaleByName('en-GB')) {
+                locale.register('en-GB', {
+                    global: {
+                        'sw-admin-menu': {
+                            textShopwareAdmin: 'Text Shopware Admin',
+                        },
+                        my: {
+                            mock: {
+                                title: 'Mock title',
+                            },
+                        },
+                    },
+                });
+            }
+
+            if (!Shopware.Filter.getByName('my-mock-filter')) {
+                Shopware.Filter.register('my-mock-filter', () => {
+                    return 'mocked';
+                });
+            }
+
+            if (!Shopware.Directive.getByName('my-mock-directive')) {
+                Shopware.Directive.register('my-mock-directive', () => {
+                    return {
+                        bind() {},
+                        inserted() {},
+                        update() {},
+                        componentUpdated() {},
+                        unbind() {},
+                    };
+                });
+            }
+
+            // create vueAdapter with custom application
+            vueAdapter = new VueAdapter(application);
+
+            // create router
+            const router = new VueRouter();
+
+            // add main component
+            if (!Shopware.Component.getComponentRegistry().has('sw-admin')) {
+                Shopware.Component.register('sw-admin', {
+                    template: '<div class="sw-admin"></div>',
+                });
+            }
+
+            // add VueAdapter to Shopware object
+            Shopware.Application.setViewAdapter(vueAdapter);
+
+            await vueAdapter.initDependencies();
+
+            // create div with id app
+            document.body.innerHTML = '<div id="app"></div>';
+
+            rootComponent = vueAdapter.init(
+                '#app',
+                router,
+                {},
+            );
+        });
+
+        it('should initialize the plugins correctly', async () => {
+            // check if all plugins are registered correctly
+            expect(rootComponent.$options.router).toBeDefined();
+            expect(rootComponent.$options.i18n).toBeDefined();
+            expect(rootComponent.$meta).toBeDefined();
+        });
+
+        it('should initialize the filters correctly', async () => {
+            expect(rootComponent.$options.filters['my-mock-filter']).toBeDefined();
+        });
+
+        it('should initialize the directives correctly', async () => {
+            expect(rootComponent.$options.directives['my-mock-directive']).toBeDefined();
+        });
+
+        it('should add the createTitle to the rootComponent', () => {
+            expect(rootComponent.$createTitle).toBeDefined();
+        });
+
+        it('should have correct working createTitle method', () => {
+            const result = rootComponent.$createTitle.call({
+                $root: {
+                    $tc: (v) => rootComponent.$tc(v),
+                },
+                $route: {
+                    meta: {
+                        $module: {
+                            title: 'global.my.mock.title',
+                        },
+                    },
+                },
+            }, 'Test');
+
+            expect(result).toBe('Test | Mock title | Text Shopware Admin');
+        });
+
+        it('should add the store to the rootComponent', () => {
+            expect(rootComponent.$store).toBeDefined();
+        });
+
+        it('should add all components to the root component', () => {
+            expect(rootComponent.$options.components['sw-admin']).toBeDefined();
+        });
+
+        it('should add the router to the rootComponent', () => {
+            expect(rootComponent.$router).toBeDefined();
+        });
+
+        it('should add the i18n to the rootComponent', () => {
+            expect(rootComponent.$options.i18n).toBeDefined();
+        });
+
+        it('should setup the devtools in development environment', async () => {
+            expect(setupShopwareDevtools).toHaveBeenCalled();
+        });
+
+        it('should return the wrapper', async () => {
+            expect(vueAdapter.getWrapper()).toBe(Vue);
+        });
+
+        it('should return the adapter name', async () => {
+            expect(vueAdapter.getName()).toBe('Vue.js');
+        });
+
+        it('should use vue reactivity system for set/delete', async () => {
+            jest.spyOn(Vue, 'set');
+            jest.spyOn(Vue, 'delete');
+
+            vueAdapter.setReactive({}, 'foo', 'bar');
+            vueAdapter.deleteReactive({}, 'foo');
+
+            expect(Vue.set).toHaveBeenCalled();
+            expect(Vue.delete).toHaveBeenCalled();
+        });
     });
 });

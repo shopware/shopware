@@ -21,16 +21,16 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-product-variants-configurator-selection'), {
         propsData: {
             options: [],
-            product: {}
+            product: {},
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve(),
-                    create: () => Promise.resolve()
-                })
+                    create: () => Promise.resolve(),
+                }),
             },
-            validationService: {}
+            validationService: {},
         },
         stubs: {
             'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
@@ -41,9 +41,9 @@ async function createWrapper() {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': {
-                template: '<div></div>'
-            }
-        }
+                template: '<div></div>',
+            },
+        },
     });
 }
 
@@ -56,9 +56,9 @@ function getPropertyCollection() {
         [
             {
                 id: '1',
-                optionId: '1'
-            }
-        ]
+                optionId: '1',
+            },
+        ],
     );
 }
 
@@ -86,7 +86,7 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
 
     it('should prevent selection', async () => {
         await wrapper.setData({
-            preventSelection: true
+            preventSelection: true,
         });
         jest.spyOn(wrapper.vm, 'addOptionCount');
 
@@ -98,14 +98,14 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
     it('should remove an existing option', async () => {
         const entityCollection = getPropertyCollection();
         await wrapper.setProps({
-            options: entityCollection
+            options: entityCollection,
         });
 
         wrapper.vm.onOptionSelect([], {
-            id: '1'
+            id: '1',
         });
 
-        expect(wrapper.vm.options.length).toEqual(0);
+        expect(wrapper.vm.options).toHaveLength(0);
     });
 
     it('should add an option item', async () => {
@@ -114,16 +114,16 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
             product: {
                 configuratorSettings: {
                     entity: 'product-configurator-settings',
-                    source: ''
-                }
+                    source: '',
+                },
             },
-            options: entityCollection
+            options: entityCollection,
         });
 
         wrapper.vm.onOptionSelect([], {
-            id: '2'
+            id: '2',
         });
 
-        expect(wrapper.vm.options.length).toEqual(2);
+        expect(wrapper.vm.options).toHaveLength(2);
     });
 });

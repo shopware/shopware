@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -14,10 +15,10 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
- * @group skip-paratest
  *
- * @package system-settings
+ * @group skip-paratest
  */
+#[Package('system-settings')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

@@ -5,7 +5,7 @@ const { Application } = Shopware;
 const types = Shopware.Utils.types;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -33,7 +33,7 @@ export default {
             manufacturers: [],
             mailTemplates: [],
             documentBaseConfigs: [],
-            avatarUser: {},
+            avatarUsers: [],
             paymentMethods: [],
             shippingMethods: [],
             layouts: [],
@@ -83,8 +83,10 @@ export default {
                 usages.push(this.getLayoutUsage(layout));
             });
 
-            if (!types.isEmpty(this.avatarUser)) {
-                usages.push(this.getAvatarUserUsage(this.avatarUser));
+            if (!types.isEmpty(this.avatarUsers)) {
+                this.avatarUsers.forEach((avatarUser) => {
+                    usages.push(this.getAvatarUserUsage(avatarUser));
+                });
             }
 
             return usages;
@@ -139,7 +141,7 @@ export default {
         },
 
         loadAvatarUserAssociations() {
-            this.avatarUser = this.item.avatarUser;
+            this.avatarUsers = this.item.avatarUsers;
         },
 
         loadPaymentMethodAssociations() {

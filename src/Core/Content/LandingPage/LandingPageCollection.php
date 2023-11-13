@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\LandingPage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<LandingPageEntity>
  */
+#[Package('buyers-experience')]
 class LandingPageCollection extends EntityCollection
 {
     protected function getExpectedClass(): string

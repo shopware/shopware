@@ -1,0 +1,17 @@
+{
+  "sw-inactivity-login": {
+    "general": {
+      "mainMenuItemIndex": "Session timeout",
+      "description": "Inactivity-Login"
+    },
+    "modal": {
+      "title": "Just to be safe, we logged you out.",
+      "actions": {
+        "backToLogin": "Back to login"
+      },
+      "errors": {
+        "password": "Incorrect password"
+      }
+    }
+  }
+}

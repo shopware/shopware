@@ -22,24 +22,24 @@ const createWrapper = async (message) => {
         template: '<div v-tooltip="tooltip">hover me</div>',
         data() {
             return {
-                message: message
+                message: message,
             };
         },
         computed: {
             tooltip() {
                 return this.message;
-            }
+            },
         },
         methods: {
             updateMessage(updatedMessage) {
                 this.message = updatedMessage;
-            }
-        }
+            },
+        },
     };
 
     return shallowMount(tooltipComponent, {
         localVue,
-        attachTo: '#root'
+        attachTo: '#root',
     });
 };
 
@@ -52,14 +52,14 @@ describe('directives/tooltip', () => {
 
         let tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
-        expect(tooltips.length).toBe(1);
+        expect(tooltips).toHaveLength(1);
 
         await wrapper.trigger('mouseleave');
         jest.runAllTimers();
 
         tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
-        expect(tooltips.length).toBe(0);
+        expect(tooltips).toHaveLength(0);
 
         wrapper.destroy();
     });
@@ -68,7 +68,7 @@ describe('directives/tooltip', () => {
         // register component globally,
         // so that new vue instances created from the tooltip can access it
         Vue.component('sw-test', {
-            template: '<div class="sw-test"/>'
+            template: '<div class="sw-test"/>',
         });
 
         const wrapper = await createWrapper('This is a <sw-test></sw-test>');
@@ -78,10 +78,10 @@ describe('directives/tooltip', () => {
 
         const tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
-        expect(tooltips.length).toBe(1);
+        expect(tooltips).toHaveLength(1);
 
         // custom element gets rendered inside tooltip
-        expect(tooltips.item(0).getElementsByClassName('sw-test').length).toBe(1);
+        expect(tooltips.item(0).getElementsByClassName('sw-test')).toHaveLength(1);
 
         wrapper.destroy();
     });
@@ -90,7 +90,7 @@ describe('directives/tooltip', () => {
         // register component globally,
         // so that new vue instances created from the tooltip can access it
         Vue.component('sw-test', {
-            template: '<div class="sw-test"/>'
+            template: '<div class="sw-test"/>',
         });
 
         const wrapper = await createWrapper('a tooltip');
@@ -102,10 +102,10 @@ describe('directives/tooltip', () => {
 
         const tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
-        expect(tooltips.length).toBe(1);
+        expect(tooltips).toHaveLength(1);
 
         // custom element gets rendered inside tooltip
-        expect(tooltips.item(0).getElementsByClassName('sw-test').length).toBe(1);
+        expect(tooltips.item(0).getElementsByClassName('sw-test')).toHaveLength(1);
 
         wrapper.destroy();
     });
@@ -122,7 +122,7 @@ describe('directives/tooltip', () => {
         jest.runAllTimers();
 
         const tooltips = document.body.getElementsByClassName('sw-tooltip');
-        expect(tooltips.length).toBe(0);
+        expect(tooltips).toHaveLength(0);
     });
 
     it('should not disappear if you hover the tooltip itself', async () => {

@@ -3,12 +3,9 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package business-ops
- *
- * @internal
- */
+#[Package('services-settings')]
 abstract class FlowAction
 {
     /**

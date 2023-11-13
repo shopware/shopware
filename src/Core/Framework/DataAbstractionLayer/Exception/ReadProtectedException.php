@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ReadProtectedException extends ShopwareHttpException
 {
-    public function __construct(string $field, string $scope)
-    {
+    public function __construct(
+        string $field,
+        string $scope
+    ) {
         parent::__construct(
             'The field/association "{{ field }}" is read protected for your scope "{{ scope }}"',
             [

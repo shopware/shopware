@@ -23,9 +23,9 @@ Array.from(modulesToCreate.keys()).forEach(moduleName => {
         routes: {
             index: {
                 components: {},
-                path: 'index'
-            }
-        }
+                path: 'index',
+            },
+        },
     });
 });
 
@@ -40,67 +40,77 @@ async function createWrapper(defaultFolderId, privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     create: () => Promise.resolve({
-                        isNew: () => true
+                        isNew: () => true,
                     }),
                     search: () => Promise.resolve({
-                        isNew: () => false
+                        isNew: () => false,
                     }),
                     get: (folderId) => {
                         switch (folderId) {
                             case ID_PRODUCTS_FOLDER:
                                 return {
                                     entity: 'product',
-                                    isNew: () => false
+                                    isNew: () => false,
                                 };
                             case ID_CONTENT_FOLDER:
                                 return {
                                     entity: 'cms_page',
-                                    isNew: () => false
+                                    isNew: () => false,
                                 };
                             case ID_MAILTEMPLATE_FOLDER:
                                 return {
                                     entity: 'mail_template',
-                                    isNew: () => false
+                                    isNew: () => false,
                                 };
                             default:
                                 return null;
                         }
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-media-base-item': {
+                props: {
+                    allowMultiSelect: {
+                        type: Boolean,
+                        required: false,
+                        default: true,
+                    },
+                },
+                // Hack with AllowMultiSelect is needed because the property
+                // can't be accessed in the test utils correctly
                 template: `
                     <div class="sw-media-base-item">
+                        AllowMultiSelect: "{{ allowMultiSelect }}"
                         <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
                         <slot></slot>
-                    </div>`
+                    </div>`,
             },
             'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>'
+                template: '<div class="sw-context-button"><slot></slot></div>',
             },
             'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+                template: '<div class="sw-context-menu-item"><slot></slot></div>',
             },
             'sw-context-menu': {
-                template: '<div><slot></slot></div>'
-            }
+                template: '<div><slot></slot></div>',
+            },
         },
         propsData: {
             item: {
@@ -117,14 +127,14 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 children: [],
                 isNew: () => false,
                 media: [{
-                    isNew: () => false
-                }]
+                    isNew: () => false,
+                }],
             },
             showSelectionIndicator: false,
             showContextMenuButton: true,
             selected: false,
-            isList: true
-        }
+            isList: true,
+        },
     });
 }
 
@@ -174,7 +184,7 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should be able to delete', async () => {
         const aclWrapper = await createWrapper(null, [
-            'media.deleter'
+            'media.deleter',
         ]);
         await aclWrapper.vm.$nextTick();
 
@@ -192,11 +202,38 @@ describe('components/media/sw-media-folder-item', () => {
 
     it('should be able to edit', async () => {
         const aclWrapper = await createWrapper(null, [
-            'media.editor'
+            'media.editor',
         ]);
         await aclWrapper.vm.$nextTick();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
         expect(editMenuItem.attributes().disabled).toBeDefined();
+    });
+
+    it('should show the icon when it is not parent', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isParent: false,
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('AllowMultiSelect: "true"');
+    });
+
+    it('should not show the icon on back folder', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setProps({
+            isParent: true,
+        });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.text()).toContain('AllowMultiSelect: "false"');
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Routing;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class SymfonyRouteScopeWhitelist implements RouteScopeWhitelistInterface
 {
     /**
@@ -12,6 +12,6 @@ class SymfonyRouteScopeWhitelist implements RouteScopeWhitelistInterface
      */
     public function applies(string $controllerClass): bool
     {
-        return strncmp($controllerClass, 'Symfony\\', 8) === 0;
+        return str_starts_with($controllerClass, 'Symfony\\');
     }
 }

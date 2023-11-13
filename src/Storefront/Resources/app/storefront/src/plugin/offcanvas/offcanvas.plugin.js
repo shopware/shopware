@@ -32,7 +32,7 @@ class OffCanvasSingleton {
         // avoid multiple backdrops
         this._removeExistingOffCanvas();
 
-        const offCanvas = this._createOffCanvas(position, fullwidth, cssClass);
+        const offCanvas = this._createOffCanvas(position, fullwidth, cssClass, closable);
         this.setContent(content, closable, delay);
         this._openOffcanvas(offCanvas, callback);
     }
@@ -40,6 +40,7 @@ class OffCanvasSingleton {
     /**
      * Method to change the content of the already visible OffCanvas
      * @param {string} content
+     * @deprecated tag:v6.6.0 - Parameter `closable` is deprecated. The `closable` parameter will be set by the `open` method only instead.
      * @param {boolean} closable
      * @param {number} delay
      */
@@ -52,8 +53,8 @@ class OffCanvasSingleton {
 
         offCanvas[0].innerHTML = content;
 
-        //register events again
-        this._registerEvents(closable, delay);
+        // register events again
+        this._registerEvents(delay);
     }
 
     /**
@@ -119,41 +120,29 @@ class OffCanvasSingleton {
      * @private
      */
     _openOffcanvas(offCanvas, callback) {
-        setTimeout(() => {
-            OffCanvasSingleton.bsOffcanvas.show();
-            window.history.pushState('offcanvas-open', '');
+        OffCanvasSingleton.bsOffcanvas.show();
+        window.history.pushState('offcanvas-open', '');
 
-            // if a callback function is being injected execute it after opening the OffCanvas
-            if (typeof callback === 'function') {
-                callback();
-            }
-        }, 75);
+        // if a callback function is being injected execute it after opening the OffCanvas
+        if (typeof callback === 'function') {
+            callback();
+        }
     }
 
     /**
      * Register events
-     * @param {boolean} closable
      * @param {number} delay
      * @private
      */
-    _registerEvents(closable, delay) {
+    _registerEvents(delay) {
         const event = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
         const offCanvasElements = this.getOffCanvas();
-
-        /**
-         * TODO: NEXT-21771 - Workaround to prevent close by click on backdrop.
-         * Remove when Bootstrap OffCanvas supports `static` backdrop mode.
-         * @see https://github.com/twbs/bootstrap/pull/35832
-         */
-        if (!closable) {
-            OffCanvasSingleton.bsOffcanvas._backdrop._config.clickCallback = () => {};
-        }
 
         // Ensure OffCanvas is removed from the DOM and events are published.
         Iterator.iterate(offCanvasElements, offCanvas => {
             const onBsClose = () => {
                 setTimeout(() => {
-                    this._removeExistingOffCanvas();
+                    offCanvas.remove();
 
                     this.$emitter.publish('onCloseOffcanvas', {
                         offCanvasContent: offCanvasElements,
@@ -176,6 +165,7 @@ class OffCanvasSingleton {
      * @private
      */
     _removeExistingOffCanvas() {
+        OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
         return Iterator.iterate(offCanvasElements, offCanvas => offCanvas.remove());
     }
@@ -204,10 +194,11 @@ class OffCanvasSingleton {
      * @param {'left'|'right'|'bottom'} position
      * @param {boolean} fullwidth
      * @param {array|string} cssClass
+     * @param {boolean} closable
      * @returns {HTMLElement}
      * @private
      */
-    _createOffCanvas(position, fullwidth, cssClass) {
+    _createOffCanvas(position, fullwidth, cssClass, closable) {
         const offCanvas = document.createElement('div');
         offCanvas.classList.add(OFF_CANVAS_CLASS);
         offCanvas.classList.add(this._getPositionClass(position));
@@ -232,12 +223,14 @@ class OffCanvasSingleton {
 
         document.body.appendChild(offCanvas);
 
-        OffCanvasSingleton.bsOffcanvas = new bootstrap.Offcanvas(offCanvas);
+        OffCanvasSingleton.bsOffcanvas = new bootstrap.Offcanvas(offCanvas, {
+            // Only use "static" mode (no close via click on backdrop) when "closable" option is explicitly set to "false".
+            backdrop: closable === false ? 'static' : true,
+        });
 
         return offCanvas;
     }
 }
-
 
 /**
  * Create the OffCanvas instance.

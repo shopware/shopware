@@ -7,26 +7,19 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class QuantityPriceCalculator
 {
-    private GrossPriceCalculator $grossPriceCalculator;
-
-    private NetPriceCalculator $netPriceCalculator;
-
     /**
      * @internal
      */
     public function __construct(
-        GrossPriceCalculator $grossPriceCalculator,
-        NetPriceCalculator $netPriceCalculator
+        private readonly GrossPriceCalculator $grossPriceCalculator,
+        private readonly NetPriceCalculator $netPriceCalculator
     ) {
-        $this->grossPriceCalculator = $grossPriceCalculator;
-        $this->netPriceCalculator = $netPriceCalculator;
     }
 
     public function calculate(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice

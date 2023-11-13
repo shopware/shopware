@@ -1,11 +1,18 @@
-import * as marked from "npm:marked";
+import { marked } from "npm:marked";
+import { baseUrl } from "npm:marked-base-url";
+
+type Vulnerability = {
+    severity: string,
+    summary: string,
+    link: string,
+}
 
 marked.setOptions({
     gfm: true,
     breaks: true,
 });
 
-async function fetchGithub(url: string, { headers = {}, method = "GET", body}: { headers?: Record<string, string>, body?: string } = {}) {
+async function fetchGithub(url: string, { headers = {}, method = "GET", body}: { headers?: Record<string, string>, body?: string, method?: string } = {}) {
     const ghToken = Deno.env.get("GITHUB_TOKEN");
     headers['User-Agent']  ='Shopware Release Info Generator';
 
@@ -20,24 +27,50 @@ async function fetchGithub(url: string, { headers = {}, method = "GET", body}: {
     });
 }
 
+async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, body: string) {
+    const ghsaRegex = /GHSA-\w{4}-\w{4}-\w{4}/mg
+
+    const matches = body.match(ghsaRegex);
+
+    if (matches === null || matches.length === 0) {
+        return [];
+    }
+
+    const unique = matches.filter((value, index, array) => array.indexOf(value) === index);
+    for (let match of unique) {
+        const json = await (await fetchGithub(`https://api.github.com/advisories/${match}`)).json();
+
+        list.push({
+            severity: json.severity,
+            summary: json.summary,
+            link: json.html_url,
+        } as Vulnerability);
+    }
+
+    return list
+}
+
 async function generateVersionInfo() {
     const json = await (await fetchGithub("https://api.github.com/repos/shopware/platform/releases")).json();
     const vulnerabilities = await fetchVulnerabilities();
 
     for (const release of json) {
-        if (json.prerelease || json.draft) {
+        if (json.draft) {
             continue;
         }
+
+        marked.use(baseUrl(`https://github.com/shopware/platform/blob/${release.tag_name}/changelog`));
 
         const detail = await (await fetchGithub(release.url)).json();
 
         const body = marked.parse(detail.body);
+
         Deno.writeTextFileSync(`${release.tag_name.substring(1)}.json`, JSON.stringify({
             title: release.name,
             body,
             date: release.published_at,
             version: release.tag_name.substring(1),
-            fixedVulnerabilities: vulnerabilities[release.tag_name.substring(1)] || [],
+            fixedVulnerabilities: await fetchVulnerabilitiesByDescription(vulnerabilities[release.tag_name.substring(1)] || [], body),
         }));
     }
 }
@@ -50,7 +83,7 @@ async function generateVersionListing() {
         const releases = await(await fetchGithub("https://api.github.com/repos/shopware/platform/releases?per_page=100&page=" + currentPage)).json();
 
         for (const release of releases) {
-            if (release.prerelease || release.draft) {
+            if (release.draft) {
                 continue;
             }
 
@@ -68,30 +101,26 @@ async function generateVersionListing() {
 }
 
 async function fetchVulnerabilities() {
-    const json = await (await fetchGithub("https://api.github.com/graphql", {
-        body: JSON.stringify({"query":"query { \n  securityVulnerabilities(package: \"shopware/platform\", first: 100) {\n    nodes {\n      severity\n      advisory {\n        summary\n        permalink\n      }\n      firstPatchedVersion {\n        identifier\n      }\n    }\n  }\n}","variables":{}}),
-        headers: {
-            "Content-Type": "application/json",
-        },
-        method: "POST",
-    })).json();
+    const json = await (await fetchGithub("https://api.github.com/repos/shopware/platform/security-advisories?per_page=100&state=published")).json();
 
     const formatted = {};
 
-    for (const vulnerability of json.data.securityVulnerabilities.nodes) {
-        if (formatted[vulnerability.firstPatchedVersion.identifier] === undefined) {
-            formatted[vulnerability.firstPatchedVersion.identifier] = [];
+    for (const vulnerability of json) {
+        const firstPatchedVersion = vulnerability.vulnerabilities[0].patched_versions.split(',').pop();
+
+        if (formatted[firstPatchedVersion] === undefined) {
+            formatted[firstPatchedVersion] = [];
         }
 
-        formatted[vulnerability.firstPatchedVersion.identifier].push({
+        formatted[firstPatchedVersion].push({
             severity: vulnerability.severity,
-            summary: vulnerability.advisory.summary,
-            link: vulnerability.advisory.permalink,
+            summary: vulnerability.summary,
+            link: vulnerability.html_url,
         });
     }
 
     return formatted;
 }
 
-generateVersionListing();
-generateVersionInfo();
+await generateVersionListing();
+await generateVersionInfo();

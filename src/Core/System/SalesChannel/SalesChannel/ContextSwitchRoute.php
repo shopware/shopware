@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -17,13 +17,11 @@ use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('core')]
 class ContextSwitchRoute extends AbstractContextSwitchRoute
 {
     private const SHIPPING_METHOD_ID = SalesChannelContextService::SHIPPING_METHOD_ID;
@@ -36,19 +34,18 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     private const LANGUAGE_ID = SalesChannelContextService::LANGUAGE_ID;
 
     /**
+     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
+     *
      * @var SalesChannelContextPersister
      */
     protected $contextPersister;
 
     /**
+     * @deprecated tag:v6.6.0 - Will become private and natively types and readonly in v6.6.0 (use constructor promotion)
+     *
      * @var DataValidator
      */
     protected $validator;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
 
     /**
      * @internal
@@ -56,11 +53,10 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     public function __construct(
         DataValidator $validator,
         SalesChannelContextPersister $contextPersister,
-        EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
         $this->contextPersister = $contextPersister;
         $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractContextSwitchRoute
@@ -68,10 +64,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/context", name="store-api.switch-context", methods={"PATCH"})
-     */
+    #[Route(path: '/store-api/context', name: 'store-api.switch-context', methods: ['PATCH'])]
     public function switchContext(RequestDataBag $data, SalesChannelContext $context): ContextTokenResponse
     {
         $definition = new DataValidationDefinition('context_switch');
@@ -86,6 +79,20 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
             self::CURRENCY_ID,
             self::LANGUAGE_ID
         );
+
+        // pre validate to ensure correct data type. Existence of entities is checked later
+        $definition
+            ->add(self::LANGUAGE_ID, new Type('string'))
+            ->add(self::CURRENCY_ID, new Type('string'))
+            ->add(self::SHIPPING_METHOD_ID, new Type('string'))
+            ->add(self::PAYMENT_METHOD_ID, new Type('string'))
+            ->add(self::BILLING_ADDRESS_ID, new Type('string'))
+            ->add(self::SHIPPING_ADDRESS_ID, new Type('string'))
+            ->add(self::COUNTRY_ID, new Type('string'))
+            ->add(self::STATE_ID, new Type('string'))
+        ;
+
+        $this->validator->validate($parameters, $definition);
 
         $addressCriteria = new Criteria();
         if ($context->getCustomer()) {

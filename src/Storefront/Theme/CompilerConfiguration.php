@@ -2,24 +2,19 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package storefront
- *
  * @internal - may be changed in the future
  */
+#[Package('storefront')]
 class CompilerConfiguration extends AbstractCompilerConfiguration
 {
     /**
-     * @var array<string, mixed>
-     */
-    private array $configuration;
-
-    /**
      * @param array<string, mixed> $configuration
      */
-    public function __construct(array $configuration)
+    public function __construct(private readonly array $configuration)
     {
-        $this->configuration = $configuration;
     }
 
     public function getConfiguration(): array

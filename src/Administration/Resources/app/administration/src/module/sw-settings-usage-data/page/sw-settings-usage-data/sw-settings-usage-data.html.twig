@@ -1,0 +1,28 @@
+<sw-page class="sw-settings-usage-data">
+
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+
+    <template #smart-bar-header>
+        <h2>
+            {{ $tc('sw-settings.index.title') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-settings.index.tabSystem') }}
+            <sw-icon
+                name="regular-chevron-right-xs"
+                small
+            />
+            {{ $tc('sw-settings-usage-data.general.textHeadline') }}
+        </h2>
+    </template>
+
+    <template #content>
+        <sw-card-view>
+            <sw-usage-data-consent-banner />
+        </sw-card-view>
+    </template>
+</sw-page>

@@ -83,7 +83,7 @@
       "optionKilogram": "Kilogramm",
       "optionMetre": "Meter",
       "taxRateHelpText": {
-        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
+        "label": "Passe den anzuwendenden Umsatzsteuersatz an. Wenn Du einen Steuerservice-Anbieter (Tax Provider) aktiviert hast, könnte der hier festgelegte Steuersatz überschrieben werden. Jeweils ein Standard-Umsatzsteuersatz und bis zu zwei ermäßigte Steuersätze sind für die meisten Länder vordefiniert. Du kannst die genauen Steuersätze {link} einsehen. Dort kannst Du auch Steuersätze anpassen, zusätzliche Steuersätze anlegen und Länder zuweisen.",
         "linkText": "Einstellungen"
       }
     },
@@ -218,7 +218,7 @@
     },
     "list": {
       "textProductOverview": "Produkte",
-      "buttonAddProduct": "Physisches Produkt anlegen",
+      "buttonAddProduct": "Produkt anlegen",
       "buttonAddDownloadableProduct": "Digitales Produkt anlegen",
       "buttonCancel": "Abbrechen",
       "buttonDuplicate": "Duplizieren",
@@ -238,6 +238,7 @@
       "columnTags": "Tags",
       "columnActions": "Aktion(en)",
       "columnMedia": "Medien",
+      "columnSales": "Verkäufe",
       "columnDownloadsTooltip": "Digitale Produkte müssen über mindestens eine Datei verfügen.",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
@@ -321,6 +322,7 @@
       "buttonAddProperty": "Eigenschaft konfigurieren",
       "buttonAddProperties": "Eigenschaften konfigurieren",
       "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
+      "titleEmptyStateList": "Keine Eigenschaften gefunden.",
       "columnProperty": "Eigenschaft",
       "columnValue": "Eigenschaftsausprägung",
       "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",
@@ -331,7 +333,7 @@
       }
     },
     "variations": {
-      "generatedListColumnDownload": "Datein",
+      "generatedListColumnDownload": "Dateien",
       "emptyStateTitle": "Dieses Produkt hat noch keine Varianten",
       "emptyStateDescription": "Verwaltung der Varianten von Produkten.",
       "emptyStatePropertyTitle": "Es wurden noch keine Eigenschaften angelegt",
@@ -526,9 +528,20 @@
         "label": "Kategorien",
         "placeholder": "Kategorien auswählen ..."
       },
+      "salesFilter": {
+        "label": "Verkäufe"
+      },
       "tagsFilter": {
         "label": "Tags",
         "placeholder": "Tags auswählen ..."
+      },
+      "productStatesFilter": {
+        "label": "Produktzustände",
+        "placeholder": "Produktzustand auswählen ...",
+        "options": {
+          "physical": "Physisch",
+          "digital": "Digital"
+        }
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."

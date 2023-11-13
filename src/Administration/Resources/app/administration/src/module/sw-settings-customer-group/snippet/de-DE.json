@@ -19,23 +19,26 @@
       "placeholderName": "Einen Namen eingeben ...",
       "placeholderNewCustomerGroup": "Neue Kundengruppe",
       "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
-      "registrationForm": "Registrierungsformular einblenden"
+      "registrationForm": "Benutzerdefiniertes Registrierungsformular"
     },
     "registration": {
       "formTitle": "Registrierungsformular",
       "placeholderTitle": "Einen Titel eingeben ...",
       "placeholderIntroduction": "Eine Einführung eingeben ...",
-      "placeholderSeoMetaDescription": "Eine Seo Meta Beschreibung eingeben ...",
+      "placeholderSeoMetaDescription": "Eine SEO-Meta-Beschreibung eingeben ...",
       "title": "Titel",
       "introduction": "Einführung",
-      "onlyCompaniesCanRegister": "Nur Unternehmen können sich registrieren",
-      "seoMetaDescription": "SEO Meta Beschreibung",
+      "onlyCompaniesCanRegister": "Registrierungsformular für Unternehmen",
+      "onlyCompaniesCanRegisterHelpText": "Fügt Felder für den Unternehmensnamen, die Umsatzsteuernummer und die Abteilung hinzu.",
+      "seoMetaDescription": "SEO-Meta-Beschreibung",
       "linkUrlsTitle": "URLs",
       "linkUrlDescription": "Klicken Sie auf die Schaltfläche auf der rechten Seite, um URLs zu generieren, die die Anfrageformulare mit jedem Vertriebskanal verbinden..",
       "linkUrlButton": "URLs generieren",
       "technicalUrl": "Technische URL",
-      "technicalUrlHelpText": "Techische URLs können im Kategorie-Modul als \"Benutzerdefinierter Link\" gesetzt werden und erlauben eine automatische Sprachzuweisung.",
-      "availabilitySalesChannel": "Verfügbare Verkaufskanäle"
+      "technicalUrlHelpText": "Technische URLs können als \"benutzerdefinierte Links\" im Kategorienmodul verwendet werden. Die Sprachauswahl erfolgt dabei automatisch.",
+      "availabilitySalesChannel": "Verfügbare Verkaufskanäle",
+      "infoText": "Shop-Benutzer können sich über dieses Formular registrieren. Die Benutzer werden der Kundengruppe erst zugewiesen, wenn Du die Anfrage im Kundenmodul angenommen hast. Das Formular kann mit den untenstehenden Feldern angepasst werden.",
+      "seoUrlLabel": "{salesChannelName} - URL"
     },
     "modal": {
       "seoUrl": {

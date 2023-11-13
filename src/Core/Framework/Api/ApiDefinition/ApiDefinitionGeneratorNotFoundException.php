@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ApiDefinitionGeneratorNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $format)

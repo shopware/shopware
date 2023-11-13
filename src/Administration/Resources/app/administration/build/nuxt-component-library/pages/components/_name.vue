@@ -1,15 +1,6 @@
 <template>
     <div class="page--component">
-        <div class="page--deprecation-warning" v-if="component.meta.deprecated || component.deprecations">
-            <p>
-                <strong>Deprecation warning: </strong>
-                <br>
-                The component will be removed in version {{ component.meta.deprecated || component.deprecations.version }}
-                <template v-if="component && component.deprecations && component.deprecations.comment">
-                    – {{ component.deprecations.comment }}
-                </template>
-            </p>
-        </div>
+        <deprecation-warning :component="component" />
 
         <header class="component--header">
             <h1 class="header--title">{{ componentTitle }}</h1>
@@ -218,18 +209,6 @@
 
     }
 
-    .page--deprecation-warning {
-        margin-bottom: 24px;
-        padding: 6px 24px;
-        border-radius: 4px;
-        background-color: #de294c;
-        color: #fff;
-
-        p {
-            font-size: 1em;
-        }
-    }
-
     section {
         margin-top: 55px;
     }
@@ -239,13 +218,15 @@
 import Prism from 'vue-prism-component';
 import 'prismjs/themes/prism-okaidia.css';
 import exampleComponent from '~/components/example';
+import deprecationWarning from '~/components/deprecation-warning.vue';
 
 export default {
     scrollToTop: true,
 
     components: {
         Prism,
-        'example': exampleComponent
+        'example': exampleComponent,
+        'deprecation-warning': deprecationWarning,
     },
 
     data() {

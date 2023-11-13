@@ -5,21 +5,20 @@ namespace Shopware\Core\Framework\Increment;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @package core
+ * @deprecated tag:v6.6.0 - reason:becomes-internal - Type hint to AbstractIncrementer, implementations are internal and should not be used for type hints
  */
+#[Package('core')]
 class MySQLIncrementer extends AbstractIncrementer
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function getDecorated(): AbstractIncrementer
@@ -78,7 +77,7 @@ class MySQLIncrementer extends AbstractIncrementer
         }
 
         RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->execute();
+            $query->executeStatement();
         });
     }
 
@@ -105,6 +104,9 @@ class MySQLIncrementer extends AbstractIncrementer
             ];
         }
 
-        return $this->connection->fetchAllAssociativeIndexed($sql, $payload, $types);
+        /** @var array<string, array{count: int, key: string, cluster: string, pool: string}> $result */
+        $result = $this->connection->fetchAllAssociativeIndexed($sql, $payload, $types);
+
+        return $result;
     }
 }

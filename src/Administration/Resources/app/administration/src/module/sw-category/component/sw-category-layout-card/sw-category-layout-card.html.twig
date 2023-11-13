@@ -10,10 +10,12 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_category_detail_layout_preview %}
-        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-category-layout-card__preview"
+            role="button"
+            tabindex="0"
             @click="openLayoutModal"
+            @keydown.enter="openLayoutModal"
         >
             <sw-cms-list-item
                 :page="cmsPage"

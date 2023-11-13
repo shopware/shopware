@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -30,7 +31,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
      */
     private $extensionLicensesService;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionLicensesService = $this->getContainer()->get(AbstractExtensionStoreLicensesService::class);
     }
@@ -77,7 +78,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
                 'id' => $userId,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => 'foobar',
-                'password' => 'asdasdasdasd',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Foo',
                 'lastName' => 'Bar',
                 'email' => 'foo@bar.com',
@@ -102,10 +103,10 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     private function setCancelationResponses(): void
     {
-        $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json'), true);
+        $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json'), true, 512, \JSON_THROW_ON_ERROR);
         $licenses[0]['extension']['name'] = 'TestApp';
 
-        $this->setLicensesRequest(json_encode($licenses));
+        $this->setLicensesRequest(json_encode($licenses, \JSON_THROW_ON_ERROR));
         $this->getRequestHandler()->append(new Response(204));
 
         unset($licenses[0]);
@@ -113,7 +114,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
             new Response(
                 200,
                 [ExtensionDataProvider::HEADER_NAME_TOTAL_COUNT => '0'],
-                json_encode($licenses)
+                json_encode($licenses, \JSON_THROW_ON_ERROR)
             )
         );
     }

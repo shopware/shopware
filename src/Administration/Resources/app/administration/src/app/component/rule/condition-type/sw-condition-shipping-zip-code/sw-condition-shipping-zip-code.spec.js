@@ -29,7 +29,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 'sw-single-select': true,
                 'sw-arrow-field': true,
                 'sw-condition-type-select': true,
-                'sw-label': true
+                'sw-label': true,
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),
@@ -37,11 +37,11 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 availableGroups: [],
                 restrictedConditions: [],
                 childAssociationField: {},
-                validationService: {}
+                validationService: {},
             },
             propsData: {
-                condition: {}
-            }
+                condition: {},
+            },
         });
     });
 
@@ -54,12 +54,12 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
             condition: {
                 value: {
                     zipCodes: ['12345'],
-                    operator: '>='
-                }
-            }
+                    operator: '>=',
+                },
+            },
         });
         await wrapper.setData({
-            isNumeric: true
+            isNumeric: true,
         });
 
         expect(wrapper.vm.zipCodes).toBe(12345);
@@ -73,12 +73,12 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
             condition: {
                 value: {
                     zipCodes: ['12345'],
-                    operator: '='
-                }
-            }
+                    operator: '=',
+                },
+            },
         });
         await wrapper.setData({
-            isNumeric: false
+            isNumeric: false,
         });
 
         expect(wrapper.vm.zipCodes).toStrictEqual(['12345']);

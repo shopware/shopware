@@ -5,13 +5,13 @@ namespace Shopware\Core\Framework\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class KernelTest extends TestCase
 {
     use KernelTestBehaviour;

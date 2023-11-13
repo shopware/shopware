@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -20,23 +21,21 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class OrderService
 {
-    public const CUSTOMER_COMMENT_KEY = 'customerComment';
-    public const AFFILIATE_CODE_KEY = 'affiliateCode';
-    public const CAMPAIGN_CODE_KEY = 'campaignCode';
+    final public const CUSTOMER_COMMENT_KEY = 'customerComment';
+    final public const AFFILIATE_CODE_KEY = 'affiliateCode';
+    final public const CAMPAIGN_CODE_KEY = 'campaignCode';
 
-    public const ALLOWED_TRANSACTION_STATES = [
+    final public const ALLOWED_TRANSACTION_STATES = [
         OrderTransactionStates::STATE_OPEN,
         OrderTransactionStates::STATE_CANCELLED,
         OrderTransactionStates::STATE_REMINDED,
@@ -45,35 +44,17 @@ class OrderService
         OrderTransactionStates::STATE_UNCONFIRMED,
     ];
 
-    private DataValidator $dataValidator;
-
-    private DataValidationFactoryInterface $orderValidationFactory;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CartService $cartService;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private StateMachineRegistry $stateMachineRegistry;
-
     /**
      * @internal
      */
     public function __construct(
-        DataValidator $dataValidator,
-        DataValidationFactoryInterface $orderValidationFactory,
-        EventDispatcherInterface $eventDispatcher,
-        CartService $cartService,
-        EntityRepository $paymentMethodRepository,
-        StateMachineRegistry $stateMachineRegistry
+        private readonly DataValidator $dataValidator,
+        private readonly DataValidationFactoryInterface $orderValidationFactory,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly CartService $cartService,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly StateMachineRegistry $stateMachineRegistry
     ) {
-        $this->dataValidator = $dataValidator;
-        $this->orderValidationFactory = $orderValidationFactory;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->cartService = $cartService;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
@@ -114,7 +95,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order', $transition);
         }
 
         return $toPlace;
@@ -144,7 +125,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_transaction', $transition);
         }
 
         return $toPlace;
@@ -174,7 +155,7 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
 
         if (!$toPlace) {
-            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+            throw StateMachineException::stateMachineStateNotFound('order_delivery', $transition);
         }
 
         return $toPlace;

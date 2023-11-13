@@ -13,13 +13,10 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Abs
 class IncrementArrayStorage extends AbstractIncrementStorage
 {
     /**
-     * @var array<string, int>
+     * @param array<string, int> $states
      */
-    private array $states;
-
-    public function __construct(array $states)
+    public function __construct(private array $states)
     {
-        $this->states = $states;
     }
 
     public function reserve(array $config): int

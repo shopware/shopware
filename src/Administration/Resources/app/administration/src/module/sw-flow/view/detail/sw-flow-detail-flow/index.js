@@ -8,7 +8,7 @@ const { mapGetters, mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -32,6 +32,11 @@ export default {
             default: false,
         },
         isTemplate: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isUnknownTrigger: {
             type: Boolean,
             required: false,
             default: false,
@@ -62,19 +67,18 @@ export default {
                 return false;
             }
 
-            let showWarning = false;
-            this.sequences.filter(action => action.actionName).forEach(sequence => {
-                const actionInvalid = this.triggerActions.find(item => item.name === sequence.actionName);
-                if (!actionInvalid) {
-                    showWarning = true;
+            return this.sequences.some(sequence => {
+                const { actionName, _isNew, ruleId } = sequence;
+                if (!actionName && ruleId) {
+                    return false;
                 }
-            });
 
-            return showWarning;
+                return !_isNew && !this.hasAvailableAction(actionName);
+            });
         },
 
         ...mapState('swFlowState', ['flow', 'triggerActions']),
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapGetters('swFlowState', ['sequences', 'availableActions', 'hasAvailableAction']),
     },
 
     watch: {

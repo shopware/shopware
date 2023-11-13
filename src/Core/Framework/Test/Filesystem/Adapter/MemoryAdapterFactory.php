@@ -14,7 +14,7 @@ class MemoryAdapterFactory implements AdapterFactoryInterface
     /**
      * @var MemoryFilesystemAdapter[]
      */
-    private static $instances;
+    private static ?array $instances = null;
 
     public static function clearInstancesMemory(): void
     {

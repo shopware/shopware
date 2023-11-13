@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ProductPageObject    from '../../support/pages/module/sw-product.page-object';
 
 describe('Create a new property, select value display type and test their appearance in the storefront by creating new variants', () => {
@@ -52,9 +54,9 @@ describe('Create a new property, select value display type and test their appear
         const page = new ProductPageObject();
 
         // Add product to sales channel
-        cy.contains('E2E install test').click();
+        cy.contains(Cypress.env('storefrontName')).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -22,10 +23,9 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class SalesChannelContextPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,7 +35,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
     private SalesChannelContextPersister $contextPersister;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $eventDispatcher = new EventDispatcher();
@@ -47,6 +47,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Random::getAlphanumericString(32);
         $expected = [
             'key' => 'value',
+            'token' => $token,
             'expired' => false,
         ];
 
@@ -90,6 +91,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $expected = [
             'key' => 'value',
             'expired' => false,
+            'token' => $token,
         ];
 
         $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL);
@@ -145,6 +147,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'first' => 'test',
             'second' => 'overwritten',
             'third' => 'third test',
+            'token' => $token,
         ];
 
         $actual = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL);
@@ -278,7 +281,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create($token, TestDefaults::SALES_CHANNEL);
 
-        $cart = new Cart('test', $token);
+        $cart = new Cart($token);
         $cart->addLineItems(new LineItemCollection([new LineItem('test', 'test', Uuid::randomHex(), 10)]));
         $this->getContainer()->get(CartPersister::class)->save($cart, $context);
 
@@ -307,7 +310,7 @@ class SalesChannelContextPersisterTest extends TestCase
         static::assertNull($this->connection->fetchOne('SELECT customer_id FROM sales_channel_api_context'));
     }
 
-    public function tokenExpiringDataProvider(): \Generator
+    public static function tokenExpiringDataProvider(): \Generator
     {
         yield [0, 'P2D', false];
         yield [1, 'P2D', false];
@@ -335,7 +338,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         if ($tokenAgeInDays !== 0) {
             // change age
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'UPDATE sales_channel_api_context
                 SET updated_at = DATE_ADD(updated_at, INTERVAL :intervalInDays DAY)',
                 ['intervalInDays' => -$tokenAgeInDays]
@@ -356,7 +359,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $customerId = $this->createCustomer();
         $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
-        //check token is valid here
+        // check token is valid here
         static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
         static::assertEquals($token, $result['token']);
 
@@ -373,7 +376,7 @@ class SalesChannelContextPersisterTest extends TestCase
         }
     }
 
-    public function testRevokeTokensDataProvider(): \Generator
+    public static function testRevokeTokensDataProvider(): \Generator
     {
         yield [Uuid::randomHex(), ''];
         yield [$token = Uuid::randomHex(), $token];

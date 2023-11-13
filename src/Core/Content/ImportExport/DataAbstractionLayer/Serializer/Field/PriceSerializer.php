@@ -13,26 +13,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PriceSerializer extends FieldSerializer
 {
     /**
-     * @var EntityRepository
-     */
-    private $currencyRepository;
-
-    /**
      * @internal
      */
-    public function __construct(EntityRepository $currencyRepository)
+    public function __construct(private readonly EntityRepository $currencyRepository)
     {
-        $this->currencyRepository = $currencyRepository;
     }
 
     public function serialize(Config $config, Field $entity, $prices): iterable
@@ -105,6 +98,9 @@ class PriceSerializer extends FieldSerializer
     {
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:visibility-change - Will be private in future
+     */
     public function isValidPrice(array $price): bool
     {
         return filter_var($price['net'] ?? null, \FILTER_VALIDATE_FLOAT) !== false

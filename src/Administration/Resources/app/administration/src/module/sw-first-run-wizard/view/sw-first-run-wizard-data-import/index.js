@@ -4,7 +4,7 @@ import './sw-first-run-wizard-data-import.scss';
 const { Criteria } = Shopware.Data;
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -58,6 +58,10 @@ export default {
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -103,6 +107,7 @@ export default {
                     return this.extensionStoreActionService.activateExtension(plugin.name, 'plugin');
                 })
                 .then(() => {
+                    this.$emit('extension-activated');
                     this.isInstallingPlugin = false;
                     this.plugins[pluginKey].isInstalled = true;
 

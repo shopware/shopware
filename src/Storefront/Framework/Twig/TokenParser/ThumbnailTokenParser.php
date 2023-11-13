@@ -3,15 +3,14 @@
 namespace Shopware\Storefront\Framework\Twig\TokenParser;
 
 use Shopware\Core\Framework\Adapter\Twig\Node\SwInclude;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Parser;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 final class ThumbnailTokenParser extends AbstractTokenParser
 {
     /**

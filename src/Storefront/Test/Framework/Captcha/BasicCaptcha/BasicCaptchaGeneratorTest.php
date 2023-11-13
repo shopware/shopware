@@ -13,12 +13,9 @@ class BasicCaptchaGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var BasicCaptchaGenerator
-     */
-    private $captcha;
+    private BasicCaptchaGenerator $captcha;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->captcha = $this->getContainer()->get(BasicCaptchaGenerator::class);
     }

@@ -5,46 +5,30 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'dal:create:schema',
     description: 'Creates the database schema',
 )]
+#[Package('core')]
 class CreateSchemaCommand extends Command
 {
-    /**
-     * @var SchemaGenerator
-     */
-    private $schemaGenerator;
-
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
-
-    /**
-     * @var string
-     */
-    private $dir;
+    private readonly string $dir;
 
     /**
      * @internal
      */
     public function __construct(
-        SchemaGenerator $generator,
-        DefinitionInstanceRegistry $registry,
+        private readonly SchemaGenerator $schemaGenerator,
+        private readonly DefinitionInstanceRegistry $registry,
         string $rootDir
     ) {
         parent::__construct();
-        $this->schemaGenerator = $generator;
-        $this->registry = $registry;
         $this->dir = $rootDir . '/schema/';
     }
 

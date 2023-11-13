@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Framework\Uuid\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class InvalidUuidLengthException extends ShopwareHttpException
 {
-    public function __construct(int $length, string $hex)
-    {
+    public function __construct(
+        int $length,
+        string $hex
+    ) {
         parent::__construct(
             'UUID has a invalid length. 16 bytes expected, {{ length }} given. Hexadecimal reprensentation: {{ hex }}',
             ['length' => $length, 'hex' => $hex]

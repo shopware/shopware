@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -9,25 +10,22 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('checkout')]
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -85,7 +83,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         $customerIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(customer_id)) FROM `order_customer` WHERE order_id IN (:ids) AND order_version_id = :version AND customer_id IS NOT NULL',
             ['ids' => Uuid::fromHexToBytesList($orderIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($customerIds)) {
@@ -98,14 +96,14 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             'state' => OrderStates::STATE_COMPLETED,
         ];
         $types = [
-            'customerIds' => Connection::PARAM_STR_ARRAY,
+            'customerIds' => ArrayParameterType::BINARY,
         ];
 
         $whereOrder = '';
         if ($isDelete) {
             $whereOrder = 'AND `order`.id NOT IN (:exceptOrderIds)';
             $parameters['exceptOrderIds'] = Uuid::fromHexToBytesList($orderIds);
-            $types['exceptOrderIds'] = Connection::PARAM_STR_ARRAY;
+            $types['exceptOrderIds'] = ArrayParameterType::BINARY;
         }
 
         $select = '

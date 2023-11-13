@@ -2,55 +2,37 @@
 
 namespace Shopware\Core\Content\Sitemap\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package sales-channel
- */
-class Url extends Struct
+#[Package('sales-channel')]
+class Url extends Struct implements \Stringable
 {
     /**
      * The Url
-     *
-     * @var string
      */
-    private $loc;
+    private string $loc;
 
     /**
      * Date and time of last modification
-     *
-     * @var \DateTimeInterface
      */
-    private $lastmod;
+    private \DateTimeInterface $lastmod;
 
     /**
      * Frequency of changing
-     *
-     * @var string
      */
-    private $changefreq;
+    private string $changefreq;
 
     /**
      * Relative priority for this URL
-     *
-     * @var float
      */
-    private $priority = 0.5;
+    private float $priority = 0.5;
 
-    /**
-     * @var string
-     */
-    private $resource;
+    private string $resource;
 
-    /**
-     * @var string
-     */
-    private $identifier;
+    private string $identifier;
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf(
             '<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>%s</changefreq><priority>%.1f</priority></url>',

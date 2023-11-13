@@ -3,13 +3,15 @@
 namespace Shopware\Administration\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1660813696AddAppAdministrationSnippet extends MigrationStep
 {
     public function getCreationTimestamp(): int

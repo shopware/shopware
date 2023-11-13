@@ -29,20 +29,20 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                                 {
                                     name: 'Storefront',
                                     translated: { name: 'Storefront' },
-                                    id: 'STORE-FRONT-MOCK-ID'
+                                    id: 'STORE-FRONT-MOCK-ID',
                                 },
                                 {
                                     name: 'Headless',
                                     translated: { name: 'Headless' },
-                                    id: 'HEADLESS-MOCK-ID'
-                                }
+                                    id: 'HEADLESS-MOCK-ID',
+                                },
                             ]));
-                        }
-                    })
+                        },
+                    }),
                 },
                 systemConfigApiService: {
-                    getValues: () => Promise.resolve(defaultSalesChannelData)
-                }
+                    getValues: () => Promise.resolve(defaultSalesChannelData),
+                },
             },
             stubs: {
                 'sw-base-field': true,
@@ -61,8 +61,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                 'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
                 'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
                 'sw-settings-listing-visibility-detail': true,
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field')
-            }
+                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            },
         });
     }
 
@@ -73,7 +73,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
         activeSwitch: '.sw-settings-listing-default-sales-channel__active-switch input',
         visibilityModal: '.sw-settings-listing-default-sales-channel__visibility-modal',
         selectSelection: '.sw-select__selection',
-        resultListItems: '.sw-select-result-list__item-list'
+        resultListItems: '.sw-select-result-list__item-list',
     };
 
     beforeEach(async () => {
@@ -97,9 +97,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
             'core.defaultSalesChannel.active': false,
             'core.defaultSalesChannel.salesChannel': [{
                 id: '98432def39fc4624b33213a56b8c944d',
-                name: 'Headless'
+                name: 'Headless',
             }],
-            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
+            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 },
         };
 
         wrapper = await createWrapper();

@@ -4,70 +4,54 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextCreatedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalesChannelContextService implements SalesChannelContextServiceInterface
 {
-    public const CURRENCY_ID = 'currencyId';
+    final public const CURRENCY_ID = 'currencyId';
 
-    public const LANGUAGE_ID = 'languageId';
+    final public const LANGUAGE_ID = 'languageId';
 
-    public const CUSTOMER_ID = 'customerId';
+    final public const CUSTOMER_ID = 'customerId';
 
-    public const CUSTOMER_GROUP_ID = 'customerGroupId';
+    final public const CUSTOMER_GROUP_ID = 'customerGroupId';
 
-    public const BILLING_ADDRESS_ID = 'billingAddressId';
+    final public const BILLING_ADDRESS_ID = 'billingAddressId';
 
-    public const SHIPPING_ADDRESS_ID = 'shippingAddressId';
+    final public const SHIPPING_ADDRESS_ID = 'shippingAddressId';
 
-    public const PAYMENT_METHOD_ID = 'paymentMethodId';
+    final public const PAYMENT_METHOD_ID = 'paymentMethodId';
 
-    public const SHIPPING_METHOD_ID = 'shippingMethodId';
+    final public const SHIPPING_METHOD_ID = 'shippingMethodId';
 
-    public const COUNTRY_ID = 'countryId';
+    final public const COUNTRY_ID = 'countryId';
 
-    public const COUNTRY_STATE_ID = 'countryStateId';
+    final public const COUNTRY_STATE_ID = 'countryStateId';
 
-    public const VERSION_ID = 'version-id';
+    final public const VERSION_ID = 'version-id';
 
-    public const PERMISSIONS = 'permissions';
+    final public const PERMISSIONS = 'permissions';
 
-    public const DOMAIN_ID = 'domainId';
+    final public const DOMAIN_ID = 'domainId';
 
-    public const ORIGINAL_CONTEXT = 'originalContext';
-
-    private AbstractSalesChannelContextFactory $factory;
-
-    private CartRuleLoader $ruleLoader;
-
-    private SalesChannelContextPersister $contextPersister;
-
-    private CartService $cartService;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const ORIGINAL_CONTEXT = 'originalContext';
 
     /**
      * @internal
      */
     public function __construct(
-        AbstractSalesChannelContextFactory $factory,
-        CartRuleLoader $ruleLoader,
-        SalesChannelContextPersister $contextPersister,
-        CartService $cartService,
-        EventDispatcherInterface $eventDispatcher
+        private readonly AbstractSalesChannelContextFactory $factory,
+        private readonly CartRuleLoader $ruleLoader,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly CartService $cartService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->factory = $factory;
-        $this->ruleLoader = $ruleLoader;
-        $this->contextPersister = $contextPersister;
-        $this->cartService = $cartService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function get(SalesChannelContextServiceParameters $parameters): SalesChannelContext

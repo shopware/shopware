@@ -12,16 +12,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1610523548FixCustomerColumns;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1610523548FixCustomerColumnsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -102,7 +102,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
         $this->insertTestCustomer();
 
         /** @var CustomerEntity $customer */
-        $customer = $this->repository->search((new Criteria()), Context::createDefaultContext())->first();
+        $customer = $this->repository->search(new Criteria(), Context::createDefaultContext())->first();
 
         $this->writer->update(
             $this->customerDefinition,
@@ -148,7 +148,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => 'test@example.com',
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,

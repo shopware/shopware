@@ -100,6 +100,17 @@
                         <xs:field xpath="@identifier"/>
                     </xs:unique>
                 </xs:element>
+                <xs:element name="shipping-methods" type="shipping-methods" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register shipping methods your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueShippingMethodName">
+                        <xs:selector xpath="shipping-method"/>
+                        <xs:field xpath="@identifier"/>
+                    </xs:unique>
+                </xs:element>
                 <xs:element name="rule-conditions" type="rule-conditions" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation xml:lang="en">
@@ -108,6 +119,17 @@
                     </xs:annotation>
                     <xs:unique name="uniqueRuleConditionName">
                         <xs:selector xpath="rule-condition"/>
+                        <xs:field xpath="@identifier"/>
+                    </xs:unique>
+                </xs:element>
+                <xs:element name="tax" type="tax" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register tax providers your app provides.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueTaxProviderName">
+                        <xs:selector xpath="tax-provider"/>
                         <xs:field xpath="@identifier"/>
                     </xs:unique>
                 </xs:element>
@@ -124,6 +146,7 @@
             <xs:element type="xs:string" name="version"/>
             <xs:element type="xs:string" name="icon" minOccurs="0"/>
             <xs:element type="xs:string" name="license"/>
+            <xs:element type="xs:string" name="compatibility"/>
             <xs:element type="xs:anyURI" name="privacy" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">
@@ -222,6 +245,7 @@
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:anyURI" name="url" use="required"/>
         <xs:attribute type="xs:NMTOKEN" name="event" use="required"/>
+        <xs:attribute type="xs:boolean" name="onlyLiveVersion" default="false"/>
     </xs:complexType>
     <xs:complexType name="custom-field-set">
         <xs:choice maxOccurs="unbounded">
@@ -259,6 +283,7 @@
             <xs:element name="required" type="xs:boolean" minOccurs="0" default="false"/>
             <xs:element name="position" type="xs:int" minOccurs="0" default="1"/>
             <xs:element name="allow-customer-write" type="xs:boolean" minOccurs="0" default="false"/>
+            <xs:element name="allow-cart-expose" type="xs:boolean" minOccurs="0" default="false"/>
         </xs:choice>
     </xs:group>
     <xs:complexType name="custom-field-int-type">
@@ -361,6 +386,7 @@
             <xs:enumeration value="category"/>
             <xs:enumeration value="promotion"/>
             <xs:enumeration value="customer"/>
+            <xs:enumeration value="cms_page"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="option-collection">
@@ -469,6 +495,7 @@
             <xs:element type="xs:anyURI" name="validate-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="capture-url" minOccurs="0"/>
             <xs:element type="xs:anyURI" name="refund-url" minOccurs="0"/>
+            <xs:element type="xs:anyURI" name="recurring-url" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation xml:lang="en">
@@ -476,6 +503,75 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:simpleType name="delivery-time-unit">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:pattern value="hour|day|week|month|year"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="delivery-time">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element type="xs:string" name="id" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        UUID for the delivery time
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
+            <xs:element type="xs:int" name="min" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="xs:int" name="max" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="delivery-time-unit" name="unit" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Possible values are "hour", "day", "week", "month" or "year"
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="shipping-methods">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="shipping-method" type="shipping-method" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="shipping-method">
+        <xs:annotation>
+            <xs:documentation xml:lang="en">
+                Deprecated: This element is in an experimental stage and may change in future versions
+            </xs:documentation>
+        </xs:annotation>
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="xs:string" name="identifier"/>
+            <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
+            <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="active" minOccurs="0" default="false"/>
+            <xs:element type="delivery-time" name="delivery-time" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="xs:string" name="icon" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Path to local image file.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:int" name="position" minOccurs="0"/>
+            <xs:element type="translatableString" name="tracking-url" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="rule-conditions">
@@ -490,6 +586,19 @@
             <xs:element type="xs:string" name="group"/>
             <xs:element type="xs:string" name="script"/>
             <xs:element name="constraints" maxOccurs="unbounded" type="custom-field-list"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="tax">
+        <xs:sequence>
+            <xs:element name="tax-provider" type="tax-provider" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="tax-provider">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element type="xs:string" name="identifier"/>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element type="xs:int" name="priority"/>
+            <xs:element type="xs:anyURI" name="process-url"/>
         </xs:choice>
     </xs:complexType>
 </xs:schema>

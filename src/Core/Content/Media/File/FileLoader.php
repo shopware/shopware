@@ -5,46 +5,28 @@ namespace Shopware\Core\Content\Media\File;
 use League\Flysystem\FilesystemOperator;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
-use Shopware\Core\Content\Media\Exception\MediaNotFoundException;
 use Shopware\Core\Content\Media\MediaEntity;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class FileLoader
 {
-    private FilesystemOperator $filesystemPublic;
-
-    private FilesystemOperator $filesystemPrivate;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private FileNameValidator $fileNameValidator;
-
-    private EntityRepository $mediaRepository;
-
-    private StreamFactoryInterface $streamFactory;
+    private readonly FileNameValidator $fileNameValidator;
 
     /**
      * @internal
      */
     public function __construct(
-        FilesystemOperator $filesystemPublic,
-        FilesystemOperator $filesystemPrivate,
-        UrlGeneratorInterface $urlGenerator,
-        EntityRepository $mediaRepository,
-        StreamFactoryInterface $streamFactory
+        private readonly FilesystemOperator $filesystemPublic,
+        private readonly FilesystemOperator $filesystemPrivate,
+        private readonly EntityRepository $mediaRepository,
+        private readonly StreamFactoryInterface $streamFactory
     ) {
-        $this->filesystemPublic = $filesystemPublic;
-        $this->filesystemPrivate = $filesystemPrivate;
-        $this->urlGenerator = $urlGenerator;
         $this->fileNameValidator = new FileNameValidator();
-        $this->mediaRepository = $mediaRepository;
-        $this->streamFactory = $streamFactory;
     }
 
     public function loadMediaFile(string $mediaId, Context $context): string
@@ -66,7 +48,7 @@ class FileLoader
     {
         $this->fileNameValidator->validateFileName($media->getFileName() ?: '');
 
-        return $this->urlGenerator->getRelativeMediaUrl($media);
+        return $media->getPath();
     }
 
     private function getFileSystem(MediaEntity $media): FilesystemOperator
@@ -79,18 +61,19 @@ class FileLoader
     }
 
     /**
-     * @throws MediaNotFoundException
+     * @throws MediaException
      */
     private function findMediaById(string $mediaId, Context $context): MediaEntity
     {
         $criteria = new Criteria([$mediaId]);
         $criteria->addAssociation('mediaFolder');
+
         $currentMedia = $this->mediaRepository
             ->search($criteria, $context)
             ->get($mediaId);
 
-        if ($currentMedia === null) {
-            throw new MediaNotFoundException($mediaId);
+        if (!$currentMedia instanceof MediaEntity) {
+            throw MediaException::mediaNotFound($mediaId);
         }
 
         return $currentMedia;

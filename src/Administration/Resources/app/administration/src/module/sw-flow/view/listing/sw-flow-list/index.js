@@ -1,11 +1,12 @@
 import template from './sw-flow-list.html.twig';
 import './sw-flow-list.scss';
 
-const { Mixin, Data: { Criteria } } = Shopware;
+const { Mixin, Data: { Criteria }, Component } = Shopware;
+const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -103,6 +104,12 @@ export default {
 
             return this.$tc('global.default.edit');
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        ...mapState('swFlowState', ['triggerEvents']),
     },
 
     watch: {
@@ -122,6 +129,7 @@ export default {
 
         getList() {
             this.isLoading = true;
+            Shopware.State.dispatch('swFlowState/fetchTriggerActions');
 
             this.flowRepository.search(this.flowCriteria)
                 .then((data) => {
@@ -131,6 +139,10 @@ export default {
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        isValidTrigger(eventName) {
+            return this.triggerEvents.some(event => event.name === eventName);
         },
 
         onDuplicateFlow(item) {
@@ -204,7 +216,10 @@ export default {
         },
 
         getTranslatedEventName(value) {
-            return value.replace(/\./g, '_');
+            const snippetKey = value.replace(/\./g, '_');
+            const globalKey = `global.businessEvents.${snippetKey}`;
+            const customKey = `sw-flow-custom-event.flow-list.${snippetKey}`;
+            return this.$te(globalKey) ? this.$tc(globalKey) : this.$tc(customKey);
         },
 
         selectionChange(selection) {

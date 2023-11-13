@@ -2,18 +2,21 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package customer-order
- *
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
+ *
+ * @deprecated tag:v6.6.0 - reason:remove-constraint-annotation The @Annotation & @Target annotations will be removed, it's not possible to use this constraint via annotations
  */
+#[Package('checkout')]
 class CustomerZipCode extends Constraint
 {
-    public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
+    final public const ZIP_CODE_INVALID = 'ZIP_CODE_INVALID';
 
     public ?string $countryId = null;
 

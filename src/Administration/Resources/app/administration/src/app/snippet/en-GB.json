@@ -41,6 +41,7 @@
       "from": "From",
       "to": "To",
       "bulkEdit": "Bulk edit",
+      "back": "Back",
       "discard": "Discard"
     },
     "notification": {
@@ -247,7 +248,9 @@
     },
     "sw-time-ago": {
       "justNow": "Just now",
-      "minutesAgo": "One minute ago | {minutesAgo} minutes ago"
+      "minutesAgo": "One minute ago | {minutesAgo} minutes ago",
+      "aboutNow": "About now",
+      "minutesFromNow": "One minute from now | {minutesFromNow} minutes from now"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Search media...",
@@ -585,23 +588,23 @@
       "addNewEntity": "Add new {entity}",
       "shortcuts": {
         "product": "G P | A P",
-        "category": "G C | ",
+        "category": "G C | &nbsp;",
         "customers": "G U | A U",
         "property": "G P R | A P R",
         "manufacturer": "G M | A M",
         "settings-rule": "G S R | A R",
         "sales-channel": " | A S",
         "cms": "G E | A E",
-        "dashboard": "G H | ",
-        "product-stream": "G D | ",
-        "order": "G O | ",
-        "media": "G M E | ",
-        "promotion-v2": "G P O | ",
-        "settings": "G S | ",
-        "newsletter-recipient": "G N | ",
-        "settings-snippet": "G S | ",
-        "settings-payment": "G S P | ",
-        "settings-shipping": "G S S | "
+        "dashboard": "G H | &nbsp;",
+        "product-stream": "G D | &nbsp;",
+        "order": "G O | &nbsp;",
+        "media": "G M E | &nbsp;",
+        "promotion-v2": "G P O | &nbsp;",
+        "settings": "G S | &nbsp;",
+        "newsletter-recipient": "G N | &nbsp;",
+        "settings-snippet": "G S | &nbsp;",
+        "settings-payment": "G S P | &nbsp;",
+        "settings-shipping": "G S S | &nbsp;"
       }
     },
     "sw-search-more-results": {
@@ -662,7 +665,7 @@
         },
         "isGuestRule": "Guest account",
         "isNewsletterRecipient": "Customer is newsletter recipient",
-        "daysSinceLastOrderRule": "Days since last order",
+        "daysSinceLastOrderRule": "Time since last order",
         "shippingCountryRule": "Shipping address: Country",
         "shippingCityRule": "Shipping address: City",
         "shippingStreetRule": "Shipping address: Street",
@@ -670,8 +673,8 @@
         "shippingZipCodeRule": "Shipping address: Postal code",
         "customerLoggedInRule": "Customer logged in",
         "customerAgeRule": "Customer age",
-        "customerDaysSinceLastLogin": "Days since last login",
-        "customerDaysSinceFirstLogin": "Days since first login",
+        "customerDaysSinceLastLogin": "Time since last login",
+        "customerDaysSinceFirstLogin": "Time since first login",
         "customerAffiliateCodeRule": "Affiliate code",
         "customerCampaignCodeRule": "Campaign code",
         "cartAmountRule": "Grand total",
@@ -691,6 +694,13 @@
         "lineItemTotalPriceRule": "Item subtotal",
         "lineItemWithQuantityRule": "Item quantity",
         "orderTagRule": "Order with tag",
+        "orderTrackingCodeRule": "Tracking code",
+        "orderDeliveryStatusRule": "Delivery status",
+        "orderCreatedByAdminRule": "Order created by admin",
+        "orderTransactionStatusRule": "Payment status",
+        "orderStatusRule": "Order status",
+        "orderCustomFieldRule": "Order with custom field",
+        "orderDocumentTypeRule": "Order with document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",
@@ -720,10 +730,11 @@
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Total weight of all products",
         "volumeOfCartRule": "Total volume of all products",
+        "cartShippingCost": "Shipping costs",
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Item with tag",
         "alwaysValidRule": "Always valid",
-        "lineItemPropertyRule": "Item with property",
+        "lineItemPropertyRule": "Item with variant or property value",
         "lineItemNoveltyRule": "Novelties",
         "lineItemCustomFieldRule": "Item with custom field",
         "lineItemIsNewRule": "Item marked as \"new\"",
@@ -747,6 +758,7 @@
         "lineItemStockRule": "Item available",
         "lineItemActualStockRule": "Item in stock",
         "lineItemProductStates": "Item with product state",
+        "numberOfReviews": "Number of submitted reviews",
         "paymentMethodRule": "Applied payment method",
         "shippingMethodRule": "Applied shipping method",
         "lineItemGoodsTotalRule": "Total quantity of all products",
@@ -765,7 +777,8 @@
               "placeholder": "Select fieldset..."
             },
             "customFieldSelect": {
-              "placeholder": "Select custom field..."
+              "placeholder": "Select custom field...",
+              "tooltip": "This custom field is currently not available in shopping carts. You can activate it for shopping carts in its <a href=\"{customFieldSettingsLink}\" target=\"_blank\">settings</a>."
             }
           }
         },
@@ -773,7 +786,10 @@
         "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character...",
         "customerBirthdayRule": "Customer date of birth",
         "customerCreatedByAdminRule": "Customer created by admin",
-        "customerSalutationRule": "Customer salutation"
+        "customerSalutationRule": "Customer salutation",
+        "customerDefaultPaymentMethodRule": "Customer with default payment method",
+        "lineItemPropertyValueRule": "Item with property value",
+        "lineItemVariantValueRule": "Item with variant value"
       }
     },
     "sw-condition-generic": {
@@ -839,7 +855,7 @@
         "productState": {
           "options": {
             "is-physical": "Physical",
-            "is-download": "Download"
+            "is-download": "Digital"
           }
         }
       },
@@ -856,7 +872,76 @@
         "dimension": "mm",
         "weight": "kg",
         "volume": "mm³",
-        "age": "Years"
+        "age": "Years",
+        "kg": "Kilograms",
+        "g": "Grams",
+        "mg": "Milligrams",
+        "oz": "Ounces",
+        "lb": "Pounds",
+        "m": "Meters",
+        "cm": "Centimeters",
+        "mm": "Millimeters",
+        "km": "Kilometers",
+        "in": "Inches",
+        "ft": "Feet",
+        "mi": "Miles",
+        "hr": "Hours",
+        "yr": "Years",
+        "mth": "Months",
+        "wk": "Weeks",
+        "d": "Days",
+        "min": "Minutes",
+        "m3": "Cubic meters",
+        "cm3": "Cubic centimeters",
+        "mm3": "Cubic millimeters",
+        "in3": "Cubic inches",
+        "ft3": "Cubic feet",
+        "short": {
+          "min": "min",
+          "d": "d",
+          "wk": "wk",
+          "mth": "mth",
+          "yr": "yr",
+          "hr": "h",
+          "lb": "lb",
+          "oz": "oz",
+          "mg": "mg",
+          "g": "g",
+          "kg": "kg",
+          "m": "m",
+          "cm": "cm",
+          "mm": "mm",
+          "km": "km",
+          "in": "in",
+          "mi": "mi",
+          "ft": "ft",
+          "m3": "m³",
+          "cm3": "cm³",
+          "mm3": "mm³",
+          "in3": "in³",
+          "ft3": "ft³"
+        }
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Select condition ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "Select state ..."
+        },
+        "operator": {
+          "placeholder": "Select operator ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "Select state ..."
+        },
+        "operator": {
+          "placeholder": "Select operator ..."
+        }
       }
     },
     "sw-product-image": {
@@ -870,7 +955,8 @@
       "defaultPlaceholder": "Search..."
     },
     "sw-tabs-item": {
-      "tooltipTabHasErrors": "This page contains errors."
+      "tooltipTabHasErrors": "This page contains errors.",
+      "tooltipTabHasWarnings": "This page contains warnings."
     },
     "entities": {
       "all": "All",
@@ -944,7 +1030,8 @@
       "flow": "Flow Builder",
       "module": "Module",
       "frequently_used": "Frequently used",
-      "recently_searched": "Recently searched"
+      "recently_searched": "Recently searched",
+      "flow_sequence": "Flow"
     },
     "day-of-week": {
       "monday": "Monday",
@@ -1451,8 +1538,8 @@
       "productPrices": "pricing rules",
       "shippingMethodPrices": "pricing rules",
       "shippingMethodPriceCalculations": "shipping cost calculation rules",
-      "shippingMethods": "shipping method rules",
-      "paymentMethods": "payment method rules",
+      "shippingMethods": "shipping method availability rules",
+      "paymentMethods": "payment method availability rules",
       "flowSequences": "Flow Builder rules",
       "personaPromotions": "customer rule|customer rules",
       "orderPromotions": "order rule|order rules",
@@ -1466,10 +1553,26 @@
       "restrictedConditionTooltip": "This rule is assigned to:<br/><br/>{assignments}</br></br>The use of this condition is not allowed in this context.",
       "relation": {
         "flowTrigger": "Flows with trigger: {assignments}",
-        "promotion": "Promotions as {assignments}"
+        "promotion": "Promotions as {assignments}",
+        "productPrices": "Products as {assignments}",
+        "shippingMethods": "Shipping methods as {assignments}",
+        "shippingMethodPrices": "Shipping methods as {assignments}",
+        "paymentMethods": "Payment methods as {assignments}"
       }
     },
     "and": "and",
     "or": "or"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI responses can be inaccurate or misleading."
+  },
+  "sw-usage-data": {
+    "sw-settings-usage-data-intro": {
+      "title": "Usage data",
+      "headline": "Improving Shopware collectively",
+      "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
+      "learnMore": "Learn more",
+      "learnMoreUrl": "https://shopware.com/en/privacy/"
+    }
   }
 }

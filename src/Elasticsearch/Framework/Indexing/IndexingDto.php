@@ -2,22 +2,19 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class IndexingDto
 {
     protected array $ids;
 
-    protected string $index;
-
-    protected string $entity;
-
-    public function __construct(array $ids, string $index, string $entity)
-    {
+    public function __construct(
+        array $ids,
+        protected string $index,
+        protected string $entity
+    ) {
         $this->ids = array_values($ids);
-        $this->index = $index;
-        $this->entity = $entity;
     }
 
     public function getIds(): array

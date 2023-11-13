@@ -3,11 +3,11 @@
     :from-link="fromLink"
 >
     <template #smart-bar-icon>
-        <img
+        <sw-extension-icon
             class="sw-extension-config__extension-icon"
             :src="image"
             :alt="$tc('sw-extension-store.component.sw-extension-config.imageDescription', 0, { extensionName: extensionLabel})"
-        >
+        />
     </template>
 
     <template #smart-bar-header>

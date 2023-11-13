@@ -9,38 +9,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\SeoUrlUpdateListener;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class LandingPageIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed, as landing page entities don't have a ManyToManyIdField
+     */
+    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
 
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
-        EventDispatcherInterface $eventDispatcher
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -81,19 +70,15 @@ class LandingPageIndexer extends EntityIndexer
             return;
         }
 
-        $context = $message->getContext();
-
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            $this->manyToManyIdFieldUpdater->update(LandingPageDefinition::ENTITY_NAME, $ids, $context);
-        }
-
-        $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context, $message->getSkip()));
+        // This indexer is only used to update the seo urls over the SeoUrlUpdater, so we only dispatch the event here
+        $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
     public function getOptions(): array
     {
         return [
             self::MANY_TO_MANY_ID_FIELD_UPDATER,
+            SeoUrlUpdateListener::LANDING_PAGE_SEO_URL_UPDATER,
         ];
     }
 

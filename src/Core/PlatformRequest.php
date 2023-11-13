@@ -2,9 +2,9 @@
 
 namespace Shopware\Core;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 final class PlatformRequest
 {
     /**
@@ -26,9 +26,13 @@ final class PlatformRequest
     public const HEADER_APP_INTEGRATION_ID = 'sw-app-integration-id';
 
     /**
-     * Sync controller headers
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
      */
     public const HEADER_FAIL_ON_ERROR = 'fail-on-error';
+
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed as it is not used and has no effect anymore
+     */
     public const HEADER_SINGLE_OPERATION = 'single-operation';
     public const HEADER_INDEXING_BEHAVIOR = 'indexing-behavior';
     public const HEADER_INDEXING_SKIP = 'indexing-skip';
@@ -61,6 +65,7 @@ final class PlatformRequest
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
+    public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
 
     /**
      * CSP

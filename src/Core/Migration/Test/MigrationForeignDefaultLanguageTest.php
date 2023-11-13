@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -13,15 +14,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
- * @package core
- *
  * @internal
+ *
  * @group slow
  */
+#[Package('core')]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
     use MigrationUntouchedDbTestTrait;
 
     /**
@@ -315,7 +316,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     private function setupDB(Connection $orgConnection): Connection
     {
-        //Be sure that we are on the no migrations db
+        // Be sure that we are on the no migrations db
         static::assertStringContainsString('_no_migrations', $this->databaseName, 'Wrong DB ' . $this->databaseName);
 
         $orgConnection->executeStatement('DROP DATABASE IF EXISTS `' . $this->databaseName . '`');
@@ -332,7 +333,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ),
             $orgConnection->getDriver(),
             $orgConnection->getConfiguration(),
-            $orgConnection->getEventManager()
         );
 
         /** @var string $dumpFile */

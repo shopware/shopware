@@ -3,27 +3,20 @@
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchIndexingMessage implements AsyncMessageInterface
 {
-    private IndexingDto $data;
-
-    private ?IndexerOffset $offset;
-
-    private Context $context;
-
     /**
      * @internal
      */
-    public function __construct(IndexingDto $data, ?IndexerOffset $offset, Context $context)
-    {
-        $this->data = $data;
-        $this->offset = $offset;
-        $this->context = $context;
+    public function __construct(
+        private readonly IndexingDto $data,
+        private readonly ?IndexerOffset $offset,
+        private readonly Context $context
+    ) {
     }
 
     public function getData(): IndexingDto

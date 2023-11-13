@@ -8,10 +8,11 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,8 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ScriptControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     public function testGetApiEndpoint(): void
@@ -29,8 +30,9 @@ class ScriptControllerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
 
         $response = $this->request('GET', '/storefront/script/json-response', []);
+        static::assertNotFalse($response->getContent());
 
-        $body = \json_decode((string) $response->getContent(), true);
+        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         $traces = $this->getScriptTraces();
@@ -47,8 +49,9 @@ class ScriptControllerTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
 
         $response = $this->request('GET', '/storefront/script/json/response', []);
+        static::assertNotFalse($response->getContent());
 
-        $body = \json_decode((string) $response->getContent(), true);
+        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         $traces = $this->getScriptTraces();
@@ -70,7 +73,9 @@ class ScriptControllerTest extends TestCase
             $this->tokenize('frontend.script_endpoint', [])
         );
 
-        $body = \json_decode((string) $response->getContent(), true);
+        static::assertNotFalse($response->getContent());
+
+        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
         $traces = $this->getScriptTraces();
@@ -94,8 +99,9 @@ class ScriptControllerTest extends TestCase
             []
         );
 
+        static::assertNotFalse($response->getContent());
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertStringContainsString('My Test-Product', (string) $response->getContent());
+        static::assertStringContainsString('My Test-Product', $response->getContent());
     }
 
     public function testRedirectResponseTemplate(): void
@@ -129,16 +135,16 @@ class ScriptControllerTest extends TestCase
 
         $browser->request(
             'GET',
-            EnvironmentHelper::getVariable('APP_URL') . '/storefront/script/ensure-login?allow-guest=' . (int) $allowGuest,
-            []
+            EnvironmentHelper::getVariable('APP_URL') . '/storefront/script/ensure-login?allow-guest=' . (int) $allowGuest
         );
         $response = $browser->getResponse();
 
+        static::assertNotFalse($response->getContent());
         static::assertSame($expectedStatus, $response->getStatusCode());
-        static::assertStringContainsString($expectedResponse, (string) $response->getContent());
+        static::assertStringContainsString($expectedResponse, $response->getContent());
     }
 
-    public function ensureLoginProvider(): \Generator
+    public static function ensureLoginProvider(): \Generator
     {
         yield 'Not logged in' => [
             false,
@@ -214,7 +220,9 @@ class ScriptControllerTest extends TestCase
             $this->tokenize('frontend.account.register.save', $data)
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         return $browser;
     }
@@ -243,7 +251,7 @@ class ScriptControllerTest extends TestCase
 
         if (!$isGuest) {
             $data['createCustomerAccount'] = true;
-            $data['password'] = '12345678';
+            $data['password'] = TestDefaults::HASHED_PASSWORD;
         }
 
         return $data;

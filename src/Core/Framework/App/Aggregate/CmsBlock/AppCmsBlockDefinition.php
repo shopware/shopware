@@ -17,15 +17,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class AppCmsBlockDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_cms_block';
+    final public const ENTITY_NAME = 'app_cms_block';
 
     public function getEntityName(): string
     {
@@ -45,6 +45,11 @@ class AppCmsBlockDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.4.2.0';
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return AppDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

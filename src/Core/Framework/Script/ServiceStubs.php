@@ -2,27 +2,33 @@
 
 namespace Shopware\Core\Framework\Script;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @package core
- * This class is intended for auto completion in twig templates. So the developer can
- * set a doc block to get auto completion for all services.
+ * This class is intended for auto-completion in twig templates. So the developer can
+ * set a doc block to get auto-completion for all services.
  *
  * @example: {# @var services \Shopware\Core\Framework\Script\ServiceStubs #}
  *
  * @method \Shopware\Core\Checkout\Cart\Facade\CartFacade cart()
+ * @method \Shopware\Core\Checkout\Cart\Facade\PriceFactory price()
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacade repository()
  * @method \Shopware\Core\System\SystemConfig\Facade\SystemConfigFacade config()
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacade store()
  * @method \Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryWriterFacade writer()
+ * @method \Shopware\Core\Framework\Routing\Facade\RequestFacade request()
  * @method \Shopware\Core\Framework\Script\Api\ScriptResponseFactoryFacade response()
  * @method \Shopware\Core\Framework\Adapter\Cache\Script\Facade\CacheInvalidatorFacade cache()
  */
+#[Package('core')]
 final class ServiceStubs
 {
     private string $hook;
 
+    /**
+     * @var array<string, array{deprecation?: string, service: object}>
+     */
     private array $services = [];
 
     /**
@@ -34,12 +40,16 @@ final class ServiceStubs
     }
 
     /**
+     * @param array<mixed> $arguments
+     *
      * @internal
+     *
+     * @param array<mixed> $arguments
      */
     public function __call(string $name, array $arguments): object
     {
         if (!isset($this->services[$name])) {
-            throw new \RuntimeException(\sprintf('The service `%s` is not available in `%s`-hook', $name, $this->hook));
+            throw ScriptException::serviceNotAvailableInHook($name, $this->hook);
         }
 
         if (isset($this->services[$name]['deprecation'])) {
@@ -55,7 +65,7 @@ final class ServiceStubs
     public function add(string $name, object $service, ?string $deprecationNotice = null): void
     {
         if (isset($this->services[$name])) {
-            throw new \RuntimeException(\sprintf('Service with name "%s" already exists', $name));
+            throw ScriptException::serviceAlreadyExists($name);
         }
 
         $this->services[$name]['service'] = $service;
@@ -71,7 +81,7 @@ final class ServiceStubs
     public function get(string $name): object
     {
         if (!isset($this->services[$name])) {
-            throw new \RuntimeException(\sprintf('The service `%s` is not available in `%s`-hook', $name, $this->hook));
+            throw ScriptException::serviceNotAvailableInHook($name, $this->hook);
         }
 
         if (isset($this->services[$name]['deprecation'])) {

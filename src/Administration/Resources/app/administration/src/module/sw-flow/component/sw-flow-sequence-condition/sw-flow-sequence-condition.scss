@@ -36,9 +36,9 @@
         &.is--disabled {
             .arrow-action {
                 &.sw-context-button .sw-context-button__button {
-                    background: $color-shopware-brand-500;
-                    color: $color-white;
-                    border: none;
+                    background: $color-white;
+                    color: $color-darkgray-200;
+                    border: 1px solid $color-gray-500;
                 }
             }
 
@@ -104,9 +104,9 @@
         &.is--disabled {
             .arrow-action {
                 &.sw-context-button .sw-context-button__button {
-                    background: $color-shopware-brand-500;
-                    color: $color-white;
-                    border: none;
+                    background: $color-white;
+                    color: $color-darkgray-200;
+                    border: 1px solid $color-gray-500;
                 }
             }
         }
@@ -136,9 +136,7 @@
 
             &:hover,
             &:focus {
-                background: $color-shopware-brand-500;
-                color: $color-white;
-                border: none;
+                background: $color-gray-100;
             }
         }
 
@@ -188,14 +186,18 @@
         box-shadow: 0 3px 6px 0 rgba(120, 138, 155, 20%);
         grid-row: span 1;
         overflow: hidden;
+        transition: all 100ms ease-in-out;
+
+        &:hover {
+            box-shadow: 0 6px 10px 0 rgba(120, 138, 155, 20%);
+        }
     }
 
     &__header {
         display: flex;
-        padding: 16px 16px 12px 24px;
+        padding: 16px 12px 12px 20px;
         justify-content: space-between;
         align-items: baseline;
-        max-height: 55px;
         border-bottom: 1px solid $color-gray-300;
     }
 
@@ -205,14 +207,17 @@
     }
 
     &__title {
-        font-size: $font-size-s;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
+        color: $color-darkgray-200;
+        margin-bottom: 0;
     }
 
     &__description {
-        font-size: $font-size-s;
+        font-size: $font-size-xs;
         font-weight: $font-weight-semi-bold;
         color: $color-darkgray-200;
+        margin-bottom: 0;
     }
 
     &__rule {
@@ -237,7 +242,7 @@
     }
 
     &__rule-info {
-        padding: 12px 16px 16px 24px;
+        padding: 12px 12px 16px 20px;
 
         p {
             font-size: $font-size-xs;
@@ -249,13 +254,18 @@
     &__rule-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    &__rule-icon {
+        align-self: baseline;
     }
 
     &__rule-name {
         overflow: hidden;
         word-wrap: break-word;
         flex-basis: 100%;
-        padding-top: 2px;
 
         h3 {
             font-size: $font-size-xs;

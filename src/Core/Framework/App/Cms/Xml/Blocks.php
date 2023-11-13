@@ -3,38 +3,28 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 class Blocks extends XmlElement
 {
     /**
-     * @var Block[]
+     * @var list<Block>
      */
     protected array $blocks = [];
 
-    private function __construct(array $blocks)
-    {
-        $this->blocks = $blocks;
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseBlocks($element));
-    }
-
     /**
-     * @return Block[]
+     * @return list<Block>
      */
     public function getBlocks(): array
     {
         return $this->blocks;
     }
 
-    private static function parseBlocks(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
         $blocks = [];
 
@@ -42,6 +32,6 @@ class Blocks extends XmlElement
             $blocks[] = Block::fromXml($block);
         }
 
-        return $blocks;
+        return ['blocks' => $blocks];
     }
 }

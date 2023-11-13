@@ -3,25 +3,15 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Cart\Error;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class IncompleteLineItemError extends Error
 {
-    /**
-     * @var string
-     */
-    private $key;
-
-    /**
-     * @var string
-     */
-    private $property;
-
-    public function __construct(string $key, string $property)
-    {
-        $this->key = $key;
-        $this->property = $property;
+    public function __construct(
+        private string $key,
+        private readonly string $property
+    ) {
         $this->message = sprintf('Line item "%s" incomplete. Property "%s" missing.', $key, $property);
 
         parent::__construct($this->message);

@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 abstract class WriteCommand
 {
     protected bool $failed = false;
@@ -40,6 +40,14 @@ abstract class WriteCommand
     public function getPayload(): array
     {
         return $this->payload;
+    }
+
+    /**
+     * @internal
+     */
+    public function addPayload(string $key, mixed $value): void
+    {
+        $this->payload[$key] = $value;
     }
 
     public function getDefinition(): EntityDefinition

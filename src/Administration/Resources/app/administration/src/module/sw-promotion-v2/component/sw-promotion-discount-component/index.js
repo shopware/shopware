@@ -8,6 +8,8 @@ const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 /**
+ * @package buyers-experience
+ *
  * @private
  */
 export default {
@@ -71,6 +73,8 @@ export default {
 
         ruleFilter() {
             const criteria = new Criteria(1, 25);
+
+            criteria.addAssociation('conditions');
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
@@ -97,7 +101,6 @@ export default {
                 { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') },
             ];
 
-
             let index = 1;
             this.availableSetGroups.forEach(() => {
                 const keyValue = `${DiscountScopes.SETGROUP}-${index}`;
@@ -111,7 +114,7 @@ export default {
             // to avoid an accidental save with another value
             if (this.availableSetGroups.length <= 0) {
                 const nameValue = `${this.$tc('sw-promotion.detail.main.discounts.valueScopeSetGroup')}`;
-                scopes.push({ key: this.discount.scope, name: nameValue });
+                scopes.push({ key: DiscountScopes.SETGROUP, name: nameValue });
             }
 
             return scopes;
@@ -196,7 +199,7 @@ export default {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.filter.sorter.${keyValue}`),
+                        name: this.$tc(`sw-promotion-v2.detail.conditions.filter.sorter.${keyValue}`),
                     },
                 );
             });
@@ -211,7 +214,7 @@ export default {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.filter.picker.${keyValue}`),
+                        name: this.$tc(`sw-promotion-v2.detail.conditions.filter.picker.${keyValue}`),
                     },
                 );
             });
@@ -235,7 +238,7 @@ export default {
             const appliers = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion.filter.applier.ALL'),
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.ALL'),
                 },
             ];
 
@@ -258,7 +261,7 @@ export default {
                 appliers.push(
                     {
                         key: i,
-                        name: this.$tc('sw-promotion.filter.applier.SELECT', 0, { count: i }),
+                        name: this.$tc('sw-promotion-v2.detail.conditions.filter.applier.SELECT', 0, { count: i }),
                     },
                 );
             }
@@ -270,7 +273,7 @@ export default {
             const counts = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion.filter.counter.ALL'),
+                    name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.ALL'),
                 },
             ];
 
@@ -279,7 +282,7 @@ export default {
                 counts.push(
                     {
                         key: i,
-                        name: this.$tc('sw-promotion.filter.counter.SELECT', 0, { count: i }),
+                        name: this.$tc('sw-promotion-v2.detail.conditions.filter.counter.SELECT', 0, { count: i }),
                     },
                 );
             }

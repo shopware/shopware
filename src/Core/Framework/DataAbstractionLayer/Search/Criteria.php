@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
@@ -11,33 +11,34 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class Criteria extends Struct implements \Stringable
 {
     use StateAwareTrait;
-    public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
+    final public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
 
     /**
      * no total count will be selected. Should be used if no pagination required (fastest)
      */
-    public const TOTAL_COUNT_MODE_NONE = 0;
+    final public const TOTAL_COUNT_MODE_NONE = 0;
 
     /**
      * exact total count will be selected. Should be used if an exact pagination is required (slow)
      */
-    public const TOTAL_COUNT_MODE_EXACT = 1;
+    final public const TOTAL_COUNT_MODE_EXACT = 1;
 
     /**
      * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
      */
-    public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
+    final public const TOTAL_COUNT_MODE_NEXT_PAGES = 2;
 
     /**
      * @var FieldSorting[]
@@ -55,7 +56,7 @@ class Criteria extends Struct implements \Stringable
     protected $postFilters = [];
 
     /**
-     * @var Aggregation[]
+     * @var array<string, Aggregation>
      */
     protected $aggregations = [];
 
@@ -120,7 +121,7 @@ class Criteria extends Struct implements \Stringable
     protected array $fields = [];
 
     /**
-     * @param array<string|array<string>>|null $ids
+     * @param array<string>|array<array<string, string>>|null $ids
      */
     public function __construct(?array $ids = null)
     {
@@ -130,8 +131,9 @@ class Criteria extends Struct implements \Stringable
 
         $ids = array_filter($ids);
         if (empty($ids)) {
-            throw new \RuntimeException('Empty ids provided in criteria');
+            throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should not be empty');
         }
+        $this->validateIds($ids);
 
         $this->ids = $ids;
     }
@@ -140,11 +142,11 @@ class Criteria extends Struct implements \Stringable
     {
         $parsed = (new CriteriaArrayConverter(new AggregationParser()))->convert($this);
 
-        return JsonFieldSerializer::encodeJson($parsed);
+        return Json::encode($parsed);
     }
 
     /**
-     * @return array<string>|array<int, array<string>>
+     * @return array<string>|array<array<string, string>>
      */
     public function getIds(): array
     {
@@ -175,7 +177,7 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @return Aggregation[]
+     * @return array<string, Aggregation>
      */
     public function getAggregations(): array
     {
@@ -200,10 +202,7 @@ class Criteria extends Struct implements \Stringable
      */
     public function hasEqualsFilter($field): bool
     {
-        return \count(array_filter($this->filters, static function (Filter $filter) use ($field) {
-            /* EqualsFilter $filter */
-            return $filter instanceof EqualsFilter && $filter->getField() === $field;
-        })) > 0;
+        return \count(array_filter($this->filters, static fn (Filter $filter) /* EqualsFilter $filter */ => $filter instanceof EqualsFilter && $filter->getField() === $field)) > 0;
     }
 
     /**
@@ -478,10 +477,11 @@ class Criteria extends Struct implements \Stringable
     }
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<string>|array<array<string, string>> $ids
      */
     public function setIds(array $ids): self
     {
+        $this->validateIds($ids);
         $this->ids = $ids;
 
         return $this;
@@ -603,8 +603,6 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @param string[] $fields
-     *
-     * @internal
      */
     public function addFields(array $fields): self
     {
@@ -615,8 +613,6 @@ class Criteria extends Struct implements \Stringable
 
     /**
      * @return string[]
-     *
-     * @internal
      */
     public function getFields(): array
     {
@@ -642,5 +638,27 @@ class Criteria extends Struct implements \Stringable
         }
 
         return $fields;
+    }
+
+    /**
+     * @param array<mixed> $ids
+     */
+    private function validateIds(array $ids): void
+    {
+        foreach ($ids as $id) {
+            if (!\is_string($id) && !\is_array($id)) {
+                throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
+            }
+
+            if (!\is_array($id)) {
+                continue;
+            }
+
+            foreach ($id as $key => $value) {
+                if (!\is_string($key) || !\is_string($value)) {
+                    throw DataAbstractionLayerException::invalidCriteriaIds($ids, 'Ids should be a list of strings or a list of key value pairs, for entities with combined primary keys');
+                }
+            }
+        }
     }
 }

@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class SimpleDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'simple';
+    final public const ENTITY_NAME = 'simple';
 
     public function getEntityName(): string
     {

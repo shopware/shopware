@@ -10,6 +10,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerStatusAction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -20,15 +21,14 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class ChangeCustomerStatusActionTest extends TestCase
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private EntityRepository $flowRepository;
 
@@ -56,8 +56,7 @@ class ChangeCustomerStatusActionTest extends TestCase
     public function testChangeCustomerStatusAction(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
+        $this->createCustomer($email);
 
         $sequenceId = Uuid::randomHex();
         $ruleId = Uuid::randomHex();
@@ -100,7 +99,7 @@ class ChangeCustomerStatusActionTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(
@@ -132,7 +131,7 @@ class ChangeCustomerStatusActionTest extends TestCase
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
-    private function createCustomer(string $password, ?string $email = null): void
+    private function createCustomer(?string $email = null): void
     {
         $this->customerRepository->create([
             [
@@ -152,7 +151,7 @@ class ChangeCustomerStatusActionTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),

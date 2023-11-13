@@ -3,30 +3,23 @@
 namespace Shopware\Core\Installer\License;
 
 use GuzzleHttp\Client;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class LicenseFetcher
 {
-    private Client $guzzle;
-
-    /**
-     * @var string[]
-     */
-    private array $tosUrls;
-
     /**
      * @param string[] $tosUrls
      */
-    public function __construct(Client $guzzle, array $tosUrls)
-    {
-        $this->guzzle = $guzzle;
-        $this->tosUrls = $tosUrls;
+    public function __construct(
+        private readonly Client $guzzle,
+        private readonly array $tosUrls
+    ) {
     }
 
     public function fetch(Request $request): string

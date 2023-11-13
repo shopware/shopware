@@ -2,11 +2,12 @@
 
 namespace Shopware\Core\Framework\Store\Search;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package merchant-services
- *
  * @internal
  */
+#[Package('services-settings')]
 class MultiFilterStruct extends FilterStruct
 {
     /**
@@ -14,13 +15,16 @@ class MultiFilterStruct extends FilterStruct
      */
     protected $queries;
 
+    protected string $operator;
+
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): FilterStruct
     {
         $queries = $data['queries'];
 
-        $data['queries'] = array_map(function (array $query): FilterStruct {
-            return FilterStruct::fromArray($query);
-        }, $queries);
+        $data['queries'] = array_map(fn (array $query): FilterStruct => FilterStruct::fromArray($query), $queries);
 
         $filter = new MultiFilterStruct();
         $filter->assign($data);
@@ -42,6 +46,9 @@ class MultiFilterStruct extends FilterStruct
         return $parameter;
     }
 
+    /**
+     * @return array<FilterStruct>
+     */
     public function getQueries(): array
     {
         return $this->queries;

@@ -14,30 +14,30 @@ async function createWrapper() {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
-                template: '<div />'
+                template: '<div />',
             },
             'router-view': {
-                template: '<div id="router-view" />'
-            }
+                template: '<div id="router-view" />',
+            },
         },
         props: {
             itemTotal: 1,
             isLoading: false,
             processStatus: '',
-            bulkEditData: {}
+            bulkEditData: {},
         },
         mocks: {
-            $route: { name: 'sw.bulk.edit.product.save.confirm' }
+            $route: { name: 'sw.bulk.edit.product.save.confirm' },
         },
         provide: {
             shortcutService: {
                 startEventListener: () => {},
-                stopEventListener: () => {}
+                stopEventListener: () => {},
             },
             feature: {
-                isActive: () => true
-            }
-        }
+                isActive: () => true,
+            },
+        },
     });
 }
 
@@ -76,7 +76,7 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'two',
@@ -84,7 +84,7 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'right',
                 variant: null,
                 action: 'route.two',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'three',
@@ -92,8 +92,8 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'right',
                 variant: 'primary',
                 action: 'route.three',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -117,7 +117,7 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'two',
@@ -125,7 +125,7 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'right',
                 variant: null,
                 action: 'route.two',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'three',
@@ -133,8 +133,8 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'right',
                 variant: 'primary',
                 action: 'route.three',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -156,8 +156,8 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -179,8 +179,8 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'right',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -204,8 +204,8 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'right',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', firstButtonConfig);
@@ -223,8 +223,8 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
                 position: 'left',
                 variant: null,
                 action: 'route.two',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', secondButtonConfig);
@@ -293,12 +293,12 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
     it('should be able to listen to beforeunload event', async () => {
         await wrapper.setProps({ isLoading: false });
         expect(
-            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' })
-        ).toEqual('');
+            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' }),
+        ).toBe('');
 
         await wrapper.setProps({ isLoading: true });
         expect(
-            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' })
-        ).toEqual('sw-bulk-edit.modal.messageBeforeTabLeave');
+            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' }),
+        ).toBe('sw-bulk-edit.modal.messageBeforeTabLeave');
     });
 });

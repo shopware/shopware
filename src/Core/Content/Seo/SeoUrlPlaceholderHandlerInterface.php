@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 interface SeoUrlPlaceholderHandlerInterface
 {
     /**
      * @param string $name
+     * @param array<mixed> $parameters
      */
     public function generate($name, array $parameters = []): string;
 

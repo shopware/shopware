@@ -8,8 +8,15 @@ function createRuleMock(isNew) {
         isNew: () => isNew,
         conditions: [{
             entity: 'rule',
-            source: 'foo/rule'
-        }]
+            source: 'foo/rule',
+            children: [{
+                id: 'some-id',
+                children: [{
+                    id: 'some-id',
+                }],
+            }],
+        }],
+        someRuleRelation: [],
     };
 }
 
@@ -24,23 +31,27 @@ async function createWrapper() {
                         },
                         get: () => Promise.resolve(createRuleMock(false)),
                         save: () => Promise.resolve(),
-                        search: () => Promise.resolve([])
+                        search: () => Promise.resolve([]),
                     };
-                }
+                },
             },
 
             ruleConditionDataProviderService: {
                 getModuleTypes: () => [],
-                addScriptConditions: () => {}
+                addScriptConditions: () => {},
+                getRestrictedRuleTooltipConfig: () => ({
+                    disabled: true,
+                }),
             },
 
             ruleConditionsConfigApiService: {
-                load: () => Promise.resolve()
-            }
+                load: () => Promise.resolve(),
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
+            ruleAwareGroupKey: 'someRuleRelation',
         },
 
         stubs: {
@@ -51,13 +62,13 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-button-process': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-icon': true,
             'sw-condition-tree': true,
@@ -66,8 +77,8 @@ async function createWrapper() {
             'sw-textarea-field': true,
             'sw-number-field': true,
             'sw-text-field': true,
-            'sw-field': true
-        }
+            'sw-field': true,
+        },
     });
 }
 
@@ -86,5 +97,25 @@ describe('app/component/rule/sw-rule-modal', () => {
         await flushPromises();
 
         expect(wrapper.emitted().save).toBeTruthy();
+    });
+
+    it('should create notification and prevent saving', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.ruleConditionDataProviderService.getRestrictedRuleTooltipConfig = () => {
+            return { disabled: false, message: 'Awareness error' };
+        };
+        await flushPromises();
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.find('.sw-rule-modal__save').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'Awareness error',
+            title: 'global.default.error',
+        });
+
+        expect(wrapper.emitted().save).toBeFalsy();
     });
 });

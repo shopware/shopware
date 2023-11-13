@@ -18,11 +18,6 @@ class ProductFeatureSetCrudTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function testSetNullOnDelete(): void
     {
         $ids = new TestDataCollection();

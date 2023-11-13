@@ -12,24 +12,24 @@ async function createWrapper() {
             columns: [
                 {
                     property: 'name',
-                    label: 'Name'
+                    label: 'Name',
                 },
                 {
                     property: 'shortCode',
-                    label: 'Short code'
-                }
+                    label: 'Short code',
+                },
             ],
             collection: [
                 {
                     name: 'name',
-                    shortCode: 'shortCode'
+                    shortCode: 'shortCode',
                 },
                 {
                     name: 'name',
-                    shortCode: 'shortCode'
-                }
+                    shortCode: 'shortCode',
+                },
             ],
-            allowDelete: true
+            allowDelete: true,
         },
 
         provide: {
@@ -39,19 +39,19 @@ async function createWrapper() {
                         total: 0,
                         criteria: {
                             page: 1,
-                            limit: 25
-                        }
+                            limit: 25,
+                        },
                     });
-                }
-            }
+                },
+            },
         },
 
         stubs: {
             'sw-pagination': true,
             'sw-checkbox-field': true,
             'sw-context-button': true,
-            'sw-context-menu-item': true
-        }
+            'sw-context-menu-item': true,
+        },
     });
 }
 
@@ -77,7 +77,7 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');

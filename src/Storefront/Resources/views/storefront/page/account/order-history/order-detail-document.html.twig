@@ -26,7 +26,7 @@
             {% endblock %}
 
             {% block page_account_orde_document_detail_items %}
-                {% for document in order.documents %}
+                {% for document in order.documents|sort((a, b) => b.createdAt <=> a.createdAt) %}
                     {% block page_account_order_document_detail_item %}
                         {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-document-item.html.twig' %}
                     {% endblock %}

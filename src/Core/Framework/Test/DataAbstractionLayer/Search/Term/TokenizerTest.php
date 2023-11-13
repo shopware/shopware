@@ -19,7 +19,7 @@ class TokenizerTest extends TestCase
         static::assertSame($expected, $tokens);
     }
 
-    public function cases(): array
+    public static function cases(): array
     {
         return [
             [

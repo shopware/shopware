@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import DiscountComponentHandler from 'src/module/sw-promotion-v2/component/sw-promotion-discount-component/handler';
 import { DiscountTypes } from 'src/module/sw-promotion-v2/helper/promotion.helper';
 
@@ -12,7 +15,7 @@ describe('module/sw-promotion-v2/component/sw-promotion-discount-component/handl
     });
     it('should have a max-value that returns NULL for absolute types', async () => {
         const cmp = new DiscountComponentHandler();
-        expect(cmp.getMaxValue(DiscountTypes.ABSOLUTE)).toBe(null);
+        expect(cmp.getMaxValue(DiscountTypes.ABSOLUTE)).toBeNull();
     });
     it('should fix a value of 110% to a maximum of 100%', async () => {
         const cmp = new DiscountComponentHandler();

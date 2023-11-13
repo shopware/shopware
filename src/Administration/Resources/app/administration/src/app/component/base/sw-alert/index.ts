@@ -31,9 +31,9 @@ Component.register('sw-alert', {
             type: String as PropType<NotificationType>,
             required: false,
             default: 'info',
-            validValues: ['info', 'warning', 'error', 'success'],
+            validValues: ['info', 'warning', 'error', 'success', 'neutral'],
             validator(value: string): boolean {
-                return ['info', 'warning', 'error', 'success'].includes(value);
+                return ['info', 'warning', 'error', 'success', 'neutral'].includes(value);
             },
         },
         appearance: {
@@ -41,7 +41,7 @@ Component.register('sw-alert', {
             required: false,
             default: 'default',
             validValues: ['default', 'notification', 'system'],
-            validator(value) {
+            validator(value: string) {
                 return ['default', 'notification', 'system'].includes(value);
             },
         },
@@ -84,6 +84,7 @@ Component.register('sw-alert', {
                 warning: 'regular-exclamation-triangle',
                 error: 'regular-exclamation-circle',
                 success: 'regular-check-circle',
+                neutral: 'regular-info-circle',
             };
 
             return iconConfig[this.variant] || 'regular-bell';

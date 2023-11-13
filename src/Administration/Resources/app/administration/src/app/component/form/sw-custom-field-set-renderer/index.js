@@ -361,6 +361,7 @@ Component.register('sw-custom-field-set-renderer', {
             if (this.$refs.tabComponent || this.tabWaitsAttempts > this.tabWaitMaxAttempts) {
                 return this.resetTabs();
             }
+            // eslint-disable-next-line vue/valid-next-tick
             return this.$nextTick(() => {
                 this.tabWaitsAttempts += 1;
                 this.waitForTabComponent();

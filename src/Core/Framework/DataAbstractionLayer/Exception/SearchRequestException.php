@@ -2,24 +2,16 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SearchRequestException extends ShopwareHttpException
 {
-    /**
-     * @var array
-     */
-    private $exceptions;
-
-    public function __construct(array $exceptions = [])
+    public function __construct(private array $exceptions = [])
     {
-        $this->exceptions = $exceptions;
-
         parent::__construct('Mapping failed, got {{ numberOfFailures }} failure(s).', ['numberOfFailures' => \count($exceptions)]);
     }
 

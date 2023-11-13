@@ -5,7 +5,7 @@ const { Mixin } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 export default {
     template,
@@ -106,6 +106,7 @@ export default {
         onChangeDisplayMode(value) {
             if (value === 'cover') {
                 this.element.config.verticalAlign.value = null;
+                this.element.config.horizontalAlign.value = null;
             }
 
             this.$emit('element-update', this.element);

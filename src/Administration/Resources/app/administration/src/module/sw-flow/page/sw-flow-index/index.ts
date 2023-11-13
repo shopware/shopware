@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
@@ -33,7 +33,7 @@ export default Shopware.Component.wrapComponentConfig({
     metaInfo(): MetaInfo {
         return {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            title: this.$createTitle() as string,
+            title: this.$createTitle(),
         };
     },
 

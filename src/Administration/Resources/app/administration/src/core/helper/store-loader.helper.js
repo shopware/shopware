@@ -27,7 +27,7 @@ class StoreLoader {
     }
 
     /**
-     * @deprecated tag:v6.6.0.0 - Default parameters will be last
+     * @deprecated tag:v6.6.0 - Default parameters will be last
      *
      * @param {EntityStore} entityStore
      * @param {Object} params

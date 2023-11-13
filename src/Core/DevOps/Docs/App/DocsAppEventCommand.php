@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\Docs\App;
 use Shopware\Core\DevOps\Docs\ArrayWriter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -17,13 +18,11 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use Twig\Loader\ArrayLoader;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'docs:app-system-events',
     description: 'Dump the app events',
 )]
+#[Package('core')]
 /**
  * @package core
  */
@@ -39,29 +38,11 @@ class DocsAppEventCommand extends Command
      * @internal
      */
     public function __construct(
-        private BusinessEventCollector $businessEventCollector,
-        private HookableEventCollector $hookableEventCollector,
-        private Environment $twig
+        private readonly BusinessEventCollector $businessEventCollector,
+        private readonly HookableEventCollector $hookableEventCollector,
+        private readonly Environment $twig
     ) {
         parent::__construct();
-    }
-
-    public function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-
-        $io->section('Generates documentation for all events that can be registered as webhook');
-
-        file_put_contents(
-            self::EVENT_DOCUMENT_PATH,
-            $this->render()
-        );
-
-        $io->success('All events were generated successfully');
-
-        $io->note(self::EVENT_DOCUMENT_PATH);
-
-        return self::SUCCESS;
     }
 
     public function render(): string
@@ -82,7 +63,7 @@ class DocsAppEventCommand extends Command
                 'hookable-events-list.md.twig',
                 ['eventDocs' => $eventsDoc]
             );
-        } catch (LoaderError | RuntimeError | SyntaxError $e) {
+        } catch (LoaderError|RuntimeError|SyntaxError $e) {
             throw new \RuntimeException('Can not render Webhook Events', $e->getCode(), $e);
         } finally {
             $this->twig->setLoader($originalLoader);
@@ -94,10 +75,26 @@ class DocsAppEventCommand extends Command
         return self::EVENT_DOCUMENT_PATH;
     }
 
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $io = new SymfonyStyle($input, $output);
+
+        $io->section('Generates documentation for all events that can be registered as webhook');
+
+        file_put_contents(
+            self::EVENT_DOCUMENT_PATH,
+            $this->render()
+        );
+
+        $io->success('All events were generated successfully');
+
+        $io->note(self::EVENT_DOCUMENT_PATH);
+
+        return self::SUCCESS;
+    }
+
     protected function configure(): void
     {
-        $this
-            ->setDescription('Generates documentation for all events that can be registered as webhook');
     }
 
     /**

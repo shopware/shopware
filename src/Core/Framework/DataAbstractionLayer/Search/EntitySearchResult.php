@@ -6,38 +6,22 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @final
  *
- * @extends EntityCollection<Entity>
+ * @template TEntityCollection of EntityCollection
  *
- * @package core
+ * @extends EntityCollection<Entity>
  */
+#[Package('core')]
 class EntitySearchResult extends EntityCollection
 {
     use StateAwareTrait;
 
-    /**
-     * @var string
-     */
-    protected $entity;
-
-    /**
-     * @var int
-     */
-    protected $total;
-
-    /**
-     * @var EntityCollection<Entity>
-     */
-    protected $entities;
-
-    /**
-     * @var AggregationResultCollection
-     */
-    protected $aggregations;
+    protected AggregationResultCollection $aggregations;
 
     /**
      * @var Criteria
@@ -60,26 +44,23 @@ class EntitySearchResult extends EntityCollection
     protected $limit;
 
     /**
-     * @phpstan-ignore-next-line -> we can't generalize the type of EntityCollection here
+     * @param TEntityCollection $entities
      */
     final public function __construct(
-        string $entity,
-        int $total,
-        EntityCollection $entities,
+        protected string $entity,
+        protected int $total,
+        protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
         Criteria $criteria,
         Context $context
     ) {
-        $this->entities = $entities;
-        $this->total = $total;
-        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
+        $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
 
         parent::__construct($entities);
-        $this->entity = $entity;
     }
 
     public function filter(\Closure $closure)
@@ -98,7 +79,7 @@ class EntitySearchResult extends EntityCollection
     }
 
     /**
-     * @return EntityCollection<Entity>
+     * @return TEntityCollection
      */
     public function getEntities(): EntityCollection
     {

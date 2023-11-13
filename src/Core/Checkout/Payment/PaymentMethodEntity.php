@@ -11,16 +11,16 @@ use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodEntit
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentMethodEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -118,9 +118,16 @@ class PaymentMethodEntity extends Entity
     protected $formattedHandlerIdentifier;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var string|null
      */
     protected $shortName;
+
+    /**
+     * @deprecated tag:v6.7.0 - will not be nullable
+     */
+    protected ?string $technicalName = null;
 
     /**
      * @var AppPaymentMethodEntity|null
@@ -134,6 +141,8 @@ class PaymentMethodEntity extends Entity
     protected bool $prepared = false;
 
     protected bool $refundable = false;
+
+    protected bool $recurring = false;
 
     public function getPluginId(): ?string
     {
@@ -325,14 +334,47 @@ class PaymentMethodEntity extends Entity
         $this->afterOrderEnabled = $afterOrderEnabled;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     */
     public function getShortName(): ?string
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->shortName;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     */
     public function setShortName(?string $shortName): void
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->shortName = $shortName;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:return-type-change - return type will not be nullable
+     */
+    public function getTechnicalName(): ?string
+    {
+        if (!$this->technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        return $this->technicalName;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - reason:parameter-type-change - parameter type will not be nullable
+     */
+    public function setTechnicalName(?string $technicalName): void
+    {
+        if (!$technicalName) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Parameter `technical_name` will be required');
+        }
+
+        $this->technicalName = $technicalName;
     }
 
     public function getAppPaymentMethod(): ?AppPaymentMethodEntity
@@ -383,5 +425,15 @@ class PaymentMethodEntity extends Entity
     public function setRefundable(bool $refundable): void
     {
         $this->refundable = $refundable;
+    }
+
+    public function isRecurring(): bool
+    {
+        return $this->recurring;
+    }
+
+    public function setRecurring(bool $recurring): void
+    {
+        $this->recurring = $recurring;
     }
 }

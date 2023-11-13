@@ -4,13 +4,12 @@ namespace Shopware\Storefront\Page;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Storefront\Pagelet\Footer\FooterPagelet;
 use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class Page extends Struct
 {
     /**

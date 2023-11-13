@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swImportExportEditProfileImportSettings from 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
@@ -17,20 +17,20 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-impor
     function getProfileMock() {
         return {
             systemDefault: false,
-            config: { createEntities: true, updateEntities: true }
+            config: { createEntities: true, updateEntities: true },
         };
     }
 
     async function createWrapper(profile) {
         return shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-import-settings'), {
             propsData: {
-                profile
+                profile,
             },
             stubs: {
                 'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': true
-            }
+                'sw-field-error': true,
+            },
         });
     }
 

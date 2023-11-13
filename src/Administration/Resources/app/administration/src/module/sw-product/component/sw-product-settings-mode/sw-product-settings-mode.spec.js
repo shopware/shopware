@@ -17,15 +17,15 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         localVue.directive('tooltip', {
             bind(el, binding) {
                 el.setAttribute('tooltip-message', binding.value.message);
-            }
+            },
         });
 
         return shallowMount(await Shopware.Component.build('sw-product-settings-mode'), {
             localVue,
             mocks: {
                 $route: {
-                    name: 'sw.product.detail.base'
-                }
+                    name: 'sw.product.detail.base',
+                },
             },
 
             stubs: {
@@ -37,7 +37,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 'sw-context-menu-divider': true,
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': true,
-                'sw-loader': true
+                'sw-loader': true,
             },
 
             propsData: {
@@ -45,18 +45,18 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                     value: {
                         advancedMode: {
                             label: 'sw-product.general.textAdvancedMode',
-                            enabled: true
+                            enabled: true,
                         },
                         settings: [
                             {
                                 key: 'general_information',
                                 label: 'sw-product.detailBase.cardTitleProductInfo',
                                 enabled: true,
-                                name: 'general'
-                            }
-                        ]
-                    }
-                }
+                                name: 'general',
+                            },
+                        ],
+                    },
+                },
             },
 
             attachTo: document.body,
@@ -77,7 +77,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show correct tooltip ', async () => {
+    it('should show correct tooltip', async () => {
         await wrapper.vm.$nextTick();
 
         const elementModeSettings = wrapper.find('.sw-product-settings-mode');
@@ -92,18 +92,18 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 value: {
                     advancedMode: {
                         label: 'sw-product.general.textAdvancedMode',
-                        enabled: false
+                        enabled: false,
                     },
                     settings: [
                         {
                             key: 'general_information',
                             label: 'sw-product.detailBase.cardTitleProductInfo',
                             enabled: false,
-                            name: 'general'
-                        }
-                    ]
-                }
-            }
+                            name: 'general',
+                        },
+                    ],
+                },
+            },
         });
 
         const switchElement = wrapper.find('.sw-product-settings-mode__advanced-mode');
@@ -115,7 +115,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         expect(inputElement.element.checked).toBeTruthy();
     });
 
-    it('should be able to check item settings ', async () => {
+    it('should be able to check item settings', async () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
@@ -123,18 +123,18 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 value: {
                     advancedMode: {
                         label: 'sw-product.general.textAdvancedMode',
-                        enabled: true
+                        enabled: true,
                     },
                     settings: [
                         {
                             key: 'general_information',
                             label: 'sw-product.detailBase.cardTitleProductInfo',
                             enabled: false,
-                            name: 'general'
-                        }
-                    ]
-                }
-            }
+                            name: 'general',
+                        },
+                    ],
+                },
+            },
         });
 
         const elementItem = wrapper.find('.sw-product-settings-mode__item');
@@ -146,7 +146,7 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
         expect(checkboxElement.element.checked).toBeTruthy();
     });
 
-    it('should be disabled the item settings when the advanced mode is disabled ', async () => {
+    it('should be disabled the item settings when the advanced mode is disabled', async () => {
         await wrapper.vm.$nextTick();
 
         await wrapper.setProps({
@@ -154,18 +154,18 @@ describe('module/sw-product/component/sw-product-settings-mode', () => {
                 value: {
                     advancedMode: {
                         label: 'sw-product.general.textAdvancedMode',
-                        enabled: true
+                        enabled: true,
                     },
                     settings: [
                         {
                             key: 'general_information',
                             label: 'sw-product.detailBase.cardTitleProductInfo',
                             enabled: true,
-                            name: 'general'
-                        }
-                    ]
-                }
-            }
+                            name: 'general',
+                        },
+                    ],
+                },
+            },
         });
 
         const inputElement = wrapper.find('.sw-product-settings-mode__advanced-mode input[type="checkbox"]');

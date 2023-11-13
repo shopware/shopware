@@ -2,22 +2,19 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class ScriptTwigLoader implements LoaderInterface
 {
-    private Script $script;
-
-    public function __construct(Script $script)
+    public function __construct(private readonly Script $script)
     {
-        $this->script = $script;
     }
 
     public function getSourceContext(string $name): Source

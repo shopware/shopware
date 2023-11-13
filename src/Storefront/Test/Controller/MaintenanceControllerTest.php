@@ -27,7 +27,7 @@ class MaintenanceControllerTest extends TestCase
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
 
@@ -39,7 +39,7 @@ class MaintenanceControllerTest extends TestCase
         $this->setMaintenanceMode();
 
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->followRedirects(true);
+        $browser->followRedirects();
 
         $browser->request('GET', EnvironmentHelper::getVariable('APP_URL') . '/');
         $response = $browser->getResponse();

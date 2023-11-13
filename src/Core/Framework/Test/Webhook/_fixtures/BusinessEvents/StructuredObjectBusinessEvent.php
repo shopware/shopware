@@ -13,10 +13,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class StructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var ScalarBusinessEvent
-     */
-    private $inner;
+    private readonly ScalarBusinessEvent $inner;
 
     public function __construct()
     {

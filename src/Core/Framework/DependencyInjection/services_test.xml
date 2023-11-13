@@ -6,7 +6,7 @@
 
     <monolog:config>
         <monolog:handler
-                id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler"
+                id="Monolog\Handler\NullHandler"
                 name="business_event_handler_discard"
                 type="service"
                 priority="1">
@@ -19,30 +19,30 @@
     <services>
         <defaults public="true"/>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\AsyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.async"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\PreparedTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\PreparedTestPaymentHandler">
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\MultipleTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
             <tag name="shopware.payment.method.prepared"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\RefundTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\RefundTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler"/>
             <tag name="shopware.payment.method.refund"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\SyncTestFailedPaymentHandler">
             <tag name="shopware.payment.method.sync"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler">
+        <service id="Shopware\Core\Test\Integration\PaymentHandler\SyncTestPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <tag name="shopware.payment.method.sync"/>
         </service>
@@ -59,7 +59,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
+        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
             <tag name="shopware.entity.definition" entity="calculated_price_field_test" />
         </service>
 
@@ -116,7 +116,15 @@
         </service>
 
         <service id="messenger.test_receiver_locator" alias="messenger.receiver_locator" public="true"/>
-        <service id="messenger.bus.test_shopware" alias="messenger.bus.shopware" public="true"/>
+        <service id="messenger.bus.test_shopware" class="Symfony\Component\Messenger\TraceableMessageBus" decorates="messenger.bus.shopware">
+            <argument type="service" id=".inner"/>
+        </service>
+
+        <service id="mailer.mailer" class="Symfony\Component\Mailer\Mailer">
+            <argument type="service" id="mailer.transports" />
+            <argument type="service" id="messenger.default_bus" />
+            <argument type="service" id="debug.event_dispatcher" on-invalid="ignore" />
+        </service>
 
         <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
@@ -126,7 +134,7 @@
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">
+        <service id="Monolog\Handler\NullHandler">
         </service>
 
         <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
@@ -155,7 +163,7 @@
                 <argument key="handler" type="service">
                     <service class="GuzzleHttp\HandlerStack">
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
-                        <argument type="service" id="Shopware\Core\Framework\Test\App\TestAppServer"/>
+                        <argument type="service" id="Shopware\Core\Test\Integration\App\TestAppServer"/>
                         <call method="push">
                             <argument type="service" id="shopware.app_system.guzzle.middleware"/>
                         </call>
@@ -167,7 +175,7 @@
             </argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Test\App\TestAppServer">
+        <service id="Shopware\Core\Test\Integration\App\TestAppServer">
             <argument type="service" id="GuzzleHttp\Handler\MockHandler"/>
         </service>
 
@@ -177,18 +185,17 @@
         </service>
 
         <service id="test.guzzle.history.middleware" class="callable">
-            <factory service="Shopware\Core\Framework\Test\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
+            <factory service="Shopware\Core\Test\Integration\App\GuzzleHistoryCollector" method="getHistoryMiddleWare"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Test\App\GuzzleHistoryCollector" public="true">
-        </service>
+        <service id="Shopware\Core\Test\Integration\App\GuzzleHistoryCollector" public="true" />
 
         <service id="Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController" public="true"/>
 
         <service id="test_payment_decoration" class="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler" decorates="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler">
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService"/>
             <argument type="service" id="order_transaction_capture_refund.repository"/>
         </service>
 

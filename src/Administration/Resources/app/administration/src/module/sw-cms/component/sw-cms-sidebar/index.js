@@ -9,7 +9,7 @@ const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
 /**
- * @package content
+ * @package buyers-experience
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -403,6 +403,12 @@ export default {
             newBlock.sectionPosition = dropData.sectionPosition;
             newBlock.sectionId = section.id;
 
+            newBlock.visibility = {
+                desktop: true,
+                tablet: true,
+                mobile: true,
+            };
+
             Object.assign(
                 newBlock,
                 cloneDeep(this.blockConfigDefaults),
@@ -535,6 +541,10 @@ export default {
 
         blockTypeExists(type) {
             return this.blockTypes.includes(type);
+        },
+
+        onVisibilityChange(selectedBlock, viewport, isVisible) {
+            selectedBlock.visibility[viewport] = isVisible;
         },
     },
 };

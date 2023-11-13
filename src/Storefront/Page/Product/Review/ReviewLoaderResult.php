@@ -2,13 +2,16 @@
 
 namespace Shopware\Storefront\Page\Product\Review;
 
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 
 /**
- * @package storefront
+ * @template-extends StorefrontSearchResult<ProductReviewCollection>
  */
+#[Package('storefront')]
 class ReviewLoaderResult extends StorefrontSearchResult
 {
     /**
@@ -22,7 +25,7 @@ class ReviewLoaderResult extends StorefrontSearchResult
     protected $productId;
 
     /**
-     * @var StorefrontSearchResult
+     * @var StorefrontSearchResult<ProductReviewCollection>
      */
     protected $reviews;
 
@@ -48,6 +51,9 @@ class ReviewLoaderResult extends StorefrontSearchResult
         $this->productId = $productId;
     }
 
+    /**
+     * @return StorefrontSearchResult<ProductReviewCollection>
+     */
     public function getReviews(): StorefrontSearchResult
     {
         return $this->reviews;

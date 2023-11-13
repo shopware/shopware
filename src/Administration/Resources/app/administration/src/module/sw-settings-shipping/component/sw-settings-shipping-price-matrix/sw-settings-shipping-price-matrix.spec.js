@@ -33,10 +33,10 @@ const createWrapper = async () => {
                     ruleId: 'ruleId',
                     rule: {},
                     calculation: 1,
-                    currencyPrice: [{ currencyId: 'euro', gross: 0, linked: false, net: 0 }]
-                }]
-            }
-        }
+                    currencyPrice: [{ currencyId: 'euro', gross: 0, linked: false, net: 0 }],
+                }],
+            },
+        },
     });
 };
 
@@ -45,7 +45,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         Shopware.State.commit('swShippingDetail/setCurrencies', [
             { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true },
             { id: 'dollar', translated: { name: 'Dollar' } },
-            { id: 'pound', translated: { name: 'Pound' } }
+            { id: 'pound', translated: { name: 'Pound' } },
         ]);
     });
 
@@ -60,7 +60,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const ruleFilterCriteria = wrapper.vm.ruleFilterCriteria;
         const shippingRuleFilterCriteria = wrapper.vm.shippingRuleFilterCriteria;
 
-        expect(ruleFilterCriteria.associations[0].association).toEqual('conditions');
-        expect(shippingRuleFilterCriteria.associations[0].association).toEqual('conditions');
+        expect(ruleFilterCriteria.associations[0].association).toBe('conditions');
+        expect(shippingRuleFilterCriteria.associations[0].association).toBe('conditions');
     });
 });

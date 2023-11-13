@@ -3,16 +3,17 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -24,9 +25,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
     public function encode(
@@ -36,12 +36,11 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof PriceField) {
-            throw new InvalidSerializerFieldException(PriceField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(PriceField::class, $field);
         }
 
         $value = $data->getValue();
 
-        /** @var JsonField $field */
         if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             if ($value !== null) {
                 foreach ($value as &$row) {
@@ -96,7 +95,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         }
 
         if ($value !== null) {
-            $value = JsonFieldSerializer::encodeJson($value);
+            $value = Json::encode($value);
         }
 
         yield $field->getStorageName() => $value;
@@ -110,7 +109,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
         // used for nested hydration (example cheapest-price-hydrator)
         if (\is_string($value)) {
-            $value = json_decode($value, true);
+            $value = json_decode($value, true, 512, \JSON_THROW_ON_ERROR);
         }
 
         $collection = new PriceCollection();
@@ -205,6 +204,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         return $constraints;
     }
 
+    /**
+     * @param array<array<string, mixed>> $prices
+     */
     private function ensureDefaultPrice(WriteParameterBag $parameters, array $prices): void
     {
         foreach ($prices as $price) {

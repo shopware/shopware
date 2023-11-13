@@ -4,32 +4,38 @@ namespace Shopware\Core\Content\Media\Pathname;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
-use Shopware\Core\Content\Media\Exception\EmptyMediaFilenameException;
-use Shopware\Core\Content\Media\Exception\EmptyMediaIdException;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Pathname\PathnameStrategy\PathnameStrategyInterface;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package content
+ * @deprecated tag:v6.6.0 - reason:remove-subscriber - Use AbstractMediaUrlGenerator instead
  */
+#[Package('buyers-experience')]
 class UrlGenerator implements UrlGeneratorInterface, ResetInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private PathnameStrategyInterface $pathnameStrategy,
-        private FilesystemOperator $filesystem
+        private readonly PathnameStrategyInterface $pathnameStrategy,
+        private readonly FilesystemOperator $filesystem
     ) {
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getRelativeMediaUrl(MediaEntity $media): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
         $this->validateMedia($media);
 
         return $this->toPathString([
@@ -41,20 +47,28 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getAbsoluteMediaUrl(MediaEntity $media): string
     {
-        return $this->filesystem->publicUrl($this->getRelativeMediaUrl($media));
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
+        return $this->filesystem->publicUrl($media->getPath());
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getRelativeThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
         $this->validateMedia($media);
 
         return $this->toPathString([
@@ -66,11 +80,15 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     public function getAbsoluteThumbnailUrl(MediaEntity $media, MediaThumbnailEntity $thumbnail): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
+        );
+
         return $this->filesystem->publicUrl($this->getRelativeThumbnailUrl($media, $thumbnail));
     }
 
@@ -78,23 +96,25 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
     {
     }
 
+    /**
+     * @param array<string|null> $parts
+     */
     private function toPathString(array $parts): string
     {
         return implode('/', array_filter($parts));
     }
 
     /**
-     * @throws EmptyMediaFilenameException
-     * @throws EmptyMediaIdException
+     * @throws MediaException
      */
     private function validateMedia(MediaEntity $media): void
     {
         if (empty($media->getId())) {
-            throw new EmptyMediaIdException();
+            throw MediaException::emptyMediaId();
         }
 
         if (empty($media->getFileName())) {
-            throw new EmptyMediaFilenameException();
+            throw MediaException::emptyMediaFilename();
         }
     }
 }

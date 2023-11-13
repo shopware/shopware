@@ -14,6 +14,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate
  */
 class Migration1672931011ReviewFormMailTemplateTest extends TestCase
@@ -230,7 +231,7 @@ class Migration1672931011ReviewFormMailTemplateTest extends TestCase
             WHERE LOWER(HEX(locale_id)) = ?
             AND LOWER(language_id) = ?'
         );
-        //Always use the English name since we dont have the name in the language itself
+        // Always use the English name since we dont have the name in the language itself
         $name = $stmt->executeQuery([$localeId, $englishId])->fetchOne();
 
         $stmt = $this->connection->prepare(

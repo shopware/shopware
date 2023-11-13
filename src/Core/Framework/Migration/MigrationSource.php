@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Migration;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class MigrationSource
 {
     private const PHP_CLASS_NAME_REGEX = '[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*$';
@@ -19,8 +19,10 @@ class MigrationSource
      *
      * @param iterable<string|MigrationSource> $namespaces
      */
-    public function __construct(private string $name, iterable $namespaces = [])
-    {
+    public function __construct(
+        private readonly string $name,
+        iterable $namespaces = []
+    ) {
         $this->sources = $namespaces instanceof \Traversable
             ? iterator_to_array($namespaces)
             : $namespaces;

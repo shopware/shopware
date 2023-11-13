@@ -56,6 +56,9 @@ class JoinFilterTest extends TestCase
         $connection->rollBack();
     }
 
+    /**
+     * @return IdsCollection
+     */
     public function testIndexing()
     {
         $ids = new IdsCollection();
@@ -131,7 +134,7 @@ class JoinFilterTest extends TestCase
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new NandFilter([new EqualsFilter('avatarUser.id', null)])
+            new NandFilter([new EqualsFilter('avatarUsers.id', null)])
         );
 
         $media = $this->getContainer()->get('media.repository')
@@ -142,7 +145,7 @@ class JoinFilterTest extends TestCase
         static::assertNotContains($ids->get('without-avatar'), $media->getIds());
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('avatarUser.id', null));
+        $criteria->addFilter(new EqualsFilter('avatarUsers.id', null));
 
         $media = $this->getContainer()->get('media.repository')
             ->searchIds($criteria, Context::createDefaultContext());
@@ -154,8 +157,8 @@ class JoinFilterTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(
             new OrFilter([
-                new EqualsFilter('avatarUser.id', null),
-                new NandFilter([new EqualsFilter('avatarUser.id', Uuid::randomHex())]),
+                new EqualsFilter('avatarUsers.id', null),
+                new NandFilter([new EqualsFilter('avatarUsers.id', Uuid::randomHex())]),
             ])
         );
 
@@ -168,7 +171,7 @@ class JoinFilterTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(
-            new NandFilter([new EqualsFilter('avatarUser.id', Uuid::randomHex())])
+            new NandFilter([new EqualsFilter('avatarUsers.id', Uuid::randomHex())])
         );
 
         $media = $this->getContainer()->get('media.repository')
@@ -641,10 +644,8 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria) {
-            return $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $context);
-        });
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context));
 
         static::assertEquals(3, $result->getTotal());
         static::assertTrue($result->has($ids->get('product-2')));
@@ -664,10 +665,8 @@ class JoinFilterTest extends TestCase
             ])
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria) {
-            return $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $context);
-        });
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context));
 
         static::assertEquals(3, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));
@@ -689,10 +688,8 @@ class JoinFilterTest extends TestCase
             new EqualsFilter('product.properties.id', $ids->get('yellow'))
         );
 
-        $result = Context::createDefaultContext()->enableInheritance(function (Context $context) use ($criteria) {
-            return $this->getContainer()->get('product.repository')
-                ->searchIds($criteria, $context);
-        });
+        $result = Context::createDefaultContext()->enableInheritance(fn (Context $context) => $this->getContainer()->get('product.repository')
+            ->searchIds($criteria, $context));
 
         static::assertEquals(2, $result->getTotal());
         static::assertFalse($result->has($ids->get('product-2')));

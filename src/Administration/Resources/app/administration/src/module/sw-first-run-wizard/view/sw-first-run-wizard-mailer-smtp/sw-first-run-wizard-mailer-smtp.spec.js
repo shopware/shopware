@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swFirstRunWizardMailerSmtp from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp';
@@ -7,18 +7,18 @@ import swFirstRunWizardMailerSmtp from 'src/module/sw-first-run-wizard/view/sw-f
 Shopware.Component.register('sw-first-run-wizard-mailer-smtp', swFirstRunWizardMailerSmtp);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () => {
     const CreateFirstRunWizardMailerSmtp = async function CreateFirstRunWizardMailerSmtp() {
         return shallowMount(await Shopware.Component.build('sw-first-run-wizard-mailer-smtp'), {
             stubs: {
                 'sw-settings-mailer-smtp': {
-                    template: '<div />'
+                    template: '<div />',
                 },
                 'sw-loader': {
-                    template: '<div />'
-                }
+                    template: '<div />',
+                },
             },
             provide: {
                 systemConfigApiService: {
@@ -32,11 +32,11 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
                         'core.mailerSettings.authenticationMethod': 'null',
                         'core.mailerSettings.senderAddress': null,
                         'core.mailerSettings.deliveryAddress': null,
-                        'core.mailerSettings.disableDelivery': false
+                        'core.mailerSettings.disableDelivery': false,
                     }),
-                    saveValues: () => Promise.resolve()
-                }
-            }
+                    saveValues: () => Promise.resolve(),
+                },
+            },
         });
     };
 
@@ -53,13 +53,13 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
 
         const spyButtonUpdateEmit = jest.spyOn(frwMailerSmtp.vm, '$emit');
 
-        expect(spyButtonUpdateEmit).not.toBeCalledWith('buttons-update', buttonConfig);
-        expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-set-title', title);
+        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('buttons-update', buttonConfig);
+        expect(spyButtonUpdateEmit).not.toHaveBeenCalledWith('frw-set-title', title);
 
         frwMailerSmtp.vm.createdComponent();
 
-        expect(spyButtonUpdateEmit).toBeCalledWith('buttons-update', buttonConfig);
-        expect(spyButtonUpdateEmit).toBeCalledWith('frw-set-title', title);
+        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('buttons-update', buttonConfig);
+        expect(spyButtonUpdateEmit).toHaveBeenCalledWith('frw-set-title', title);
     });
 
     it('should load the mailerSettings on creation', async () => {
@@ -84,7 +84,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
             'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true
+            'core.mailerSettings.disableDelivery': true,
         };
 
         frwMailerSmtp.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
@@ -107,7 +107,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
             'core.mailerSettings.authenticationMethod': 'login',
             'core.mailerSettings.senderAddress': 'sender@address.com',
             'core.mailerSettings.deliveryAddress': 'delivery@address.com',
-            'core.mailerSettings.disableDelivery': true
+            'core.mailerSettings.disableDelivery': true,
         };
 
         frwMailerSmtp.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);

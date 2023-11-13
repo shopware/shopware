@@ -3,24 +3,25 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\WriteFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ListFieldSerializer extends AbstractFieldSerializer
 {
     /**
-     * @throws InvalidSerializerFieldException
+     * @throws DataAbstractionLayerException
      */
     public function encode(
         Field $field,
@@ -29,7 +30,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof ListField) {
-            throw new InvalidSerializerFieldException(ListField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(ListField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -41,7 +42,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
 
             $this->validateTypes($field, $value, $parameters);
 
-            $value = JsonFieldSerializer::encodeJson($value);
+            $value = Json::encode($value);
         }
 
         yield $field->getStorageName() => $value;
@@ -53,7 +54,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
-        return array_values(json_decode($value, true));
+        return array_values(json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     protected function getConstraints(Field $field): array
@@ -68,7 +69,7 @@ class ListFieldSerializer extends AbstractFieldSerializer
             return;
         }
 
-        $existence = new EntityExistence(null, [], false, false, false, []);
+        $existence = EntityExistence::createEmpty();
 
         /** @var Field $listField */
         $listField = new $fieldType('key', 'key');

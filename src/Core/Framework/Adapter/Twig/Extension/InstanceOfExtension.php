@@ -2,20 +2,17 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class InstanceOfExtension extends AbstractExtension
 {
     public function getTests(): array
     {
         return [
-            'instanceof' => new TwigTest('instanceof', [
-                $this, 'isInstanceOf',
-            ]),
+            'instanceof' => new TwigTest('instanceof', $this->isInstanceOf(...)),
         ];
     }
 

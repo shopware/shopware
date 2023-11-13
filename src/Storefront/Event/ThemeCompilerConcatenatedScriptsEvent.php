@@ -2,27 +2,16 @@
 
 namespace Shopware\Storefront\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeCompilerConcatenatedScriptsEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $concatenatedScripts;
-
-    /**
-     * @var string
-     */
-    private $salesChannelId;
-
-    public function __construct(string $concatenatedScripts, string $salesChannelId)
-    {
-        $this->concatenatedScripts = $concatenatedScripts;
-        $this->salesChannelId = $salesChannelId;
+    public function __construct(
+        private string $concatenatedScripts,
+        private readonly string $salesChannelId
+    ) {
     }
 
     public function getConcatenatedScripts(): string

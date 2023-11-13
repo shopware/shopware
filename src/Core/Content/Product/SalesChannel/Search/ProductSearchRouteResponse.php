@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class ProductSearchRouteResponse extends StoreApiResponse
 {
     /**

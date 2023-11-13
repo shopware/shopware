@@ -6,7 +6,7 @@ const customEntityDefinitionBare = {
     properties: {},
     'write-protected': false,
     'read-protected': false,
-    flags: {}
+    flags: {},
 };
 
 const adminUiExampleConfig = {
@@ -20,7 +20,7 @@ const adminUiExampleConfig = {
             ref: 'description',
         }, {
             ref: 'position',
-            hidden: true
+            hidden: true,
         }],
     },
     detail: {
@@ -29,17 +29,17 @@ const adminUiExampleConfig = {
             cards: [{
                 name: 'general',
                 fields: [{
-                    ref: 'title'
+                    ref: 'title',
                 }, {
                     ref: 'description',
                     helpText: true,
-                    placeholder: true
+                    placeholder: true,
                 }, {
-                    ref: 'position'
-                }]
-            }]
-        }]
-    }
+                    ref: 'position',
+                }],
+            }],
+        }],
+    },
 };
 
 const withAdminUiName = 'custom_entity_with_admin_ui';
@@ -51,7 +51,7 @@ const customEntityDefinitionWithAdminUi = {
     flags: {
         'cms-aware': {},
         'admin-ui': adminUiExampleConfig,
-    }
+    },
 };
 
 const withCmsAwareName = 'custom_entity_with_cms_aware';
@@ -64,7 +64,7 @@ const customEntityDefinitionWithCmsAware = {
         'cms-aware': {
             name: withCmsAwareName,
         },
-    }
+    },
 };
 
 const withAllFlagsName = 'custom_entity_with_all_flags';
@@ -78,7 +78,7 @@ const customEntityDefinitionWithAllFlags = {
             name: withAllFlagsName,
         },
         'admin-ui': adminUiExampleConfig,
-    }
+    },
 };
 
 function createCustomEntityDefinitionService() {
@@ -134,7 +134,7 @@ describe('src/app/service/custom-entity-definition.service', () => {
 
         expect(cmsAwareDefinitions).toStrictEqual([
             customEntityDefinitionWithCmsAware,
-            customEntityDefinitionWithAllFlags
+            customEntityDefinitionWithAllFlags,
         ]);
     });
 
@@ -152,14 +152,14 @@ describe('src/app/service/custom-entity-definition.service', () => {
             id: `custom-entity/${withAdminUiName}`,
             label: `${withAdminUiName}.moduleTitle`,
             params: {
-                entityName: withAdminUiName
+                entityName: withAdminUiName,
             },
         }, {
             ...menuEntry,
             id: `custom-entity/${withAllFlagsName}`,
             label: `${withAllFlagsName}.moduleTitle`,
             params: {
-                entityName: withAllFlagsName
+                entityName: withAllFlagsName,
             },
         }]);
     });

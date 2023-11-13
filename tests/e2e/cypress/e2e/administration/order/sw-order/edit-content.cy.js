@@ -101,7 +101,7 @@ describe('Order: Read order', () => {
             });
     });
 
-    it('@base @order: can add existing product', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can add existing product', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -125,7 +125,7 @@ describe('Order: Read order', () => {
             '2');
     });
 
-    it('@base @order: can add new products', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can add new products', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -158,7 +158,7 @@ describe('Order: Read order', () => {
             });
     });
 
-    it('@base @order: can add custom products', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can add custom products', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -195,7 +195,7 @@ describe('Order: Read order', () => {
         assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /^\s*€1,215\.45\s*$/);
     });
 
-    it('@base @order: can add custom credit items', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can add custom credit items', { tags: ['pa-customers-orders', 'quarantined'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -226,7 +226,7 @@ describe('Order: Read order', () => {
         assertPriceBreakdownContains(/^\s*Total including VAT\s*$/, /^\s*-€[0-9,]+.[0-9]{2}\s*$/);
     });
 
-    it('@base @order: can delete multiple items', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can delete multiple items', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -253,7 +253,7 @@ describe('Order: Read order', () => {
         cy.get(`${page.elements.tabs.general.gridCard} .sw-data-grid__body`).children().should('have.length', 0);
     });
 
-    it('@base @order: can delete single item', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can delete single item', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -282,7 +282,7 @@ describe('Order: Read order', () => {
         cy.get(`${page.elements.tabs.general.gridCard} .sw-data-grid__body`).children().should('have.length', 0);
     });
 
-    it('@base @order: can edit existing line items', { tags: ['pa-customers-orders'] }, () => {
+    it('@base @order: can edit existing line items', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);

@@ -2,77 +2,42 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\Event\RuleIndexerEvent;
 use Shopware\Core\Content\Rule\RuleDefinition;
-use Shopware\Core\Content\Rule\RuleEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package business-ops
- *
- * @internal
+ * @final
  */
-class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
+#[Package('services-settings')]
+class RuleIndexer extends EntityIndexer
 {
-    public const PAYLOAD_UPDATER = 'rule.payload';
+    final public const PAYLOAD_UPDATER = 'rule.payload';
 
-    public const AREA_UPDATER = 'rule.area';
+    final public const AREA_UPDATER = 'rule.area';
 
     /**
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private IteratorFactory $iteratorFactory,
-        private EntityRepository $repository,
-        private RulePayloadUpdater $payloadUpdater,
-        private RuleAreaUpdater $areaUpdater,
-        private CartRuleLoader $cartRuleLoader,
-        private EventDispatcherInterface $eventDispatcher
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly RulePayloadUpdater $payloadUpdater,
+        private readonly RuleAreaUpdater $areaUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
     public function getName(): string
     {
         return 'rule.indexer';
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            PluginPostInstallEvent::class => 'refreshPlugin',
-            PluginPostActivateEvent::class => 'refreshPlugin',
-            PluginPostUpdateEvent::class => 'refreshPlugin',
-            PluginPostDeactivateEvent::class => 'refreshPlugin',
-            PluginPostUninstallEvent::class => 'refreshPlugin',
-            RuleEvents::RULE_WRITTEN_EVENT => 'onRuleWritten',
-        ];
-    }
-
-    public function refreshPlugin(): void
-    {
-        // Delete the payload and invalid flag of all rules
-        $update = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE `rule` SET `payload` = null, `invalid` = 0')
-        );
-        $update->execute();
     }
 
     public function iterate(?array $offset): ?EntityIndexingMessage
@@ -129,10 +94,5 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(static::class);
-    }
-
-    public function onRuleWritten(EntityWrittenEvent $event): void
-    {
-        $this->cartRuleLoader->invalidate();
     }
 }

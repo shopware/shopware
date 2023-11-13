@@ -12,7 +12,13 @@ describe('src/app/component/media/sw-media-field', () => {
             stubs: {
                 'sw-media-media-item': true,
                 'sw-button': true,
-                'sw-popover': true,
+                'sw-popover': {
+                    template: `
+                         <div>
+                            <slot />
+                        </div>
+                    `,
+                },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-simple-search-field': true,
@@ -21,8 +27,8 @@ describe('src/app/component/media/sw-media-field', () => {
             },
             mocks: {
                 $route: {
-                    query: ''
-                }
+                    query: '',
+                },
             },
             provide: {
                 repositoryFactory: {
@@ -35,13 +41,13 @@ describe('src/app/component/media/sw-media-field', () => {
                         },
                         search: () => {
                             return Promise.resolve();
-                        }
-                    })
-                }
+                        },
+                    }),
+                },
             },
             propsData: {
                 fileAccept: '*/*',
-            }
+            },
         });
     }
 
@@ -53,13 +59,13 @@ describe('src/app/component/media/sw-media-field', () => {
     it('should contain the default folder in criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            defaultFolder: 'product'
+            defaultFolder: 'product',
         });
         const criteria = wrapper.vm.suggestionCriteria;
         expect(criteria.filters).toContainEqual({
             type: 'equals',
             field: 'mediaFolder.defaultFolder.entity',
-            value: 'product'
+            value: 'product',
         });
     });
 
@@ -67,5 +73,20 @@ describe('src/app/component/media/sw-media-field', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.$props.fileAccept).toBe('*/*');
+    });
+
+    it('should stop propagation when sw-popover content is clicked', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            showPicker: true,
+        });
+
+        const stopPropagation = jest.fn();
+        await wrapper.find('.sw-media-field__actions_bar').trigger('click', {
+            stopPropagation,
+        });
+
+        expect(stopPropagation).toHaveBeenCalled();
     });
 });

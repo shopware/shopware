@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -20,20 +21,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class SqlQueryParser
 {
     /**
      * @internal
      */
-    public function __construct(private EntityDefinitionQueryHelper $queryHelper, private Connection $connection)
-    {
+    public function __construct(
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly Connection $connection
+    ) {
     }
 
     public function parseRanking(
@@ -58,14 +61,14 @@ class SqlQueryParser
                     );
 
                     $result->addWhere(
-                        sprintf('IF(%s , %s * %s, 0)', $where, $this->connection->quote($query->getScore()), $field)
+                        sprintf('IF(%s , %s * %s, 0)', $where, (string) $this->connection->quote($query->getScore()), $field)
                     );
 
                     continue;
                 }
 
                 $result->addWhere(
-                    sprintf('IF(%s , %s, 0)', $where, $this->connection->quote($query->getScore()))
+                    sprintf('IF(%s , %s, 0)', $where, (string) $this->connection->quote($query->getScore()))
                 );
             }
 
@@ -95,26 +98,17 @@ class SqlQueryParser
             return $result;
         }
 
-        switch (true) {
-            case $query instanceof EqualsFilter:
-                return $this->parseEqualsFilter($query, $definition, $root, $context, $negated);
-            case $query instanceof EqualsAnyFilter:
-                return $this->parseEqualsAnyFilter($query, $definition, $root, $context);
-            case $query instanceof ContainsFilter:
-                return $this->parseContainsFilter($query, $definition, $root, $context);
-            case $query instanceof PrefixFilter:
-                return $this->parsePrefixFilter($query, $definition, $root, $context);
-            case $query instanceof SuffixFilter:
-                return $this->parseSuffixFilter($query, $definition, $root, $context);
-            case $query instanceof RangeFilter:
-                return $this->parseRangeFilter($query, $definition, $root, $context);
-            case $query instanceof NotFilter:
-                return $this->parseNotFilter($query, $definition, $root, $context);
-            case $query instanceof MultiFilter:
-                return $this->parseMultiFilter($query, $definition, $root, $context, $negated);
-            default:
-                throw new \RuntimeException(sprintf('Unsupported query %s', \get_class($query)));
-        }
+        return match (true) {
+            $query instanceof EqualsFilter => $this->parseEqualsFilter($query, $definition, $root, $context, $negated),
+            $query instanceof EqualsAnyFilter => $this->parseEqualsAnyFilter($query, $definition, $root, $context),
+            $query instanceof ContainsFilter => $this->parseContainsFilter($query, $definition, $root, $context),
+            $query instanceof PrefixFilter => $this->parsePrefixFilter($query, $definition, $root, $context),
+            $query instanceof SuffixFilter => $this->parseSuffixFilter($query, $definition, $root, $context),
+            $query instanceof RangeFilter => $this->parseRangeFilter($query, $definition, $root, $context),
+            $query instanceof NotFilter => $this->parseNotFilter($query, $definition, $root, $context),
+            $query instanceof MultiFilter => $this->parseMultiFilter($query, $definition, $root, $context, $negated),
+            default => throw new \RuntimeException(sprintf('Unsupported query %s', $query::class)),
+        };
     }
 
     private function parseRangeFilter(
@@ -164,7 +158,7 @@ class SqlQueryParser
         $result = new ParseResult();
         $result->addWhere($field . ' LIKE :' . $key);
 
-        $escaped = addcslashes($query->getValue(), '\\_%');
+        $escaped = addcslashes((string) $query->getValue(), '\\_%');
         $result->addParameter($key, '%' . $escaped . '%');
 
         return $result;
@@ -225,11 +219,9 @@ class SqlQueryParser
 
         $value = array_values($query->getValue());
         if ($field instanceof IdField || $field instanceof FkField) {
-            $value = array_filter(array_map(function (bool|float|int|string $id): string {
-                return Uuid::fromHexToBytes((string) $id);
-            }, $value));
+            $value = array_filter(array_map(fn (bool|float|int|string $id): string => Uuid::fromHexToBytes((string) $id), $value));
         }
-        $result->addParameter($key, $value, Connection::PARAM_STR_ARRAY);
+        $result->addParameter($key, $value, ArrayParameterType::STRING);
 
         return $result;
     }
@@ -243,6 +235,11 @@ class SqlQueryParser
         $result = new ParseResult();
 
         if ($field instanceof ListField) {
+            if ($query->getValue() === null) {
+                $result->addWhere($select . ' IS NULL');
+
+                return $result;
+            }
             $result->addWhere('JSON_CONTAINS(' . $select . ', JSON_ARRAY(:' . $key . '))');
             $result->addParameter($key, $query->getValue());
 

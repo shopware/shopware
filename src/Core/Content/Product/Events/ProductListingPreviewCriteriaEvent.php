@@ -6,11 +6,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListingPreviewCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -23,8 +22,10 @@ class ProductListingPreviewCriteriaEvent extends NestedEvent implements Shopware
      */
     protected $context;
 
-    public function __construct(Criteria $criteria, SalesChannelContext $context)
-    {
+    public function __construct(
+        Criteria $criteria,
+        SalesChannelContext $context
+    ) {
         $this->criteria = $criteria;
         $this->context = $context;
     }

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Snippet\Filter;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 class NamespaceFilter extends AbstractFilter implements SnippetFilterInterface
 {
     /**
@@ -28,7 +28,7 @@ class NamespaceFilter extends AbstractFilter implements SnippetFilterInterface
         foreach ($requestFilterValue as $term) {
             foreach ($snippets as $setId => $set) {
                 foreach ($set['snippets'] as $translationKey => $snippet) {
-                    if (!fnmatch(sprintf('%s*', $term), $snippet['translationKey'], \FNM_CASEFOLD)) {
+                    if (!fnmatch(sprintf('%s*', (string) $term), $snippet['translationKey'], \FNM_CASEFOLD)) {
                         continue;
                     }
                     $result[$setId]['snippets'][$translationKey] = $snippet;

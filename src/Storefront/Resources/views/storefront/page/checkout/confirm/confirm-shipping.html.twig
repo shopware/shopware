@@ -20,6 +20,7 @@
                     'action': 'frontend.checkout.configure',
                     'actionPath': path('frontend.checkout.configure'),
                     'redirect': 'frontend.checkout.confirm.page',
+                    'redirectParameters': {redirected: 0}|json_encode,
                 } %}
             {% endblock %}
         </div>

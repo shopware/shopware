@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Framework\Cache\CacheStore;
@@ -13,30 +14,19 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
- * @package storefront
- *
  * @internal
  */
 #[AsMessageHandler]
+#[Package('storefront')]
 final class CacheWarmerTaskHandler
 {
-    private Kernel $kernel;
-
-    private RouterInterface $router;
-
-    private RequestTransformerInterface $requestTransformer;
-
-    private CacheIdLoader $cacheIdLoader;
-
-    private CacheTagCollection $cacheTagCollection;
-
-    public function __construct(Kernel $kernel, RouterInterface $router, RequestTransformerInterface $requestTransformer, CacheIdLoader $cacheIdLoader, CacheTagCollection $cacheTagCollection)
-    {
-        $this->kernel = $kernel;
-        $this->router = $router;
-        $this->requestTransformer = $requestTransformer;
-        $this->cacheIdLoader = $cacheIdLoader;
-        $this->cacheTagCollection = $cacheTagCollection;
+    public function __construct(
+        private readonly Kernel $kernel,
+        private readonly RouterInterface $router,
+        private readonly RequestTransformerInterface $requestTransformer,
+        private readonly CacheIdLoader $cacheIdLoader,
+        private readonly CacheTagCollection $cacheTagCollection
+    ) {
     }
 
     public function __invoke(WarmUpMessage $message): void

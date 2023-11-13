@@ -25,8 +25,8 @@ async function createWrapper() {
                             });
                         },
                     };
-                }
-            }
+                },
+            },
         },
         propsData: {
             disabled: false,
@@ -56,6 +56,6 @@ describe('sw-bulk-edit-product-media', () => {
         expect(wrapper.find('sw-bulk-edit-product-media-form-stub').attributes().disabled).toBeTruthy();
 
         await wrapper.setProps({ disabled: false });
-        expect(wrapper.find('sw-bulk-edit-product-media-form-stub').attributes().disabled).toBe(undefined);
+        expect(wrapper.find('sw-bulk-edit-product-media-form-stub').attributes().disabled).toBeUndefined();
     });
 });

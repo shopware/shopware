@@ -5,11 +5,10 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MigrationCollection
 {
     /**
@@ -17,27 +16,15 @@ class MigrationCollection
      */
     private ?array $migrationSteps = null;
 
-    private MigrationSource $migrationSource;
-
-    private Connection $connection;
-
-    private MigrationRuntime $migrationRuntime;
-
-    private ?LoggerInterface $logger = null;
-
     /**
      * @internal
      */
     public function __construct(
-        MigrationSource $migrationSource,
-        MigrationRuntime $migrationRuntime,
-        Connection $connection,
-        ?LoggerInterface $logger = null
+        private readonly MigrationSource $migrationSource,
+        private readonly MigrationRuntime $migrationRuntime,
+        private readonly Connection $connection,
+        private readonly ?LoggerInterface $logger = null
     ) {
-        $this->migrationSource = $migrationSource;
-        $this->connection = $connection;
-        $this->migrationRuntime = $migrationRuntime;
-        $this->logger = $logger;
     }
 
     public function getName(): string

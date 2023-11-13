@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import Vue from 'vue';
 

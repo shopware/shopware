@@ -3,27 +3,30 @@
 namespace Shopware\Core\Framework\App\Cms\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
- *
  * @internal
+ *
+ * @phpstan-type ConfigArray array<string, array{source: string, value: string}>
  */
+#[Package('content')]
 class Config extends XmlElement
 {
+    /**
+     * @var ConfigArray
+     */
     protected array $items = [];
 
-    private function __construct(array $items)
-    {
-        $this->items = $items;
-    }
-
+    /**
+     * @return ConfigArray
+     */
     public function toArray(string $defaultLocale): array
     {
         return $this->items;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    protected static function parse(\DOMElement $element): array
     {
         $config = [];
 
@@ -34,6 +37,6 @@ class Config extends XmlElement
             ];
         }
 
-        return new self($config);
+        return ['items' => $config];
     }
 }

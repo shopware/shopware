@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Plugin\Command;
 use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -15,28 +16,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'plugin:refresh',
     description: 'Refreshes the plugin list',
 )]
+#[Package('core')]
 class PluginRefreshCommand extends Command
 {
     /**
-     * @var PluginService
-     */
-    private $pluginService;
-
-    /**
      * @internal
      */
-    public function __construct(PluginService $pluginService)
+    public function __construct(private readonly PluginService $pluginService)
     {
         parent::__construct();
-
-        $this->pluginService = $pluginService;
     }
 
     /**
@@ -44,9 +36,7 @@ class PluginRefreshCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setDescription('Refreshes the plugins list in the storage from the file system')
-            ->addOption('skipPluginList', 's', InputOption::VALUE_NONE, 'Don\'t display plugin list after refresh');
+        $this->addOption('skipPluginList', 's', InputOption::VALUE_NONE, 'Don\'t display plugin list after refresh');
     }
 
     /**

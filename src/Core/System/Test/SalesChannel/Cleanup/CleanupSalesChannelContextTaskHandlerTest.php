@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\Cleanup;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -13,14 +14,13 @@ use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContext
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('sales-channel')]
 class CleanupSalesChannelContextTaskHandlerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private CleanupSalesChannelContextTaskHandler $handler;
 
@@ -39,7 +39,7 @@ class CleanupSalesChannelContextTaskHandlerTest extends TestCase
         $this->createSalesChannelContext($ids->create('context-1'));
 
         $date = new \DateTime();
-        $date->modify(sprintf('-%s day', 121));
+        $date->modify(sprintf('-%d day', 121));
         $this->createSalesChannelContext($ids->create('context-2'), $date);
 
         $this->handler->run();

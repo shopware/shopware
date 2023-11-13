@@ -1,0 +1,45 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>{{ 'shopware.update.steps.install.title'|trans }}</h2>
+    </div>
+
+    <div class="card__body">
+        <p>
+            {{ 'shopware.update.steps.install.info'|trans|raw }}
+        </p>
+
+        <p>
+            <label for="shopwareVersion">{{ "shopware.update.steps.install.shopwareVersion"|trans }}</label>
+            <select id="shopwareVersion" name="shopwareVersion" required="required">
+                {% set foundStable = false %}
+                {% for version in versions %}
+                    {% set isSelected = false %}
+                    {% if 'rc' not in version and foundStable == false %}
+                        {% set isSelected = true %}
+                        {% set foundStable = true %}
+                    {% endif %}
+
+                    <option value="{{ version }}"{% if isSelected %} selected{% endif %}>{{ version }}{% if 'rc' in version %} {{ 'shopware.update.rc_hint'|trans }}{% endif %}</option>
+                {% endfor %}
+            </select>
+        </p>
+
+        <div class="alert alert-info" role="alert">
+            {{ 'shopware.update.steps.install.after_install'|trans|raw }}
+        </div>
+
+        <div class="alert alert-error" id="log-error" style="display: none">{{ 'shopware.update.steps.install.error'|trans|raw }}</div>
+
+        <div id="log-card" style="display: none;">
+            <pre class="form-control" id="log-output" style="height: 60vh;"></pre>
+        </div>
+
+    </div>
+
+    <div class="card__footer flex-container">
+        <a class="btn flex-item flex-left" href="{{ url('configure') }}">{{ 'shopware.update.back'|trans }}</a>
+        <button type="submit" class="btn btn-primary flex-item flex-right" id="install-start">{{ 'shopware.update.steps.install.submit'|trans }}</button>
+    </div>
+{% endblock %}

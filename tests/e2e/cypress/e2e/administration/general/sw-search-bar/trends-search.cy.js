@@ -1,45 +1,6 @@
 /// <reference types="Cypress" />
 
 describe('Search bar: Check search by frequently used and recently searched',() => {
-    // NEXT-20024
-    it('@searchBar search frequently used modules', { tags: ['quarantined', 'pa-system-settings'] }, () => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/increment/user_activity?*`,
-            method: 'GET',
-        }).as('getFrequentlyUsed');
-
-        cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
-        cy.get('input.sw-search-bar__input').click();
-        cy.get('.sw-search-bar__types-header-entity')
-            .should('be.visible');
-        cy.get('input.sw-search-bar__input').type('products');
-        cy.get('.sw-search-bar__results').should('be.visible');
-        cy.contains('.sw-search-bar-item', 'Products')
-            .should('be.visible')
-            .click();
-
-        cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`, { timeout: 30000 });
-        cy.get('.sw-dashboard-index__welcome-title').should('be.visible');
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-
-        cy.get('input.sw-search-bar__input').click();
-
-        cy.wait('@getFrequentlyUsed')
-            .its('response.statusCode')
-            .should('equal', 200);
-
-        cy.get('.sw-search-bar__results-column').eq(0).contains('.sw-search-bar__results-column-header', 'Frequently used');
-        cy.get('.sw-search-bar__results-column').eq(0)
-            .get('.sw-search-bar-item')
-            .should('contain', 'Products')
-            .and('contain', 'Dashboard');
-    });
-
     it('@searchBar search recently searched', { tags: ['pa-system-settings'] }, () => {
         cy.createProductFixture()
             .then(() => {
@@ -51,8 +12,6 @@ describe('Search bar: Check search by frequently used and recently searched',() 
 
         cy.get('input.sw-search-bar__input')
             .click();
-        cy.get('.sw-search-bar__types-header-entity')
-            .should('be.visible');
         cy.get('input.sw-search-bar__input')
             .type('Product');
         cy.get('.sw-search-bar__results-list')

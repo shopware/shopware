@@ -18,12 +18,12 @@ async function createWrapper(additionalOptions = {}) {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': true,
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
-            validationService: {}
+            validationService: {},
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 }
 
@@ -44,7 +44,7 @@ describe('components/form/sw-password-field', () => {
 
     it('Should display placeholder as text', async () => {
         await wrapper.setProps({
-            placeholder: 'Enter your password'
+            placeholder: 'Enter your password',
         });
 
         expect(wrapper.props('placeholder')).toBe('Enter your password');
@@ -54,7 +54,7 @@ describe('components/form/sw-password-field', () => {
     it('Should display placeholder as password', async () => {
         await wrapper.setProps({
             placeholder: 'ThirteenChars',
-            placeholderIsPassword: true
+            placeholderIsPassword: true,
         });
 
         expect(wrapper.props('placeholder')).toBe('ThirteenChars');
@@ -63,7 +63,7 @@ describe('components/form/sw-password-field', () => {
 
     it('Should display placeholder as password without given placeholder prop', async () => {
         await wrapper.setProps({
-            placeholderIsPassword: true
+            placeholderIsPassword: true,
         });
 
         expect(wrapper.find('input').attributes().placeholder).toBe('******');
@@ -75,7 +75,7 @@ describe('components/form/sw-password-field', () => {
         expect(input.attributes().type).toBe('password');
 
         await wrapper.setData({
-            showPassword: true
+            showPassword: true,
         });
 
         await input.setValue('Very secret password');
@@ -88,24 +88,24 @@ describe('components/form/sw-password-field', () => {
         wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
-                value: null
-            }
+                value: null,
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         wrapper = await createWrapper({
             propsData: {
                 label: 'Label from prop',
-                value: null
+                value: null,
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 });

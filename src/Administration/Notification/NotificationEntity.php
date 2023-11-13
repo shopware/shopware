@@ -4,23 +4,22 @@ namespace Shopware\Administration\Notification;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class NotificationEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $createdByIntegrationId;
+    protected ?string $createdByIntegrationId = null;
 
-    protected ?IntegrationEntity $createdByIntegration;
+    protected ?IntegrationEntity $createdByIntegration = null;
 
-    protected ?string $createdByUserId;
+    protected ?string $createdByUserId = null;
 
-    protected ?UserEntity $createdByUser;
+    protected ?UserEntity $createdByUser = null;
 
     protected bool $adminOnly;
 

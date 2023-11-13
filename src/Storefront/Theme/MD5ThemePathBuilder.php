@@ -2,14 +2,14 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @package storefront
- *
  * ThemePathBuilder that does not support seeding,
  * this should only be used in projects where recompiling the theme at runtime is not supported (e.g. PaaS) or for testing.
  */
+#[Package('storefront')]
 class MD5ThemePathBuilder extends AbstractThemePathBuilder
 {
     public function assemblePath(string $salesChannelId, string $themeId): string

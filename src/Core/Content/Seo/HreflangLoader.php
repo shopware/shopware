@@ -2,23 +2,23 @@
 
 namespace Shopware\Core\Content\Seo;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\Hreflang\HreflangStruct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class HreflangLoader implements HreflangLoaderInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private RouterInterface $router,
-        private Connection $connection
+        private readonly RouterInterface $router,
+        private readonly Connection $connection
     ) {
     }
 
@@ -172,7 +172,7 @@ class HreflangLoader implements HreflangLoaderInterface
             WHERE `path_info` = :pathInfo AND `is_canonical` = 1 AND
                   `sales_channel_id` = :salesChannelId AND `language_id` IN (:languageIds)',
             ['pathInfo' => $pathInfo, 'salesChannelId' => Uuid::fromHexToBytes($salesChannelId), 'languageIds' => $languageIds],
-            ['languageIds' => Connection::PARAM_STR_ARRAY]
+            ['languageIds' => ArrayParameterType::BINARY]
         );
 
         return $result;

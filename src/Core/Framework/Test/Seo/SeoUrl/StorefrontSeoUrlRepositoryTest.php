@@ -31,7 +31,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
      */
     private $salesChannelSeoUrlRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->salesChannelSeoUrlRepository = $this->getContainer()->get('sales_channel.seo_url.repository');

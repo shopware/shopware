@@ -4,20 +4,22 @@ namespace Shopware\Core\Content\Product\Events;
 
 use Shopware\Core\Framework\Adapter\Cache\StoreApiRouteCacheTagsEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductListingRouteCacheTagsEvent extends StoreApiRouteCacheTagsEvent
 {
-    protected string $categoryId;
-
-    public function __construct(array $tags, string $categoryId, Request $request, StoreApiResponse $response, SalesChannelContext $context, Criteria $criteria)
-    {
-        $this->categoryId = $categoryId;
+    public function __construct(
+        array $tags,
+        protected string $categoryId,
+        Request $request,
+        StoreApiResponse $response,
+        SalesChannelContext $context,
+        Criteria $criteria
+    ) {
         parent::__construct($tags, $request, $response, $context, $criteria);
     }
 

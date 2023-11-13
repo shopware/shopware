@@ -13,7 +13,10 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_import_export_new_profile_wizard_general_page_import_settings %}
-    <sw-import-export-edit-profile-import-settings :profile="profile" />
+    <sw-import-export-edit-profile-import-settings
+        v-if="profile.type !== 'export'"
+        :profile="profile"
+    />
     {% endblock %}
 </div>
 {% endblock %}

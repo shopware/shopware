@@ -6,22 +6,18 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ProductLineItemFactory implements LineItemFactoryInterface
 {
-    private PriceDefinitionFactory $priceDefinitionFactory;
-
     /**
      * @internal
      */
-    public function __construct(PriceDefinitionFactory $priceDefinitionFactory)
+    public function __construct(private readonly PriceDefinitionFactory $priceDefinitionFactory)
     {
-        $this->priceDefinitionFactory = $priceDefinitionFactory;
     }
 
     public function supports(string $type): bool
@@ -34,7 +30,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
-        $lineItem = new LineItem($data['id'], LineItem::PRODUCT_LINE_ITEM_TYPE, $data['referencedId'] ?? null, $data['quantity'] ?? 1);
+        $lineItem = new LineItem($data['id'], LineItem::PRODUCT_LINE_ITEM_TYPE, $data['referencedId'] ?? $data['id'], $data['quantity'] ?? 1);
         $lineItem->markModified();
 
         $lineItem->setRemovable(true);

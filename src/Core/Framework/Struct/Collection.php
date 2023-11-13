@@ -2,11 +2,14 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
  * @template TElement
+ *
  * @implements \IteratorAggregate<array-key, TElement>
  */
+#[Package('core')]
 abstract class Collection extends Struct implements \IteratorAggregate, \Countable
 {
     /**
@@ -123,8 +126,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param class-string $class
      *
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     public function filterInstance(string $class)
     {
         return $this->filter(static function ($item) use ($class) {
@@ -133,16 +139,22 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     public function filter(\Closure $closure)
     {
         return $this->createNew(array_filter($this->elements, $closure));
     }
 
     /**
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     public function slice(int $offset, ?int $length = null)
     {
         return $this->createNew(\array_slice($this->elements, $offset, $length, true));
@@ -165,8 +177,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * return ($this->elements is non-empty-array ? TElement : null) does not work as return type for now.
-     * Possible with PHPStan 1.9.0 see https://github.com/phpstan/phpstan/issues/7110
+     * @return TElement|null
      */
     public function first()
     {
@@ -182,8 +193,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * return ($this->elements is non-empty-array ? TElement : null) does not work as return type for now.
-     * Possible with PHPStan 1.9.0 see https://github.com/phpstan/phpstan/issues/7110
+     * @return TElement|null
      */
     public function last()
     {
@@ -217,8 +227,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     /**
      * @param iterable<TElement> $elements
      *
+     * tag v6.6.0 Return type will be natively typed to `static`
+     *
      * @return static
      */
+    #[\ReturnTypeWillChange]
     protected function createNew(iterable $elements = [])
     {
         return new static($elements);
@@ -235,7 +248,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         }
 
         if (!$element instanceof $expectedClass) {
-            $elementClass = \get_class($element);
+            $elementClass = $element::class;
 
             throw new \InvalidArgumentException(
                 sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)

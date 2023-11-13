@@ -5,10 +5,10 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
-use Shopware\Core\Content\Media\MediaEvents;
+use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -16,18 +16,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package core
- *
- * @internal
+ * @final
  */
-class MediaSerializer extends EntitySerializer implements EventSubscriberInterface, ResetInterface
+#[Package('core')]
+class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 {
     /**
      * @var array<string, array{media: MediaFile, destination: string}>
@@ -36,23 +34,16 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(
-        private MediaService $mediaService,
-        private FileSaver $fileSaver,
-        private EntityRepository $mediaFolderRepository,
-        private EntityRepository $mediaRepository
+        private readonly MediaService $mediaService,
+        private readonly FileSaver $fileSaver,
+        private readonly EntityRepository $mediaFolderRepository,
+        private readonly EntityRepository $mediaRepository
     ) {
-    }
-
-    /**
-     * @param array<mixed>|Struct|null $entity
-     *
-     * @return \Generator
-     */
-    public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
-    {
-        yield from parent::serialize($config, $definition, $entity);
     }
 
     /**
@@ -80,19 +71,18 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
         $media = null;
         if (isset($deserialized['id'])) {
-            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), Context::createDefaultContext())->first();
+            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), Context::createDefaultContext())->getEntities()->first();
         }
 
         $isNew = $media === null;
 
         if ($isNew || $media->getUrl() !== $url) {
             $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
-            $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
-                ?? $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
+            $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
 
-            $deserialized['id'] = $deserialized['id'] ?? Uuid::randomHex();
+            $deserialized['id'] ??= Uuid::randomHex();
 
-            $parsed = parse_url($url);
+            $parsed = parse_url((string) $url);
             if (!$parsed) {
                 throw new \RuntimeException('Error parsing media URL: ' . $url);
             }
@@ -113,7 +103,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
             $this->cacheMediaFiles[(string) $deserialized['id']] = [
                 'media' => $media,
-                'destination' => $pathInfo['filename'],
+                'destination' => urldecode($pathInfo['filename']),
             ];
         }
 
@@ -123,16 +113,6 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     public function supports(string $entity): bool
     {
         return $entity === 'media';
-    }
-
-    /**
-     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            MediaEvents::MEDIA_WRITTEN_EVENT => 'persistMedia',
-        ];
     }
 
     /**
@@ -171,8 +151,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     private function getMediaFolderId(?string $id, string $entity): string
     {
         if ($id !== null) {
-            /** @var MediaFolderEntity|null $folder */
-            $folder = $this->mediaFolderRepository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+            $folder = $this->mediaFolderRepository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
             if ($folder !== null) {
                 return $folder->getId();
             }
@@ -182,8 +161,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', $entity));
         $criteria->addAssociation('defaultFolder');
 
-        /** @var MediaFolderEntity|null $default */
-        $default = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext())->first();
+        $default = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($default !== null) {
             return $default->getId();
@@ -193,8 +171,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'import_export_profile'));
         $criteria->addAssociation('defaultFolder');
 
-        /** @var MediaFolderEntity|null $fallback */
-        $fallback = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext())->first();
+        $fallback = $this->mediaFolderRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         if ($fallback === null) {
             throw new \RuntimeException('Failed to find default media folder for import_export_profile');
         }
@@ -213,10 +190,10 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
         try {
             $file = $this->mediaService->fetchFile($request);
-            if ($file !== null && $file->getFileSize() > 0) {
+            if ($file->getFileSize() > 0) {
                 return $file;
             }
-        } catch (\Throwable $throwable) {
+        } catch (\Throwable) {
         }
 
         return null;
@@ -232,7 +209,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('metaData.hash', $hash));
 
-        $media = $this->mediaRepository->search($criteria, Context::createDefaultContext())->first();
+        $media = $this->mediaRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($media) {
             $deserialized['id'] = $media->getId();

@@ -28,4 +28,5 @@ $spacer-xl: ( $spacer * 3 ) !default;
 $sw-asset-theme-url: '' !default;
 $sw-features: () !default;
 
-$app-css-relative-asset-path: '../assets' !default;
+$theme-id: '' !default;
+$app-css-relative-asset-path: '../../' + $theme-id + '/assets' !default;

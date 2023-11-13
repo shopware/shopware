@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -32,9 +33,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Allows to hydrate database values into struct objects.
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityHydrator
 {
     /**
@@ -60,16 +60,18 @@ class EntityHydrator
     /**
      * @internal
      */
-    public function __construct(private ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
     }
 
     /**
-     * @param EntityCollection<Entity> $collection
+     * @template TEntityCollection of EntityCollection<Entity>
+     *
+     * @param TEntityCollection $collection
      * @param array<mixed> $rows
      * @param array<string|array<string>> $partial
      *
-     * @return EntityCollection<Entity>
+     * @return TEntityCollection
      */
     public function hydrate(EntityCollection $collection, string $entityClass, EntityDefinition $definition, array $rows, string $root, Context $context, array $partial = []): EntityCollection
     {
@@ -78,6 +80,7 @@ class EntityHydrator
         self::$partial = $partial;
 
         if (!empty(self::$partial)) {
+            /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
         }
 
@@ -220,7 +223,7 @@ class EntityHydrator
                 continue;
             }
 
-            //other association fields are not handled in entity reader query
+            // other association fields are not handled in entity reader query
             if ($field instanceof AssociationField) {
                 continue;
             }
@@ -282,12 +285,12 @@ class EntityHydrator
 
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
 
-        //many to many isn't loaded in case of limited association criterias
+        // many to many isn't loaded in case of limited association criterias
         if (!\array_key_exists($accessor, $row)) {
             return;
         }
 
-        //explode hexed ids
+        // explode hexed ids
         $ids = explode('||', (string) $row[$accessor]);
 
         $ids = array_map('strtolower', array_filter($ids));
@@ -313,7 +316,7 @@ class EntityHydrator
         foreach ($translatedFields as $field => $typed) {
             $entity->addTranslated($field, $typed->getSerializer()->decode($typed, self::value($row, $root, $field)));
 
-            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field));
+            $entity->$field = $typed->getSerializer()->decode($typed, self::value($row, $chain[0], $field)); /* @phpstan-ignore-line */
         }
     }
 
@@ -416,11 +419,11 @@ class EntityHydrator
                  * We need to join the first two to get the inherited field value of the main translation
                  */
                 $values = [
-                    self::value($row, $chain[0], $propertyName),
                     self::value($row, $chain[1], $propertyName),
+                    self::value($row, $chain[0], $propertyName),
                 ];
 
-                $merged = $this->mergeJson(array_reverse($values, false));
+                $merged = $this->mergeJson($values);
                 $decoded = $customField->getSerializer()->decode($customField, $merged);
                 $entity->assign([$propertyName => $decoded]);
             }
@@ -498,7 +501,7 @@ class EntityHydrator
                 continue;
             }
 
-            $decoded = json_decode($string, true);
+            $decoded = json_decode($string, true, 512, \JSON_THROW_ON_ERROR);
 
             if (!$decoded) {
                 continue;
@@ -547,10 +550,10 @@ class EntityHydrator
         $entity = new $entityClass();
 
         if (!$entity instanceof Entity) {
-            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', \get_class($entity)));
+            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', $entity::class));
         }
 
-        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct());
+        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct([], $definition->getEntityName() . '_foreign_keys_extension'));
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, new ArrayStruct());
 
         $entity->setUniqueIdentifier($identifier);

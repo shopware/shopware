@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,71 +17,51 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @package storefront
  */
+#[Package('storefront')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
-    public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
-    public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
+    final public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
+    final public const STATE_CART_FILLED = CacheStateSubscriber::STATE_CART_FILLED;
 
-    public const CURRENCY_COOKIE = 'sw-currency';
-    public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
-    public const SYSTEM_STATE_COOKIE = 'sw-states';
-    public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+    final public const CURRENCY_COOKIE = 'sw-currency';
+    final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+    final public const SYSTEM_STATE_COOKIE = 'sw-states';
+    final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
     private const CORE_HTTP_CACHED_ROUTES = [
         'api.acl.privileges.get',
     ];
 
-    private bool $reverseProxyEnabled;
-
-    private CartService $cartService;
-
-    private int $defaultTtl;
-
-    private bool $httpCacheEnabled;
-
-    private MaintenanceModeResolver $maintenanceResolver;
-
-    private ?string $staleWhileRevalidate;
-
-    private ?string $staleIfError;
-
     /**
      * @internal
      */
     public function __construct(
-        CartService $cartService,
-        int $defaultTtl,
-        bool $httpCacheEnabled,
-        MaintenanceModeResolver $maintenanceModeResolver,
-        bool $reverseProxyEnabled,
-        ?string $staleWhileRevalidate,
-        ?string $staleIfError
+        private readonly CartService $cartService,
+        private readonly int $defaultTtl,
+        private readonly bool $httpCacheEnabled,
+        private readonly MaintenanceModeResolver $maintenanceResolver,
+        private readonly bool $reverseProxyEnabled,
+        private readonly ?string $staleWhileRevalidate,
+        private readonly ?string $staleIfError
     ) {
-        $this->cartService = $cartService;
-        $this->defaultTtl = $defaultTtl;
-        $this->httpCacheEnabled = $httpCacheEnabled;
-        $this->maintenanceResolver = $maintenanceModeResolver;
-        $this->reverseProxyEnabled = $reverseProxyEnabled;
-        $this->staleWhileRevalidate = $staleWhileRevalidate;
-        $this->staleIfError = $staleIfError;
     }
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
+                ['setResponseCacheHeader', 1500],
             ],
             BeforeSendResponseEvent::class => 'updateCacheControlForBrowser',
         ];
@@ -106,13 +87,13 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if (!$this->maintenanceResolver->shouldBeCached($request)) {
-            return;
-        }
-
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
         if (!$context instanceof SalesChannelContext) {
+            return;
+        }
+
+        if (!$this->maintenanceResolver->shouldBeCached($request)) {
             return;
         }
 
@@ -176,6 +157,25 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         }
     }
 
+    public function setResponseCacheHeader(ResponseEvent $event): void
+    {
+        if (!$this->httpCacheEnabled) {
+            return;
+        }
+
+        $response = $event->getResponse();
+
+        $request = $event->getRequest();
+
+        /** @var bool|array{maxAge?: int, states?: list<string>}|null $cache */
+        $cache = $request->attributes->get(PlatformRequest::ATTRIBUTE_HTTP_CACHE);
+        if (!$cache) {
+            return;
+        }
+
+        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+    }
+
     /**
      * In the default HttpCache implementation the reverse proxy cache is implemented too in PHP and triggered before the response is send to the client. We don't need to send the "real" cache-control headers to the end client (browser/cloudflare).
      * If a external reverse proxy cache is used we still need to provide the actual cache-control, so the external system can cache the system correctly and set the cache-control again to
@@ -192,6 +192,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         // We don't want that the client will cache the website, if no reverse proxy is configured
         $response->headers->remove('cache-control');
+        $response->headers->remove(self::INVALIDATION_STATES_HEADER);
         $response->setPrivate();
 
         if ($noStore) {
@@ -222,6 +223,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
             $context->getRuleIds(),
             $context->getContext()->getVersionId(),
             $context->getCurrency()->getId(),
+            $context->getTaxState(),
             $context->getCustomer() ? 'logged-in' : 'not-logged-in',
         ], \JSON_THROW_ON_ERROR));
     }

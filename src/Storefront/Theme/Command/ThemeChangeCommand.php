@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
@@ -20,42 +21,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @package storefront
- */
 #[AsCommand(
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',
 )]
+#[Package('storefront')]
 class ThemeChangeCommand extends Command
 {
-    private ThemeService $themeService;
-
-    private StorefrontPluginRegistryInterface $pluginRegistry;
-
-    private EntityRepository $salesChannelRepository;
-
-    private Context $context;
+    private readonly Context $context;
 
     private SymfonyStyle $io;
-
-    private EntityRepository $themeRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        ThemeService $themeService,
-        StorefrontPluginRegistryInterface $pluginRegistry,
-        EntityRepository $salesChannelRepository,
-        EntityRepository $themeRepository
+        private readonly ThemeService $themeService,
+        private readonly StorefrontPluginRegistryInterface $pluginRegistry,
+        private readonly EntityRepository $salesChannelRepository,
+        private readonly EntityRepository $themeRepository
     ) {
         parent::__construct();
-
-        $this->themeService = $themeService;
-        $this->pluginRegistry = $pluginRegistry;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->themeRepository = $themeRepository;
         $this->context = Context::createDefaultContext();
     }
 
@@ -85,6 +71,7 @@ class ThemeChangeCommand extends Command
             $question = new ChoiceQuestion('Please select a theme:', $this->getThemeChoices());
             $themeName = $helper->ask($input, $output, $question);
         }
+        \assert(\is_string($themeName));
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $this->context)->getEntities();

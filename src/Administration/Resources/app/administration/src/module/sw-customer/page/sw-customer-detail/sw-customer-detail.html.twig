@@ -3,19 +3,21 @@
 <sw-page class="sw-customer-detail">
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_customer_detail_header %}
-    <template #smart-bar-header>
-        <h2 v-if="customer && customer.salutation">
+    <template
+        v-if="!isLoading"
+        #smart-bar-header
+    >
+        <h2>
             {{ salutation(customer) }}
-
-            <sw-label
-                v-if="customer.createdById"
-                appearance="pill"
-                size="small"
-                class="sw-customer-detail__created-by-admin-label"
-            >
-                {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
-            </sw-label>
         </h2>
+        <sw-label
+            v-if="customer?.createdById"
+            appearance="pill"
+            size="small"
+            class="sw-customer-detail__created-by-admin-label"
+        >
+            {{ $tc('sw-customer.detail.labelCreatedByAdmin') }}
+        </sw-label>
     </template>
     {% endblock %}
 
@@ -60,7 +62,11 @@
                 :process-success="isSaveSuccessful"
                 :disabled="isLoading"
                 variant="primary"
+                {% if VUE3 %}
+                @update:process-success="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-customer.detail.buttonSave') }}
@@ -161,6 +167,9 @@
                     {{ $tc('sw-customer.detailBase.labelOrderCard') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_customer_detail_content_tab_after %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 
@@ -171,13 +180,27 @@
                 <sw-skeleton />
             </template>
 
-            {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+            {% if VUE3 %}
+            <router-view
+                v-if="customer"
+                v-slot="{ Component }"
+            >
+                {# v-show is used here as underlying components influence the loading state and v-if would destroy this behaviour #}
+                <component
+                    :is="Component"
+                    v-show="!isLoading"
+                    :customer="customer"
+                    :customer-edit-mode="editMode"
+                />
+            </router-view>
+            {% else %}
             <router-view
                 v-if="customer"
                 v-show="!isLoading"
                 :customer="customer"
                 :customer-edit-mode="editMode"
             />
+            {% endif %}
             {% endblock %}
         </sw-card-view>
     </template>

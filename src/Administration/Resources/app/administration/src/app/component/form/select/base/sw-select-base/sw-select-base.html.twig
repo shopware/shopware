@@ -8,6 +8,7 @@
     v-on="$listeners"
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             ref="selectWrapper"
             class="sw-select__selection"
@@ -62,6 +63,10 @@
 
     <template #label>
         <slot name="label"></slot>
+    </template>
+
+    <template #hint>
+        <slot name="hint"></slot>
     </template>
 </sw-block-field>
 {% endblock %}

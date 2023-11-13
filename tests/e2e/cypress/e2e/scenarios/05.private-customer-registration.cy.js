@@ -36,22 +36,22 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/listing/index');
-        cy.setSalesChannel('E2E install test');
+        cy.setSalesChannel(Cypress.env('storefrontName'));
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Standard', '5', '4');
-        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/overview`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.url().should('include', 'settings/payment/index');
+        cy.url().should('include', 'settings/payment/overview');
         cy.setPaymentMethod('Cash on delivery');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.url().should('include', 'dashboard/index');
-        cy.goToSalesChannelDetail('E2E install test')
+        cy.goToSalesChannelDetail(Cypress.env('storefrontName'))
             .selectPaymentMethodForSalesChannel('Cash on delivery')
             .selectShippingMethodForSalesChannel('Standard');
 
@@ -79,7 +79,7 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('.sw-product-deliverability__purchase-step [type]').typeAndCheck('1');
         cy.get('.sw-product-deliverability__max-purchase [type]').typeAndCheck('10');
         cy.get('.sw-product-detail__select-visibility').scrollIntoView();
-        cy.contains('.sw-product-detail__select-visibility', 'E2E install test');
+        cy.contains('.sw-product-detail__select-visibility', Cypress.env('storefrontName'));
         cy.get('.sw-product-category-form [type="checkbox"]').should('be.checked');
         cy.get('.sw-button-process__content').click();
         cy.wait('@createProduct').its('response.statusCode').should('equal', 200);
@@ -117,10 +117,10 @@ describe('Product creation via UI and private customer registration', () => {
         cy.contains('.line-item-label', 'Product-5');
         cy.get('.offcanvas-cart-actions [href="/checkout/cart"]').click();
         cy.contains('.line-item-details-container [title]', 'Product-5');
-        cy.contains('.line-item-total-price.col-12.col-md-2.col-sm-4', '14,99');
+        cy.contains('.line-item-total-price .line-item-total-price-value', '14,99');
         cy.get('.line-item-delivery-date').should('be.visible');
         cy.contains('.col-5.checkout-aside-summary-total', '19,99');
-        cy.get('a[title="Proceed to checkout"]').click();
+        cy.get('a[title="Go to checkout"]').click();
         cy.contains('.confirm-address', 'Test Tester');
         cy.contains('.line-item-label', 'Product-5');
         cy.get('.line-item-total-price').scrollIntoView();
@@ -129,8 +129,8 @@ describe('Product creation via UI and private customer registration', () => {
         cy.get('.line-item-delivery-date').should('be.visible');
         cy.get('.checkout-customer-comment-control').should('be.visible');
         cy.contains('.confirm-tos .card-title', 'Terms and conditions and cancellation policy');
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.confirm-tos .form-check label').scrollIntoView();
+        cy.get('.confirm-tos .form-check label').click(1, 1);
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
         cy.contains('.finish-header', `Thank you for your order with E2E install test!`);
@@ -138,8 +138,8 @@ describe('Product creation via UI and private customer registration', () => {
         // Verify order
         cy.visit('/account/order');
         cy.contains('.order-item-header', '10000');
-        cy.contains('View').click();
-        cy.contains('.order-item-total-value', '14,99');
+        cy.contains('Expand').click();
+        cy.contains('.line-item-total-price-value', '14,99');
         cy.contains('.order-item-detail-summary', '19,99');
     });
 });

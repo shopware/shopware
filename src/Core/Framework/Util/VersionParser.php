@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class VersionParser
 {
     /**

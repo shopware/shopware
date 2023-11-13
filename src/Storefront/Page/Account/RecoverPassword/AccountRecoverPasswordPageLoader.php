@@ -2,12 +2,14 @@
 
 namespace Shopware\Storefront\Page\Account\RecoverPassword;
 
-use Shopware\Core\Checkout\Customer\SalesChannel\CustomerRecoveryIsExpiredRoute;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRecoveryIsExpiredRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -16,40 +18,32 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package customer-order
+ * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
+#[Package('checkout')]
 class AccountRecoverPasswordPageLoader
 {
-    private GenericPageLoaderInterface $genericLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute;
-
     /**
      * @internal
      */
     public function __construct(
-        GenericPageLoaderInterface $genericLoader,
-        EventDispatcherInterface $eventDispatcher,
-        CustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
+        private readonly GenericPageLoaderInterface $genericLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractCustomerRecoveryIsExpiredRoute $recoveryIsExpiredRoute
     ) {
-        $this->genericLoader = $genericLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->recoveryIsExpiredRoute = $recoveryIsExpiredRoute;
     }
 
     /**
      * @throws CategoryNotFoundException
      * @throws InconsistentCriteriaIdsException
-     * @throws MissingRequestParameterException
+     * @throws RoutingException
      * @throws ConstraintViolationException
+     * @throws CustomerNotFoundByHashException
      */
     public function load(Request $request, SalesChannelContext $context, string $hash): AccountRecoverPasswordPage
     {
         $page = $this->genericLoader->load($request, $context);
 
-        /** @var AccountRecoverPasswordPage $page */
         $page = AccountRecoverPasswordPage::createFrom($page);
         $page->setHash($hash);
 

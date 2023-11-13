@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -29,25 +30,21 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
+ *
  * @group slow
  */
+#[Package('buyers-experience')]
 class SeoUrlIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
     use QueueTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepository;
+    private EntityRepository $templateRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productRepository;
+    private EntityRepository $productRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -607,12 +604,10 @@ class SeoUrlIndexerTest extends TestCase
             $template->setTemplate('');
         }
 
-        $data = array_map(static function (string $templateId): array {
-            return [
-                'id' => $templateId,
-                'template' => null,
-            ];
-        }, $templates->getIds());
+        $data = array_map(static fn (string $templateId): array => [
+            'id' => $templateId,
+            'template' => null,
+        ], $templates->getIds());
 
         $templateRepository->upsert(array_values($data), Context::createDefaultContext());
 
@@ -674,7 +669,7 @@ class SeoUrlIndexerTest extends TestCase
 
         try {
             $this->productRepository->create([$data], Context::createDefaultContext());
-        } catch (WriteTypeIntendException $e) {
+        } catch (WriteTypeIntendException) {
             unset($data['visibilities']);
             $this->productRepository->upsert([$data], Context::createDefaultContext());
         }

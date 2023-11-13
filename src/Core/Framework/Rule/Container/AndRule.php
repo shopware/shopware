@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 
 /**
- * @package business-ops
  * AndRule returns true, if all child-rules are true
  */
+#[Package('services-settings')]
 class AndRule extends Container
 {
-    public const RULE_NAME = 'andContainer';
+    final public const RULE_NAME = 'andContainer';
 
     public function match(RuleScope $scope): bool
     {

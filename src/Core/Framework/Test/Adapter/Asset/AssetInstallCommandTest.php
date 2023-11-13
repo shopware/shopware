@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Adapter\Asset;
+namespace Shopware\Core\Framework\Test\Adapter\Asset;
 
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
@@ -23,10 +23,17 @@ class AssetInstallCommandTest extends TestCase
         $filesystem = $this->getContainer()->get('shopware.filesystem.asset');
         // make sure that the dir does not exist beforehand
         $filesystem->deleteDirectory('bundles/test');
+        $filesystem->delete('asset-manifest.json');
 
-        $fixturePath = realpath(__DIR__ . '/../../App/Manifest/_fixtures/test');
-        $relativeFixturePath = ltrim(
-            str_replace($this->getContainer()->getParameter('kernel.project_dir'), '', $fixturePath),
+        $fixturePath = __DIR__ . '/../../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures/test';
+        $fixturePath = \realpath($fixturePath);
+        static::assertNotFalse($fixturePath);
+
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        static::assertNotFalse($projectDir);
+
+        $relativeFixturePath = \ltrim(
+            \str_replace($projectDir, '', $fixturePath),
             '/'
         );
 
@@ -53,5 +60,6 @@ class AssetInstallCommandTest extends TestCase
         static::assertTrue($filesystem->has('bundles/test/asset.txt'));
 
         $filesystem->deleteDirectory('bundles/test');
+        $filesystem->delete('asset-manifest.json');
     }
 }

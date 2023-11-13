@@ -14,15 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class ActionButtonDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_action_button';
+    final public const ENTITY_NAME = 'app_action_button';
 
     public function getEntityName(): string
     {
@@ -42,6 +42,11 @@ class ActionButtonDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.3.1.0';
+    }
+
+    protected function getParentDefinitionClass(): ?string
+    {
+        return AppDefinition::class;
     }
 
     protected function defineFields(): FieldCollection

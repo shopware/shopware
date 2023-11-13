@@ -2,13 +2,19 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 /**
- * @package checkout
+ * @decrecated tag:v6.6.0 - use PaymentException::refundInterrupted instead
  */
 class RefundException extends RefundProcessException
 {
-    public function __construct(string $refundId, string $errorMessage, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $refundId,
+        string $errorMessage,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $refundId,
             'The refund process was interrupted due to the following error:' . \PHP_EOL . '{{ errorMessage }}',

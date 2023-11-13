@@ -12,7 +12,7 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-bulk-edit-save-modal-process'), {
         stubs: {
             'sw-alert': true,
-            'sw-icon': true,
+            'sw-loader': true,
             'sw-label': true,
         },
         provide: {
@@ -22,22 +22,19 @@ async function createWrapper() {
                 },
                 generate: () => null,
             },
-        }
+        },
     });
 }
 
 describe('sw-bulk-edit-save-modal-process', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         if (Shopware.State.get('swBulkEdit')) {
             Shopware.State.unregisterModule('swBulkEdit');
         }
 
         Shopware.State.registerModule('swBulkEdit', swBulkEditState);
-    });
-
-    beforeEach(async () => {
         wrapper = await createWrapper();
     });
 

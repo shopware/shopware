@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Bench\Cases\Storefront;
+namespace Shopware\Tests\Bench\Storefront;
 
 use Doctrine\DBAL\Connection;
 use PhpBench\Attributes as Bench;
@@ -13,13 +13,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Tests\Bench\BenchCase;
+use Shopware\Tests\Bench\AbstractBenchCase;
 use Shopware\Tests\Bench\Fixtures;
 
 /**
  * @internal - only for performance benchmarks
  */
-class CartOrderRouteBench extends BenchCase
+class CartOrderRouteBench extends AbstractBenchCase
 {
     private const SUBJECT_CUSTOMER = 'customer-0';
     private const CART_ITEMS_COUNT = 10;
@@ -77,7 +77,7 @@ class CartOrderRouteBench extends BenchCase
             $this->getContainer()->get('product.repository')->create($productPayload, $context);
         });
 
-        $this->cart = new Cart('sales-channel', $this->context->getToken());
+        $this->cart = new Cart($this->context->getToken());
 
         foreach ($this->ids->prefixed('product-state-') as $id) {
             $this->cart->getLineItems()->add(new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, $id));
@@ -90,9 +90,7 @@ class CartOrderRouteBench extends BenchCase
     #[Bench\Assert('mode(variant.time.avg) < 150ms +/- 20ms')]
     public function bench_order_10_physical_products(): void
     {
-        $this->cart->setLineItems($this->cart->getLineItems()->filter(function (LineItem $lineItem): bool {
-            return \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-physical-'), true);
-        }));
+        $this->cart->setLineItems($this->cart->getLineItems()->filter(fn (LineItem $lineItem): bool => \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-physical-'), true)));
         $this->getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
     }
 
@@ -100,9 +98,7 @@ class CartOrderRouteBench extends BenchCase
     #[Bench\Assert('mode(variant.time.avg) < 170ms +/- 20ms')]
     public function bench_order_10_digital_products(): void
     {
-        $this->cart->setLineItems($this->cart->getLineItems()->filter(function (LineItem $lineItem): bool {
-            return \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-digital-'), true);
-        }));
+        $this->cart->setLineItems($this->cart->getLineItems()->filter(fn (LineItem $lineItem): bool => \in_array($lineItem->getReferencedId(), $this->ids->prefixed('product-state-digital-'), true)));
         $this->getContainer()->get(CartOrderRoute::class)->order($this->cart, $this->context, new RequestDataBag());
     }
 }

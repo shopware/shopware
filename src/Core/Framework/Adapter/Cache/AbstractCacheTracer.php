@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
  * @template TCachedContent
  */
+#[Package('core')]
 abstract class AbstractCacheTracer
 {
     /**
@@ -14,9 +16,16 @@ abstract class AbstractCacheTracer
     abstract public function getDecorated(): AbstractCacheTracer;
 
     /**
-     * @return TCachedContent
+     * @template TReturn of TCachedContent
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn
      */
     abstract public function trace(string $key, \Closure $param);
 
+    /**
+     * @return array<string>
+     */
     abstract public function get(string $key): array;
 }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
@@ -16,9 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class ScheduledTaskControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -37,6 +37,7 @@ class ScheduledTaskControllerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
+                'defaultRunInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
             ],
@@ -67,6 +68,7 @@ class ScheduledTaskControllerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 300,
+                'defaultRunInterval' => 300,
                 'status' => ScheduledTaskDefinition::STATUS_SKIPPED,
                 'nextExecutionTime' => (new \DateTime())->modify('-1 second'),
             ],
@@ -96,6 +98,7 @@ class ScheduledTaskControllerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => TestTask::class,
                 'runInterval' => 5,
+                'defaultRunInterval' => 5,
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'nextExecutionTime' => $nextExecutionTime,
             ],
@@ -103,6 +106,7 @@ class ScheduledTaskControllerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => FooMessage::class,
                 'runInterval' => 200,
+                'defaultRunInterval' => 200,
                 'status' => ScheduledTaskDefinition::STATUS_FAILED,
                 'nextExecutionTime' => $nextExecutionTime->modify('-10 seconds'),
             ],

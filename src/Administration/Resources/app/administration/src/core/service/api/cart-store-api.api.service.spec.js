@@ -31,26 +31,26 @@ describe('cartStoreService', () => {
                 quantity: 1,
                 taxRules: [
                     {
-                        taxRate: 7
-                    }
-                ]
+                        taxRate: 7,
+                    },
+                ],
             },
             priceDefinition: {
                 taxRules: [
                     {
                         percentage: 100,
-                        taxRate: 7
-                    }
-                ]
-            }
+                        taxRate: 7,
+                    },
+                ],
+            },
         };
         const { cartStoreService } = createCartStoreServiceService();
 
         const items = cartStoreService.getPayloadForItem(item, saleChannelId, isNewProductItem, itemId);
 
         expect(items.items[0].priceDefinition).toBeNull();
-        expect(items.items[0].quantity).toEqual(1);
-        expect(items.items[0].label).toEqual('Test product');
+        expect(items.items[0].quantity).toBe(1);
+        expect(items.items[0].label).toBe('Test product');
     });
 
     it('function getPayloadForItem should return correct data when adding new product with new tax value', async () => {
@@ -66,26 +66,26 @@ describe('cartStoreService', () => {
                 quantity: 1,
                 taxRules: [
                     {
-                        taxRate: 7
-                    }
-                ]
+                        taxRate: 7,
+                    },
+                ],
             },
             priceDefinition: {
                 taxRules: [
                     {
                         percentage: 100,
-                        taxRate: 15
-                    }
-                ]
-            }
+                        taxRate: 15,
+                    },
+                ],
+            },
         };
         const { cartStoreService } = createCartStoreServiceService();
 
         const items = cartStoreService.getPayloadForItem(item, saleChannelId, isNewProductItem, itemId);
 
-        expect(items.items[0].priceDefinition.taxRules[0].taxRate).toEqual(15);
-        expect(items.items[0].quantity).toEqual(10);
-        expect(items.items[0].label).toEqual('Test product');
+        expect(items.items[0].priceDefinition.taxRules[0].taxRate).toBe(15);
+        expect(items.items[0].quantity).toBe(10);
+        expect(items.items[0].label).toBe('Test product');
     });
 
     it('function getPayloadForItem should return correct data when adjusting price of existing product', async () => {
@@ -101,29 +101,29 @@ describe('cartStoreService', () => {
                 quantity: 1,
                 taxRules: [
                     {
-                        taxRate: 7
-                    }
+                        taxRate: 7,
+                    },
                 ],
                 unitPrice: 100,
-                totalPrice: 100
+                totalPrice: 100,
             },
             priceDefinition: {
                 price: 150,
                 taxRules: [
                     {
                         percentage: 100,
-                        taxRate: 7
-                    }
-                ]
-            }
+                        taxRate: 7,
+                    },
+                ],
+            },
         };
         const { cartStoreService } = createCartStoreServiceService();
 
         const items = cartStoreService.getPayloadForItem(item, saleChannelId, isNewProductItem, itemId);
 
-        expect(items.items[0].priceDefinition.price).toEqual(150);
-        expect(items.items[0].quantity).toEqual(1);
-        expect(items.items[0].label).toEqual('Test product');
+        expect(items.items[0].priceDefinition.price).toBe(150);
+        expect(items.items[0].quantity).toBe(1);
+        expect(items.items[0].label).toBe('Test product');
     });
 
     it('function getPayloadForItem should return correct data when adding a custom product', async () => {
@@ -139,29 +139,29 @@ describe('cartStoreService', () => {
                 quantity: 1,
                 taxRules: [
                     {
-                        taxRate: 0
-                    }
+                        taxRate: 0,
+                    },
                 ],
                 unitPrice: 0,
-                totalPrice: 0
+                totalPrice: 0,
             },
             priceDefinition: {
                 price: 200,
                 taxRules: [
                     {
                         percentage: 100,
-                        taxRate: 5
-                    }
-                ]
-            }
+                        taxRate: 5,
+                    },
+                ],
+            },
         };
         const { cartStoreService } = createCartStoreServiceService();
 
         const items = cartStoreService.getPayloadForItem(item, saleChannelId, isNewProductItem, itemId);
 
-        expect(items.items[0].priceDefinition.price).toEqual(200);
-        expect(items.items[0].quantity).toEqual(5);
-        expect(items.items[0].label).toEqual('Test custom product');
+        expect(items.items[0].priceDefinition.price).toBe(200);
+        expect(items.items[0].quantity).toBe(5);
+        expect(items.items[0].label).toBe('Test custom product');
     });
 
     it('function getPayloadForItem should return correct data when adjusting a custom product', async () => {
@@ -179,11 +179,11 @@ describe('cartStoreService', () => {
                     {
                         apiAlias: 'cart_tax_rule',
                         percentage: 100,
-                        taxRate: 5
-                    }
+                        taxRate: 5,
+                    },
                 ],
                 unitPrice: 50,
-                totalPrice: 500
+                totalPrice: 500,
             },
             priceDefinition: {
                 price: 100,
@@ -191,17 +191,17 @@ describe('cartStoreService', () => {
                     {
                         apiAlias: 'cart_tax_rule',
                         percentage: 100,
-                        taxRate: 10
-                    }
-                ]
-            }
+                        taxRate: 10,
+                    },
+                ],
+            },
         };
         const { cartStoreService } = createCartStoreServiceService();
 
         const items = cartStoreService.getPayloadForItem(item, saleChannelId, isNewProductItem, itemId);
 
-        expect(items.items[0].priceDefinition.price).toEqual(100);
-        expect(items.items[0].quantity).toEqual(15);
-        expect(items.items[0].label).toEqual('Test custom product');
+        expect(items.items[0].priceDefinition.price).toBe(100);
+        expect(items.items[0].quantity).toBe(15);
+        expect(items.items[0].label).toBe('Test custom product');
     });
 });

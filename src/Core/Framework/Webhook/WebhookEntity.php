@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\Webhook;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WebhookEntity extends Entity
 {
     use EntityIdTrait;
@@ -27,6 +26,8 @@ class WebhookEntity extends Entity
      * @var string
      */
     protected $url;
+
+    protected bool $onlyLiveVersion;
 
     /**
      * @var string|null
@@ -70,6 +71,16 @@ class WebhookEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getOnlyLiveVersion(): bool
+    {
+        return $this->onlyLiveVersion;
+    }
+
+    public function setOnlyLiveVersion(bool $onlyLiveVersion): void
+    {
+        $this->onlyLiveVersion = $onlyLiveVersion;
     }
 
     public function getAppId(): ?string

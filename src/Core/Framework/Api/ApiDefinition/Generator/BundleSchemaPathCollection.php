@@ -3,27 +3,22 @@
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * @internal
- * @phpstan-import-type Api from DefinitionService
  *
- * @package core
+ * @phpstan-import-type Api from DefinitionService
  */
+#[Package('core')]
 class BundleSchemaPathCollection
 {
     /**
-     * @var iterable<Bundle>
+     * @param iterable<Bundle> $bundles
      */
-    private iterable $bundles;
-
-    /**
-     * @param iterable<Bundle> $plugins
-     */
-    public function __construct(iterable $plugins)
+    public function __construct(private readonly iterable $bundles)
     {
-        $this->bundles = $plugins;
     }
 
     /**
@@ -31,7 +26,7 @@ class BundleSchemaPathCollection
      *
      * @return string[]
      */
-    public function getSchemaPaths(string $api): array
+    public function getSchemaPaths(string $api, ?string $bundleName): array
     {
         $apiFolder = $api === DefinitionService::API ? 'AdminApi' : 'StoreApi';
         $openApiDirs = [];
@@ -41,6 +36,12 @@ class BundleSchemaPathCollection
                 continue;
             }
             $openApiDirs[] = $path;
+            if ($bundle->getName() === $bundleName) {
+                unset($openApiDirs);
+                $openApiDirs[] = $path;
+
+                break;
+            }
         }
 
         return $openApiDirs;

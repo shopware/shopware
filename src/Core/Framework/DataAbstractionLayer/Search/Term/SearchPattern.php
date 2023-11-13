@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class SearchPattern
 {
-    public const BOOLEAN_CLAUSE_AND = 'boolean_clause_and';
-    public const BOOLEAN_CLAUSE_OR = 'boolean_clause_or';
+    final public const BOOLEAN_CLAUSE_AND = 'boolean_clause_and';
+    final public const BOOLEAN_CLAUSE_OR = 'boolean_clause_or';
 
     /**
      * @var SearchTerm[]
@@ -22,9 +23,9 @@ class SearchPattern
      */
     private array $tokenTerms = [];
 
-    private ?string $booleanClause;
+    private ?string $booleanClause = null;
 
-    public function __construct(private SearchTerm $original)
+    public function __construct(private readonly SearchTerm $original)
     {
     }
 

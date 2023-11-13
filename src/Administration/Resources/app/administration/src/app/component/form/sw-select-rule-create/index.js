@@ -20,6 +20,7 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-select-rule-create', {
     template,
+    inheritAttrs: !window._features_.VUE3,
 
     inject: [
         'repositoryFactory',
@@ -142,10 +143,6 @@ Component.register('sw-select-rule-create', {
         },
 
         isRuleRestricted(rule) {
-            if (rule.areas?.includes('flow-condition') && this.ruleAwareGroupKey !== 'flowConditions') {
-                return true;
-            }
-
             const insideRestrictedRuleIds = this.restrictedRuleIds.includes(rule.id);
 
             const isRuleRestricted = this.ruleConditionDataProviderService.isRuleRestricted(

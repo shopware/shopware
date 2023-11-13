@@ -99,14 +99,16 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria = new Criteria();
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
-        $queryMock = $this->createTestProxy(QueryBuilder::class, [$this->createMock(Connection::class)]);
-        $queryMock
-            ->expects(static::exactly(2))
-            ->method('addOrderBy')
-            ->withConsecutive(['MIN(`product`.`created_at`)', 'ASC'], ['_score', 'DESC']);
+
+        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
         $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
-        $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
+        $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
+
+        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
+            'MIN(`product`.`created_at`) ASC',
+            '_score DESC',
+        ]);
     }
 
     public function testSortByScoreAndAdditionalSortingWithScore(): void
@@ -116,13 +118,14 @@ class CriteriaQueryHelperTest extends TestCase
         $criteria->setTerm('searchTerm');
         $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
         $criteria->addSorting(new FieldSorting('_score', FieldSorting::ASCENDING));
-        $queryMock = $this->createTestProxy(QueryBuilder::class, [$this->createMock(Connection::class)]);
-        $queryMock
-            ->expects(static::exactly(2))
-            ->method('addOrderBy')
-            ->withConsecutive(['MIN(`product`.`created_at`)', 'ASC'], ['_score', 'ASC']);
+        $queryBuilder = new QueryBuilder($this->createMock(Connection::class));
 
         $builder = $this->getContainer()->get(CriteriaQueryBuilder::class);
-        $builder->build($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
+        $builder->build($queryBuilder, $productDefinition, $criteria, Context::createDefaultContext());
+
+        static::assertEquals($queryBuilder->getQueryPart('orderBy'), [
+            'MIN(`product`.`created_at`) ASC',
+            '_score ASC',
+        ]);
     }
 }

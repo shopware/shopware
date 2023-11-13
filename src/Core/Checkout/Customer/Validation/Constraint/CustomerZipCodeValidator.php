@@ -2,32 +2,30 @@
 
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
- * @package customer-order
- *
  * @Annotation
+ *
  * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
  */
+#[Package('checkout')]
 class CustomerZipCodeValidator extends ConstraintValidator
 {
-    private EntityRepository $countryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $countryRepository)
+    public function __construct(private readonly EntityRepository $countryRepository)
     {
-        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -71,7 +69,7 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
         $caseSensitive = $constraint->caseSensitiveCheck ? '' : 'i';
 
-        if (preg_match("/^{$pattern}$/" . $caseSensitive, $value, $matches) === 1) {
+        if (preg_match("/^{$pattern}$/" . $caseSensitive, (string) $value, $matches) === 1) {
             return;
         }
 
@@ -83,13 +81,10 @@ class CustomerZipCodeValidator extends ConstraintValidator
 
     private function getCountry(string $countryId): CountryEntity
     {
-        /**
-         * @var CountryEntity|null $country
-         */
         $country = $this->countryRepository->search(new Criteria([$countryId]), Context::createDefaultContext())->get($countryId);
 
-        if ($country === null) {
-            throw new CountryNotFoundException($countryId);
+        if (!$country instanceof CountryEntity) {
+            throw CustomerException::countryNotFound($countryId);
         }
 
         return $country;

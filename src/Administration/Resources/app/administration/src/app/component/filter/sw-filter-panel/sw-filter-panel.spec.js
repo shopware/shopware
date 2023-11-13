@@ -13,53 +13,53 @@ const filters = [
         type: 'boolean-filter',
         label: 'filter1',
         value: null,
-        filterCriteria: null
+        filterCriteria: null,
     },
     {
         name: 'filter2',
         type: 'existence-filter',
         label: 'filter2',
         schema: {
-            localField: 'id'
+            localField: 'id',
         },
         value: null,
-        filterCriteria: null
+        filterCriteria: null,
     },
     {
         name: 'filter3',
         type: 'multi-select-filter',
         label: 'filter3',
         value: null,
-        filterCriteria: null
+        filterCriteria: null,
     },
     {
         name: 'filter4',
         type: 'string-filter',
         label: 'filter4',
         value: null,
-        filterCriteria: null
+        filterCriteria: null,
     },
     {
         name: 'filter5',
         type: 'number-filter',
         label: 'filter5',
         value: null,
-        filterCriteria: null
+        filterCriteria: null,
     },
     {
         name: 'filter6',
         type: 'price-filter',
         label: 'filter6',
         value: null,
-        filterCriteria: null
+        filterCriteria: null,
     },
     {
         name: 'filter7',
         type: 'date-filter',
         label: 'filter7',
         value: null,
-        filterCriteria: null
-    }
+        filterCriteria: null,
+    },
 ];
 
 let savedFilterData = {};
@@ -71,7 +71,7 @@ async function createWrapper() {
             entity: 'product',
             filters,
             storeKey: 'config',
-            defaults: ['filter1', 'filter2', 'filter3', 'filter4', 'filter5', 'filter6', 'filter7']
+            defaults: ['filter1', 'filter2', 'filter3', 'filter4', 'filter5', 'filter6', 'filter7'],
         },
         stubs: {
             'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
@@ -80,34 +80,34 @@ async function createWrapper() {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
             'sw-field-error': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-icon': true,
             'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
             'sw-multi-select-filter': true,
             'sw-string-filter': true,
             'sw-number-filter': true,
-            'sw-date-filter': true
+            'sw-date-filter': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     create: () => Promise.resolve({
                         key: 'config',
-                        userId: '1'
+                        userId: '1',
                     }),
                     search: () => Promise.resolve(savedFilterData),
-                    save: () => Promise.resolve([])
-                })
-            }
-        }
+                    save: () => Promise.resolve([]),
+                }),
+            },
+        },
     });
 }
 
 Shopware.Service().register('filterService', () => {
     return {
         getStoredFilters: () => Promise.resolve(savedFilterData),
-        saveFilters: (storeKey, storedFilters) => Promise.resolve(storedFilters)
+        saveFilters: (storeKey, storedFilters) => Promise.resolve(storedFilters),
     };
 });
 
@@ -140,7 +140,7 @@ describe('components/sw-filter-panel', () => {
 
     it('should remove filter when reset button is clicked', async () => {
         savedFilterData = {
-            filter1: {}
+            filter1: {},
         };
 
         const wrapper = await createWrapper();
@@ -162,7 +162,7 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            defaults: ['filter1', 'filter2']
+            defaults: ['filter1', 'filter2'],
         });
 
         expect(wrapper.find('.sw-boolean-filter').exists()).toBeTruthy();
@@ -182,11 +182,11 @@ describe('components/sw-filter-panel', () => {
 
         await wrapper.vm.$nextTick();
 
-        expect(Object.keys(wrapper.vm.activeFilters).length).not.toEqual(0);
+        expect(Object.keys(wrapper.vm.activeFilters)).not.toHaveLength(0);
 
         await wrapper.vm.resetAll();
 
-        expect(Object.keys(wrapper.vm.activeFilters).length).toEqual(0);
+        expect(Object.keys(wrapper.vm.activeFilters)).toHaveLength(0);
     });
 
     it('should change active filters when filter has default value', async () => {
@@ -194,21 +194,21 @@ describe('components/sw-filter-panel', () => {
             filter3: {
                 value: [
                     {
-                        id: '5e59f3ea47a342dd8ff1a0af2cda475'
-                    }
+                        id: '5e59f3ea47a342dd8ff1a0af2cda475',
+                    },
                 ],
                 criteria: [{
                     type: 'equalsAny',
                     field: 'salutation.id',
-                    value: '5e59f3ea47a342dd8ff1a0af2cda475'
-                }]
-            }
+                    value: '5e59f3ea47a342dd8ff1a0af2cda475',
+                }],
+            },
         };
 
         const wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
-        expect(Object.keys(wrapper.vm.activeFilters).length).toEqual(1);
+        expect(Object.keys(wrapper.vm.activeFilters)).toHaveLength(1);
     });
 });

@@ -6,21 +6,27 @@ use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidCartException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\HttpException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartException extends HttpException
 {
     public const DESERIALIZE_FAILED_CODE = 'CHECKOUT__CART_DESERIALIZE_FAILED';
     public const TOKEN_NOT_FOUND_CODE = 'CHECKOUT__CART_TOKEN_NOT_FOUND';
     public const CUSTOMER_NOT_LOGGED_IN_CODE = 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN';
     public const INSUFFICIENT_PERMISSION_CODE = 'CHECKOUT__INSUFFICIENT_PERMISSION';
+    public const CART_DELIVERY_NOT_FOUND_CODE = 'CHECKOUT__CART_DELIVERY_POSITION_NOT_FOUND';
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
+    public const CART_PAYMENT_INVALID_ORDER_STORED_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_STORED';
+    public const CART_PAYMENT_INVALID_ORDER_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_NOT_STORED';
+    public const CART_ORDER_CONVERT_NOT_FOUND_CODE = 'CHECKOUT__CART_ORDER_CONVERT_NOT_FOUND';
     public const CART_LINE_ITEM_NOT_FOUND_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_FOUND';
     public const CART_LINE_ITEM_NOT_REMOVABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_REMOVABLE';
     public const CART_LINE_ITEM_NOT_STACKABLE_CODE = 'CHECKOUT__CART_LINE_ITEM_NOT_STACKABLE';
@@ -29,6 +35,19 @@ class CartException extends HttpException
     public const CART_INVALID_PRICE_DEFINITION_CODE = 'CHECKOUT__CART_MISSING_PRICE_DEFINITION';
     public const CART_MIXED_LINE_ITEM_TYPE_CODE = 'CHECKOUT__CART_MIXED_LINE_ITEM_TYPE';
     public const CART_PAYLOAD_KEY_NOT_FOUND_CODE = 'CHECKOUT__CART_PAYLOAD_KEY_NOT_FOUND';
+    public const CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT_CODE = 'CHECKOUT__CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT';
+    public const CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION';
+    public const CART_DISCOUNT_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_DISCOUNT_TYPE_NOT_SUPPORTED';
+    public const CART_INVALID_PERCENTAGE_DISCOUNT_CODE = 'CHECKOUT__CART_INVALID_PERCENTAGE_DISCOUNT';
+    public const CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE_CODE = 'CHECKOUT__CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE';
+    public const CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION_CODE = 'CHECKOUT__CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION';
+    public const CART_SURCHARGE_TYPE_NOT_SUPPORTED_CODE = 'CHECKOUT__CART_SURCHARGE_TYPE_NOT_SUPPORTED';
+    public const CART_INVALID_PERCENTAGE_SURCHARGE_CODE = 'CHECKOUT__CART_INVALID_PERCENTAGE_SURCHARGE';
+    public const CART_MISSING_BEHAVIOR_CODE = 'CHECKOUT__CART_MISSING_BEHAVIOR';
+    public const TAX_ID_NOT_FOUND = 'CHECKOUT__TAX_ID_NOT_FOUND';
+    public const TAX_ID_PARAMETER_IS_MISSING = 'CHECKOUT__TAX_ID_PARAMETER_IS_MISSING';
+    public const PRICE_PARAMETER_IS_MISSING = 'CHECKOUT__PRICE_PARAMETER_IS_MISSING';
+    public const PRICES_PARAMETER_IS_MISSING = 'CHECKOUT__PRICES_PARAMETER_IS_MISSING';
 
     public static function deserializeFailed(): self
     {
@@ -59,6 +78,36 @@ class CartException extends HttpException
             Response::HTTP_FORBIDDEN,
             self::INSUFFICIENT_PERMISSION_CODE,
             'Insufficient permission.'
+        );
+    }
+
+    public static function invalidPaymentButOrderStored(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_PAYMENT_INVALID_ORDER_STORED_CODE,
+            'Order payment failed but order was stored with id {{ orderId }}.',
+            ['orderId' => $orderId]
+        );
+    }
+
+    public static function invalidPaymentOrderNotStored(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_PAYMENT_INVALID_ORDER_CODE,
+            'Order payment failed. The order was not stored.',
+            ['orderId' => $orderId]
+        );
+    }
+
+    public static function orderNotFound(string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_ORDER_CONVERT_NOT_FOUND_CODE,
+            'Order {{ orderId }} could not be found.',
+            ['orderId' => $orderId]
         );
     }
 
@@ -110,9 +159,19 @@ class CartException extends HttpException
         );
     }
 
-    public static function lineItemNotFound(string $id): self
+    public static function deliveryNotFound(string $id): self
     {
         return new self(
+            Response::HTTP_NOT_FOUND,
+            self::CART_DELIVERY_NOT_FOUND_CODE,
+            'Delivery with identifier {{ id }} not found.',
+            ['id' => $id]
+        );
+    }
+
+    public static function lineItemNotFound(string $id): self
+    {
+        return new LineItemNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::CART_LINE_ITEM_NOT_FOUND_CODE,
             'Line item with identifier {{ id }} not found.',
@@ -187,5 +246,136 @@ class CartException extends HttpException
             'Payload key "{{ key }}" in line item "{{ id }}" not found.',
             ['key' => $key, 'id' => $lineItemId]
         );
+    }
+
+    public static function invalidPercentageDiscount(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_INVALID_PERCENTAGE_DISCOUNT_CODE,
+            'Percentage discount {{ key }} requires a provided float value',
+            ['key' => $key]
+        );
+    }
+
+    public static function discountTypeNotSupported(string $key, string $type): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_DISCOUNT_TYPE_NOT_SUPPORTED_CODE,
+            'Discount type "{{ type }}" is not supported for discount {{ key }}',
+            ['key' => $key, 'type' => $type]
+        );
+    }
+
+    public static function absoluteDiscountMissingPriceCollection(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_ABSOLUTE_DISCOUNT_MISSING_PRICE_COLLECTION_CODE,
+            'Absolute discount {{ key }} requires a provided price collection. Use services.price(...) to create a price',
+            ['key' => $key]
+        );
+    }
+
+    public static function missingDefaultPriceCollectionForDiscount(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_DISCOUNT_CODE,
+            'Absolute discount {{ key }} requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object',
+            ['key' => $key]
+        );
+    }
+
+    public static function invalidPercentageSurcharge(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_INVALID_PERCENTAGE_SURCHARGE_CODE,
+            'Percentage surcharge {{ key }} requires a provided float value',
+            ['key' => $key]
+        );
+    }
+
+    public static function surchargeTypeNotSupported(string $key, string $type): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_SURCHARGE_TYPE_NOT_SUPPORTED_CODE,
+            'Surcharge type "{{ type }}" is not supported for surcharge {{ key }}',
+            ['key' => $key, 'type' => $type]
+        );
+    }
+
+    public static function absoluteSurchargeMissingPriceCollection(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_ABSOLUTE_SURCHARGE_MISSING_PRICE_COLLECTION_CODE,
+            'Absolute surcharge {{ key }} requires a provided price collection. Use services.price(...) to create a price',
+            ['key' => $key]
+        );
+    }
+
+    public static function missingDefaultPriceCollectionForSurcharge(string $key): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_MISSING_DEFAULT_PRICE_COLLECTION_FOR_SURCHARGE_CODE,
+            'Absolute surcharge {{ key }} requires a defined currency price for the default currency. Use services.price(...) to create a compatible price object',
+            ['key' => $key]
+        );
+    }
+
+    public static function missingCartBehavior(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_MISSING_BEHAVIOR_CODE,
+            'Cart instance of the cart facade were never calculated. Please call calculate() before using the cart facade.'
+        );
+    }
+
+    public static function taxRuleNotFound(string $taxId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::TAX_ID_NOT_FOUND,
+            'Tax rule with id "{{ taxId }}" not found.',
+            ['taxId' => $taxId]
+        );
+    }
+
+    public static function taxIdParameterIsMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::TAX_ID_PARAMETER_IS_MISSING,
+            'Parameter "taxId" is missing.',
+        );
+    }
+
+    public static function priceParameterIsMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRICE_PARAMETER_IS_MISSING,
+            'Parameter "price" is missing.',
+        );
+    }
+
+    public static function pricesParameterIsMissing(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRICES_PARAMETER_IS_MISSING,
+            'Parameter "prices" is missing.',
+        );
+    }
+
+    public static function addressNotFound(string $id): ShopwareHttpException
+    {
+        return new AddressNotFoundException($id);
     }
 }

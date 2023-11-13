@@ -2,34 +2,28 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
- * @package inventory
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class ProductReviewRoute extends AbstractProductReviewRoute
 {
     /**
-     * @var EntityRepository
-     */
-    private $repository;
-
-    /**
      * @internal
+     *
+     * @param EntityRepository<ProductReviewCollection> $productReviewRepository
      */
-    public function __construct(EntityRepository $repository)
+    public function __construct(private readonly EntityRepository $productReviewRepository)
     {
-        $this->repository = $repository;
     }
 
     public function getDecorated(): AbstractProductReviewRoute
@@ -37,10 +31,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Route("/store-api/product/{productId}/reviews", name="store-api.product-review.list", methods={"POST"}, defaults={"_entity"="product_review"})
-     */
+    #[Route(path: '/store-api/product/{productId}/reviews', name: 'store-api.product-review.list', methods: ['POST'], defaults: ['_entity' => 'product_review'])]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
@@ -59,7 +50,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
             ])
         );
 
-        $result = $this->repository->search($criteria, $context->getContext());
+        $result = $this->productReviewRepository->search($criteria, $context->getContext());
 
         return new ProductReviewRouteResponse($result);
     }

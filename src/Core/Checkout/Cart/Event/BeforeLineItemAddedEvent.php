@@ -6,11 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class BeforeLineItemAddedEvent implements ShopwareSalesChannelEvent
 {
     /**
@@ -33,8 +32,12 @@ class BeforeLineItemAddedEvent implements ShopwareSalesChannelEvent
      */
     protected $merged;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $salesChannelContext, bool $merged = false)
-    {
+    public function __construct(
+        LineItem $lineItem,
+        Cart $cart,
+        SalesChannelContext $salesChannelContext,
+        bool $merged = false
+    ) {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->salesChannelContext = $salesChannelContext;

@@ -1,0 +1,88 @@
+{
+    "id": 12161,
+    "name": "Tes12SWCloudApp1",
+    "icon": "https:\/\/Lol.s3.eu-west-1.amazonaws.com\/phpxfdAqs",
+    "label": "Tes12SWCloudApp1",
+    "type": "SWCloudApp",
+    "shortDescription": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et jus",
+    "producerName": "",
+    "variants": [
+        {
+            "id": 10,
+            "type": "rent",
+            "netPrice": 38,
+            "trialPhaseIncluded": true,
+            "discountCampaign": {
+                "discount": 50,
+                "discountAppliesForMonths": 6,
+                "discountedPrice": 8.95,
+                "startDate": "2020-11-16T16:00:22+01:00",
+                "endDate": "2020-11-18T16:00:22+01:00",
+                "name": "Mega Test rabatt"
+            }
+        },
+        {
+            "id": 11,
+            "type": "free",
+            "netPrice": 0,
+            "trialPhaseIncluded": false,
+            "discountCampaign": null
+        }
+    ],
+    "rating": 0,
+    "numberOfRatings": 2,
+    "images": [
+        {
+            "remoteLink": "https:\/\/Lol.s3.eu-west-1.amazonaws.com\/phpA3CeV6"
+        }
+    ],
+    "description": "\u003Cp\u003ELorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\u003C\/p\u003E",
+    "categories": [
+        {
+            "name": "PreissuchmaschinenPortale"
+        }
+    ],
+    "latestVersion": "1.0.0",
+    "lastUpdateDate": "2020-09-14T15:36:47+02:00",
+    "permissions": [
+        {
+            "entity": "product",
+            "operation": "create"
+        },
+        {
+            "entity": "product_visibility",
+            "operation": "create"
+        },
+        {
+            "entity": "promotion",
+            "operation": "create"
+        },
+        {
+            "entity": "promotion_individual_code",
+            "operation": "create"
+        },
+        {
+            "entity": "xxx",
+            "operation": "create"
+        }
+    ],
+    "languages": [
+        {
+            "name": "de_DE"
+        },
+        {
+            "name": "en_GB"
+        }
+    ],
+    "producerWebsite": "",
+    "privacyPolicyLink": null,
+    "privacyPolicyExtension": "Change your privacy policy!",
+    "faq": [],
+    "binaries": [
+        {
+            "version": "1.0.0",
+            "text": "\u003Cp\u003ETes12SWCloudApp1Tes12SWCloudApp1\u003C\/p\u003E",
+            "creationDate": "2020-09-14T15:36:47+02:00"
+        }
+    ]
+}

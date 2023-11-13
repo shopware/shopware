@@ -4,7 +4,7 @@ import './sw-extension-review-creation.scss';
 const { ShopwareError } = Shopware.Classes;
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @private
  */
 export default {
@@ -108,18 +108,6 @@ export default {
             } catch (e) {
                 this.showExtensionErrors(e);
             }
-        },
-
-        clearData() {
-            this.tocAccepted = false;
-            this.headline = null;
-            this.rating = null;
-            this.text = null;
-
-            this.$nextTick(() => {
-                this.errors.headlineError = null;
-                this.errors.ratingError = null;
-            });
         },
 
         validateInputs() {

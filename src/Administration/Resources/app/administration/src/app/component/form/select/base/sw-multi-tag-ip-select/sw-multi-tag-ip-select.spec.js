@@ -18,17 +18,17 @@ const createMultiDataIpSelect = async (customOptions) => {
             'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-icon': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         propsData: {
-            value: []
-        }
+            value: [],
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-multi-tag-ip-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -39,15 +39,14 @@ describe('components/sw-multi-tag-ip-select', () => {
     });
 
     [
-        // ['a676344c-c0dd-49e5-8fbb-5f570c27762c', false],
+        ['a676344c-c0dd-49e5-8fbb-5f570c27762c', false],
         ['::', true],
-        // ['10.0.0.1', true],
-        // ['aabb::', true],
-        // ['127.0.0.1abcd', false]
+        ['10.0.0.1', true],
+        ['aabb::', true],
+        ['127.0.0.1abcd', false],
     ].forEach(([value, shouldBeValid]) => {
         it(`should validate IPs correctly: ${value} should be ${shouldBeValid}`, async () => {
             const multiDataIpSelect = await createMultiDataIpSelect();
-            console.log(multiDataIpSelect.vm.validate);
             const input = multiDataIpSelect.find('.sw-select-selection-list__input');
 
             expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();

@@ -9,7 +9,7 @@ const classes = {
     root: 'sw-page__main-content',
     cardView: 'sw-card-view',
     systemConfig: 'sw-system-config',
-    settingsCard: 'sw-card'
+    settingsCard: 'sw-card',
 };
 
 async function createWrapper() {
@@ -19,13 +19,13 @@ async function createWrapper() {
         localVue,
         mocks: {
             $route: {
-                meta: {}
-            }
+                meta: {},
+            },
         },
         provide: { systemConfigApiService: {
             getConfig: () => Promise.resolve({
-                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel': true
-            })
+                'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel': true,
+            }),
         } },
         stubs: {
             'sw-page': {
@@ -36,21 +36,21 @@ async function createWrapper() {
                             <slot name="content"></slot>
                           </div>
                           <slot></slot>
-                     </div>`
+                     </div>`,
             },
             'sw-icon': true,
             'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>'
+                template: '<div class="sw-card"><slot></slot></div>',
             },
             'sw-card-view': {
-                template: '<div class="sw-card-view"><slot></slot></div>'
+                template: '<div class="sw-card-view"><slot></slot></div>',
             },
             'sw-button-process': true,
             'sw-system-config': await Shopware.Component.build('sw-system-config'),
             'sw-search-bar': true,
             'sw-notification-center': true,
-            'sw-skeleton': true
-        }
+            'sw-skeleton': true,
+        },
     });
 }
 
@@ -76,7 +76,7 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
                 .find(`.${classes.cardView}`)
                 .find(`.${classes.systemConfig}`)
                 .find(`.${classes.settingsCard}`)
-                .exists()
+                .exists(),
         ).toBeTruthy();
     });
 });

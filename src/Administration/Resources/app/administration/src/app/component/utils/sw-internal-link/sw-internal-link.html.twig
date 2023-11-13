@@ -1,11 +1,13 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_internal_link %}
-<router-link
+<component
+    :is="elementType"
     v-if="!disabled"
     :to="routerLink"
     :target="target"
     class="sw-internal-link"
     :class="componentClasses"
+    @click="$emit('click')"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -22,7 +24,7 @@
     />
     {% endblock %}
 
-</router-link>
+</component>
 
 <span
     v-else

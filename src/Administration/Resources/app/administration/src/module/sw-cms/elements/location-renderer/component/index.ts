@@ -7,7 +7,7 @@ const { Component, Mixin } = Shopware;
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Component.register('sw-cms-el-location-renderer', {
     template,
@@ -25,7 +25,12 @@ Component.register('sw-cms-el-location-renderer', {
 
     computed: {
         src(): string {
-            return this.elementData.appData.baseUrl;
+            // Add this.element.id to the url as a query param
+            const url = new URL(this.elementData.appData.baseUrl);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            url.searchParams.set('elementId', this.element.id);
+
+            return url.toString();
         },
 
         elementLocation(): string {
@@ -39,7 +44,6 @@ Component.register('sw-cms-el-location-renderer', {
 
     watch: {
         element(): void {
-            // @ts-expect-error
             this.$emit('element-update', this.element);
         },
     },
@@ -50,12 +54,19 @@ Component.register('sw-cms-el-location-renderer', {
 
     methods: {
         createdComponent(): void {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.initElementConfig(this.elementData.name);
 
+            // This is just for avoiding breaking changes for older implementations.
+            // The important part is the publisher with the element id.
             Shopware.ExtensionAPI.publishData({
                 id: this.publishingKey,
+                path: 'element',
+                scope: this,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                id: `${this.publishingKey}__${this.element.id}`,
                 path: 'element',
                 scope: this,
             });

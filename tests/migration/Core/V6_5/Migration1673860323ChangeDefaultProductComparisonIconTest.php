@@ -12,6 +12,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1673860323ChangeDefaultProductComparisonIcon
  */
 class Migration1673860323ChangeDefaultProductComparisonIconTest extends TestCase

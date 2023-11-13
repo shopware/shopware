@@ -5,10 +5,9 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\Sorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class LineItemGroupPriceAscSorter implements LineItemGroupSorterInterface
 {
     public function getKey(): string

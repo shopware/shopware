@@ -7,15 +7,14 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class OrderCustomerEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string
@@ -86,6 +85,11 @@ class OrderCustomerEntity extends Entity
      * @var string|null
      */
     protected $remoteAddress;
+
+    /**
+     * @var string
+     */
+    protected $orderVersionId;
 
     public function getEmail(): string
     {
@@ -228,5 +232,15 @@ class OrderCustomerEntity extends Entity
     public function setRemoteAddress(?string $remoteAddress): void
     {
         $this->remoteAddress = $remoteAddress;
+    }
+
+    public function getOrderVersionId(): string
+    {
+        return $this->orderVersionId;
+    }
+
+    public function setOrderVersionId(string $orderVersionId): void
+    {
+        $this->orderVersionId = $orderVersionId;
     }
 }

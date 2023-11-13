@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\CreditNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
@@ -18,55 +19,32 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 final class CreditNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'credit_note';
-
-    private DocumentConfigLoader $documentConfigLoader;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private DocumentTemplateRenderer $documentTemplateRenderer;
-
-    private string $rootDir;
-
-    private EntityRepository $orderRepository;
-
-    private NumberRangeValueGeneratorInterface $numberRangeValueGenerator;
-
-    private ReferenceInvoiceLoader $referenceInvoiceLoader;
-
-    private Connection $connection;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $orderRepository,
-        DocumentConfigLoader $documentConfigLoader,
-        EventDispatcherInterface $eventDispatcher,
-        DocumentTemplateRenderer $documentTemplateRenderer,
-        NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
-        ReferenceInvoiceLoader $referenceInvoiceLoader,
-        string $rootDir,
-        Connection $connection
+        private readonly EntityRepository $orderRepository,
+        private readonly DocumentConfigLoader $documentConfigLoader,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DocumentTemplateRenderer $documentTemplateRenderer,
+        private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
+        private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
+        private readonly string $rootDir,
+        private readonly Connection $connection
     ) {
-        $this->documentConfigLoader = $documentConfigLoader;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->documentTemplateRenderer = $documentTemplateRenderer;
-        $this->rootDir = $rootDir;
-        $this->orderRepository = $orderRepository;
-        $this->numberRangeValueGenerator = $numberRangeValueGenerator;
-        $this->referenceInvoiceLoader = $referenceInvoiceLoader;
-        $this->connection = $connection;
     }
 
     public function supports(): string
@@ -80,9 +58,7 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/credit_note.html.twig';
 
-        $ids = \array_map(function (DocumentGenerateOperation $operation) {
-            return $operation->getOrderId();
-        }, $operations);
+        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
         if (empty($ids)) {
             return $result;
@@ -96,15 +72,14 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         foreach ($operations as $operation) {
             try {
                 $orderId = $operation->getOrderId();
-                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId());
+                $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if (empty($invoice)) {
                     throw new DocumentGenerationException('Can not generate credit note document because no invoice document exists. OrderId: ' . $operation->getOrderId());
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
-
-                $referenceInvoiceNumbers[$orderId] = $documentRefer['documentNumber'];
+                $referenceInvoiceNumbers[$orderId] = $invoice['documentNumber'] ?? $documentRefer['documentNumber'];
 
                 $order = $this->getOrder($orderId, $invoice['orderVersionId'], $context, $rendererConfig->deepLinkCode);
 
@@ -217,7 +192,21 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
 
         // Get the correct order with versioning from reference invoice
         $versionContext = $context->createWithVersionId($versionId)->assign([
-            'languageIdChain' => array_unique(array_filter([$languageId, $context->getLanguageId()])),
+            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
+        ]);
+
+        $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode)
+            ->addFilter(new EqualsFilter('lineItems.type', LineItem::CREDIT_LINE_ITEM_TYPE));
+
+        /** @var ?OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
+
+        if ($order) {
+            return $order;
+        }
+
+        $versionContext = $context->createWithVersionId(Defaults::LIVE_VERSION)->assign([
+            'languageIdChain' => array_values(array_unique(array_filter([$languageId, ...$context->getLanguageIdChain()]))),
         ]);
 
         $criteria = OrderDocumentCriteriaFactory::create([$orderId], $deepLinkCode);
@@ -226,6 +215,10 @@ final class CreditNoteRenderer extends AbstractDocumentRenderer
         $order = $this->orderRepository->search($criteria, $versionContext)->get($orderId);
 
         if ($order === null) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw DocumentException::orderNotFound($orderId);
+            }
+
             throw new InvalidOrderException($orderId);
         }
 

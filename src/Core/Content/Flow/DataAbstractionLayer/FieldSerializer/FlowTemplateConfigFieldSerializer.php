@@ -3,12 +3,14 @@
 namespace Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -16,10 +18,9 @@ use Symfony\Component\Validator\Constraints\Optional;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 {
     public function encode(
@@ -29,7 +30,7 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof FlowTemplateConfigField) {
-            throw new InvalidSerializerFieldException(FlowTemplateConfigField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(FlowTemplateConfigField::class, $field);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
@@ -49,17 +50,15 @@ class FlowTemplateConfigFieldSerializer extends JsonFieldSerializer
 
         $sequences = $value['sequences'];
 
-        $value['sequences'] = array_map(function ($item) {
-            return array_merge([
-                'parentId' => null,
-                'ruleId' => null,
-                'position' => 1,
-                'displayGroup' => 1,
-                'trueCase' => 0,
-            ], $item);
-        }, $sequences);
+        $value['sequences'] = array_map(fn ($item) => array_merge([
+            'parentId' => null,
+            'ruleId' => null,
+            'position' => 1,
+            'displayGroup' => 1,
+            'trueCase' => 0,
+        ], $item), $sequences);
 
-        yield $field->getStorageName() => JsonFieldSerializer::encodeJson($value);
+        yield $field->getStorageName() => Json::encode($value);
     }
 
     protected function getConstraints(Field $field): array

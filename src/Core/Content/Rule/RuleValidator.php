@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Exception\InvalidConditionException;
 use Shopware\Core\Framework\Rule\ScriptRule;
@@ -29,20 +30,19 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RuleValidator implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private ValidatorInterface $validator,
-        private RuleConditionRegistry $ruleConditionRegistry,
-        private EntityRepository $ruleConditionRepository,
-        private EntityRepository $appScriptConditionRepository
+        private readonly ValidatorInterface $validator,
+        private readonly RuleConditionRegistry $ruleConditionRegistry,
+        private readonly EntityRepository $ruleConditionRepository,
+        private readonly EntityRepository $appScriptConditionRepository
     ) {
     }
 
@@ -107,7 +107,7 @@ class RuleValidator implements EventSubscriberInterface
 
         try {
             $ruleInstance = $this->ruleConditionRegistry->getRuleInstance($type);
-        } catch (InvalidConditionException $e) {
+        } catch (InvalidConditionException) {
             $violation = $this->buildViolation(
                 'This {{ value }} is not a valid condition type.',
                 ['{{ value }}' => $type],
@@ -121,16 +121,42 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         $value = $this->getConditionValue($condition, $payload);
-        $ruleInstance->assign($value);
+
+        // add violations when a property is not defined on the rule instance
+        $missingProperties = [];
+        if (!$ruleInstance instanceof ScriptRule) {
+            $missingProperties = array_filter(
+                $value,
+                static fn (string $key): bool => !property_exists($ruleInstance, $key) && !\array_key_exists($key, $ruleInstance->getConstraints()),
+                \ARRAY_FILTER_USE_KEY
+            );
+        }
+
+        foreach (array_keys($missingProperties) as $missingProperty) {
+            $violationList->add(
+                $this->buildViolation(
+                    'The property "{{ fieldName }}" is not allowed.',
+                    ['{{ fieldName }}' => $missingProperty],
+                    '/value/' . $missingProperty
+                )
+            );
+        }
+
+        // remove missing properties from value before assigning it to the rule instance
+        $value = array_diff_key($value, $missingProperties);
 
         if ($ruleInstance instanceof ScriptRule) {
+            $ruleInstance->assignValues($value);
             $this->setScriptConstraints($ruleInstance, $condition, $payload, $context);
+        } else {
+            $ruleInstance->assign($value);
         }
 
         $this->validateConsistence(
             $ruleInstance->getConstraints(),
             $value,
-            $violationList
+            $violationList,
+            $missingProperties
         );
 
         if ($violationList->count() > 0) {
@@ -159,8 +185,8 @@ class RuleValidator implements EventSubscriberInterface
     private function getConditionValue(?RuleConditionEntity $condition, array $payload): array
     {
         $value = $condition !== null ? $condition->getValue() : [];
-        if (isset($payload['value']) && $payload['value'] !== null) {
-            $value = json_decode($payload['value'], true);
+        if (isset($payload['value'])) {
+            $value = json_decode((string) $payload['value'], true, 512, \JSON_THROW_ON_ERROR);
         }
 
         return $value ?? [];
@@ -169,8 +195,9 @@ class RuleValidator implements EventSubscriberInterface
     /**
      * @param array<string, array<Constraint>> $fieldValidations
      * @param array<mixed> $payload
+     * @param array<string> $missingProperties
      */
-    private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList): void
+    private function validateConsistence(array $fieldValidations, array $payload, ConstraintViolationList $violationList, array $missingProperties): void
     {
         foreach ($fieldValidations as $fieldName => $validations) {
             $violationList->addAll(
@@ -182,7 +209,7 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         foreach ($payload as $fieldName => $_value) {
-            if (!\array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
+            if (!\array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name' && !isset($missingProperties[$fieldName])) {
                 $violationList->add(
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',

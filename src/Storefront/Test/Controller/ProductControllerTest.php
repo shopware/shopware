@@ -38,12 +38,12 @@ use Symfony\Component\HttpFoundation\Response;
 class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontControllerTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     private TestDataCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->ids = new TestDataCollection();
 
@@ -94,8 +94,7 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        /** @var string $responseContent */
-        $responseContent = $response->getContent();
+        $responseContent = (string) $response->getContent();
         $content = (array) json_decode($responseContent);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
@@ -136,7 +135,7 @@ class ProductControllerTest extends TestCase
             ->manufacturer('m1')
             ->name('test')
             ->price(10)
-            ->visibility(TestDefaults::SALES_CHANNEL)
+            ->visibility()
             ->configuratorSetting('red', 'color')
             ->configuratorSetting('green', 'color')
             ->configuratorSetting('blue', 'color')
@@ -144,7 +143,7 @@ class ProductControllerTest extends TestCase
             ->configuratorSetting('xl', 'size')
             ->configuratorSetting('m', 'size')
             ->stock(10)
-            ->closeout(true)
+            ->closeout()
             ->variant(
                 (new ProductBuilder($this->ids, 'a.1'))
                     ->option('red', 'color')
@@ -181,7 +180,7 @@ class ProductControllerTest extends TestCase
                 (new ProductBuilder($this->ids, 'a.5'))
                     ->option('blue', 'color')
                     ->option('xl', 'size')
-                    ->visibility(TestDefaults::SALES_CHANNEL)
+                    ->visibility()
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
                     ->closeout(null) // inherited
@@ -238,11 +237,8 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        /** @var string $content */
-        $content = $response->getContent();
-
         $crawler = new Crawler();
-        $crawler->addHtmlContent($content);
+        $crawler->addHtmlContent((string) $response->getContent());
 
         $blueFound = false;
         $greenFound = false;
@@ -292,9 +288,9 @@ class ProductControllerTest extends TestCase
     }
 
     /**
-     * @return iterable<array<int, bool|string>>
+     * @return iterable<string, array<int, string|bool>>
      */
-    public function variantProvider(): iterable
+    public static function variantProvider(): iterable
     {
         yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
         yield 'test color: green - size: xl' => ['a.2', true, false, true, true, false]; // a.2 green and xl should be gray
@@ -387,9 +383,7 @@ class ProductControllerTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
-            'visibilities' => array_map(static function ($id) {
-                return ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
-            }, $ids),
+            'visibilities' => array_map(static fn ($id) => ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids),
         ];
 
         $repository = $this->getContainer()->get('product.repository');
@@ -422,7 +416,7 @@ class ProductControllerTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
-                'password' => 'test',
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -447,22 +441,16 @@ class ProductControllerTest extends TestCase
             $_SERVER['APP_URL'] . '/account/login',
             $this->tokenize('frontend.account.login', [
                 'username' => $customer->getEmail(),
-                'password' => 'test',
+                'password' => 'shopware',
             ])
         );
         $response = $browser->getResponse();
-
-        /** @var string $content */
-        $content = $response->getContent();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         $browser->request('GET', '/');
-
         /** @var StorefrontResponse $response */
         $response = $browser->getResponse();
-
-        /** @var SalesChannelContext $context */
-        $context = $response->getContext();
+        static::assertNotNull($context = $response->getContext());
         static::assertNotNull($context->getCustomer());
 
         return $browser;

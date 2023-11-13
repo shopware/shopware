@@ -8,6 +8,7 @@ use Shopware\Core\Migration\V6_5\Migration1669124190AddDoctrineMessengerTable;
 
 /**
  * @internal
+ *
  * @covers \Shopware\Core\Migration\V6_5\Migration1669124190AddDoctrineMessengerTable
  */
 class Migration1669124190AddDoctrineMessengerTableTest extends TestCase

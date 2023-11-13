@@ -41,6 +41,7 @@
       "from": "Von",
       "to": "Bis",
       "bulkEdit": "Mehrfachänderung",
+      "back": "Zurück",
       "discard": "Verwerfen"
     },
     "notification": {
@@ -247,7 +248,9 @@
     },
     "sw-time-ago": {
       "justNow": "Gerade eben",
-      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten"
+      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten",
+      "aboutNow": "In Kürze",
+      "minutesFromNow": "In einer Minute | In {minutesFromNow} Minuten"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Medien durchsuchen ...",
@@ -662,7 +665,7 @@
         },
         "isGuestRule": "Gastbesteller",
         "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
-        "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
+        "daysSinceLastOrderRule": "Zeit seit letzter Bestellung",
         "shippingCountryRule": "Lieferadresse: Land",
         "shippingCityRule": "Lieferadresse: Stadt",
         "shippingStreetRule": "Lieferadresse: Straße",
@@ -670,8 +673,8 @@
         "shippingZipCodeRule": "Lieferadresse: Postleitzahl",
         "customerLoggedInRule": "Angemeldeter Kunde",
         "customerAgeRule": "Kundenalter",
-        "customerDaysSinceLastLogin": "Tage seit der letzten Anmeldung",
-        "customerDaysSinceFirstLogin": "Tage seit der ersten Anmeldung",
+        "customerDaysSinceLastLogin": "Zeit seit der letzten Anmeldung",
+        "customerDaysSinceFirstLogin": "Zeit seit der ersten Anmeldung",
         "customerAffiliateCodeRule": "Affiliate-Code",
         "customerCampaignCodeRule": "Kampagnen-Code",
         "cartAmountRule": "Gesamtsumme",
@@ -691,6 +694,13 @@
         "lineItemTotalPriceRule": "Positionszwischensumme",
         "lineItemWithQuantityRule": "Positionsanzahl",
         "orderTagRule": "Bestellung mit Tag",
+        "orderTrackingCodeRule": "Sendungsnummer",
+        "orderDeliveryStatusRule": "Lieferstatus",
+        "orderCreatedByAdminRule": "Bestellung vom Administrator erstellt",
+        "orderTransactionStatusRule": "Zahlungsstatus",
+        "orderStatusRule": "Bestellstatus",
+        "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
+        "orderDocumentTypeRule": "Bestellung mit Dokument",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",
@@ -720,10 +730,11 @@
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Gesamtgewicht aller Produkte",
         "volumeOfCartRule": "Gesamtvolumen aller Produkte",
+        "cartShippingCost": "Versandkosten",
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Position mit Tag",
         "alwaysValidRule": "Immer zutreffend",
-        "lineItemPropertyRule": "Position mit Eigenschaft",
+        "lineItemPropertyRule": "Position mit Varianten- oder Eigenschaftsausprägung",
         "lineItemNoveltyRule": "Neuheiten",
         "lineItemCustomFieldRule": "Position mit Zusatzfeld",
         "lineItemIsNewRule": "Position als \"neu\" markiert",
@@ -747,6 +758,7 @@
         "lineItemActualStockRule": "Position mit Lagerbestand",
         "lineItemStockRule": "Position mit verfügbarem Bestand",
         "lineItemProductStates": "Position mit Produktzustand",
+        "numberOfReviews": "Anzahl abgegebener Bewertungen",
         "paymentMethodRule": "Verwendete Zahlungsart",
         "shippingMethodRule": "Verwendete Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl aller Produkte",
@@ -765,7 +777,8 @@
               "placeholder": "Fieldset wählen ..."
             },
             "customFieldSelect": {
-              "placeholder": "Zusatzfeld wählen ..."
+              "placeholder": "Zusatzfeld wählen ...",
+              "tooltip": "Dieses Zusatzfeld ist aktuell in Warenkörben nicht verfügbar. In den <a href=\"{customFieldSettingsLink}\" target=\"_blank\">Einstellungen</a> dieses Zusatzfeldes kannst du es für Warenkörbe  aktivieren."
             }
           }
         },
@@ -773,7 +786,10 @@
         "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ...",
         "customerBirthdayRule": "Kundengeburtstag",
         "customerCreatedByAdminRule": "Kunde vom Administrator erstellt",
-        "customerSalutationRule": "Kundenanrede"
+        "customerSalutationRule": "Kundenanrede",
+        "customerDefaultPaymentMethodRule": "Kunde mit Standardzahlungsart",
+        "lineItemPropertyValueRule": "Position mit Eigenschaftsausprägung",
+        "lineItemVariantValueRule": "Position mit Variantenausprägung"
       }
     },
     "sw-condition-generic": {
@@ -839,7 +855,7 @@
         "productState": {
           "options": {
             "is-physical": "Physisch",
-            "is-download": "Download"
+            "is-download": "Digital"
           }
         }
       },
@@ -856,7 +872,76 @@
         "dimension": "mm",
         "weight": "kg",
         "volume": "mm³",
-        "age": "Jahre"
+        "age": "Jahre",
+        "kg": "Killogramm",
+        "g": "Gramm",
+        "mg": "Milligramm",
+        "oz": "Unze",
+        "lb": "Pfund",
+        "m": "Meter",
+        "cm": "Zentimeter",
+        "mm": "Millimeter",
+        "km": "Kilometer",
+        "in": "Zoll",
+        "ft": "Fuß",
+        "mi": "Meilen",
+        "hr": "Stunden",
+        "yr": "Jahre",
+        "mth": "Monate",
+        "wk": "Wochen",
+        "d": "Tage",
+        "min": "Minuten",
+        "m3": "Kubikmeter",
+        "cm3": "Kubikzentimeter",
+        "mm3": "Kubikmillimeter",
+        "in3": "Kubikzoll",
+        "ft3": "Kubikfuß",
+        "short": {
+          "hr": "std",
+          "yr": "j",
+          "mth": "mo",
+          "wk": "w",
+          "d": "t",
+          "min": "min",
+          "kg": "kg",
+          "g": "g",
+          "mg": "mg",
+          "oz": "oz",
+          "lb": "lb",
+          "m": "m",
+          "cm": "cm",
+          "mm": "mm",
+          "km": "km",
+          "in": "in",
+          "ft": "ft",
+          "mi": "mi",
+          "m3": "m³",
+          "cm3": "cm³",
+          "mm3": "mm³",
+          "in3": "in³",
+          "ft3": "ft³"
+        }
+      },
+      "orderCreatedByAdmin": {
+        "shouldOrderBeCreatedByAdmin": {
+          "placeholder": "Condition auswählen ..."
+        }
+      },
+      "orderTransactionStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
+      },
+      "orderStatus": {
+        "stateIds": {
+          "placeholder": "State auswählen ..."
+        },
+        "operator": {
+          "placeholder": "Operator auswählen ..."
+        }
       }
     },
     "sw-product-image": {
@@ -870,7 +955,8 @@
       "defaultPlaceholder": "Suche ..."
     },
     "sw-tabs-item": {
-      "tooltipTabHasErrors": "Diese Seite enthält Fehler."
+      "tooltipTabHasErrors": "Diese Seite enthält Fehler.",
+      "tooltipTabHasWarnings": "Diese Seite enthält Warnungen."
     },
     "entities": {
       "all": "Alle",
@@ -944,7 +1030,8 @@
       "flow": "Flow Builder",
       "module": "Modul",
       "frequently_used": "Häufig verwendete",
-      "recently_searched": "Kürzlich gesucht"
+      "recently_searched": "Kürzlich gesucht",
+      "flow_sequence": "Flow"
     },
     "day-of-week": {
       "monday": "Montag",
@@ -1465,11 +1552,27 @@
     "restrictedConditions": {
       "restrictedConditionTooltip": "Diese Regel ist an folgenden Stellen zugewiesen:<br/><br/>{assignments}<br/><br/>Die Verwendung dieser Bedingung ist in diesem Zusammenhang nicht möglich.",
       "relation": {
-        "flowTrigger": "Flows mit Trigger: {assignments}",
-        "promotion": "Rabattaktionen als: {assignments}"
+        "flowTrigger": "Flows mit Auslöser: {assignments}",
+        "promotion": "Rabattaktionen als: {assignments}",
+        "productPrices": "Produkte als: {assignments}",
+        "shippingMethods": "Versandarten als: {assignments}",
+        "shippingMethodPrices": "Versandarten als: {assignments}",
+        "paymentMethods": "Zahlarten als: {assignments}"
       }
     },
     "and": "und",
     "or": "oder"
+  },
+  "sw-ai-copilot-warning": {
+    "text": "AI-Antworten können ungenau oder irreführend sein."
+  },
+  "sw-usage-data": {
+    "sw-settings-usage-data-intro": {
+      "title": "Nutzungsdaten",
+      "headline": "Gemeinsam Shopware verbessern",
+      "description": "Hilf uns, bessere Produkte und Dienstleistungen zu entwickeln, indem Du uns erlaubst, Nutzungsdaten aus Deiner Shopware Administration zu sammeln. Mit den neuesten Techniken zum Schutz der Privatsphäre stellen wir sicher, dass die gesammelten Daten nicht mit Dir oder Deinem Shop in Verbindung gebracht werden können. Wir sammeln keine Kundeninformationen.",
+      "learnMore": "Mehr erfahren",
+      "learnMoreUrl": "https://shopware.com/de/datenschutz/"
+    }
   }
 }

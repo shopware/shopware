@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
-/**
- * @package storefront
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('storefront')]
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
@@ -54,6 +54,12 @@ class CookieProvider implements CookieProviderInterface
             [
                 'snippet_name' => 'cookie.groupComfortFeaturesWishlist',
                 'cookie' => 'wishlist-enabled',
+                'value' => '1',
+            ],
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesYoutubeVideo',
+                'cookie' => 'youtube-video',
+                'expiration' => '30',
                 'value' => '1',
             ],
         ],

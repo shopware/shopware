@@ -1,0 +1,50 @@
+shopware.update:
+    header_title: Installation
+    back: Zurück
+    rc_hint: (Nicht für die Produktivumgebung empfohlen)
+    language:
+        en: Englisch
+        de: Deutsch
+    navigation:
+        start: Sprache
+        configure_php: Konfigurieren
+        download: Herunterladen
+        finish: Abschluss
+    steps:
+        start:
+            title: Shopware-Installer
+            welcomeTitle: Willkommen im Shopware-Installer
+            welcomeMessage: Dieser Prozess wird Dich bei den notwendigen Schritten zum Installieren oder Aktualisieren von Shopware 6 begleiten.
+            languageSelection: Sprache des Installers
+            languageSelectionInfo: Die hier ausgewählte Sprache gilt nur für den Installer. Du kannst später immer noch eine andere Sprache für Deinen Shop auswählen.
+            submit: Weiter
+
+        configure_php:
+            title: Konfigurieren
+            info: PHP-Ausführungsdatei gefunden. Falls Du die Datei selber aussuchen möchtest, kannst Du das hier tun.
+            pathInput: PHP-Ausführungsdatei
+            submit: Konfiguration speichern
+        update:
+            title: Aktualisiere Shopware
+            log: Protokoll
+            backupHint: Erstelle ein Backup Deiner Daten, bevor Du mit der Aktualisierung beginnst.
+            submit: Shopware aktualisieren
+            currentVersion: 'Installierte Version: %version%'
+            updateVersion: 'Neue Version:'
+            error: 'Shopware konnte nicht aktualisiert werden. Klicke <a href="#" id="download-log">hier</a> um zur Protokolldatei zu gelangen.'
+        finish:
+            title: Abschluss
+            message: |
+                Die Installation wurde erfolgreich durchgeführt.
+
+                Im nächsten Schritt werden die Installationsdateien vom Server gelöscht und Du wirst zur Administration weitergeleitet.
+            submit: Administration öffnen
+        install:
+            title: Shopware herunterladen
+            info: Wähle eine Shopware-Version aus. Die Software wird in das aktuelle Verzeichnis installiert.
+            shopwareVersion: 'Shopware-Version:'
+            after_install: Nach dem Herunterladen solltest Du das Dokumenten-Stammverzeichnis auf das neu erstellte Verzeichnis <strong>public</strong> ändern.
+            log: Protokoll
+            installation_failed: Herunterladen fehlgeschlagen
+            submit: Herunterladen
+            error: 'Shopware konnte nicht heruntergeladen werden. Klicke <a href="#" id="download-log">hier</a> um zur Protokolldatei zu gelangen.'

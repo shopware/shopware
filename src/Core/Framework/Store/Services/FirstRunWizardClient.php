@@ -6,12 +6,11 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @package merchant-services
- *
  * @phpstan-type Plugin array{
  *     id: int,
  *     name: string,
@@ -22,8 +21,10 @@ use Symfony\Component\HttpFoundation\Request;
  * }
  *
  * @internal
+ *
  * @final
  */
+#[Package('services-settings')]
 class FirstRunWizardClient
 {
     public function __construct(
@@ -126,6 +127,7 @@ class FirstRunWizardClient
      */
     public function getRecommendations(?string $region, ?string $category, Context $context): array
     {
+        $query = [];
         $query['market'] = $region;
         $query['category'] = $category;
 

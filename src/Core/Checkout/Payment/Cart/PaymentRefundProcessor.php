@@ -7,42 +7,30 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTr
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\RefundPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Exception\InvalidRefundTransitionException;
 use Shopware\Core\Checkout\Payment\Exception\RefundException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownRefundException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentRefundProcessor
 {
     private const TABLE_ALIAS = 'refund';
-
-    private Connection $connection;
-
-    private OrderTransactionCaptureRefundStateHandler $stateHandler;
-
-    private PaymentHandlerRegistry $paymentHandlerRegistry;
 
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        OrderTransactionCaptureRefundStateHandler $stateHandler,
-        PaymentHandlerRegistry $paymentHandlerRegistry
+        private readonly Connection $connection,
+        private readonly OrderTransactionCaptureRefundStateHandler $stateHandler,
+        private readonly PaymentHandlerRegistry $paymentHandlerRegistry
     ) {
-        $this->connection = $connection;
-        $this->stateHandler = $stateHandler;
-        $this->paymentHandlerRegistry = $paymentHandlerRegistry;
     }
 
     public function processRefund(string $refundId, Context $context): void
     {
-        $statement = $this->connection->createQueryBuilder()
+        $result = $this->connection->createQueryBuilder()
             ->select('refund.id', 'state.technical_name', 'transaction.payment_method_id')
             ->from('order_transaction_capture_refund', self::TABLE_ALIAS)
             ->innerJoin(self::TABLE_ALIAS, 'state_machine_state', 'state', 'refund.state_id = state.id')
@@ -50,28 +38,27 @@ class PaymentRefundProcessor
             ->innerJoin(self::TABLE_ALIAS, 'order_transaction', 'transaction', 'transaction.id = capture.order_transaction_id')
             ->andWhere('refund.id = :refundId')
             ->setParameter('refundId', Uuid::fromHexToBytes($refundId))
-            ->execute();
-
-        $result = $statement->fetchAssociative();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$result || !\array_key_exists('technical_name', $result) || !\array_key_exists('payment_method_id', $result)) {
-            throw new UnknownRefundException($refundId);
+            throw PaymentException::unknownRefund($refundId);
         }
 
         if ($result['technical_name'] !== OrderTransactionCaptureRefundStates::STATE_OPEN) {
-            throw new InvalidRefundTransitionException($refundId, $result['technical_name']);
+            throw PaymentException::refundInvalidTransition($refundId, $result['technical_name']);
         }
 
         $paymentMethodId = Uuid::fromBytesToHex($result['payment_method_id']);
         $refundHandler = $this->paymentHandlerRegistry->getRefundPaymentHandler($paymentMethodId);
 
         if (!$refundHandler instanceof RefundPaymentHandlerInterface) {
-            throw new UnknownRefundHandlerException($refundId);
+            throw PaymentException::unknownRefundHandler($refundId);
         }
 
         try {
             $refundHandler->refund($refundId, $context);
-        } catch (RefundException $e) {
+        } catch (RefundException|PaymentException $e) {
             $this->stateHandler->fail($refundId, $context);
 
             throw $e;

@@ -3,56 +3,75 @@
  */
 
 // eslint-disable-next-line import/no-named-default
-import type { Route, RouteConfig, RawLocation, default as Router } from 'vue-router';
+import type { Route, RouteConfig, default as Router, RawLocation } from 'vue-router';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
+import initializeTabsVue3 from './tabs.init.vue3';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default function initializeTabs(): void {
+    if (window._features_?.vue3) {
+        initializeTabsVue3();
+    } else {
+        initializeTabsVue2();
+    }
+}
+
+function initializeTabsVue2(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {
         Shopware.State.commit('tabs/addTabItem', componentConfig);
 
         // if current route does not exist check if they exists after adding the route
         const router = Shopware.Application.view?.router;
 
+        // @ts-expect-error
+        const currentRoute = router.currentRoute;
+
         /* istanbul ignore next */
         if (
             router &&
-            router.currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
-            router.currentRoute.matched.length <= 0
+            currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
+            currentRoute.matched.length <= 0
         ) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
-
-            void router.replace(router.resolve(router.currentRoute.fullPath).route as RawLocation);
         }
     });
 
     /* istanbul ignore next */
     void Shopware.Application.viewInitialized.then(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const router = Shopware.Application.view!.router!;
+        const router = Shopware.Application.view!.router;
 
-        if (router && router.currentRoute.matched.length <= 0) {
+        // @ts-expect-error
+        const currentRoute = router.currentRoute;
+
+        if (router && currentRoute.matched.length <= 0) {
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
 
         /* istanbul ignore next */
+        // @ts-expect-error
         router.beforeEach((to, from, next) => {
             if (to.matched.length > 0) {
                 next();
                 return;
             }
 
-            createRouteForTabItem(to, router, next);
+            const routeSuccess = createRouteForTabItem(to, router as Router, next);
 
-            next(router.resolve(to.fullPath).route as RawLocation);
+            // only resolve route if it was created
+            if (routeSuccess) {
+                next((router as Router).resolve(to.fullPath).route as RawLocation);
+            } else {
+                next();
+            }
         });
     });
 }
 
 /* istanbul ignore next */
-function createRouteForTabItem(to: Route, router: Router, next: () => void): void {
+function createRouteForTabItem(to: Route, router: Router, next: () => void): boolean {
     /**
      * Create new route for the url if it matches a tab extension
      */
@@ -73,35 +92,44 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): voi
 
     if (!matchingTabItemConfig) {
         next();
-        return;
+        return false;
     }
 
     const dynamicPath = getDynamicPath(to.fullPath, router);
     const parentRoute = getParentRoute(dynamicPath, router as Router & { options?: { routes: RouteConfig[] } });
 
-    if (parentRoute && parentRoute.children) {
-        const firstChild = parentRoute.children[0];
-
-        parentRoute.children.push({
-            path: dynamicPath,
-            // @ts-expect-error
-            component: Shopware.Application.view.getComponent('sw-extension-component-section'),
-            name: `${parentRoute.name ?? ''}.${matchingTabItemConfig.componentSectionId}`,
-            meta: {
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                parentPath: firstChild.meta.parentPath ?? '',
-            },
-            isChildren: true,
-            props: {
-                'position-identifier': matchingTabItemConfig.componentSectionId,
-            },
-        });
+    if (parentRoute && parentRoute?.children === undefined) {
+        parentRoute.children = [];
     }
 
-    // @ts-expect-error
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-    router.addRoutes(router.options.routes);
+    if (parentRoute && parentRoute.children) {
+        const firstChild = parentRoute.children[0];
+        const newRouteName = `${parentRoute.name ?? ''}.${matchingTabItemConfig.componentSectionId}`;
+
+        const routeAlreadyExists = router.match({
+            name: newRouteName,
+        }).matched.some((route) => route.name === newRouteName);
+
+        if (!routeAlreadyExists) {
+            router.addRoute(parentRoute.name, {
+                path: dynamicPath,
+                // @ts-expect-error
+                component: Shopware.Application.view.getComponent('sw-extension-component-section'),
+                name: newRouteName,
+                meta: {
+                    // eslint-disable-next-line max-len
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
+                    parentPath: firstChild?.meta?.parentPath ?? '',
+                },
+                isChildren: true,
+                props: {
+                    'position-identifier': matchingTabItemConfig.componentSectionId,
+                },
+            });
+        }
+    }
+
+    return !!parentRoute?.children;
 }
 
 /* istanbul ignore next */
@@ -128,30 +156,35 @@ function getParentRoute(
 ): RouteConfig|undefined {
     const { routes } = router.options;
 
-    // Get the deepest matching route
-    const deepestMatchingRoute = findDeepestMatchingRoute(routes, (route) => {
-        return dynamicPath.startsWith(route.path);
+    const match = router.match(dynamicPath);
+
+    // Get the matching object in the routes definition
+    const routeForMatch = findMatchingRoute(routes, (route) => {
+        return match.name === route.name;
     });
 
-    return deepestMatchingRoute;
+    // Get the parent route path
+    const routeForMatchResolved = router.match(routeForMatch?.path ?? '');
+    const parent = routeForMatchResolved.matched[routeForMatchResolved.matched.length - 1]?.parent;
+    const matchingParentRoute = parent ?? match;
+
+    // Get the matching object for the parent route in the routes definition
+    return findMatchingRoute(routes, (route) => {
+        return matchingParentRoute?.path === route.path;
+    });
 }
 
 /* istanbul ignore next */
-function findDeepestMatchingRoute(
+function findMatchingRoute(
     routes: RouteConfig[],
     conditionCheck: (route: RouteConfig) => boolean,
 ): RouteConfig|undefined {
-    const matchingRoute = routes.find((route) => {
-        return conditionCheck(route);
-    });
+    const flattenRoutesDeep = (_routes: RouteConfig[]): RouteConfig[] => {
+        return _routes.flatMap((route) => {
+            const children = route.children ?? [];
+            return [route, ...flattenRoutesDeep(children)];
+        });
+    };
 
-    if (!matchingRoute) {
-        return undefined;
-    }
-
-    if (matchingRoute.children && matchingRoute.children.length > 0) {
-        return findDeepestMatchingRoute(matchingRoute.children, conditionCheck) ?? matchingRoute;
-    }
-
-    return matchingRoute;
+    return flattenRoutesDeep(routes).find(conditionCheck);
 }

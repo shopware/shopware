@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ContextTokenStruct extends Struct
 {
     /**

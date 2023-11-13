@@ -44,6 +44,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -59,14 +60,12 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesCha
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class SalesChannelDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'sales_channel';
-    public const CALCULATION_TYPE_VERTICAL = 'vertical';
-    public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
+    final public const ENTITY_NAME = 'sales_channel';
+    final public const CALCULATION_TYPE_VERTICAL = 'vertical';
+    final public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
 
     public function getEntityName(): string
     {
@@ -107,7 +106,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new FkField('payment_method_id', 'paymentMethodId', PaymentMethodDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('shipping_method_id', 'shippingMethodId', ShippingMethodDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new ApiAware(), new Required()),
-            (new FkField('analytics_id', 'analyticsId', SalesChannelAnalyticsDefinition::class)),
+            new FkField('analytics_id', 'analyticsId', SalesChannelAnalyticsDefinition::class),
 
             (new FkField('navigation_category_id', 'navigationCategoryId', CategoryDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new ReferenceVersionField(CategoryDefinition::class, 'navigation_category_version_id'))->addFlags(new ApiAware(), new Required()),
@@ -144,7 +143,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class, 'id', false))->addFlags(new ApiAware()),
             new OneToManyAssociationField('orders', OrderDefinition::class, 'sales_channel_id', 'id'),
 
-            (new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', 'id')),
+            new OneToManyAssociationField('customers', CustomerDefinition::class, 'sales_channel_id', 'id'),
 
             new FkField('home_cms_page_id', 'homeCmsPageId', CmsPageDefinition::class),
             (new ReferenceVersionField(CmsPageDefinition::class, 'home_cms_page_version_id'))->addFlags(new Required()),
@@ -173,7 +172,7 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'sales_channel_id', 'id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('seoUrlTemplates', SeoUrlTemplateDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
-            (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id')),
+            new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'),
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, true))->addFlags(new CascadeDelete()),
             new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
             new ManyToManyAssociationField('landingPages', LandingPageDefinition::class, LandingPageSalesChannelDefinition::class, 'sales_channel_id', 'landing_page_id', 'id', 'id'),

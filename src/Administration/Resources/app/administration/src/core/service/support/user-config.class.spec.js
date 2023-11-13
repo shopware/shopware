@@ -52,10 +52,10 @@ responses.addResponse({
                 id: '8badf7ebe678ab968fe88c269c214ea6',
                 userId: '8fe88c269c214ea68badf7ebe678ab96',
                 key: UserConfigImplementation.USER_CONFIG_KEY,
-                value: []
-            }]
-        }
-    }
+                value: [],
+            }],
+        },
+    },
 });
 
 responses.addResponse({
@@ -63,8 +63,8 @@ responses.addResponse({
     url: '/user-config',
     status: 200,
     response: {
-        data: []
-    }
+        data: [],
+    },
 });
 
 
@@ -73,7 +73,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
 
     beforeEach(() => {
         Shopware.State.get('session').currentUser = {
-            id: '8fe88c269c214ea68badf7ebe678ab96'
+            id: '8fe88c269c214ea68badf7ebe678ab96',
         };
 
         service = new UserConfigImplementation();
@@ -102,7 +102,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         service.update(true, newItem);
 
         expect(service.isFavorite(newItem)).toBeTruthy();
-        expect(service.saveUserConfig).toBeCalled();
+        expect(service.saveUserConfig).toHaveBeenCalled();
     });
 
     it('update > removes existing item from favorites and calls "saveUserConfig"', () => {
@@ -114,7 +114,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         service.update(false, removedItem);
 
         expect(service.isFavorite(removedItem)).toBeFalsy();
-        expect(service.saveUserConfig).toBeCalled();
+        expect(service.saveUserConfig).toHaveBeenCalled();
     });
 
     it('update > does not add or remove items with a wrong state', () => {
@@ -134,7 +134,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
         const expectedValues = {
             userId: Shopware.State.get('session').currentUser.id,
             key: UserConfigImplementation.USER_CONFIG_KEY,
-            value: []
+            value: [],
         };
 
         const entity = service.createUserConfigEntity(UserConfigImplementation.USER_CONFIG_KEY);
@@ -144,7 +144,7 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
 
     it('handleEmptyUserConfig > replaces the property "value" with an empty array', () => {
         const userConfigMock = {
-            value: {}
+            value: {},
         };
 
         service.handleEmptyUserConfig(userConfigMock);
@@ -160,6 +160,6 @@ describe('src/Administration/Resources/app/administration/src/core/service/suppo
     });
 
     it('getCurrentUserId > returns the userId of the current session user', () => {
-        expect(service.getCurrentUserId()).toEqual('8fe88c269c214ea68badf7ebe678ab96');
+        expect(service.getCurrentUserId()).toBe('8fe88c269c214ea68badf7ebe678ab96');
     });
 });

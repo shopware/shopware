@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -19,7 +20,6 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -30,59 +30,30 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class RecalculationService
 {
-    protected EntityRepository $orderRepository;
-
-    protected OrderConverter $orderConverter;
-
-    protected CartService $cartService;
-
-    protected EntityRepository $productRepository;
-
-    protected EntityRepository $orderAddressRepository;
-
-    protected EntityRepository $customerAddressRepository;
-
-    protected Processor $processor;
-
-    private CartRuleLoader $cartRuleLoader;
-
-    private PromotionItemBuilder $promotionItemBuilder;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $orderRepository,
-        OrderConverter $orderConverter,
-        CartService $cartService,
-        EntityRepository $productRepository,
-        EntityRepository $orderAddressRepository,
-        EntityRepository $customerAddressRepository,
-        Processor $processor,
-        CartRuleLoader $cartRuleLoader,
-        PromotionItemBuilder $promotionItemBuilder
+        protected EntityRepository $orderRepository,
+        protected OrderConverter $orderConverter,
+        protected CartService $cartService,
+        protected EntityRepository $productRepository,
+        protected EntityRepository $orderAddressRepository,
+        protected EntityRepository $customerAddressRepository,
+        protected Processor $processor,
+        private readonly CartRuleLoader $cartRuleLoader,
+        private readonly PromotionItemBuilder $promotionItemBuilder
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->orderConverter = $orderConverter;
-        $this->cartService = $cartService;
-        $this->productRepository = $productRepository;
-        $this->orderAddressRepository = $orderAddressRepository;
-        $this->customerAddressRepository = $customerAddressRepository;
-        $this->processor = $processor;
-        $this->cartRuleLoader = $cartRuleLoader;
-        $this->promotionItemBuilder = $promotionItemBuilder;
     }
 
     /**
-     * @throws InvalidOrderException
      * @throws CustomerNotLoggedInException
      * @throws CartException
      * @throws DeliveryWithoutAddressException
@@ -109,6 +80,10 @@ class RecalculationService
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
+        $orderData['stateId'] = $order->getStateId();
+        if ($order->getDeliveries()?->first()?->getStateId()) {
+            $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+        }
 
         // change scope to be able to write protected state fields of transactions and deliveries
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
@@ -119,7 +94,6 @@ class RecalculationService
     /**
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidOrderException
      * @throws CartException
      * @throws ProductNotFoundException
      */
@@ -156,6 +130,10 @@ class RecalculationService
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
+        $orderData['stateId'] = $order->getStateId();
+        if ($order->getDeliveries()?->first()?->getStateId()) {
+            $orderData['deliveries'][0]['stateId'] = $order->getDeliveries()->first()->getStateId();
+        }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
             $this->orderRepository->upsert([$orderData], $context);
@@ -165,7 +143,6 @@ class RecalculationService
     /**
      * @throws DeliveryWithoutAddressException
      * @throws InconsistentCriteriaIdsException
-     * @throws InvalidOrderException
      * @throws CartException
      */
     public function addCustomLineItem(string $orderId, LineItem $lineItem, Context $context): void
@@ -190,6 +167,8 @@ class RecalculationService
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
+        $orderData['stateId'] = $order->getStateId();
+
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
             $this->orderRepository->upsert([$orderData], $context);
         });
@@ -235,6 +214,7 @@ class RecalculationService
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
+        $orderData['stateId'] = $order->getStateId();
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
             $this->orderRepository->upsert([$orderData], $context);
@@ -280,8 +260,9 @@ class RecalculationService
             ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
-
         $orderData['id'] = $order->getId();
+        $orderData['stateId'] = $order->getStateId();
+
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
             $this->orderRepository->upsert([$orderData], $context);
         });
@@ -301,10 +282,9 @@ class RecalculationService
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('customer_address.id', $customerAddressId));
 
-        /** @var ?CustomerAddressEntity $customerAddress */
         $customerAddress = $this->customerAddressRepository->search($criteria, $context)->get($customerAddressId);
-        if ($customerAddress === null) {
-            throw new AddressNotFoundException($customerAddressId);
+        if (!$customerAddress instanceof CustomerAddressEntity) {
+            throw CartException::addressNotFound($customerAddressId);
         }
 
         $newOrderAddress = AddressTransformer::transform($customerAddress);
@@ -318,6 +298,7 @@ class RecalculationService
             return;
         }
 
+        /** @var Delivery $delivery */
         $delivery = $cart->getDeliveries()->first();
         if (!$delivery) {
             return;
@@ -335,7 +316,7 @@ class RecalculationService
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems.downloads')
-            ->addAssociation('transactions')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('deliveries.positions.orderLineItem')
             ->addAssociation('deliveries.shippingOrderAddress.country')
@@ -351,12 +332,11 @@ class RecalculationService
 
     /**
      * @throws OrderException
-     * @throws InvalidOrderException
      */
     private function validateOrder(?OrderEntity $order, string $orderId): void
     {
         if (!$order) {
-            throw new InvalidOrderException($orderId);
+            throw CartException::orderNotFound($orderId);
         }
 
         $this->checkVersion($order);
@@ -391,7 +371,7 @@ class RecalculationService
     {
         $address = $this->orderAddressRepository->search(new Criteria([$orderAddressId]), $context)->get($orderAddressId);
         if (!$address) {
-            throw new AddressNotFoundException($orderAddressId);
+            throw CartException::addressNotFound($orderAddressId);
         }
 
         $this->checkVersion($address);
@@ -399,16 +379,17 @@ class RecalculationService
 
     private function recalculateCart(Cart $cart, SalesChannelContext $context): Cart
     {
-        $behavior = new CartBehavior($context->getPermissions());
+        // we switch to the live version that we don't have to consider live version fallbacks inside the calculation
+        return $context->live(function ($live) use ($cart): Cart {
+            $behavior = new CartBehavior($live->getPermissions(), true, true);
 
-        // all prices are now prepared for calculation -  starts the cart calculation
-        $cart = $this->processor->process($cart, $context, $behavior);
+            // all prices are now prepared for calculation - starts the cart calculation
+            $cart = $this->processor->process($cart, $live, $behavior);
 
-        // validate cart against the context rules
-        $validated = $this->cartRuleLoader->loadByCart($context, $cart, $behavior);
+            // validate cart against the context rules
+            $validated = $this->cartRuleLoader->loadByCart($live, $cart, $behavior);
 
-        $cart = $validated->getCart();
-
-        return $cart;
+            return $validated->getCart();
+        });
     }
 }

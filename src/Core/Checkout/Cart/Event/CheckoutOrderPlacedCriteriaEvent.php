@@ -5,22 +5,17 @@ namespace Shopware\Core\Checkout\Cart\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CheckoutOrderPlacedCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
-    protected SalesChannelContext $context;
-
-    protected Criteria $criteria;
-
-    public function __construct(Criteria $criteria, SalesChannelContext $context)
-    {
-        $this->context = $context;
-        $this->criteria = $criteria;
+    public function __construct(
+        protected Criteria $criteria,
+        protected SalesChannelContext $context
+    ) {
     }
 
     public function getContext(): Context

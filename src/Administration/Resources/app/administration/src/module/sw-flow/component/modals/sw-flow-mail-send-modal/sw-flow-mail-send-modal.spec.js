@@ -33,10 +33,10 @@ const sequenceFixture = {
             type: 'custom',
             data: {
                 'test@example.com': 'John Doe',
-                'test1@example.com': 'Jane Doe'
-            }
-        }
-    }
+                'test1@example.com': 'Jane Doe',
+            },
+        },
+    },
 };
 
 function mockMailTemplateData() {
@@ -50,12 +50,12 @@ function mockMailTemplateData() {
                 id: '89',
                 name: 'Double opt-in on guest orders',
                 translated: {
-                    name: 'Double opt-in on guest orders'
-                }
+                    name: 'Double opt-in on guest orders',
+                },
             },
             translated: {
-                description: 'Shopware default template'
-            }
+                description: 'Shopware default template',
+            },
         },
         {
             id: 'mailTemplate2',
@@ -66,13 +66,13 @@ function mockMailTemplateData() {
                 id: '89',
                 name: 'Customer registration',
                 translated: {
-                    name: 'Customer registration'
-                }
+                    name: 'Customer registration',
+                },
             },
             translated: {
-                description: 'Registration confirmation'
-            }
-        }
+                description: 'Registration confirmation',
+            },
+        },
     ];
 }
 
@@ -86,15 +86,15 @@ async function createWrapper(sequence = {}) {
                 return {
                     create: () => Promise.resolve(),
                     search: () => Promise.resolve(mockMailTemplateData()),
-                    get: () => Promise.resolve()
+                    get: () => Promise.resolve(),
                 };
-            }
+            },
         },
         validationService: {} },
 
 
         propsData: {
-            sequence
+            sequence,
         },
 
         stubs: {
@@ -105,10 +105,10 @@ async function createWrapper(sequence = {}) {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-alert': true,
             'sw-entity-multi-id-select': true,
@@ -125,7 +125,7 @@ async function createWrapper(sequence = {}) {
             'sw-icon': true,
             'sw-field-error': {
                 props: ['error'],
-                template: '<div class="sw-field__error"></div>'
+                template: '<div class="sw-field__error"></div>',
             },
             'sw-highlight-text': true,
             'sw-select-result': {
@@ -136,27 +136,27 @@ async function createWrapper(sequence = {}) {
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-context-menu-item': {
-                template: '<div @click="$emit(\'click\')"></div>'
+                template: '<div @click="$emit(\'click\')"></div>',
             },
             'sw-context-button': true,
             'sw-loader': true,
             'router-link': true,
-            'sw-flow-create-mail-template-modal': true
-        }
+            'sw-flow-create-mail-template-modal': true,
+        },
     });
 }
 
 describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     beforeAll(() => {
         Shopware.State.registerModule('swFlowState', {
-            ...flowState
+            ...flowState,
         });
     });
 
@@ -197,7 +197,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
 
         const recipientFieldsClasses = [
             '.sw-flow-mail-send-modal__recipient-email',
-            '.sw-flow-mail-send-modal__recipient-name'
+            '.sw-flow-mail-send-modal__recipient-name',
         ];
 
         const btnEditInline = '.sw-data-grid__cell--actions .sw-data-grid__inline-edit-save';
@@ -239,7 +239,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await wrapper.find('.sw-data-grid__inline-edit-save').trigger('click');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.$data.recipients[0].errorMail).toBe(null);
+        expect(wrapper.vm.$data.recipients[0].errorMail).toBeNull();
     });
 
     it('should show create mail template modal', async () => {
@@ -268,7 +268,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await customOption.trigger('click');
 
         let recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(recipientRows.length).toEqual(1);
+        expect(recipientRows).toHaveLength(1);
 
         await wrapper.find(recipientEmailInputClass).setValue('test@example.com');
         await wrapper.find(recipientEmailInputClass).trigger('input');
@@ -280,9 +280,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await wrapper.vm.$nextTick();
 
         recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(recipientRows.length).toEqual(2);
+        expect(recipientRows).toHaveLength(2);
     });
-
 
     it('should show error in recipient grid when clicking on save action button', async () => {
         const wrapper = await createWrapper();
@@ -290,7 +289,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const recipientFieldsClasses = [
             '.sw-flow-mail-send-modal__recipient-grid',
             '.sw-flow-mail-send-modal__recipient-email',
-            '.sw-flow-mail-send-modal__recipient-name'
+            '.sw-flow-mail-send-modal__recipient-name',
         ];
 
         const recipientSelect = wrapper.find('.sw-flow-mail-send-modal__recipient .sw-select__selection');
@@ -300,7 +299,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await customOption.trigger('click');
 
         const recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(recipientRows.length).toEqual(1);
+        expect(recipientRows).toHaveLength(1);
 
         await wrapper.find('.sw-flow-mail-send-modal__save-button').trigger('click');
         await wrapper.vm.$nextTick();
@@ -314,7 +313,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const wrapper = await createWrapper(sequenceFixture);
 
         const recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(recipientRows.length).toEqual(3);
+        expect(recipientRows).toHaveLength(3);
 
         const row1 = wrapper.find('.sw-data-grid__row--0');
         expect(row1.find('.sw-data-grid__cell--email').text()).toContain('test@example.com');
@@ -333,7 +332,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         const wrapper = await createWrapper(sequenceFixture);
 
         let recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(recipientRows.length).toEqual(3);
+        expect(recipientRows).toHaveLength(3);
 
         let row1 = wrapper.find('.sw-data-grid__row--0');
         expect(row1.find('.sw-data-grid__cell--email').text()).toContain('test@example.com');
@@ -342,7 +341,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await row1.find('.sw-flow-mail-send-modal__grid-action-delete').trigger('click');
 
         recipientRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(recipientRows.length).toEqual(2);
+        expect(recipientRows).toHaveLength(2);
 
         row1 = wrapper.find('.sw-data-grid__row--0');
         expect(row1.find('.sw-data-grid__cell--email').text()).toContain('test1@example.com');
@@ -353,7 +352,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         Shopware.State.commit('swFlowState/setTriggerEvent', {
             data: {
                 customer: '',
-                order: ''
+                order: '',
             },
             customerAware: true,
             extensions: [],
@@ -361,8 +360,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             name: 'checkout.customer.login',
             aware: [
                 'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                'Shopware\\Core\\Framework\\Event\\MailAware'
-            ]
+                'Shopware\\Core\\Framework\\Event\\MailAware',
+            ],
         });
 
         const wrapper = await createWrapper();
@@ -381,15 +380,15 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         Shopware.State.commit('swFlowState/setTriggerEvent', {
             data: {
                 customer: '',
-                order: ''
+                order: '',
             },
             customerAware: true,
             extensions: [],
             mailAware: true,
             name: 'contact_form.send',
             aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware'
-            ]
+                'Shopware\\Core\\Framework\\Event\\MailAware',
+            ],
         });
 
         const wrapper = await createWrapper();
@@ -410,15 +409,15 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         Shopware.State.commit('swFlowState/setTriggerEvent', {
             data: {
                 customer: '',
-                order: ''
+                order: '',
             },
             customerAware: true,
             extensions: [],
             mailAware: true,
             name: 'checkout.customer.login',
             aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware'
-            ]
+                'Shopware\\Core\\Framework\\Event\\MailAware',
+            ],
         });
 
         const wrapper = await createWrapper();
@@ -441,8 +440,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             mailAware: true,
             name: 'newsletter.confirm',
             aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware'
-            ]
+                'Shopware\\Core\\Framework\\Event\\MailAware',
+            ],
         });
 
         const wrapper = await createWrapper();
@@ -465,8 +464,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             mailAware: true,
             name: 'newsletter.register',
             aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware'
-            ]
+                'Shopware\\Core\\Framework\\Event\\MailAware',
+            ],
         });
 
         const wrapper = await createWrapper();
@@ -489,8 +488,8 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
             mailAware: true,
             name: 'newsletter.unsubscribe',
             aware: [
-                'Shopware\\Core\\Framework\\Event\\MailAware'
-            ]
+                'Shopware\\Core\\Framework\\Event\\MailAware',
+            ],
         });
 
         const wrapper = await createWrapper();
@@ -535,7 +534,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
     it('should validate reply to field with contact form trigger', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            triggerEvent: { name: 'contact_form.send' }
+            triggerEvent: { name: 'contact_form.send' },
         });
         wrapper.vm.onAddAction();
 
@@ -554,7 +553,7 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         await flushPromises();
 
         expect(wrapper.vm.showReplyToField).toBeFalsy();
-        expect(wrapper.vm.replyTo).toBeNull();
+        expect(wrapper.vm.replyTo).toBe('contactFormMail');
         expect(wrapper.vm.replyToError).toBeNull();
 
         wrapper.vm.onAddAction();
@@ -569,10 +568,28 @@ describe('module/sw-flow/component/sw-flow-mail-send-modal', () => {
         wrapper.vm.$router = {
             resolve: jest.fn(() => {
                 return { href: 'bar' };
-            })
+            }),
         };
         wrapper.vm.buildReplyToTooltip('foo');
 
         expect(wrapper.vm.$tc).toHaveBeenCalledWith('foo', 0, { settingsLink: 'bar' });
+    });
+
+    it('should be able to close modal', async () => {
+        const wrapper = await createWrapper();
+
+        const cancelButton = wrapper.find('.sw-flow-mail-send-modal__cancel-button');
+        expect(cancelButton.isVisible()).toBeTruthy();
+
+        await cancelButton.trigger('click');
+        expect(wrapper.emitted()['modal-close']).toBeTruthy();
+    });
+
+    it('should be able to toggle create mail template modal', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.onCreateMailTemplate();
+        expect(wrapper.vm.showCreateMailTemplateModal).toBeTruthy();
+        wrapper.vm.onCloseCreateMailTemplateModal();
+        expect(wrapper.vm.showCreateMailTemplateModal).toBeFalsy();
     });
 });

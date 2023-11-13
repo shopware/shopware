@@ -10,14 +10,14 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class CustomerSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -37,7 +37,7 @@ class CustomerSerializerTest extends TestCase
 
     private string $paymentMethodId = '733530bc28f74bfbb43c32b595ac9fa0';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
         $this->paymentMethodRepository = $this->getContainer()->get('payment_method.repository');
@@ -84,7 +84,11 @@ class CustomerSerializerTest extends TestCase
             ],
         ];
 
-        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer));
+        $deserialized = $this->serializer->deserialize($config, $this->customerRepository->getDefinition(), $customer);
+
+        static::assertIsNotArray($deserialized);
+
+        $deserialized = \iterator_to_array($deserialized);
 
         static::assertSame($this->customerGroupId, $deserialized['groupId']);
         static::assertSame($this->customerGroupId, $deserialized['group']['id']);
@@ -133,6 +137,7 @@ class CustomerSerializerTest extends TestCase
             [
                 'id' => $this->paymentMethodId,
                 'name' => 'test payment method',
+                'technicalName' => 'payment_test',
             ],
         ], Context::createDefaultContext());
     }

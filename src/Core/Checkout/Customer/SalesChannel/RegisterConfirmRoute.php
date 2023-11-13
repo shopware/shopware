@@ -3,18 +3,16 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
-use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -28,50 +26,20 @@ use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('checkout')]
 class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 {
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
-    /**
-     * @var DataValidator
-     */
-    private $validator;
-
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    private SalesChannelContextServiceInterface $contextService;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator,
-        SalesChannelContextPersister $contextPersister,
-        SalesChannelContextServiceInterface $contextService
+        private readonly EntityRepository $customerRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DataValidator $validator,
+        private readonly SalesChannelContextPersister $contextPersister,
+        private readonly SalesChannelContextServiceInterface $contextService
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->validator = $validator;
-        $this->contextPersister = $contextPersister;
-        $this->contextService = $contextService;
     }
 
     public function getDecorated(): AbstractRegisterConfirmRoute
@@ -79,14 +47,11 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/account/register-confirm", name="store-api.account.register.confirm", methods={"POST"})
-     */
+    #[Route(path: '/store-api/account/register-confirm', name: 'store-api.account.register.confirm', methods: ['POST'])]
     public function confirm(RequestDataBag $dataBag, SalesChannelContext $context): CustomerResponse
     {
         if (!$dataBag->has('hash')) {
-            throw new NoHashProvidedException();
+            throw CustomerException::noHashProvided();
         }
 
         $criteria = new Criteria();
@@ -99,8 +64,8 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             ->search($criteria, $context->getContext())
             ->first();
 
-        if ($customer === null) {
-            throw new CustomerNotFoundByHashException($dataBag->get('hash'));
+        if (!$customer instanceof CustomerEntity) {
+            throw CustomerException::customerNotFoundByHash($dataBag->get('hash'));
         }
 
         $this->validator->validate(
@@ -108,12 +73,12 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
                 'em' => $dataBag->get('em'),
                 'doubleOptInRegistration' => $customer->getDoubleOptInRegistration(),
             ],
-            $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
+            $this->getBeforeConfirmValidation(hash('sha1', (string) $customer->getEmail()))
         );
 
         if ((!Feature::isActive('v6.6.0.0') && $customer->getActive())
             || $customer->getDoubleOptInConfirmDate() !== null) {
-            throw new CustomerAlreadyConfirmedException($customer->getId());
+            throw CustomerException::customerAlreadyConfirmed($customer->getId());
         }
 
         $customerUpdate = [

@@ -1,7 +1,7 @@
 import template from './sw-settings-tax-rule-type-zip-code-range-cell.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -17,6 +17,7 @@
             <sw-tabs-item
                 name="details"
                 :active-tab="active"
+                :has-error="swOrderNewCustomerDetailError"
             >
                 {{ $tc('sw-order.newCustomerModal.labelDetails') }}
             </sw-tabs-item>
@@ -27,6 +28,7 @@
             <sw-tabs-item
                 name="billingAddress"
                 :active-tab="active"
+                :has-error="swOrderNewCustomerAddressError"
             >
                 {{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}
             </sw-tabs-item>
@@ -37,6 +39,7 @@
             <sw-tabs-item
                 name="shippingAddress"
                 :active-tab="active"
+                :has-error="!isSameBilling && swOrderNewCustomerAddressError"
             >
                 {{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}
             </sw-tabs-item>
@@ -49,10 +52,13 @@
             <div v-if="active ==='details'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_details_guest %}
-                <sw-field
+                <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="customer.guest"
+                    {% else %}
                     v-model="customer.guest"
+                    {% endif %}
                     no-margin-top
-                    type="switch"
                     :label="$tc('sw-order.newCustomerModal.labelGuest')"
                 />
                 {% endblock %}
@@ -72,10 +78,13 @@
             <div v-if="active === 'shippingAddress'">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_new_customer_modal_content_shipping_same_billing %}
-                <sw-field
+                <sw-switch-field
+                    {% if VUE3 %}
+                    v-model:value="isSameBilling"
+                    {% else %}
                     v-model="isSameBilling"
+                    {% endif %}
                     no-margin-top
-                    type="switch"
                     :label="$tc('sw-customer.addressForm.labelSameBillingAddress')"
                 />
                 {% endblock %}

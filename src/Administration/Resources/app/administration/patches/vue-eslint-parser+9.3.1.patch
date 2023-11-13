@@ -1,0 +1,132 @@
+diff --git a/node_modules/vue-eslint-parser/index.js b/node_modules/vue-eslint-parser/index.js
+index d5f225f..39d5b6c 100644
+--- a/node_modules/vue-eslint-parser/index.js
++++ b/node_modules/vue-eslint-parser/index.js
+@@ -297,7 +297,7 @@ function isSFCFile(parserOptions) {
+     if (parserOptions.filePath === "<input>") {
+         return true;
+     }
+-    return path__namespace.extname(parserOptions.filePath || "unknown.vue") === ".vue";
++    return ['.vue', '.twig'].includes(path__namespace.extname(parserOptions.filePath || "unknown.vue"));
+ }
+ function getScriptParser(parser, getParserLang) {
+     if (isParserObject(parser)) {
+@@ -2163,6 +2163,7 @@ class IntermediateTokenizer {
+         this.expressionTokens = [];
+         this.tokens = [];
+         this.comments = [];
++        this.twigExpressions = [];
+     }
+     get text() {
+         return this.tokenizer.text;
+@@ -2241,6 +2242,13 @@ class IntermediateTokenizer {
+         }
+         return null;
+     }
++    processTwigExpression(token) {
++        this.twigExpressions.push(token);
++        if (this.currentToken != null && this.currentToken.type === "Text") {
++            return this.commit();
++        }
++        return null;
++    }
+     processText(token) {
+         this.tokens.push(token);
+         let result = null;
+@@ -2294,6 +2302,9 @@ class IntermediateTokenizer {
+     HTMLComment(token) {
+         return this.processComment(token);
+     }
++    TwigExpression(token) {
++        return this.processTwigExpression(token);
++    }
+     HTMLEndTagOpen(token) {
+         this.tokens.push(token);
+         let result = null;
+@@ -2539,6 +2550,7 @@ class Parser {
+             children: [],
+             tokens: this.tokens,
+             comments: this.comments,
++            twigExpressions: this.twigExpressions,
+             errors: this.errors,
+         };
+         this.elementStack = [];
+@@ -2554,6 +2566,9 @@ class Parser {
+     get comments() {
+         return this.tokenizer.comments;
+     }
++    get twigExpressions() {
++        return this.tokenizer.twigExpressions;
++    }
+     get errors() {
+         return this.tokenizer.errors;
+     }
+@@ -2910,6 +2925,7 @@ const SPACE = 0x20;
+ const EXCLAMATION_MARK = 0x21;
+ const QUOTATION_MARK = 0x22;
+ const NUMBER_SIGN = 0x23;
++const PERCENT = 0x25;
+ const AMPERSAND = 0x26;
+ const APOSTROPHE = 0x27;
+ const LEFT_PARENTHESIS = 0x28;
+@@ -3232,6 +3248,11 @@ class Tokenizer {
+                 this.setStartTokenMark();
+                 return "TAG_OPEN";
+             }
++            if (cp === LEFT_CURLY_BRACKET) {
++                this.setStartTokenMark();
++                this.returnState = "DATA";
++                return "TWIG_EXPRESSION";
++            }
+             if (cp === LEFT_CURLY_BRACKET && this.expressionEnabled) {
+                 this.setStartTokenMark();
+                 this.returnState = "DATA";
+@@ -3512,6 +3533,11 @@ class Tokenizer {
+             this.appendTokenValue(cp, "HTMLIdentifier");
+             return "ATTRIBUTE_NAME";
+         }
++        if (cp === LEFT_CURLY_BRACKET) {
++            this.setStartTokenMark();
++            this.returnState = "BEFORE_ATTRIBUTE_NAME";
++            return "TWIG_EXPRESSION";
++        }
+         this.startToken("HTMLIdentifier");
+         return this.reconsumeAs("ATTRIBUTE_NAME");
+     }
+@@ -3561,6 +3587,11 @@ class Tokenizer {
+             this.reportParseError("eof-in-tag");
+             return "DATA";
+         }
++        if (cp === LEFT_CURLY_BRACKET) {
++            this.returnState = "AFTER_ATTRIBUTE_NAME";
++            this.setStartTokenMark();
++            return "TWIG_EXPRESSION";
++        }
+         this.startToken("HTMLIdentifier");
+         return this.reconsumeAs("ATTRIBUTE_NAME");
+     }
+@@ -4119,6 +4150,24 @@ class Tokenizer {
+         this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
+         return this.reconsumeAs(this.returnState);
+     }
++    TWIG_EXPRESSION(cp) {
++        if (cp !== PERCENT) {
++            this.appendTokenValue(LEFT_CURLY_BRACKET, null);
++            return this.reconsumeAs(this.returnState);
++        }
++        this.startToken("TwigExpression");
++        this.appendTokenValue(LEFT_CURLY_BRACKET, null);
++        this.appendTokenValue(PERCENT, null);
++        cp = this.consumeNextCodePoint();
++        while (cp !== PERCENT) {
++            this.appendTokenValue(cp, null);
++            cp = this.consumeNextCodePoint();
++        }
++        cp = this.consumeNextCodePoint();
++        this.appendTokenValue(PERCENT, null);
++        this.appendTokenValue(RIGHT_CURLY_BRACKET, null);
++        return this.returnState;
++    }
+ }
+ 
+ function getPossibleTypes(parsedSelector) {

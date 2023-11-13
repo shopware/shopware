@@ -90,14 +90,14 @@ All blocks of this template are available in the template which renders this tem
                         {% block document_side_info_order_date %}
                             <tr>
                                 <td>
-                                    {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date(pattern="Y/MM/dd", locale=locale)})|sw_sanitize }}
+                                    {{ 'document.orderDate'|trans({'%orderDate%': order.orderDateTime|format_date('medium', locale=locale)})|sw_sanitize }}
                                 </td>
                             </tr>
                         {% endblock %}
                         {% block document_side_info_date %}
                             <tr>
                                 <td>
-                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date(pattern="Y/MM/dd", locale=locale)})|sw_sanitize }}
+                                    {{ 'document.date'|trans({'%date%': config.documentDate|format_date('medium', locale=locale)})|sw_sanitize }}
                                 </td>
                             </tr>
                         {% endblock %}

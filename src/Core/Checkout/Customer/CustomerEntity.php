@@ -14,22 +14,21 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package customer-order
- */
-class CustomerEntity extends Entity
+#[Package('checkout')]
+class CustomerEntity extends Entity implements \Stringable
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
-    public const ACCOUNT_TYPE_PRIVATE = 'private';
-    public const ACCOUNT_TYPE_BUSINESS = 'business';
+    final public const ACCOUNT_TYPE_PRIVATE = 'private';
+    final public const ACCOUNT_TYPE_BUSINESS = 'business';
 
     protected string $groupId;
 
@@ -89,6 +88,8 @@ class CustomerEntity extends Entity
 
     protected ?\DateTimeInterface $lastLogin = null;
 
+    protected string $accountType;
+
     /**
      * @var array<string>|null
      *
@@ -103,6 +104,8 @@ class CustomerEntity extends Entity
     protected int $orderCount;
 
     protected float $orderTotalAmount;
+
+    protected int $reviewCount;
 
     /**
      * @var \DateTimeInterface|null
@@ -183,7 +186,7 @@ class CustomerEntity extends Entity
 
     protected ?UserEntity $updatedBy = null;
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
     }
@@ -497,6 +500,16 @@ class CustomerEntity extends Entity
     public function getOrderTotalAmount(): float
     {
         return $this->orderTotalAmount;
+    }
+
+    public function getReviewCount(): int
+    {
+        return $this->reviewCount;
+    }
+
+    public function setReviewCount(int $reviewCount): void
+    {
+        $this->reviewCount = $reviewCount;
     }
 
     public function setOrderTotalAmount(float $orderTotalAmount): void
@@ -815,6 +828,16 @@ class CustomerEntity extends Entity
     public function setBoundSalesChannel(SalesChannelEntity $boundSalesChannel): void
     {
         $this->boundSalesChannel = $boundSalesChannel;
+    }
+
+    public function setAccountType(string $accountType): void
+    {
+        $this->accountType = $accountType;
+    }
+
+    public function getAccountType(): string
+    {
+        return $this->accountType;
     }
 
     public function getWishlists(): ?CustomerWishlistCollection

@@ -2,30 +2,26 @@
 
 namespace Shopware\Core\System\Test\Snippet\Mock;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MockSnippetFile extends AbstractSnippetFile
 {
-    private string $name;
+    private readonly string $iso;
 
-    private bool $isBase;
-
-    private string $iso;
-
-    private string $technicalName;
-
-    public function __construct(string $name, ?string $iso = null, string $content = '{}', bool $isBase = true, string $technicalName = 'mock')
-    {
-        $this->name = $name;
+    public function __construct(
+        private readonly string $name,
+        ?string $iso = null,
+        string $content = '{}',
+        private readonly bool $isBase = true,
+        private readonly string $technicalName = 'mock'
+    ) {
         $this->iso = $iso ?? $name;
-        $this->isBase = $isBase;
         file_put_contents($this->getPath(), $content);
-        $this->technicalName = $technicalName;
     }
 
     public static function cleanup(): void

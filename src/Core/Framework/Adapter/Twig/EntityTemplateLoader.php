@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\Service\ResetInterface;
 use Twig\Error\LoaderError;
@@ -12,10 +13,9 @@ use Twig\Loader\LoaderInterface;
 use Twig\Source;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface, ResetInterface
 {
     /**
@@ -23,17 +23,13 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface,
      */
     private array $databaseTemplateCache = [];
 
-    private Connection $connection;
-
-    private string $environment;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection, string $environment)
-    {
-        $this->connection = $connection;
-        $this->environment = $environment;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly string $environment
+    ) {
     }
 
     public static function getSubscribedEvents(): array

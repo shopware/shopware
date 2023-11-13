@@ -12,7 +12,7 @@ describe('components/base/sw-avatar', () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-avatar'), {
             provide: {},
             mocks: {},
-            stubs: {}
+            stubs: {},
         });
     });
 
@@ -30,7 +30,7 @@ describe('components/base/sw-avatar', () => {
 
     it('should change the variant to a square', async () => {
         await wrapper.setProps({
-            variant: 'square'
+            variant: 'square',
         });
 
         expect(wrapper.classes()).toContain('sw-avatar__square');

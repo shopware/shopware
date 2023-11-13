@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
@@ -9,32 +10,18 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  *
  * admin-ui > entity > listing > columns
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class Columns extends ConfigXmlElement
 {
     /**
-     * @param list<Column> $content
+     * @var list<Column>
      */
-    private function __construct(
-        protected readonly array $content
-    ) {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        $columns = [];
-        foreach ($element->getElementsByTagName('column') as $column) {
-            $columns[] = Column::fromXml($column);
-        }
-
-        return new self($columns);
-    }
+    protected array $content;
 
     /**
-     * @return  list<Column>
+     * @return list<Column>
      */
     public function getContent(): array
     {
@@ -49,5 +36,15 @@ final class Columns extends ConfigXmlElement
         $data = parent::jsonSerialize();
 
         return $data['content'];
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $columns = [];
+        foreach ($element->getElementsByTagName('column') as $column) {
+            $columns[] = Column::fromXml($column);
+        }
+
+        return ['content' => $columns];
     }
 }

@@ -24,16 +24,16 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
                         },
                         search: () => {
                             return Promise.resolve();
-                        }
-                    })
-                }
+                        },
+                    }),
+                },
             },
             propsData: {
                 source: {
                     fileName: 'example',
                     fileExtension: 'jpg',
-                }
-            }
+                },
+            },
         });
     };
 
@@ -49,7 +49,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         });
         await wrapper.setData({
             imagePreviewFailed: true,
-            trueSource: { mimeType: null, thumbnails: [] }
+            trueSource: { mimeType: null, thumbnails: [] },
         });
         await flushPromises();
         wrapper.vm.showEvent();
@@ -65,7 +65,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
         });
         await wrapper.setData({
             imagePreviewFailed: true,
-            trueSource: { mimeType: 'image/jpg', thumbnails: [] }
+            trueSource: { mimeType: 'image/jpg', thumbnails: [] },
         });
         await flushPromises();
         wrapper.vm.showEvent();
@@ -128,17 +128,17 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             'image/gif': 'icons-multicolor-file-thumbnail-gif',
             'image/jpeg': 'icons-multicolor-file-thumbnail-jpg',
             'image/svg+xml': 'icons-multicolor-file-thumbnail-svg',
-            unknown: 'icons-multicolor-file-thumbnail-normal'
+            unknown: 'icons-multicolor-file-thumbnail-normal',
         };
 
         await Promise.all(Object.keys(fileTypes).map(async (type) => {
             const wrapper = await createWrapper();
             await wrapper.setProps({
-                mediaIsPrivate: true
+                mediaIsPrivate: true,
             });
             await wrapper.setData({
                 imagePreviewFailed: true,
-                trueSource: { mimeType: type, thumbnails: [] }
+                trueSource: { mimeType: type, thumbnails: [] },
             });
             await flushPromises();
             wrapper.vm.showEvent();

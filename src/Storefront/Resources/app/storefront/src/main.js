@@ -90,6 +90,7 @@ import GuestWishlistPagePlugin from 'src/plugin/wishlist/guest-wishlist-page.plu
 import FadingPlugin from 'src/plugin/fading/fading.plugin';
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
+import QuantitySelectorPlugin from 'src/plugin/quantity-selector/quantity-selector.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 window.bootstrap = bootstrap;
@@ -109,17 +110,44 @@ register plugins
 */
 PluginManager.register('DateFormat', DateFormat, '[data-date-format]');
 PluginManager.register('ScrollUp', ScrollUpPlugin, '[data-scroll-up]');
-PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
+
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-search-form" is deprecated. Use "data-search-widget" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-widget]');
+} else {
+    PluginManager.register('SearchWidget', SearchWidgetPlugin, '[data-search-form]');
+}
+
 PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 
 PluginManager.register('AccountGuestAbortButton', AccountGuestAbortButtonPlugin, '[data-account-guest-abort-button]')
 
-PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-cart" is deprecated. Use "data-off-canvas-cart" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-off-canvas-cart]');
+} else {
+    PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
+}
+
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
-PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
+
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-collapse-footer" is deprecated. Use "data-collapse-footer-columns" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer-columns]');
+} else {
+    PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
+}
+
 PluginManager.register('CollapseCheckoutConfirmMethods', CollapseCheckoutConfirmMethodsPlugin, '[data-collapse-checkout-confirm-methods]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
-PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
+
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-menu" is deprecated. Use "data-off-canvas-menu" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('OffCanvasMenu', OffcanvasMenuPlugin, '[data-off-canvas-menu]');
+} else {
+    PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
+}
+
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
 PluginManager.register('FormScrollToInvalidField', FormScrollToInvalidFieldPlugin, 'form');
 PluginManager.register('FormSubmitLoader', FormSubmitLoaderPlugin, '[data-form-submit-loader]');
@@ -128,8 +156,21 @@ PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-
 PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
 PluginManager.register('FormAddHistory', FormAddHistoryPlugin, '[data-form-add-history]');
 PluginManager.register('FormPreserver', FormPreserverPlugin, '[data-form-preserver]');
-PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
-PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
+
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-account-menu" is deprecated. Use "data-account-menu" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-account-menu]');
+} else {
+    PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
+}
+
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-off-canvas-tabs]');
+} else {
+    PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
+}
+
 PluginManager.register('BaseSlider', BaseSliderPlugin, '[data-base-slider]');
 PluginManager.register('GallerySlider', GallerySliderPlugin, '[data-gallery-slider]');
 PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slider]');
@@ -141,7 +182,14 @@ PluginManager.register('AddressEditor', AddressEditorPlugin, '[data-address-edit
 PluginManager.register('SetBrowserClass', SetBrowserClassPlugin, 'html');
 PluginManager.register('RatingSystem', RatingSystemPlugin, '[data-rating-system]');
 PluginManager.register('Listing', ListingPlugin, '[data-listing]');
-PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-offcanvas-filter]');
+
+/** @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-filter" is deprecated. Use "data-off-canvas-filter" instead */
+if (Feature.isActive('v6.6.0.0')) {
+    PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-off-canvas-filter]');
+} else {
+    PluginManager.register('OffCanvasFilter', OffCanvasFilterPlugin, '[data-offcanvas-filter]');
+}
+
 PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boolean]');
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
@@ -153,12 +201,17 @@ PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]
 PluginManager.register('DatePicker', DatePickerPlugin, '[data-date-picker]'); // Not used in core, but implemented for plugins
 PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-form form');
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
+
+/** @deprecated tag:v6.6.0 - Plugin "Ellipsis" will be removed without replacement. Plugin is not used anymore. */
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]'); // Not used in core, but implemented for plugins
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
+
+/** @deprecated tag:v6.6.0 - Plugin "Fading" will be removed without replacement. Plugin is not used anymore. */
 PluginManager.register('Fading', FadingPlugin, '[data-fading]');
 PluginManager.register('BasicCaptcha', BasicCaptchaPlugin, '[data-basic-captcha]');
+PluginManager.register('QuantitySelector', QuantitySelectorPlugin, '[data-quantity-selector]');
 
 /** @deprecated tag:v6.6.0 - Using selector [data-bs-toggle="modal"][data-url] to open AjaxModal is deprecated. Use selector [data-ajax-modal][data-url] instead. */
 PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-bs-toggle="modal"][data-url]');

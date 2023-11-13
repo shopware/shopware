@@ -3,11 +3,12 @@
 namespace Shopware\Core\System\Country;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
  * @extends EntityCollection<CountryEntity>
  */
+#[Package('core')]
 class CountryCollection extends EntityCollection
 {
     public function sortCountryAndStates(): void
@@ -23,13 +24,18 @@ class CountryCollection extends EntityCollection
 
     public function sortByPositionAndName(): void
     {
-        uasort($this->elements, function (CountryEntity $a, CountryEntity $b) {
-            if ($a->getPosition() !== $b->getPosition()) {
-                return $a->getPosition() <=> $b->getPosition();
+        uasort($this->elements, static function (CountryEntity $a, CountryEntity $b) {
+            $aPosition = $a->getPosition();
+            $bPosition = $b->getPosition();
+
+            if ($aPosition !== $bPosition) {
+                return $aPosition <=> $bPosition;
             }
 
-            if ($a->getTranslation('name') !== $b->getTranslation('name')) {
-                return strnatcasecmp($a->getTranslation('name'), $b->getTranslation('name'));
+            $aName = (string) $a->getTranslation('name');
+            $bName = (string) $b->getTranslation('name');
+            if ($aName !== $bName) {
+                return strnatcasecmp($aName, $bName);
             }
 
             return 0;

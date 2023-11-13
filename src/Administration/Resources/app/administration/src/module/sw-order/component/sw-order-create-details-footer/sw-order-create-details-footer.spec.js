@@ -3,7 +3,7 @@ import Criteria from 'src/core/data/criteria.data';
 import swOrderCreateDetailsFooter from 'src/module/sw-order/component/sw-order-create-details-footer';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-create-details-footer', swOrderCreateDetailsFooter);
@@ -15,18 +15,18 @@ async function createWrapper() {
         localVue,
         stubs: {
             'sw-container': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
         },
         propsData: {
             customer: {
                 salesChannelId: '98432def39fc4624b33213a56b8c944d',
                 salesChannel: {
-                    paymentMethodId: null
-                }
+                    paymentMethodId: null,
+                },
             },
             cart: {},
-            isCustomerActive: true
-        }
+            isCustomerActive: true,
+        },
     });
 }
 

@@ -53,10 +53,14 @@ Module.register('sw-theme-manager', {
 
     // Add theme route to sales channel
     routeMiddleware(next, currentRoute) {
-        if (currentRoute.name === 'sw.sales.channel.detail') {
+        const name = 'sw.sales.channel.detail.theme';
+        if (
+            currentRoute.name === 'sw.sales.channel.detail'
+            && currentRoute.children.every(child => child.name !== name)
+        ) {
             currentRoute.children.push({
                 component: 'sw-sales-channel-detail-theme',
-                name: 'sw.sales.channel.detail.theme',
+                name,
                 isChildren: true,
                 path: '/sw/sales/channel/detail/:id/theme',
                 meta: {

@@ -19,7 +19,8 @@
                 {% sw_include '@Storefront/storefront/component/payment/payment-form.html.twig' with {
                     'action': 'frontend.checkout.configure',
                     'actionPath': path('frontend.checkout.configure'),
-                    'redirect': 'frontend.checkout.confirm.page'
+                    'redirect': 'frontend.checkout.confirm.page',
+                    'redirectParameters': {redirected: 0}|json_encode,
                 } %}
             {% endblock %}
         </div>

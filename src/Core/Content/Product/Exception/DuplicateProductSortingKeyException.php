@@ -2,16 +2,17 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class DuplicateProductSortingKeyException extends ShopwareHttpException
 {
-    public function __construct(string $key, \Throwable $e)
-    {
+    public function __construct(
+        string $key,
+        \Throwable $e
+    ) {
         parent::__construct(
             'Sorting with key "{{ key }}" already exists.',
             ['key' => $key],

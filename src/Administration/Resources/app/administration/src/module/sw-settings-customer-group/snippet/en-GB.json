@@ -19,23 +19,26 @@
       "placeholderName": "Enter a name...",
       "placeholderNewCustomerGroup": "New customer group",
       "notificationErrorMessage": "An error occured while saving your customer group.",
-      "registrationForm": "Toggle registration form"
+      "registrationForm": "Custom signup form"
     },
     "registration": {
-      "formTitle": "Registration form",
+      "formTitle": "Signup form",
       "placeholderTitle": "Enter a title...",
       "placeholderIntroduction": "Enter an introduction...",
-      "placeholderSeoMetaDescription": "Enter a seo meta description...",
+      "placeholderSeoMetaDescription": "Enter a SEO meta description...",
       "title": "Title",
       "introduction": "Introduction",
-      "onlyCompaniesCanRegister": "Only companies can sign-up",
+      "onlyCompaniesCanRegister": "Company signup form",
+      "onlyCompaniesCanRegisterHelpText": "Adds fields for company name, VAT Reg.No. and department.",
       "seoMetaDescription": "SEO meta description",
-      "linkUrlsTitle": "Link URLs",
+      "linkUrlsTitle": "URLs",
       "linkUrlDescription": "Click the button on the right to generate URLs linking to request forms to every Sales Channel.",
       "linkUrlButton": "Generate URLs",
       "technicalUrl": "Technical URL",
       "technicalUrlHelpText": "Technical URLs can be used as \"customisable link\" within the category module and will provide an automatic language mapping.",
-      "availabilitySalesChannel": "Available Sales Channels"
+      "availabilitySalesChannel": "Available Sales Channels",
+      "infoText": "Shop users can sign up through this custom form, but will be assigned to the customer group only after you accepted the request in the customer module. You can customise this form with the fields below.",
+      "seoUrlLabel": "{salesChannelName} URL"
     },
     "modal": {
       "seoUrl": {

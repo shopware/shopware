@@ -15,13 +15,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WebhookDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'webhook';
+    final public const ENTITY_NAME = 'webhook';
 
     public function getEntityName(): string
     {
@@ -48,6 +47,7 @@ class WebhookDefinition extends EntityDefinition
         return [
             'active' => true,
             'errorCount' => 0,
+            'onlyLiveVersion' => false,
         ];
     }
 
@@ -58,6 +58,7 @@ class WebhookDefinition extends EntityDefinition
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new StringField('event_name', 'eventName', 500))->addFlags(new Required()),
             (new StringField('url', 'url', 500))->addFlags(new Required()),
+            new BoolField('only_live_version', 'onlyLiveVersion'),
             (new IntField('error_count', 'errorCount', 0))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             new BoolField('active', 'active'),
             new FkField('app_id', 'appId', AppDefinition::class),

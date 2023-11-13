@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class AbstractStockUpdateFilter
 {
     /**

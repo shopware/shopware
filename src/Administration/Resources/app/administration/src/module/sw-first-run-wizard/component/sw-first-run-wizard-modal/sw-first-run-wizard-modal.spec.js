@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swFirstRunWizardModal from 'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal';
@@ -9,7 +9,7 @@ import 'src/app/component/base/sw-container';
 Shopware.Component.register('sw-first-run-wizard-modal', swFirstRunWizardModal);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () => {
     const CreateFirstRunWizardModal = async function CreateFirstRunWizardModal() {
@@ -17,29 +17,39 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
             stubs: {
                 'sw-modal': await Shopware.Component.build('sw-modal'),
                 'sw-container': await Shopware.Component.build('sw-container'),
+                'sw-loader': true,
                 'sw-icon': {
-                    template: '<div />'
+                    template: '<div />',
                 },
                 'router-view': {
-                    template: '<div id="router-view" />'
+                    template: '<div id="router-view" />',
                 },
                 'sw-button': {
-                    template: '<div />'
-                }
+                    template: '<div />',
+                },
             },
             mocks: {
-                $route: { name: 'sw.first.run.wizard.index.welcome' }
+                $route: { name: 'sw.first.run.wizard.index.welcome' },
             },
             provide: {
                 firstRunWizardService: { setFRWStart: () => {} },
                 shortcutService: {
                     stopEventListener: () => {},
-                    startEventListener: () => {}
-                }
+                    startEventListener: () => {},
+                },
             },
-            props: {}
+            props: {},
         });
     };
+
+    beforeEach(() => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        Object.defineProperty(window, 'location', {
+            writable: true,
+            value: { reload: jest.fn() },
+        });
+    });
 
     it('should be a vue js component', async () => {
         const firstRunWizardModal = await new CreateFirstRunWizardModal();
@@ -76,7 +86,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'two',
@@ -84,7 +94,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.two',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'three',
@@ -92,8 +102,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: 'primary',
                 action: 'route.three',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -118,7 +128,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'two',
@@ -126,7 +136,7 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.two',
-                disabled: false
+                disabled: false,
             },
             {
                 key: 'three',
@@ -134,8 +144,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: 'primary',
                 action: 'route.three',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -158,8 +168,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -182,8 +192,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', newButtonConfig);
@@ -208,8 +218,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'right',
                 variant: null,
                 action: 'route.one',
-                disabled: false
-            }
+                disabled: false,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', firstButtonConfig);
@@ -227,8 +237,8 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
                 position: 'left',
                 variant: null,
                 action: 'route.two',
-                disabled: true
-            }
+                disabled: true,
+            },
         ];
 
         await routerView.vm.$emit('buttons-update', secondButtonConfig);
@@ -277,5 +287,74 @@ describe('module/sw-first-run-wizard/component/sw-first-run-wizard-modal', () =>
         firstRunWizardModal.vm.onButtonClick(callbackFunction);
 
         expect(callbackFunction).toHaveBeenCalled();
+    });
+
+    it('should not be closable when frw flag is active', async () => {
+        Shopware.Context.app.firstRunWizard = true;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        expect(closeButton.exists()).toBe(false);
+    });
+
+    it('should be closable when frw flag is not true', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        expect(closeButton.exists()).toBe(true);
+    });
+
+    it('should push route to settings page when getting closed', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        jest.spyOn(firstRunWizardModal.vm.$router, 'push');
+
+        expect(firstRunWizardModal.vm.$router.push).not.toHaveBeenCalled();
+
+        await closeButton.trigger('click');
+
+        expect(firstRunWizardModal.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+    });
+
+    it('should reload after push route to settings page when getting closed and extension was activated', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        firstRunWizardModal.vm.onExtensionActivated();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        jest.spyOn(firstRunWizardModal.vm.$router, 'push');
+
+        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(firstRunWizardModal.vm.$router.push).not.toHaveBeenCalled();
+
+        await closeButton.trigger('click');
+        await flushPromises();
+
+        expect(firstRunWizardModal.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(window.location.reload).toHaveBeenCalled();
+    });
+
+    it('should not reload after push route to settings page when getting closed and no extension was activated', async () => {
+        Shopware.Context.app.firstRunWizard = false;
+
+        const firstRunWizardModal = await new CreateFirstRunWizardModal();
+        const closeButton = firstRunWizardModal.find('[aria-label="global.sw-modal.labelClose"]');
+
+        jest.spyOn(firstRunWizardModal.vm.$router, 'push');
+
+        expect(firstRunWizardModal.vm.$router.push).not.toHaveBeenCalled();
+
+        await closeButton.trigger('click');
+        await flushPromises();
+
+        expect(firstRunWizardModal.vm.$router.push).toHaveBeenCalledWith({ name: 'sw.settings.index.system' });
+        expect(window.location.reload).not.toHaveBeenCalled();
     });
 });

@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @package merchant-services
- *
  * @codeCoverageIgnore
+ *
  * @extends Collection<LicenseStruct>
  */
+#[Package('services-settings')]
 class LicenseCollection extends Collection
 {
     /**

@@ -17,12 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @internal
- *
- * @package core
+ * @final
  */
+#[Package('core')]
 class EntityScoreQueryBuilder
 {
     /**
@@ -42,7 +42,6 @@ class EntityScoreQueryBuilder
 
         $queries = [];
         foreach ($fields as $field) {
-            /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);
 
             $ranking = $multiplier;
@@ -108,18 +107,16 @@ class EntityScoreQueryBuilder
 
     private function getQueryFields(EntityDefinition $definition, Context $context): FieldCollection
     {
-        /** @var FieldCollection $fields */
         $fields = $definition->getFields()->filterByFlag(SearchRanking::class);
 
         // exclude read protected fields which are not allowed for the current scope
         $fields = $fields->filter(function (Field $field) use ($context) {
-            /** @var ApiAware|null $flag */
             $flag = $field->getFlag(ApiAware::class);
             if ($flag === null) {
                 return false;
             }
 
-            return $flag->isSourceAllowed(\get_class($context->getSource()));
+            return $flag->isSourceAllowed($context->getSource()::class);
         });
 
         if ($fields->count() > 0) {
@@ -131,10 +128,7 @@ class EntityScoreQueryBuilder
             return $fields;
         }
 
-        /** @var FieldCollection $field */
-        $field = $definition->getFields()->filterInstance(StringField::class);
-
-        return $field;
+        return $definition->getFields()->filterInstance(StringField::class);
     }
 
     private function validateDateFormat(string $format, string $date): bool

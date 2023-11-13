@@ -30,7 +30,7 @@ async function createWrapper() {
                     return Promise.resolve();
                 },
             },
-        }
+        },
     });
 }
 
@@ -134,7 +134,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
                     translated: {
                         name: 'Credit note',
                     },
-                }
+                },
             ],
         });
 
@@ -151,32 +151,32 @@ describe('sw-bulk-edit-save-modal-success', () => {
         window.URL.createObjectURL = jest.fn();
 
         wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve({
-            data: null
+            data: null,
         }));
 
         await wrapper.setData({
             latestDocuments: {
                 invoice: {
                     foo: 'bar',
-                }
-            }
+                },
+            },
         });
         await wrapper.vm.downloadDocument('invoice');
 
         expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
-        expect(wrapper.vm.document.invoice.isDownloading).toEqual(false);
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
 
         wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve({
             headers: {
-                'content-disposition': 'filename=example.pdf'
+                'content-disposition': 'filename=example.pdf',
             },
-            data: 'http://downloadlink'
+            data: 'http://downloadlink',
         }));
 
         await wrapper.vm.downloadDocument('invoice');
 
         expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
-        expect(wrapper.vm.document.invoice.isDownloading).toEqual(false);
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
 
         wrapper.vm.orderDocumentApiService.download.mockRestore();
     });
@@ -185,7 +185,7 @@ describe('sw-bulk-edit-save-modal-success', () => {
         wrapper.vm.orderDocumentApiService.download = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({
-            latestDocuments: {}
+            latestDocuments: {},
         });
         await wrapper.vm.downloadDocument('invoice');
 
@@ -201,15 +201,15 @@ describe('sw-bulk-edit-save-modal-success', () => {
             latestDocuments: {
                 invoice: {
                     foo: 'bar',
-                }
-            }
+                },
+            },
         });
 
         await wrapper.vm.downloadDocument('invoice');
 
         expect(wrapper.vm.orderDocumentApiService.download).toHaveBeenCalled();
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
-        expect(wrapper.vm.document.invoice.isDownloading).toEqual(false);
+        expect(wrapper.vm.document.invoice.isDownloading).toBe(false);
         wrapper.vm.orderDocumentApiService.download.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
     });

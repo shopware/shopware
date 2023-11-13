@@ -11,42 +11,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package checkout
- */
+#[Package('buyers-experience')]
 class PromotionIndexer extends EntityIndexer
 {
-    public const EXCLUSION_UPDATER = 'promotion.exclusion';
-    public const REDEMPTION_UPDATER = 'promotion.redemption';
-
-    private IteratorFactory $iteratorFactory;
-
-    private EntityRepository $repository;
-
-    private PromotionExclusionUpdater $exclusionUpdater;
-
-    private PromotionRedemptionUpdater $redemptionUpdater;
-
-    private EventDispatcherInterface $eventDispatcher;
+    final public const EXCLUSION_UPDATER = 'promotion.exclusion';
+    final public const REDEMPTION_UPDATER = 'promotion.redemption';
 
     /**
      * @internal
      */
     public function __construct(
-        IteratorFactory $iteratorFactory,
-        EntityRepository $repository,
-        PromotionExclusionUpdater $exclusionUpdater,
-        PromotionRedemptionUpdater $redemptionUpdater,
-        EventDispatcherInterface $eventDispatcher
+        private readonly IteratorFactory $iteratorFactory,
+        private readonly EntityRepository $repository,
+        private readonly PromotionExclusionUpdater $exclusionUpdater,
+        private readonly PromotionRedemptionUpdater $redemptionUpdater,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->iteratorFactory = $iteratorFactory;
-        $this->repository = $repository;
-        $this->exclusionUpdater = $exclusionUpdater;
-        $this->redemptionUpdater = $redemptionUpdater;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
@@ -55,7 +39,7 @@ class PromotionIndexer extends EntityIndexer
     }
 
     /**
-     * @param array<mixed>|null $offset
+     * @param array{offset: int|null}|null $offset
      */
     public function iterate(?array $offset): ?EntityIndexingMessage
     {

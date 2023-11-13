@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
@@ -10,7 +11,7 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  */
 class TestBasicWithToManyExtension extends SerializationFixture
 {
-    public function getInput()
+    public function getInput(): EntityCollection|Entity
     {
         $extendable = new ArrayEntity([
             'id' => '1d23c1b015bf43fb97e89008cf42d6fe',
@@ -29,6 +30,9 @@ class TestBasicWithToManyExtension extends SerializationFixture
         return $extendable;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonApiFixtures(string $baseUrl): array
     {
         return [
@@ -111,6 +115,9 @@ class TestBasicWithToManyExtension extends SerializationFixture
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getJsonFixtures(): array
     {
         return [

@@ -3,13 +3,13 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * The AbstractThemePathBuilder handles access to the theme file paths
  * with a seeding mechanism to allow switching the concrete path for the currently active theme.
  */
+#[Package('storefront')]
 abstract class AbstractThemePathBuilder
 {
     abstract public function getDecorated(): AbstractThemePathBuilder;

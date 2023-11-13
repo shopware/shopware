@@ -1,12 +1,10 @@
-import { ACTION, GROUPS } from '../constant/flow.constant';
-
 const { Service } = Shopware;
 const { EntityCollection } = Shopware.Data;
 const { types } = Shopware.Utils;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     namespaced: true,
@@ -18,6 +16,7 @@ export default {
         },
         originFlow: {},
         triggerEvent: {},
+        triggerEvents: [],
         triggerActions: [],
         invalidSequences: [],
         stateMachineState: [],
@@ -27,9 +26,18 @@ export default {
         customFields: [],
         customerGroups: [],
         restrictedRules: [],
+        appActions: [],
+        originAvailableActions: [],
     },
 
     mutations: {
+        setAppActions(state, actions) {
+            state.appActions = [
+                ...state.appActions,
+                ...actions,
+            ];
+        },
+
         setFlow(state, flow) {
             state.flow = flow;
             if (flow.config) {
@@ -52,6 +60,10 @@ export default {
 
         setTriggerEvent(state, event) {
             state.triggerEvent = event;
+        },
+
+        setTriggerEvents(state, events) {
+            state.triggerEvents = events;
         },
 
         setEventName(state, eventName) {
@@ -150,6 +162,16 @@ export default {
     },
 
     getters: {
+        appActions(state) {
+            return state.appActions;
+        },
+
+        getSelectedAppAction(state) {
+            return (actionName) => {
+                return state.appActions?.find((item) => item.name === actionName);
+            };
+        },
+
         sequences(state) {
             return state.flow.sequences;
         },
@@ -183,12 +205,15 @@ export default {
         },
 
         availableActions(state) {
+            state.originAvailableActions = [];
+
             if (!state.triggerEvent || !state.triggerActions) return [];
 
             const availableAction = [];
 
             state.triggerActions.forEach((action) => {
                 if (!action.requirements.length) {
+                    state.originAvailableActions.push(action.name);
                     availableAction.push(action.name);
                     return;
                 }
@@ -198,6 +223,10 @@ export default {
 
                 if (!isActive) {
                     return;
+                }
+
+                if (!state.originAvailableActions.includes(action.name)) {
+                    state.originAvailableActions.push(action.name);
                 }
 
                 const actionType = Service('flowBuilderService').mapActionType(action.name);
@@ -219,28 +248,38 @@ export default {
 
         mailTemplateIds(state) {
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.MAIL_SEND)
+                .filter(item => item.actionName === Service('flowBuilderService').getActionName('MAIL_SEND'))
                 .map(item => item.config?.mailTemplateId);
         },
 
         customFieldSetIds(state) {
+            const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
                 .map(item => item.config?.customFieldSetId);
         },
 
         customFieldIds(state) {
+            const service = Service('flowBuilderService');
             return state.flow.sequences
-                .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
+                .filter(item => item.actionName === service.getActionName('SET_CUSTOMER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD')
+                    || item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'))
                 .map(item => item.config?.customFieldId);
         },
 
         actionGroups() {
-            return GROUPS;
+            return Service('flowBuilderService').getGroups();
+        },
+
+        triggerEvents(state) {
+            return state.triggerEvents;
+        },
+
+        hasAvailableAction: (state) => (actionName) => {
+            return state.originAvailableActions.some(name => name === actionName);
         },
     },
 
@@ -256,6 +295,17 @@ export default {
                 .getRestrictedRules(`flowTrigger.${id}`)
                 .then((result) => {
                     commit('setRestrictedRules', result);
+                });
+        },
+
+        fetchTriggerActions({ commit }) {
+            Service('businessEventService')
+                .getBusinessEvents()
+                .then((result) => {
+                    commit('setTriggerEvents', result);
+                })
+                .catch(() => {
+                    commit('setTriggerEvents', []);
                 });
         },
     },

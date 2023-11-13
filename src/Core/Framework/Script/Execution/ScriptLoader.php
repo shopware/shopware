@@ -7,6 +7,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheCompressor;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Cache\FilesystemCache;
@@ -14,29 +15,24 @@ use Twig\Cache\FilesystemCache;
 /**
  * @internal only for use by the app-system
  *
- * @package core
+ * @phpstan-type ScriptInfo = array{app_id: ?string, scriptName: string, script: string, hook: string, appName: ?string, integrationId: ?string, lastModified: string, appVersion: string, active: bool}
+ * @phpstan-type IncludesInfo = array{app_id: ?string, name: string, script: string, appName: ?string, integrationId: ?string, lastModified: string}
  */
+#[Package('core')]
 class ScriptLoader implements EventSubscriberInterface
 {
-    public const CACHE_KEY = 'shopware-app-scripts';
+    final public const CACHE_KEY = 'shopware-app-scripts';
 
-    private Connection $connection;
+    private readonly string $cacheDir;
 
-    private string $cacheDir;
-
-    private ScriptPersister $scriptPersister;
-
-    private bool $debug;
-
-    private TagAwareAdapterInterface $cache;
-
-    public function __construct(Connection $connection, ScriptPersister $scriptPersister, TagAwareAdapterInterface $cache, string $cacheDir, bool $debug)
-    {
-        $this->connection = $connection;
-        $this->cacheDir = $cacheDir . '/twig/scripts';
-        $this->scriptPersister = $scriptPersister;
-        $this->debug = $debug;
-        $this->cache = $cache;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ScriptPersister $scriptPersister,
+        private readonly TagAwareAdapterInterface $cache,
+        string $cacheDir,
+        private readonly bool $debug
+    ) {
+        $this->cacheDir = $cacheDir . '/scripts';
     }
 
     public static function getSubscribedEvents(): array
@@ -67,12 +63,16 @@ class ScriptLoader implements EventSubscriberInterface
         $this->cache->deleteItem(self::CACHE_KEY);
     }
 
+    /**
+     * @return array<string, list<Script>>
+     */
     private function load(): array
     {
         if ($this->debug) {
             $this->scriptPersister->refresh();
         }
 
+        /** @var list<ScriptInfo> $scripts */
         $scripts = $this->connection->fetchAllAssociative('
             SELECT LOWER(HEX(`script`.`app_id`)) as `app_id`,
                    `script`.`name` AS scriptName,
@@ -102,21 +102,19 @@ class ScriptLoader implements EventSubscriberInterface
             ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ');
 
+        /** @var array<string, list<IncludesInfo>> $allIncludes */
         $allIncludes = FetchModeHelper::group($includes);
 
         $executableScripts = [];
-        /** @var array $script */
         foreach ($scripts as $script) {
             $appId = $script['app_id'];
 
             $includes = $allIncludes[$appId] ?? [];
 
-            $dates = array_merge([$script['lastModified']], array_column($includes, 'lastModified'));
+            $dates = [...[$script['lastModified']], ...array_column($includes, 'lastModified')];
 
-            /** @var \DateTimeInterface $lastModified */
             $lastModified = new \DateTimeImmutable(max($dates));
 
-            /** @var string $cachePrefix */
             $cachePrefix = $script['appName'] ? md5($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
             $includes = array_map(function (array $script) use ($appId) {
@@ -151,6 +149,9 @@ class ScriptLoader implements EventSubscriberInterface
         return $executableScripts;
     }
 
+    /**
+     * @param ScriptInfo|IncludesInfo $script
+     */
     private function getAppInfo(array $script): ?ScriptAppInformation
     {
         if (!$script['app_id'] || !$script['appName'] || !$script['integrationId']) {

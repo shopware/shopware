@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -16,29 +17,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @final
- *
- * @package storefront
  */
 #[AsCommand(
     name: 'sales-channel:create:storefront',
     description: 'Creates a new storefront sales channel',
 )]
+#[Package('storefront')]
 class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 {
-    private EntityRepository $snippetSetRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $snippetSetRepository,
+        private readonly EntityRepository $snippetSetRepository,
         SalesChannelCreator $salesChannelCreator
     ) {
         parent::__construct(
             $salesChannelCreator
         );
-
-        $this->snippetSetRepository = $snippetSetRepository;
     }
 
     protected function configure(): void
@@ -59,7 +55,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
-        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId($input->getOption('isoCode'));
+        $snippetSet = $input->getOption('snippetSetId') ?? $this->guessSnippetSetId($input->getOption('isoCode'));
 
         return [
             'domains' => [
@@ -75,7 +71,22 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
         ];
     }
 
-    private function getSnippetSetId(?string $isoCode = 'en-GB'): string
+    private function guessSnippetSetId(?string $isoCode = 'en-GB'): string
+    {
+        $snippetSet = $this->getSnippetSetId($isoCode);
+
+        if ($snippetSet === null) {
+            $snippetSet = $this->getSnippetSetId();
+        }
+
+        if ($snippetSet === null) {
+            throw new \InvalidArgumentException(sprintf('Snippet set with isoCode %s cannot be found.', $isoCode));
+        }
+
+        return $snippetSet;
+    }
+
+    private function getSnippetSetId(?string $isoCode = 'en-GB'): string|null
     {
         $isoCode = $isoCode ?: 'en-GB';
         $isoCode = str_replace('_', '-', $isoCode);
@@ -83,13 +94,6 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
             ->setLimit(1)
             ->addFilter(new EqualsFilter('iso', $isoCode));
 
-        /** @var string|null $id */
-        $id = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
-
-        if ($id === null) {
-            throw new \InvalidArgumentException('Unable to get default SnippetSet. Please provide a valid SnippetSetId.');
-        }
-
-        return $id;
+        return $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 }

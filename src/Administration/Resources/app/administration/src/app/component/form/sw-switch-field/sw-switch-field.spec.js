@@ -11,9 +11,9 @@ const createWrapper = async () => {
     const baseComponent = {
         template: `
             <div>
-                <sw-switch-field v-model="checkOne" label="CheckOne"></sw-switch-field>
-                <sw-switch-field v-model="checkTwo" label="CheckTwo"></sw-switch-field>
-                <sw-switch-field v-model="checkThree" label="CheckThree"></sw-switch-field>
+                <sw-switch-field v-model="checkOne" label="CheckOne" bordered></sw-switch-field>
+                <sw-switch-field v-model="checkTwo" label="CheckTwo" padded></sw-switch-field>
+                <sw-switch-field v-model="checkThree" label="CheckThree" bordered padded></sw-switch-field>
             </div>
         `,
 
@@ -21,9 +21,9 @@ const createWrapper = async () => {
             return {
                 checkOne: false,
                 checkTwo: false,
-                checkThree: false
+                checkThree: false,
             };
-        }
+        },
     };
 
     return shallowMount(baseComponent, {
@@ -31,8 +31,8 @@ const createWrapper = async () => {
             'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         attachTo: document.body,
     });
@@ -65,7 +65,7 @@ describe('app/component/form/sw-switch-field', () => {
         expect(switchFieldLabels.at(2).text()).toContain('CheckThree');
     });
 
-    it('each label should refer to the matching input field', async () => {
+    it('should always have a label refering to a corresponding input field', async () => {
         const wrapper = await createWrapper();
 
         const switchFieldLabels = wrapper.findAll('.sw-field__label label');
@@ -83,86 +83,69 @@ describe('app/component/form/sw-switch-field', () => {
         expect(thirdSwitchInputId).toMatch(thirdLabelFor);
     });
 
-    it('the first label was clicked and the corresponding data updates', async () => {
-        const wrapper = await createWrapper();
+    ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
+        it(`should click on the label of switch field "${checkboxId}" and the corresponding data updates`, async () => {
+            const wrapper = await createWrapper();
 
-        expect(wrapper.vm.checkOne).toBeFalsy();
-        await wrapper.findAll('.sw-field__label label').at(0).trigger('click');
-        expect(wrapper.vm.checkOne).toBeTruthy();
-    });
+            expect(wrapper.vm[checkboxId]).toBeFalsy();
+            await wrapper.findAll('.sw-field__label label').at(index).trigger('click');
+            expect(wrapper.vm[checkboxId]).toBeTruthy();
+        });
 
-    it('the first input was clicked and the corresponding data updates', async () => {
-        const wrapper = await createWrapper();
 
-        expect(wrapper.vm.checkOne).toBeFalsy();
-        await wrapper.find('input[name="sw-field--checkOne"]').setChecked();
-        expect(wrapper.vm.checkOne).toBeTruthy();
-    });
+        it(`should click on the input of switch field "${checkboxId}" and the corresponding data updates`, async () => {
+            const wrapper = await createWrapper();
 
-    it('the second label was clicked and the corresponding data updates', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.checkTwo).toBeFalsy();
-        await wrapper.findAll('.sw-field__label label').at(1).trigger('click');
-        expect(wrapper.vm.checkTwo).toBeTruthy();
-    });
-
-    it('the second input was clicked and the corresponding data updates', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.checkTwo).toBeFalsy();
-        await wrapper.find('input[name="sw-field--checkTwo"]').setChecked();
-        expect(wrapper.vm.checkTwo).toBeTruthy();
-    });
-
-    it('the third label was clicked and the corresponding data updates', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.checkThree).toBeFalsy();
-        await wrapper.findAll('.sw-field__label label').at(2).trigger('click');
-        expect(wrapper.vm.checkThree).toBeTruthy();
-    });
-
-    it('the third input was clicked and the corresponding data updates', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm.checkThree).toBeFalsy();
-        await wrapper.find('input[name="sw-field--checkThree"]').setChecked();
-        expect(wrapper.vm.checkThree).toBeTruthy();
+            expect(wrapper.vm[checkboxId]).toBeFalsy();
+            await wrapper.find(`input[name="sw-field--${checkboxId}"]`).setChecked();
+            expect(wrapper.vm[checkboxId]).toBeTruthy();
+        });
     });
 
     it('should show the label from the property', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-switch-field'), {
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
-                    template: '<div></div>'
-                }
-            }
+                    template: '<div></div>',
+                },
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from prop');
+        expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
         const wrapper = shallowMount(await Shopware.Component.build('sw-switch-field'), {
             propsData: {
-                label: 'Label from prop'
+                label: 'Label from prop',
             },
             stubs: {
                 'sw-base-field': await Shopware.Component.build('sw-base-field'),
                 'sw-field-error': {
-                    template: '<div></div>'
-                }
+                    template: '<div></div>',
+                },
             },
             scopedSlots: {
-                label: '<template>Label from slot</template>'
-            }
+                label: '<template>Label from slot</template>',
+            },
         });
 
-        expect(wrapper.find('label').text()).toEqual('Label from slot');
+        expect(wrapper.find('label').text()).toBe('Label from slot');
+    });
+
+    it('should always have the corresponding css class, when its styling property has been set', async () => {
+        const wrapper = await createWrapper();
+        const checkboxContentWrappers = wrapper.findAll('.sw-field--switch');
+
+        expect(checkboxContentWrappers.at(0).classes()).toContain('sw-field--switch-bordered');
+        expect(checkboxContentWrappers.at(0).classes()).not.toContain('sw-field--switch-padded');
+        expect(checkboxContentWrappers.at(1).classes()).not.toContain('sw-field--switch-bordered');
+        expect(checkboxContentWrappers.at(1).classes()).toContain('sw-field--switch-padded');
+        expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-bordered');
+        expect(checkboxContentWrappers.at(2).classes()).toContain('sw-field--switch-padded');
     });
 });

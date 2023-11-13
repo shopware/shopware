@@ -7,6 +7,9 @@
                 <div class="account-welcome">
                     {% block page_account_orders_welcome_headline %}
                         <h1>{{ "account.ordersTitle"|trans|sw_sanitize }}</h1>
+                    {% endblock %}
+
+                    {% block page_account_orders_welcome_intro %}
                         <p>{{ "account.ordersWelcome"|trans|sw_sanitize }}</p>
                     {% endblock %}
                 </div>
@@ -57,7 +60,7 @@
                                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                                 entities: page.orders,
                                                 criteria: criteria
-                                            }  %}
+                                            } %}
                                         </form>
                                     </div>
                                 {% endblock %}
@@ -68,4 +71,10 @@
             {% endblock %}
         </div>
     {% endblock %}
+{% endblock %}
+
+{% block base_footer_inner %}
+    {% sw_include '@Storefront/storefront/layout/footer/footer.html.twig' with {
+        showVatNotice: false
+    } %}
 {% endblock %}

@@ -9,8 +9,10 @@ use Shopware\Core\Framework\Bundle;
  */
 class BundleFixture extends Bundle
 {
-    public function __construct(string $name, string $path)
-    {
+    public function __construct(
+        string $name,
+        string $path
+    ) {
         $this->name = $name;
         $this->path = $path;
     }

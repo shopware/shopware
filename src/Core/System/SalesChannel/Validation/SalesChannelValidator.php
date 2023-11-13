@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Validation;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
@@ -18,10 +20,9 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @package sales-channel
- *
  * @internal
  */
+#[Package('buyers-experience')]
 class SalesChannelValidator implements EventSubscriberInterface
 {
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
@@ -36,15 +37,11 @@ class SalesChannelValidator implements EventSubscriberInterface
     private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const DELETE_VALIDATION_CODE = 'SYSTEM__CANNOT_DELETE_DEFAULT_LANGUAGE_ID';
 
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(
-        Connection $connection
-    ) {
-        $this->connection = $connection;
+    public function __construct(private readonly Connection $connection)
+    {
     }
 
     public static function getSubscribedEvents(): array
@@ -157,7 +154,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, list<string>> $mapping
+     * @param array<string, array<string, list<string>>> $mapping
      */
     private function validateLanguages(array $mapping, PreWriteValidationEvent $event): void
     {
@@ -224,13 +221,13 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $channel
+     * @param array<string, list<string>> $channel
      *
-     * @return array<string, mixed>
+     * @return list<string>
      */
     private function getDuplicates(array $channel): array
     {
-        return array_intersect($channel['state'], $channel['inserts']);
+        return array_values(array_intersect($channel['state'], $channel['inserts']));
     }
 
     /**
@@ -262,7 +259,7 @@ class SalesChannelValidator implements EventSubscriberInterface
     }
 
     /**
-     * @param array<string, mixed> $duplicates
+     * @param array<string, list<string>> $duplicates
      */
     private function writeDuplicateViolationExceptions(array $duplicates, PreWriteValidationEvent $event): void
     {
@@ -366,7 +363,7 @@ class SalesChannelValidator implements EventSubscriberInterface
                 ON mapping.sales_channel_id = sales_channel.id
                 WHERE sales_channel.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($salesChannelIds)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         return $result;

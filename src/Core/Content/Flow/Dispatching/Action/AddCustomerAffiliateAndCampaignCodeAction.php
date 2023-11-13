@@ -8,28 +8,22 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements DelayableAction
 {
-    private Connection $connection;
-
-    private EntityRepository $customerRepository;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        EntityRepository $customerRepository
+        private readonly Connection $connection,
+        private readonly EntityRepository $customerRepository
     ) {
-        $this->connection = $connection;
-        $this->customerRepository = $customerRepository;
     }
 
     public static function getName(): string
@@ -47,11 +41,11 @@ class AddCustomerAffiliateAndCampaignCodeAction extends FlowAction implements De
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(CustomerAware::CUSTOMER_ID)) {
+        if (!$flow->hasData(CustomerAware::CUSTOMER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(CustomerAware::CUSTOMER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(CustomerAware::CUSTOMER_ID));
     }
 
     /**

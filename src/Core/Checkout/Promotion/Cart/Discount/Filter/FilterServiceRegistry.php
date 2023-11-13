@@ -4,33 +4,27 @@ namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter;
 
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterPickerNotFoundException;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Exception\FilterSorterNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('buyers-experience')]
 class FilterServiceRegistry
 {
     /**
-     * @var iterable
-     */
-    private $sorters;
-
-    /**
-     * @var iterable
-     */
-    private $pickers;
-
-    /**
      * @internal
+     *
+     * @param iterable<FilterSorterInterface> $sorters
+     * @param iterable<FilterPickerInterface> $pickers
      */
-    public function __construct(iterable $sorters, iterable $pickers)
-    {
-        $this->sorters = $sorters;
-        $this->pickers = $pickers;
+    public function __construct(
+        private readonly iterable $sorters,
+        private readonly iterable $pickers
+    ) {
     }
 
     /**
      * Gets a list of all registered sorters.
+     *
+     * @return \Generator<FilterSorterInterface>
      */
     public function getSorters(): \Generator
     {
@@ -58,6 +52,8 @@ class FilterServiceRegistry
 
     /**
      * Gets a list of all registered sorters.
+     *
+     * @return \Generator<FilterPickerInterface>
      */
     public function getPickers(): \Generator
     {
@@ -74,7 +70,7 @@ class FilterServiceRegistry
     public function getPicker(string $key): FilterPickerInterface
     {
         foreach ($this->pickers as $picker) {
-            if (mb_strtolower($picker->getKey()) === mb_strtolower($key)) {
+            if (mb_strtolower((string) $picker->getKey()) === mb_strtolower($key)) {
                 return $picker;
             }
         }

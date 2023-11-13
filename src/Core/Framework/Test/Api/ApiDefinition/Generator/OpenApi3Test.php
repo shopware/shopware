@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
  * @group slow
  * @group skip-paratest
  */
@@ -75,7 +76,7 @@ class OpenApi3Test extends TestCase
     {
         $infoController = KernelLifecycleManager::getKernel()->getContainer()->get(InfoController::class);
 
-        $response = $infoController->info(new Request(['type' => DefinitionService::TypeJson]));
+        $response = $infoController->info(new Request(['type' => DefinitionService::TYPE_JSON]));
         $schema = $response->getContent();
         static::assertIsString($schema);
 
@@ -89,7 +90,7 @@ class OpenApi3Test extends TestCase
         static::assertIsString($validatorURL);
 
         $response = $client->post($validatorURL, [
-            'json' => json_decode($schema, true),
+            'json' => json_decode($schema, true, 512, \JSON_THROW_ON_ERROR),
             'headers' => [
                 'Accept' => 'application/json',
             ],

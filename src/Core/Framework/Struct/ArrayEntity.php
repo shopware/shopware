@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\Struct;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @implements \ArrayAccess<string, mixed>
  */
+#[Package('core')]
 class ArrayEntity extends Entity implements \ArrayAccess
 {
     protected ?string $_entityName = 'array-entity';
@@ -38,6 +38,9 @@ class ArrayEntity extends Entity implements \ArrayAccess
      */
     public function __set($name, mixed $value): void
     {
+        if ($name === 'id') {
+            $this->_uniqueIdentifier = $value;
+        }
         $this->data[$name] = $value;
     }
 
@@ -145,6 +148,27 @@ class ArrayEntity extends Entity implements \ArrayAccess
     public function all(): array
     {
         return $this->data;
+    }
+
+    public function addTranslated(string $key, mixed $value): void
+    {
+        $this->data['translated'][$key] = $value;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getTranslation(string $field)
+    {
+        return $this->data['translated'][$field] ?? null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getTranslated(): array
+    {
+        return $this->data['translated'] ?? [];
     }
 
     /**

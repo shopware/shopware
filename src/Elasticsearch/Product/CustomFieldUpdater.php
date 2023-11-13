@@ -2,8 +2,10 @@
 
 namespace Shopware\Elasticsearch\Product;
 
+use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -11,19 +13,19 @@ use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CustomFieldUpdater implements EventSubscriberInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private ElasticsearchOutdatedIndexDetector $indexDetector,
-        private Client $client,
-        private ElasticsearchHelper $elasticsearchHelper
+        private readonly ElasticsearchOutdatedIndexDetector $indexDetector,
+        private readonly Client $client,
+        private readonly ElasticsearchHelper $elasticsearchHelper,
+        private readonly Connection $connection
     ) {
     }
 
@@ -73,46 +75,32 @@ class CustomFieldUpdater implements EventSubscriberInterface
      */
     public static function getTypeFromCustomFieldType(string $type): array
     {
-        switch ($type) {
-            case CustomFieldTypes::INT:
-                return [
-                    'type' => 'long',
-                ];
-            case CustomFieldTypes::FLOAT:
-                return [
-                    'type' => 'double',
-                ];
-            case CustomFieldTypes::BOOL:
-                return [
-                    'type' => 'boolean',
-                ];
-            case CustomFieldTypes::DATETIME:
-                return [
-                    'type' => 'date',
-                    'format' => 'yyyy-MM-dd HH:mm:ss.000',
-                    'ignore_malformed' => true,
-                ];
-            case CustomFieldTypes::PRICE:
-            case CustomFieldTypes::JSON:
-                return [
-                    'type' => 'object',
-                    'dynamic' => true,
-                ];
-            case CustomFieldTypes::HTML:
-            case CustomFieldTypes::TEXT:
-                return [
-                    'type' => 'text',
-                ];
-            case CustomFieldTypes::COLORPICKER:
-            case CustomFieldTypes::ENTITY:
-            case CustomFieldTypes::MEDIA:
-            case CustomFieldTypes::SELECT:
-            case CustomFieldTypes::SWITCH:
-            default:
-                return [
-                    'type' => 'keyword',
-                ];
-        }
+        return match ($type) {
+            CustomFieldTypes::INT => [
+                'type' => 'long',
+            ],
+            CustomFieldTypes::FLOAT => [
+                'type' => 'double',
+            ],
+            CustomFieldTypes::BOOL => [
+                'type' => 'boolean',
+            ],
+            CustomFieldTypes::DATETIME => [
+                'type' => 'date',
+                'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                'ignore_malformed' => true,
+            ],
+            CustomFieldTypes::PRICE, CustomFieldTypes::JSON => [
+                'type' => 'object',
+                'dynamic' => true,
+            ],
+            CustomFieldTypes::HTML, CustomFieldTypes::TEXT => [
+                'type' => 'text',
+            ],
+            default => [
+                'type' => 'keyword',
+            ],
+        };
     }
 
     /**
@@ -122,14 +110,43 @@ class CustomFieldUpdater implements EventSubscriberInterface
     {
         $indices = $this->indexDetector->getAllUsedIndices();
 
+        $enabledMultilingualIndex = $this->elasticsearchHelper->enabledMultilingualIndex();
+        $languageIds = $enabledMultilingualIndex ? $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language') : [];
+
         foreach ($indices as $indexName) {
+            // Check if index is old language based index
+            $isLanguageBasedIndex = true;
+
             $body = [
                 'properties' => [
                     'customFields' => [
-                        'properties' => $newCreatedFields,
+                        'properties' => [],
                     ],
                 ],
             ];
+
+            // @deprecated tag:v6.6.0 - Remove this check as old language based indexes will be removed
+            foreach ($languageIds as $languageId) {
+                if (str_contains($indexName, $languageId)) {
+                    $isLanguageBasedIndex = true;
+
+                    break;
+                }
+
+                $isLanguageBasedIndex = false;
+            }
+
+            if ($isLanguageBasedIndex) {
+                $body['properties']['customFields']['properties'] = $newCreatedFields;
+            } else {
+                foreach ($languageIds as $languageId) {
+                    $body['properties']['customFields']['properties'][$languageId] = [
+                        'type' => 'object',
+                        'dynamic' => true,
+                        'properties' => $newCreatedFields,
+                    ];
+                }
+            }
 
             // For some reason, we need to include the includes to prevent merge conflicts.
             // This error can happen for example after updating from version <6.4.

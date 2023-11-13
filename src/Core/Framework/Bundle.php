@@ -2,14 +2,16 @@
 
 namespace Shopware\Core\Framework;
 
-use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
+use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\BusinessEventRegisterCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -21,9 +23,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle as SymfonyBundle;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class Bundle extends SymfonyBundle
 {
     public function build(ContainerBuilder $container): void
@@ -35,13 +35,6 @@ abstract class Bundle extends SymfonyBundle
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
         $this->registerEvents($container);
-    }
-
-    public function boot(): void
-    {
-        $this->container->get(AssetPackageService::class)->addAssetPackage($this->getName(), $this->getPath());
-
-        parent::boot();
     }
 
     public function getMigrationNamespace(): string
@@ -67,10 +60,9 @@ abstract class Bundle extends SymfonyBundle
 
     public function configureRoutes(RoutingConfigurator $routes, string $environment): void
     {
-        $fileSystem = new Filesystem();
         $confDir = $this->getPath() . '/Resources/config';
 
-        if ($fileSystem->exists($confDir)) {
+        if (file_exists($confDir)) {
             $routes->import($confDir . '/{routes}/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}/' . $environment . '/**/*' . Kernel::CONFIG_EXTS, 'glob');
             $routes->import($confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob');
@@ -96,7 +88,7 @@ abstract class Bundle extends SymfonyBundle
     /**
      * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
      *
-     * @return array<string>
+     * @return array<class-string>
      */
     protected function getActionEventClasses(): array
     {
@@ -133,6 +125,10 @@ abstract class Bundle extends SymfonyBundle
         $filesystem->setPublic(true);
 
         $container->setDefinition($serviceId, $filesystem);
+
+        // SwagMigrationAssistant -> swagMigrationAssistantPublicFilesystem
+        $aliasName = (new CamelCaseToSnakeCaseNameConverter())->denormalize($this->getName()) . ucfirst($key) . 'Filesystem';
+        $container->registerAliasForArgument($serviceId, FilesystemOperator::class, $aliasName);
     }
 
     private function registerEvents(ContainerBuilder $container): void
@@ -143,7 +139,7 @@ abstract class Bundle extends SymfonyBundle
             return;
         }
 
-        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes));
+        $container->addCompilerPass(new BusinessEventRegisterCompilerPass($classes), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 
     /**

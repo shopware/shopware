@@ -22,7 +22,7 @@ class Migration1670854818RemoveEventActionTableTest extends TestCase
 
     private Connection $connection;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
 

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Product\Events;
 
-/**
- * @package inventory
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('inventory')]
 class ProductCrossSellingIdsCriteriaEvent extends ProductCrossSellingCriteriaEvent
 {
 }

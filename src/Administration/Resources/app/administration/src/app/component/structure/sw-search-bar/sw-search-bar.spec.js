@@ -5,6 +5,7 @@
 /* eslint-disable max-len */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
+import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';
 
 const { Module } = Shopware;
@@ -15,32 +16,32 @@ const searchTypeServiceTypes = {
         entityName: 'product',
         entityService: 'productService',
         placeholderSnippet: 'sw-product.general.placeholderSearchBar',
-        listingRoute: 'sw.product.index'
+        listingRoute: 'sw.product.index',
     },
     category: {
         entityName: 'category',
         entityService: 'categoryService',
         placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-        listingRoute: 'sw.category.index'
+        listingRoute: 'sw.category.index',
     },
     customer: {
         entityName: 'customer',
         entityService: 'customerService',
         placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
-        listingRoute: 'sw.customer.index'
+        listingRoute: 'sw.customer.index',
     },
     order: {
         entityName: 'order',
         entityService: 'orderService',
         placeholderSnippet: 'sw-order.general.placeholderSearchBar',
-        listingRoute: 'sw.order.index'
+        listingRoute: 'sw.order.index',
     },
     media: {
         entityName: 'media',
         entityService: 'mediaService',
         placeholderSnippet: 'sw-media.general.placeholderSearchBar',
-        listingRoute: 'sw.media.index'
-    }
+        listingRoute: 'sw.media.index',
+    },
 };
 
 describe('src/app/component/structure/sw-search-bar', () => {
@@ -65,15 +66,18 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 'sw-version': true,
                 'sw-loader': true,
                 'sw-search-more-results': true,
-                'sw-search-bar-item': true,
-                'sw-search-preferences-modal': true
+                'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
+                'sw-search-preferences-modal': true,
+                'router-link': true,
+                'sw-highlight-text': true,
+                'sw-shortcut-overview-item': true,
             },
             mocks: {
                 $route: {
                     query: {
-                        term: ''
-                    }
-                }
+                        term: '',
+                    },
+                },
             },
             provide: {
                 searchService: {
@@ -83,10 +87,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 foo: {
                                     total: 1,
                                     data: [
-                                        { name: 'Baz', id: '12345' }
-                                    ]
-                                }
-                            }
+                                        { name: 'Baz', id: '12345' },
+                                    ],
+                                },
+                            },
                         };
 
                         return Promise.resolve(result);
@@ -100,10 +104,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                     index: 'admin-es-foo-listing',
                                     indexer: 'es-foo-listing',
                                     data: [
-                                        { name: 'ES Baz', id: 'es-12345' }
-                                    ]
-                                }
-                            }
+                                        { name: 'ES Baz', id: 'es-12345' },
+                                    ],
+                                },
+                            },
                         };
 
                         return Promise.resolve(result);
@@ -115,19 +119,19 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 data: {
                                     dfe80a0ec016413e8e03fa2d85db3dea: {
                                         id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                        name: 'Lightweight Iron Tossed Cookie Salad'
-                                    }
-                                }
+                                        name: 'Lightweight Iron Tossed Cookie Salad',
+                                    },
+                                },
                             },
 
                             foo: {
                                 total: 1,
                                 data: [
-                                    { name: 'Baz', id: '12345' }
-                                ]
-                            }
-                        }
-                    })
+                                    { name: 'Baz', id: '12345' },
+                                ],
+                            },
+                        },
+                    }),
                 },
                 repositoryFactory: {
                     create: (entity) => ({
@@ -136,14 +140,14 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 return Promise.resolve([{
                                     id: '8a243080f92e4c719546314b577cf82b',
                                     translated: { name: 'Storefront' },
-                                    type: { translated: { name: 'Storefront' } }
+                                    type: { translated: { name: 'Storefront' } },
                                 }]);
                             }
 
                             if (entity === 'sales_channel_type') {
                                 return Promise.resolve([{
                                     id: 'xxxxxxx',
-                                    translated: { name: 'Storefront' }
+                                    translated: { name: 'Storefront' },
                                 }]);
                             }
 
@@ -151,11 +155,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 const result = [
                                     {
                                         name: 'Home',
-                                        id: '12345'
+                                        id: '12345',
                                     }, {
                                         name: 'Electronics',
-                                        id: '55523'
-                                    }
+                                        id: '55523',
+                                    },
                                 ];
                                 result.total = 2;
 
@@ -167,8 +171,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 const result = [
                                     {
                                         name: 'Baz',
-                                        id: '12345'
-                                    }
+                                        id: '12345',
+                                    },
                                 ];
                                 result.total = 1;
 
@@ -178,32 +182,32 @@ describe('src/app/component/structure/sw-search-bar', () => {
                             const result = [
                                 {
                                     name: 'Home',
-                                    id: '12345'
+                                    id: '12345',
                                 }, {
                                     name: 'Electronics',
-                                    id: '55523'
-                                }
+                                    id: '55523',
+                                },
                             ];
                             result.total = 2;
 
                             return Promise.resolve(result);
-                        }
-                    })
+                        },
+                    }),
                 },
                 searchTypeService: {
-                    getTypes: () => searchTypes
+                    getTypes: () => searchTypes,
                 },
                 acl: {
                     can: (identifier) => {
                         if (!identifier) { return true; }
 
                         return privileges.includes(identifier);
-                    }
+                    },
                 },
                 searchRankingService: {
                     getUserSearchPreference: () => {
                         return Promise.resolve({
-                            foo: { name: 500 }
+                            foo: { name: 500 },
                         });
                     },
                     getSearchFieldsByEntity: (entity) => {
@@ -228,30 +232,30 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                         query: {
                                             type: 'equals',
                                             field: 'product.name',
-                                            value: searchTerm
-                                        }
+                                            value: searchTerm,
+                                        },
                                     },
                                     {
                                         score: 375,
                                         query: {
                                             type: 'contains',
                                             field: 'product.name',
-                                            value: searchTerm
-                                        }
-                                    }
+                                            value: searchTerm,
+                                        },
+                                    },
                                 ],
-                                'total-count-mode': 1
-                            }
+                                'total-count-mode': 1,
+                            },
                         };
-                    }
+                    },
                 },
                 userActivityApiService: {
                     getIncrement: () => Promise.resolve({
                         'dashboard@sw.dashboard.index': {
                             key: 'dashboard@sw.dashboard.index',
-                            count: '1'
-                        }
-                    })
+                            count: '1',
+                        },
+                    }),
                 },
                 recentlySearchService: {
                     get: () => {
@@ -259,11 +263,11 @@ describe('src/app/component/structure/sw-search-bar', () => {
                             {
                                 entity: 'product',
                                 id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                timestamp: 1633605899167
-                            }
+                                timestamp: 1633605899167,
+                            },
                         ];
-                    }
-                }
+                    },
+                },
             },
             propsData: props,
             attachTo: document.body,
@@ -281,24 +285,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
             getList: () => {
                 const result = [];
                 result.meta = {
-                    total: 0
+                    total: 0,
                 };
 
                 return Promise.resolve(result);
-            }
+            },
         });
     });
 
     beforeEach(async () => {
         Shopware.State.get('session').currentUser = {
-            id: 'id'
+            id: 'id',
         };
         Module.getModuleRegistry().clear();
     });
 
     it('should be a Vue.js component', async () => {
         wrapper = await createWrapper({
-            initialSearchType: 'product'
+            initialSearchType: 'product',
         });
 
         expect(wrapper.vm).toBeTruthy();
@@ -306,7 +310,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should show the tag overlay on click and not the search results', async () => {
         wrapper = await createWrapper({
-            initialSearchType: 'product'
+            initialSearchType: 'product',
         });
 
         // open search
@@ -328,7 +332,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should hide the tags and not show the search results when initialSearchType and currentSearchType matches', async () => {
         wrapper = await createWrapper({
-            initialSearchType: 'product'
+            initialSearchType: 'product',
         });
 
         // open search
@@ -362,7 +366,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should hide the tags and show the search results when initialSearchType and currentSearchType are not matching', async () => {
         wrapper = await createWrapper({
-            initialSearchType: 'product'
+            initialSearchType: 'product',
         });
 
         const searchInput = wrapper.find('.sw-search-bar__input');
@@ -413,7 +417,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should not modify search term in $route watcher when focus is on input', async () => {
         wrapper = await createWrapper({
-            initialSearchType: 'product'
+            initialSearchType: 'product',
         });
 
         // open search
@@ -422,8 +426,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         const route = {
             query: {
-                term: 'Foo product'
-            }
+                term: 'Foo product',
+            },
         };
 
         wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
@@ -433,13 +437,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should modify search term in $route watcher when focus is not on input', async () => {
         wrapper = await createWrapper({
-            initialSearchType: 'product'
+            initialSearchType: 'product',
         });
 
         const route = {
             query: {
-                term: 'Foo product'
-            }
+                term: 'Foo product',
+            },
         };
 
         wrapper.vm.$options.watch.$route.call(wrapper.vm, route);
@@ -450,35 +454,35 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {
-                initialSearchType: 'product'
+                initialSearchType: 'product',
             },
             {
                 product: {
                     entityName: 'product',
                     placeholderSnippet: 'sw-product.general.placeholderSearchBar',
-                    listingRoute: 'sw.product.index'
+                    listingRoute: 'sw.product.index',
                 },
                 category: {
                     entityName: 'category',
                     placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-                    listingRoute: 'sw.category.index'
+                    listingRoute: 'sw.category.index',
                 },
                 customer: {
                     entityName: 'customer',
                     placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
-                    listingRoute: 'sw.customer.index'
+                    listingRoute: 'sw.customer.index',
                 },
                 order: {
                     entityName: 'order',
                     placeholderSnippet: 'sw-order.general.placeholderSearchBar',
-                    listingRoute: 'sw.order.index'
+                    listingRoute: 'sw.order.index',
                 },
                 media: {
                     entityName: 'media',
                     placeholderSnippet: 'sw-media.general.placeholderSearchBar',
-                    listingRoute: 'sw.media.index'
-                }
-            }
+                    listingRoute: 'sw.media.index',
+                },
+            },
         );
 
         const searchInput = wrapper.find('.sw-search-bar__input');
@@ -521,16 +525,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     entities: expect.arrayContaining([
                         expect.objectContaining({
                             name: 'Home',
-                            id: '12345'
+                            id: '12345',
                         }),
                         expect.objectContaining({
                             name: 'Electronics',
-                            id: '55523'
-                        })
+                            id: '55523',
+                        }),
                     ]),
-                    entity: 'category'
-                })
-            ])
+                    entity: 'category',
+                }),
+            ]),
         );
     });
 
@@ -538,7 +542,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         searchTypeServiceTypes.all = {
             entityName: '',
             placeholderSnippet: '',
-            listingRoute: ''
+            listingRoute: '',
         };
         wrapper = await createWrapper();
 
@@ -555,14 +559,14 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
     it('should change search bar type when selecting module filters from type dropdown', async () => {
         wrapper = await createWrapper({
-            initialSearchType: ''
+            initialSearchType: '',
         }, {
             all: {
                 entityName: '',
                 placeholderSnippet: '',
-                listingRoute: ''
+                listingRoute: '',
             },
-            ...searchTypeServiceTypes
+            ...searchTypeServiceTypes,
         });
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
@@ -577,40 +581,40 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should search with repository after selecting module filter', async () => {
         wrapper = await createWrapper(
             {
-                initialSearchType: 'product'
+                initialSearchType: 'product',
             },
             {
                 all: {
                     entityName: '',
                     placeholderSnippet: '',
-                    listingRoute: ''
+                    listingRoute: '',
                 },
                 product: {
                     entityName: 'product',
                     placeholderSnippet: 'sw-product.general.placeholderSearchBar',
-                    listingRoute: 'sw.product.index'
+                    listingRoute: 'sw.product.index',
                 },
                 category: {
                     entityName: 'category',
                     placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-                    listingRoute: 'sw.category.index'
+                    listingRoute: 'sw.category.index',
                 },
                 customer: {
                     entityName: 'customer',
                     placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
-                    listingRoute: 'sw.customer.index'
+                    listingRoute: 'sw.customer.index',
                 },
                 order: {
                     entityName: 'order',
                     placeholderSnippet: 'sw-order.general.placeholderSearchBar',
-                    listingRoute: 'sw.order.index'
+                    listingRoute: 'sw.order.index',
                 },
                 media: {
                     entityName: 'media',
                     placeholderSnippet: 'sw-media.general.placeholderSearchBar',
-                    listingRoute: 'sw.media.index'
-                }
-            }
+                    listingRoute: 'sw.media.index',
+                },
+            },
         );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
@@ -648,16 +652,16 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     entities: expect.arrayContaining([
                         expect.objectContaining({
                             name: 'Home',
-                            id: '12345'
+                            id: '12345',
                         }),
                         expect.objectContaining({
                             name: 'Electronics',
-                            id: '55523'
-                        })
+                            id: '55523',
+                        }),
                     ]),
-                    entity: 'category'
-                })
-            ])
+                    entity: 'category',
+                }),
+            ]),
         );
     });
 
@@ -673,27 +677,27 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     component: 'sw-order-list',
                     path: 'index',
                     meta: {
-                        privilege: 'order.viewer'
-                    }
+                        privilege: 'order.viewer',
+                    },
                 },
 
                 create: {
                     component: 'sw-order-create',
                     path: 'create',
                     meta: {
-                        privilege: 'order.creator'
-                    }
-                }
-            }
+                        privilege: 'order.creator',
+                    },
+                },
+            },
         });
 
         wrapper = await createWrapper(
             {
                 initialSearchType: '',
-                initialSearch: ''
+                initialSearch: '',
             },
             searchTypeServiceTypes,
-            ['order.viewer', 'order.creator']
+            ['order.viewer', 'order.creator'],
         );
 
         // open search
@@ -739,7 +743,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                         color: manifest.color,
                         label: labelType,
                         entity: manifest.entity,
-                        route: manifest.routes.index
+                        route: manifest.routes.index,
                     },
                     {
                         icon: manifest.icon,
@@ -747,8 +751,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
                         route: { name: 'sw.category.landingPageDetail', params: { id: 'create' } },
                         entity: 'landing_page',
                         privilege: manifest.routes.landingPageDetail?.meta.privilege,
-                        action: true
-                    }
+                        action: true,
+                    },
                 ];
             },
 
@@ -756,26 +760,26 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 index: {
                     components: 'sw-category-detail',
                     meta: {
-                        privilege: 'category.viewer'
-                    }
+                        privilege: 'category.viewer',
+                    },
                 },
 
                 landingPageDetail: {
                     component: 'sw-category-detail',
                     meta: {
-                        privilege: 'category.viewer'
-                    }
-                }
-            }
+                        privilege: 'category.viewer',
+                    },
+                },
+            },
         });
 
         wrapper = await createWrapper(
             {
                 initialSearchType: '',
-                initialSearch: ''
+                initialSearch: '',
             },
             searchTypeServiceTypes,
-            ['category.viewer']
+            ['category.viewer'],
         );
 
         // open search
@@ -806,10 +810,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper = await createWrapper(
             {
                 initialSearchType: '',
-                initialSearch: ''
+                initialSearch: '',
             },
             searchTypeServiceTypes,
-            ['sales_channel.viewer', 'sales_channel.creator']
+            ['sales_channel.viewer', 'sales_channel.creator'],
         );
 
         // open search
@@ -826,8 +830,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         await flushPromises();
 
-        const searchBarItemStub = wrapper.find('sw-search-bar-item-stub');
-        expect(searchBarItemStub.attributes().type).toBe('module');
+        const searchBarItem = wrapper.find('.sw-search-bar-item');
+        expect(searchBarItem.props().type).toBe('module');
 
         const module = wrapper.vm.results[0];
 
@@ -850,25 +854,25 @@ describe('src/app/component/structure/sw-search-bar', () => {
                         component: `sw-${term}-list`,
                         path: 'index',
                         meta: {
-                            privilege: `${term}.viewer`
-                        }
+                            privilege: `${term}.viewer`,
+                        },
                     },
 
                     create: {
                         component: `sw-${term}-create`,
                         path: 'create',
                         meta: {
-                            privilege: `${term}.creator`
-                        }
-                    }
-                }
+                            privilege: `${term}.creator`,
+                        },
+                    },
+                },
             });
 
             wrapper = await createWrapper(
                 {
                     initialSearchType: '',
-                    initialSearch: ''
-                }
+                    initialSearch: '',
+                },
             );
 
             // open search
@@ -906,27 +910,27 @@ describe('src/app/component/structure/sw-search-bar', () => {
                         component: `sw-${term}-list`,
                         path: 'index',
                         meta: {
-                            privilege: `${term}.viewer`
-                        }
+                            privilege: `${term}.viewer`,
+                        },
                     },
 
                     create: {
                         component: `sw-${term}-create`,
                         path: 'create',
                         meta: {
-                            privilege: `${term}.creator`
-                        }
-                    }
-                }
+                            privilege: `${term}.creator`,
+                        },
+                    },
+                },
             });
 
             wrapper = await createWrapper(
                 {
                     initialSearchType: '',
-                    initialSearch: ''
+                    initialSearch: '',
                 },
                 searchTypeServiceTypes,
-                [`${term}.viewer`]
+                [`${term}.viewer`],
             );
 
             // open search
@@ -960,40 +964,40 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should always show search result panel correctly', async () => {
         wrapper = await createWrapper(
             {
-                initialSearchType: 'product'
+                initialSearchType: 'product',
             },
             {
                 all: {
                     entityName: '',
                     placeholderSnippet: '',
-                    listingRoute: ''
+                    listingRoute: '',
                 },
                 product: {
                     entityName: 'product',
                     placeholderSnippet: 'sw-product.general.placeholderSearchBar',
-                    listingRoute: 'sw.product.index'
+                    listingRoute: 'sw.product.index',
                 },
                 category: {
                     entityName: 'category',
                     placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-                    listingRoute: 'sw.category.index'
+                    listingRoute: 'sw.category.index',
                 },
                 customer: {
                     entityName: 'customer',
                     placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
-                    listingRoute: 'sw.customer.index'
+                    listingRoute: 'sw.customer.index',
                 },
                 order: {
                     entityName: 'order',
                     placeholderSnippet: 'sw-order.general.placeholderSearchBar',
-                    listingRoute: 'sw.order.index'
+                    listingRoute: 'sw.order.index',
                 },
                 media: {
                     entityName: 'media',
                     placeholderSnippet: 'sw-media.general.placeholderSearchBar',
-                    listingRoute: 'sw.media.index'
-                }
-            }
+                    listingRoute: 'sw.media.index',
+                },
+            },
         );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
@@ -1028,15 +1032,15 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should add the search query score to the criteria when search with repository', async () => {
         wrapper = await createWrapper(
             {
-                initialSearchType: 'product'
+                initialSearchType: 'product',
             },
             {
                 foo: {
                     entityName: 'foo',
                     placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                    listingRoute: 'sw.foo.index'
-                }
-            }
+                    listingRoute: 'sw.foo.index',
+                },
+            },
         );
 
         const searchInput = wrapper.find('.sw-search-bar__input');
@@ -1071,27 +1075,27 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     entities: expect.arrayContaining([
                         expect.objectContaining({
                             name: 'Baz',
-                            id: '12345'
-                        })
+                            id: '12345',
+                        }),
                     ]),
-                    entity: 'foo'
-                })
-            ])
+                    entity: 'foo',
+                }),
+            ]),
         );
     });
 
     it('should not build the search query score for the criteria when search with repository with search ranking field is null', async () => {
         wrapper = await createWrapper(
             {
-                initialSearchType: 'product'
+                initialSearchType: 'product',
             },
             {
                 foo: {
                     entityName: 'foo',
                     placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                    listingRoute: 'sw.foo.index'
-                }
-            }
+                    listingRoute: 'sw.foo.index',
+                },
+            },
         );
 
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -1137,18 +1141,18 @@ describe('src/app/component/structure/sw-search-bar', () => {
     it('should send search query scores for all entity when do global search', async () => {
         wrapper = await createWrapper({
             initialSearchType: '',
-            typeSearchAlwaysInContainer: false
+            typeSearchAlwaysInContainer: false,
         }, {
             all: {
                 entityName: '',
                 placeholderSnippet: '',
-                listingRoute: ''
+                listingRoute: '',
             },
             foo: {
                 entityName: 'foo',
                 placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index'
-            }
+                listingRoute: 'sw.foo.index',
+            },
         });
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
@@ -1176,12 +1180,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     entities: expect.arrayContaining([
                         expect.objectContaining({
                             name: 'Baz',
-                            id: '12345'
-                        })
+                            id: '12345',
+                        }),
                     ]),
-                    entity: 'foo'
-                })
-            ])
+                    entity: 'foo',
+                }),
+            ]),
         );
     });
 
@@ -1189,7 +1193,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
-            showSearchPreferencesModal: true
+            showSearchPreferencesModal: true,
         });
 
         expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(true);
@@ -1199,7 +1203,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
-            showSearchPreferencesModal: false
+            showSearchPreferencesModal: false,
         });
 
         expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(false);
@@ -1219,7 +1223,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     },
                     path: 'index',
                 },
-            }
+            },
         });
 
         wrapper = await createWrapper();
@@ -1236,10 +1240,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const resultsContent = wrapper.find('.sw-search-bar__results--v2 .sw-search-bar__results-wrapper-content');
 
         const headerEntity = resultsContent.find('.sw-search-bar__types-header-entity');
-        const searchBarItemStub = resultsContent.find('sw-search-bar-item-stub');
+        const searchBarItem = resultsContent.find('.sw-search-bar-item');
 
         expect(headerEntity.text()).toBe('global.entities.frequently_used');
-        expect(searchBarItemStub.attributes().type).toBe('frequently_used');
+        expect(searchBarItem.props().type).toBe('frequently_used');
 
         const frequentlyUsed = wrapper.vm.resultsSearchTrends
             .find(item => item.entity === 'frequently_used');
@@ -1260,10 +1264,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         expect({
             routeName: route.name,
-            routeKey: route.routeKey
+            routeKey: route.routeKey,
         }).toEqual({
             routeName: 'sw.dashboard.index',
-            routeKey: 'index'
+            routeKey: 'index',
         });
     });
 
@@ -1271,7 +1275,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper = await createWrapper(
             {},
             searchTypeServiceTypes,
-            ['product:read']
+            ['product:read'],
         );
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
@@ -1287,10 +1291,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const lastColumn = resultsContent.findAll('.sw-search-bar__results-column').at(1);
 
         const headerEntity = lastColumn.find('.sw-search-bar__types-header-entity');
-        const searchBarItemStub = lastColumn.find('sw-search-bar-item-stub');
+        const searchBarItem = lastColumn.find('.sw-search-bar-item');
 
         expect(headerEntity.text()).toBe('global.entities.recently_searched');
-        expect(searchBarItemStub.attributes().type).toBe('product');
+        expect(searchBarItem.props().type).toBe('product');
 
         const recentlySearched = wrapper.vm.resultsSearchTrends
             .find(item => item.entity === 'recently_searched');
@@ -1302,8 +1306,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
             entity: 'product',
             item: {
                 id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                name: 'Lightweight Iron Tossed Cookie Salad'
-            }
+                name: 'Lightweight Iron Tossed Cookie Salad',
+            },
         });
     });
 
@@ -1317,7 +1321,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         wrapper.vm.resetSearchType();
 
         expect(wrapper.vm.isComponentMounted).toBe(false);
-        expect(wrapper.vm.currentSearchType).toBe(null);
+        expect(wrapper.vm.currentSearchType).toBeNull();
     });
 
     it('should search global with ES when adminEsEnable is true', async () => {
@@ -1328,13 +1332,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
             all: {
                 entityName: '',
                 placeholderSnippet: '',
-                listingRoute: ''
+                listingRoute: '',
             },
             foo: {
                 entityName: 'foo',
                 placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index'
-            }
+                listingRoute: 'sw.foo.index',
+            },
         });
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
@@ -1364,12 +1368,12 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     entities: expect.arrayContaining([
                         expect.objectContaining({
                             name: 'ES Baz',
-                            id: 'es-12345'
-                        })
+                            id: 'es-12345',
+                        }),
                     ]),
-                    entity: 'esFoo'
-                })
-            ])
+                    entity: 'esFoo',
+                }),
+            ]),
         );
     });
 
@@ -1381,13 +1385,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
             all: {
                 entityName: '',
                 placeholderSnippet: '',
-                listingRoute: ''
+                listingRoute: '',
             },
             esFoo: {
                 entityName: 'esFoo',
                 placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
-                listingRoute: 'sw.foo.index'
-            }
+                listingRoute: 'sw.foo.index',
+            },
         });
 
         const searchInput = wrapper.find('.sw-search-bar__input');
@@ -1428,12 +1432,97 @@ describe('src/app/component/structure/sw-search-bar', () => {
                     entities: expect.arrayContaining([
                         expect.objectContaining({
                             name: 'ES Baz',
-                            id: 'es-12345'
-                        })
+                            id: 'es-12345',
+                        }),
                     ]),
-                    entity: 'esFoo'
-                })
-            ])
+                    entity: 'esFoo',
+                }),
+            ]),
         );
+    });
+
+    it('should render the correct fallback icon when no entity icon exists', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product',
+        });
+
+        // open search
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('sto');
+        expect(searchInput.element.value).toBe('sto');
+
+        await flushPromises();
+
+        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        await doGlobalSearch.flush();
+
+        await flushPromises();
+
+        // should use fallback icon
+        const searchBarItem = wrapper.find('.sw-search-bar-item');
+        expect(searchBarItem.props('entity-icon-name')).toBeUndefined();
+    });
+
+    it('should render the icon from the entity icon', async () => {
+        const term = 'customer';
+        register(`sw-${term}`, {
+            title: `${term}s`,
+            color: '#A092F0',
+            icon: 'default-shopping-paper-bag',
+            entity: term,
+
+            routes: {
+                index: {
+                    component: `sw-${term}-list`,
+                    path: 'index',
+                    meta: {
+                        privilege: `${term}.viewer`,
+                    },
+                },
+
+                create: {
+                    component: `sw-${term}-create`,
+                    path: 'create',
+                    meta: {
+                        privilege: `${term}.creator`,
+                    },
+                },
+            },
+        });
+
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: '',
+            },
+        );
+
+        await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+
+        await flushPromises();
+
+        // should use correct icon
+        const shoppingBagIcon = wrapper.find('.sw-search-bar__type-item sw-icon-stub[name="default-shopping-paper-bag"]');
+        expect(shoppingBagIcon.exists()).toBe(true);
+    });
+
+    it('should not call the search service when the search term reaches the maximum length', async () => {
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: '',
+            },
+        );
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('shorts'.repeat(100));
+
+        await flushPromises();
+
+        expect(spyLoadResults).toHaveBeenCalledTimes(0);
     });
 });

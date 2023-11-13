@@ -5,22 +5,18 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 /**
- * @package core
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
  */
+#[Package('core')]
 class HookableEntityWrittenEvent implements Hookable
 {
-    /**
-     * @var EntityWrittenEvent
-     */
-    private $event;
-
-    private function __construct(EntityWrittenEvent $event)
+    private function __construct(private readonly EntityWrittenEvent $event)
     {
-        $this->event = $event;
     }
 
     public static function fromWrittenEvent(
@@ -34,6 +30,9 @@ class HookableEntityWrittenEvent implements Hookable
         return $this->event->getName();
     }
 
+    /**
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
+     */
     public function getWebhookPayload(): array
     {
         return $this->getPayloadFromEvent($this->event);
@@ -44,6 +43,9 @@ class HookableEntityWrittenEvent implements Hookable
         return $permissions->isAllowed($this->event->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
     }
 
+    /**
+     * @return list<array{entity: string, operation: string, primaryKey: array<string, string>|string, updatedFields?: list<string>, versionId?: string}>
+     */
     public function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
         $payload = [];
@@ -57,6 +59,10 @@ class HookableEntityWrittenEvent implements Hookable
 
             if (!$event instanceof EntityDeletedEvent) {
                 $result['updatedFields'] = array_keys($writeResult->getPayload());
+            }
+
+            if (\array_key_exists('versionId', $writeResult->getPayload())) {
+                $result['versionId'] = $writeResult->getPayload()['versionId'];
             }
 
             $payload[] = $result;

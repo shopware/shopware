@@ -14,9 +14,9 @@ async function wrapperFactory({ propsData, privileges = [] }) {
                     }
 
                     return privileges.includes(key);
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -25,12 +25,12 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
         const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',
-                content: 'ALT-C'
-            }
+                content: 'ALT-C',
+            },
         });
 
         const shortcut = wrapper.findAll('kbd');
-        expect(shortcut.length).toBe(1);
+        expect(shortcut).toHaveLength(1);
         expect(shortcut.at(0).text()).toBe('ALT-C');
 
         const title = wrapper.find('.sw-shortcut-overview-item__title');
@@ -41,12 +41,12 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
         const wrapper = await wrapperFactory({
             propsData: {
                 title: 'Clear cache',
-                content: 'D C'
-            }
+                content: 'D C',
+            },
         });
 
         const shortcut = wrapper.findAll('kbd');
-        expect(shortcut.length).toBe(2);
+        expect(shortcut).toHaveLength(2);
         expect(shortcut.at(0).text()).toBe('D');
         expect(shortcut.at(1).text()).toBe('C');
     });
@@ -56,9 +56,9 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
             propsData: {
                 title: 'Clear cache',
                 content: 'D C',
-                privilege: 'system.clear_cache'
+                privilege: 'system.clear_cache',
             },
-            privileges: []
+            privileges: [],
         });
 
         const item = wrapper.find('.sw-shortcut-overview-item');
@@ -70,9 +70,9 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
             propsData: {
                 title: 'Clear cache',
                 content: 'D C',
-                privilege: 'system.clear_cache'
+                privilege: 'system.clear_cache',
             },
-            privileges: ['system.clear_cache']
+            privileges: ['system.clear_cache'],
         });
 
         const item = wrapper.find('.sw-shortcut-overview-item');

@@ -25,7 +25,7 @@ describe('ruleConditionsConfigApiService', () => {
         clientMock.onGet('/_info/rule-config')
             .reply(
                 200,
-                ruleConditionsConfig
+                ruleConditionsConfig,
             );
 
         await ruleConditionsConfigApiService.load();

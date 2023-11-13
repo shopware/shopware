@@ -7,65 +7,46 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
-use function array_chunk;
-use function array_map;
-use function func_get_arg;
-use function implode;
-use function sprintf;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';
     private const MAX_TAG_INVALIDATION = 256;
-
-    protected Client $client;
-
-    protected string $serviceId;
-
-    protected string $apiKey;
-
-    protected string $softPurge;
-
-    protected int $concurrency;
-
-    protected string $tagPrefix;
 
     /**
      * @var array<string, string>
      */
     private array $tagBuffer = [];
 
-    private string $instanceTag;
-
-    private string $appUrl;
+    private readonly string $appUrl;
 
     /**
      * @internal
      */
-    public function __construct(Client $client, string $serviceId, string $apiKey, string $softPurge, int $concurrency, string $tagPrefix, string $instanceTag, string $appUrl)
-    {
-        $this->client = $client;
-        $this->serviceId = $serviceId;
-        $this->apiKey = $apiKey;
-        $this->softPurge = $softPurge;
-        $this->concurrency = $concurrency;
-        $this->tagPrefix = $tagPrefix;
-        $this->instanceTag = $instanceTag;
+    public function __construct(
+        protected Client $client,
+        protected string $serviceId,
+        protected string $apiKey,
+        protected string $softPurge,
+        protected int $concurrency,
+        protected string $tagPrefix,
+        private readonly string $instanceTag,
+        string $appUrl
+    ) {
         $this->appUrl = (string) preg_replace('/^https?:\/\//', '', $appUrl);
     }
 
     public function flush(): void
     {
-        foreach (array_chunk($this->tagBuffer, self::MAX_TAG_INVALIDATION) as $part) {
-            $this->client->post(sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
+        foreach (\array_chunk($this->tagBuffer, self::MAX_TAG_INVALIDATION) as $part) {
+            $this->client->post(\sprintf('%s/service/%s/purge', self::API_URL, $this->serviceId), [
                 'headers' => [
                     'Fastly-Key' => $this->apiKey,
-                    'surrogate-key' => implode(' ', $this->prefixTags($part)),
+                    'surrogate-key' => \implode(' ', $this->prefixTags($part)),
                     'fastly-soft-purge' => $this->softPurge,
                 ],
             ]);
@@ -89,13 +70,13 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
         }
 
         /** @var Response|null $response */
-        $response = \func_num_args() === 3 ? func_get_arg(2) : null;
+        $response = \func_num_args() === 3 ? \func_get_arg(2) : null;
 
         if ($response === null) {
             throw new \InvalidArgumentException('Parameter $response is required for FastlyReverseProxyGateway');
         }
 
-        $response->headers->set('surrogate-key', implode(' ', $this->prefixTags($tags)));
+        $response->headers->set('surrogate-key', \implode(' ', $this->prefixTags($tags)));
     }
 
     public function invalidate(array $tags): void
@@ -124,7 +105,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw new \RuntimeException(\sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
                 }
 
                 throw $reason;
@@ -142,7 +123,7 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
             return;
         }
 
-        $this->client->post(sprintf('%s/service/%s/purge_all', self::API_URL, $this->serviceId), [
+        $this->client->post(\sprintf('%s/service/%s/purge_all', self::API_URL, $this->serviceId), [
             'headers' => [
                 'Fastly-Key' => $this->apiKey,
                 'fastly-soft-purge' => $this->softPurge,
@@ -163,8 +144,6 @@ class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 
         $prefix = $this->tagPrefix;
 
-        return array_map(static function (string $tag) use ($prefix) {
-            return $prefix . $tag;
-        }, $tags);
+        return \array_map(static fn (string $tag) => $prefix . $tag, $tags);
     }
 }

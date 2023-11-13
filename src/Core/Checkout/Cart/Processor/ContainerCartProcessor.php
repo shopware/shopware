@@ -16,31 +16,21 @@ use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ContainerCartProcessor implements CartProcessorInterface
 {
-    private PercentagePriceCalculator $percentageCalculator;
-
-    private QuantityPriceCalculator $quantityCalculator;
-
-    private CurrencyPriceCalculator $currencyCalculator;
-
     /**
      * @internal
      */
     public function __construct(
-        PercentagePriceCalculator $percentageCalculator,
-        QuantityPriceCalculator $quantityCalculator,
-        CurrencyPriceCalculator $currencyCalculator
+        private readonly PercentagePriceCalculator $percentageCalculator,
+        private readonly QuantityPriceCalculator $quantityCalculator,
+        private readonly CurrencyPriceCalculator $currencyCalculator
     ) {
-        $this->percentageCalculator = $percentageCalculator;
-        $this->quantityCalculator = $quantityCalculator;
-        $this->currencyCalculator = $currencyCalculator;
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
@@ -77,21 +67,13 @@ class ContainerCartProcessor implements CartProcessorInterface
         if ($item->getChildren()->count() > 0) {
             // we need to calculate the children in a specific order.
             // we can only calculate "referring" price (discount, surcharges) after calculating items with fix prices (products, etc)
-            $this->calculateCollection($item->getChildren(), $context, function (LineItem $item) {
-                return $item->getChildren()->count() > 0;
-            });
+            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getChildren()->count() > 0);
 
-            $this->calculateCollection($item->getChildren(), $context, function (LineItem $item) {
-                return $item->getPriceDefinition() instanceof QuantityPriceDefinition;
-            });
+            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getPriceDefinition() instanceof QuantityPriceDefinition);
 
-            $this->calculateCollection($item->getChildren(), $context, function (LineItem $item) {
-                return $item->getPriceDefinition() instanceof CurrencyPriceDefinition;
-            });
+            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getPriceDefinition() instanceof CurrencyPriceDefinition);
 
-            $this->calculateCollection($item->getChildren(), $context, function (LineItem $item) {
-                return $item->getPriceDefinition() instanceof PercentagePriceDefinition;
-            });
+            $this->calculateCollection($item->getChildren(), $context, fn (LineItem $item) => $item->getPriceDefinition() instanceof PercentagePriceDefinition);
 
             if (!$this->validate($item)) {
                 $scope->remove($item->getId());

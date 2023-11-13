@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsTagList from 'src/module/sw-settings-tag/page/sw-settings-tag-list';
 
@@ -12,7 +15,7 @@ const connections = {
     shippingMethods: 0,
     newsletterRecipients: 0,
     landingPages: 3,
-    rules: 0
+    rules: 0,
 };
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 const cloneEndpoint = jest.fn(() => Promise.resolve());
@@ -23,12 +26,12 @@ async function createWrapper(privileges = []) {
     const responseMock = [
         {
             id: '1',
-            name: 'ExampleTag'
+            name: 'ExampleTag',
         },
         {
             id: '2',
-            name: 'AnotherExampleTag'
-        }
+            name: 'AnotherExampleTag',
+        },
     ];
 
     responseMock.aggregations = {};
@@ -40,10 +43,10 @@ async function createWrapper(privileges = []) {
                 {
                     key: '1',
                     [connection]: {
-                        count: connections[connection]
-                    }
-                }
-            ]
+                        count: connections[connection],
+                    },
+                },
+            ],
         };
     });
 
@@ -53,9 +56,9 @@ async function createWrapper(privileges = []) {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
-                }
-            }
+                    limit: 25,
+                },
+            },
         },
         provide: {
             repositoryFactory: {
@@ -66,8 +69,8 @@ async function createWrapper(privileges = []) {
 
                     delete: deleteEndpoint,
 
-                    clone: cloneEndpoint
-                })
+                    clone: cloneEndpoint,
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -76,12 +79,12 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             searchRankingService: {},
             tagApiService: {
-                filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] }))
-            }
+                filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] })),
+            },
         },
         stubs: {
             'sw-page': {
@@ -97,21 +100,21 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-view': {
                 template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card': {
                 template: `
                     <div class="sw-card">
                         <slot name="grid"></slot>
                     </div>
-                `
+                `,
             },
             'sw-entity-listing': {
                 props: ['items'],
@@ -121,15 +124,16 @@ async function createWrapper(privileges = []) {
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
-                `
+                `,
             },
             'sw-context-menu-item': true,
             'sw-search-bar': true,
             'sw-icon': true,
+            'sw-loader': true,
             'sw-button': true,
             'sw-modal': true,
-            'sw-empty-state': true
-        }
+            'sw-empty-state': true,
+        },
     });
 }
 
@@ -143,7 +147,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
     it('should be able to create a new tag', async () => {
         const wrapper = await createWrapper([
-            'tag.creator'
+            'tag.creator',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -171,7 +175,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
     it('should be able to edit a tag', async () => {
         const wrapper = await createWrapper([
-            'tag.editor'
+            'tag.editor',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -191,7 +195,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
     it('should be able to delete a tag', async () => {
         const wrapper = await createWrapper([
-            'tag.deleter'
+            'tag.deleter',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -230,29 +234,29 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.getPropertyCounting('products', '1')).toEqual(412);
-        expect(wrapper.vm.getPropertyCounting('invalid', '1')).toEqual(0);
-        expect(wrapper.vm.getPropertyCounting('products', 'invalid')).toEqual(0);
+        expect(wrapper.vm.getPropertyCounting('products', '1')).toBe(412);
+        expect(wrapper.vm.getPropertyCounting('invalid', '1')).toBe(0);
+        expect(wrapper.vm.getPropertyCounting('products', 'invalid')).toBe(0);
     });
 
     it('should use tag api service for duplicate filter', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            sortBy: 'products'
+            sortBy: 'products',
         });
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.total).toEqual(2);
+        expect(wrapper.vm.total).toBe(2);
 
         await wrapper.setData({
-            duplicateFilter: true
+            duplicateFilter: true,
         });
 
         wrapper.vm.onFilter();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.tagApiService.filterIds).toBeCalledTimes(1);
-        expect(wrapper.vm.total).toEqual(1);
+        expect(wrapper.vm.tagApiService.filterIds).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.total).toBe(1);
     });
 
     it('should return sorted many to many assignment filter options', async () => {
@@ -265,7 +269,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
             .map((value) => {
                 return {
                     value,
-                    label: `sw-settings-tag.list.assignments.filter.${value}`
+                    label: `sw-settings-tag.list.assignments.filter.${value}`,
                 };
             });
 
@@ -279,13 +283,13 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(0).toEqual(wrapper.vm.filterCount);
 
         await wrapper.setData({
-            emptyFilter: true
+            emptyFilter: true,
         });
 
         expect(1).toEqual(wrapper.vm.filterCount);
 
         await wrapper.setData({
-            duplicateFilter: true
+            duplicateFilter: true,
         });
 
         expect(2).toEqual(wrapper.vm.filterCount);
@@ -299,7 +303,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         wrapper.vm.onDelete('foo');
 
-        expect(wrapper.vm.showDeleteModal).toEqual('foo');
+        expect(wrapper.vm.showDeleteModal).toBe('foo');
 
         wrapper.vm.onCloseDeleteModal();
 
@@ -307,7 +311,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         wrapper.vm.onConfirmDelete('foo');
 
-        expect(deleteEndpoint).toBeCalledTimes(1);
+        expect(deleteEndpoint).toHaveBeenCalledTimes(1);
     });
 
     it('should open clone modal and request cl endpoint', async () => {
@@ -318,7 +322,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         wrapper.vm.onDuplicate({ id: 'foo', name: 'bar' });
 
-        expect(wrapper.vm.showDuplicateModal).toEqual('foo');
+        expect(wrapper.vm.showDuplicateModal).toBe('foo');
 
         wrapper.vm.onCloseDuplicateModal();
 
@@ -326,7 +330,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         wrapper.vm.onConfirmDuplicate('foo');
 
-        expect(cloneEndpoint).toBeCalledTimes(1);
+        expect(cloneEndpoint).toHaveBeenCalledTimes(1);
     });
 
     it('should open detail modal', async () => {
@@ -336,8 +340,8 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         wrapper.vm.onDetail('foo', 'bar', 'baz');
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.showDetailModal).toEqual('foo');
-        expect(wrapper.vm.detailProperty).toEqual('bar');
-        expect(wrapper.vm.detailEntity).toEqual('baz');
+        expect(wrapper.vm.showDetailModal).toBe('foo');
+        expect(wrapper.vm.detailProperty).toBe('bar');
+        expect(wrapper.vm.detailEntity).toBe('baz');
     });
 });

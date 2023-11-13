@@ -9,14 +9,14 @@ Shopware.Component.register('sw-image-slider', SwImageSlider);
 const images = [
     {
         src: '/administration/static/img/dashboard-logo.svg',
-        description: 'Some really awesome and totally useful description.'
+        description: 'Some really awesome and totally useful description.',
     },
     'https://via.placeholder.com/218x229?text=Placeholder1',
     {
-        src: 'https://via.placeholder.com/218x229?text=Placeholder2'
+        src: 'https://via.placeholder.com/218x229?text=Placeholder2',
     },
     '/administration/static/img/plugin-manager--login.png',
-    '/administration/static/img/sw-login-background.png'
+    '/administration/static/img/sw-login-background.png',
 ];
 
 function getTranslateAmount(itemLength = 1, itemPerPage = 1, expectedIndex = 0) {
@@ -41,7 +41,7 @@ async function createWrapper(propsData = {}, listeners = {}) {
     return shallowMount(await Shopware.Component.build('sw-image-slider'), {
         localVue,
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {
         },
@@ -52,10 +52,10 @@ async function createWrapper(propsData = {}, listeners = {}) {
                 canvasHeight: 229,
                 enableDescriptions: true,
                 navigationType: 'all',
-                images
+                images,
             },
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -70,11 +70,11 @@ describe('src/app/component/media/sw-image-slider', () => {
         const wrapper = await createWrapper();
         const containerScrollable = wrapper.find('.sw-image-slider__image-scrollable');
         const actualImages = wrapper.findAll(
-            '.sw-image-slider__image-scrollable .sw-image-slider__element-image'
+            '.sw-image-slider__image-scrollable .sw-image-slider__element-image',
         );
 
         expect(containerScrollable.exists()).toBeTruthy();
-        expect(actualImages.length).toBe(images.length);
+        expect(actualImages).toHaveLength(images.length);
         expect(actualImages.at(1).attributes().src).toBe(images[1]);
     });
 
@@ -85,10 +85,10 @@ describe('src/app/component/media/sw-image-slider', () => {
         }).length;
 
         const actualDescriptions = wrapper.findAll(
-            '.sw-image-slider__image-scrollable .sw-image-slider__element-description'
+            '.sw-image-slider__image-scrollable .sw-image-slider__element-description',
         );
 
-        expect(actualDescriptions.length).toBe(expectedAmountOfDescriptions);
+        expect(actualDescriptions).toHaveLength(expectedAmountOfDescriptions);
         expect(actualDescriptions.at(0).text()).toContain(images[0].description);
     });
 
@@ -96,10 +96,10 @@ describe('src/app/component/media/sw-image-slider', () => {
         const wrapper = await createWrapper({ enableDescriptions: false });
 
         const actualDescriptions = wrapper.findAll(
-            '.sw-image-slider__image-scrollable .sw-image-slider__element-description'
+            '.sw-image-slider__image-scrollable .sw-image-slider__element-description',
         );
 
-        expect(actualDescriptions.length).toBe(0);
+        expect(actualDescriptions).toHaveLength(0);
     });
 
     it('should navigate using the arrows', async () => {
@@ -184,7 +184,7 @@ describe('src/app/component/media/sw-image-slider', () => {
 
         const staticStyles = 'width: 500%; gap: 20px;';
 
-        expect(buttons.length).toBe(5);
+        expect(buttons).toHaveLength(5);
 
         let expectedIndex = 0;
         let translateAmount = getTranslateAmount(imageLength, itemPerPage, expectedIndex);
@@ -211,7 +211,7 @@ describe('src/app/component/media/sw-image-slider', () => {
 
     it('should navigate by arrows correctly when there are more than 1 item per page', async () => {
         const wrapper = await createWrapper({
-            itemPerPage: 2
+            itemPerPage: 2,
         });
 
         const data = wrapper.vm._data;
@@ -283,7 +283,7 @@ describe('src/app/component/media/sw-image-slider', () => {
 
     it('should navigate by buttons correctly when there are more than 1 item per page', async () => {
         const wrapper = await createWrapper({
-            itemPerPage: 2
+            itemPerPage: 2,
         });
 
         const data = wrapper.vm._data;
@@ -295,7 +295,7 @@ describe('src/app/component/media/sw-image-slider', () => {
 
         const staticStyles = 'width: 250%; gap: 20px;';
 
-        expect(buttons.length).toBe(3);
+        expect(buttons).toHaveLength(3);
 
         // Move to 1st page which contain 1st and 2nd images
         let expectedIndex = 0;
@@ -325,21 +325,17 @@ describe('src/app/component/media/sw-image-slider', () => {
 
     it('should mark aria-hidden correctly when navigating', async () => {
         const wrapper = await createWrapper({
-            itemPerPage: 2
+            itemPerPage: 2,
         });
 
         const buttons = wrapper.findAll('.sw-image-slider__buttons-element');
-        expect(buttons.length).toBe(3);
+        expect(buttons).toHaveLength(3);
 
         // Move to 1st page, mark 1st and 2nd images not hidden
         let expectedIndex;
         const imageWrappers = wrapper.findAll('.sw-image-slider__element-wrapper');
         imageWrappers.wrappers.forEach((item, index) => {
-            if (index === 0 || index === 1) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes()['aria-hidden']).toBe((index === 0 || index === 1) ? undefined : 'true');
         });
 
         // Move to last page, mark 4th and 5th images not hidden
@@ -347,11 +343,7 @@ describe('src/app/component/media/sw-image-slider', () => {
         await buttons.at(expectedIndex).trigger('click');
 
         imageWrappers.wrappers.forEach((item, index) => {
-            if (index === 3 || index === 4) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes()['aria-hidden']).toBe((index === 3 || index === 4) ? undefined : 'true');
         });
 
         // Move to 2nd page, mark 3rd and 4th images not hidden
@@ -359,57 +351,41 @@ describe('src/app/component/media/sw-image-slider', () => {
         await buttons.at(expectedIndex).trigger('click');
 
         imageWrappers.wrappers.forEach((item, index) => {
-            if (index === 2 || index === 3) {
-                expect(item.attributes()['aria-hidden']).toBeFalsy();
-            } else {
-                expect(item.attributes()['aria-hidden']).toBeTruthy();
-            }
+            expect(item.attributes()['aria-hidden']).toBe((index === 2 || index === 3) ? undefined : 'true');
         });
     });
 
     it('should show active border around item after clicking on it', async () => {
         const wrapper = await createWrapper({
-            itemPerPage: 5
+            itemPerPage: 5,
         });
 
         let expectedIndex = 0;
         const imageContainers = wrapper.findAll('.sw-image-slider__element-container');
 
         imageContainers.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         expectedIndex = 1;
         await imageContainers.at(expectedIndex).trigger('click');
 
         imageContainers.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
 
         expectedIndex = 3;
         await imageContainers.at(expectedIndex).trigger('click');
 
         imageContainers.wrappers.forEach((item, index) => {
-            if (index === expectedIndex) {
-                expect(item.classes()).toContain('is--active');
-            } else {
-                expect(item.classes()).not.toContain('is--active');
-            }
+            expect(item.classes('is--active')).toBe(index === expectedIndex);
         });
     });
 
     it('should navigate back to first page by next arrow or last page by prev arrow when rewind is active', async () => {
         const wrapper = await createWrapper({
             itemPerPage: 2,
-            rewind: true
+            rewind: true,
         });
 
         const data = wrapper.vm._data;

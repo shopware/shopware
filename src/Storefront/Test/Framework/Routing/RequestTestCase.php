@@ -44,19 +44,17 @@ class RequestTestCase
      */
     public $salesChannelPrefix;
 
-    /**
-     * @var string
-     */
-    private $method;
-
-    /**
-     * @var string
-     */
-    private $pathInfo;
-
-    public function __construct(string $method, string $route, string $scriptFilename, string $scriptName, string $host, string $uri, string $pathInfo, string $salesChannelPrefix = '', bool $https = false)
-    {
-        $this->method = $method;
+    public function __construct(
+        private readonly string $method,
+        string $route,
+        string $scriptFilename,
+        string $scriptName,
+        string $host,
+        string $uri,
+        private readonly string $pathInfo,
+        string $salesChannelPrefix = '',
+        bool $https = false
+    ) {
         $this->route = $route;
         $this->scriptFilename = $scriptFilename;
         $this->scriptName = $scriptName;
@@ -64,7 +62,6 @@ class RequestTestCase
         $this->host = $host;
         $this->uri = $uri;
         $this->salesChannelPrefix = $salesChannelPrefix;
-        $this->pathInfo = $pathInfo;
     }
 
     public function createRequest(): Request

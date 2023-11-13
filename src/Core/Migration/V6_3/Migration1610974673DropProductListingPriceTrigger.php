@@ -3,13 +3,15 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1610974673DropProductListingPriceTrigger extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -28,7 +30,7 @@ class Migration1610974673DropProductListingPriceTrigger extends MigrationStep
             $connection->executeStatement(
                 'DROP TRIGGER `product_listing_price_update`'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 }

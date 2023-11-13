@@ -5,13 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FkFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class FkField extends Field implements StorageAware
 {
-    public const PRIORITY = 70;
+    final public const PRIORITY = 70;
 
     /**
      * @var string
@@ -37,8 +36,12 @@ class FkField extends Field implements StorageAware
 
     private ?string $referenceEntity = null;
 
-    public function __construct(string $storageName, string $propertyName, string $referenceClass, string $referenceField = 'id')
-    {
+    public function __construct(
+        string $storageName,
+        string $propertyName,
+        string $referenceClass,
+        string $referenceField = 'id'
+    ) {
         $this->referenceClass = $referenceClass;
         $this->storageName = $storageName;
         $this->referenceField = $referenceField;

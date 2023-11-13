@@ -13,7 +13,7 @@ class LastLetterBigTwigFilter extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('lastBigLetter', [$this, 'convert']),
+            new TwigFilter('lastBigLetter', $this->convert(...)),
         ];
     }
 

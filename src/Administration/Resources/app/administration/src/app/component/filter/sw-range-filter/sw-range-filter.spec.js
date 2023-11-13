@@ -12,22 +12,22 @@ async function createWrapper() {
         stubs: {
             'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-icon': true,
-            'sw-field-error': true
+            'sw-field-error': true,
         },
         propsData: {
             isShowDivider: true,
             value: {
                 from: null,
-                to: null
+                to: null,
             },
             active: true,
             property: 'releaseDate',
             showResetButton: false,
-            title: 'Release Date'
-        }
+            title: 'Release Date',
+        },
     });
 }
 
@@ -38,12 +38,12 @@ describe('src/app/component/filter/sw-range-filter', () => {
         await wrapper.setProps({
             value: {
                 from: '2021-01-20',
-                to: null
-            }
+                to: null,
+            },
         });
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            [Criteria.range('releaseDate', { gte: '2021-01-20' })]
+            [Criteria.range('releaseDate', { gte: '2021-01-20' })],
         ]);
     });
 
@@ -53,12 +53,12 @@ describe('src/app/component/filter/sw-range-filter', () => {
         await wrapper.setProps({
             value: {
                 from: null,
-                to: '2021-01-23'
-            }
+                to: '2021-01-23',
+            },
         });
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            [Criteria.range('releaseDate', { lte: '2021-01-23' })]
+            [Criteria.range('releaseDate', { lte: '2021-01-23' })],
         ]);
     });
 
@@ -68,12 +68,12 @@ describe('src/app/component/filter/sw-range-filter', () => {
         await wrapper.setProps({
             value: {
                 from: '2021-01-20',
-                to: '2021-01-23'
-            }
+                to: '2021-01-23',
+            },
         });
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            [Criteria.range('releaseDate', { gte: '2021-01-20', lte: '2021-01-23' })]
+            [Criteria.range('releaseDate', { gte: '2021-01-20', lte: '2021-01-23' })],
         ]);
     });
 
@@ -91,7 +91,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            isShowDivider: false
+            isShowDivider: false,
         });
 
         const container = wrapper.find('.sw-container');

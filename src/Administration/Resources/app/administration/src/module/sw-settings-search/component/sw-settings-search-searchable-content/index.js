@@ -1,10 +1,10 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import template from './sw-settings-search-searchable-content.html.twig';
 import './sw-settings-search-searchable-content.scss';
 
-const { Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -14,7 +14,6 @@ export default {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [
@@ -166,7 +165,7 @@ export default {
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesName'),
+                    label: this.$tc('sw-settings-search.generalTab.configFields.propertiesValue'),
                     value: 'properties.name',
                     defaultConfigs: {
                         searchable: false,
@@ -231,7 +230,7 @@ export default {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
-                align: 'right',
+                align: 'center',
                 sortable: true,
             }, {
                 property: 'tokenize',
@@ -241,11 +240,14 @@ export default {
                 sortable: true,
             }];
         },
+
+        storefrontEsEnable() {
+            return Context.app.storefrontEsEnable ?? false;
+        },
     },
 
     watch: {
-        searchConfigId(newValue) {
-            this.searchConfigId = newValue;
+        searchConfigId() {
             this.loadData();
         },
 

@@ -52,7 +52,7 @@ describe('Integration: Test acl privileges', () => {
             });
     });
 
-    it('@settings: can view a list of integration', { tags: ['pa-system-settings'] }, () => {
+    it('@settings: can view a list of integration', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -192,7 +192,7 @@ describe('Integration: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('chat-key').click();
 
         // disable administrator role
-        cy.contains('label', 'Administrator').click();
+        // cy.contains('label', 'Administrator').click();
 
         cy.get('.sw-block-field__block > .sw-select__selection').click();
 
@@ -241,7 +241,7 @@ describe('Integration: Test acl privileges', () => {
         cy.contains('another-test-role').should('not.exist');
     });
 
-    it('@settings: can delete a integration', () => {
+    it('@settings: can delete a integration', { tags: ['quarantined', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

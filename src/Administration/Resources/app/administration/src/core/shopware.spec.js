@@ -18,7 +18,7 @@ const {
     WorkerNotification,
     Data,
     Classes,
-    Helper
+    Helper,
 } = Shopware;
 
 describe('core/shopware', () => {

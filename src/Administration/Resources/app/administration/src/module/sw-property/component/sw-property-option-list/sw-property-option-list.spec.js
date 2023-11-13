@@ -31,13 +31,13 @@ function getOptions() {
             translations: [],
             productConfiguratorSettings: [],
             productProperties: [],
-            productOptions: []
-        }
+            productOptions: [],
+        },
     ];
 
     options.criteria = {
         page: 1,
-        limit: 25
+        limit: 25,
     };
 
     return options;
@@ -56,7 +56,7 @@ const propertyGroup = {
         name: 'color',
         description: null,
         position: 1,
-        customFields: []
+        customFields: [],
     },
     apiAlias: null,
     id: '0d976ffa3ade4b618b538818ddd043f7',
@@ -65,15 +65,15 @@ const propertyGroup = {
     _isNew: false,
     isNew() {
         return this._isNew;
-    }
+    },
 };
 
 function getOptionRepository() {
     return {
         create: () => ({
-            get: () => Promise.resolve()
+            get: () => Promise.resolve(),
         }),
-        save: () => Promise.resolve()
+        save: () => Promise.resolve(),
     };
 }
 
@@ -81,43 +81,43 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-property-option-list'), {
         propsData: {
             propertyGroup: propertyGroup,
-            optionRepository: getOptionRepository()
+            optionRepository: getOptionRepository(),
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     get: () => Promise.resolve(),
                     save: () => Promise.resolve(),
-                    search: () => Promise.resolve({ propertyGroup })
-                })
+                    search: () => Promise.resolve({ propertyGroup }),
+                }),
             },
             shortcutService: {
                 stopEventListener: () => {},
-                startEventListener: () => {}
-            }
+                startEventListener: () => {},
+            },
         },
         stubs: {
             'sw-card': await Shopware.Component.build('sw-card'),
             'sw-ignore-class': true,
             'sw-container': await Shopware.Component.build('sw-container'),
             'sw-button': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-simple-search-field': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-one-to-many-grid': await Shopware.Component.build('sw-one-to-many-grid'),
             'sw-pagination': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-checkbox-field': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-context-button': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-property-option-detail': await Shopware.Component.build('sw-property-option-detail'),
             'sw-modal': {
@@ -129,26 +129,26 @@ async function createWrapper() {
                                 <slot name="modal-footer"></slot>
                             </div>
                         </div>
-                `
+                `,
             },
             'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
             'sw-upload-listener': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-media-compact-upload-v2': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-number-field': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-text-field': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-contextual-field': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-extension-component-section': true,
-        }
+        },
     });
 }
 

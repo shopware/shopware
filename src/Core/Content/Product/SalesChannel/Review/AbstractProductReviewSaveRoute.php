@@ -2,13 +2,12 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 abstract class AbstractProductReviewSaveRoute
 {
     abstract public function getDecorated(): AbstractProductReviewSaveRoute;

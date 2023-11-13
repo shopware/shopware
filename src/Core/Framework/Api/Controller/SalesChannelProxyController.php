@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
@@ -20,8 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -51,11 +51,8 @@ use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package core
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('core')]
 class SalesChannelProxyController extends AbstractController
 {
     private const CUSTOMER_ID = SalesChannelContextService::CUSTOMER_ID;
@@ -66,82 +63,38 @@ class SalesChannelProxyController extends AbstractController
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
 
-    protected DataValidator $validator;
-
-    protected SalesChannelContextPersister $contextPersister;
-
     protected Processor $processor;
-
-    private KernelInterface $kernel;
-
-    private EntityRepository $salesChannelRepository;
-
-    private SalesChannelRequestContextResolver $requestContextResolver;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private ApiOrderCartService $adminOrderCartService;
-
-    private SalesChannelContextServiceInterface $contextService;
-
-    private AbstractCartOrderRoute $orderRoute;
-
-    private CartService $cartService;
-
-    private Connection $connection;
-
-    private RequestStack $requestStack;
 
     /**
      * @internal
      */
     public function __construct(
-        KernelInterface $kernel,
-        EntityRepository $salesChannelRepository,
-        DataValidator $validator,
-        SalesChannelContextPersister $contextPersister,
-        SalesChannelRequestContextResolver $requestContextResolver,
-        SalesChannelContextServiceInterface $contextService,
-        EventDispatcherInterface $eventDispatcher,
-        ApiOrderCartService $adminOrderCartService,
-        AbstractCartOrderRoute $orderRoute,
-        CartService $cartService,
-        Connection $connection,
-        RequestStack $requestStack
+        private readonly KernelInterface $kernel,
+        private readonly EntityRepository $salesChannelRepository,
+        protected DataValidator $validator,
+        protected SalesChannelContextPersister $contextPersister,
+        private readonly SalesChannelRequestContextResolver $requestContextResolver,
+        private readonly SalesChannelContextServiceInterface $contextService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ApiOrderCartService $adminOrderCartService,
+        private readonly AbstractCartOrderRoute $orderRoute,
+        private readonly CartService $cartService,
+        private readonly Connection $connection,
+        private readonly RequestStack $requestStack
     ) {
-        $this->kernel = $kernel;
-        $this->salesChannelRepository = $salesChannelRepository;
-        $this->validator = $validator;
-        $this->contextPersister = $contextPersister;
-        $this->requestContextResolver = $requestContextResolver;
-        $this->contextService = $contextService;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->adminOrderCartService = $adminOrderCartService;
-        $this->orderRoute = $orderRoute;
-        $this->cartService = $cartService;
-        $this->connection = $connection;
-        $this->requestStack = $requestStack;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
-     */
+    #[Route(path: '/api/_proxy/store-api/{salesChannelId}/{_path}', name: 'api.proxy.store-api', requirements: ['_path' => '.*'])]
     public function proxy(string $_path, string $salesChannelId, Request $request, Context $context): Response
     {
         $salesChannel = $this->fetchSalesChannel($salesChannelId, $context);
 
         $salesChannelApiRequest = $this->setUpSalesChannelApiRequest($_path, $salesChannelId, $request, $salesChannel);
 
-        return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, function () use ($salesChannelApiRequest): Response {
-            return $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST);
-        });
+        return $this->wrapInSalesChannelApiRoute($salesChannelApiRequest, fn (): Response => $this->kernel->handle($salesChannelApiRequest, HttpKernelInterface::SUB_REQUEST));
     }
 
-    /**
-     * @Since("6.3.4.0")
-     * @Route("/api/_proxy-order/{salesChannelId}", name="api.proxy-order.create")
-     */
+    #[Route(path: '/api/_proxy-order/{salesChannelId}', name: 'api.proxy-order.create')]
     public function proxyCreateOrder(string $salesChannelId, Request $request, Context $context, RequestDataBag $data): Response
     {
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -157,7 +110,7 @@ class SalesChannelProxyController extends AbstractController
         $userId = $userId ? Uuid::fromHexToBytes($userId) : null;
 
         $context->scope(Context::SYSTEM_SCOPE, function () use ($orderId, $userId): void {
-            $this->connection->executeUpdate(
+            $this->connection->executeStatement(
                 'UPDATE `order` SET `created_by_id` = :createdById WHERE `id` = :id',
                 ['createdById' => $userId, 'id' => Uuid::fromHexToBytes($orderId)]
             );
@@ -166,20 +119,17 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse($order);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"}, defaults={"_acl"={"api_proxy_switch-customer"}})
-     */
+    #[Route(path: '/api/_proxy/switch-customer', name: 'api.proxy.switch-customer', methods: ['PATCH'], defaults: ['_acl' => ['api_proxy_switch-customer']])]
     public function assignCustomer(Request $request, Context $context): Response
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
 
         if (!$request->request->has(self::CUSTOMER_ID)) {
-            throw new MissingRequestParameterException(self::CUSTOMER_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $this->fetchSalesChannel($salesChannelId, $context);
@@ -200,14 +150,11 @@ class SalesChannelProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
-     */
+    #[Route(path: '/api/_proxy/modify-shipping-costs', name: 'api.proxy.modify-shipping-costs', methods: ['PATCH'])]
     public function modifyShippingCosts(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $salesChannelId = (string) $request->request->get('salesChannelId');
@@ -223,14 +170,11 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse(['data' => $cart]);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_proxy/disable-automatic-promotions", name="api.proxy.disable-automatic-promotions", methods={"PATCH"})
-     */
+    #[Route(path: '/api/_proxy/disable-automatic-promotions', name: 'api.proxy.disable-automatic-promotions', methods: ['PATCH'])]
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $contextToken = $this->getContextToken($request);
@@ -242,14 +186,11 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/api/_proxy/enable-automatic-promotions", name="api.proxy.enable-automatic-promotions", methods={"PATCH"})
-     */
+    #[Route(path: '/api/_proxy/enable-automatic-promotions', name: 'api.proxy.enable-automatic-promotions', methods: ['PATCH'])]
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
         if (!$request->request->has(self::SALES_CHANNEL_ID)) {
-            throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
+            throw ApiException::salesChannelIdParameterIsMissing();
         }
 
         $contextToken = $this->getContextToken($request);
@@ -261,6 +202,9 @@ class SalesChannelProxyController extends AbstractController
         return new JsonResponse();
     }
 
+    /**
+     * @param callable(): Response $call
+     */
     private function wrapInSalesChannelApiRoute(Request $request, callable $call): Response
     {
         $requestStackBackup = $this->clearRequestStackWithBackup($this->requestStack);
@@ -303,7 +247,7 @@ class SalesChannelProxyController extends AbstractController
         $salesChannel = $this->salesChannelRepository->search(new Criteria([$salesChannelId]), $context)->get($salesChannelId);
 
         if ($salesChannel === null) {
-            throw new InvalidSalesChannelIdException($salesChannelId);
+            throw ApiException::invalidSalesChannelId($salesChannelId);
         }
 
         return $salesChannel;
@@ -320,17 +264,29 @@ class SalesChannelProxyController extends AbstractController
         return $contextToken;
     }
 
+    /**
+     * @return array<Request>
+     */
     private function clearRequestStackWithBackup(RequestStack $requestStack): array
     {
         $requestStackBackup = [];
 
         while ($requestStack->getMainRequest()) {
-            $requestStackBackup[] = $requestStack->pop();
+            $request = $requestStack->pop();
+
+            if ($request === null) {
+                continue;
+            }
+
+            $requestStackBackup[] = $request;
         }
 
         return $requestStackBackup;
     }
 
+    /**
+     * @param array<Request> $requestStackBackup
+     */
     private function restoreRequestStack(RequestStack $requestStack, array $requestStackBackup): void
     {
         $this->clearRequestStackWithBackup($requestStack);
@@ -436,7 +392,7 @@ class SalesChannelProxyController extends AbstractController
     private function validateShippingCostsParameters(Request $request): void
     {
         if (!$request->request->has('shippingCosts')) {
-            throw new MissingRequestParameterException('shippingCosts');
+            throw ApiException::shippingCostsParameterIsMissing();
         }
 
         $validation = new DataValidationDefinition('shipping-cost');

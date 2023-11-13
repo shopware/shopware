@@ -22,15 +22,15 @@ async function createWrapper(additionalOptions = {}) {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-icon': true,
-            'icons-small-search': true
+            'icons-small-search': true,
         },
         provide: {
-            validationService: {}
+            validationService: {},
         },
         propsData: {
-            value: 'search term'
+            value: 'search term',
         },
-        ...additionalOptions
+        ...additionalOptions,
     });
 }
 

@@ -7,42 +7,28 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\Struct\ThemeDependencies;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeLifecycleHandler
 {
-    private ThemeLifecycleService $themeLifecycleService;
-
-    private ThemeService $themeService;
-
-    private EntityRepository $themeRepository;
-
-    private StorefrontPluginRegistryInterface $storefrontPluginRegistry;
-
-    private Connection $connection;
+    public const STATE_SKIP_THEME_COMPILATION = 'skip-theme-compilation';
 
     /**
      * @internal
      */
     public function __construct(
-        ThemeLifecycleService $themeLifecycleService,
-        ThemeService $themeService,
-        EntityRepository $themeRepository,
-        StorefrontPluginRegistryInterface $storefrontPluginRegistry,
-        Connection $connection
+        private readonly ThemeLifecycleService $themeLifecycleService,
+        private readonly ThemeService $themeService,
+        private readonly EntityRepository $themeRepository,
+        private readonly StorefrontPluginRegistryInterface $storefrontPluginRegistry,
+        private readonly Connection $connection
     ) {
-        $this->themeLifecycleService = $themeLifecycleService;
-        $this->themeService = $themeService;
-        $this->themeRepository = $themeRepository;
-        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
-        $this->connection = $connection;
     }
 
     public function handleThemeInstallOrUpdate(
@@ -77,9 +63,7 @@ class ThemeLifecycleHandler
 
         $configs = $this->storefrontPluginRegistry->getConfigurations();
 
-        $configs = $configs->filter(function (StorefrontPluginConfiguration $registeredConfig) use ($config): bool {
-            return $registeredConfig->getTechnicalName() !== $config->getTechnicalName();
-        });
+        $configs = $configs->filter(fn (StorefrontPluginConfiguration $registeredConfig): bool => $registeredConfig->getTechnicalName() !== $config->getTechnicalName());
 
         $this->recompileThemesIfNecessary($config, $context, $configs, $themeId);
     }
@@ -123,6 +107,10 @@ class ThemeLifecycleHandler
         StorefrontPluginConfigurationCollection $configurationCollection,
         ?string $themeId
     ): void {
+        if ($context->hasState(self::STATE_SKIP_THEME_COMPILATION)) {
+            return;
+        }
+
         if (!$config->hasFilesToCompile()) {
             return;
         }
@@ -201,7 +189,7 @@ class ThemeLifecycleHandler
             $childThemeSalesChannel = [];
             foreach ($themeData as $data) {
                 $themeName = $data['themeName'];
-                if (isset($data['id']) && isset($data['saleschannelId']) && $data['id'] === $themeId && $data['saleschannelId'] !== null) {
+                if (isset($data['id'], $data['saleschannelId']) && $data['id'] === $themeId) {
                     $themeSalesChannel[(string) $data['themeName']][] = (string) $data['saleschannelId'];
                     $salesChannels[(string) $data['saleschannelId']] = (string) $data['saleschannelName'];
                 }

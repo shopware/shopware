@@ -1,0 +1,43 @@
+{% extends "base.html.twig" %}
+
+{% block main %}
+    <div class="card__title">
+        <h2>{{ 'shopware.update.steps.start.title'|trans }}</h2>
+    </div>
+
+    <div class="card__body is--align-center">
+
+        <div class="welcome-illustration">
+            <img src="{{ app.request.baseUrl }}/assets/images/welcome.svg" alt="">
+        </div>
+
+        <div class="welcome-container">
+            <h1 class="welcome-title">{{ 'shopware.update.steps.start.welcomeTitle'|trans }}</h1>
+
+            <p class="welcome-intro-message">{{ 'shopware.update.steps.start.welcomeMessage'|trans }}</p>
+
+            <label for="language">
+                {{ 'shopware.update.steps.start.languageSelection'|trans }}
+                <a class="help-badge" href="#" data-tooltip="{{ 'shopware.update.steps.start.languageSelectionInfo'|trans }}">
+                    <i class="icon-help"></i>
+                </a>
+            </label>
+
+            <form class="select-wrapper language" method="get">
+                <img class="language-flag" src="{{ app.request.baseUrl }}/assets/images/flags/{{ app.request.locale }}.png" alt="{{ app.request.locale }}">
+                <select id="language" name="language" class="language-selection" onchange="this.form.submit();">
+                    <option value="de"{% if app.request.locale == "de" %} selected{% endif %}>
+                        {{ 'shopware.update.language.de'|trans }}
+                    </option>
+                    <option value="en"{% if app.request.locale == "en" %} selected{% endif %}>
+                        {{ 'shopware.update.language.en'|trans }}
+                    </option>
+                </select>
+            </form>
+        </div>
+    </div>
+
+    <div class="card__footer flex-container">
+        <a href="{{ url('configure') }}" class="btn btn-primary flex-item flex-right">{{ 'shopware.update.steps.start.submit'|trans }}</a>
+    </div>
+{% endblock %}

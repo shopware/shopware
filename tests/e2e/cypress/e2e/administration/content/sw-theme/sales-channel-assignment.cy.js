@@ -1,13 +1,11 @@
-// / <reference types="Cypress" />
-
+/// <reference types="Cypress" />
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
-describe('Theme: Test sales channel assignment', () => {
+describe('Theme: Test sales channel assignment', { tags: ['VUE3']}, () => {
     beforeEach(() => {
         cy.createDefaultSalesChannel().then(() => {
-            cy.viewport(1920, 1080);
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/theme/manager/index`);
             cy.get('.sw-skeleton').should('not.exist');
             cy.get('.sw-loader').should('not.exist');
@@ -33,7 +31,6 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-select-result-list__item-list')
             .contains('.sw-select-result', 'Channel No 9')
             .click();
-
         cy.contains('.sw-button-process__content', 'Save').click();
 
         cy.get('.sw-modal__footer > .sw-button--primary').click();
@@ -91,7 +88,7 @@ describe('Theme: Test sales channel assignment', () => {
             .should('have.class', 'is--disabled');
     });
 
-    it('@content: can remove unsaved sales-channel from default theme', { tags: ['pa-sales-channels'] }, () => {
+    it('@content: can remove unsaved sales-channel from default theme', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
         cy.get('.sw-theme-list-item')
             .last()
             .contains('.sw-theme-list-item__title', 'Shopware default theme')
@@ -133,7 +130,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('#sw-field--newThemeName').type('New theme');
+        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');
@@ -173,7 +170,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.contains('.sw-select-selection-list__item-holder', 'Channel No 9').should('not.exist');
     });
 
-    it('@content: shows warning in modal when sales-channel is re-assigned', { tags: ['pa-sales-channels'] }, () => {
+    it('@content: shows warning in modal when sales-channel is re-assigned', { tags: ['pa-sales-channels', 'quarantined'] }, () => {
         cy.get('.sw-theme-list-item')
             .last()
             .contains('.sw-theme-list-item__title', 'Shopware default theme')
@@ -182,7 +179,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('#sw-field--newThemeName').type('New theme');
+        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');
@@ -214,7 +211,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('#sw-field--newThemeName').type('New theme');
+        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');
@@ -262,7 +259,7 @@ describe('Theme: Test sales channel assignment', () => {
         cy.get('.sw-theme-manager-detail__context-button').click();
         cy.contains('.sw-context-menu-item', 'Create duplicate').click();
 
-        cy.get('#sw-field--newThemeName').type('New theme');
+        cy.get('[name="sw-field--duplicate-theme-name"]').type('New theme');
         cy.contains('.sw-modal__footer > .sw-button--primary', 'Create duplicate').click();
 
         cy.contains('.sw-theme-manager-detail__info-name', 'New theme').should('be.visible');

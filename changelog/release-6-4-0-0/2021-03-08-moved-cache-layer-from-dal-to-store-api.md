@@ -135,8 +135,8 @@ author_github: OliverSkroblin
 * Removed `\Shopware\Core\Framework\Adapter\Cache\CacheClearer::invalidateIds` calls in indexer classes
 * Removed `\Shopware\Storefront\Theme\ThemeService::getResolvedThemeConfiguration`, use `theme_config` in templates instead
 * Removed `\Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField`
-* Changed `\Shopware\Core\System\SystemConfig\SystemConfigService::getDomain` annotation. The function is marked as `@interal` and should not be used inside a storefront request
-* Changed `\Shopware\Core\System\SystemConfig\SystemConfigService::all` annotation. The function is marked as `@interal` and should not be used inside a storefront request
+* Changed `\Shopware\Core\System\SystemConfig\SystemConfigService::getDomain` annotation. The function is marked as `@internal` and should not be used inside a storefront request
+* Changed `\Shopware\Core\System\SystemConfig\SystemConfigService::all` annotation. The function is marked as `@internal` and should not be used inside a storefront request
 * Changed `\Shopware\Core\Framework\DataAbstractionLayer\VersionManager::writeAuditLog`, the function checks now `context->hasState(self::DISABLE_AUDIT_LOG)` instead of an extension
 * Changed `\Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult::__construct`, `page` and `limit` removed and `$entity` added as first parameter
 * Changed signature of `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextService::get`, the function expects now the `SalesChannelContextServiceParameters` object as parameter instead of single values

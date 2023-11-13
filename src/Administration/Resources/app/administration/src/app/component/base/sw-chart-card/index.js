@@ -18,28 +18,58 @@ const defaultRanges = ['30Days', '14Days', '7Days', '24Hours', 'yesterday'];
  */
 Shopware.Component.register('sw-chart-card', {
     template,
+
     props: {
         availableRanges: {
             type: Array,
+            required: false,
             default: () => {
                 return defaultRanges;
             },
         },
-        cardSubtitle: {
+        defaultRangeIndex: {
+            type: Number,
+            required: false,
+            default: () => {
+                return 0;
+            },
+        },
+        cardTitle: {
             type: String,
+            required: false,
             default: '',
         },
+        cardSubtitle: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        positionIdentifier: {
+            type: String,
+            required: true,
+            default: '',
+        },
+        helpText: {
+            type: [String, Object],
+            required: false,
+            default: () => {
+                return '';
+            },
+        },
     },
+
     data() {
         return {
-            selectedRange: this.availableRanges[0],
+            selectedRange: this.availableRanges[this.defaultRangeIndex],
         };
     },
+
     computed: {
         hasHeaderLink() {
             return !!this.$slots['header-link'];
         },
     },
+
     methods: {
         dispatchRangeUpdate() {
             this.$emit('sw-chart-card-range-update', this.selectedRange);

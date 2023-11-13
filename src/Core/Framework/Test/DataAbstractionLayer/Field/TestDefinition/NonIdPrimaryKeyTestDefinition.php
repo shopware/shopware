@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class NonIdPrimaryKeyTestDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'non_id_primary_key_test';
+    final public const ENTITY_NAME = 'non_id_primary_key_test';
 
     public function getEntityName(): string
     {

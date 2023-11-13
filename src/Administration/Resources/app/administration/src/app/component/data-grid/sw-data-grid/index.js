@@ -35,6 +35,7 @@ Component.register('sw-data-grid', {
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     props: {
@@ -226,13 +227,6 @@ Component.register('sw-data-grid', {
             };
         },
 
-        /**
-         * @major-deprecated tag:v6.5.0 - localStorageItemKey will be removed
-         */
-        localStorageItemKey() {
-            return `${this.identifier}-grid`;
-        },
-
         selectionCount() {
             return Object.values(this.selection).length;
         },
@@ -340,12 +334,6 @@ Component.register('sw-data-grid', {
 
         showSelection() {
             this.selection = this.showSelection ? this.selection : {};
-        },
-
-        /**
-         * @major-deprecated tag:v6.5.0 - will be removed
-         */
-        records() {
         },
 
         compactMode() {
@@ -692,6 +680,23 @@ Component.register('sw-data-grid', {
             }
 
             const selection = this.selection;
+
+            if (this.feature.isActive('VUE3')) {
+                const key = item[this.itemIdentifierProperty];
+                if (selected) {
+                    this.selection = {
+                        ...this.selection,
+                        [key]: item,
+                    };
+                } else {
+                    this.selection = Object.fromEntries(
+                        Object.entries(this.selection).filter(([selectionKey]) => selectionKey !== key),
+                    );
+                }
+                this.$emit('select-item', this.selection, item, selected);
+
+                return;
+            }
 
             if (selected) {
                 this.$set(this.selection, item[this.itemIdentifierProperty], item);

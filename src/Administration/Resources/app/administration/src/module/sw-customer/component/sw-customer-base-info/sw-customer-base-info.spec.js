@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import swCustomerBaseInfo from 'src/module/sw-customer/component/sw-customer-base-info';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-customer-base-info', swCustomerBaseInfo);
@@ -16,10 +16,10 @@ responses.addResponse({
     response: {
         data: [
             {
-                id: '1'
-            }
-        ]
-    }
+                id: '1',
+            },
+        ],
+    },
 });
 
 responses.addResponse({
@@ -29,10 +29,10 @@ responses.addResponse({
     response: {
         data: [
             {
-                id: '1'
-            }
-        ]
-    }
+                id: '1',
+            },
+        ],
+    },
 });
 
 async function createWrapper() {
@@ -43,17 +43,17 @@ async function createWrapper() {
                 lastLogin: '2021-10-14T11:23:44.195+00:00',
                 group: {
                     translated: {
-                        name: 'Group test'
-                    }
+                        name: 'Group test',
+                    },
                 },
                 defaultPaymentMethod: {
                     translated: {
-                        distinguishableName: 'Payment test'
-                    }
-                }
+                        distinguishableName: 'Payment test',
+                    },
+                },
             },
             customerEditMode: false,
-            isLoading: false
+            isLoading: false,
         },
         stubs: {
             'sw-container': true,
@@ -62,19 +62,19 @@ async function createWrapper() {
             'sw-entity-single-select': true,
             'sw-checkbox-field': true,
             'sw-help-text': true,
-            'sw-datepicker': true
+            'sw-datepicker': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => Promise.resolve({
                         total: 2,
-                        aggregations: { orderAmount: { sum: 29.68 } }
+                        aggregations: { orderAmount: { sum: 29.68 } },
                     }),
                     get: () => Promise.resolve(),
-                })
-            }
-        }
+                }),
+            },
+        },
     });
 }
 
@@ -101,8 +101,8 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         await wrapper.setProps({
             customer: {
                 ...wrapper.props().customer,
-                birthday: null
-            }
+                birthday: null,
+            },
         });
         await wrapper.vm.$nextTick();
 
@@ -117,8 +117,8 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         await wrapper.setProps({
             customer: {
                 ...wrapper.props().customer,
-                lastLogin: null
-            }
+                lastLogin: null,
+            },
         });
         await wrapper.vm.$nextTick();
 
@@ -127,5 +127,82 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
 
     it('should display turnover of user', async () => {
         expect(wrapper.find('.sw-customer-base__label-turnover').text()).toBe('€29.68');
+    });
+
+    it('should hide some information when displayed in edit mode', async () => {
+        await wrapper.setProps({
+            customer: {
+                ...wrapper.props().customer,
+                accountType: 'business',
+                company: 'Shopware',
+                vatIds: ['12345'],
+                customerNumber: '123456789',
+            },
+            customerEditMode: true,
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const leftColumn = wrapper.findAll('.sw-customer-base-info-columns').at(0);
+
+        expect(
+            leftColumn.findAll('sw-description-list-stub')
+                .filter(w => ['sw-customer.baseInfo.labelCompany', 'sw-customer.baseInfo.labelVatId']
+                    .includes(w.find('dt').text())),
+        ).toEqual({});
+
+        const rightColumn = wrapper.findAll('.sw-customer-base-info-columns').at(1);
+
+        expect(
+            rightColumn.findAll('sw-description-list-stub')
+                .filter(w => ['sw-customer.baseInfo.labelCompany', 'sw-customer.baseInfo.labelVatId']
+                    .includes(w.find('dt').text())),
+        ).toEqual({});
+    });
+
+    it('should display customer information in no edit mode', async () => {
+        await wrapper.setProps({
+            customer: {
+                ...wrapper.props().customer,
+                accountType: 'business',
+                company: 'Shopware',
+                vatIds: ['12345'],
+                customerNumber: '123456789',
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const leftColumn = wrapper.findAll('.sw-customer-base-info-columns').at(0);
+
+        // Company
+        expect(leftColumn.findAll('sw-description-list-stub').at(0).find('dt').text()).toBe('sw-customer.baseInfo.labelCompany');
+        expect(leftColumn.findAll('sw-description-list-stub').at(0).find('dd').text()).toBe('Shopware');
+
+        // VAT
+        expect(leftColumn.findAll('sw-description-list-stub').at(1).find('dt').text()).toBe('sw-customer.baseInfo.labelVatId');
+        expect(leftColumn.findAll('sw-description-list-stub').at(1).find('dd').text()).toBe('12345');
+
+        // Customer group
+        expect(leftColumn.findAll('sw-description-list-stub').at(2).find('dt').text()).toBe('sw-customer.baseInfo.labelCustomerGroup');
+        expect(leftColumn.findAll('sw-description-list-stub').at(2).find('dd').text()).toBe('Group test');
+
+        // Default payment method
+        expect(leftColumn.findAll('sw-description-list-stub').at(3).find('dt').text()).toBe('sw-customer.baseInfo.labelDefaultPayment');
+        expect(leftColumn.findAll('sw-description-list-stub').at(3).find('dd').text()).toBe('Payment test');
+
+        // Affiliate code
+        expect(leftColumn.findAll('sw-description-list-stub').at(6).find('dt').text()).toBe('sw-customer.baseInfo.labelAffiliateCode');
+        expect(leftColumn.findAll('sw-description-list-stub').at(6).find('dd').text()).toBe('-');
+
+        // Campaign code
+        expect(leftColumn.findAll('sw-description-list-stub').at(7).find('dt').text()).toBe('sw-customer.baseInfo.labelCampaignCode');
+        expect(leftColumn.findAll('sw-description-list-stub').at(7).find('dd').text()).toBe('-');
+
+        const rightColumn = wrapper.findAll('.sw-customer-base-info-columns').at(1);
+
+        // Customer number
+        expect(rightColumn.findAll('sw-description-list-stub').at(0).find('dt').text()).toBe('sw-customer.baseInfo.labelCustomerNumber');
+        expect(rightColumn.findAll('sw-description-list-stub').at(0).find('dd').text()).toBe('123456789');
     });
 });

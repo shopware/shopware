@@ -2,17 +2,20 @@
 
 namespace Shopware\Core\Migration\V6_3;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1591361320ChargebackAndAuthorized extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -87,7 +90,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             // don't add states if they already exist
             return;
         }
@@ -192,7 +195,7 @@ class Migration1591361320ChargebackAndAuthorized extends MigrationStep
         return $connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) as id FROM state_machine_state WHERE technical_name IN (:name) AND state_machine_id = :id',
             ['name' => $names, 'id' => Uuid::fromHexToBytes($machineId)],
-            ['name' => Connection::PARAM_STR_ARRAY]
+            ['name' => ArrayParameterType::STRING]
         );
     }
 }

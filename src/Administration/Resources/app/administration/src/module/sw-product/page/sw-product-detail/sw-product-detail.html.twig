@@ -48,7 +48,11 @@
                 :process-success="isSaveSuccessful"
                 variant="primary"
                 :disabled="isLoading || !acl.can('product.editor')"
+                {% if VUE3 %}
+                @update:process-success="saveFinish"
+                {% else %}
                 @process-finish="saveFinish"
+                {% endif %}
                 @click.prevent="onSave"
             >
                 {{ $tc('sw-product.detail.buttonSave') }}
@@ -265,9 +269,20 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_detail_content_view %}
+            {% if VUE3 %}
+            <router-view
+                v-slot="{ Component }"
+            >
+                <component
+                    :is="Component"
+                    @cover-change="onCoverChange"
+                />
+            </router-view>
+            {% else %}
             <router-view
                 @cover-change="onCoverChange"
             />
+            {% endif %}
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -293,7 +308,6 @@
     </template>
     {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - Will be replaced by a media modal like in Shopping experiences. #}
     <template #sidebar>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_detail_sidebar %}

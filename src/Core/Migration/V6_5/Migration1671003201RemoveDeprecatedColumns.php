@@ -3,13 +3,13 @@
 namespace Shopware\Core\Migration\V6_5;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package system-settings
- *
  * @internal
  */
+#[Package('system-settings')]
 class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -19,7 +19,14 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // implement update
+        if (!$this->columnExists($connection, 'user_access_key', 'write_access')) {
+            return;
+        }
+
+        // Add default value, so you don't need to provide the deprecated value, even if the destructive migrations are not executed immediately
+        $connection->executeStatement('
+            ALTER TABLE `user_access_key` CHANGE `write_access` `write_access` TINYINT(1) DEFAULT 0
+        ');
     }
 
     public function updateDestructive(Connection $connection): void
@@ -33,7 +40,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `user_access_key` DROP COLUMN `write_access`');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -43,23 +50,23 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
             $connection->executeStatement(
                 'DROP TRIGGER IF EXISTS country_tax_free_insert;'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
             $connection->executeStatement(
                 'DROP TRIGGER IF EXISTS country_tax_free_update;'
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
 
         try {
-            $connection->executeUpdate('
+            $connection->executeStatement('
             ALTER TABLE `country`
             DROP COLUMN `tax_free`,
             DROP COLUMN `company_tax_free`;
         ');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 
@@ -67,7 +74,7 @@ class Migration1671003201RemoveDeprecatedColumns extends MigrationStep
     {
         try {
             $connection->executeStatement('ALTER TABLE `app_action_button` DROP COLUMN `open_new_tab`');
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
         }
     }
 }

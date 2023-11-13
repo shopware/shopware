@@ -10,14 +10,14 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class ProductCategoryPathsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,7 +29,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
         $this->categoryRepository = $this->getContainer()->get('category.repository');
     }
 
-    public function provideCategoryPaths()
+    public static function provideCategoryPaths()
     {
         return [
             '2 Layer assignment' => [

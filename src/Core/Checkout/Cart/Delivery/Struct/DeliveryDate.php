@@ -3,12 +3,11 @@
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class DeliveryDate extends Struct
 {
     /**
@@ -21,8 +20,10 @@ class DeliveryDate extends Struct
      */
     protected $latest;
 
-    public function __construct(\DateTimeInterface $earliest, \DateTimeInterface $latest)
-    {
+    public function __construct(
+        \DateTimeInterface $earliest,
+        \DateTimeInterface $latest
+    ) {
         $earliest = new \DateTimeImmutable($earliest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
         $latest = new \DateTimeImmutable($latest->format(Defaults::STORAGE_DATE_TIME_FORMAT));
 
@@ -32,43 +33,29 @@ class DeliveryDate extends Struct
 
     public static function createFromDeliveryTime(DeliveryTime $deliveryTime): self
     {
-        switch ($deliveryTime->getUnit()) {
-            case DeliveryTimeEntity::DELIVERY_TIME_HOUR:
-                return new self(
-                    self::create('PT' . $deliveryTime->getMin() . 'H'),
-                    self::create('PT' . $deliveryTime->getMax() . 'H')
-                );
-
-            case DeliveryTimeEntity::DELIVERY_TIME_DAY:
-                return new self(
-                    self::create('P' . $deliveryTime->getMin() . 'D'),
-                    self::create('P' . $deliveryTime->getMax() . 'D')
-                );
-
-            // NEXT-21735 - This is covered randomly
-            // @codeCoverageIgnoreStart
-            case DeliveryTimeEntity::DELIVERY_TIME_WEEK:
-                return new self(
-                    self::create('P' . $deliveryTime->getMin() . 'W'),
-                    self::create('P' . $deliveryTime->getMax() . 'W')
-                );
-            // @codeCoverageIgnoreEnd
-
-            case DeliveryTimeEntity::DELIVERY_TIME_MONTH:
-                return new self(
-                    self::create('P' . $deliveryTime->getMin() . 'M'),
-                    self::create('P' . $deliveryTime->getMax() . 'M')
-                );
-
-            case DeliveryTimeEntity::DELIVERY_TIME_YEAR:
-                return new self(
-                    self::create('P' . $deliveryTime->getMin() . 'Y'),
-                    self::create('P' . $deliveryTime->getMax() . 'Y')
-                );
-
-            default:
-                throw new \RuntimeException(sprintf('Not supported unit %s', $deliveryTime->getUnit()));
-        }
+        return match ($deliveryTime->getUnit()) {
+            DeliveryTimeEntity::DELIVERY_TIME_HOUR => new self(
+                self::create('PT' . $deliveryTime->getMin() . 'H'),
+                self::create('PT' . $deliveryTime->getMax() . 'H')
+            ),
+            DeliveryTimeEntity::DELIVERY_TIME_DAY => new self(
+                self::create('P' . $deliveryTime->getMin() . 'D'),
+                self::create('P' . $deliveryTime->getMax() . 'D')
+            ),
+            DeliveryTimeEntity::DELIVERY_TIME_WEEK => new self(
+                self::create('P' . $deliveryTime->getMin() . 'W'),
+                self::create('P' . $deliveryTime->getMax() . 'W')
+            ),
+            DeliveryTimeEntity::DELIVERY_TIME_MONTH => new self(
+                self::create('P' . $deliveryTime->getMin() . 'M'),
+                self::create('P' . $deliveryTime->getMax() . 'M')
+            ),
+            DeliveryTimeEntity::DELIVERY_TIME_YEAR => new self(
+                self::create('P' . $deliveryTime->getMin() . 'Y'),
+                self::create('P' . $deliveryTime->getMax() . 'Y')
+            ),
+            default => throw new \RuntimeException(sprintf('Not supported unit %s', $deliveryTime->getUnit())),
+        };
     }
 
     public function getEarliest(): \DateTimeImmutable

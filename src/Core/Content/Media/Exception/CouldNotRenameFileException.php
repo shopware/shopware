@@ -2,16 +2,29 @@
 
 namespace Shopware\Core\Content\Media\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Content\Media\MediaException;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package content
+ * @deprecated tag:v6.6.0 - will be removed, use MediaException::couldNotRenameFile instead
  */
-class CouldNotRenameFileException extends ShopwareHttpException
+#[Package('buyers-experience')]
+class CouldNotRenameFileException extends MediaException
 {
-    public function __construct(string $mediaId, string $oldFileName)
-    {
+    public function __construct(
+        string $mediaId,
+        string $oldFileName
+    ) {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'use MediaException::couldNotRenameFile instead')
+        );
+
         parent::__construct(
+            Response::HTTP_CONFLICT,
+            self::MEDIA_COULD_NOT_RENAME_FILE,
             'Could not rename file for media with id: {{ mediaId }}. Rollback to filename: "{{ oldFileName }}"',
             ['mediaId' => $mediaId, 'oldFileName' => $oldFileName]
         );
@@ -19,6 +32,11 @@ class CouldNotRenameFileException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'use MediaException::couldNotRenameFile instead')
+        );
+
         return 'CONTENT__MEDIA_COULD_NOT_RENAME_FILE';
     }
 }

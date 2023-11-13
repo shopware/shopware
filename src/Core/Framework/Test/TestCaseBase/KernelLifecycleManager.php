@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Kernel;
-use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -90,7 +89,6 @@ class KernelLifecycleManager
 
         static::$kernel = static::createKernel(null, $reuseConnection, $cacheId);
         static::$kernel->boot();
-        static::$kernel->getContainer()->get(Connection::class)->getConfiguration()->setSQLLogger(new DebugStack());
         MemoryAdapterFactory::resetInstances();
 
         return static::$kernel;
@@ -123,7 +121,7 @@ class KernelLifecycleManager
 
                 try {
                     $existingConnection->fetchOne('SELECT 1');
-                } catch (\Throwable $e) {
+                } catch (\Throwable) {
                     // The connection is closed
                     $existingConnection = null;
                 }
@@ -136,7 +134,7 @@ class KernelLifecycleManager
             $existingConnection->fetchOne('SELECT 1');
 
             $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // if we don't have database yet, we'll boot the kernel without plugins
             $pluginLoader = new StaticKernelPluginLoader(self::$classLoader);
         }

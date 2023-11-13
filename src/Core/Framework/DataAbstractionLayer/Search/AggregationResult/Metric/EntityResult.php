@@ -5,16 +5,18 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
  *
- * @package core
+ * @template TEntityCollection of EntityCollection
  */
+#[Package('core')]
 class EntityResult extends AggregationResult
 {
     /**
-     * @param EntityCollection<Entity> $entities
+     * @param TEntityCollection $entities
      */
     public function __construct(string $name, protected EntityCollection $entities)
     {
@@ -22,7 +24,7 @@ class EntityResult extends AggregationResult
     }
 
     /**
-     * @return EntityCollection<Entity>
+     * @return TEntityCollection
      */
     public function getEntities(): EntityCollection
     {

@@ -3,13 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Entity extends Struct
 {
     /**
@@ -23,7 +22,7 @@ class Entity extends Struct
     protected $versionId;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $translated = [];
 
@@ -50,12 +49,12 @@ class Entity extends Struct
             $this->checkIfPropertyAccessIsAllowed($name);
         }
 
-        return $this->$name;
+        return $this->$name; /* @phpstan-ignore-line */
     }
 
     public function __set($name, $value): void
     {
-        $this->$name = $value;
+        $this->$name = $value; /* @phpstan-ignore-line */
     }
 
     public function __isset($name)
@@ -66,7 +65,7 @@ class Entity extends Struct
             }
         }
 
-        return isset($this->$name);
+        return isset($this->$name); /* @phpstan-ignore-line */
     }
 
     public function setUniqueIdentifier(string $identifier): void
@@ -99,7 +98,7 @@ class Entity extends Struct
         }
 
         if ($this->has($property)) {
-            return $this->$property;
+            return $this->$property; /* @phpstan-ignore-line */
         }
 
         if ($this->hasExtension($property)) {
@@ -128,6 +127,9 @@ class Entity extends Struct
         return property_exists($this, $property);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getTranslated(): array
     {
         return $this->translated;
@@ -141,15 +143,15 @@ class Entity extends Struct
         return $this->translated[$field] ?? null;
     }
 
+    /**
+     * @param array<string, mixed> $translated
+     */
     public function setTranslated(array $translated): void
     {
         $this->translated = $translated;
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function addTranslated(string $key, $value): void
+    public function addTranslated(string $key, mixed $value): void
     {
         $this->translated[$key] = $value;
     }
@@ -256,6 +258,10 @@ class Entity extends Struct
 
     /**
      * @internal
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
      */
     protected function filterInvisibleFields(array $data): array
     {

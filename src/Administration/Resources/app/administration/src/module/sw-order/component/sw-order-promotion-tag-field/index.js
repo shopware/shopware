@@ -2,7 +2,7 @@ import './sw-order-promotion-tag-field.scss';
 import template from './sw-order-promotion-tag-field.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Utils } = Shopware;
@@ -53,7 +53,12 @@ export default {
                 code: this.newTagName,
             };
 
-            this.$emit('change', [...this.value, newTagItem]);
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', [...this.value, newTagItem]);
+            } else {
+                this.$emit('change', [...this.value, newTagItem]);
+            }
+
             this.newTagName = '';
         },
 

@@ -16,6 +16,7 @@ trait QueueTestBehaviour
 {
     /**
      * @before
+     *
      * @after
      */
     public function clearQueue(): void
@@ -29,7 +30,7 @@ trait QueueTestBehaviour
         $eventDispatcher->addSubscriber(new StopWorkerWhenIdleListener());
         $eventDispatcher->addSubscriber($this->getContainer()->get(MessageQueueStatsSubscriber::class));
 
-        /** @var ServiceLocator $locator */
+        /** @var ServiceLocator<ReceiverInterface> $locator */
         $locator = $this->getContainer()->get('messenger.test_receiver_locator');
 
         /** @var ReceiverInterface $receiver */
@@ -45,5 +46,5 @@ trait QueueTestBehaviour
         ]);
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

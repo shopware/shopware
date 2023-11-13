@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
@@ -12,17 +13,16 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class SalesChannelRepositoryFacadeHookFactory extends HookServiceFactory
 {
     /**
      * @internal
      */
     public function __construct(
-        private SalesChannelDefinitionInstanceRegistry $registry,
-        private RequestCriteriaBuilder $criteriaBuilder
+        private readonly SalesChannelDefinitionInstanceRegistry $registry,
+        private readonly RequestCriteriaBuilder $criteriaBuilder
     ) {
     }
 

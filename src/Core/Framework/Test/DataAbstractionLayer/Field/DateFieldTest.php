@@ -18,8 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class DateFieldTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 
@@ -41,7 +41,7 @@ EOF;
         $this->connection->beginTransaction();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->connection->rollBack();
         $this->connection->executeStatement('DROP TABLE `_date_field_test`');

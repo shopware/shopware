@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -46,18 +48,18 @@ trait AdminApiTestBehaviour
             ->get(Connection::class);
 
         try {
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM user WHERE username IN (:usernames)',
                 ['usernames' => $this->apiUsernames],
-                ['usernames' => Connection::PARAM_STR_ARRAY]
+                ['usernames' => ArrayParameterType::STRING]
             );
-            $connection->executeUpdate(
+            $connection->executeStatement(
                 'DELETE FROM integration WHERE id IN (:ids)',
                 ['ids' => $this->apiIntegrations],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::BINARY]
             );
-        } catch (\Exception $ex) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $this->apiUsernames = [];
@@ -127,7 +129,6 @@ trait AdminApiTestBehaviour
     public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
-        $password = Uuid::randomHex();
         $userId = Uuid::randomBytes();
 
         $connection = $browser->getContainer()->get(Connection::class);
@@ -137,7 +138,7 @@ trait AdminApiTestBehaviour
             'first_name' => $username,
             'last_name' => '',
             'username' => $username,
-            'password' => password_hash($password, \PASSWORD_BCRYPT),
+            'password' => TestDefaults::HASHED_PASSWORD,
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -150,7 +151,7 @@ trait AdminApiTestBehaviour
             $aclRole = [
                 'id' => $aclRoleId,
                 'name' => 'testPermissions',
-                'privileges' => json_encode($aclPermissions),
+                'privileges' => json_encode($aclPermissions, \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ];
             $connection->insert('acl_role', $aclRole);
@@ -173,7 +174,7 @@ trait AdminApiTestBehaviour
             'grant_type' => 'password',
             'client_id' => 'administration',
             'username' => $username,
-            'password' => $password,
+            'password' => 'shopware',
         ];
 
         if (!empty($scopes)) {
@@ -184,7 +185,7 @@ trait AdminApiTestBehaviour
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -198,7 +199,9 @@ trait AdminApiTestBehaviour
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        \assert(\is_string($accessToken));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($userId)));
     }
 
@@ -209,7 +212,6 @@ trait AdminApiTestBehaviour
     public function authorizeBrowserWithIntegration(TestBrowser $browser, ?string $id = null): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
-        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
 
         if (!$id) {
             $id = Uuid::randomBytes();
@@ -222,17 +224,16 @@ trait AdminApiTestBehaviour
         try {
             $connection->insert('integration', [
                 'id' => $id,
-                'write_access' => true,
                 'access_key' => $accessKey,
-                'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
+                'secret_access_key' => TestDefaults::HASHED_PASSWORD,
                 'label' => 'test integration',
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
-        } catch (UniqueConstraintViolationException $e) {
+        } catch (UniqueConstraintViolationException) {
             // update the access keys in case the integration already existed
             $connection->update('integration', [
                 'access_key' => $accessKey,
-                'secret_access_key' => password_hash($secretAccessKey, \PASSWORD_BCRYPT),
+                'secret_access_key' => TestDefaults::HASHED_PASSWORD,
             ], [
                 'id' => $id,
             ]);
@@ -243,14 +244,14 @@ trait AdminApiTestBehaviour
         $authPayload = [
             'grant_type' => 'client_credentials',
             'client_id' => $accessKey,
-            'client_secret' => $secretAccessKey,
+            'client_secret' => 'shopware',
         ];
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
         /** @var string $content */
         $content = $browser->getResponse()->getContent();
-        $data = json_decode($content, true);
+        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
@@ -258,11 +259,13 @@ trait AdminApiTestBehaviour
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $accessToken = $data['access_token'];
+        \assert(\is_string($accessToken));
+        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $accessToken));
         $browser->setServerParameter('_integration_id', $id);
     }
 
-    abstract protected function getKernel(): KernelInterface;
+    abstract protected static function getKernel(): KernelInterface;
 
     /**
      * @param string[] $scopes

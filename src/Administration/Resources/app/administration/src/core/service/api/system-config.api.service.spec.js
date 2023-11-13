@@ -17,7 +17,7 @@ function getApiServiceAndMockAdapter() {
 
     return {
         apiService,
-        mockAdapter
+        mockAdapter,
     };
 }
 
@@ -38,20 +38,20 @@ describe('system-config.api.service', () => {
             {
                 params: {
                     salesChannelId: null,
-                    domain: 'system-config.domain'
-                }
-            }
+                    domain: 'system-config.domain',
+                },
+            },
         )
             .reply(200, {
                 'system-config.value.text': 'some-text-value',
-                'system-config.value.bool': true
+                'system-config.value.bool': true,
             });
 
         const values = await systemConfigService.getValues('system-config.domain', null);
 
         expect(values).toEqual({
             'system-config.value.text': 'some-text-value',
-            'system-config.value.bool': true
+            'system-config.value.bool': true,
         });
     });
 
@@ -61,9 +61,9 @@ describe('system-config.api.service', () => {
             {
                 params: {
                     salesChannelId: null,
-                    domain: 'system-config.domain'
-                }
-            }
+                    domain: 'system-config.domain',
+                },
+            },
         )
             .reply(200, []);
 
@@ -71,5 +71,69 @@ describe('system-config.api.service', () => {
 
         expect(Array.isArray(values)).toBe(false);
         expect(values).toEqual({});
+    });
+});
+
+describe('Test function batchSave at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onPost(
+            '_action/system-config/batch',
+        )
+            .reply(200, {});
+
+        const res = await systemConfigService.batchSave([]);
+        expect(res).toEqual({});
+    });
+});
+
+describe('Test getConfig at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onGet('_action/system-config/schema')
+            .reply(200, {});
+
+        const res = await systemConfigService.getConfig('dummy.domain');
+
+        expect(res).toEqual({});
+    });
+});
+
+describe('Test checkConfig at file src/core/service/api/system-config.api.service.js', () => {
+    let systemConfigService = null;
+    let axiosMock = null;
+
+    beforeEach(async () => {
+        const { mockAdapter, apiService } = getApiServiceAndMockAdapter();
+
+        systemConfigService = apiService;
+        axiosMock = mockAdapter;
+    });
+
+    it('should successfully', async () => {
+        axiosMock.onGet('_action/system-config/check')
+            .reply(200, {});
+
+        const res = await systemConfigService.checkConfig('dummy.domain');
+
+        expect(res).toEqual({});
     });
 });

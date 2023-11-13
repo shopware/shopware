@@ -15,7 +15,7 @@ class SwSanitizeTwigFilterTest extends TestCase
 
     private SwSanitizeTwigFilter $swSanitize;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->swSanitize = $this->getContainer()->get(SwSanitizeTwigFilter::class);
     }

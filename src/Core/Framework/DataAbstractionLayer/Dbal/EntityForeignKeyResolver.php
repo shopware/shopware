@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -28,27 +30,28 @@ use Shopware\Core\System\Language\LanguageDefinition;
  * Used to determines which associated will be deleted to or which associated data would restrict a delete operation.
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityForeignKeyResolver
 {
     /**
      * @internal
      */
-    public function __construct(private Connection $connection, private EntityDefinitionQueryHelper $queryHelper)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper
+    ) {
     }
 
     /**
-     * Returns a list of all entities and their primary keys which will restrict the delete in the mysql server
+     * Returns a list of all entities and their primary keys which will restrict the deletion in the mysql server
      * Example:
      *  [
-     *      "order_customer" => array:2 [
+     *      "order_customer" => [
      *          "cace68bdbca140b6ac43a083fb19f82b",
      *          "50330f5531ed485fbd72ba016b20ea2a",
      *      ]
-     *      "order_address" => array:4 [
+     *      "order_address" => [
      *          "29d6334b01e64be28c89a5f1757fd661",
      *          "484ef1124595434fa9b14d6d2cc1e9f8",
      *          "601133b1173f4ca3aeda5ef64ad38355",
@@ -56,10 +59,18 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
+     * @param array<string>|array<array<string, string>> $ids
+     *
      * @throws \RuntimeException
+     *
+     * @return array<string, list<string>>
      */
-    public function getAffectedDeleteRestrictions(EntityDefinition $definition, array $ids, Context $context, bool $restrictDeleteOnlyFirstLevel = false): array
-    {
+    public function getAffectedDeleteRestrictions(
+        EntityDefinition $definition,
+        array $ids,
+        Context $context,
+        bool $restrictDeleteOnlyFirstLevel = false
+    ): array {
         return $this->fetch($definition, $ids, RestrictDelete::class, $context, $restrictDeleteOnlyFirstLevel);
     }
 
@@ -67,11 +78,11 @@ class EntityForeignKeyResolver
      * Returns a list of all entities and their primary keys which will be deleted by the mysql server
      * Example:
      *  [
-     *      "order_customer" => array:2 [
+     *      "order_customer" => [
      *          "cace68bdbca140b6ac43a083fb19f82b",
      *          "50330f5531ed485fbd72ba016b20ea2a",
      *      ]
-     *      "order_address" => array:4 [
+     *      "order_address" => [
      *          "29d6334b01e64be28c89a5f1757fd661",
      *          "484ef1124595434fa9b14d6d2cc1e9f8",
      *          "601133b1173f4ca3aeda5ef64ad38355",
@@ -79,7 +90,11 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
+     * @param array<string>|array<array<string, string>> $ids
+     *
      * @throws \RuntimeException
+     *
+     * @return array<string, list<string>>
      */
     public function getAffectedDeletes(EntityDefinition $definition, array $ids, Context $context): array
     {
@@ -96,7 +111,11 @@ class EntityForeignKeyResolver
      *       ]
      *   ]
      *
+     * @param array<string>|array<array<string, string>> $ids
+     *
      * @throws \RuntimeException
+     *
+     * @return array<string, list<string>>
      */
     public function getAffectedSetNulls(EntityDefinition $definition, array $ids, Context $context): array
     {
@@ -119,7 +138,11 @@ class EntityForeignKeyResolver
      *      ]
      *  ]
      *
+     * @param array<string>|array<array<string, string>> $ids
+     *
      * @throws \RuntimeException
+     *
+     * @return array<string, list<string>>
      */
     public function getAllReverseInherited(EntityDefinition $definition, array $ids, Context $context): array
     {
@@ -127,7 +150,12 @@ class EntityForeignKeyResolver
     }
 
     /**
+     * @param class-string<Flag> $class
+     * @param array<string>|array<array<string, string>> $ids
+     *
      * @throws InvalidUuidException
+     *
+     * @return array<string, list<string>>
      */
     private function fetch(EntityDefinition $definition, array $ids, string $class, Context $context, bool $restrictDeleteOnlyFirstLevel = false): array
     {
@@ -139,14 +167,12 @@ class EntityForeignKeyResolver
             return [];
         }
 
-        //prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
+        // prevent foreign key check for language definition, otherwise all ids of language translations has to be checked
         if ($definition->getClass() === LanguageDefinition::class) {
             return [];
         }
 
-        $cascades = $definition->getFields()->filter(static function (Field $field) use ($class): bool {
-            return $field->is($class);
-        });
+        $cascades = $definition->getFields()->filter(static fn (Field $field): bool => $field->is($class));
 
         if ($cascades->count() === 0) {
             return [];
@@ -166,6 +192,12 @@ class EntityForeignKeyResolver
         return $result;
     }
 
+    /**
+     * @param array<string>|array<array<string, string>> $ids
+     * @param class-string<Flag> $class
+     *
+     * @return array<string, list<string>>
+     */
     private function fetchAssociation(
         array $ids,
         EntityDefinition $root,

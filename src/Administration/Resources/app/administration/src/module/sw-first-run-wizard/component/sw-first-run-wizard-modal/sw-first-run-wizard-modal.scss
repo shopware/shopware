@@ -9,12 +9,6 @@
         max-width: 1030px !important;
     }
 
-    .sw-modal__header {
-        .sw-modal__close {
-            visibility: hidden;
-        }
-    }
-
     &.sw-modal .sw-modal__body {
         height: 100%;
         overflow-y: hidden !important;
@@ -51,6 +45,10 @@
             overflow-y: auto;
             padding: 24px;
         }
+    }
+
+    .sw-first-run-wizard-modal__loader {
+        background: rgba(255, 255, 255, 80%);
     }
 
     .sw-modal__footer {

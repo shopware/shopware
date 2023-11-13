@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\SalesChannel\FindVariant\AbstractFindProductVa
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewSaveRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,57 +24,31 @@ use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package storefront
- *
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
  * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('storefront')]
 class ProductController extends StorefrontController
 {
-    private ProductPageLoader $productPageLoader;
-
-    private AbstractFindProductVariantRoute $findVariantRoute;
-
-    private MinimalQuickViewPageLoader $minimalQuickViewPageLoader;
-
-    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
-
-    private ProductReviewLoader $productReviewLoader;
-
-    private SystemConfigService $systemConfigService;
-
-    private AbstractProductReviewSaveRoute $productReviewSaveRoute;
-
     /**
      * @internal
      */
     public function __construct(
-        ProductPageLoader $productPageLoader,
-        AbstractFindProductVariantRoute $findVariantRoute,
-        MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
-        AbstractProductReviewSaveRoute $productReviewSaveRoute,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
-        ProductReviewLoader $productReviewLoader,
-        SystemConfigService $systemConfigService
+        private readonly ProductPageLoader $productPageLoader,
+        private readonly AbstractFindProductVariantRoute $findVariantRoute,
+        private readonly MinimalQuickViewPageLoader $minimalQuickViewPageLoader,
+        private readonly AbstractProductReviewSaveRoute $productReviewSaveRoute,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly ProductReviewLoader $productReviewLoader,
+        private readonly SystemConfigService $systemConfigService
     ) {
-        $this->productPageLoader = $productPageLoader;
-        $this->findVariantRoute = $findVariantRoute;
-        $this->minimalQuickViewPageLoader = $minimalQuickViewPageLoader;
-        $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
-        $this->productReviewLoader = $productReviewLoader;
-        $this->systemConfigService = $systemConfigService;
-        $this->productReviewSaveRoute = $productReviewSaveRoute;
     }
 
-    /**
-     * @Since("6.3.3.0")
-     * @Route("/detail/{productId}", name="frontend.detail.page", methods={"GET"}, defaults={"_httpCache"=true})
-     */
+    #[Route(path: '/detail/{productId}', name: 'frontend.detail.page', defaults: ['_httpCache' => true], methods: ['GET'])]
     public function index(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->productPageLoader->load($request, $context);
@@ -97,10 +71,7 @@ class ProductController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/page/content/product-detail.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"GET"}, defaults={"XmlHttpRequest": true, "_httpCache"=true})
-     */
+    #[Route(path: '/detail/{productId}/switch', name: 'frontend.detail.switch', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET'])]
     public function switch(string $productId, Request $request, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $switchedGroup = $request->query->has('switched') ? (string) $request->query->get('switched') : null;
@@ -121,8 +92,8 @@ class ProductController extends StorefrontController
             );
 
             $productId = $variantResponse->getFoundCombination()->getVariantId();
-        } catch (VariantNotFoundException|ProductNotFoundException $productNotFoundException) {
-            //nth
+        } catch (VariantNotFoundException|ProductNotFoundException) {
+            // nth
         }
 
         $host = $request->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
@@ -137,19 +108,13 @@ class ProductController extends StorefrontController
             $salesChannelContext
         );
 
-        $response = new JsonResponse([
+        return new JsonResponse([
             'url' => $url,
             'productId' => $productId,
         ]);
-        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
-
-        return $response;
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/quickview/{productId}", name="widgets.quickview.minimal", methods={"GET"}, defaults={"XmlHttpRequest": true})
-     */
+    #[Route(path: '/quickview/{productId}', name: 'widgets.quickview.minimal', defaults: ['XmlHttpRequest' => true], methods: ['GET'])]
     public function quickviewMinimal(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
@@ -159,10 +124,7 @@ class ProductController extends StorefrontController
         return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true, "_loginRequired"=true})
-     */
+    #[Route(path: '/product/{productId}/rating', name: 'frontend.detail.review.save', defaults: ['XmlHttpRequest' => true, '_loginRequired' => true], methods: ['POST'])]
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);
@@ -192,10 +154,7 @@ class ProductController extends StorefrontController
         return $this->forwardToRoute('frontend.product.reviews', $forwardParams, ['productId' => $productId]);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
-     */
+    #[Route(path: '/product/{productId}/reviews', name: 'frontend.product.reviews', defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);

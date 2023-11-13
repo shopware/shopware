@@ -3,13 +3,12 @@
 namespace Shopware\Storefront\Page\Address\Detail;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Storefront\Page\Page;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class AddressDetailPage extends Page
 {
     /**

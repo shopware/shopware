@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package checkout
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
@@ -23,7 +23,7 @@ describe('Promotion v2: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout'] }, () => {
+    it('@visual: check appearance of basic promotion workflow', { tags: ['pa-checkout', 'VUE3'] }, () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -36,10 +36,6 @@ describe('Promotion v2: Visual tests', () => {
             method: 'PATCH',
         }).as('patchPromotion');
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'POST',
-        }).as('getData');
-        cy.intercept({
             url: '/widgets/checkout/info',
             method: 'GET',
         }).as('cartInfo');
@@ -49,8 +45,6 @@ describe('Promotion v2: Visual tests', () => {
             mainMenuId: 'sw-marketing',
             subMenuId: 'sw-promotion-v2',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-promotion-v2-list').should('be.visible');
@@ -67,8 +61,8 @@ describe('Promotion v2: Visual tests', () => {
 
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');
-        cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
-        cy.get('input[name="sw-field--promotion-active"]').click();
+        cy.get('input[label="Name"]').typeAndCheck('Funicular prices');
+        cy.get('.sw-promotion-v2-detail-base__field-active input').click();
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
         cy.wait('@saveData')
@@ -104,7 +98,7 @@ describe('Promotion v2: Visual tests', () => {
             .clear()
             .type('54');
 
-        cy.get('#sw-field--discount-type').select('Fixed item price');
+        cy.get('.sw-promotion-discount-component__type-select select').select('Fixed item price');
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
@@ -138,6 +132,9 @@ describe('Promotion v2: Visual tests', () => {
         );
         cy.get('#accountWidget')
             .should('have.css', 'visibility', 'hidden');
+
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.line-item-delivery-date', 'Delivery period: 01/01/2018 - 03/01/2018');
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas');

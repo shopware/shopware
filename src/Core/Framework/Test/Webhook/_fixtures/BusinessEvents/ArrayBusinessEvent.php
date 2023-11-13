@@ -19,7 +19,7 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
     /**
      * @var TaxEntity[]
      */
-    private $taxes;
+    private readonly array $taxes;
 
     public function __construct(TaxCollection $taxes)
     {
@@ -32,6 +32,9 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
             ->add('taxes', new ArrayType(new EntityType(TaxDefinition::class)));
     }
 
+    /**
+     * @return array<string, array<mixed>>
+     */
     public function getEncodeValues(string $shopwareVersion): array
     {
         $taxes = [];
@@ -42,18 +45,13 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
                 '_uniqueIdentifier' => $tax->getId(),
                 'versionId' => null,
                 'name' => $tax->getName(),
-                'taxRate' => (int) $tax->getTaxRate(),
+                'taxRate' => $tax->getTaxRate(),
                 'position' => $tax->getPosition(),
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED),
+                'createdAt' => $tax->getCreatedAt() ? $tax->getCreatedAt()->format(\DATE_RFC3339_EXTENDED) : null,
                 'updatedAt' => null,
-                'extensions' => [
-                    'foreignKeys' => [
-                        'extensions' => [],
-                        'apiAlias' => null,
-                    ],
-                ],
+                'extensions' => [],
                 'apiAlias' => 'tax',
             ];
         }
@@ -73,6 +71,9 @@ class ArrayBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInte
         return Context::createDefaultContext();
     }
 
+    /**
+     * @return TaxEntity[]
+     */
     public function getTaxes(): array
     {
         return $this->taxes;

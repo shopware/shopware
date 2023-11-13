@@ -21,4 +21,8 @@
     .sw-bulk-edit-order-base__documents-warning-container {
         padding: 24px 32px 0 24px;
     }
+
+    &__restricted-fields .sw-alert {
+        margin: 0 auto;
+    }
 }

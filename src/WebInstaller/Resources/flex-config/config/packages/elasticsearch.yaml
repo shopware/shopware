@@ -1,0 +1,2 @@
+elasticsearch:
+    hosts: "%env(string:OPENSEARCH_URL)%"

@@ -6,43 +6,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 abstract class RouteRequestEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Request
-     */
-    private $storefrontRequest;
-
-    /**
-     * @var Request
-     */
-    private $storeApiRequest;
-
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
-
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private readonly Criteria $criteria;
 
     public function __construct(
-        Request $storefrontRequest,
-        Request $storeApiRequest,
-        SalesChannelContext $salesChannelContext,
+        private readonly Request $storefrontRequest,
+        private readonly Request $storeApiRequest,
+        private readonly SalesChannelContext $salesChannelContext,
         ?Criteria $criteria = null
     ) {
-        $this->storefrontRequest = $storefrontRequest;
-        $this->storeApiRequest = $storeApiRequest;
-        $this->salesChannelContext = $salesChannelContext;
         $this->criteria = $criteria ?? new Criteria();
     }
 

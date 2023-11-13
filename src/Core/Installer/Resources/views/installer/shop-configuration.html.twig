@@ -46,9 +46,9 @@
                     <label for="config_shop_language">{{ "shopware.installer.configuration_sconfig_language"|trans }}</label>
                     <div class="select-wrapper">
                         <select name="config_shop_language" id="config_shop_language">
-                            {% for iso in languageIsos %}
-                                <option value="{{ iso }}" {% if parameters.config_shop_language == iso %}selected{% endif %}>
-                                    {{ ("shopware.installer.select_language_" ~ (iso|slice(0, 2))) |trans }}
+                            {% for iso, iso3 in languageIsos %}
+                                <option value="{{ iso3 }}" {% if parameters.config_shop_language == iso3 %}selected{% endif %}>
+                                    {{ ("shopware.installer.select_language_" ~ iso) |trans }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -167,7 +167,7 @@
             <a href="{{ url('installer.database-import') }}" class="btn btn-default flex-item">{{ "shopware.installer.back"|trans }}</a>
             <button type="submit"
                     class="btn btn-primary flex-item flex-right"
-                    onclick="document.getElementById('shop-configuration').classList.add('is--submitted')">
+                    onclick="document.getElementById('shop-configuration').classList.add('is--submitted'); setLastActivity();">
             {{ "shopware.installer.forward"|trans }}
             </button>
         </div>
@@ -198,6 +198,10 @@
             newDefaultToggle.setAttribute('checked', '');
             newDefaultToggle.setAttribute('disabled', '');
             newDefaultToggle.classList.add('is--selected');
+        }
+
+        function setLastActivity() {
+            document.cookie = 'lastActivity='+Math.round(Date.now() / 1000)+';path=/admin';
         }
     </script>
 {% endblock %}

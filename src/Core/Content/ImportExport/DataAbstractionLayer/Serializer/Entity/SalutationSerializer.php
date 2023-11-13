@@ -8,17 +8,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SalutationSerializer extends EntitySerializer implements ResetInterface
 {
-    private EntityRepository $salutationRepository;
-
     /**
      * @var array<string>|null[]
      */
@@ -27,9 +24,8 @@ class SalutationSerializer extends EntitySerializer implements ResetInterface
     /**
      * @internal
      */
-    public function __construct(EntityRepository $salutationRepository)
+    public function __construct(private readonly EntityRepository $salutationRepository)
     {
-        $this->salutationRepository = $salutationRepository;
     }
 
     /**

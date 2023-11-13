@@ -3,7 +3,7 @@ Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-tex
 
 /**
  * @private
- * @package content
+ * @package buyers-experience
  */
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-name',

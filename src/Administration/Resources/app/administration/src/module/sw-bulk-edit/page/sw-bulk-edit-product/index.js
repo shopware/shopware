@@ -155,6 +155,27 @@ export default {
             return this.$route.params.parentId !== 'null';
         },
 
+        restrictedFields() {
+            let restrictedFields = [];
+            const includesDigital = this.$route.params.includesDigital;
+
+            if (includesDigital === '1' || includesDigital === '2') {
+                restrictedFields = [
+                    'isCloseout',
+                    'restockTime',
+                    'maxPurchase',
+                    'purchaseSteps',
+                    'minPurchase',
+                    'shippingFree',
+                ];
+            }
+            if (includesDigital === '1') {
+                restrictedFields.push('stock');
+            }
+
+            return restrictedFields;
+        },
+
         generalFormFields() {
             return [{
                 name: 'description',
@@ -319,7 +340,7 @@ export default {
         },
 
         deliverabilityFormFields() {
-            return [{
+            const fields = [{
                 name: 'stock',
                 type: 'int',
                 canInherit: false,
@@ -426,6 +447,10 @@ export default {
                     disabled: this.bulkEditProduct?.maxPurchase?.isInherited,
                 },
             }];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
         },
 
         assignmentFormFields() {
@@ -1000,12 +1025,19 @@ export default {
             }
         },
 
-        onChangePrices(item) {
+        onChangePrices(item, value = null) {
             if (item === 'taxId') {
                 this.taxRate = this.productTaxRate();
-            } else if (item === 'price') {
+                return;
+            }
+
+            if (item === 'price') {
                 this.isDisabledListPrice = !this.bulkEditProduct.price.isChanged;
                 this.isDisabledRegulationPrice = !this.bulkEditProduct.price.isChanged;
+            }
+
+            if (value && typeof value !== 'boolean') {
+                this.$set(this.product, `${item}`, [value]);
             }
         },
 

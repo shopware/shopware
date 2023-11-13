@@ -6,13 +6,13 @@ use AsyncAws\SimpleS3\SimpleS3Client;
 use League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter;
 use League\Flysystem\AsyncAwsS3\PortableVisibilityConverter;
 use League\Flysystem\FilesystemAdapter;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @package core
- *
  * @phpstan-type S3Config = array{bucket: string, region: string, root: string, credentials?: array{key: string, secret: string}, endpoint?: string, options: array<mixed>, use_path_style_endpoint?: bool, visibility?: string, url?: string}
  */
+#[Package('core')]
 class AwsS3v3Factory implements AdapterFactoryInterface
 {
     /**
@@ -31,7 +31,7 @@ class AwsS3v3Factory implements AdapterFactoryInterface
         }
 
         if (\array_key_exists('use_path_style_endpoint', $options)) {
-            $s3Opts['pathStyleEndpoint'] = $options['use_path_style_endpoint'];
+            $s3Opts['pathStyleEndpoint'] = (string) $options['use_path_style_endpoint'];
         }
 
         if (isset($options['credentials'])) {

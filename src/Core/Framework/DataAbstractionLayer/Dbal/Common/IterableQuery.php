@@ -3,14 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @phpstan-type Offset array{offset: int|null}
- *
- * @package core
  */
+#[Package('core')]
 interface IterableQuery
 {
     /**
@@ -23,7 +21,7 @@ interface IterableQuery
     public function getQuery(): QueryBuilder;
 
     /**
-     * @return Offset
+     * @return array{offset: int|null}
      */
     public function getOffset(): array;
 }

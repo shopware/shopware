@@ -1,5 +1,7 @@
 // / <reference types="Cypress" />
-
+/**
+ * @package inventory
+ */
 import ManufacturerPageObject from '../../../../support/pages/module/sw-manufacturer.page-object';
 
 describe('Manufacturer: Visual tests', () => {
@@ -12,7 +14,7 @@ describe('Manufacturer: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of basic manufacturer workflow', { tags: ['pa-inventory'] }, () => {
+    it('@visual: check appearance of basic manufacturer workflow', { tags: ['pa-inventory', 'VUE3'] }, () => {
         const page = new ManufacturerPageObject();
 
         // Request we want to wait for later
@@ -20,18 +22,13 @@ describe('Manufacturer: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
             method: 'PATCH',
         }).as('saveData');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/product-manufacturer`,
-            method: 'POST',
-        }).as('getData');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/manufacturer/index',
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-manufacturer',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
+
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-manufacturer-list__content').should('exist');

@@ -21,12 +21,12 @@ async function createWrapper() {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
+                template: '<div class="sw-container"><slot></slot></div>',
             },
             'sw-icon': true,
             'sw-field-error': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         propsData: {
             filter: {
@@ -35,13 +35,13 @@ async function createWrapper() {
                 label: 'Stock',
                 numberType: 'int',
                 numberStep: 1,
-                numberMin: 0
+                numberMin: 0,
             },
-            active: true
+            active: true,
         },
         provide: {
-            validationService: {}
-        }
+            validationService: {},
+        },
     });
 }
 
@@ -57,7 +57,7 @@ describe('components/sw-number-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
             [Criteria.range('stock', { gte: 2 })],
-            { from: 2, to: null }
+            { from: 2, to: null },
         ]);
     });
 
@@ -72,7 +72,7 @@ describe('components/sw-number-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
             [Criteria.range('stock', { lte: 5 })],
-            { from: null, to: 5 }
+            { from: null, to: 5 },
         ]);
     });
 
@@ -88,7 +88,7 @@ describe('components/sw-number-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'stock',
             [Criteria.range('stock', { gte: 2 })],
-            { from: 2, to: null }
+            { from: 2, to: null },
         ]);
 
         await toInput.setValue('5');
@@ -97,7 +97,7 @@ describe('components/sw-number-filter', () => {
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'stock',
             [Criteria.range('stock', { gte: 2, lte: 5 })],
-            { from: 2, to: 5 }
+            { from: 2, to: 5 },
         ]);
     });
 

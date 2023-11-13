@@ -15,12 +15,12 @@ async function createWrapper(propsData = {}) {
         { name: 'Apple' },
         { name: 'Shopware' },
         { name: 'Google' },
-        { name: 'Microsoft' }
+        { name: 'Microsoft' },
     ];
     items.total = 4;
     items.criteria = {
-        page: 1,
-        limit: 25
+        page: null,
+        limit: null,
     };
 
     return shallowMount(await Shopware.Component.build('sw-entity-listing'), {
@@ -34,23 +34,24 @@ async function createWrapper(propsData = {}) {
             'sw-context-menu-divider': true,
             'sw-pagination': true,
             'sw-checkbox-field': true,
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-data-grid-skeleton': true,
         },
         provide: {},
         propsData: {
             columns: [
-                { property: 'name', label: 'Name' }
+                { property: 'name', label: 'Name' },
             ],
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
-                { id: 'id2', name: 'item2' }
+                { id: 'id2', name: 'item2' },
             ]),
             repository: {
-                search: () => {}
+                search: () => {},
             },
             detailRoute: 'sw.manufacturer.detail',
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -75,7 +76,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            allowEdit: false
+            allowEdit: false,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -101,7 +102,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            allowDelete: false
+            allowDelete: false,
         });
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -118,15 +119,15 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-                { id: 'id3', name: 'item3' }
-            ])
+                { id: 'id3', name: 'item3' },
+            ]),
         });
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements.exists()).toBeTruthy();
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
-        expect(elements.wrappers.length).toBe(3);
+        expect(elements.wrappers).toHaveLength(3);
     });
 
     it('should have context menu with view entry', async () => {
@@ -136,15 +137,15 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-                { id: 'id3', name: 'item3' }
-            ])
+                { id: 'id3', name: 'item3' },
+            ]),
         });
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements.exists()).toBeTruthy();
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.view'));
-        expect(elements.wrappers.length).toBe(3);
+        expect(elements.wrappers).toHaveLength(3);
     });
 
     it('should have context menu with disabled edit entry', async () => {
@@ -154,15 +155,63 @@ describe('src/app/component/entity/sw-entity-listing', () => {
             items: new EntityCollection(null, null, null, new Criteria(1, 25), [
                 { id: 'id1', name: 'item1' },
                 { id: 'id2', name: 'item2' },
-                { id: 'id3', name: 'item3' }
-            ])
+                { id: 'id3', name: 'item3' },
+            ]),
         });
 
         const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
 
         expect(elements.exists()).toBeTruthy();
-        expect(elements.wrappers.length).toBe(3);
+        expect(elements.wrappers).toHaveLength(3);
         elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
+    });
+
+    it('should show delete id', async () => {
+        const wrapper = await createWrapper();
+        expect(wrapper.vm.deleteId).toBeNull();
+        wrapper.vm.showDelete('123');
+        expect(wrapper.vm.deleteId).toBe('123');
+    });
+
+    it('should refresh delete id when close delete modal', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.showDelete('123');
+        expect(wrapper.vm.deleteId).toBe('123');
+        wrapper.vm.closeModal();
+        expect(wrapper.vm.deleteId).toBeNull();
+    });
+
+    it('should able to apply result when items prop has been changed', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.applyResult = jest.fn();
+        await wrapper.setProps({
+            items: new EntityCollection(null, null, null, new Criteria(1, 25), [
+                { id: 'id1', name: 'item1' },
+                { id: 'id2', name: 'item2' },
+                { id: 'id3', name: 'item3' },
+            ]),
+        });
+
+        await flushPromises();
+        expect(wrapper.vm.applyResult).toHaveBeenCalled();
+    });
+
+    it('should call emit when user click bulk edit button', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.$emit = jest.fn();
+        wrapper.vm.onClickBulkEdit();
+
+        await flushPromises();
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith('bulk-edit-modal-open');
+    });
+
+    it('should call emit when user close bulk edit modal', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.$emit = jest.fn();
+        wrapper.vm.onCloseBulkEditModal();
+
+        await flushPromises();
+        expect(wrapper.vm.$emit).toHaveBeenCalledWith('bulk-edit-modal-close');
     });
 });

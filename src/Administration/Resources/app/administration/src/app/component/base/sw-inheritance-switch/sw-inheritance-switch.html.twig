@@ -14,9 +14,8 @@
         v-if="isInherited"
         key="inherit-icon"
         v-tooltip="{ message: $tc('global.sw-field.tooltipRemoveInheritance'), disabled: disabled }"
-        :multicolor="true"
-        :name="disabled ? 'regular-link-horizontal-slash' : 'regular-link-horizontal'"
-        size="16"
+        name="regular-link-horizontal"
+        size="16px"
         @click="onClickRemoveInheritance"
     />
     {% endblock %}
@@ -27,9 +26,8 @@
         key="uninherit-icon"
         v-tooltip="{ message: $tc('global.sw-field.tooltipRestoreInheritance'), disabled: disabled }"
         :class="unInheritClasses"
-        :multicolor="true"
         name="regular-link-horizontal-slash"
-        size="16"
+        size="16px"
         @click="onClickRestoreInheritance"
     />
     {% endblock %}

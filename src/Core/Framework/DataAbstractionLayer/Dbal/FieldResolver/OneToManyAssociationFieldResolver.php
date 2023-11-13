@@ -7,12 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class OneToManyAssociationFieldResolver extends AbstractFieldResolver
 {
     public function join(FieldResolverContext $context): string
@@ -94,8 +94,10 @@ class OneToManyAssociationFieldResolver extends AbstractFieldResolver
     private function getReferenceColumn(FieldResolverContext $context, OneToManyAssociationField $field): string
     {
         if ($field->is(ReverseInherited::class) && $context->getContext()->considerInheritance()) {
-            /** @var ReverseInherited $flag */
             $flag = $field->getFlag(ReverseInherited::class);
+            if ($flag === null) {
+                return EntityDefinitionQueryHelper::escape($field->getReferenceField());
+            }
 
             return EntityDefinitionQueryHelper::escape($flag->getReversedPropertyName());
         }

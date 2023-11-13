@@ -23,43 +23,44 @@ async function createWrapper(privileges = []) {
         localVue,
         mocks: {
             $route: {
-                query: ''
-            }
+                query: '',
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: jest.fn(() => {
                         return Promise.resolve([]);
-                    })
-                })
+                    }),
+                }),
             },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
                     return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
                     });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
+                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
             },
             'sw-button': true,
             'sw-entity-listing': true,
-            'sw-empty-state': true
-        }
+            'sw-empty-state': true,
+            'router-link': true,
+        },
     });
 }
 
@@ -84,7 +85,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should have edit fields enabled', async () => {
         const wrapper = await createWrapper([
-            'shipping.editor'
+            'shipping.editor',
         ]);
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
@@ -100,7 +101,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     it('should have delete fields enabled', async () => {
         const wrapper = await createWrapper([
             'shipping.editor',
-            'shipping.deleter'
+            'shipping.deleter',
         ]);
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
@@ -116,7 +117,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         const wrapper = await createWrapper([
             'shipping.editor',
             'shipping.deleter',
-            'shipping.creator'
+            'shipping.creator',
         ]);
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
@@ -131,7 +132,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     it('should add query score to the criteria', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -171,10 +172,10 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 
-    it('should not build query score when search ranking field is null ', async () => {
+    it('should not build query score when search ranking field is null', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
 
         await wrapper.vm.$nextTick();
@@ -198,7 +199,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     it('should show empty state when there is not item after filling search term', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            term: 'foo'
+            term: 'foo',
         });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
@@ -212,7 +213,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
-        expect(wrapper.vm.entitySearchable).toEqual(false);
+        expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });

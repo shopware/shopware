@@ -164,6 +164,27 @@ describe('OffCanvas tests', () => {
         expect(offCanvasElement.innerHTML).toBe('Even more interesting content');
     });
 
+    it('should close when clicking on close-trigger element', () => {
+        jest.useFakeTimers();
+
+        // Set content containing a close trigger button with class "js-offcanvas-close"
+        OffCanvas.open(
+            '<button class="js-offcanvas-close">Close</button><div class="offcanvas-body">Lorem ipsum</div>',
+        );
+
+        jest.runAllTimers();
+
+        const closeBtn = document.querySelector('.js-offcanvas-close');
+
+        // Click on the close button
+        closeBtn.dispatchEvent(new Event('click', { bubbles: true }));
+
+        jest.runAllTimers();
+
+        // OffCanvas should not exist after closing it via the close button
+        expect(OffCanvas.exists()).toBe(false);
+    });
+
     it('should be able to pass initial CSS classes as an array', () => {
         jest.useFakeTimers();
 

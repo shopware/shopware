@@ -4,10 +4,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 
 use Shopware\Core\Content\Product\Exception\DuplicateProductSortingKeyException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductSortingExceptionHandler implements ExceptionHandlerInterface
 {
     public function getPriority(): int

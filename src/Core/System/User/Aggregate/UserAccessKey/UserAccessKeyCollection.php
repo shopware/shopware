@@ -3,26 +3,22 @@
 namespace Shopware\Core\System\User\Aggregate\UserAccessKey;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<UserAccessKeyEntity>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class UserAccessKeyCollection extends EntityCollection
 {
     public function getUserIds(): array
     {
-        return $this->fmap(function (UserAccessKeyEntity $user) {
-            return $user->getUserId();
-        });
+        return $this->fmap(fn (UserAccessKeyEntity $user) => $user->getUserId());
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(function (UserAccessKeyEntity $user) use ($id) {
-            return $user->getUserId() === $id;
-        });
+        return $this->filter(fn (UserAccessKeyEntity $user) => $user->getUserId() === $id);
     }
 
     public function getApiAlias(): string

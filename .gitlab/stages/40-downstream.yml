@@ -1,175 +1,150 @@
+---
 
-.downstream-trunk:
+.rule_branch_rufus_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  when: on_success
+
+.rule_branch_commercial_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+  when: on_success
+
+.rule_exclude_on_branch_rufus_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  when: never
+
+.rule_exclude_on_branch_commercial_match:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+  when: never
+
+.rule_deployment_branch:
+  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
+  when: on_success
+
+.rule_exclude_on_deployment_branch:
+  if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
+  when: never
+
+.downstream-job:
   stage: downstream
   needs: [ ]
   variables:
-    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    PLATFORM_BRANCH: 'trunk'
   inherit:
     default: false
     variables:
       - PLATFORM_BRANCH
+      - CI_COMMIT_TAG
+  allow_failure: false
 
-.downstream-rufus-trunk:
-  extends: .downstream-trunk
+rufus source branch:
+  extends: .downstream-job
   rules:
     - !reference [ .rules, skip ]
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
-      when: never
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-      when: never
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-      when: never
-    - !reference [ .rules, run ]
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
-    - when: manual
-      allow_failure: true
-
-.downstream-commercial-trunk:
-  extends: .downstream-trunk
-  rules:
-    - !reference [ .rules, skip ]
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
-      when: never
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-      when: never
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-      when: never
-    - !reference [ .rules, run ]
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
-    - when: manual
-      allow_failure: true
-
-.downstream-release-branch-creation:
-  stage: downstream
-  image: curlimages/curl:7.72.0
-  needs: [ ]
+    - !reference [ .rule_branch_rufus_match ]
   variables:
-    DOWNSTREAM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
-  rules:
-    - !reference [ .rules, skip ]
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-    - when: never
-  script:
-    - .gitlab/bin/create_downstream_branch.sh "${DOWNSTREAM_PROJECT_PATH}" "${DOWNSTREAM_BRANCH}" "${DOWNSTREAM_PARENT_BRANCH}"
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/rufus
+    branch: '${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    strategy: depend
 
-.downstream-release:
-  stage: downstream
-  image: curlimages/curl:7.72.0
-  needs: [ ]
-  variables:
-    DOWNSTREAM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
-    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+commercial source branch:
+  extends: .downstream-job
   rules:
     - !reference [ .rules, skip ]
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.\d+\.\d+\.\d+/
-    - if: $CI_COMMIT_BRANCH =~ /^6\.\d+\.\d+\.\d+/
-    - when: never
-  script:
-    - >
-      curl -f -X POST \
-        --form "token=${CI_JOB_TOKEN}" \
-        --form "variables[PLATFORM_BRANCH]=${PLATFORM_BRANCH}" \
-        --form "ref=${DOWNSTREAM_BRANCH}" \
-        "${CI_API_V4_URL}/projects/${DOWNSTREAM_PROJECT_PATH}/trigger/pipeline"
+    - !reference [ .rule_branch_commercial_match ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/commercial
+    branch: '${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    strategy: depend
+
+rufus target branch:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_rufus_match ]
+    - !reference [ .rule_deployment_branch ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+    PLUGIN_DEPENDENCIES:
+      value: >
+        [
+          { "name": "SwagExtensionStore", "package": "swag/swag-extension-store", "url": "gitlab.shopware.com/shopware/6/product/SwagExtensionStore", "branch": "trunk" },
+          { "name": "SwagCommercial", "package": "shopware/commercial", "url": "gitlab.shopware.com/shopware/6/product/commercial", "branch": "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" }
+        ]
+  trigger:
+    project: shopware/6/product/rufus
+    branch: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    strategy: depend
+
+commercial target branch:
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_commercial_match ]
+    - !reference [ .rule_deployment_branch ]
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
+  trigger:
+    project: shopware/6/product/commercial
+    branch: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
+    strategy: depend
 
 rufus trunk:
-  extends: .downstream-rufus-trunk
-  trigger:
-    project: shopware/6/product/rufus
-    branch: trunk
-    strategy: depend
-
-rufus matching branch:
-  extends: rufus trunk
+  extends: .downstream-job
   rules:
     - !reference [ .rules, skip ]
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+    - !reference [ .rule_exclude_on_branch_rufus_match ]
+    - !reference [ .rule_exclude_on_deployment_branch ]
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+      allow_failure: true
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
   trigger:
     project: shopware/6/product/rufus
-    branch: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
     strategy: depend
-  allow_failure: false
 
 commercial trunk:
-  extends: .downstream-commercial-trunk
+  extends: .downstream-job
+  rules:
+    - !reference [ .rules, skip ]
+    - !reference [ .rule_exclude_on_branch_commercial_match ]
+    - !reference [ .rule_exclude_on_deployment_branch ]
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+    - when: manual
+      allow_failure: true
+  variables:
+    PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+    MERGE_REF_PATH: '${CI_MERGE_REQUEST_REF_PATH}'
+    UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
   trigger:
     project: shopware/6/product/commercial
-    branch: trunk
     strategy: depend
 
-commercial matching branch:
-  extends: commercial trunk
+commercial tag:
+  extends: .downstream-job
+  needs: [Prepare commercial release]
   rules:
-    - !reference [ .rules, skip ]
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/'
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: manual
+  variables:
+    PLATFORM_BRANCH: '$CI_COMMIT_TAG'
   trigger:
     project: shopware/6/product/commercial
-    branch: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}
     strategy: depend
-  allow_failure: false
-
-create downstream branch:
-  extends: .downstream-release-branch-creation
-  rules: # TODO: Remove this rules section after the last 6.4.x version has been released
-    - !reference [ .rules, skip ]
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
-    - if: $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
-    - when: never
-  parallel:
-    matrix:
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
-        DOWNSTREAM_PARENT_BRANCH: 'trunk'
-
-# TODO: Remove this job after the last 6.4.x version has been released.
-create downstream branch legacy:
-  extends: .downstream-release-branch-creation
-  rules:
-    - !reference [ .rules, skip ]
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([0-4])\.\d+\.\d+/
-    - if: $CI_COMMIT_BRANCH =~ /^6\.([0-4])\.\d+\.\d+/
-    - when: never
-  parallel:
-    matrix:
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fcommercial'
-        DOWNSTREAM_PARENT_BRANCH: '6.4'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Frufus'
-        DOWNSTREAM_PARENT_BRANCH: '6.4'
-      - DOWNSTREAM_PROJECT_PATH: 'shopware%2F6%2Fproduct%2Fproduction'
-        DOWNSTREAM_PARENT_BRANCH: '6.4'
-
-trigger downstream build:
-  extends: .downstream-release
-  needs:
-    - job: 'create downstream branch'
-      artifacts: false
-  rules: # TODO: Remove this rules section after the last 6.4.x version has been released
-    - !reference [ .rules, skip ]
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
-    - if: $CI_COMMIT_BRANCH =~ /^6\.([5-9]|\d{2,})\.\d+\.\d+/
-    - when: never
-  parallel:
-    matrix:
-      - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]
-
-# TODO: Remove this job after the last 6.4.x version has been released.
-trigger downstream build legacy:
-  extends: .downstream-release
-  needs:
-    - job: 'create downstream branch legacy'
-      artifacts: false
-  rules:
-    - !reference [ .rules, skip ]
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^6\.([0-4])\.\d+\.\d+/
-    - if: $CI_COMMIT_BRANCH =~ /^6\.([0-4])\.\d+\.\d+/
-    - when: never
-  parallel:
-    matrix:
-      - DOWNSTREAM_PROJECT_PATH: [ 'shopware%2F6%2Fproduct%2Fcommercial', 'shopware%2F6%2Fproduct%2Frufus' ]
-  allow_failure: true # TODO: Remove this line as soon as the projects involved are compatible with the new trunk branch
+    branch: $CI_COMMIT_TAG

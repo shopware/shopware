@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
@@ -9,29 +10,15 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  *
  * admin-ui > entity > detail > tabs
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class Tabs extends ConfigXmlElement
 {
     /**
-     * @param list<Tab> $content
+     * @var list<Tab>
      */
-    private function __construct(
-        protected readonly array $content,
-    ) {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        $tabs = [];
-        foreach ($element->getElementsByTagName('tab') as $tab) {
-            $tabs[] = Tab::fromXml($tab);
-        }
-
-        return new self($tabs);
-    }
+    protected array $content;
 
     /**
      * @return list<Tab>
@@ -46,5 +33,15 @@ final class Tabs extends ConfigXmlElement
         $data = parent::jsonSerialize();
 
         return $data['content'];
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $tabs = [];
+        foreach ($element->getElementsByTagName('tab') as $tab) {
+            $tabs[] = Tab::fromXml($tab);
+        }
+
+        return ['content' => $tabs];
     }
 }

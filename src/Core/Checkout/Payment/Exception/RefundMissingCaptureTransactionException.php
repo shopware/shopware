@@ -2,13 +2,18 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 /**
- * @package checkout
+ * @decrecated tag:v6.6.0 - Will be removed without replacement
  */
 class RefundMissingCaptureTransactionException extends PaymentProcessException
 {
-    public function __construct(string $refundId, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $refundId,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $refundId,
             'The refund with id {{ refundId }} has no capture transaction associated',

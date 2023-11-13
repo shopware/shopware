@@ -4,38 +4,27 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class OrderTransactionStateHandler
 {
     /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
-
-    /**
      * @internal
      */
-    public function __construct(StateMachineRegistry $stateMachineRegistry)
+    public function __construct(private readonly StateMachineRegistry $stateMachineRegistry)
     {
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function reopen(string $transactionId, Context $context): void
     {
@@ -52,10 +41,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function fail(string $transactionId, Context $context): void
     {
@@ -72,10 +59,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function process(string $transactionId, Context $context): void
     {
@@ -92,10 +77,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function processUnconfirmed(string $transactionId, Context $context): void
     {
@@ -112,10 +95,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function paid(string $transactionId, Context $context): void
     {
@@ -132,10 +113,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function payPartially(string $transactionId, Context $context): void
     {
@@ -152,10 +131,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function refund(string $transactionId, Context $context): void
     {
@@ -172,10 +149,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function refundPartially(string $transactionId, Context $context): void
     {
@@ -192,10 +167,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function cancel(string $transactionId, Context $context): void
     {
@@ -212,10 +185,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function remind(string $transactionId, Context $context): void
     {
@@ -232,10 +203,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function authorize(string $transactionId, Context $context): void
     {
@@ -252,10 +221,8 @@ class OrderTransactionStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function chargeback(string $transactionId, Context $context): void
     {

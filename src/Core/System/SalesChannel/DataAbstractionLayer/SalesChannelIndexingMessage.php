@@ -3,10 +3,9 @@
 namespace Shopware\Core\System\SalesChannel\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class SalesChannelIndexingMessage extends EntityIndexingMessage
 {
 }

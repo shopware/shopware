@@ -4,22 +4,19 @@ namespace Shopware\Core\Installer\Database;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class MigrationCollectionFactory
 {
-    private string $projectDir;
-
-    public function __construct(string $projectDir)
+    public function __construct(private readonly string $projectDir)
     {
-        $this->projectDir = $projectDir;
     }
 
     public function getMigrationCollectionLoader(Connection $connection): MigrationCollectionLoader
@@ -38,10 +35,10 @@ class MigrationCollectionFactory
     {
         return [
             new MigrationSource('core', []),
-            self::createMigrationSource('V6_3'),
-            self::createMigrationSource('V6_4'),
-            self::createMigrationSource('V6_5'),
-            self::createMigrationSource('V6_6'),
+            $this->createMigrationSource('V6_3'),
+            $this->createMigrationSource('V6_4'),
+            $this->createMigrationSource('V6_5'),
+            $this->createMigrationSource('V6_6'),
         ];
     }
 

@@ -4,54 +4,38 @@ namespace Shopware\Core\Checkout\Customer\Api;
 
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
 use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package customer-order
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('checkout')]
 class CustomerGroupRegistrationActionController
 {
-    private EntityRepository $customerRepository;
-
-    private EntityRepository $customerGroupRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private SalesChannelContextRestorer $restorer;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerGroupRepository,
-        EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextRestorer $restorer
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly SalesChannelContextRestorer $restorer
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->restorer = $restorer;
     }
 
     /**
      * @throws Exception
-     *
-     * @Since("6.3.1.0")
-     * @Route("/api/_action/customer-group-registration/accept", name="api.customer-group.accept", methods={"POST"}, requirements={"version"="\d+"})
      */
+    #[Route(path: '/api/_action/customer-group-registration/accept', name: 'api.customer-group.accept', methods: ['POST'], requirements: ['version' => '\d+'])]
     public function accept(Request $request, Context $context): JsonResponse
     {
         $customerIds = $this->getRequestCustomerIds($request);
@@ -83,7 +67,7 @@ class CustomerGroupRegistrationActionController
             $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if ($customerRequestedGroup === null) {
-                throw new \RuntimeException('customer group not found');
+                throw CustomerException::customerGroupNotFound($customer->getGroupId());
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
@@ -98,10 +82,8 @@ class CustomerGroupRegistrationActionController
 
     /**
      * @throws Exception
-     *
-     * @Since("6.3.1.0")
-     * @Route("/api/_action/customer-group-registration/decline", name="api.customer-group.decline", methods={"POST"}, requirements={"version"="\d+"})
      */
+    #[Route(path: '/api/_action/customer-group-registration/decline', name: 'api.customer-group.decline', methods: ['POST'], requirements: ['version' => '\d+'])]
     public function decline(Request $request, Context $context): JsonResponse
     {
         $customerIds = $this->getRequestCustomerIds($request);
@@ -132,7 +114,7 @@ class CustomerGroupRegistrationActionController
             $customerRequestedGroup = $this->customerGroupRepository->search($criteria, $salesChannelContext->getContext())->first();
 
             if ($customerRequestedGroup === null) {
-                throw new \RuntimeException('customer group not found');
+                throw CustomerException::customerGroupNotFound($customer->getGroupId());
             }
 
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
@@ -157,7 +139,7 @@ class CustomerGroupRegistrationActionController
         }
 
         if (empty($customerIds)) {
-            throw new \InvalidArgumentException('customerId or customerIds parameter are missing');
+            throw CustomerException::customerIdsParameterIsMissing();
         }
 
         return $customerIds;
@@ -180,7 +162,7 @@ class CustomerGroupRegistrationActionController
             foreach ($result->getElements() as $customer) {
                 if ($customer->getRequestedGroupId() === null) {
                     if ($silentError === false) {
-                        throw new \RuntimeException(sprintf('User %s dont have approval', $customer->getId()));
+                        throw CustomerException::groupRequestNotFound($customer->getId());
                     }
 
                     continue;
@@ -192,6 +174,6 @@ class CustomerGroupRegistrationActionController
             return $customers;
         }
 
-        throw new \RuntimeException('Cannot find Customers');
+        throw CustomerException::customersNotFound($customerIds);
     }
 }

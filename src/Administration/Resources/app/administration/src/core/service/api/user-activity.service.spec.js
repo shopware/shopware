@@ -27,19 +27,19 @@ describe('userActivityApiService', () => {
         clientMock.onPost('/_action/increment/user_activity').reply(
             200,
             {
-                success: true
-            }
+                success: true,
+            },
         );
 
         const data = {
             key: 'product@sw.product.index',
-            cluster: 'id'
+            cluster: 'id',
         };
 
         const trackActivity = await userActivityApiService.increment(data);
 
         expect(trackActivity).toEqual({
-            success: true
+            success: true,
         });
     });
 
@@ -57,9 +57,9 @@ describe('userActivityApiService', () => {
                     {
                         count: '2',
                         key: 'product@sw.product.index',
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         );
 
         const recentlySearch = await userActivityApiService.getIncrement({ cluster: 'id' });
@@ -73,8 +73,8 @@ describe('userActivityApiService', () => {
                 {
                     count: '2',
                     key: 'product@sw.product.index',
-                }
-            ]
+                },
+            ],
         });
     });
 });

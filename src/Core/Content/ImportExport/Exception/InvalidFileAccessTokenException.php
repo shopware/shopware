@@ -2,17 +2,16 @@
 
 namespace Shopware\Core\Content\ImportExport\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package system-settings
- */
+#[Package('services-settings')]
 class InvalidFileAccessTokenException extends ShopwareHttpException
 {
     public function __construct()
     {
-        parent::__construct('Access to file denied due to invalid access token', []);
+        parent::__construct('Access to file denied due to invalid access token');
     }
 
     public function getStatusCode(): int

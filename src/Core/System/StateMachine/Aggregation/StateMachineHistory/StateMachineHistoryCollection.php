@@ -3,12 +3,12 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<StateMachineHistoryEntity>
- *
- * @package checkout
  */
+#[Package('checkout')]
 class StateMachineHistoryCollection extends EntityCollection
 {
     public function getApiAlias(): string

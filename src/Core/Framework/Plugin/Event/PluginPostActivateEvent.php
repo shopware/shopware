@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\Framework\Plugin\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PluginPostActivateEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var ActivateContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, ActivateContext $context)
-    {
+    public function __construct(
+        PluginEntity $plugin,
+        private readonly ActivateContext $context
+    ) {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): ActivateContext

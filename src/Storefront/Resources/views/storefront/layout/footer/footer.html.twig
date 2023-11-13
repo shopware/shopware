@@ -2,10 +2,17 @@
     <div class="container">
 
         {% block layout_footer_navigation %}
-            <div id="footerColumns"
-                 class="row footer-columns"
-                 data-collapse-footer="true"
-                 role="list">
+            <div
+                id="footerColumns"
+                class="row footer-columns"
+                {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-collapse-footer" is deprecated. Use "data-collapse-footer-columns" instead #}
+                {% if feature('v6.6.0.0') %}
+                    data-collapse-footer-columns="true"
+                {% else %}
+                    data-collapse-footer="true"
+                {% endif %}
+                role="list"
+            >
                 {% block layout_footer_navigation_hotline %}
                     <div class="col-md-4 footer-column js-footer-column">
                         {% block layout_footer_navigation_hotline_headline %}
@@ -196,21 +203,23 @@
             {% endblock %}
 
             {% block layout_footer_vat %}
-                <div class="footer-vat">
-                    {% if context.taxState == "gross" %}
-                        <p>
-                            {{ "footer.includeVatText"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
-                            })|raw }}
-                        </p>
-                    {% else %}
-                        <p>
-                            {{ "footer.excludeVatText"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.shippingPaymentInfoPage') })
-                            })|raw }}
-                        </p>
-                    {% endif %}
-                </div>
+                {% if showVatNotice or showVatNotice is not defined %}
+                    <div class="footer-vat">
+                        {% if context.taxState == "gross" %}
+                            <p>
+                                {{ "footer.includeVatText"|trans({
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                })|raw }}
+                            </p>
+                        {% else %}
+                            <p>
+                                {{ "footer.excludeVatText"|trans({
+                                    '%url%': path('frontend.cms.page', { id: config('core.basicInformation.shippingPaymentInfoPage') })
+                                })|raw }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endblock %}
 
             {% block layout_footer_copyright %}

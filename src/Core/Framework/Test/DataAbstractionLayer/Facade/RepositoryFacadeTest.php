@@ -9,6 +9,8 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
@@ -19,29 +21,32 @@ use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
  * @internal
  */
 class RepositoryFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 
     private RepositoryFacadeHookFactory $factory;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(RepositoryFacadeHookFactory::class);
     }
 
     /**
+     * @param array<string, array<int, mixed>> $criteria
+     * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
+     *
      * @dataProvider withoutAppTestCases
      */
     public function testWithoutApp(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
@@ -54,12 +59,15 @@ class RepositoryFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $result = $facade->$method('product', $criteria);
+        $result = $facade->$method('product', $criteria); /* @phpstan-ignore-line */
 
         $expectation($result);
     }
 
-    public function withoutAppTestCases(): array
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function withoutAppTestCases(): array
     {
         $ids = new IdsCollection();
 
@@ -218,10 +226,13 @@ class RepositoryFacadeTest extends TestCase
         );
 
         static::expectException(MissingPrivilegeException::class);
-        $facade->$method('product', []);
+        $facade->$method('product', []); /* @phpstan-ignore-line */
     }
 
-    public function withoutPermissionProvider(): array
+    /**
+     * @return array<array<string>>
+     */
+    public static function withoutPermissionProvider(): array
     {
         return [
             ['search'],

@@ -16,9 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_total %}
             <div class="sw-order-general-info__summary-main-total">
-                {{ order.amountTotal | currency(
-                    order.currency.translated.shortName, order.totalRounding.decimals
-                ) }}
+                {{ currencyFilter(order.amountTotal, order.currency.translated.shortName, order.totalRounding.decimals) }}
             </div>
             {% endblock %}
         </div>
@@ -31,17 +29,19 @@
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.on') }}
-                {{ order.orderDateTime | date({
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
+                {{ dateFilter(order.orderDateTime, {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
                 }) }}
                 {{ $tc('sw-order.generalTab.info.summary.with') }}
                 {{ order.transactions.last().paymentMethod.translated.distinguishableName }}
-                {{ $tc('sw-order.generalTab.info.summary.and') }}
-                {{ order.deliveries.last().shippingMethod.translated.name }}
+                <template v-if="order.deliveries.last()">
+                    {{ $tc('sw-order.generalTab.info.summary.and') }}
+                    {{ order.deliveries.last().shippingMethod.translated.name }}
+                </template>
             </div>
             {% endblock %}
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -54,12 +54,12 @@
                     class="sw-order-general-info__summary-sub-last-changed-time"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
-                    {{ lastChangedDateTime | date({
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
+                    {{ dateFilter(lastChangedDateTime, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
                     }) }}
                 </div>
                 {% endblock %}
@@ -118,7 +118,10 @@
         {% endblock %}
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_base_general_info_order_states_shipping %}
-        <div class="sw-order-general-info__order-state">
+        <div
+            v-if="delivery"
+            class="sw-order-general-info__order-state"
+        >
             <sw-order-state-select-v2
                 v-tooltip="{
                     message: $tc('sw-privileges.tooltip.warning'),

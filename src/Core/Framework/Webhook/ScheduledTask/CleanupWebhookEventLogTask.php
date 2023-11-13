@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Webhook\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
 /**
- * @package core
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
  */
+#[Package('core')]
 class CleanupWebhookEventLogTask extends ScheduledTask
 {
     public static function getTaskName(): string
@@ -16,6 +18,6 @@ class CleanupWebhookEventLogTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86400; //24 hours
+        return 86400; // 24 hours
     }
 }

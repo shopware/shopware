@@ -28,21 +28,21 @@ describe('components/sw-select-rule-create', () => {
                     attributes: {
                         id: 'first-id',
                         name: 'Always valid',
-                        conditions: [false]
+                        conditions: [false],
                     },
-                    relationships: []
+                    relationships: [],
                 },
                 {
                     id: 'second-id',
                     attributes: {
                         id: 'second-id',
                         name: 'Restricted rule',
-                        conditions: [true]
+                        conditions: [true],
                     },
-                    relationships: []
-                }
-            ]
-        }
+                    relationships: [],
+                },
+            ],
+        },
     });
 
     async function createWrapper() {
@@ -75,18 +75,18 @@ describe('components/sw-select-rule-create', () => {
                 'sw-loader': true,
                 'sw-highlight-text': {
                     props: ['text'],
-                    template: '<div class="sw-highlight-text">{{ this.text }}</div>'
+                    template: '<div class="sw-highlight-text">{{ this.text }}</div>',
                 },
                 'sw-select-result': await Shopware.Component.build('sw-select-result'),
                 'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>'
+                    template: '<div class="sw-popover"><slot></slot></div>',
                 },
             },
             propsData: {
                 ruleId: 'random-rule-id',
                 restrictedRuleIds: ['restrictedId'],
-                restrictedRuleIdsTooltipLabel: 'myRestrictedLabelText'
-            }
+                restrictedRuleIdsTooltipLabel: 'myRestrictedLabelText',
+            },
         });
     }
 
@@ -110,7 +110,7 @@ describe('components/sw-select-rule-create', () => {
         await flushPromises();
 
         const resultItems = wrapper.findAll('.sw-select-result-list__item-list .sw-select-result');
-        expect(resultItems.wrappers.length).toBe(2);
+        expect(resultItems.wrappers).toHaveLength(2);
 
         const [firstResult, secondResult] = resultItems.wrappers;
 
@@ -123,7 +123,7 @@ describe('components/sw-select-rule-create', () => {
         const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'ruleId', conditions: [] });
 
         expect(tooltipConfig.disabled).toBeTruthy();
-        expect(tooltipConfig.message).toEqual('');
+        expect(tooltipConfig.message).toBe('');
     });
 
     it('should have correct tooltip because rule is in restricted array', async () => {
@@ -131,7 +131,7 @@ describe('components/sw-select-rule-create', () => {
         const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'restrictedId', conditions: [] });
 
         expect(tooltipConfig.disabled).toBeFalsy();
-        expect(tooltipConfig.message).toEqual('myRestrictedLabelText');
+        expect(tooltipConfig.message).toBe('myRestrictedLabelText');
     });
 
     it('should have correct tooltip because of restricted rule by rule awareness', async () => {
@@ -139,6 +139,6 @@ describe('components/sw-select-rule-create', () => {
         const tooltipConfig = wrapper.vm.tooltipConfig({ id: 'someRuleAwarenessRestrictedId', conditions: [true] });
 
         expect(tooltipConfig.disabled).toBeFalsy();
-        expect(tooltipConfig.message).toEqual('ruleAwarenessRestrictionLabelText');
+        expect(tooltipConfig.message).toBe('ruleAwarenessRestrictionLabelText');
     });
 });

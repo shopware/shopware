@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
+use Shopware\Core\HttpKernel;
+use Shopware\Core\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+
+$envFile = __DIR__ . '/../.env';
+
+if (!file_exists(__DIR__ . '/../.env')) {
+    $_SERVER['APP_RUNTIME_OPTIONS']['disable_dotenv'] = true;
+}
+
+require_once __DIR__ . '/../vendor/autoload_runtime.php';
+
+return static function (array &$context) {
+    set_time_limit(0);
+
+    $classLoader = require __DIR__ . '/../vendor/autoload.php';
+
+    if (!class_exists(Application::class)) {
+        throw new RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
+    }
+
+    if (!isset($context['PROJECT_ROOT'])) {
+        $context['PROJECT_ROOT'] = dirname(__DIR__);
+    }
+
+    $input = new ArgvInput();
+    $env = $input->getParameterOption(['--env', '-e'], $context['APP_ENV'] ?? 'prod', true);
+    $debug = ($context['APP_DEBUG'] ?? ($env !== 'prod')) && !$input->hasParameterOption('--no-debug', true);
+
+    $pluginLoader = new ComposerPluginLoader($classLoader, null);
+
+    if ($input->getFirstArgument() === 'system:install') {
+        $context['INSTALL'] = true;
+    }
+
+    if (trim($context['DATABASE_URL'] ?? '') === '') {
+        // fake DATABASE_URL
+        $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
+    }
+
+    $kernel = new HttpKernel($env, $debug, $classLoader);
+    $kernel->setPluginLoader($pluginLoader);
+
+    $application = new Application($kernel->getKernel());
+    $kernel->getKernel()->boot();
+
+    $application->setName('Shopware');
+    $application->setVersion($kernel->getKernel()->getContainer()->getParameter('kernel.shopware_version'));
+
+    return $application;
+};

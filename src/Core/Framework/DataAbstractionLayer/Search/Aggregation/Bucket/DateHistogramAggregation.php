@@ -4,23 +4,23 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class DateHistogramAggregation extends BucketAggregation
 {
-    public const PER_MINUTE = 'minute';
-    public const PER_HOUR = 'hour';
-    public const PER_DAY = 'day';
-    public const PER_WEEK = 'week';
-    public const PER_MONTH = 'month';
-    public const PER_QUARTER = 'quarter';
-    public const PER_YEAR = 'year';
+    final public const PER_MINUTE = 'minute';
+    final public const PER_HOUR = 'hour';
+    final public const PER_DAY = 'day';
+    final public const PER_WEEK = 'week';
+    final public const PER_MONTH = 'month';
+    final public const PER_QUARTER = 'quarter';
+    final public const PER_YEAR = 'year';
 
-    private string $interval;
+    protected readonly string $interval;
 
     public function __construct(
         string $name,
@@ -28,8 +28,8 @@ class DateHistogramAggregation extends BucketAggregation
         string $interval,
         private ?FieldSorting $sorting = null,
         ?Aggregation $aggregation = null,
-        private ?string $format = null,
-        private ?string $timeZone = null
+        private readonly ?string $format = null,
+        private readonly ?string $timeZone = null
     ) {
         parent::__construct($name, $field, $aggregation);
 

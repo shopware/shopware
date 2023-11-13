@@ -15,7 +15,7 @@
             {% endif %}
 
             {% if listPrice and not hasRange and not displayFromVariants %}
-                <div class="badge badge-danger badge-discount">
+                <div class="badge bg-danger badge-discount">
                     <span>&#37;</span>
                 </div>
             {% endif %}
@@ -24,7 +24,7 @@
         {% block component_product_badges_topseller %}
             {% if product.markAsTopseller %}
                 <div>
-                    <span class="badge badge-warning badge-topseller">{{ "listing.boxLabelTopseller"|trans|sw_sanitize }}</span>
+                    <span class="badge bg-warning badge-topseller">{{ "listing.boxLabelTopseller"|trans|sw_sanitize }}</span>
                 </div>
             {% endif %}
         {% endblock %}
@@ -32,7 +32,7 @@
         {% block component_product_badges_new %}
             {% if product.isNew %}
                 <div>
-                    <span class="badge badge-success badge-new">{{ "listing.boxLabelNew"|trans|sw_sanitize }}</span>
+                    <span class="badge bg-success badge-new">{{ "listing.boxLabelNew"|trans|sw_sanitize }}</span>
                 </div>
             {% endif %}
         {% endblock %}

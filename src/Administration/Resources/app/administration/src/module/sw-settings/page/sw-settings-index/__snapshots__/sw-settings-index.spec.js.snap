@@ -23,6 +23,8 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
                         sw-settings.index.tabShop
                      
           <!---->
+           
+          <!---->
         </a>
          
         <a
@@ -34,6 +36,8 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
                         sw-settings.index.tabSystem
                      
           <!---->
+           
+          <!---->
         </a>
          
         <a
@@ -44,6 +48,8 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
           
                         sw-settings.index.tabPlugins
                      
+          <!---->
+           
           <!---->
         </a>
           

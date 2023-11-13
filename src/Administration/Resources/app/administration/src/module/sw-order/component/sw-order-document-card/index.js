@@ -1,9 +1,11 @@
 import { DocumentEvents } from 'src/core/service/api/document.api.service';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import { getCurrentInstance } from 'vue';
 import template from './sw-order-document-card.html.twig';
 import './sw-order-document-card.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -96,9 +98,17 @@ export default {
 
         documentModal() {
             const subComponentName = this.currentDocumentType.technicalName.replace(/_/g, '-');
-            if (this.$options.components[`sw-order-document-settings-${subComponentName}-modal`]) {
+
+            if (this.feature.isActive('VUE3')) {
+                if (
+                    `sw-order-document-settings-${subComponentName}-modal` in getCurrentInstance().appContext.components
+                ) {
+                    return `sw-order-document-settings-${subComponentName}-modal`;
+                }
+            } else if (this.$options.components[`sw-order-document-settings-${subComponentName}-modal`]) {
                 return `sw-order-document-settings-${subComponentName}-modal`;
             }
+
             return 'sw-order-document-settings-modal';
         },
 
@@ -116,10 +126,22 @@ export default {
         documentCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
-            criteria.setTerm(this.term);
             criteria.addAssociation('documentType');
             criteria.addFilter(Criteria.equals('order.id', this.order.id));
-            criteria.addFilter(Criteria.equals('order.versionId', this.order.versionId));
+
+            if (!this.term) {
+                return criteria;
+            }
+
+            criteria.setTerm(this.term);
+            criteria.addQuery(
+                Criteria.contains('config.documentDate', this.term),
+                searchRankingPoint.HIGH_SEARCH_RANKING,
+            );
+            criteria.addQuery(
+                Criteria.equals('config.documentNumber', this.term),
+                searchRankingPoint.HIGH_SEARCH_RANKING,
+            );
 
             return criteria;
         },
@@ -181,11 +203,19 @@ export default {
         },
 
         tooltipCreateDocumentButton() {
-            if (!this.acl.can('order.editor')) {
+            if (!this.acl.can('document.viewer')) {
                 return this.$tc('sw-privileges.tooltip.warning');
             }
 
             return this.$tc('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
         },
     },
 
@@ -418,9 +448,9 @@ export default {
                     link.remove();
                 }
 
-                this.isLoadingPreview = false;
-
                 return response;
+            }).finally(() => {
+                this.isLoadingPreview = false;
             });
         },
 

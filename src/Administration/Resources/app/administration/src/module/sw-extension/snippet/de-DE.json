@@ -75,6 +75,7 @@
       "messagePluginUpdateFailed": "Die Erweiterung konnte nicht aktualisiert werden: \"{message}\". {pluginDeactivatedHint}",
       "pluginDeactivatedHint": "Erweiterung deaktiviert.",
       "messagePluginRequirementMismatch": "Die Erweiterung hat technische Anforderungen, die nicht mit denen der installierten Shopware-Version kompatibel sind. Bitte wende Dich an den Hersteller.",
+      "appIsNotCompatible": "Die Erweiterung \"{name}\" ist nicht kompatibel mit dieser Shopware Version",
       "appLicenseCouldNotBeVerified": {
         "title": "Die Lizenz dieser Erweiterung konnte nicht überprüft werden",
         "message": "Stelle sicher, dass Deine Lizenzdomain korrekt gesetzt ist und Du mit Deinem Shopware Account angemeldet bist, auf welchen diese Erweiterung lizenziert ist.",
@@ -207,7 +208,7 @@
           "textProblem": "Beim Installieren Deiner Erweiterung ist ein Problem aufgetreten. Der Hersteller wird von uns informiert.",
           "notificationLicense": "Beachte, dass die Miete dieser App bzw. des Themes weiterhin aktiv bleibt.",
           "textSupport": "Bei Fragen zur Lizenz wende Dich bitte an die Shopware Financial Services. Erreichbar per E-Mail unter {0} oder per Telefon unter {1}",
-          "supportEmail": "financial.services@shopware.com",
+          "supportEmail": "financial.services{'@'}shopware.com",
           "supportPhone": "+49 (0)2555 / 9288510"
         }
       },
@@ -226,8 +227,8 @@
           "labelRating": "Keine Bewertungen | {numberOfRatings} Bewertung | {numberOfRatings} Bewertungen"
         },
         "sw-extension-review": {
-          "labelLastChangeDate": "Von {author} am {lastChangeDate}",
-          "labelExtensionVersion": "Version der Erweiterung {extensionVersion}"
+          "labelLastChangeDate": "{author}, {lastChangeDate}",
+          "labelExtensionVersion": "Version: {extensionVersion}"
         },
         "sw-extension-ratings-card": {
           "cardTitle": "Bewertungen und Rezensionen",
@@ -336,7 +337,7 @@
         "description": "Wenn Du die Erweiterung deinstallierst, kannst Du sie nicht mehr verwenden.",
         "alert": "Bist Du sicher, dass Du die Erweiterung deinstallieren möchtest?",
         "buttonLabel": "Deinstallieren",
-        "labelRemovePluginData": "Alle App-Daten entgültig entfernen",
+        "labelRemovePluginData": "Alle App-Daten endgültig entfernen",
         "helpTextRemovePluginData": "Warnung: Alle Daten der App werden dauerhaft entfernt. Dieser Vorgang ist nicht umkehrbar."
       },
       "sw-extension-listing-card": {

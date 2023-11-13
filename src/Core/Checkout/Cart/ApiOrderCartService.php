@@ -5,26 +5,21 @@ namespace Shopware\Core\Checkout\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ApiOrderCartService
 {
-    protected CartService $cartService;
-
-    protected SalesChannelContextPersister $contextPersister;
-
     /**
      * @internal
      */
-    public function __construct(CartService $cartService, SalesChannelContextPersister $contextPersister)
-    {
-        $this->cartService = $cartService;
-        $this->contextPersister = $contextPersister;
+    public function __construct(
+        protected CartService $cartService,
+        protected SalesChannelContextPersister $contextPersister
+    ) {
     }
 
     public function updateShippingCosts(CalculatedPrice $calculatedPrice, SalesChannelContext $context): Cart

@@ -2,12 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\CacheItem;
 
 /**
- * @package core
  * @template TCachedContent
  */
+#[Package('core')]
 class CacheCompressor
 {
     /**

@@ -8,24 +8,19 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Symfony\ServiceMap;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @package core
  * @implements Rule<ClassMethod>
  *
  * @internal
  */
+#[Package('core')]
 class InternalMethodRule implements Rule
 {
-    /**
-     * @var ServiceMap
-     */
-    private $serviceMap;
-
-    public function __construct(ServiceMap $symfonyServiceMap)
+    public function __construct(private readonly ServiceMap $serviceMap)
     {
-        $this->serviceMap = $symfonyServiceMap;
     }
 
     public function getNodeType(): string
@@ -52,7 +47,7 @@ class InternalMethodRule implements Rule
 
         $class = $scope->getClassReflection();
         // complete class is marked as internal
-        if ($class !== null && $class->isInternal()) {
+        if ($class->isInternal()) {
             return [];
         }
 

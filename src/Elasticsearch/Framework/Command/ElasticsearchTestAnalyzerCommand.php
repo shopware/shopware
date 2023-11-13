@@ -4,32 +4,28 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use OpenSearch\Client;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'es:test:analyzer',
     description: 'Test the elasticsearch analyzer',
 )]
+#[Package('core')]
 class ElasticsearchTestAnalyzerCommand extends Command
 {
-    private Client $client;
-
-    private ?ShopwareStyle $io;
+    private ?ShopwareStyle $io = null;
 
     /**
      * @internal
      */
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
         parent::__construct();
-        $this->client = $client;
     }
 
     /**
@@ -38,8 +34,7 @@ class ElasticsearchTestAnalyzerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('term', InputArgument::REQUIRED)
-            ->setDescription('Allows to test an elasticsearch analyzer');
+            ->addArgument('term', InputArgument::REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

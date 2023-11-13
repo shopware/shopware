@@ -10,8 +10,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition">
-            <tag name="shopware.entity.definition" entity="user_role_acl"/>
-            <tag name="shopware.entity.acl"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Acl\AclWriteValidator">

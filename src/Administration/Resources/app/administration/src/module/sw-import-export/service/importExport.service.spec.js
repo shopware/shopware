@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 import createHTTPClient from 'src/core/factory/http.factory';
@@ -17,12 +17,12 @@ const importExportServiceFactory = () => {
     const loginService = {
         getToken() {
             return 'token';
-        }
+        },
     };
 
     return {
         importExportService: new ImportExportService(client, loginService),
-        clientMock: clientMock
+        clientMock: clientMock,
     };
 };
 
@@ -42,8 +42,8 @@ describe('core/service/login.service.js', () => {
         clientMock.onPost('/_action/import-export/prepare')
             .reply(200, {
                 log: {
-                    id: 'createdLogId'
-                }
+                    id: 'createdLogId',
+                },
             });
 
         clientMock.onPost('/_action/import-export/process').reply(() => {
@@ -64,8 +64,8 @@ describe('core/service/login.service.js', () => {
         clientMock.onPost('/_action/import-export/prepare')
             .reply(200, {
                 log: {
-                    id: 'createdLogId'
-                }
+                    id: 'createdLogId',
+                },
             });
 
         clientMock.onPost('/_action/import-export/process').reply(() => {

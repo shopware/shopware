@@ -2,25 +2,22 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 class VariantListingUpdater
 {
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -129,35 +126,34 @@ class VariantListingUpdater
         $query = $this->connection->createQueryBuilder();
         $query->select([
             'product.id as id',
-            'product.configurator_group_config as config',
-            'product.main_variant_id',
-            'product.display_parent',
+            'product.variant_listing_config as config',
             '(SELECT COUNT(id) FROM product as child WHERE product.id = child.parent_id) as child_count',
         ]);
         $query->from('product');
         $query->andWhere('product.version_id = :version');
         $query->andWhere('product.id IN (:ids)');
-        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), Connection::PARAM_STR_ARRAY);
+        $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
         $query->setParameter('version', $versionBytes);
 
         $configuration = $query->executeQuery()->fetchAllAssociative();
 
         $listingConfiguration = [];
         foreach ($configuration as $config) {
-            $config['config'] = $config['config'] === null ? [] : json_decode($config['config'], true);
+            $config['config'] = $config['config'] === null ? [] : json_decode((string) $config['config'], true, 512, \JSON_THROW_ON_ERROR);
 
             $groups = [];
-            foreach ($config['config'] as $group) {
-                if ($group['expressionForListings']) {
+            $configuratorGroupConfig = $config['config']['configuratorGroupConfig'] ?? [];
+            foreach ($configuratorGroupConfig as $group) {
+                if (\array_key_exists('expressionForListings', $group) && $group['expressionForListings']) {
                     $groups[] = $group['id'];
                 }
             }
 
             $listingConfiguration[$config['id']] = [
                 'groups' => $groups,
-                'child_count' => $config['child_count'],
-                'main_variant' => $config['main_variant_id'],
-                'display_parent' => $config['display_parent'],
+                'child_count' => $config['child_count'] ?? null,
+                'main_variant' => $config['config']['mainVariantId'] ?? null,
+                'display_parent' => $config['config']['displayParent'] ?? null,
             ];
         }
 

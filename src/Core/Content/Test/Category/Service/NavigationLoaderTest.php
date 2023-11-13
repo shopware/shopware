@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Test\Category\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -19,9 +18,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use function array_map;
-use function array_values;
 
 /**
  * @internal
@@ -36,7 +34,7 @@ class NavigationLoaderTest extends TestCase
 
     private IdsCollection $ids;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('category.repository');
 
@@ -54,6 +52,7 @@ class NavigationLoaderTest extends TestCase
 
         $categories = $this->createSimpleTree();
 
+        /** @var Tree $tree */
         $tree = ReflectionHelper::getMethod(NavigationLoader::class, 'getTree')->invoke($loader, '1', new CategoryCollection($categories), \array_shift($categories));
 
         $treeItems = $tree->getTree();
@@ -267,9 +266,7 @@ class NavigationLoaderTest extends TestCase
         $tree = $this->navigationLoader->load($this->ids->get('rootId'), $context, $this->ids->get('rootId'));
 
         static::assertInstanceOf(Tree::class, $tree->getChildren($this->ids->get('category3')));
-        $elements = array_values(array_map(static function (TreeItem $item) {
-            return $item->getCategory()->getName();
-        }, $tree->getChildren($this->ids->get('category3'))->getTree()));
+        $elements = \array_values(\array_map(static fn (TreeItem $item) => $item->getCategory()->getName(), $tree->getChildren($this->ids->get('category3'))->getTree()));
 
         static::assertSame('Category 3.1', $elements[0]);
         static::assertSame('Category 3.3', $elements[1]);
@@ -366,7 +363,7 @@ class NavigationLoaderTest extends TestCase
         $ids = [];
         foreach ($items as $item) {
             $ids[] = $item->getId();
-            $ids = \array_merge($ids, $this->getIds($item->getChildren()));
+            $ids = [...$ids, ...$this->getIds($item->getChildren())];
         }
 
         return $ids;
@@ -378,8 +375,10 @@ class NavigationLoaderTest extends TestCase
  */
 class TestTreeAware extends CategoryEntity
 {
-    public function __construct(string $id, ?string $parentId)
-    {
+    public function __construct(
+        string $id,
+        ?string $parentId
+    ) {
         $this->id = $id;
         $this->parentId = $parentId;
     }

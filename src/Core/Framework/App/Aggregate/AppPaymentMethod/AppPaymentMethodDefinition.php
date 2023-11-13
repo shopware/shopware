@@ -14,15 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
- *
- * @package core
  */
+#[Package('core')]
 class AppPaymentMethodDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'app_payment_method';
+    final public const ENTITY_NAME = 'app_payment_method';
 
     public function getEntityName(): string
     {
@@ -55,6 +55,7 @@ class AppPaymentMethodDefinition extends EntityDefinition
             new StringField('validate_url', 'validateUrl'),
             new StringField('capture_url', 'captureUrl'),
             new StringField('refund_url', 'refundUrl'),
+            new StringField('recurring_url', 'recurringUrl'),
 
             new FkField('app_id', 'appId', AppDefinition::class),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),

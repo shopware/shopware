@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Test\Migration;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Migration\V6_4\Migration1636121186CopySalesChannelIdsIntoUserConfig;
@@ -24,8 +25,8 @@ use Shopware\Core\Test\TestDefaults;
  */
 class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use ImportTranslationsTrait;
+    use IntegrationTestBehaviour;
 
     private const MAX_RESULTS = 7;
 
@@ -33,7 +34,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
 
     private array $languages;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->connection = $this->getContainer()
             ->get(Connection::class);
@@ -57,7 +58,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
         foreach ($configs as $locale => $config) {
             $language = $this->languages[$locale];
 
-            $actual = json_decode($config);
+            $actual = json_decode((string) $config, null, 512, \JSON_THROW_ON_ERROR);
             $expected = \array_slice($expectedIds[$language], 0, self::MAX_RESULTS);
 
             static::assertSame($expected, $actual);
@@ -76,7 +77,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             $language = $this->languages[$locale];
 
             $names = $this->fetchSalesChannelNames(
-                Uuid::fromHexToBytesList(json_decode($config)),
+                Uuid::fromHexToBytesList(json_decode((string) $config, null, 512, \JSON_THROW_ON_ERROR)),
                 Uuid::fromHexToBytes($language)
             );
 
@@ -116,10 +117,10 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->from(SalesChannelTranslationDefinition::ENTITY_NAME)
             ->where('sales_channel_id IN (:salesChannelIds)')
             ->andWhere('language_id = :languageId')
-            ->setParameter('salesChannelIds', $salesChannelIds, Connection::PARAM_STR_ARRAY)
+            ->setParameter('salesChannelIds', $salesChannelIds, ArrayParameterType::BINARY)
             ->setParameter('languageId', $languageId)
             ->addOrderBy('name', 'ASC')
-            ->execute()
+            ->executeQuery()
             ->fetchFirstColumn();
     }
 
@@ -140,7 +141,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
     {
         return [
             'username' => $username,
-            'password' => 'shopware',
+            'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'admin',
             'lastName' => 'user',
             'email' => $username . '@test.com',
@@ -164,7 +165,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             )
             ->where('locale.code = "de-DE"')
             ->orWhere('locale.code = "en-GB"')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($all);
@@ -183,7 +184,7 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
                 'user.id = config.user_id'
             )
             ->where('config.key = "sales-channel-favorites"')
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
 
         return FetchModeHelper::keyPair($all);
@@ -197,8 +198,8 @@ class Migration1636121186CopySalesChannelIdsIntoUserConfigTest extends TestCase
             ->from(SalesChannelTranslationDefinition::ENTITY_NAME)
             ->where('language_id IN (:languages)')
             ->orderBy('name', 'ASC')
-            ->setParameter('languages', Uuid::fromHexToBytesList($languages), Connection::PARAM_STR_ARRAY)
-            ->execute()
+            ->setParameter('languages', Uuid::fromHexToBytesList($languages), ArrayParameterType::BINARY)
+            ->executeQuery()
             ->fetchAllAssociative();
 
         $salesChannels = [];

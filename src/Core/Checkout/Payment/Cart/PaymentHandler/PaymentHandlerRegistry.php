@@ -5,20 +5,17 @@ namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Handler\AppSyncPaymentHandler;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class PaymentHandlerRegistry
 {
     /**
      * @var array<string, PaymentHandlerInterface>
      */
     private array $handlers = [];
-
-    private Connection $connection;
 
     /**
      * @internal
@@ -27,16 +24,16 @@ class PaymentHandlerRegistry
      * @param ServiceProviderInterface<PaymentHandlerInterface> $asyncHandlers
      * @param ServiceProviderInterface<PaymentHandlerInterface> $preparedHandlers
      * @param ServiceProviderInterface<PaymentHandlerInterface> $refundHandlers
+     * @param ServiceProviderInterface<PaymentHandlerInterface> $recurringHandlers
      */
     public function __construct(
         ServiceProviderInterface $syncHandlers,
         ServiceProviderInterface $asyncHandlers,
         ServiceProviderInterface $preparedHandlers,
         ServiceProviderInterface $refundHandlers,
-        Connection $connection
+        ServiceProviderInterface $recurringHandlers,
+        private readonly Connection $connection
     ) {
-        $this->connection = $connection;
-
         foreach (\array_keys($syncHandlers->getProvidedServices()) as $serviceId) {
             $handler = $syncHandlers->get($serviceId);
             $this->handlers[(string) $serviceId] = $handler;
@@ -56,13 +53,18 @@ class PaymentHandlerRegistry
             $handler = $refundHandlers->get($serviceId);
             $this->handlers[(string) $serviceId] = $handler;
         }
+
+        foreach (\array_keys($recurringHandlers->getProvidedServices()) as $serviceId) {
+            $handler = $recurringHandlers->get($serviceId);
+            $this->handlers[(string) $serviceId] = $handler;
+        }
     }
 
     public function getPaymentMethodHandler(
         string $paymentMethodId,
         ?string $expectedHandlerType = null
     ): ?PaymentHandlerInterface {
-        $statement = $this->connection->createQueryBuilder()
+        $result = $this->connection->createQueryBuilder()
             ->select('
                 payment_method.handler_identifier,
                 app_payment_method.id as app_payment_method_id,
@@ -70,7 +72,8 @@ class PaymentHandlerRegistry
                 app_payment_method.finalize_url,
                 app_payment_method.capture_url,
                 app_payment_method.validate_url,
-                app_payment_method.refund_url
+                app_payment_method.refund_url,
+                app_payment_method.recurring_url
             ')
             ->from('payment_method')
             ->leftJoin(
@@ -81,9 +84,8 @@ class PaymentHandlerRegistry
             )
             ->andWhere('payment_method.id = :paymentMethodId')
             ->setParameter('paymentMethodId', Uuid::fromHexToBytes($paymentMethodId))
-            ->execute();
-
-        $result = $statement->fetchAssociative();
+            ->executeQuery()
+            ->fetchAssociative();
 
         if (!$result || !\array_key_exists('handler_identifier', $result)) {
             return null;
@@ -154,8 +156,19 @@ class PaymentHandlerRegistry
         return $handler;
     }
 
+    public function getRecurringPaymentHandler(string $paymentMethodId): ?RecurringPaymentHandlerInterface
+    {
+        $handler = $this->getPaymentMethodHandler($paymentMethodId, RecurringPaymentHandlerInterface::class);
+
+        if (!$handler instanceof RecurringPaymentHandlerInterface) {
+            return null;
+        }
+
+        return $handler;
+    }
+
     /**
-     * @param array<string,mixed> $appPaymentMethod
+     * @param array<string, mixed> $appPaymentMethod
      */
     private function resolveAppPaymentMethodHandler(
         array $appPaymentMethod,
@@ -171,6 +184,12 @@ class PaymentHandlerRegistry
 
             if (\is_a(RefundPaymentHandlerInterface::class, $expectedHandlerType, true)) {
                 if (empty($appPaymentMethod['refund_url'])) {
+                    return null;
+                }
+            }
+
+            if (\is_a(RecurringPaymentHandlerInterface::class, $expectedHandlerType, true)) {
+                if (empty($appPaymentMethod['recurring_url'])) {
                     return null;
                 }
             }

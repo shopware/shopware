@@ -4,24 +4,19 @@ namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
-    private KernelInterface $kernel;
-
-    private Connection $connection;
-
     /**
      * @internal
      */
-    public function __construct(KernelInterface $kernel, Connection $connection)
-    {
-        $this->kernel = $kernel;
-        $this->connection = $connection;
+    public function __construct(
+        private readonly KernelInterface $kernel,
+        private readonly Connection $connection
+    ) {
     }
 
     public function buildNamespaceHierarchy(array $namespaceHierarchy): array
@@ -47,7 +42,7 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
         $bundles = array_reverse($bundles);
         $apps = $this->getAppTemplateNamespaces();
 
-        /** @var array $combinedApps */
+        /** @var array<int, array<string, mixed>> $combinedApps */
         $combinedApps = array_combine(array_keys($apps), array_column($apps, 'template_load_priority'));
 
         $extensions = array_merge($combinedApps, $bundles);
@@ -63,6 +58,9 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
         );
     }
 
+    /**
+     * @return array<mixed, array<string, mixed>>
+     */
     private function getAppTemplateNamespaces(): array
     {
         return $this->connection->fetchAllAssociativeIndexed(

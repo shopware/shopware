@@ -7,7 +7,7 @@ import 'src/app/component/base/sw-label';
 Shopware.Component.register('sw-extension-adding-success', swExtensionAddingSuccess);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-adding-success', () => {
     let wrapper;
@@ -20,8 +20,8 @@ describe('src/module/sw-extension/component/sw-extension-adding-success', () => 
                 'sw-button': await Shopware.Component.build('sw-button'),
                 'sw-circle-icon': await Shopware.Component.build('sw-circle-icon'),
                 'sw-label': await Shopware.Component.build('sw-label'),
-                'sw-icon': true
-            }
+                'sw-icon': true,
+            },
         });
     }
 

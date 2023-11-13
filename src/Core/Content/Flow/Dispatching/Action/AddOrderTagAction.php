@@ -7,22 +7,19 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class AddOrderTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $orderRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $orderRepository)
+    public function __construct(private readonly EntityRepository $orderRepository)
     {
-        $this->orderRepository = $orderRepository;
     }
 
     public static function getName(): string
@@ -40,11 +37,11 @@ class AddOrderTagAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**
@@ -58,9 +55,7 @@ class AddOrderTagAction extends FlowAction implements DelayableAction
 
         $tagIds = array_keys($config['tagIds']);
 
-        $tags = array_map(static function ($tagId) {
-            return ['id' => $tagId];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => ['id' => $tagId], $tagIds);
 
         $this->orderRepository->update([
             [

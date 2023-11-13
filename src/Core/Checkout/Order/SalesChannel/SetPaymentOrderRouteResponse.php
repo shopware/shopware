@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class SetPaymentOrderRouteResponse extends SuccessResponse
 {
 }

@@ -43,7 +43,7 @@
                                 {# @deprecated tag:v6.6.0 - Block page_checkout_confirm_revocation_notice_link is deprecated. Use outer block page_checkout_confirm_revocation_notice instead. #}
                                 {% block page_checkout_confirm_revocation_notice_link %}
                                     {{ "checkout.confirmRevocationNotice"|trans({
-                                        '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.revocationPage') })
+                                        '%url%': path('frontend.cms.page', { id: config('core.basicInformation.revocationPage') })
                                     })|raw }}
                                 {% endblock %}
                             </p>
@@ -57,14 +57,14 @@
                                            required="required"
                                            id="tos"
                                            form="confirmOrderForm"
-                                           name="tos"/>
+                                           name="tos">
                                 {% endblock %}
 
                                 {% block page_checkout_confirm_tos_control_label %}
                                     <label for="tos"
                                            class="checkout-confirm-tos-label custom-control-label">
                                         {{ "checkout.confirmTermsText"|trans({
-                                            '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
+                                            '%url%': path('frontend.cms.page', { id: config('core.basicInformation.tosPage') })
                                         })|raw }}
                                     </label>
                                 {% endblock %}
@@ -73,14 +73,14 @@
 
                         {% block page_checkout_confirm_revocation_control %}
                             {% if page.showRevocation() %}
-                                <div class="{{ formCheckboxWrapperClass }}">
+                                <div class="form-check">
                                     {% block page_checkout_confirm_revocation_control_checkbox %}
                                         <input type="checkbox"
                                                class="checkout-confirm-revocation-checkbox form-check-input{% if formViolations.getViolations('/revocation') is not empty %} is-invalid{% endif %}"
                                                required="required"
                                                id="revocation"
                                                form="confirmOrderForm"
-                                               name="revocation"/>
+                                               name="revocation">
                                     {% endblock %}
 
                                     {% block page_checkout_confirm_revocation_control_label %}
@@ -204,10 +204,12 @@
     }]
 } %}
 
+{% set confirmOrderFormAction = path('frontend.checkout.finish.order') %}
+
 {% block page_checkout_aside_actions %}
     <div class="checkout-aside-action">
         <form id="confirmOrderForm"
-              action="{{ path('frontend.checkout.finish.order') }}"
+              action="{{ confirmOrderFormAction }}"
               data-form-preserver="true"
               data-form-submit-loader="true"
               data-form-add-history="true"
@@ -218,7 +220,7 @@
                     <button id="confirmFormSubmit"
                             class="btn btn-primary btn-lg"
                             form="confirmOrderForm"
-                        {% if page.cart.errors.blockOrder %}
+                        {% if page.cart.errors.blockResubmit %}
                             disabled
                         {% endif %}
                             type="submit">

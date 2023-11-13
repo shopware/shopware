@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -71,7 +71,7 @@ $listings = $connection->fetchFirstColumn(
     [
         'ids' => Uuid::fromHexToBytesList($ids),
     ],
-    ['ids' => Connection::PARAM_STR_ARRAY]
+    ['ids' => ArrayParameterType::BINARY]
 );
 
 $storeApiCategories = $connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM category WHERE level <= 5 ' . $limit);
@@ -96,9 +96,7 @@ GROUP BY product.id
 $keywords = array_map(static function (string $term) {
     $terms = explode(' ', $term);
 
-    return array_filter($terms, static function (string $split) {
-        return mb_strlen($split) >= 4;
-    });
+    return array_filter($terms, static fn (string $split) => mb_strlen($split) >= 4);
 }, $connection->fetchFirstColumn('SELECT name FROM product_translation WHERE name IS NOT NULL ' . $limit));
 
 $keywords = array_values(array_unique(array_merge(...$keywords)));

@@ -9,24 +9,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class UserValidationService
 {
     /**
-     * @var EntityRepository
-     */
-    private $userRepo;
-
-    /**
      * @internal
      */
-    public function __construct(
-        EntityRepository $userRepo
-    ) {
-        $this->userRepo = $userRepo;
+    public function __construct(private readonly EntityRepository $userRepo)
+    {
     }
 
     /**

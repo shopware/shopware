@@ -20,7 +20,7 @@ class ExpectationSubscriberTest extends TestCase
 {
     private ExpectationSubscriber $expectationSubscriber;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->expectationSubscriber = new ExpectationSubscriber('6.3.0.0', []);
         InstalledVersions::reload([
@@ -50,9 +50,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         static::expectException(ExpectationFailedException::class);
@@ -70,9 +70,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         $this->expectationSubscriber->checkExpectations($event);
@@ -85,9 +85,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         static::expectException(ExpectationFailedException::class);
@@ -107,9 +107,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         $this->expectationSubscriber->checkExpectations($event);
@@ -124,9 +124,9 @@ class ExpectationSubscriberTest extends TestCase
 
         $event = new ControllerEvent(
             $this->createMock(Kernel::class),
-            [$this, 'setUp'],
+            $this->setUp(...),
             $request,
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
 
         static::expectException(ExpectationFailedException::class);

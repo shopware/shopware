@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
@@ -20,27 +21,19 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
+ * @final
  */
-final class TaskScheduler
+#[Package('core')]
+class TaskScheduler
 {
-    private EntityRepository $scheduledTaskRepository;
-
-    private MessageBusInterface $bus;
-
-    private ParameterBagInterface $parameterBag;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $scheduledTaskRepository,
-        MessageBusInterface $bus,
-        ParameterBagInterface $parameterBag
+        private readonly EntityRepository $scheduledTaskRepository,
+        private readonly MessageBusInterface $bus,
+        private readonly ParameterBagInterface $parameterBag
     ) {
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
-        $this->bus = $bus;
-        $this->parameterBag = $parameterBag;
     }
 
     public function queueScheduledTasks(): void
@@ -172,8 +165,9 @@ final class TaskScheduler
     {
         $criteria = new Criteria();
         $criteria->addFilter(
-            new NotFilter(NotFilter::CONNECTION_AND, [
+            new NotFilter(NotFilter::CONNECTION_OR, [
                 new EqualsFilter('status', ScheduledTaskDefinition::STATUS_INACTIVE),
+                new EqualsFilter('status', ScheduledTaskDefinition::STATUS_SKIPPED),
             ])
         )
         ->addAggregation(new MinAggregation('runInterval', 'runInterval'));

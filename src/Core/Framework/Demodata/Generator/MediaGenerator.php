@@ -17,31 +17,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class MediaGenerator implements DemodataGeneratorInterface
 {
-    private array $tmpImages = [];
-
     private Generator $faker;
 
     /**
      * @internal
      */
     public function __construct(
-        private EntityWriterInterface $writer,
-        private FileSaver $mediaUpdater,
-        private FileNameProvider $fileNameProvider,
-        private EntityRepository $defaultFolderRepository,
-        private EntityRepository $folderRepository,
-        private MediaDefinition $mediaDefinition,
-        private Connection $connection
+        private readonly EntityWriterInterface $writer,
+        private readonly FileSaver $mediaUpdater,
+        private readonly FileNameProvider $fileNameProvider,
+        private readonly EntityRepository $defaultFolderRepository,
+        private readonly EntityRepository $folderRepository,
+        private readonly MediaDefinition $mediaDefinition,
+        private readonly Connection $connection
     ) {
     }
 
@@ -83,9 +81,9 @@ class MediaGenerator implements DemodataGeneratorInterface
             $this->mediaUpdater->persistFileToMedia(
                 new MediaFile(
                     $file,
-                    mime_content_type($file),
+                    (string) mime_content_type($file),
                     pathinfo($file, \PATHINFO_EXTENSION),
-                    filesize($file)
+                    (int) filesize($file)
                 ),
                 $this->fileNameProvider->provide(
                     pathinfo($file, \PATHINFO_FILENAME),
@@ -103,31 +101,38 @@ class MediaGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressFinish();
     }
 
+    /**
+     * @param list<string> $tags
+     *
+     * @return list<array{id: string}>
+     */
     private function getTags(array $tags): array
     {
         $tagAssignments = [];
 
         if (!empty($tags)) {
-            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit(), false);
+            $chosenTags = $this->faker->randomElements($tags, $this->faker->randomDigit());
 
             if (!empty($chosenTags)) {
-                $tagAssignments = array_map(
-                    function ($id) {
-                        return ['id' => $id];
-                    },
+                $tagAssignments = array_values(array_map(
+                    fn (string $id) => ['id' => $id],
                     $chosenTags
-                );
+                ));
             }
         }
 
         return $tagAssignments;
     }
 
+    /**
+     * @return list<string>
+     */
     private function getIds(string $table): array
     {
-        $ids = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
+        /** @var list<string> $ids */
+        $ids = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) as id FROM ' . $table . ' LIMIT 500');
 
-        return array_column($ids, 'id');
+        return $ids;
     }
 
     private function getRandomFile(DemodataContext $context): string
@@ -154,9 +159,9 @@ class MediaGenerator implements DemodataGeneratorInterface
         /** @var string $text */
         $text = $context->getFaker()->words(1, true);
 
-        $provider = ImagesGeneratorProvider::class;
+        $provider = new ImagesGeneratorProvider(new Generator());
 
-        return $this->tmpImages[] = $provider::imageGenerator(
+        return $provider->imageGenerator(
             null,
             $context->getFaker()->numberBetween(600, 800),
             $context->getFaker()->numberBetween(400, 600),

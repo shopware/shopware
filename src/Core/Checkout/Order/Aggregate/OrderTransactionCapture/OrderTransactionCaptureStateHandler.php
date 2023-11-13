@@ -4,35 +4,27 @@ namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class OrderTransactionCaptureStateHandler
 {
-    private StateMachineRegistry $stateMachineRegistry;
-
     /**
      * @internal
      */
-    public function __construct(StateMachineRegistry $stateMachineRegistry)
+    public function __construct(private readonly StateMachineRegistry $stateMachineRegistry)
     {
-        $this->stateMachineRegistry = $stateMachineRegistry;
     }
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function complete(string $transactionCaptureId, Context $context): void
     {
@@ -49,10 +41,8 @@ class OrderTransactionCaptureStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function fail(string $transactionCaptureId, Context $context): void
     {
@@ -69,10 +59,8 @@ class OrderTransactionCaptureStateHandler
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      * @throws IllegalTransitionException
-     * @throws StateMachineInvalidEntityIdException
-     * @throws StateMachineInvalidStateFieldException
      */
     public function reopen(string $transactionCaptureId, Context $context): void
     {

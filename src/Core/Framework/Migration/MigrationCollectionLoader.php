@@ -5,18 +5,17 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MigrationCollectionLoader
 {
     /**
      * Execute all migrations
      */
-    public const VERSION_SELECTION_ALL = 'all';
+    final public const VERSION_SELECTION_ALL = 'all';
 
     /**
      * Blue-green safe:
@@ -26,12 +25,12 @@ class MigrationCollectionLoader
      * - rollback possible from 6.(a+1).1 to 6.(a+1).0 possible
      * - but rollback to 6.a.* not possible anymore!
      */
-    public const VERSION_SELECTION_BLUE_GREEN = 'blue-green';
+    final public const VERSION_SELECTION_BLUE_GREEN = 'blue-green';
 
     /**
      * Executing the migrations of the penultimate major. This should always be safe
      */
-    public const VERSION_SELECTION_SAFE = 'safe';
+    final public const VERSION_SELECTION_SAFE = 'safe';
 
     private const VALID_VERSION_SELECTION_SAFE_VALUES = [
         self::VERSION_SELECTION_ALL,
@@ -39,31 +38,25 @@ class MigrationCollectionLoader
         self::VERSION_SELECTION_SAFE,
     ];
 
-    private Connection $connection;
-
     /**
      * @var array<string, MigrationSource>
      */
     private array $migrationSources = [];
-
-    private MigrationRuntime $migrationRuntime;
-
-    private ?LoggerInterface $logger;
 
     /**
      * @internal
      *
      * @param iterable<MigrationSource> $migrationSources
      */
-    public function __construct(Connection $connection, MigrationRuntime $migrationRuntime, iterable $migrationSources = [], ?LoggerInterface $logger = null)
-    {
-        $this->connection = $connection;
-        $this->migrationRuntime = $migrationRuntime;
-
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly MigrationRuntime $migrationRuntime,
+        iterable $migrationSources = [],
+        private readonly ?LoggerInterface $logger = null
+    ) {
         foreach ($migrationSources as $migrationSource) {
             $this->addSource($migrationSource);
         }
-        $this->logger = $logger;
     }
 
     public function addSource(MigrationSource $migrationSource): void

@@ -5,6 +5,7 @@ namespace Shopware\Core\Maintenance\SalesChannel\Command;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
@@ -16,23 +17,18 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'sales-channel:create',
     description: 'Creates a new sales channel',
 )]
+#[Package('core')]
 class SalesChannelCreateCommand extends Command
 {
-    private SalesChannelCreator $salesChannelCreator;
-
     public function __construct(
-        SalesChannelCreator $salesChannelCreator
+        private readonly SalesChannelCreator $salesChannelCreator
     ) {
-        $this->salesChannelCreator = $salesChannelCreator;
-
         parent::__construct();
     }
 

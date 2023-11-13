@@ -6,6 +6,7 @@ use Composer\Autoload\ClassLoader;
 use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -15,12 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpKernel\KernelInterface;
-use function is_dir;
-use function is_file;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TestBootstrapper
 {
     private ?ClassLoader $classLoader = null;
@@ -124,21 +121,21 @@ class TestBootstrapper
             return $this->projectDir;
         }
 
-        if (isset($_SERVER['PROJECT_ROOT']) && is_dir($_SERVER['PROJECT_ROOT'])) {
+        if (isset($_SERVER['PROJECT_ROOT']) && \is_dir($_SERVER['PROJECT_ROOT'])) {
             return $this->projectDir = $_SERVER['PROJECT_ROOT'];
         }
 
-        if (isset($_ENV['PROJECT_ROOT']) && is_dir($_ENV['PROJECT_ROOT'])) {
+        if (isset($_ENV['PROJECT_ROOT']) && \is_dir($_ENV['PROJECT_ROOT'])) {
             return $this->projectDir = $_ENV['PROJECT_ROOT'];
         }
 
         // only test cwd if it's not platform embedded (custom/plugins)
-        if (!$this->platformEmbedded && is_dir('vendor')) {
+        if (!$this->platformEmbedded && \is_dir('vendor')) {
             return $this->projectDir = (string) getcwd();
         }
 
         $dir = $rootDir = __DIR__;
-        while (!is_dir($dir . '/vendor')) {
+        while (!\is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }
@@ -157,7 +154,7 @@ class TestBootstrapper
         $dbUrlParts = parse_url($_SERVER['DATABASE_URL'] ?? '') ?: [];
 
         $testToken = getenv('TEST_TOKEN');
-        $dbUrlParts['path'] = $dbUrlParts['path'] ?? 'root';
+        $dbUrlParts['path'] ??= 'root';
 
         // allows using the same database during development, by setting TEST_TOKEN=none
         if ($testToken !== 'none' && !str_ends_with($dbUrlParts['path'], 'test')) {
@@ -218,7 +215,7 @@ class TestBootstrapper
 
             $dir = \dirname($callerFile);
             $max = 10;
-            while ($max-- > 0 && !is_file($dir . '/composer.json')) {
+            while ($max-- > 0 && !\is_file($dir . '/composer.json')) {
                 $dir = \dirname($dir);
             }
 
@@ -229,17 +226,17 @@ class TestBootstrapper
             $pathToComposerJson = $dir . '/composer.json';
         }
 
-        if (!is_file($pathToComposerJson)) {
+        if (!\is_file($pathToComposerJson)) {
             throw new \RuntimeException('Could not auto detect plugin name via composer.json. Path: ' . $pathToComposerJson);
         }
 
-        $composer = json_decode((string) file_get_contents($pathToComposerJson), true);
+        $composer = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);
         $baseClass = $composer['extra']['shopware-plugin-class'] ?? '';
         if ($baseClass === '') {
             throw new \RuntimeException('composer.json does not contain `extra.shopware-plugin-class`. Path: ' . $pathToComposerJson);
         }
 
-        $parts = explode('\\', $baseClass);
+        $parts = explode('\\', (string) $baseClass);
         $pluginName = end($parts);
 
         $this->addActivePlugins($pluginName);
@@ -324,7 +321,7 @@ class TestBootstrapper
             $connection->executeQuery('SELECT 1 FROM `plugin`')->fetchAllAssociative();
 
             return true;
-        } catch (\Throwable $exists) {
+        } catch (\Throwable) {
             return false;
         }
     }
@@ -336,7 +333,7 @@ class TestBootstrapper
         }
 
         $envFilePath = $this->getProjectDir() . '/.env';
-        if (is_file($envFilePath) || is_file($envFilePath . '.dist') || is_file($envFilePath . '.local.php')) {
+        if (\is_file($envFilePath) || \is_file($envFilePath . '.dist') || \is_file($envFilePath . '.local.php')) {
             (new Dotenv())->usePutenv()->bootEnv($envFilePath);
         }
     }

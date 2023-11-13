@@ -2,31 +2,16 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class Deprecated extends Flag
 {
-    /**
-     * @var string
-     */
-    private $deprecatedSince;
-
-    /**
-     * @var string
-     */
-    private $willBeRemovedIn;
-
-    /**
-     * @var string|null
-     */
-    private $replacedBy;
-
-    public function __construct(string $deprecatedSince, string $willBeRemovedIn, ?string $replacedBy = null)
-    {
-        $this->deprecatedSince = $deprecatedSince;
-        $this->willBeRemovedIn = $willBeRemovedIn;
-        $this->replacedBy = $replacedBy;
+    public function __construct(
+        private readonly string $deprecatedSince,
+        private readonly string $willBeRemovedIn,
+        private readonly ?string $replacedBy = null
+    ) {
     }
 
     public function parse(): \Generator

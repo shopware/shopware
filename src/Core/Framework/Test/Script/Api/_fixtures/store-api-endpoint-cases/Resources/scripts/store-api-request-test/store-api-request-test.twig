@@ -1,0 +1,12 @@
+{% block response %}
+    {% if services.request.method != "POST" %}
+        {% set response = services.response.json({
+            'error': 'Only POST requests are allowed',
+        }, 405) %}
+        {% do hook.setResponse(response) %}
+        {% return %}
+    {% endif %}
+
+    {% set response = services.response.json(services.request.request) %}
+    {% do hook.setResponse(response) %}
+{% endblock %}

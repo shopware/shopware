@@ -10,9 +10,9 @@ use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
@@ -22,33 +22,13 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class CachedNavigationRoute extends AbstractNavigationRoute
 {
-    public const ALL_TAG = 'navigation';
+    final public const ALL_TAG = 'navigation';
 
-    public const BASE_NAVIGATION_TAG = 'base-navigation';
-
-    private AbstractNavigationRoute $decorated;
-
-    private CacheInterface $cache;
-
-    private EntityCacheKeyGenerator $generator;
-
-    /**
-     * @var AbstractCacheTracer<NavigationRouteResponse>
-     */
-    private AbstractCacheTracer $tracer;
-
-    /**
-     * @var array<string>
-     */
-    private array $states;
-
-    private EventDispatcherInterface $dispatcher;
+    final public const BASE_NAVIGATION_TAG = 'base-navigation';
 
     /**
      * @internal
@@ -57,19 +37,13 @@ class CachedNavigationRoute extends AbstractNavigationRoute
      * @param array<string> $states
      */
     public function __construct(
-        AbstractNavigationRoute $decorated,
-        CacheInterface $cache,
-        EntityCacheKeyGenerator $generator,
-        AbstractCacheTracer $tracer,
-        EventDispatcherInterface $dispatcher,
-        array $states
+        private readonly AbstractNavigationRoute $decorated,
+        private readonly CacheInterface $cache,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly AbstractCacheTracer $tracer,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $states
     ) {
-        $this->decorated = $decorated;
-        $this->cache = $cache;
-        $this->generator = $generator;
-        $this->tracer = $tracer;
-        $this->states = $states;
-        $this->dispatcher = $dispatcher;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -77,10 +51,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
         return $this->decorated;
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"}, defaults={"_entity"="category"})
-     */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(string $activeId, string $rootId, Request $request, SalesChannelContext $context, Criteria $criteria): NavigationRouteResponse
     {
         return Profiler::trace('navigation-route', function () use ($activeId, $rootId, $request, $context, $criteria) {
@@ -128,9 +99,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
 
             $name = self::buildName($active);
 
-            $response = $this->tracer->trace($name, function () use ($active, $rootId, $request, $context, $criteria) {
-                return $this->getDecorated()->load($active, $rootId, $request, $context, $criteria);
-            });
+            $response = $this->tracer->trace($name, fn () => $this->getDecorated()->load($active, $rootId, $request, $context, $criteria));
 
             $item->tag($this->generateTags($tags, $active, $rootId, $depth, $request, $response, $context, $criteria));
 
@@ -180,7 +149,7 @@ class CachedNavigationRoute extends AbstractNavigationRoute
             return null;
         }
 
-        return self::buildName($active) . '-' . md5(JsonFieldSerializer::encodeJson($event->getParts()));
+        return self::buildName($active) . '-' . md5(Json::encode($event->getParts()));
     }
 
     /**

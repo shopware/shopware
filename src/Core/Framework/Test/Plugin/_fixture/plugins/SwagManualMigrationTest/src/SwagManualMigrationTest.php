@@ -32,11 +32,11 @@ class SwagManualMigrationTest extends Plugin
 
     public function deactivate(DeactivateContext $deactivateContext): void
     {
-        //nth
+        // nth
     }
 
     public function uninstall(UninstallContext $uninstallContext): void
     {
-        //nth
+        // nth
     }
 }

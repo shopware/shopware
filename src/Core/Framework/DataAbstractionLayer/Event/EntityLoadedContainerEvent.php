@@ -5,20 +5,15 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class EntityLoadedContainerEvent extends NestedEvent
 {
-    private Context $context;
-
-    private array $events;
-
-    public function __construct(Context $context, array $events)
-    {
-        $this->context = $context;
-        $this->events = $events;
+    public function __construct(
+        private readonly Context $context,
+        private readonly array $events
+    ) {
     }
 
     public function getContext(): Context

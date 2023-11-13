@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCustomFieldDetail from 'src/module/sw-settings-custom-field/component/sw-custom-field-detail';
@@ -16,7 +16,7 @@ function getFieldTypes() {
         select: {
             configRenderComponent: 'sw-custom-field-type-select',
             config: {
-                componentName: 'sw-single-select'
+                componentName: 'sw-single-select',
             },
         },
         checkbox: {
@@ -40,8 +40,8 @@ async function createWrapper(privileges = []) {
         localVue,
         mocks: {
             $i18n: {
-                fallbackLocale: 'en-GB'
-            }
+                fallbackLocale: 'en-GB',
+            },
         },
         provide: {
             acl: {
@@ -51,17 +51,17 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             customFieldDataProviderService: {
-                getTypes: () => getFieldTypes()
+                getTypes: () => getFieldTypes(),
             },
             SwCustomFieldListIsCustomFieldNameUnique: () => Promise.resolve(null),
             validationService: {},
             shortcutService: {
                 stopEventListener: () => {},
                 startEventListener: () => {},
-            }
+            },
         },
         propsData: {
             currentCustomField: {
@@ -70,17 +70,19 @@ async function createWrapper(privileges = []) {
                 config: {
                     label: { 'en-GB': 'Special field 1' },
                     customFieldType: 'checkbox',
-                    customFieldPosition: 1
+                    customFieldPosition: 1,
                 },
-                _isNew: true
+                _isNew: true,
             },
-            set: {}
+            set: {},
         },
         stubs: {
             'sw-modal': await Shopware.Component.build('sw-modal'),
             'sw-container': true,
             'sw-custom-field-type-checkbox': true,
-            'sw-field': true,
+            'sw-switch-field': true,
+            'sw-number-field': true,
+            'sw-text-field': true,
             'sw-select-field': await Shopware.Component.build('sw-select-field'),
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
@@ -103,7 +105,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
     it('can edit fields', async () => {
         const wrapper = await createWrapper([
-            'custom_field.editor'
+            'custom_field.editor',
         ]);
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type select');
@@ -156,7 +158,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
 
         expect(wrapper.vm.currentCustomField.config).toEqual(expect.objectContaining({
             customFieldType: 'switch',
-            componentName: 'sw-field'
+            componentName: 'sw-field',
         }));
     });
 });

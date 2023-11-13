@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Adapter\Cache;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\PruneableInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -12,46 +13,25 @@ use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @package core
- *
  * @final
  */
+#[Package('core')]
 class CacheClearer
 {
-    private CacheClearerInterface $cacheClearer;
-
-    private string $cacheDir;
-
-    private Filesystem $filesystem;
-
-    /**
-     * @var CacheItemPoolInterface[]
-     */
-    private array $adapters;
-
-    private string $environment;
-
-    private MessageBusInterface $messageBus;
-
     /**
      * @internal
      *
      * @param CacheItemPoolInterface[] $adapters
      */
     public function __construct(
-        array $adapters,
-        CacheClearerInterface $cacheClearer,
-        Filesystem $filesystem,
-        string $cacheDir,
-        string $environment,
-        MessageBusInterface $messageBus
+        private readonly array $adapters,
+        private readonly CacheClearerInterface $cacheClearer,
+        private readonly Filesystem $filesystem,
+        private readonly string $cacheDir,
+        private readonly string $environment,
+        private readonly bool $clusterMode,
+        private readonly MessageBusInterface $messageBus
     ) {
-        $this->adapters = $adapters;
-        $this->cacheClearer = $cacheClearer;
-        $this->cacheDir = $cacheDir;
-        $this->filesystem = $filesystem;
-        $this->environment = $environment;
-        $this->messageBus = $messageBus;
     }
 
     public function clear(): void
@@ -65,6 +45,13 @@ class CacheClearer
         }
 
         $this->cacheClearer->clear($this->cacheDir);
+
+        if ($this->clusterMode) {
+            // In cluster mode we can't delete caches on the filesystem
+            // because this only runs on one node in the cluster
+            return;
+        }
+
         $this->filesystem->remove($this->cacheDir . '/twig');
         $this->cleanupUrlGeneratorCacheFiles();
 
@@ -73,6 +60,12 @@ class CacheClearer
 
     public function clearContainerCache(): void
     {
+        if ($this->clusterMode) {
+            // In cluster mode we can't delete caches on the filesystem
+            // because this only runs on one node in the cluster
+            return;
+        }
+
         $finder = (new Finder())->in($this->cacheDir)->name('*Container*')->depth(0);
         $containerCaches = [];
 
@@ -113,6 +106,11 @@ class CacheClearer
         if (EnvironmentHelper::getVariable('TEST_TOKEN')) {
             return;
         }
+        if ($this->clusterMode) {
+            // In cluster mode we can't delete caches on the filesystem
+            // because this only runs on one node in the cluster
+            return;
+        }
 
         $finder = (new Finder())
             ->directories()
@@ -149,9 +147,7 @@ class CacheClearer
         $files = iterator_to_array($finder->getIterator());
 
         if (\count($files) > 0) {
-            $this->filesystem->remove(array_map(static function (\SplFileInfo $file): string {
-                return $file->getPathname();
-            }, $files));
+            $this->filesystem->remove(array_map(static fn (\SplFileInfo $file): string => $file->getPathname(), $files));
         }
     }
 }

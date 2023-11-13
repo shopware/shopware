@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class RatingMatrix extends Struct
 {
     private const MAX_POINTS = 5;

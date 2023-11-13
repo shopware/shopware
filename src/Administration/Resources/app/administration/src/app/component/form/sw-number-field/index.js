@@ -20,6 +20,8 @@ Component.extend('sw-number-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -121,6 +123,11 @@ Component.extend('sw-number-field', 'sw-text-field', {
                 return '';
             }
 
+            // remove scientific notation
+            if (this.value !== null && /\d+\.?\d*e[+-]*\d+/i.test(this.value)) {
+                return this.value.toLocaleString('fullwide', { useGrouping: false });
+            }
+
             return this.fillDigits && this.numberType !== 'int'
                 ? this.currentValue.toFixed(this.digits)
                 : this.currentValue.toString();
@@ -144,6 +151,13 @@ Component.extend('sw-number-field', 'sw-text-field', {
     methods: {
         onChange(event) {
             this.computeValue(event.target.value);
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.currentValue);
+
+                return;
+            }
+
             this.$emit('change', this.currentValue);
         },
 
@@ -159,16 +173,30 @@ Component.extend('sw-number-field', 'sw-text-field', {
                 }
 
                 this.$emit('input-change', val);
+            } else if (this.allowEmpty === true) {
+                this.$emit('input-change', val);
+            } else {
+                this.$emit('input-change', this.min ?? 0);
             }
         },
 
         increaseNumberByStep() {
             this.computeValue((this.currentValue + this.realStep).toString());
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.currentValue);
+
+                return;
+            }
             this.$emit('change', this.currentValue);
         },
 
         decreaseNumberByStep() {
             this.computeValue((this.currentValue - this.realStep).toString());
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', this.currentValue);
+
+                return;
+            }
             this.$emit('change', this.currentValue);
         },
 

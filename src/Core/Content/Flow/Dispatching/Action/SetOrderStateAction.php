@@ -11,20 +11,20 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SetOrderStateAction extends FlowAction implements DelayableAction
 {
-    public const FORCE_TRANSITION = 'force_transition';
+    final public const FORCE_TRANSITION = 'force_transition';
 
     private const ORDER = 'order';
 
@@ -32,23 +32,14 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     private const ORDER_TRANSACTION = 'order_transaction';
 
-    private Connection $connection;
-
-    private LoggerInterface $logger;
-
-    private OrderService $orderService;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        LoggerInterface $logger,
-        OrderService $orderService
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger,
+        private readonly OrderService $orderService
     ) {
-        $this->connection = $connection;
-        $this->logger = $logger;
-        $this->orderService = $orderService;
     }
 
     public static function getName(): string
@@ -66,11 +57,11 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**
@@ -101,8 +92,14 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
             $this->connection->commit();
         } catch (ShopwareHttpException $e) {
-            $this->connection->rollBack();
             $this->logger->error($e->getMessage());
+            $this->connection->rollBack();
+            // Silently rolling back a transaction is only safe when it is the top level transaction or transactions are
+            // nested with save points instead of emulating nested transactions. In case a transaction is not the top
+            // level transaction, we need to rethrow the error such that the outer transactions can be rolled back.
+            if ($this->connection->getTransactionNestingLevel() !== 1 && !$this->connection->getNestTransactionsWithSavepoints()) {
+                throw $e;
+            }
         } finally {
             $context->removeState(self::FORCE_TRANSITION);
         }
@@ -110,7 +107,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
     /**
      * @throws IllegalTransitionException
-     * @throws StateMachineNotFoundException
+     * @throws StateMachineException
      */
     private function transitState(string $machine, string $orderId, string $toPlace, Context $context): void
     {
@@ -121,7 +118,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
         $data = new ParameterBag();
         $machineId = $machine === self::ORDER ? $orderId : $this->getMachineId($machine, $orderId);
         if (!$machineId) {
-            throw new StateMachineNotFoundException($machine);
+            throw StateMachineException::stateMachineNotFound($machine);
         }
 
         $actionName = $this->getAvailableActionName($machine, $machineId, $toPlace);
@@ -143,7 +140,7 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
                 return;
             default:
-                throw new StateMachineNotFoundException($machine);
+                throw StateMachineException::stateMachineNotFound($machine);
         }
     }
 

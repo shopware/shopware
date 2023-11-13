@@ -3,21 +3,17 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class QueryBuilder extends DBALQueryBuilder
 {
     /**
      * @var array<string>
      */
-    private $states = [];
+    private array $states = [];
 
-    /**
-     * @var string|null
-     */
-    private $title;
+    private ?string $title = null;
 
     public function addState(string $state): void
     {

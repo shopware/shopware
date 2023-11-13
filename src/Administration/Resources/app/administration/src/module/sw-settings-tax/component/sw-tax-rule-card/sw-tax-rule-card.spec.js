@@ -4,7 +4,7 @@ import swTaxRuleCard from 'src/module/sw-settings-tax/component/sw-tax-rule-card
 Shopware.Component.register('sw-tax-rule-card', swTaxRuleCard);
 
 /**
- * @package customer-order
+ * @package checkout
  */
 async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-tax-rule-card'), {
@@ -12,10 +12,10 @@ async function createWrapper(privileges = []) {
             tax: {
                 id: 'id',
                 taxId: 'taxId',
-                taxRate: 'taxRate'
+                taxRate: 'taxRate',
             },
             isLoading: false,
-            disabled: false
+            disabled: false,
         },
         provide: {
             repositoryFactory: {
@@ -25,15 +25,15 @@ async function createWrapper(privileges = []) {
                             {
                                 id: 'id',
                                 taxId: 'taxId',
-                                taxRate: 'taxRate'
-                            }
+                                taxRate: 'taxRate',
+                            },
                         ]);
                     },
 
                     delete: () => {
                         return Promise.resolve();
-                    }
-                })
+                    },
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -42,8 +42,8 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-card': {
@@ -57,35 +57,37 @@ async function createWrapper(privileges = []) {
                         <slot name="footer"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-section': {
                 template: `
                     <div class="sw-card-section">
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-card-filter': {
                 template: `
                     <div class="sw-card-filter">
                         <slot name="filter"></slot>
                     </div>
-                `
+                `,
             },
+            'sw-number-field': true,
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
                     <div class="sw-data-grid">
                         <template v-for="item in dataSource">
                             <slot name="actions" v-bind="{ item }"></slot>
+                            <slot name="column-taxRate" v-bind="{ item, isInlineEdit: true }"></slot>
                         </template>
                     </div>
-                `
+                `,
             },
             'sw-context-menu-item': true,
-            'sw-button': true
-        }
+            'sw-button': true,
+        },
     });
 }
 
@@ -210,5 +212,26 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
             expect(addButton.attributes().disabled).toBeTruthy();
         });
+    });
+
+    it('should have a tax rate field with a correct "digits" property', async () => {
+        const wrapper = await createWrapper([
+            'tax.editor',
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        const taxRuleDataGrid = wrapper.find('.sw-data-grid');
+
+        const taxRateField = taxRuleDataGrid.find('sw-number-field-stub');
+
+        expect(taxRateField.attributes('digits')).toBe('3');
+    });
+
+    it('should return filters from filter registry', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

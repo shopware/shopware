@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-filter.html.twig';
@@ -9,7 +9,6 @@ const { EntityDefinition } = Shopware;
 
 /**
  * @private
- * @package business-ops
  */
 export default {
     template,
@@ -52,7 +51,7 @@ export default {
                 let concatenation = fields.join('.');
 
                 if (concatenation.match('\.$')) {
-                    concatenation = concatenation.substr(0, concatenation.length);
+                    concatenation = concatenation.substring(0, concatenation.length);
                 }
 
                 if (!concatenation) {

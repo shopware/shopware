@@ -8,15 +8,15 @@ import 'src/app/component/base/sw-rating-stars';
 async function createWrapper(propsData = {}) {
     return shallowMount(await Shopware.Component.build('sw-rating-stars'), {
         stubs: {
-            'sw-icon': true
+            'sw-icon': true,
         },
         provide: {},
         propsData: {
             ...{
-                value: 3.5
+                value: 3.5,
             },
-            ...propsData
-        }
+            ...propsData,
+        },
     });
 }
 
@@ -25,15 +25,15 @@ const cases = {
         { value: 2.0, renderPercentage: 0 },
         { value: 3.0, renderPercentage: 0 },
         { value: 7.0, renderPercentage: 0 },
-        { value: 12.2, renderPercentage: 35 }
+        { value: 12.2, renderPercentage: 35 },
     ],
     partial: [
         { value: 1.3, renderPercentage: 35 },
         { value: 2.5, renderPercentage: 50 },
         { value: 1.4, renderPercentage: 50 },
         { value: 2.15, renderPercentage: 35 },
-        { value: 1.8, renderPercentage: 65 }
-    ]
+        { value: 1.8, renderPercentage: 65 },
+    ],
 };
 
 describe('src/app/component/base/sw-rating-stars', () => {

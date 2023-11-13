@@ -3,14 +3,14 @@
 namespace Shopware\Core\Framework\Test;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class TestCacheClearer
 {
     /**

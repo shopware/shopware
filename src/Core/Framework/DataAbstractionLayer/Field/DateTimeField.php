@@ -3,20 +3,15 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateTimeFieldSerializer;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class DateTimeField extends Field implements StorageAware
 {
-    /**
-     * @var string
-     */
-    private $storageName;
-
-    public function __construct(string $storageName, string $propertyName)
-    {
-        $this->storageName = $storageName;
+    public function __construct(
+        private readonly string $storageName,
+        string $propertyName
+    ) {
         parent::__construct($propertyName);
     }
 

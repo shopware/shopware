@@ -5,26 +5,19 @@ namespace Shopware\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MigrationRuntime
 {
-    private Connection $connection;
-
-    private LoggerInterface $logger;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        LoggerInterface $logger
+        private readonly Connection $connection,
+        private readonly LoggerInterface $logger
     ) {
-        $this->connection = $connection;
-        $this->logger = $logger;
     }
 
     public function migrate(MigrationSource $source, ?int $until = null, ?int $limit = null): \Generator
@@ -54,7 +47,7 @@ class MigrationRuntime
             }
 
             $this->setExecuted($migration);
-            yield \get_class($migration);
+            yield $migration::class;
         }
     }
 
@@ -83,7 +76,7 @@ class MigrationRuntime
             }
 
             $this->setExecutedDestructive($migration);
-            yield \get_class($migration);
+            yield $migration::class;
         }
     }
 
@@ -114,7 +107,7 @@ class MigrationRuntime
     {
         return (int) $this->getExecutableMigrationsBaseQuery($source, $until, $limit)
             ->select('COUNT(*)')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
     }
 
@@ -150,14 +143,14 @@ class MigrationRuntime
         $this->connection->update(
             'migration',
             [
-                '`message`' => utf8_encode($message),
+                '`message`' => mb_convert_encoding($message, 'UTF-8', 'ISO-8859-1'),
             ],
             [
-                '`class`' => \get_class($migration),
+                '`class`' => $migration::class,
             ]
         );
 
-        $this->logger->error('Migration: "' . \get_class($migration) . '" failed: "' . $message . '"');
+        $this->logger->error('Migration: "' . $migration::class . '" failed: "' . $message . '"');
     }
 
     private function setExecutedDestructive(MigrationStep $migrationStep): void
@@ -167,7 +160,7 @@ class MigrationRuntime
                SET `message` = NULL,
                    `update_destructive` = NOW(6)
              WHERE `class` = :class',
-            ['class' => \get_class($migrationStep)]
+            ['class' => $migrationStep::class]
         );
     }
 
@@ -178,7 +171,7 @@ class MigrationRuntime
                SET `message` = NULL,
                    `update` = NOW(6)
              WHERE `class` = :class',
-            ['class' => \get_class($migrationStep)]
+            ['class' => $migrationStep::class]
         );
     }
 

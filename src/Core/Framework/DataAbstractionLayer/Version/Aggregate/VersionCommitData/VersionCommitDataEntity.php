@@ -5,10 +5,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\Version
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class VersionCommitDataEntity extends Entity
 {
     use EntityIdTrait;
@@ -29,7 +28,7 @@ class VersionCommitDataEntity extends Entity
     protected $entityName;
 
     /**
-     * @var array
+     * @var array{id: string, versionId: string}
      */
     protected $entityId;
 
@@ -39,7 +38,7 @@ class VersionCommitDataEntity extends Entity
     protected $action;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $payload;
 
@@ -88,11 +87,17 @@ class VersionCommitDataEntity extends Entity
         $this->entityName = $entityName;
     }
 
+    /**
+     * @return array{id: string, versionId: string}
+     */
     public function getEntityId(): array
     {
         return $this->entityId;
     }
 
+    /**
+     * @param array{id: string, versionId: string} $entityId
+     */
     public function setEntityId(array $entityId): void
     {
         $this->entityId = $entityId;
@@ -108,11 +113,17 @@ class VersionCommitDataEntity extends Entity
         $this->action = $action;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getPayload(): ?array
     {
         return $this->payload;
     }
 
+    /**
+     * @param array<string, mixed>|null $payload
+     */
     public function setPayload(?array $payload): void
     {
         $this->payload = $payload;

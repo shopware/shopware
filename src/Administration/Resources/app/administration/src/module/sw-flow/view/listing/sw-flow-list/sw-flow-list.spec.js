@@ -1,34 +1,70 @@
 import { shallowMount } from '@vue/test-utils';
 import swFlowList from 'src/module/sw-flow/view/listing/sw-flow-list';
+import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-list', swFlowList);
 
-async function createWrapper(privileges = []) {
+const mockBusinessEvents = [
+    {
+        name: 'checkout.customer.before.login',
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+    {
+        name: 'checkout.customer.changed-payment-method',
+        mailAware: false,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware'],
+    },
+    {
+        name: 'checkout.order.placed',
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\OrderAware'],
+    },
+];
+
+const flowData = [
+    {
+        id: '44de136acf314e7184401d36406c1e90',
+        eventName: 'checkout.order.placed',
+    },
+];
+
+async function createWrapper(privileges = [], hasSnippetFromApp = false, customFlowData = flowData) {
     return shallowMount(await Shopware.Component.build('sw-flow-list'), {
         mocks: {
             $route: {
                 query: {
                     page: 1,
-                    limit: 25
+                    limit: 25,
+                },
+            },
+            $tc: (key) => {
+                if (key === 'global.businessEvents.checkout_order_placed' && !hasSnippetFromApp) {
+                    return 'Check order place';
                 }
-            }
+
+                return key;
+            },
+
+            $te(key) {
+                if (key === 'global.businessEvents.checkout_order_placed' && hasSnippetFromApp) {
+                    return false;
+                }
+
+                return true;
+            },
         },
 
         provide: {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '44de136acf314e7184401d36406c1e90',
-                                eventName: 'checkout.order.placed'
-                            }
-                        ]);
+                        return Promise.resolve(customFlowData);
                     },
                     clone: jest.fn(() => Promise.resolve({
-                        id: '0e6b005ca7a1440b8e87ac3d45ed5c9f'
+                        id: '0e6b005ca7a1440b8e87ac3d45ed5c9f',
                     })),
-                })
+                }),
             },
 
             acl: {
@@ -38,10 +74,10 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
 
-            searchRankingService: {}
+            searchRankingService: {},
         },
 
         stubs: {
@@ -58,7 +94,7 @@ async function createWrapper(privileges = []) {
                         <slot name="sidebar"></slot>
                         <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-icon': true,
             'sw-button': true,
@@ -71,32 +107,48 @@ async function createWrapper(privileges = []) {
                             <slot name="actions" v-bind="{ item }"></slot>
                         </div>
                     </div>
-                `
+                `,
             },
+            'sw-card': true,
             'sw-context-menu-item': true,
             'sw-empty-state': true,
             'sw-search-bar': true,
-            'sw-alert': true
-        }
+            'sw-alert': true,
+        },
     });
 }
 
 describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
+    Shopware.Service().register('businessEventService', () => {
+        return {
+            getBusinessEvents: () => Promise.resolve(mockBusinessEvents),
+        };
+    });
+
+    beforeAll(() => {
+        Shopware.State.registerModule('swFlowState', {
+            ...flowState,
+            state: {
+                triggerEvents: [],
+            },
+        });
+    });
+
     it('should be able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
         await flushPromises();
 
         const duplicateMenuItem = wrapper.find('.sw-flow-list__item-duplicate');
 
         expect(duplicateMenuItem.exists()).toBe(true);
-        expect(duplicateMenuItem.attributes().disabled).toBe(undefined);
+        expect(duplicateMenuItem.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to duplicate a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
         await flushPromises();
 
@@ -108,18 +160,18 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should be able to edit a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.editor'
+            'flow.editor',
         ]);
         await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-flow-list__item-edit');
         expect(editMenuItem.exists()).toBe(true);
-        expect(editMenuItem.attributes().disabled).toBe(undefined);
+        expect(editMenuItem.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to edit a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
         await flushPromises();
 
@@ -131,18 +183,18 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should be able to delete a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.deleter'
+            'flow.deleter',
         ]);
         await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-flow-list__item-delete');
         expect(deleteMenuItem.exists()).toBe(true);
-        expect(deleteMenuItem.attributes().disabled).toBe(undefined);
+        expect(deleteMenuItem.attributes().disabled).toBeUndefined();
     });
 
     it('should be not able to delete a flow', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
 
         await flushPromises();
@@ -155,19 +207,47 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
     it('should show trigger column correctly', async () => {
         const wrapper = await createWrapper([
-            'flow.viewer'
+            'flow.viewer',
         ]);
 
         await flushPromises();
 
         const item = wrapper.find('.sw-data-grid__row');
-        expect(item.text()).toContain('global.businessEvents.checkout_order_placed');
+        expect(item.text()).toContain('Check order place');
+        expect(item.text()).toContain('checkout.order.placed');
+    });
+
+    it('should show trigger column correctly with unknown trigger', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer',
+        ], false, [
+            {
+                id: '44de136acf314e7184401d36406c1e90',
+                eventName: 'checkout.order.custom',
+            },
+        ]);
+
+        await flushPromises();
+
+        const item = wrapper.find('.sw-data-grid__row');
+        expect(item.text()).toContain('sw-flow.list.unknownTrigger');
+    });
+
+    it('should show custom trigger column correctly', async () => {
+        const wrapper = await createWrapper([
+            'flow.viewer',
+        ], true);
+
+        await wrapper.vm.$nextTick();
+
+        const item = wrapper.find('.sw-data-grid__row');
+        expect(item.text()).toContain('sw-flow-custom-event.flow-list.checkout_order_placed');
         expect(item.text()).toContain('checkout.order.placed');
     });
 
     it('should be show the success message after duplicate flow', async () => {
         const wrapper = await createWrapper([
-            'flow.creator'
+            'flow.creator',
         ]);
         await flushPromises();
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -175,16 +255,16 @@ describe('module/sw-flow/view/listing/sw-flow-list-my-flows', () => {
 
         await wrapper.vm.onDuplicateFlow({
             id: '44de136acf314e7184401d36406c1e90',
-            name: 'test flow'
+            name: 'test flow',
         });
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationSuccess).toBeCalled();
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalled();
         wrapper.vm.createNotificationSuccess.mockRestore();
 
         expect(routerPush).toHaveBeenLastCalledWith({
             name: 'sw.flow.detail',
-            params: { id: '0e6b005ca7a1440b8e87ac3d45ed5c9f' }
+            params: { id: '0e6b005ca7a1440b8e87ac3d45ed5c9f' },
         });
     });
 });

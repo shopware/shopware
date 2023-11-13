@@ -2,23 +2,19 @@
 
 namespace Shopware\Storefront\Pagelet\Captcha;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class BasicCaptchaPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected BasicCaptchaPagelet $pagelet;
-
     public function __construct(
-        BasicCaptchaPagelet $pagelet,
+        protected BasicCaptchaPagelet $pagelet,
         SalesChannelContext $salesChannelContext,
         Request $request
     ) {
-        $this->pagelet = $pagelet;
         parent::__construct($salesChannelContext, $request);
     }
 

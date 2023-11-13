@@ -58,12 +58,12 @@ rl.question(chalk.blueBright('Enter the component name/path you want to test: ')
             const regex = /^.*\/(.*)\/index\.(js|ts)/;
             const [_, lastFolder, fileExtension] = fileName.match(regex);
 
-            specFileName = orgFileName.replace(`index.${fileExtension}`, `${lastFolder}.spec.ts`)
+            specFileName = orgFileName.replace(`index.${fileExtension}`, `${lastFolder}.spec.js`)
         } else {
             const regex = /^.*\/(.*)\.(js|ts)/;
             const [_, name, fileExtension] = fileName.match(regex);
 
-            specFileName = orgFileName.replace(`${name}.${fileExtension}`, `${name}.spec.ts`)
+            specFileName = orgFileName.replace(`${name}.${fileExtension}`, `${name}.spec.js`)
         }
 
         if (fs.existsSync(specFileName)) {
@@ -75,7 +75,7 @@ rl.question(chalk.blueBright('Enter the component name/path you want to test: ')
             answer = answer.toUpperCase();
 
             if (answer === 'Y' || answer === '') {
-                let template = fs.readFileSync(path.join(__dirname, 'template/template.spec_ts'), 'utf8');
+                let template = fs.readFileSync(path.join(__dirname, 'template/template.spec_js'), 'utf8');
                 template = template.replaceAll('<component-path>', fileName);
 
                 fs.writeFileSync(specFileName, template);

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- @deprecated tag:v6.5.0 - Will be removed. See src/Administration/Resources/app/administration/src/app/component/base/sw-icon/legacy-icon-mapping.js for replacement -->
+
+<svg width="64px" height="56px" viewBox="0 0 64 56" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>79E57325-88A0-41DA-BD1C-A67A2534AAD5@1.00x</title>
+    <g id="List" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Folders" transform="translate(-929.000000, -292.000000)" fill="#FFF0F8" fill-rule="nonzero" stroke="#FF85C2">
+            <g id="Theme-Media" transform="translate(861.000000, 240.000000)">
+                <path d="M88.3232709,52.5 L72,52.5 C71.0335017,52.5 70.1585017,52.8917508 69.5251263,53.5251263 C68.8917508,54.1585017 68.5,55.0335017 68.5,56 L68.5,104 C68.5,104.966498 68.8917508,105.841498 69.5251263,106.474874 C70.1585017,107.108249 71.0335017,107.5 72,107.5 L128,107.5 C128.966498,107.5 129.841498,107.108249 130.474874,106.474874 C131.108249,105.841498 131.5,104.966498 131.5,104 L131.5,64.7272727 C131.5,63.7607744 131.108249,62.8857744 130.474874,62.252399 C129.841498,61.6190236 128.966498,61.2272727 128,61.2272727 L98.4834673,61.2272727 C97.4531609,61.2272727 96.4751928,60.7733136 95.8101755,59.986368 L90.232765,53.3863605 C89.7577527,52.8242566 89.059204,52.5 88.3232709,52.5 Z" id="folder--pink"></path>
+            </g>
+        </g>
+    </g>
+</svg>

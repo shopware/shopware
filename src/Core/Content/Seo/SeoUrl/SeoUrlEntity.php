@@ -5,16 +5,15 @@ namespace Shopware\Core\Content\Seo\SeoUrl;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class SeoUrlEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -47,7 +46,7 @@ class SeoUrlEntity extends Entity
     protected $seoPathInfo;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     protected $isCanonical;
 
@@ -62,6 +61,8 @@ class SeoUrlEntity extends Entity
     protected $isDeleted;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var bool
      */
     protected $isValid;
@@ -82,6 +83,8 @@ class SeoUrlEntity extends Entity
     protected $url;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var string|null
      */
     protected $error;
@@ -214,5 +217,15 @@ class SeoUrlEntity extends Entity
     public function setError(?string $error): void
     {
         $this->error = $error;
+    }
+
+    public function getIsValid(): bool
+    {
+        return $this->isValid;
+    }
+
+    public function setIsValid(bool $isValid): void
+    {
+        $this->isValid = $isValid;
     }
 }

@@ -13,23 +13,21 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
+ * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
  */
+#[Package('core')]
 class BusinessEventEncoder
 {
-    private JsonEntityEncoder $entityEncoder;
-
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     /**
      * @internal
      */
-    public function __construct(JsonEntityEncoder $entityEncoder, DefinitionInstanceRegistry $definitionRegistry)
-    {
-        $this->entityEncoder = $entityEncoder;
-        $this->definitionRegistry = $definitionRegistry;
+    public function __construct(
+        private readonly JsonEntityEncoder $entityEncoder,
+        private readonly DefinitionInstanceRegistry $definitionRegistry
+    ) {
     }
 
     /**
@@ -37,7 +35,7 @@ class BusinessEventEncoder
      */
     public function encode(FlowEventAware $event): array
     {
-        return $this->encodeType($event::getAvailableData()->toArray(), $event);
+        return $this->encodeType($event->getAvailableData()->toArray(), $event);
     }
 
     /**
@@ -90,11 +88,10 @@ class BusinessEventEncoder
 
     /**
      * @param array<string, mixed> $dataType
-     * @param mixed $property
      *
      * @return array<string, mixed>|mixed
      */
-    private function encodeProperty(array $dataType, $property)
+    private function encodeProperty(array $dataType, mixed $property)
     {
         switch ($dataType['type']) {
             case ScalarValueType::TYPE_BOOL:
@@ -128,12 +125,12 @@ class BusinessEventEncoder
         if (\is_object($object)) {
             $getter = 'get' . ucfirst($propertyName);
             if (method_exists($object, $getter)) {
-                return $object->$getter();
+                return $object->$getter(); /* @phpstan-ignore-line */
             }
 
             $isser = 'is' . ucfirst($propertyName);
             if (method_exists($object, $isser)) {
-                return $object->$isser();
+                return $object->$isser(); /* @phpstan-ignore-line */
             }
         }
 
@@ -145,7 +142,7 @@ class BusinessEventEncoder
             sprintf(
                 'Invalid available DataMapping, could not get property "%s" on instance of %s',
                 $propertyName,
-                \is_object($object) ? \get_class($object) : 'array'
+                \is_object($object) ? $object::class : 'array'
             )
         );
     }
@@ -154,9 +151,9 @@ class BusinessEventEncoder
      * @param array<string, mixed> $dataType
      * @param Entity|EntityCollection<Entity> $property
      *
-     * @return array<string, mixed>
+     * @return ($property is Entity ? array<string, mixed> : list<array<string, mixed>>)
      */
-    private function encodeEntity(array $dataType, $property): array
+    private function encodeEntity(array $dataType, Entity|EntityCollection $property): array
     {
         $definition = $this->definitionRegistry->get($dataType['entityClass']);
 

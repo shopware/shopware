@@ -22,6 +22,12 @@ export default {
         },
     },
 
+    data() {
+        return {
+            persistedStock: null,
+        };
+    },
+
     computed: {
         ...mapState('swProductDetail', [
             'product',
@@ -41,16 +47,6 @@ export default {
         ]),
     },
 
-    watch: {
-        'product.isCloseout': {
-            handler(newIsCloseout) {
-                if (!newIsCloseout) {
-                    this.product.stock = 0;
-                }
-            },
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -59,6 +55,15 @@ export default {
         createdComponent() {
             if (typeof this.product.stock === 'undefined') {
                 this.product.stock = 0;
+            }
+
+            this.persistedStock = this.product.stock;
+        },
+
+
+        onSwitchInput(event) {
+            if (event === false) {
+                this.product.stock = this.persistedStock;
             }
         },
     },

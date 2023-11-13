@@ -2,23 +2,18 @@
 
 namespace Shopware\Core\Framework\Plugin\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PluginPostInstallEvent extends PluginLifecycleEvent
 {
-    /**
-     * @var InstallContext
-     */
-    private $context;
-
-    public function __construct(PluginEntity $plugin, InstallContext $context)
-    {
+    public function __construct(
+        PluginEntity $plugin,
+        private readonly InstallContext $context
+    ) {
         parent::__construct($plugin);
-        $this->context = $context;
     }
 
     public function getContext(): InstallContext

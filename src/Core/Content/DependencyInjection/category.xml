@@ -102,5 +102,9 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
     </services>
 </container>

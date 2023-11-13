@@ -1,3 +1,6 @@
+/**
+ * @package buyers-experience
+ */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsCurrencyCountryModal from 'src/module/sw-settings-currency/component/sw-settings-currency-country-modal';
 
@@ -11,24 +14,24 @@ async function createWrapper() {
         localVue,
         propsData: {
             currencyCountryRounding: {
-                currencyId: 'currencyId1'
-            }
+                currencyId: 'currencyId1',
+            },
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
-                        searchIds: () => Promise.resolve([])
+                        searchIds: () => Promise.resolve([]),
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-modal': true,
             'sw-entity-single-select': true,
             'sw-settings-price-rounding': true,
-            'sw-button': true
-        }
+            'sw-button': true,
+        },
     });
 }
 
@@ -42,7 +45,7 @@ describe('module/sw-settings-currency/component/sw-settings-currency-country-mod
     it('should disable already assigned countries', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({
-            assignedCountryIds: ['countryId1']
+            assignedCountryIds: ['countryId1'],
         });
 
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId1' })).toBe(true);
@@ -54,11 +57,11 @@ describe('module/sw-settings-currency/component/sw-settings-currency-country-mod
         await wrapper.setProps({
             currencyCountryRounding: {
                 currencyId: 'currencyId1',
-                countryId: 'countryId1'
-            }
+                countryId: 'countryId1',
+            },
         });
         await wrapper.setData({
-            assignedCountryIds: ['countryId1']
+            assignedCountryIds: ['countryId1'],
         });
 
         expect(wrapper.vm.shouldDisableCountry({ id: 'countryId1' })).toBe(false);

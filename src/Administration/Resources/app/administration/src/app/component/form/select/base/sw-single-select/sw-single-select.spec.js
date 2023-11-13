@@ -24,36 +24,36 @@ async function createSingleSelect(customOptions) {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>',
             },
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text')
+            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
         },
         propsData: {
             value: null,
             options: [
                 {
                     label: 'Entry 1',
-                    value: 'entryOneValue'
+                    value: 'entryOneValue',
                 },
                 {
                     label: 'Entry 2',
-                    value: 'entryTwoValue'
+                    value: 'entryTwoValue',
                 },
                 {
                     label: 'Entry 3',
-                    value: 'entryThreeValue'
-                }
-            ]
-        }
+                    value: 'entryThreeValue',
+                },
+            ],
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-single-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -70,6 +70,7 @@ describe('components/sw-single-select', () => {
 
         const resultList = swSingleSelect.find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
+        expect(swSingleSelect.emitted()).toHaveProperty('on-open-change');
     });
 
     it('should show the result items', async () => {
@@ -91,8 +92,8 @@ describe('components/sw-single-select', () => {
 
         const swSingleSelect = await createSingleSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
         await swSingleSelect.find('.sw-select__selection').trigger('click');
 
@@ -108,8 +109,8 @@ describe('components/sw-single-select', () => {
 
         const swSingleSelect = await createSingleSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
         await swSingleSelect.find('.sw-select__selection').trigger('click');
 
@@ -128,6 +129,7 @@ describe('components/sw-single-select', () => {
 
         const resultList = swSingleSelect.find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeFalsy();
+        expect(swSingleSelect.emitted()).toHaveProperty('on-open-change');
     });
 
     it('should show the label for the selected value property', async () => {
@@ -137,18 +139,18 @@ describe('components/sw-single-select', () => {
                 options: [
                     {
                         label: 'Entry 1',
-                        value: 'entryOneValue'
+                        value: 'entryOneValue',
                     },
                     {
                         label: 'Entry 2',
-                        value: 'entryTwoValue'
+                        value: 'entryTwoValue',
                     },
                     {
                         label: 'Entry 3',
-                        value: 'entryThreeValue'
-                    }
-                ]
-            }
+                        value: 'entryThreeValue',
+                    },
+                ],
+            },
         });
 
         const selectedText = swSingleSelect.find('.sw-single-select__selection-text').text();
@@ -179,21 +181,21 @@ describe('components/sw-single-select', () => {
     it('should not show the selected item on first entry', async () => {
         const wrapper = await createSingleSelect();
         await wrapper.setProps({
-            value: 'entryThreeValue'
+            value: 'entryThreeValue',
         });
 
         await wrapper.find('input').trigger('click');
 
-        expect(wrapper.find('.sw-select-option--0').text()).toEqual('Entry 1');
-        expect(wrapper.find('.sw-select-option--1').text()).toEqual('Entry 2');
-        expect(wrapper.find('.sw-select-option--2').text()).toEqual('Entry 3');
+        expect(wrapper.find('.sw-select-option--0').text()).toBe('Entry 1');
+        expect(wrapper.find('.sw-select-option--1').text()).toBe('Entry 2');
+        expect(wrapper.find('.sw-select-option--2').text()).toBe('Entry 3');
     });
 
     it('should show the clearable icon in the single select', async () => {
         const wrapper = await createSingleSelect({
             attrs: {
-                showClearableButton: true
-            }
+                showClearableButton: true,
+            },
         });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
@@ -207,29 +209,29 @@ describe('components/sw-single-select', () => {
                 options: [
                     {
                         label: 'Entry 1',
-                        value: 'entryOneValue'
+                        value: 'entryOneValue',
                     },
                     {
                         label: 'Entry 2',
-                        value: 'entryTwoValue'
+                        value: 'entryTwoValue',
                     },
                     {
                         label: 'Entry 3',
-                        value: 'entryThreeValue'
-                    }
-                ]
+                        value: 'entryThreeValue',
+                    },
+                ],
             },
             attrs: {
-                showClearableButton: true
-            }
+                showClearableButton: true,
+            },
         });
 
         // expect entryOneValue selected
         let selectionText = wrapper.find('.sw-single-select__selection-text');
-        expect(selectionText.text()).toEqual('Entry 1');
+        expect(selectionText.text()).toBe('Entry 1');
 
         // expect no emitted value
-        expect(wrapper.emitted('change')).toEqual(undefined);
+        expect(wrapper.emitted('change')).toBeUndefined();
 
         // click on clear
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
@@ -241,11 +243,11 @@ describe('components/sw-single-select', () => {
 
         // emulate v-model change
         await wrapper.setProps({
-            value: emittedChangeValue[0]
+            value: emittedChangeValue[0],
         });
 
         // expect empty selection
         selectionText = wrapper.find('.sw-single-select__selection-text');
-        expect(selectionText.text()).toEqual('');
+        expect(selectionText.text()).toBe('');
     });
 });

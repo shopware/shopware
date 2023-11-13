@@ -4,27 +4,20 @@ namespace Shopware\Core\Framework\Adapter\Twig\Filter;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CurrencyFilter extends AbstractExtension
 {
     /**
-     * @var CurrencyFormatter
-     */
-    private $currencyFormatter;
-
-    /**
      * @internal
      */
-    public function __construct(CurrencyFormatter $currencyFormatter)
+    public function __construct(private readonly CurrencyFormatter $currencyFormatter)
     {
-        $this->currencyFormatter = $currencyFormatter;
     }
 
     /**
@@ -33,7 +26,7 @@ class CurrencyFilter extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('currency', [$this, 'formatCurrency'], ['needs_context' => true]),
+            new TwigFilter('currency', $this->formatCurrency(...), ['needs_context' => true]),
         ];
     }
 

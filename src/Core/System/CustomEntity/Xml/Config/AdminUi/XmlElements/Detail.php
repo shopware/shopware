@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 
 /**
@@ -9,24 +10,20 @@ use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
  *
  * admin-ui > entity > detail
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class Detail extends ConfigXmlElement
 {
-    private function __construct(
-        protected readonly Tabs $tabs
-    ) {
-    }
-
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(Tabs::fromXml($element));
-    }
+    protected Tabs $tabs;
 
     public function getTabs(): Tabs
     {
         return $this->tabs;
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        return ['tabs' => Tabs::fromXml($element)];
     }
 }

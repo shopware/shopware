@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Installer\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\RequirementsValidatorInterface;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
@@ -11,35 +11,25 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class RequirementsController extends InstallerController
 {
-    /**
-     * @var iterable|RequirementsValidatorInterface[]
-     */
-    private iterable $validators;
-
-    private JwtCertificateGenerator $jwtCertificateGenerator;
-
-    private string $jwtDir;
+    private readonly string $jwtDir;
 
     /**
      * @param iterable|RequirementsValidatorInterface[] $validators
      */
-    public function __construct(iterable $validators, JwtCertificateGenerator $jwtCertificateGenerator, string $projectDir)
-    {
-        $this->validators = $validators;
-        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
+    public function __construct(
+        private readonly iterable $validators,
+        private readonly JwtCertificateGenerator $jwtCertificateGenerator,
+        string $projectDir
+    ) {
         $this->jwtDir = $projectDir . '/config/jwt';
     }
 
-    /**
-     * @Since("6.4.15.0")
-     * @Route("/installer/requirements", name="installer.requirements", methods={"GET", "POST"})
-     */
+    #[Route(path: '/installer/requirements', name: 'installer.requirements', methods: ['GET', 'POST'])]
     public function requirements(Request $request): Response
     {
         $checks = new RequirementsCheckCollection();

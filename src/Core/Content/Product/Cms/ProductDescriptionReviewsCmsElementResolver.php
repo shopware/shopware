@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruct;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
@@ -21,26 +22,22 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
     private const LIMIT = 10;
     private const DEFAULT_PAGE = 1;
     private const FILTER_LANGUAGE = 'filter-language';
 
-    private AbstractProductReviewRoute $productReviewRoute;
-
     /**
      * @internal
      */
-    public function __construct(AbstractProductReviewRoute $productReviewRoute)
+    public function __construct(private readonly AbstractProductReviewRoute $productReviewRoute)
     {
-        $this->productReviewRoute = $productReviewRoute;
     }
 
     public function getType(): string
@@ -165,13 +162,14 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         $criteria->setOffset(0);
         $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
-        $customerReviews = $this->productReviewRoute
+        return $this->productReviewRoute
             ->load($productId, new Request(), $context, $criteria)
-            ->getResult();
-
-        return $customerReviews->first();
+            ->getResult()->getEntities()->first();
     }
 
+    /**
+     * @param EntitySearchResult<ProductReviewCollection> $reviews
+     */
     private function getReviewRatingMatrix(EntitySearchResult $reviews): RatingMatrix
     {
         $aggregation = $reviews->getAggregations()->get('ratingMatrix');

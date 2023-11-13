@@ -4,6 +4,7 @@
     class="sw-media-folder-item"
     v-bind="$attrs"
     :truncate-right="true"
+    :allow-multi-select="!isParent"
     v-on="$listeners"
 >
 
@@ -12,29 +13,30 @@
     <template #preview="{ item }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_parent_icon%}
-        <sw-icon
+        <img
             v-if="isParent"
+            {% if VUE2 %}
             key="sw-media-folder-preview"
-            name="solid-chevron-left"
-            size="25%"
+            {% endif %}
+            :src="assetFilter('/administration/static/img/media/folder--back.svg')"
             class="sw-media-folder-item__folder-thumbnails"
-            multicolor
-        />
+            alt="Folder back"
+        >
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_default_icon%}
         <span
             v-else-if="!!item.defaultFolderId"
+            {% if VUE2 %}
             key="sw-media-folder-preview"
+            {% endif %}
         >
-            <sw-icon
-                :name="iconName"
-                size="90%"
+            <img
+                :src="assetFilter('/administration/static/img/media/' + iconName + '.svg')"
                 class="sw-media-folder-item__folder-thumbnails"
-                v-bind="iconConfig"
-                multicolor
-            />
+                :alt="iconName"
+            >
             <sw-icon
                 v-if="iconConfig.name"
                 class="sw-media-folder-item__folder-thumbnails is--inner"
@@ -45,14 +47,15 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_folder_folder_icon%}
-        <sw-icon
+        <img
             v-else
+            {% if VUE2 %}
             key="sw-media-folder-preview"
-            size="90%"
-            name="multicolor-folder-thumbnail"
+            {% endif %}
+            :src="assetFilter('/administration/static/img/media/folder-thumbnail--large.svg')"
             class="sw-media-folder-item__folder-thumbnails"
-            multicolor
-        />
+            alt="Folder thumbnail"
+        >
         {% endblock %}
     </template>
     {% endblock %}
@@ -62,7 +65,7 @@
     <template #name="{ item, isInlineEdit, startInlineEdit, endInlineEdit }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_media_base_item_name %}
-        <sw-field
+        <sw-text-field
             v-if="!isParent && (isInlineEdit || item.isNew())"
             v-autofocus
             class="sw-media-base-item__name-field"
@@ -71,6 +74,9 @@
             @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @click.stop
+            {% if VUE3 %}
+            @keydown.enter.stop
+            {% endif %}
             @keyup.esc="endInlineEdit"
         />
         <div
@@ -89,7 +95,7 @@
     {% block sw_media_folder_meta_data %}
     <template #metadata="{ item }">
         <div class="sw-media-folder-item__metadata">
-            {{ item.createdAt| date() }}
+            {{ dateFilter(item.createdAt) }}
         </div>
     </template>
     {% endblock %}

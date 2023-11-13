@@ -4,32 +4,26 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 class LineItemCreationDateRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemCreationDate';
-
-    protected ?string $lineItemCreationDate;
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemCreationDate';
 
     /**
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, ?string $lineItemCreationDate = null)
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected ?string $lineItemCreationDate = null
+    ) {
         parent::__construct();
-
-        $this->lineItemCreationDate = $lineItemCreationDate;
-        $this->operator = $operator;
     }
 
     public function getConstraints(): array
@@ -48,7 +42,7 @@ class LineItemCreationDateRule extends Rule
 
         try {
             $ruleValue = $this->buildDate($this->lineItemCreationDate);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -90,7 +84,7 @@ class LineItemCreationDateRule extends Rule
             }
 
             $itemCreated = $this->buildDate($itemCreatedString);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return false;
         }
 

@@ -41,4 +41,10 @@
             padding: 4px 8px;
         }
     }
+
+    &__selection {
+        display: flex;
+        align-items: center;
+        padding-right: 48px;
+    }
 }

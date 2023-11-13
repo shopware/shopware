@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -14,8 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,19 +23,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package content
- * @Route(defaults={"_routeScope"={"store-api"}})
- *
  * @phpstan-type CategoryMetaInformation array{id: string, level: int, path: string}
  */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('inventory')]
 class NavigationRoute extends AbstractNavigationRoute
 {
     /**
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private SalesChannelRepository $categoryRepository
+        private readonly Connection $connection,
+        private readonly SalesChannelRepository $categoryRepository
     ) {
     }
 
@@ -44,10 +43,7 @@ class NavigationRoute extends AbstractNavigationRoute
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @Since("6.2.0.0")
-     * @Route("/store-api/navigation/{activeId}/{rootId}", name="store-api.navigation", methods={"GET", "POST"}, defaults={"_entity"="category"})
-     */
+    #[Route(path: '/store-api/navigation/{activeId}/{rootId}', name: 'store-api.navigation', methods: ['GET', 'POST'], defaults: ['_entity' => 'category'])]
     public function load(
         string $activeId,
         string $rootId,
@@ -138,7 +134,7 @@ class NavigationRoute extends AbstractNavigationRoute
         ', ['activeId' => Uuid::fromHexToBytes($activeId), 'rootId' => Uuid::fromHexToBytes($rootId)]);
 
         if (!$result) {
-            throw new CategoryNotFoundException($activeId);
+            throw CategoryException::categoryNotFound($activeId);
         }
 
         return FetchModeHelper::groupUnique($result);
@@ -152,7 +148,7 @@ class NavigationRoute extends AbstractNavigationRoute
     private function getMetaInfoById(string $id, array $metaInfo): array
     {
         if (!\array_key_exists($id, $metaInfo)) {
-            throw new CategoryNotFoundException($id);
+            throw CategoryException::categoryNotFound($id);
         }
 
         return $metaInfo[$id];
@@ -212,7 +208,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
         }
 
-        throw new CategoryNotFoundException($activeId);
+        throw CategoryException::categoryNotFound($activeId);
     }
 
     private function isChildCategory(string $activeId, ?string $path, string $rootId): bool
@@ -241,7 +237,7 @@ class NavigationRoute extends AbstractNavigationRoute
             }
 
             $parentId = $category->getParentId();
-            $counts[$parentId] = $counts[$parentId] ?? 0;
+            $counts[$parentId] ??= 0;
             ++$counts[$parentId];
         }
         foreach ($levels as $category) {

@@ -26,7 +26,6 @@ Shopware.Component.register('sw-flow-set-order-state-modal', () => import('./com
 Shopware.Component.register('sw-flow-generate-document-modal', () => import('./component/modals/sw-flow-generate-document-modal'));
 Shopware.Component.register('sw-flow-grant-download-access-modal', () => import('./component/modals/sw-flow-grant-download-access-modal'));
 Shopware.Component.register('sw-flow-mail-send-modal', () => import('./component/modals/sw-flow-mail-send-modal'));
-Shopware.Component.register('sw-flow-grant-download-access-modal', () => import('./component/modals/sw-flow-grant-download-access-modal'));
 Shopware.Component.register('sw-flow-create-mail-template-modal', () => import('./component/modals/sw-flow-create-mail-template-modal'));
 Shopware.Component.register('sw-flow-event-change-confirm-modal', () => import('./component/modals/sw-flow-event-change-confirm-modal'));
 Shopware.Component.register('sw-flow-change-customer-group-modal', () => import('./component/modals/sw-flow-change-customer-group-modal'));
@@ -39,7 +38,7 @@ Shopware.Component.register('sw-flow-leave-page-modal', () => import('./componen
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Module.register('sw-flow', {
     type: 'core',
@@ -69,7 +68,7 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list',
                     path: 'flows',
                     meta: {
-                        parentPath: 'sw.flow.index',
+                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },
@@ -77,7 +76,7 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list-flow-templates',
                     path: 'templates',
                     meta: {
-                        parentPath: 'sw.flow.index',
+                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },

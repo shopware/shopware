@@ -5,32 +5,26 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package checkout
- *
- * @Route(defaults={"_routeScope"={"api"}})
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('buyers-experience')]
 class PromotionActionController extends AbstractController
 {
-    private LineItemGroupServiceRegistry $serviceRegistry;
-
     /**
      * @internal
      */
-    public function __construct(LineItemGroupServiceRegistry $serviceRegistry)
-    {
-        $this->serviceRegistry = $serviceRegistry;
+    public function __construct(
+        private readonly LineItemGroupServiceRegistry $serviceRegistry,
+        private readonly FilterServiceRegistry $filterServiceRegistry
+    ) {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
-     */
+    #[Route(path: '/api/_action/promotion/setgroup/packager', name: 'api.action.promotion.setgroup.packager', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
     public function getSetGroupPackagers(): JsonResponse
     {
         $packagerKeys = [];
@@ -43,10 +37,7 @@ class PromotionActionController extends AbstractController
         return new JsonResponse($packagerKeys);
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"}, defaults={"_acl"={"promotion.viewer"}})
-     */
+    #[Route(path: '/api/_action/promotion/setgroup/sorter', name: 'api.action.promotion.setgroup.sorter', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
     public function getSetGroupSorters(): JsonResponse
     {
         $sorterKeys = [];
@@ -57,5 +48,17 @@ class PromotionActionController extends AbstractController
         }
 
         return new JsonResponse($sorterKeys);
+    }
+
+    #[Route(path: '/api/_action/promotion/discount/picker', name: 'api.action.promotion.discount.picker', methods: ['GET'], defaults: ['_acl' => ['promotion:read']])]
+    public function getDiscountFilterPickers(): JsonResponse
+    {
+        $pickerKeys = [];
+
+        foreach ($this->filterServiceRegistry->getPickers() as $picker) {
+            $pickerKeys[] = $picker->getKey();
+        }
+
+        return new JsonResponse($pickerKeys);
     }
 }

@@ -11,14 +11,14 @@ async function createWrapper(customOptions = {}) {
         stubs: {
             'sw-icon': true,
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-            'sw-popover': true
+            'sw-popover': true,
         },
         slots: {
-            default: '<div class="context-menu-item"></div>'
+            default: '<div class="context-menu-item"></div>',
         },
         provide: {},
         mocks: {},
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -38,13 +38,29 @@ describe('src/app/component/context-menu/sw-context-button', () => {
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeTruthy();
         expect(wrapper.find('.sw-context-menu').isVisible()).toBeTruthy();
+        expect(wrapper.emitted('on-open-change')[0]).toEqual([true]);
+    });
+
+    it('should close the context menu', async () => {
+        const wrapper = await createWrapper({
+            propsData: {
+                showMenuOnStartup: true,
+            },
+        });
+
+        expect(wrapper.find('.sw-context-menu').exists()).toBeTruthy();
+
+        await wrapper.trigger('click');
+
+        expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
+        expect(wrapper.emitted('on-open-change')[0]).toEqual([false]);
     });
 
     it('should not open the context menu on click', async () => {
         const wrapper = await createWrapper({
             propsData: {
-                disabled: true
-            }
+                disabled: true,
+            },
         });
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();

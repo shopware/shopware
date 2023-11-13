@@ -4,21 +4,23 @@ namespace Shopware\Core\Profiling;
 
 use Composer\InstalledVersions;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
+use Shopware\Core\Profiling\Compiler\RemoveDevServices;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\GlobFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Profiling extends Bundle
 {
     public function getTemplatePriority(): int
@@ -40,11 +42,19 @@ class Profiling extends Bundle
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $loader->load('services.xml');
+
+        if ($environment === 'dev') {
+            $loader->load('services_dev.xml');
+        }
+
+        $container->addCompilerPass(new RemoveDevServices());
     }
 
     public function boot(): void
     {
         parent::boot();
+        \assert($this->container instanceof ContainerInterface, 'Container is not set yet, please call setContainer() before calling boot(), see `src/Core/Kernel.php:186`.');
+
         // The profiler registers all profiler integrations in the constructor
         // Therefor we need to get the service once to initialize it
         $this->container->get(Profiler::class);

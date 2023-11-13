@@ -33,7 +33,7 @@ class MigrationCommandTest extends TestCase
         $connection->createQueryBuilder()
             ->delete('migration')
             ->where('`class` LIKE "%_test_migrations_valid%"')
-            ->execute();
+            ->executeStatement();
     }
 
     public function getCommand(): MigrationCommand
@@ -128,8 +128,8 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
-            //nth
+        } catch (MigrateException) {
+            // nth
         }
 
         static::assertSame(3, $this->getMigrationCount(true));
@@ -177,16 +177,16 @@ class MigrationCommandTest extends TestCase
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
-            //nth
+        } catch (MigrateException) {
+            // nth
         }
 
         $command = $this->getDestructiveCommand();
 
         try {
             $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
-        } catch (MigrateException $e) {
-            //nth
+        } catch (MigrateException) {
+            // nth
         }
 
         static::assertSame(2, $this->getMigrationCount(true, true));

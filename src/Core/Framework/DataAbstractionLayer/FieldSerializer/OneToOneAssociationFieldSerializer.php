@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -12,27 +12,27 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
 {
     /**
      * @internal
      */
     public function __construct(
-        private WriteCommandExtractor $writeExtractor
+        private readonly WriteCommandExtractor $writeExtractor
     ) {
     }
 
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
     {
         if (!$field instanceof OneToOneAssociationField) {
-            throw new InvalidSerializerFieldException(OneToOneAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(OneToOneAssociationField::class, $field);
         }
 
         $key = $field->getPropertyName();
@@ -57,12 +57,12 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
                     sprintf(
                         'Could not find reference field "%s" in definition "%s"',
                         $referenceField,
-                        \get_class($reference)
+                        $reference::class
                     )
                 );
             }
 
-            //id provided? otherwise set new one to return it and yield the id into the FkField
+            // id provided? otherwise set new one to return it and yield the id into the FkField
             if (isset($value[$pkField->getPropertyName()])) {
                 $id = $value[$pkField->getPropertyName()];
             } else {
@@ -98,7 +98,7 @@ class OneToOneAssociationFieldSerializer implements FieldSerializerInterface
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof OneToOneAssociationField) {
-            throw new InvalidSerializerFieldException(OneToOneAssociationField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(OneToOneAssociationField::class, $field);
         }
 
         if (!\is_array($data->getValue())) {

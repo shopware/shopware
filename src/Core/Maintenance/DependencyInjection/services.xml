@@ -18,6 +18,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\System\Command\SystemIsInstalledCommand">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
@@ -42,11 +47,13 @@
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand">
             <argument type="service" id="service_container"/>
+            <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand">
             <argument type="service" id="service_container"/>
+            <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>
 
@@ -66,7 +73,7 @@
 
         <service id="Shopware\Core\Maintenance\System\Service\AppUrlVerifier">
             <argument type="service" id="shopware.maintenance.client"/>
-            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%kernel.environment%</argument>
             <argument>%env(bool:APP_URL_CHECK_DISABLED)%</argument>
         </service>

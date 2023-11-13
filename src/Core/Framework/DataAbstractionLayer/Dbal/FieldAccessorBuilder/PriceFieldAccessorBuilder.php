@@ -8,19 +8,19 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
     /**
      * @internal
      */
-    public function __construct(private Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
     }
 
@@ -61,7 +61,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $currencyId = end($parts);
             $currencyFactor = sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
-                $this->connection->quote($currencyId)
+                (string) $this->connection->quote($currencyId)
             );
         }
 

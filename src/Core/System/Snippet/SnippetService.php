@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -10,65 +11,39 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\Terms
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
+use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class SnippetService
 {
-    private Connection $connection;
-
-    private SnippetFileCollection $snippetFileCollection;
-
-    private EntityRepository $snippetRepository;
-
-    private EntityRepository $snippetSetRepository;
-
-    private SnippetFilterFactory $snippetFilterFactory;
-
-    private EntityRepository $salesChannelDomain;
-
-    private RequestStack $requestStack;
-
-    /**
-     * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
-     * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
-     */
-    private ContainerInterface $container;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        SnippetFileCollection $snippetFileCollection,
-        EntityRepository $snippetRepository,
-        EntityRepository $snippetSetRepository,
-        EntityRepository $salesChannelDomain,
-        SnippetFilterFactory $snippetFilterFactory,
-        RequestStack $requestStack,
-        ContainerInterface $container
+        private readonly Connection $connection,
+        private readonly SnippetFileCollection $snippetFileCollection,
+        private readonly EntityRepository $snippetRepository,
+        private readonly EntityRepository $snippetSetRepository,
+        private readonly EntityRepository $salesChannelDomain,
+        private readonly SnippetFilterFactory $snippetFilterFactory,
+        /**
+         * The "kernel" service is synthetic, it needs to be set at boot time before it can be used.
+         * We need to get StorefrontPluginRegistry service from service_container lazily because it depends on kernel service.
+         */
+        private readonly ContainerInterface $container,
+        private readonly ?SalesChannelThemeLoader $salesChannelThemeLoader = null
     ) {
-        $this->connection = $connection;
-        $this->snippetFileCollection = $snippetFileCollection;
-        $this->snippetRepository = $snippetRepository;
-        $this->snippetSetRepository = $snippetSetRepository;
-        $this->snippetFilterFactory = $snippetFilterFactory;
-        $this->salesChannelDomain = $salesChannelDomain;
-        $this->requestStack = $requestStack;
-        $this->container = $container;
     }
 
     /**
@@ -128,23 +103,23 @@ class SnippetService
     /**
      * @return array<string, string>
      */
-    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale = null): array
+    public function getStorefrontSnippets(MessageCatalogueInterface $catalog, string $snippetSetId, ?string $fallbackLocale = null, ?string $salesChannelId = null): array
     {
         $locale = $this->getLocaleBySnippetSetId($snippetSetId);
 
         $snippets = [];
 
-        $snippetFileCollection = clone $this->snippetFileCollection;
+        $snippetFileCollection = $this->snippetFileCollection;
 
-        $unusedThemes = $this->getUnusedThemes();
+        $usingThemes = $this->getUsedThemes($salesChannelId);
+        $unusedThemes = $this->getUnusedThemes($usingThemes);
+        $snippetCollection = $snippetFileCollection->filter(fn (AbstractSnippetFile $snippetFile) => !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true));
 
-        $snippetCollection = $snippetFileCollection->filter(function (AbstractSnippetFile $snippetFile) use ($unusedThemes) {
-            return !\in_array($snippetFile->getTechnicalName(), $unusedThemes, true);
-        });
+        $fallbackSnippets = [];
 
         if ($fallbackLocale !== null) {
             // fallback has to be the base
-            $snippets = $this->getSnippetsByLocale($snippetCollection, $fallbackLocale);
+            $snippets = $fallbackSnippets = $this->getSnippetsByLocale($snippetCollection, $fallbackLocale);
         }
 
         // now override fallback with defaults in catalog
@@ -156,16 +131,14 @@ class SnippetService
         // after fallback and default catalog merged, overwrite them with current locale snippets
         $snippets = array_replace_recursive(
             $snippets,
-            $this->getSnippetsByLocale($snippetCollection, $locale)
+            $locale === $fallbackLocale ? $fallbackSnippets : $this->getSnippetsByLocale($snippetCollection, $locale)
         );
 
         // at least overwrite the snippets with the database customer overwrites
-        $snippets = array_replace_recursive(
+        return array_replace_recursive(
             $snippets,
-            $this->fetchSnippetsFromDatabase($snippetSetId)
+            $this->fetchSnippetsFromDatabase($snippetSetId, $unusedThemes)
         );
-
-        return $snippets;
     }
 
     /**
@@ -237,6 +210,9 @@ class SnippetService
         return $result;
     }
 
+    /**
+     * @decrecated tag:v6.6.0 - will be removed, use findSnippetSetId instead
+     */
     public function getSnippetSet(string $salesChannelId, string $languageId, string $locale, Context $context): ?SnippetSetEntity
     {
         $criteria = new Criteria();
@@ -252,6 +228,7 @@ class SnippetService
         if ($salesChannelDomain === null) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('iso', $locale));
+            /** @var SnippetSetEntity|null $snippetSet */
             $snippetSet = $this->snippetSetRepository->search($criteria, $context)->first();
         } else {
             $snippetSet = $salesChannelDomain->getSnippetSet();
@@ -260,10 +237,43 @@ class SnippetService
         return $snippetSet;
     }
 
+    public function findSnippetSetId(string $salesChannelId, string $languageId, string $locale): string
+    {
+        $snippetSetId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(`snippet_set`.`id`))
+            FROM `sales_channel_domain`
+            INNER JOIN `snippet_set` ON `sales_channel_domain`.`snippet_set_id` = `snippet_set`.`id`
+            WHERE `sales_channel_domain`.`sales_channel_id` = :salesChannelId AND `sales_channel_domain`.`language_id` = :languageId
+            LIMIT 1',
+            [
+                'salesChannelId' => Uuid::fromHexToBytes($salesChannelId),
+                'languageId' => Uuid::fromHexToBytes($languageId),
+            ]
+        );
+
+        if ($snippetSetId) {
+            return $snippetSetId;
+        }
+
+        $sets = $this->connection->fetchAllKeyValue(
+            'SELECT iso, LOWER(HEX(id)) FROM snippet_set WHERE iso IN (:locales) LIMIT 2',
+            ['locales' => array_unique([$locale, 'en-GB'])],
+            ['locales' => ArrayParameterType::STRING]
+        );
+
+        if (isset($sets[$locale])) {
+            return $sets[$locale];
+        }
+
+        return array_pop($sets);
+    }
+
     /**
-     * @return array<int, string>
+     * @param list<string> $usingThemes
+     *
+     * @return list<string>
      */
-    protected function getUnusedThemes(): array
+    protected function getUnusedThemes(array $usingThemes = []): array
     {
         if (!$this->container->has(StorefrontPluginRegistry::class)) {
             return [];
@@ -271,27 +281,19 @@ class SnippetService
 
         $themeRegistry = $this->container->get(StorefrontPluginRegistry::class);
 
-        $request = $this->requestStack->getMainRequest();
-
-        $usingThemes = array_filter(array_unique([
-            $request ? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_NAME) : null,
-            $request ? $request->attributes->get(SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME) : null,
-            StorefrontPluginRegistry::BASE_THEME_NAME, // Storefront snippets should always be loaded
-        ]));
-
-        $unusedThemes = $themeRegistry->getConfigurations()->getThemes()->filter(function (StorefrontPluginConfiguration $theme) use ($usingThemes) {
-            return !\in_array($theme->getTechnicalName(), $usingThemes, true);
-        })->map(function (StorefrontPluginConfiguration $theme) {
-            return $theme->getTechnicalName();
-        });
+        $unusedThemes = $themeRegistry->getConfigurations()->getThemes()->filter(fn (StorefrontPluginConfiguration $theme) => !\in_array($theme->getTechnicalName(), $usingThemes, true))->map(fn (StorefrontPluginConfiguration $theme) => $theme->getTechnicalName());
 
         return array_values($unusedThemes);
     }
 
     /**
+     * Second parameter $unusedThemes is used for external dependencies
+     *
+     * @param list<string> $unusedThemes
+     *
      * @return array<string, string>
      */
-    protected function fetchSnippetsFromDatabase(string $snippetSetId): array
+    protected function fetchSnippetsFromDatabase(string $snippetSetId, array $unusedThemes = []): array
     {
         /** @var array<string, string> $snippets */
         $snippets = $this->connection->fetchAllKeyValue('SELECT translation_key, value FROM snippet WHERE snippet_set_id = :snippetSetId', [
@@ -326,6 +328,33 @@ class SnippetService
         }
 
         return $snippets;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getUsedThemes(?string $salesChannelId = null): array
+    {
+        if (!$this->container->has(StorefrontPluginRegistry::class)) {
+            return [];
+        }
+
+        if (!$salesChannelId || $this->salesChannelThemeLoader === null) {
+            return [StorefrontPluginRegistry::BASE_THEME_NAME];
+        }
+
+        $saleChannelThemes = $this->salesChannelThemeLoader->load($salesChannelId);
+
+        $usedThemes = array_filter([
+            $saleChannelThemes['themeName'] ?? null,
+            $saleChannelThemes['parentThemeName'] ?? null,
+        ]);
+
+        /** @var list<string> */
+        return array_values(array_unique([
+            ...$usedThemes,
+            StorefrontPluginRegistry::BASE_THEME_NAME, // Storefront snippets should always be loaded
+        ]));
     }
 
     /**
@@ -596,7 +625,7 @@ class SnippetService
             $newIndex = $prefix . (empty($prefix) ? '' : '.') . $index;
 
             if (\is_array($value)) {
-                $result = array_merge($result, $this->flatten($value, $newIndex, $additionalParameters));
+                $result = [...$result, ...$this->flatten($value, $newIndex, $additionalParameters)];
             } else {
                 if (!empty($additionalParameters)) {
                     $result[$newIndex] = array_merge([

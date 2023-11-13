@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class RequirementExceptionStack
 {
     /**

@@ -32,7 +32,7 @@ describe('app/service/recently-search.service.js', () => {
 
         const actualStorage = JSON.parse(localStorage.getItem(recentlySearchService._key('userId')));
 
-        expect(actualStorage.length).toEqual(1);
+        expect(actualStorage).toHaveLength(1);
         expect(actualStorage[0].timestamp).toBeTruthy();
 
         delete actualStorage[0].timestamp;
@@ -49,7 +49,7 @@ describe('app/service/recently-search.service.js', () => {
 
         const data = recentlySearchService.get('userId');
 
-        expect(data.length).toEqual(maximumStack);
+        expect(data).toHaveLength(maximumStack);
     });
 
     it('add method should push newst item to the top', async () => {
@@ -63,9 +63,9 @@ describe('app/service/recently-search.service.js', () => {
 
         const data = recentlySearchService.get('userId');
 
-        expect(data.length).toEqual(maximumStack);
-        expect(data[0].entity).toEqual('product');
-        expect(data[0].id).toEqual('productId-new');
+        expect(data).toHaveLength(maximumStack);
+        expect(data[0].entity).toBe('product');
+        expect(data[0].id).toBe('productId-new');
     });
 
     it('add method should pop oldest out of stack', async () => {
@@ -81,7 +81,7 @@ describe('app/service/recently-search.service.js', () => {
 
         const foundOldProduct = data.find(item => item.id === 'productId-old');
 
-        expect(foundOldProduct).toEqual(undefined);
+        expect(foundOldProduct).toBeUndefined();
     });
 
     it('add method should move duplicated item to the top', async () => {
@@ -107,7 +107,7 @@ describe('app/service/recently-search.service.js', () => {
         const foundOldProducts = data.filter(item => item.id === uniqueProduct.id);
 
         expect(foundOldProducts).toBeTruthy();
-        expect(foundOldProducts.length).toEqual(1);
+        expect(foundOldProducts).toHaveLength(1);
 
         const foundOldProduct = foundOldProducts[0];
 

@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
  */
 class ToManyAssociationDependencyDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = '_test_to_many_association_dependency';
+    final public const ENTITY_NAME = '_test_to_many_association_dependency';
 
     public function getEntityName(): string
     {

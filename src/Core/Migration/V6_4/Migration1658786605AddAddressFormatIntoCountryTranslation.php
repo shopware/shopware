@@ -3,14 +3,16 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\System\Country\CountryDefinition;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1658786605AddAddressFormatIntoCountryTranslation extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -31,7 +33,7 @@ class Migration1658786605AddAddressFormatIntoCountryTranslation extends Migratio
 
         $addressFormat = json_encode(CountryDefinition::DEFAULT_ADDRESS_FORMAT);
 
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `country_translation` ADD COLUMN `address_format` JSON NULL AFTER `name`;
         ');
 

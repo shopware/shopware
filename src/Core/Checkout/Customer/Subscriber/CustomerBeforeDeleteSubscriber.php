@@ -7,8 +7,9 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -16,42 +17,32 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('checkout')]
 class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
-    private EntityRepository $customerRepository;
-
-    private SalesChannelContextServiceInterface $salesChannelContextService;
-
-    private EventDispatcherInterface $eventDispatcher;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        SalesChannelContextServiceInterface $salesChannelContextService,
-        EventDispatcherInterface $eventDispatcher
+        private readonly EntityRepository $customerRepository,
+        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->salesChannelContextService = $salesChannelContextService;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
      * @return array<string, string>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
-            BeforeDeleteEvent::class => 'beforeDelete',
+            EntityDeleteEvent::class => 'beforeDelete',
         ];
     }
 
-    public function beforeDelete(BeforeDeleteEvent $event): void
+    public function beforeDelete(EntityDeleteEvent $event): void
     {
         $context = $event->getContext();
 
@@ -69,10 +60,10 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
         }
 
         /** @var CustomerCollection $customers */
-        $customers = $this->customerRepository->search(new Criteria($ids), $context);
+        $customers = $this->customerRepository->search(new Criteria($ids), $context)->getEntities();
 
         $event->addSuccess(function () use ($customers, $context, $salesChannelId): void {
-            foreach ($customers->getElements() as $customer) {
+            foreach ($customers as $customer) {
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
                         $salesChannelId ?? $customer->getSalesChannelId(),

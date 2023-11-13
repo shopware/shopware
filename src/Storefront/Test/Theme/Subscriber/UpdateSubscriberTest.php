@@ -22,9 +22,9 @@ class UpdateSubscriberTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM `theme`');
+        $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM `theme`');
     }
 
     public function testCompilesAllThemes(): void

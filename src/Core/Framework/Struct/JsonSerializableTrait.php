@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Framework\Struct;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 trait JsonSerializableTrait
 {
     /**
-     * @return array<mixed>
+     * @return array<array-key, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -19,7 +19,7 @@ trait JsonSerializableTrait
     }
 
     /**
-     * @param array<mixed> $array
+     * @param array<string, mixed> $array
      */
     protected function convertDateTimePropertiesToJsonStringRepresentation(array &$array): void
     {

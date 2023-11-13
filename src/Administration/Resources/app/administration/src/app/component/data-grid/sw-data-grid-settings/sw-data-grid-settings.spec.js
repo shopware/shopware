@@ -27,18 +27,18 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                 'sw-button': true,
                 'sw-icon': true,
                 'sw-context-menu-divider': true,
-                'sw-button-group': true
+                'sw-button-group': true,
             },
             propsData: {
                 columns: [
                     { property: 'name', label: 'Name' },
-                    { property: 'company', label: 'Company' }
+                    { property: 'company', label: 'Company' },
                 ],
                 compact: true,
                 previews: false,
                 enablePreviews: true,
-                disabled: false
-            }
+                disabled: false,
+            },
         });
     });
 
@@ -62,6 +62,6 @@ describe('components/data-grid/sw-data-grid-settings', () => {
 
     it('should render a row for each item in column prop', async () => {
         const rows = wrapper.findAll('.sw-data-grid__settings-column-item');
-        expect(rows.length).toBe(2);
+        expect(rows).toHaveLength(2);
     });
 });

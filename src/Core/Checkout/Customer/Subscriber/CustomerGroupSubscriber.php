@@ -14,44 +14,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('checkout')]
 class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
-
-    private EntityRepository $customerGroupRepository;
-
-    private SeoUrlPersister $persister;
-
-    private SlugifyInterface $slugify;
-
-    private EntityRepository $seoUrlRepository;
-
-    private EntityRepository $languageRepository;
 
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $customerGroupRepository,
-        EntityRepository $seoUrlRepository,
-        EntityRepository $languageRepository,
-        SeoUrlPersister $persister,
-        SlugifyInterface $slugify
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $seoUrlRepository,
+        private readonly EntityRepository $languageRepository,
+        private readonly SeoUrlPersister $persister,
+        private readonly SlugifyInterface $slugify
     ) {
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->seoUrlRepository = $seoUrlRepository;
-        $this->persister = $persister;
-        $this->slugify = $slugify;
-        $this->languageRepository = $languageRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -124,9 +111,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->seoUrlRepository->delete(array_map(function (string $id) {
-            return ['id' => $id];
-        }, $ids), $event->getContext());
+        $this->seoUrlRepository->delete(array_map(fn (string $id) => ['id' => $id], $ids), $event->getContext());
     }
 
     /**
@@ -136,8 +121,15 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     {
         $criteria = new Criteria($ids);
         $criteria->addFilter(new EqualsFilter('registrationActive', true));
+
         $criteria->addAssociation('registrationSalesChannels.languages');
         $criteria->addAssociation('translations');
+
+        if (Feature::isActive('v6.6.0.0')) {
+            $criteria->getAssociation('registrationSalesChannels')->addFilter(
+                new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)])
+            );
+        }
 
         /** @var CustomerGroupCollection $groups */
         $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
@@ -151,6 +143,12 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
                 if ($registrationSalesChannel->getLanguages() === null) {
                     continue;
+                }
+
+                if ($registrationSalesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+                    if (Feature::isActive('v6.6.0.0')) {
+                        continue;
+                    }
                 }
 
                 /** @var array<string> $languageIds */

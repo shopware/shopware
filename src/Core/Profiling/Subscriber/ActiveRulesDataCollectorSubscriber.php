@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -16,22 +17,18 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implements EventSubscriberInterface, ResetInterface
 {
-    private EntityRepository $ruleRepository;
-
     /**
      * @var array<string>
      */
     private array $ruleIds = [];
 
-    public function __construct(EntityRepository $ruleRepository)
+    public function __construct(private readonly EntityRepository $ruleRepository)
     {
-        $this->ruleRepository = $ruleRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -50,7 +47,7 @@ class ActiveRulesDataCollectorSubscriber extends AbstractDataCollector implement
     /**
      * @return array<string, RuleEntity>|Data<string, RuleEntity>
      */
-    public function getData()
+    public function getData(): array|Data
     {
         return $this->data;
     }

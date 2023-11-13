@@ -3,7 +3,7 @@
         {% if newsletterAccountPagelet.messages|length > 0 %}
             <div class="newsletter-alerts">
                 {% for message in newsletterAccountPagelet.messages %}
-                    {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
+                    {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text } %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -38,7 +38,7 @@
                                id="newsletterRegister"
                                name="option"
                                autocomplete="off"
-                               value="{% if newsletterAccountPagelet.newsletterDoi %}{{ subscribe }}{% else %}{{ direct }}{% endif %}"
+                               value="subscribe"
                                {% if status %}checked="checked"{% endif %}>
                     {% endblock %}
 

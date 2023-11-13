@@ -15,28 +15,25 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         expect(fileReaderUtils.readFileAsArrayBuffer(fileMock)).toBeInstanceOf(Object);
     });
 
-    it('should read a file as text', done => {
+    it('should read a file as text', async () => {
         const fileMock = new Blob(['this is test data']);
 
-        fileReaderUtils.readFileAsText(fileMock).then((loadedText) => {
-            expect(loadedText).toBe('this is test data');
-        }).finally(done);
+        const loadedText = await fileReaderUtils.readFileAsText(fileMock);
+        expect(loadedText).toBe('this is test data');
     });
 
-    it('should read a file as DataURL', done => {
+    it('should read a file as DataURL', async () => {
         const fileMock = new Blob(['this is test data']);
 
-        fileReaderUtils.readFileAsDataURL(fileMock).then((dataURL) => {
-            expect(dataURL).toMatch(/^data:.*;base64.*/);
-        }).finally(done);
+        const dataURL = await fileReaderUtils.readFileAsDataURL(fileMock);
+        expect(dataURL).toMatch(/^data:.*;base64.*/);
     });
 
-    it('should read a file as ArrayBuffer', done => {
+    it('should read a file as ArrayBuffer', async () => {
         const fileMock = new Blob(['this is test data']);
 
-        fileReaderUtils.readFileAsArrayBuffer(fileMock).then((dataBuffer) => {
-            expect(dataBuffer).toBeInstanceOf(ArrayBuffer);
-        }).finally(done);
+        const dataBuffer = await fileReaderUtils.readFileAsArrayBuffer(fileMock);
+        expect(dataBuffer).toBeInstanceOf(ArrayBuffer);
     });
 
     it('should get Name and Extension from an URL', async () => {

@@ -10,8 +10,8 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportRenderBodyContextEvent;
-use Shopware\Core\Content\ProductExport\Exception\EmptyExportException;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
+use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGenerator;
 use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
@@ -22,7 +22,7 @@ use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
-use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -33,6 +33,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
@@ -61,6 +62,7 @@ class ProductExportGeneratorTest extends TestCase
         $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
@@ -75,6 +77,8 @@ class ProductExportGeneratorTest extends TestCase
         $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
+
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportBehavior = new ExportBehavior();
 
@@ -125,9 +129,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -148,6 +153,7 @@ class ProductExportGeneratorTest extends TestCase
         $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportBehavior = new ExportBehavior();
 
@@ -190,14 +196,15 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Connection::class),
             100,
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
-            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get('twig'),
             $this->getContainer()->get(ProductDefinition::class),
             $this->getContainer()->get(LanguageLocaleCodeProvider::class),
+            $this->getContainer()->get(TwigVariableParserFactory::class)
         );
 
         try {
             $exportGenerator->generate($productExport, $exportBehavior);
-        } catch (EmptyExportException $emptyExportException) {
+        } catch (ProductExportException) {
         }
 
         static::assertTrue($productExportProductCriteriaEventDispatched, 'ProductExportProductCriteriaEvent was not dispatched');
@@ -216,6 +223,7 @@ class ProductExportGeneratorTest extends TestCase
         $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
@@ -232,6 +240,7 @@ class ProductExportGeneratorTest extends TestCase
         $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $exportResult = $this->service->generate($productExport, new ExportBehavior());
 
@@ -252,6 +261,7 @@ class ProductExportGeneratorTest extends TestCase
         $criteria = $this->createProductExportCriteria($productExportId);
 
         $productExport = $this->repository->search($criteria, $this->context)->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
 
         $result = $this->service->generate($productExport, new ExportBehavior());
 
@@ -259,7 +269,7 @@ class ProductExportGeneratorTest extends TestCase
         static::assertStringContainsString($code, $result->getContent());
     }
 
-    public function isoCodeProvider(): \Generator
+    public static function isoCodeProvider(): \Generator
     {
         yield 'Polish zloty iso code' => ['PLN'];
         yield 'Euro iso code' => ['EUR'];
@@ -283,7 +293,10 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first()->getId();
+        $salesChannel = $repository->search(new Criteria(), $this->context)->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        return $salesChannel->getId();
     }
 
     private function getSalesChannelDomain(): SalesChannelDomainEntity
@@ -291,7 +304,10 @@ class ProductExportGeneratorTest extends TestCase
         /** @var EntityRepository $repository */
         $repository = $this->getContainer()->get('sales_channel_domain.repository');
 
-        return $repository->search(new Criteria(), $this->context)->first();
+        $salesChannelDomain = $repository->search(new Criteria(), $this->context)->first();
+        static::assertInstanceOf(SalesChannelDomainEntity::class, $salesChannelDomain);
+
+        return $salesChannelDomain;
     }
 
     private function getSalesChannelDomainId(): string
@@ -299,6 +315,9 @@ class ProductExportGeneratorTest extends TestCase
         return $this->getSalesChannelDomain()->getId();
     }
 
+    /**
+     * @param array<string, string> $override
+     */
     private function createTestEntity(array $override = []): string
     {
         $this->createProductStream();
@@ -347,6 +366,9 @@ class ProductExportGeneratorTest extends TestCase
     ");
     }
 
+    /**
+     * @return array<array<string, mixed>>
+     */
     private function createProducts(): array
     {
         $productRepository = $this->getContainer()->get('product.repository');

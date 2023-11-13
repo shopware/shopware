@@ -4,17 +4,16 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Field;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class TreePathField extends LongTextField
 {
-    private $pathField;
-
-    public function __construct(string $storageName, string $propertyName, string $pathField = 'id')
-    {
-        $this->pathField = $pathField;
+    public function __construct(
+        string $storageName,
+        string $propertyName,
+        private readonly string $pathField = 'id'
+    ) {
         parent::__construct($storageName, $propertyName);
 
         $this->addFlags(new WriteProtected(Context::SYSTEM_SCOPE));

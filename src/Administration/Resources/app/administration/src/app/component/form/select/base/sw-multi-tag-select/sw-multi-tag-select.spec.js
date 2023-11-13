@@ -15,8 +15,8 @@ const selector = {
     multiDataSelect: {
         container: '.sw-select__selection',
         input: '.sw-select-selection-list__input',
-        popover: '.sw-select-result-list__content'
-    }
+        popover: '.sw-select-result-list__content',
+    },
 };
 
 const createMultiDataSelect = async (customOptions) => {
@@ -29,24 +29,24 @@ const createMultiDataSelect = async (customOptions) => {
             'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
             'sw-popover': await Shopware.Component.build('sw-popover'),
             'sw-icon': {
-                template: '<div></div>'
-            }
+                template: '<div></div>',
+            },
         },
         propsData: {
             value: [],
             disabled: false,
-        }
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-multi-tag-select'), {
         ...options,
-        ...customOptions
+        ...customOptions,
     });
 };
 
 const pressKey = async (el, key) => {
     await el.trigger('keydown', {
-        key: key
+        key: key,
     });
 };
 
@@ -65,6 +65,14 @@ describe('components/sw-multi-tag-select', () => {
 
         const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
         expect(selectOptionsPopover.isVisible()).toBeTruthy();
+    });
+
+    it('should focus input when the user click on .sw-select__selection', async () => {
+        const wrapper = await createMultiDataSelect();
+        const focusSpy = jest.spyOn(wrapper.vm.$refs.selectionList, 'focus');
+
+        wrapper.vm.setDropDown(true);
+        expect(focusSpy).toHaveBeenCalled();
     });
 
     it('should show the select field\'s options popover', async () => {
@@ -89,8 +97,8 @@ describe('components/sw-multi-tag-select', () => {
 
         const multiDataSelect = await createMultiDataSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
 
         const input = multiDataSelect.find(selector.multiDataSelect.input);
@@ -110,8 +118,8 @@ describe('components/sw-multi-tag-select', () => {
 
         const multiDataSelect = await createMultiDataSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
 
         await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
@@ -154,10 +162,10 @@ describe('components/sw-multi-tag-select', () => {
             ipsum: {
                 dolor: {
                     sit: {
-                        amet: '95a5ab26-2512-4843-8288-871e593a81f1'
-                    }
-                }
-            }
+                        amet: '95a5ab26-2512-4843-8288-871e593a81f1',
+                    },
+                },
+            },
         };
 
         const multiDataSelect = await createMultiDataSelect();
@@ -173,8 +181,8 @@ describe('components/sw-multi-tag-select', () => {
 
         const multiDataSelect = await createMultiDataSelect({
             listeners: {
-                change: changeSpy
-            }
+                change: changeSpy,
+            },
         });
         await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 

@@ -13,10 +13,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class StructuredArrayObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var array
-     */
-    private $inner = [
+    private array $inner = [
         'string' => 'string',
         'bool' => true,
         'int' => 3,

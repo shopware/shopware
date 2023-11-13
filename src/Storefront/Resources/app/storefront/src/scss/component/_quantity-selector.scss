@@ -1,0 +1,38 @@
+.quantity-selector-group {
+
+    .quantity-selector-group-input {
+        -moz-appearance: textfield;
+        text-align: center;
+        border-left: 0;
+        border-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .quantity-selector-group-input::-webkit-outer-spin-button,
+    .quantity-selector-group-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .btn {
+        border: 1px solid $border-color;
+
+        &.btn-plus {
+            border-left: 0;
+        }
+
+        &.btn-minus {
+            border-right: 0;
+        }
+
+        &:active {
+            border-color: $border-color;
+        }
+
+        svg {
+            top: 4px;
+        }
+    }
+
+}

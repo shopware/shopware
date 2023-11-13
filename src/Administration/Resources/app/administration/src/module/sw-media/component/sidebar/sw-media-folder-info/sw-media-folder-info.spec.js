@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
@@ -45,7 +45,7 @@ describe('src/module/sw-media/component/sidebar/sw-media-folder-info', () => {
         const wrapper = await createWrapper({
             computed: {
                 mediaFolderNameError: () => 'Error',
-            }
+            },
         });
 
         expect(wrapper.vm.nameItemClasses).toStrictEqual({

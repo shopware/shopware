@@ -3,16 +3,16 @@
 namespace Shopware\Core\Framework\Webhook\ScheduledTask;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Shopware\Core\Framework\Webhook\Service\WebhookCleanup;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsMessageHandler(handles: CleanupWebhookEventLogTask::class)]
+#[Package('core')]
 final class CleanupWebhookEventLogTaskHandler extends ScheduledTaskHandler
 {
     /**
@@ -20,7 +20,7 @@ final class CleanupWebhookEventLogTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
-        private WebhookCleanup $webhookCleanup
+        private readonly WebhookCleanup $webhookCleanup
     ) {
         parent::__construct($repository);
     }

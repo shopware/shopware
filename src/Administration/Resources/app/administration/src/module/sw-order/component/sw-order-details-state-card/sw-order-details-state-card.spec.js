@@ -3,8 +3,10 @@ import swOrderDetailsStateCard from 'src/module/sw-order/component/sw-order-deta
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package customer-order
+ * @package checkout
  */
+
+jest.useFakeTimers().setSystemTime(new Date(170363865609544));
 
 Shopware.Component.register('sw-order-details-state-card', swOrderDetailsStateCard);
 
@@ -14,44 +16,44 @@ const orderMock = {
         {
             stateMachineState: {
                 translated: {
-                    name: 'Transaction state'
-                }
-            }
-        }
+                    name: 'Transaction state',
+                },
+            },
+        },
     ],
     deliveries: [
         {
             stateMachineState: {
                 translated: {
-                    name: 'Delivery state'
-                }
-            }
-        }
+                    name: 'Delivery state',
+                },
+            },
+        },
     ],
     stateMachineState: {
         translated: {
-            name: 'Order state'
-        }
-    }
+            name: 'Order state',
+        },
+    },
 };
 
 orderMock.transactions.last = () => ({
     stateMachineState: {
         translated: {
-            name: 'Transaction state'
-        }
+            name: 'Transaction state',
+        },
     },
     getEntityName: () => {
         return 'order_transaction';
-    }
+    },
 });
 
 orderMock.deliveries.first = () => ({
     stateMachineState: {
         translated: {
-            name: 'Delivery state'
-        }
-    }
+            name: 'Delivery state',
+        },
+    },
 });
 
 async function createWrapper() {
@@ -59,7 +61,7 @@ async function createWrapper() {
         propsData: {
             order: orderMock,
             isLoading: false,
-            entity: orderMock.transactions.last()
+            entity: orderMock.transactions.last(),
         },
         provide: {
             orderStateMachineService: {},
@@ -72,16 +74,13 @@ async function createWrapper() {
                             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
                             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
                             variant: 'neutral',
-                            colorCode: '#94a6b8'
-                        }
+                            colorCode: '#94a6b8',
+                        },
                     };
-                }
+                },
             },
             stateMachineService: {
-                getState: () => { return { data: { transitions: [] } }; }
-            },
-            acl: {
-                can: () => true
+                getState: () => { return { data: { transitions: [] } }; },
             },
             repositoryFactory: {
                 create: (entity) => {
@@ -93,11 +92,11 @@ async function createWrapper() {
                                         return {
                                             user: {
                                                 firstName: 'John',
-                                                lastName: 'Doe'
+                                                lastName: 'Doe',
                                             },
-                                            createdAt: new Date()
+                                            createdAt: new Date(),
                                         };
-                                    }
+                                    },
                                 });
                             }
 
@@ -107,12 +106,12 @@ async function createWrapper() {
                                 Shopware.Context.api,
                                 null,
                                 [],
-                                0
+                                0,
                             ));
-                        }
+                        },
                     };
-                }
-            }
+                },
+            },
         },
         stubs: {
             'sw-order-state-select-v2': true,
@@ -120,44 +119,40 @@ async function createWrapper() {
             'sw-order-state-change-modal': true,
             'sw-container': true,
             'sw-card': true,
-            'sw-time-ago': true,
-            i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' }
-        }
+            'sw-time-ago': {
+                template: '<div class="sw-time-ago"></div>',
+                props: ['date'],
+            },
+            i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' },
+        },
     });
 }
 
 describe('src/module/sw-order/component/sw-order-details-state-card', () => {
-    let wrapper;
+    beforeEach(async () => {
+        if (Shopware.State.get('swOrderDetail')) {
+            Shopware.State.unregisterModule('swOrderDetail');
+        }
 
-    beforeAll(() => {
         Shopware.State.registerModule('swOrderDetail', {
             namespaced: true,
             state: {
                 isLoading: false,
                 isSavedSuccessful: false,
-                versionContext: {}
-            }
+                versionContext: {},
+            },
         });
     });
 
-    beforeEach(async () => {
-        global.repositoryFactoryMock.showError = false;
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show history text', async () => {
-        const summary = wrapper.find('.sw-order-detail-state-card__state-history-text');
+        global.repositoryFactoryMock.showError = false;
 
-        expect(summary.exists()).toBeTruthy();
-        expect(summary.text()).toEqual('John Doe');
-        expect(summary.find('sw-time-ago').exists());
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const summary = wrapper.get('.sw-order-detail-state-card__state-history-text');
+
+        expect(summary.text()).toBe('John Doe');
+        expect(summary.get('.sw-time-ago').props('date')).toEqual(new Date(170363865609544));
     });
 });

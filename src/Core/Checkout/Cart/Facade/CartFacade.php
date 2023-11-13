@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Facade;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ContainerFactoryTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait;
@@ -11,39 +12,35 @@ use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait;
 use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
 /**
  * The `cart` service allows you to manipulate the cart.
  * You can use the cart service to add line-items, change prices, add discounts, etc. to the cart.
  *
  * @script-service cart_manipulation
- *
- * @package checkout
  */
+#[Package('checkout')]
 class CartFacade
 {
-    use DiscountTrait;
-    use SurchargeTrait;
-    use ItemsGetTrait;
-    use ItemsRemoveTrait;
-    use ItemsHasTrait;
-    use ItemsCountTrait;
     use ContainerFactoryTrait;
-
-    private Cart $cart;
+    use DiscountTrait;
+    use ItemsCountTrait;
+    use ItemsGetTrait;
+    use ItemsHasTrait;
+    use ItemsRemoveTrait;
+    use SurchargeTrait;
 
     /**
      * @internal
      */
-    public function __construct(CartFacadeHelper $helper, Cart $cart, SalesChannelContext $context)
-    {
-        $this->helper = $helper;
-        $this->cart = $cart;
-        $this->context = $context;
+    public function __construct(
+        private CartFacadeHelper $helper,
+        private ScriptPriceStubs $priceStubs,
+        private Cart $cart,
+        private SalesChannelContext $context
+    ) {
     }
 
     /**
@@ -53,7 +50,7 @@ class CartFacade
      */
     public function items(): ItemsFacade
     {
-        return new ItemsFacade($this->cart->getLineItems(), $this->helper, $this->context);
+        return new ItemsFacade($this->cart->getLineItems(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**
@@ -64,7 +61,7 @@ class CartFacade
      */
     public function products(): ProductsFacade
     {
-        return new ProductsFacade($this->cart->getLineItems(), $this->helper, $this->context);
+        return new ProductsFacade($this->cart->getLineItems(), $this->priceStubs, $this->helper, $this->context);
     }
 
     /**
@@ -79,12 +76,10 @@ class CartFacade
     {
         $behavior = $this->cart->getBehavior();
         if (!$behavior) {
-            throw new \LogicException('Cart behavior missing. The instanced cart was never calculated');
+            throw CartException::missingCartBehavior();
         }
 
-        $this->cart = $behavior->disableHooks(function () use ($behavior) {
-            return $this->helper->calculate($this->cart, $behavior, $this->context);
-        });
+        $this->cart = $behavior->disableHooks(fn () => $this->helper->calculate($this->cart, $behavior, $this->context));
     }
 
     /**
@@ -96,7 +91,7 @@ class CartFacade
      */
     public function price(): CartPriceFacade
     {
-        return new CartPriceFacade($this->cart->getPrice(), $this->helper);
+        return new CartPriceFacade($this->cart->getPrice(), $this->priceStubs);
     }
 
     /**

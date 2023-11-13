@@ -5,12 +5,20 @@
 
     &__headline {
         font-weight: $font-weight-semi-bold;
-        margin-bottom: 0;
+        margin-bottom: 2px;
+    }
+
+    .sw-extension-rating-stars {
+        margin-bottom: 8px;
+    }
+
+    &__text {
+        margin-bottom: 4px;
     }
 
     &__meta-data {
         color: $color-gray-500;
-        margin-top: 8px;
+        font-size: $font-size-xxs;
     }
 
     &__comma:not(:last-child)::after {

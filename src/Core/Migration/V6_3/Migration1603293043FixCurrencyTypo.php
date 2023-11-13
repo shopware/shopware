@@ -4,13 +4,15 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1603293043FixCurrencyTypo extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -36,7 +38,7 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->innerJoin('lang', 'locale', 'loc', 'lang.translation_code_id = loc.id')
                 ->where('loc.code = :englishLocale')
                 ->setParameter('englishLocale', 'en-GB')
-                ->execute()
+                ->executeQuery()
                 ->fetchOne();
 
             if ($englishLanguageId === false) {
@@ -48,13 +50,13 @@ class Migration1603293043FixCurrencyTypo extends MigrationStep
                 ->from('currency_translation')
                 ->where('language_id = :englishLocale AND short_name = :swedishKronaShortName AND updated_at IS NULL ')
                 ->setParameters(['englishLocale' => $englishLanguageId, 'swedishKronaShortName' => 'SEK'])
-                ->execute()
+                ->executeQuery()
                 ->fetchOne();
 
             if ($enSwedishCurrencyTranslationUnchanged === false) {
                 return;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return;
         }
 

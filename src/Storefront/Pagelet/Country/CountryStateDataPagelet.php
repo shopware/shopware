@@ -2,12 +2,11 @@
 
 namespace Shopware\Storefront\Pagelet\Country;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class CountryStateDataPagelet extends Pagelet
 {
     protected CountryStateCollection $states;

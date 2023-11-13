@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Migration\Traits;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @package core
- */
+#[Package('core')]
 trait UpdateMailTrait
 {
     use ImportTranslationsTrait;
@@ -164,7 +164,7 @@ trait UpdateMailTrait
             AND mail_template_translation.updated_at IS NULL
             AND mail_template.updated_at IS NULL',
             ['ids' => Uuid::fromHexToBytesList($languageIds), 'type' => $type],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 }

@@ -14,9 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  */
 class ExtensionStoreDataControllerTest extends TestCase
 {
+    use ExtensionBehaviour;
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
-    use ExtensionBehaviour;
 
     /**
      * @var ExtensionStoreDataController
@@ -37,7 +37,7 @@ class ExtensionStoreDataControllerTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], '[]'));
 
         $response = $this->controller->getInstalledExtensions($this->createAdminStoreContext());
-        $data = json_decode($response->getContent(), true);
+        $data = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotEmpty($data);
         static::assertContains('TestApp', array_column($data, 'name'));

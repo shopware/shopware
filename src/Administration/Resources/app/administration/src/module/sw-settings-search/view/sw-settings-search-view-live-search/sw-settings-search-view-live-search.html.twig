@@ -1,6 +1,11 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_settings_search_view_live_search %}
 <div class="sw-settings-search__view-live-search">
+    <sw-settings-search-search-index
+        v-if="!storefrontEsEnable"
+        :is-loading="isLoading"
+        v-on="$listeners"
+    />
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_view_live_search_content_card %}

@@ -3,23 +3,23 @@
 namespace Shopware\Storefront\Framework\Routing\Annotation;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package storefront
- *
  * @Annotation
  *
  * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_noStore"=true}` instead
  */
+#[Package('storefront')]
 class NoStore
 {
-    public const ALIAS = 'noStore';
+    final public const ALIAS = 'noStore';
 
     public function getAliasName(): string
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return self::ALIAS;
@@ -29,7 +29,7 @@ class NoStore
     {
         Feature::triggerDeprecationOrThrow(
             'v6.6.0.0',
-            Feature::deprecatedClassMessage(__CLASS__, 'v6.6.0.0')
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
         );
 
         return false;

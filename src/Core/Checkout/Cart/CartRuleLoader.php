@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Cart\Event\CartCreatedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -13,6 +12,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
@@ -20,33 +20,14 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CartRuleLoader implements ResetInterface
 {
     private const MAX_ITERATION = 7;
 
-    private AbstractCartPersister $cartPersister;
-
     private ?RuleCollection $rules = null;
-
-    private Processor $processor;
-
-    private LoggerInterface $logger;
-
-    private CacheInterface $cache;
-
-    private AbstractRuleLoader $ruleLoader;
-
-    private TaxDetector $taxDetector;
-
-    private EventDispatcherInterface $dispatcher;
-
-    private Connection $connection;
 
     /**
      * @var array<string, float>
@@ -57,23 +38,15 @@ class CartRuleLoader implements ResetInterface
      * @internal
      */
     public function __construct(
-        AbstractCartPersister $cartPersister,
-        Processor $processor,
-        LoggerInterface $logger,
-        CacheInterface $cache,
-        AbstractRuleLoader $loader,
-        TaxDetector $taxDetector,
-        Connection $connection,
-        EventDispatcherInterface $dispatcher
+        private readonly AbstractCartPersister $cartPersister,
+        private readonly Processor $processor,
+        private readonly LoggerInterface $logger,
+        private readonly CacheInterface $cache,
+        private readonly AbstractRuleLoader $ruleLoader,
+        private readonly TaxDetector $taxDetector,
+        private readonly Connection $connection,
+        private readonly CartFactory $cartFactory,
     ) {
-        $this->cartPersister = $cartPersister;
-        $this->processor = $processor;
-        $this->logger = $logger;
-        $this->cache = $cache;
-        $this->ruleLoader = $loader;
-        $this->taxDetector = $taxDetector;
-        $this->dispatcher = $dispatcher;
-        $this->connection = $connection;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -82,9 +55,8 @@ class CartRuleLoader implements ResetInterface
             $cart = $this->cartPersister->load($cartToken, $context);
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), false);
-        } catch (CartTokenNotFoundException $e) {
-            $cart = new Cart($context->getSalesChannel()->getTypeId(), $cartToken);
-            $this->dispatcher->dispatch(new CartCreatedEvent($cart));
+        } catch (CartTokenNotFoundException) {
+            $cart = $this->cartFactory->createNew($cartToken);
 
             return $this->load($context, $cart, new CartBehavior($context->getPermissions()), true);
         }
@@ -168,7 +140,7 @@ class CartRuleLoader implements ResetInterface
             foreach ($rules as $rule) {
                 ++$index;
                 $this->logger->info(
-                    sprintf('#%s Rule detection: %s with priority %s (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
+                    sprintf('#%d Rule detection: %s with priority %d (id: %s)', $index, $rule->getName(), $rule->getPriority(), $rule->getId())
                 );
             }
 
@@ -219,6 +191,7 @@ class CartRuleLoader implements ResetInterface
 
         $isReachedCustomerTaxFreeAmount = $country->getCustomerTax()->getEnabled() && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount);
         $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country) && $this->isReachedCountryTaxFreeAmount($context, $country, $cartNetAmount, CountryDefinition::TYPE_COMPANY_TAX_FREE);
+
         if ($isReachedCustomerTaxFreeAmount || $isReachedCompanyTaxFreeAmount) {
             return CartPrice::TAX_STATE_FREE;
         }

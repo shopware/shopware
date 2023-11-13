@@ -28,7 +28,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private EntityRepository $mediaRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->ids = new IdsCollection();
@@ -58,7 +58,7 @@ class DatabaseConfigLoaderTest extends TestCase
      */
     public function testMediaConfigurationLoading(): void
     {
-        self::setUpMedia();
+        $this->setUpMedia();
 
         $theme = [[
             'id' => $this->ids->get('base'),
@@ -91,8 +91,6 @@ class DatabaseConfigLoaderTest extends TestCase
         );
 
         $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
-
-        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
@@ -136,8 +134,6 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
 
-        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
-
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
 
@@ -180,8 +176,6 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $config = $service->load($this->ids->get('base'), Context::createDefaultContext());
 
-        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
-
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
 
@@ -194,7 +188,7 @@ class DatabaseConfigLoaderTest extends TestCase
      * @dataProvider configurationLoadingProvider
      *
      * @param array<string, mixed> $config
-     * @param array<string|int,mixed> $expected>
+     * @param array<string|int, mixed> $expected>
      */
     public function testConfigurationLoading(string $key, array $config, array $expected): void
     {
@@ -255,8 +249,6 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $config = $service->load($this->ids->get($key), Context::createDefaultContext());
 
-        static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
-
         $themeConfig = $config->getThemeConfig();
         static::assertNotNull($themeConfig);
         $fields = $themeConfig['fields'];
@@ -270,7 +262,7 @@ class DatabaseConfigLoaderTest extends TestCase
     /**
      * @return iterable<int|string, mixed>
      */
-    public function configurationLoadingProvider(): iterable
+    public static function configurationLoadingProvider(): iterable
     {
         yield 'Test simple inheritance' => [
             'child',
@@ -335,7 +327,7 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string,string|null>
+     * @return array<string, string|null>
      */
     private static function field(string $value): array
     {
@@ -343,7 +335,7 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @return array<string,string|null>
+     * @return array<string, string|null>
      */
     private static function media(?string $value): array
     {
@@ -351,11 +343,9 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @param string|int $value
-     *
-     * @return array<string,string|int>
+     * @return array<string, string|int>
      */
-    private static function fieldUntyped($value): array
+    private static function fieldUntyped(string|int $value): array
     {
         return ['value' => $value];
     }

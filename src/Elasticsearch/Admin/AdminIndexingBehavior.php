@@ -2,29 +2,20 @@
 
 namespace Shopware\Elasticsearch\Admin;
 
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class AdminIndexingBehavior
 {
-    protected bool $noQueue = false;
-
-    /**
-     * @var array<int, string|null>
-     */
-    protected array $skipEntities = [];
-
-    /**
-     * @var array<int, string|null>
-     */
-    private array $onlyEntities;
-
     /**
      * @param array<int, string|null> $skipEntities
      * @param array<int, string|null> $onlyEntities
      */
-    public function __construct(bool $noQueue = false, array $skipEntities = [], array $onlyEntities = [])
-    {
-        $this->noQueue = $noQueue;
-        $this->skipEntities = $skipEntities;
-        $this->onlyEntities = $onlyEntities;
+    public function __construct(
+        protected bool $noQueue = false,
+        protected array $skipEntities = [],
+        private readonly array $onlyEntities = []
+    ) {
     }
 
     public function getNoQueue(): bool

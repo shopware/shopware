@@ -2,15 +2,14 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
-use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\EventListener\Acl\CreditOrderLineItemListener;
@@ -29,56 +28,47 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\Rule\TrueRule;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use ArraySubsetAsserts;
     use PromotionTestFixtureBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<PromotionCollection>
      */
-    protected $promotionRepository;
+    protected EntityRepository $promotionRepository;
+
+    private Context $context;
 
     /**
-     * @var Context
+     * @var EntityRepository<SalesChannelCollection>
      */
-    private $context;
+    private EntityRepository $salesChannelRepository;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<CustomerCollection>
      */
-    private $salesChannelRepository;
+    private EntityRepository $customerRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
+    private Connection $connection;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
-
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -97,7 +87,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl(Uuid::randomHex(), '/product'));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
@@ -110,7 +100,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('GET', $this->getUrl($salesChannel['id'], '/product'));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayNotHasKey('errors', $response);
     }
@@ -232,18 +222,18 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'customerId' => $customerId,
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidChannelId(): void
@@ -251,14 +241,14 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'salesChannelId' => $salesChannelId,
             'customerId' => $customerId,
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -274,10 +264,10 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testSwitchCustomerWithInvalidCustomerId(): void
@@ -290,7 +280,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(1, $response['errors']);
@@ -303,7 +293,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $browser = $this->createCart($salesChannel['id']);
 
@@ -319,9 +309,8 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals($browser->getServerParameter($contextTokenHeaderName), $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         static::assertIsString($salesChannel['id']);
-        //assert customer is updated in database
+        // assert customer is updated in database
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('customerId', $payload);
         static::assertEquals($customerId, $payload['customerId']);
     }
@@ -333,7 +322,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+        $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
 
         $permissions = [
             'allowProductPriceOverwrites',
@@ -357,9 +346,8 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        //assert permissions exist in payload
+        // assert permissions exist in payload
         $payload = $this->contextPersister->load($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN, ''), $salesChannel['id']);
-        static::assertIsArray($payload);
         static::assertArrayHasKey('permissions', $payload);
         static::assertEqualsCanonicalizing(\array_fill_keys($permissions, true), $payload['permissions']);
     }
@@ -374,10 +362,10 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code'] ?? null);
+        static::assertEquals('FRAMEWORK__API_SALES_CHANNEL_ID_PARAMETER_IS_MISSING', $response['errors'][0]['code'] ?? null);
     }
 
     public function testModifyShippingCostsWithoutShippingCosts(): void
@@ -391,7 +379,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $browser->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(2, $response['errors']);
@@ -413,7 +401,7 @@ class SalesChannelProxyControllerTest extends TestCase
         ]);
 
         $response = $browser->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertCount(2, $response['errors']);
@@ -447,20 +435,20 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        //assert response format
+        // assert response format
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        //assert shipping costs in cart
+        // assert shipping costs in cart
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
 
-        //create a new shipping method and request to change
+        // create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
 
         $browser->request(
@@ -471,17 +459,17 @@ class SalesChannelProxyControllerTest extends TestCase
             [],
             json_encode([
                 'shippingMethodId' => $shippingMethodId,
-            ]) ?: ''
+            ], \JSON_THROW_ON_ERROR) ?: ''
         );
 
-        //assert response format
+        // assert response format
         $response = $this->getBrowser()->getResponse();
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        //assert shipping method in cart is changed but shipping costs in cart is not changed
+        // assert shipping method in cart is changed but shipping costs in cart is not changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
         static::assertEquals('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
 
@@ -500,6 +488,7 @@ class SalesChannelProxyControllerTest extends TestCase
             [
                 'id' => $shippingMethodId,
                 'name' => 'Example shipping',
+                'technicalName' => 'shipping_test',
                 'availabilityRule' => ['name' => 'test', 'priority' => 1],
                 'deliveryTime' => ['name' => 'test', 'min' => 1, 'max' => 1, 'unit' => 'day'],
                 'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
@@ -538,7 +527,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        //assert shipping method in cart is changed but shipping costs in cart is not changed
+        // assert shipping method in cart is changed but shipping costs in cart is not changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
         static::assertEquals('Example shipping', $cart['deliveries'][0]['shippingMethod']['name']);
 
@@ -565,13 +554,13 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        //assert response format
+        // assert response format
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        //assert shipping costs in cart
+        // assert shipping costs in cart
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
 
@@ -583,7 +572,6 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
-        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
         $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
@@ -633,7 +621,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
 
-        //shipping costs are now based on manual value, tax rate will be mixed
+        // shipping costs are now based on manual value, tax rate will be mixed
         static::assertArrayHasKey('unitPrice', $shippingCosts);
         static::assertEquals(20, $shippingCosts['unitPrice']);
 
@@ -644,13 +632,13 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
         static::assertEquals(10, $shippingCosts['calculatedTaxes'][1]['taxRate']);
 
-        //using store-api through proxy to remove all items in cart
+        // using store-api through proxy to remove all items in cart
         $this->storeAPIRemoveLineItems($browser, [$firstProductId, $secondProductId], $salesChannelContext->getToken());
 
         $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
         static::assertEmpty($cart['deliveries']);
 
-        //adding a new product item to cart.
+        // adding a new product item to cart.
         $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $firstProductId,
             'label' => $firstProductId,
@@ -669,7 +657,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
-        //after re-adding a line item, there is one tax rate and the manual shipping costs are restored.
+        // after re-adding a line item, there is one tax rate and the manual shipping costs are restored.
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
 
         static::assertArrayHasKey('unitPrice', $shippingCosts);
@@ -686,7 +674,6 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
-        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
         $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
@@ -732,7 +719,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
 
-        //shipping costs are now based on manual value, there is one tax rate
+        // shipping costs are now based on manual value, there is one tax rate
         static::assertArrayHasKey('unitPrice', $shippingCosts);
         static::assertEquals(20, $shippingCosts['unitPrice']);
 
@@ -742,10 +729,10 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertCount(1, $shippingCosts['calculatedTaxes']);
         static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
 
-        //using store-api through proxy to remove Product item in cart, keep Credit item.
+        // using store-api through proxy to remove Product item in cart, keep Credit item.
         $this->storeAPIRemoveLineItems($browser, [$firstProductId], $salesChannelContext->getToken());
 
-        //adding a new product item to cart.
+        // adding a new product item to cart.
         $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $firstProductId,
             'label' => $firstProductId,
@@ -764,7 +751,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
-        //shipping costs is still based on manual value
+        // shipping costs is still based on manual value
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
         static::assertArrayHasKey('unitPrice', $shippingCosts);
         static::assertEquals(20, $shippingCosts['unitPrice']);
@@ -786,24 +773,24 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        //assert shipping cost in cart is default from sales channel
+        // assert shipping cost in cart is default from sales channel
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
 
-        //create a new shipping method and request to change
+        // create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
         $browser->request('PATCH', $this->getUrl(TestDefaults::SALES_CHANNEL, '/context'), [
             'shippingMethodId' => $shippingMethodId,
         ]);
 
-        //assert response format
+        // assert response format
         $response = $this->getBrowser()->getResponse();
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        //assert shipping method and cost are changed
+        // assert shipping method and cost are changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
         static::assertEquals('Test shipping method', $cart['deliveries'][0]['shippingMethod']['name']);
 
@@ -815,8 +802,6 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
         $productId = $this->ids->get('p1');
-        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
-
         $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
@@ -874,30 +859,24 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
-        //assert there are 3 items in cart
+        // assert there are 3 items in cart
         static::assertArrayHasKey('lineItems', $cart);
         static::assertCount(3, $cart['lineItems']);
 
-        $creditLineItems = array_filter($cart['lineItems'], function ($lineItem) {
-            return $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE;
-        });
+        $creditLineItems = array_filter($cart['lineItems'], fn ($lineItem) => $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE);
 
-        //assert there is credit item in cart
+        // assert there is credit item in cart
         static::assertNotEmpty($creditLineItems);
         $creditLineItem = array_values($creditLineItems)[0];
 
-        //assert there is calculated taxes for product and custom items in cart
+        // assert there is calculated taxes for product and custom items in cart
         static::assertCount(2, $calculatedTaxes = $creditLineItem['price']['calculatedTaxes']);
-        $calculatedTaxForCustomItem = array_filter($calculatedTaxes, function ($tax) use ($taxForCustomItem) {
-            return $tax['taxRate'] === $taxForCustomItem;
-        });
+        $calculatedTaxForCustomItem = array_filter($calculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($calculatedTaxes, function ($tax) use ($taxForProductItem) {
-            return $tax['taxRate'] === $taxForProductItem;
-        });
+        $calculatedTaxForProductItem = array_filter($calculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -914,13 +893,13 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
         $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
 
-        //There are 2 line items in cart including 1 product and 1 automatic promotion
+        // There are 2 line items in cart including 1 product and 1 automatic promotion
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(2, $cart['lineItems']);
         static::assertSame('product', $cart['lineItems'][0]['type']);
         static::assertSame('promotion', $cart['lineItems'][1]['type']);
 
-        //Call to disable automatic promotions
+        // Call to disable automatic promotions
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
@@ -928,7 +907,7 @@ class SalesChannelProxyControllerTest extends TestCase
         );
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        //There is 1 line item in cart. It is product
+        // There is 1 line item in cart. It is product
         $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(1, $cart['lineItems']);
         static::assertNotSame('promotion', $cart['lineItems'][0]['type']);
@@ -1025,7 +1004,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->getBrowser()->request('POST', $this->getCreateOrderApiUrl(Uuid::randomHex()));
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response ?: '', true);
+        $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
         static::assertEquals('FRAMEWORK__INVALID_SALES_CHANNEL', $response['errors'][0]['code'] ?? null);
@@ -1035,9 +1014,8 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         try {
             $salesChannelContext = $this->createDefaultSalesChannelContext();
-            $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
+            $customerId = $this->createCustomer($salesChannelContext, 'info@example.com');
             $productId = $this->ids->get('p1');
-            $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
             $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
             $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
             $payload = array_merge($payload, [
@@ -1104,7 +1082,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 $browser->request('POST', $this->getCreateOrderApiUrl($salesChannelContext->getSalesChannel()->getId()));
 
                 $response = $browser->getResponse()->getContent();
-                $response = json_decode($response ?: '', true);
+                $response = json_decode($response ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
                 static::assertArrayHasKey('errors', $response, print_r($response, true));
                 static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
@@ -1176,7 +1154,7 @@ class SalesChannelProxyControllerTest extends TestCase
             $categoryData['id'] = Uuid::randomHex();
         }
 
-        $this->getBrowser()->request('POST', $baseResource, [], [], [], json_encode($categoryData) ?: '');
+        $this->getBrowser()->request('POST', $baseResource, [], [], [], json_encode($categoryData, \JSON_THROW_ON_ERROR) ?: '');
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode());
@@ -1192,9 +1170,17 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $responseData = json_decode($response->getContent() ?: '', true);
+        $responseData = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertArraySubset($expectedTranslations, $responseData);
+        foreach ($expectedTranslations as $key => $expectedTranslation) {
+            if (!\is_array($expectedTranslations[$key])) {
+                static::assertEquals($expectedTranslations[$key], $responseData[$key]);
+            } else {
+                foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {
+                    static::assertEquals($expectedTranslation[$key2], $responseData[$key][$key2]);
+                }
+            }
+        }
     }
 
     private function createLanguage(string $langId, string $salesChannelId, ?string $fallbackId = null): void
@@ -1214,7 +1200,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
                 'translationCodeId' => $fallbackLocaleId,
             ];
-            $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData) ?: '');
+            $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($parentLanguageData, \JSON_THROW_ON_ERROR) ?: '');
             static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
         }
 
@@ -1235,7 +1221,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($languageData) ?: '');
+        $this->getBrowser()->request('POST', $baseUrl . '/language', [], [], [], json_encode($languageData, \JSON_THROW_ON_ERROR) ?: '');
         static::assertEquals(204, $this->getBrowser()->getResponse()->getStatusCode());
 
         $this->getBrowser()->request('GET', $baseUrl . '/language/' . $langId);
@@ -1403,7 +1389,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
             json_encode([
                 'ids' => $ids,
-            ]) ?: ''
+            ], \JSON_THROW_ON_ERROR) ?: ''
         );
     }
 
@@ -1437,7 +1423,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
 
-        $cart = json_decode($browser->getResponse()->getContent() ?: '', true);
+        $cart = json_decode($browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         return $cart;
     }
@@ -1451,7 +1437,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
         ]);
 
-        $cart = json_decode($browser->getResponse()->getContent() ?: '', true);
+        $cart = json_decode($browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
         return $cart['data'] ?? $cart;
     }
@@ -1477,8 +1463,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function createCustomer(
         SalesChannelContext $salesChannelContext,
-        string $email,
-        string $password
+        string $email
     ): string {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -1500,11 +1485,12 @@ class SalesChannelProxyControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
                     'name' => 'Invoice',
+                    'technicalName' => 'payment_test',
                     'description' => 'Default payment method',
                 ],
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -1540,6 +1526,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'id' => $shippingMethodId,
             'type' => 0,
             'name' => 'Test shipping method',
+            'technicalName' => 'shipping_test',
             'bindShippingfree' => false,
             'active' => true,
             'prices' => [

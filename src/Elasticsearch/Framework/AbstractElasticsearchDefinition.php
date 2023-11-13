@@ -9,31 +9,57 @@ use OpenSearchDSL\Query\TermLevel\WildcardQuery;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class AbstractElasticsearchDefinition
 {
+    final public const KEYWORD_FIELD = [
+        'type' => 'keyword',
+        'normalizer' => 'sw_lowercase_normalizer',
+    ];
+
+    final public const BOOLEAN_FIELD = ['type' => 'boolean'];
+
+    final public const FLOAT_FIELD = ['type' => 'double'];
+
+    final public const INT_FIELD = ['type' => 'long'];
+
+    final public const SEARCH_FIELD = [
+        'fields' => [
+            'search' => ['type' => 'text'],
+            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+        ],
+    ];
+
     abstract public function getEntityDefinition(): EntityDefinition;
 
     /**
-     * @return array<mixed>
+     * @return array{_source: array{includes: string[]}, properties: array<mixed>}
      */
     abstract public function getMapping(Context $context): array;
 
     /**
      * @param array<string> $ids
      *
-     * @return array<mixed>
+     * @return array<string, array<string, mixed>>
      */
     public function fetch(array $ids, Context $context): array
     {
         return [];
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Will become abstract, implementation should implement their own `buildTermQuery` and return type will change to BuilderInterface
+     */
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery
     {
+        Feature::triggerDeprecationOrThrow(
+            'ES_MULTILINGUAL_INDEX',
+            'Will become abstract, implementation should implement their own `buildTermQuery`'
+        );
+
         $bool = new BoolQuery();
 
         $term = (string) $criteria->getTerm();
@@ -56,15 +82,97 @@ abstract class AbstractElasticsearchDefinition
         return $bool;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Use \Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils::stripText instead
+     */
     protected function stripText(string $text): string
     {
-        // Remove all html elements to save up space
-        $text = strip_tags($text);
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'Use \Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils::stripText instead')
+        );
 
-        if (mb_strlen($text) >= 32766) {
-            return mb_substr($text, 0, 32766);
+        return ElasticsearchIndexingUtils::stripText($text);
+    }
+
+    /**
+     * @param array<int, array<string, string>> $items
+     *
+     * @return array<string, string|null>
+     *
+     * @deprecated tag:v6.6.0 - Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::translated instead
+     */
+    protected function mapTranslatedField(string $field, bool $stripText = true, ...$items): array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::translated instead')
+        );
+
+        return ElasticsearchFieldMapper::translated(field: $field, items: array_merge(...$items), stripText: $stripText);
+    }
+
+    /**
+     * @param array<int, array{id: string, languageId?: string}> $items
+     * @param string[] $translatedFields
+     *
+     * @return array<int, array<string, array<string, string>>>
+     *
+     * @deprecated tag:v6.6.0 - Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::toManyAssociations instead
+     */
+    protected function mapToManyAssociations(array $items, array $translatedFields): array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'Use \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper::toManyAssociations instead')
+        );
+
+        return ElasticsearchFieldMapper::toManyAssociations($items, $translatedFields);
+    }
+
+    /**
+     * @param array<int, array{id: string, languageId?: string}> $items
+     * @param string[] $translatedFields
+     *
+     * @return array<string, array<string, string>>
+     *
+     * @deprecated tag:v6.6.0 - will be removed
+     */
+    protected function mapToOneAssociations(array $items, array $translatedFields): array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'will be removed')
+        );
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $result = [];
+
+            foreach ($items as $item) {
+                if (empty($item['languageId'])) {
+                    continue;
+                }
+
+                foreach ($translatedFields as $field) {
+                    if (empty($item[$field])) {
+                        continue;
+                    }
+
+                    $result[$field][$item['languageId']] = $this->stripText($item[$field]);
+                }
+            }
+
+            return $result;
         }
 
-        return $text;
+        return [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected static function getTextFieldConfig(): array
+    {
+        return self::KEYWORD_FIELD + self::SEARCH_FIELD;
     }
 }

@@ -1,12 +1,12 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../../support/pages/module/sw-media.page-object';
 import ProductPageObject from '../../../../support/pages/module/sw-product.page-object';
 
-describe('Media: Visual tests', () => {
+describe('Media: Visual tests', { tags: ['VUE3'] }, () => {
     beforeEach(() => {
         cy.createProductFixture().then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -23,10 +23,6 @@ describe('Media: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'POST',
         }).as('saveDataFileUpload');
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/media`,
-            method: 'POST',
-        }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=plugin-manager--login`,
@@ -43,8 +39,6 @@ describe('Media: Visual tests', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-media',
         });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-media-index__page-content').should('be.visible');

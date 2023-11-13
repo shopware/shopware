@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swCmsSectionActions from 'src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions';
@@ -12,15 +12,27 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-section-actions'), {
         localVue,
         propsData: {
-            section: {}
+            section: {},
         },
         stubs: {
-            'sw-icon': true
-        }
+            'sw-icon': true,
+        },
     });
 }
 
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
+    beforeAll(() => {
+        Shopware.State.registerModule('cmsPageState', {
+            namespaced: true,
+            state: {
+                selectedSection: {},
+            },
+            actions: {
+                setSection: () => {},
+            },
+        });
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -30,7 +42,7 @@ describe('module/sw-cms/component/sw-cms-section-actions', () => {
     it('should contain disabled styling', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.classes()).toContain('is--disabled');

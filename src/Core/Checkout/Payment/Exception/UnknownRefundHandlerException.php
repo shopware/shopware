@@ -2,15 +2,19 @@
 
 namespace Shopware\Core\Checkout\Payment\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('checkout')]
 /**
- * @package checkout
+ * @decrecated tag:v6.6.0 - use PaymentException::unknownRefundHandler instead
  */
 class UnknownRefundHandlerException extends RefundProcessException
 {
-    public function __construct(string $refundId, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $refundId,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             $refundId,
             'The Refund process failed with following exception: Unknown refund handler for refund id {{ refundId }}.',

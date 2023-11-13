@@ -2,25 +2,15 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class CloneBehavior
 {
-    /**
-     * @var array
-     */
-    private $overwrites;
-
-    /**
-     * @var bool
-     */
-    private $cloneChildren;
-
-    public function __construct(array $overwrites = [], bool $cloneChildren = true)
-    {
-        $this->overwrites = $overwrites;
-        $this->cloneChildren = $cloneChildren;
+    public function __construct(
+        private readonly array $overwrites = [],
+        private readonly bool $cloneChildren = true
+    ) {
     }
 
     public function getOverwrites(): array

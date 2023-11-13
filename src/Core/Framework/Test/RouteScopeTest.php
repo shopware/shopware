@@ -3,15 +3,15 @@
 namespace Shopware\Core\Framework\Test;
 
 use Shopware\Core\Checkout\Payment\Controller\PaymentController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviourTest;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Routing\Router;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class RouteScopeTest extends KernelTestBehaviourTest
 {
     public function testAllRoutesHaveRouteScopes(): void
@@ -29,7 +29,7 @@ class RouteScopeTest extends KernelTestBehaviourTest
                 continue;
             }
 
-            $controllerMethod = explode('::', $controllerMethod);
+            $controllerMethod = explode('::', (string) $controllerMethod);
 
             // The payment controller must work also without scopes due headless
             if ($controllerMethod[0] === PaymentController::class) {

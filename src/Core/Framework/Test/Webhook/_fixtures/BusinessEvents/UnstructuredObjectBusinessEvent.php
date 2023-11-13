@@ -12,10 +12,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class UnstructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
-    /**
-     * @var array
-     */
-    private $nested = [
+    private array $nested = [
         'string' => 'test',
         'bool' => true,
     ];

@@ -9,11 +9,6 @@ enum USER_CONFIG_PERMISSIONS {
     UPDATE = 'user_config:update'
 }
 
-interface CurrentUserObject {
-    id: string;
-    [index: string]: unknown;
-}
-
 abstract class UserConfigClass {
     private userConfigRepository = Service('repositoryFactory').create('user_config');
 
@@ -104,7 +99,7 @@ abstract class UserConfigClass {
     }
 
     private getCurrentUserId(): string {
-        return (State.get('session').currentUser as CurrentUserObject).id;
+        return State.get('session').currentUser.id;
     }
 }
 

@@ -13,13 +13,14 @@ use Shopware\Storefront\Migration\V6_3\Migration1595492054SeoUrlTemplateData;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class Migration1595492054SeoUrlTemplateDataTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function customTemplateProvider(): array
+    public static function customTemplateProvider(): array
     {
         return [
             [

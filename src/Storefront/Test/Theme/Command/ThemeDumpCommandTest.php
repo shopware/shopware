@@ -44,23 +44,20 @@ class ThemeDumpCommandTest extends TestCase
             'theme-id' => $this->themeId,
         ]);
 
-        static::assertSame('expectedConfig', $themeFileResolverMock->themeConfig->getThemeConfig()[0]);
+        static::assertSame(['any' => 'expectedConfig'], $themeFileResolverMock->themeConfig->getThemeConfig());
     }
 
-    /**
-     * @return MockObject|StorefrontPluginRegistry
-     */
-    private function getPluginRegistryMock()
+    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
-            'expectedConfig',
+            'any' => 'expectedConfig',
         ]);
         $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
-            'unexpectedConfig',
+            'any' => 'unexpectedConfig',
         ]);
         $storePluginConfiguration2->setBasePath('');
 

@@ -33,6 +33,7 @@
         <service id="Shopware\Core\Framework\Store\Api\FirstRunWizardController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardService"/>
             <argument type="service" id="plugin.repository" />
+            <argument type="service" id="app.repository" />
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -60,7 +61,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient">
-            <argument type="service" id="shopware.store_client"/>
+            <argument type="service" id="shopware.frw_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
         </service>
@@ -87,6 +88,9 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService" />
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginLifecycleService" />
             <argument type="service" id="user.repository" />
+            <argument>%kernel.plugin_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
+
             <tag name="console.command"/>
         </service>
 
@@ -167,6 +171,8 @@
             <argument type="service" id="plugin.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument>%kernel.plugin_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\ExtensionLifecycleService">
@@ -188,11 +194,16 @@
 
         <service id="Shopware\Core\Framework\Store\Services\StoreClientFactory">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="tagged_iterator" tag="shopware.store_client.middleware"/>
         </service>
 
         <service id="shopware.store_client" class="GuzzleHttp\Client" lazy="true" public="true">
             <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.store_client.middleware"/>
+        </service>
+
+        <service id="shopware.frw_client" class="GuzzleHttp\Client" lazy="true" public="true">
+            <factory service="Shopware\Core\Framework\Store\Services\StoreClientFactory" method="create"/>
+            <argument type="tagged_iterator" tag="shopware.frw_client.middleware"/>
         </service>
 
         <service id="shopware.store_download_client" class="GuzzleHttp\Client" />
@@ -208,6 +219,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
 
             <tag name="shopware.store_client.middleware" priority="9999"/>
+            <tag name="shopware.frw_client.middleware" priority="9999"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware" public="true">

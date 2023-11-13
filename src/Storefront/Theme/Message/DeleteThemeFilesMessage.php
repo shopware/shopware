@@ -2,13 +2,13 @@
 
 namespace Shopware\Storefront\Theme\Message;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
 /**
- * @package storefront
- *
  * used to delay the deletion of theme files
  */
+#[Package('storefront')]
 class DeleteThemeFilesMessage implements AsyncMessageInterface
 {
     public function __construct(

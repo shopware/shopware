@@ -4,40 +4,27 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-/**
- * @package storefront
- *
- * @Decoratable
- */
+#[Package('storefront')]
 class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface, ResetInterface
 {
-    public const BASE_THEME_NAME = 'Storefront';
+    final public const BASE_THEME_NAME = 'Storefront';
 
     private ?StorefrontPluginConfigurationCollection $pluginConfigurations = null;
-
-    private KernelInterface $kernel;
-
-    private AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory;
-
-    private ActiveAppsLoader $activeAppsLoader;
 
     /**
      * @internal
      */
     public function __construct(
-        KernelInterface $kernel,
-        AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
-        ActiveAppsLoader $activeAppsLoader
+        private readonly KernelInterface $kernel,
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        private readonly ActiveAppsLoader $activeAppsLoader
     ) {
-        $this->kernel = $kernel;
-        $this->pluginConfigurationFactory = $pluginConfigurationFactory;
-        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function getConfigurations(): StorefrontPluginConfigurationCollection

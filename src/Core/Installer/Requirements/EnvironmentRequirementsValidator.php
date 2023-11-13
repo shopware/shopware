@@ -4,25 +4,21 @@ namespace Shopware\Core\Installer\Requirements;
 
 use Composer\Composer;
 use Composer\Repository\PlatformRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class EnvironmentRequirementsValidator implements RequirementsValidatorInterface
 {
-    private Composer $composer;
-
-    private PlatformRepository $systemEnvironment;
-
-    public function __construct(Composer $composer, PlatformRepository $systemEnvironment)
-    {
-        $this->composer = $composer;
-        $this->systemEnvironment = $systemEnvironment;
+    public function __construct(
+        private readonly Composer $composer,
+        private readonly PlatformRepository $systemEnvironment
+    ) {
     }
 
     public function validateRequirements(RequirementsCheckCollection $checks): RequirementsCheckCollection

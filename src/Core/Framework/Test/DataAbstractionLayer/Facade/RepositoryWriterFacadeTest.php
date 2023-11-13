@@ -15,19 +15,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
-use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
  */
 class RepositoryWriterFacadeTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AppSystemTestBehaviour;
+    use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
 
@@ -35,13 +36,16 @@ class RepositoryWriterFacadeTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->factory = $this->getContainer()->get(RepositoryWriterFacadeHookFactory::class);
         $this->context = Context::createDefaultContext();
     }
 
     /**
+     * @param array<int, mixed> $payload
+     * @param callable(Context, ContainerInterface): void  $expectation
+     *
      * @dataProvider testCases
      */
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
@@ -54,12 +58,15 @@ class RepositoryWriterFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        $facade->$method('product', $payload);
+        $facade->$method('product', $payload); /* @phpstan-ignore-line */
 
-        $expectation($this->context);
+        $expectation($this->context, $this->getContainer());
     }
 
-    public function testCases(): array
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function testCases(): array
     {
         $ids = new IdsCollection();
 
@@ -73,8 +80,8 @@ class RepositoryWriterFacadeTest extends TestCase
                 ],
                 'upsert',
                 $ids,
-                function ($context) use ($ids): void {
-                    $productRepository = $this->getContainer()->get('product.repository');
+                function (Context $context, ContainerInterface $container) use ($ids): void {
+                    $productRepository = $container->get('product.repository');
 
                     $createdProduct = $productRepository->search(new Criteria([$ids->get('p4')]), $context)->first();
 
@@ -90,8 +97,8 @@ class RepositoryWriterFacadeTest extends TestCase
                 ],
                 'upsert',
                 $ids,
-                function ($context) use ($ids): void {
-                    $productRepository = $this->getContainer()->get('product.repository');
+                function (Context $context, ContainerInterface $container) use ($ids): void {
+                    $productRepository = $container->get('product.repository');
 
                     $updated = $productRepository->search(new Criteria([$ids->get('p2')]), $context)->first();
 
@@ -105,8 +112,8 @@ class RepositoryWriterFacadeTest extends TestCase
                 ],
                 'delete',
                 $ids,
-                function ($context) use ($ids): void {
-                    $productRepository = $this->getContainer()->get('product.repository');
+                function (Context $context, ContainerInterface $container) use ($ids): void {
+                    $productRepository = $container->get('product.repository');
 
                     $deleted = $productRepository->search(new Criteria([$ids->get('p2')]), $context)->first();
 
@@ -164,6 +171,8 @@ class RepositoryWriterFacadeTest extends TestCase
     }
 
     /**
+     * @param array<int, mixed> $arguments
+     *
      * @dataProvider withoutPermissionsCases
      */
     public function testWithoutPermission(array $arguments, string $method, IdsCollection $ids): void
@@ -179,10 +188,13 @@ class RepositoryWriterFacadeTest extends TestCase
         );
 
         static::expectException(MissingPrivilegeException::class);
-        $facade->$method(...$arguments);
+        $facade->$method(...$arguments); /* @phpstan-ignore-line */
     }
 
-    public function withoutPermissionsCases(): array
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public static function withoutPermissionsCases(): array
     {
         $ids = new IdsCollection();
 

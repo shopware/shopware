@@ -1,76 +1,55 @@
 /// <reference types="Cypress" />
 
 describe('Manual update', () => {
-    /**
-     * Test requirements:
-     * - db `Cypress.env('dbName')` must exist
-     * - install.lock must exist
-     * - update was unpacked
-     */
     it('@update: en-GB and EUR', { tags: ['pa-system-settings'] }, () => {
-        // match applyMigrations where offset == total
-        cy.intercept({
-            url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update$/,
-            method: 'get',
-        }).as('applyMigrations');
+        cy.clearCookies();
+        cy.clearCookie('bearerAuth');
+        cy.clearCookie('refreshBearerAuth');
 
-        // match applyMigrations migration where offset == total
-        cy.intercept({
-            url: /.*applyMigrations\?offset=(\d+)&total=\1&modus=update_destructive$/,
-            method: 'get',
-        }).as('applyDestructiveMigrations');
+        // Check if the Installation is running
+        cy.visit('/admin');
 
-        cy.visit('/admin', {
-            headers: {
-                'Accept-Language': Cypress.env('acceptLanguage'),
-            },
-            failOnStatusCode: false,
-        });
+        cy.get('#sw-field--username').type('admin');
+        cy.get('#sw-field--password').type('shopware');
 
-        cy.get('.maintenance-headline')
-            .contains(/Unsere Website befindet sich gerade in der Wartung.|Our website is currently undergoing maintenance./)
-            .should('be.visible');
+        cy.get('.sw-login__login-action').click();
 
-        cy.visit('/', { failOnStatusCode: false });
-        cy.get('.maintenance-headline')
-            .contains(/Unsere Website befindet sich gerade in der Wartung.|Our website is currently undergoing maintenance./)
-            .should('be.visible');
+        cy.get('.sw-version__info').contains('6.4.17.2', {timeout: 60000});
 
-        cy.visit('/recovery/update/index.php/');
+        // Configure PHP
+        cy.visit('/shopware-installer.phar.php');
 
-        cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .is--active .navigation--link').contains('Start update').should('be.visible');
-        cy.get('.content--main h2').contains('Start update').should('be.visible');
-        cy.get('.btn.btn-primary').contains('Forward').click();
+        cy.get('.welcome-title').contains('Welcome');
+        cy.get('.btn-primary').click();
 
-        cy.get('section.content--main').should('be.visible');
-        cy.get('.navigation--list .is--active .navigation--link').contains('Database migration').should('be.visible');
-        cy.get('.content--main h2').contains('Database migration').should('be.visible');
+        cy.get('.card__title').contains('Configuration');
+        cy.get('.btn-primary').click();
 
-        // start migrations
-        cy.get('.btn.btn-primary').contains('Start').click();
+        // Show basic info
+        cy.get('.card__title').contains('Updating Shopware');
 
-        cy.wait('@applyMigrations', { responseTimeout: 300000, timeout: 310000 })
-            .its('response.statusCode').should('equal', 200);
-        cy.wait('@applyDestructiveMigrations', { responseTimeout: 300000, timeout: 310000 })
-            .its('response.statusCode').should('equal', 200);
+        cy.get('.btn-primary').click();
 
-        cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
-        cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Cleanup').should('be.visible');
-        cy.get('.content--main h2').contains('File cleanup').should('be.visible');
-        cy.get('.btn.btn-primary').contains('Forward').should('be.visible').click();
+        // wait for /update/_finish ajax call to finish
 
-        cy.get('.alert-hero-title').should('be.visible');
-        cy.get('.navigation--list .is--active .navigation--link').contains('Done').should('be.visible');
-        cy.get('.alert-hero-title').contains('The update was successful!').should('be.visible');
+        cy.intercept('/shopware-installer.phar.php/update/_finish').as('updateFinish');
+        cy.wait('@updateFinish', {timeout: 120000});
 
-        cy.get('.btn.btn-primary').contains('Finish update').should('be.visible').click();
+        // Shows finish page
+        cy.url().should('contain', '/finish');
+        cy.get('.card__title', {timeout: 60000}).contains('Finish');
 
-        cy.get('.sw-login__content').should('be.visible');
-        cy.get('#sw-field--username').clear().type(Cypress.env('user'));
-        cy.get('#sw-field--password').clear().type(Cypress.env('pass'));
-        cy.get('.sw-button__content').click();
+        cy.get('.btn-primary').click();
 
-        cy.get('.sw-version__info').should('be.visible');
+        cy.get('#sw-field--username').type('admin');
+        cy.get('#sw-field--password').type('shopware');
+
+        cy.get('.sw-login__login-action').click();
+
+        cy.get('.sw-version__info').contains('6.5.');
+
+        // visit updater and expect 404
+        cy.visit('/shopware-installer.phar.php', {failOnStatusCode: false});
+        cy.contains('Page not found');
     });
 });

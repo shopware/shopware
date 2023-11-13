@@ -7,14 +7,16 @@ use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1659257396DownloadFlow extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -43,7 +45,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
 
     private function createRule(Connection $connection): string
     {
-        $ruleId = $connection->fetchOne('SELECT id FROM rule WHERE name = :name', ['name' => 'Cart/Order with downloadable products']);
+        $ruleId = $connection->fetchOne('SELECT id FROM rule WHERE name = :name', ['name' => 'Shopping cart / Order with digital products']);
 
         if ($ruleId) {
             return $ruleId;
@@ -56,7 +58,7 @@ class Migration1659257396DownloadFlow extends MigrationStep
             'rule',
             [
                 'id' => $idRule,
-                'name' => 'Cart/Order with downloadable products',
+                'name' => 'Shopping cart / Order with digital products',
                 'description' => null,
                 'priority' => 1,
                 'invalid' => 0,

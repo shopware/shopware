@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+CWD="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+
+set -euo pipefail
+
+export PROJECT_ROOT="${PROJECT_ROOT:-"$(dirname "$CWD")"}"
+
+"$CWD"/console bundle:dump
+
+if ! [[ $(command -v jq) ]]; then
+  echo "Cannot check extensions for required npm installations as jq is not installed"
+  exit 1
+fi
+
+OLDPWD=$(pwd)
+cd "$PROJECT_ROOT" || exit
+
+jq -c '.[]' "var/plugins.json" | while read -r config; do
+  srcPath=$(echo "$config" | jq -r '.basePath')
+  adminPath=$(echo "$config" | jq -r '(.basePath + .administration.path)')
+  storefrontPath=$(echo "$config" | jq -r '(.basePath + .storefront.path)')
+  bundlePaths=()
+
+  if [[ -d "$adminPath" ]]; then
+    bundlePaths+=("$adminPath")
+  fi
+
+  if [[ -d "$storefrontPath" ]]; then
+    bundlePaths+=("$storefrontPath")
+  fi
+
+  if [[ ${#bundlePaths[@]} -eq 0 ]]; then
+    continue
+  fi
+
+  # the package.json files are always one upper
+  path=$(dirname "$srcPath")
+  name=$(echo "$config" | jq -r '.technicalName')
+
+  for bundlePath in "${bundlePaths[@]}"; do
+    if [[ $path == "custom/plugins/"* && -f "$bundlePath/../package.json" && ! -d "$bundlePath/../node_modules" ]]; then
+      bundleName="administration"
+
+      if [[ "$bundlePath" == *"storefront"* ]]; then
+        bundleName="storefront"
+      fi
+
+      echo "=> Installing ${bundleName} npm dependencies for ${name}"
+
+      if [[ -f "$bundlePath/../package-lock.json" ]]; then
+        npm --prefix "$bundlePath/../" clean-install --no-audit --prefer-offline
+      else
+        npm --prefix "$bundlePath/../" install --no-audit --prefer-offline
+      fi
+    fi
+  done
+done
+
+cd "$OLDPWD" || exit

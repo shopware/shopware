@@ -4,10 +4,12 @@ namespace Shopware\Core\Checkout\Promotion\Gateway\Template;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package checkout
+ * @final
  */
+#[Package('buyers-experience')]
 class PermittedAutomaticPromotions extends MultiFilter
 {
     /**

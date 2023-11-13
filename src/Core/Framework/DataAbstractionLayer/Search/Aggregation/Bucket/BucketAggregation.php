@@ -3,14 +3,19 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
+ * @phpstan-ignore-next-line cannot be final, as it is extended, also designed to be used directly
  */
+#[Package('core')]
 class BucketAggregation extends Aggregation
 {
-    public function __construct(string $name, string $field, protected ?Aggregation $aggregation)
-    {
+    public function __construct(
+        string $name,
+        string $field,
+        protected ?Aggregation $aggregation
+    ) {
         parent::__construct($name, $field);
     }
 

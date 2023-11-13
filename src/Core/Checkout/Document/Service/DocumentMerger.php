@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Document\Service;
 
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\Tcpdf\Fpdi;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -15,34 +14,24 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 final class DocumentMerger
 {
-    private EntityRepository $documentRepository;
-
-    private Fpdi $fpdi;
-
-    private MediaService $mediaService;
-
-    private DocumentGenerator $documentGenerator;
-
     /**
      * @internal
+     *
+     * @param EntityRepository<DocumentCollection> $documentRepository
      */
     public function __construct(
-        EntityRepository $documentRepository,
-        MediaService $mediaService,
-        DocumentGenerator $documentGenerator,
-        Fpdi $fpdi
+        private readonly EntityRepository $documentRepository,
+        private readonly MediaService $mediaService,
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly Fpdi $fpdi
     ) {
-        $this->documentRepository = $documentRepository;
-        $this->mediaService = $mediaService;
-        $this->fpdi = $fpdi;
-        $this->documentGenerator = $documentGenerator;
     }
 
     /**
@@ -54,11 +43,14 @@ final class DocumentMerger
             return null;
         }
 
+        $this->fpdi->setPrintHeader(false);
+        $this->fpdi->setPrintFooter(false);
+
         $criteria = new Criteria($documentIds);
         $criteria->addAssociation('documentType');
+        $criteria->addSorting(new FieldSorting('order.orderNumber'));
 
-        /** @var DocumentCollection $documents */
-        $documents = $this->documentRepository->search($criteria, $context);
+        $documents = $this->documentRepository->search($criteria, $context)->getEntities();
 
         if ($documents->count() === 0) {
             return null;
@@ -67,8 +59,10 @@ final class DocumentMerger
         $fileName = Random::getAlphanumericString(32) . '.' . PdfRenderer::FILE_EXTENSION;
 
         if ($documents->count() === 1) {
-            /** @var DocumentEntity $document */
             $document = $documents->first();
+            if ($document === null) {
+                return null;
+            }
 
             $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
 
@@ -76,9 +70,7 @@ final class DocumentMerger
                 return null;
             }
 
-            $fileBlob = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId): string {
-                return $this->mediaService->loadFile($documentMediaId, $context);
-            });
+            $fileBlob = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFile($documentMediaId, $context));
 
             $renderedDocument = new RenderedDocument('', '', $fileName);
             $renderedDocument->setContent($fileBlob);
@@ -87,7 +79,6 @@ final class DocumentMerger
         }
 
         $totalPage = 0;
-
         foreach ($documents as $document) {
             $documentMediaId = $this->ensureDocumentMediaFileGenerated($document, $context);
 
@@ -97,9 +88,7 @@ final class DocumentMerger
 
             $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
 
-            $media = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($documentMediaId): string {
-                return $this->mediaService->loadFileStream($documentMediaId, $context)->getContents();
-            });
+            $media = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->loadFileStream($documentMediaId, $context)->getContents());
 
             $numPages = $this->fpdi->setSourceFile(StreamReader::createByString($media));
 
@@ -145,8 +134,10 @@ final class DocumentMerger
 
         $operation->setDocumentId($document->getId());
 
-        /** @var DocumentTypeEntity $documentType */
         $documentType = $document->getDocumentType();
+        if ($documentType === null) {
+            return null;
+        }
 
         $documentStruct = $this->documentGenerator->generate(
             $documentType->getTechnicalName(),

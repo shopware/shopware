@@ -2,18 +2,18 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
 {
     public function normalize(Field $field, array $data, WriteParameterBag $parameters): array
@@ -24,7 +24,7 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
     public function encode(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): \Generator
     {
         if (!$field instanceof VersionDataPayloadField) {
-            throw new InvalidSerializerFieldException(VersionDataPayloadField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(VersionDataPayloadField::class, $field);
         }
 
         yield $field->getStorageName() => $data->getValue();
@@ -36,6 +36,6 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
             return null;
         }
 
-        return json_decode($value, true);
+        return json_decode((string) $value, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

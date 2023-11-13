@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @internal only for use by the app-system
  *
  * @extends Collection<Error>
- *
- * @package core
  */
+#[Package('core')]
 class ErrorCollection extends Collection
 {
     /**

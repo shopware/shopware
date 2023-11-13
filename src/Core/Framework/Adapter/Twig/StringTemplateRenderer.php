@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\Error;
@@ -12,24 +13,20 @@ use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
 /**
- * @package core
- * @final tag:v6.5.0
+ * @final
  */
+#[Package('core')]
 class StringTemplateRenderer
 {
     private Environment $twig;
 
-    private Environment $platformTwig;
-
-    private string $cacheDir;
-
     /**
      * @internal
      */
-    public function __construct(Environment $environment, string $cacheDir)
-    {
-        $this->platformTwig = $environment;
-        $this->cacheDir = $cacheDir;
+    public function __construct(
+        private readonly Environment $platformTwig,
+        private readonly string $cacheDir
+    ) {
         $this->initialize();
     }
 
@@ -42,7 +39,7 @@ class StringTemplateRenderer
 
         $this->disableTestMode();
         foreach ($this->platformTwig->getExtensions() as $extension) {
-            if ($this->twig->hasExtension(\get_class($extension))) {
+            if ($this->twig->hasExtension($extension::class)) {
                 continue;
             }
             $this->twig->addExtension($extension);

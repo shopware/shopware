@@ -44,11 +44,10 @@ class CaptchaRouteListenerTest extends TestCase
         ], CaptchaRouteListener::getSubscribedEvents());
     }
 
-    /**
-     * @dataProvider controllerEventProvider
-     */
-    public function testThrowsExceptionWhenValidationFails(ControllerEvent $event): void
+    public function testThrowsExceptionWhenValidationFails(): void
     {
+        $event = $this->getControllerEventMock();
+
         $this->expectException(CaptchaInvalidException::class);
 
         (new CaptchaRouteListener(
@@ -56,18 +55,6 @@ class CaptchaRouteListenerTest extends TestCase
             $this->getContainer()->get(ErrorController::class),
             $this->getContainer()->get(SystemConfigService::class)
         ))->validateCaptcha($event);
-    }
-
-    /**
-     * @return array<int, array<int, ControllerEvent>>
-     */
-    public function controllerEventProvider(): array
-    {
-        return [
-            [
-                $this->getControllerEventMock(),
-            ],
-        ];
     }
 
     public function testJsonResponseWhenCaptchaValidationFails(): void
@@ -110,12 +97,14 @@ class CaptchaRouteListenerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
 
         $responseContent = $response->getContent() ?: '';
-        $content = (array) json_decode($responseContent);
+        $content = (array) json_decode($responseContent, null, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $content);
-        static::assertObjectHasAttribute('type', $content[0]);
 
-        $type = $content[0]->type;
+        /** @var \stdClass $var */
+        $var = $content[0];
+
+        $type = $var->type;
 
         static::assertSame('danger', $type);
     }
@@ -179,7 +168,7 @@ class CaptchaRouteListenerTest extends TestCase
             function (): void {
             },
             self::getRequest($this->getRequestAttributes(true)),
-            HttpKernelInterface::MASTER_REQUEST
+            HttpKernelInterface::MAIN_REQUEST
         );
     }
 

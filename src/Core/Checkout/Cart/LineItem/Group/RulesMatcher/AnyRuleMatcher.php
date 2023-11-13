@@ -5,21 +5,17 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupRuleMatcherInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class AnyRuleMatcher implements LineItemGroupRuleMatcherInterface
 {
-    private AbstractAnyRuleLineItemMatcher $anyRuleProvider;
-
     /**
      * @internal
      */
-    public function __construct(AbstractAnyRuleLineItemMatcher $anyRuleProvider)
+    public function __construct(private readonly AbstractAnyRuleLineItemMatcher $anyRuleProvider)
     {
-        $this->anyRuleProvider = $anyRuleProvider;
     }
 
     public function getMatchingItems(

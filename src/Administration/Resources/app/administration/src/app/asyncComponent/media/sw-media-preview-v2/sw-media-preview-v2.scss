@@ -5,6 +5,10 @@ $sw-media-preview-v2-play-button-z-index: 5;
 $sw-media-preview-v2-locked-icon-z-index: 5;
 
 .sw-media-preview-v2 {
+    img {
+        object-fit: contain;
+    }
+
     &.is--icon {
         .sw-media-preview-v2__item {
             transform: translate(-50%, -50%) scale(0.7);

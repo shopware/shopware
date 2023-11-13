@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-modal-preview.html.twig';
@@ -10,7 +10,6 @@ const { Criteria } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
  */
 export default {
     template,
@@ -78,6 +77,14 @@ export default {
                     align: 'right',
                 },
             ];
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        stockColorVariantFilter() {
+            return Shopware.Filter.getByName('stockColorVariant');
         },
     },
 

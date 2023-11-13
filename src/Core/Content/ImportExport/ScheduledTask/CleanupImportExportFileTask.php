@@ -2,11 +2,10 @@
 
 namespace Shopware\Core\Content\ImportExport\ScheduledTask;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
-/**
- * @package system-settings
- */
+#[Package('services-settings')]
 class CleanupImportExportFileTask extends ScheduledTask
 {
     public static function getTaskName(): string
@@ -16,6 +15,6 @@ class CleanupImportExportFileTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 86400; //24 hours
+        return 86400; // 24 hours
     }
 }

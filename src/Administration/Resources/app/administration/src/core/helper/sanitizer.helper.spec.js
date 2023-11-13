@@ -83,7 +83,7 @@ describe('core/helper/sanitizer.helper.js', () => {
 
         expect(Sanitizer.sanitize(dirtyContent)).toBe('abc');
         Sanitizer.setConfig({
-            ADD_TAGS: ['my-component']
+            ADD_TAGS: ['my-component'],
         });
         expect(Sanitizer.sanitize(dirtyContent)).toBe('<my-component>abc</my-component>');
         Sanitizer.clearConfig();
@@ -105,22 +105,24 @@ describe('core/helper/sanitizer.helper.js', () => {
     });
 
     it('should register a middleware with a valid name only', async () => {
+        console.warn = jest.fn();
         expect(Sanitizer.addMiddleware('foo', () => {})).toBe(false);
         expect(Sanitizer.addMiddleware('afterSanitizeElements', () => {})).toBe(true);
 
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
+        expect(console.warn).toHaveBeenCalledTimes(1);
     });
 
-    it.only('should remove a middleware with a valid name only', async () => {
+    it('should remove a middleware with a valid name only', async () => {
         const warnSpy = jest.fn();
         jest.spyOn(global.console, 'warn').mockImplementation(warnSpy);
 
         expect(Sanitizer.removeMiddleware('foo')).toBe(false);
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
 
-        expect(warnSpy).toBeCalledWith(
+        expect(warnSpy).toHaveBeenCalledWith(
             '[Sanitizer]',
-            expect.stringContaining('No middleware found for name')
+            expect.stringContaining('No middleware found for name'),
         );
     });
 
@@ -129,19 +131,19 @@ describe('core/helper/sanitizer.helper.js', () => {
         localVue.use(SanitizePlugin);
 
         const $route = {
-            meta: { $module: { icon: null } }
+            meta: { $module: { icon: null } },
         };
 
         const wrapper = shallowMount(await Shopware.Component.build('sw-empty-state'), {
             localVue,
             stubs: ['sw-icon'],
             mocks: {
-                $route
+                $route,
             },
             props: {
                 title: 'Foo bar',
-                subline: '<x oncut=alert()>x'
-            }
+                subline: '<x oncut=alert()>x',
+            },
         });
 
         expect(wrapper.element).toMatchSnapshot();

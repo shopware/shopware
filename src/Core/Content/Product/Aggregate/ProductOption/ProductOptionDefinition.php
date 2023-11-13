@@ -11,13 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductOptionDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = 'product_option';
+    final public const ENTITY_NAME = 'product_option';
 
     public function getEntityName(): string
     {

@@ -8,39 +8,53 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
+use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
-use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Framework\Store\StoreException;
+use Shopware\Core\System\User\UserCollection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * @package merchant-services
- *
  * @internal
  */
 #[AsCommand(
     name: 'store:download',
     description: 'Downloads a plugin from the store',
 )]
+#[Package('services-settings')]
 class StoreDownloadCommand extends Command
 {
+    private readonly string $relativePluginDir;
+
+    /**
+     * @param EntityRepository<PluginCollection> $pluginRepo
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly EntityRepository $pluginRepo,
         private readonly PluginManagementService $pluginManagementService,
         private readonly PluginLifecycleService $pluginLifecycleService,
         private readonly EntityRepository $userRepository,
+        string $pluginDir,
+        string $projectDir,
     ) {
         parent::__construct();
+
+        $this->relativePluginDir = (new Filesystem())->makePathRelative($pluginDir, $projectDir);
     }
 
     protected function configure(): void
@@ -76,7 +90,7 @@ class StoreDownloadCommand extends Command
             if ($plugin->getUpgradeVersion()) {
                 $this->pluginLifecycleService->updatePlugin($plugin, $context);
             }
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // don't update plugins that are not installed
         }
 
@@ -92,9 +106,7 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $userName));
 
-        /** @var UserEntity|null $userEntity */
-        $userEntity = $this->userRepository->search($criteria, $context)->first();
-
+        $userEntity = $this->userRepository->search($criteria, $context)->getEntities()->first();
         if ($userEntity === null) {
             return $context;
         }
@@ -106,13 +118,17 @@ class StoreDownloadCommand extends Command
     {
         try {
             $plugin = $this->getPluginFromInput($pluginName, $context);
-        } catch (PluginNotFoundException $e) {
+        } catch (PluginNotFoundException) {
             // plugins no installed can still be downloaded
             return;
         }
 
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
+        if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
+            if (Feature::isActive('v6.6.0.0')) {
+                throw StoreException::cannotDeleteManaged($pluginName);
+            }
+
+            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
         }
     }
 
@@ -121,9 +137,7 @@ class StoreDownloadCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
 
-        /** @var PluginEntity|null $plugin */
-        $plugin = $this->pluginRepo->search($criteria, $context)->first();
-
+        $plugin = $this->pluginRepo->search($criteria, $context)->getEntities()->first();
         if ($plugin === null) {
             throw new PluginNotFoundException($pluginName);
         }

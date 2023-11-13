@@ -2,33 +2,28 @@
 
 namespace Shopware\Core\Checkout\Customer\Exception;
 
-use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package customer-order
- */
-class CustomerOptinNotCompletedException extends ShopwareHttpException
+#[Package('checkout')]
+class CustomerOptinNotCompletedException extends CustomerException
 {
     /**
      * @deprecated tag:v6.6.0 the $message parameter will be removed without replacement
      */
-    public function __construct(string $id, ?string $message = null)
-    {
+    public function __construct(
+        string $id,
+        ?string $message = null,
+        int $statusCode = Response::HTTP_UNAUTHORIZED,
+        string $errorCode = self::CUSTOMER_OPTIN_NOT_COMPLETED,
+    ) {
         parent::__construct(
+            $statusCode,
+            $errorCode,
             $message ?? 'The customer with the id "{{ customerId }}" has not completed the opt-in.',
             ['customerId' => $id]
         );
-    }
-
-    public function getErrorCode(): string
-    {
-        return 'CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED';
-    }
-
-    public function getStatusCode(): int
-    {
-        return Response::HTTP_UNAUTHORIZED;
     }
 
     public function getSnippetKey(): string

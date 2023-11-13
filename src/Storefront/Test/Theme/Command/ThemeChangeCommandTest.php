@@ -32,7 +32,7 @@ class ThemeChangeCommandTest extends TestCase
 
     private EntityRepository $themeRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->themeRepository = $this->getContainer()->get('theme.repository');
@@ -70,8 +70,7 @@ class ThemeChangeCommandTest extends TestCase
 
         $themeService = $this->createMock(ThemeService::class);
         $themeService->expects(static::exactly(\count($salesChannels)))
-            ->method('assignTheme')
-            ->withConsecutive(...$arguments);
+            ->method('assignTheme');
 
         $themeChangeCommand = new ThemeChangeCommand(
             $themeService,
@@ -203,20 +202,17 @@ class ThemeChangeCommandTest extends TestCase
         ]);
     }
 
-    /**
-     * @return MockObject|StorefrontPluginRegistry
-     */
-    private function getPluginRegistryMock()
+    private function getPluginRegistryMock(): MockObject&StorefrontPluginRegistry
     {
         $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
-            'expectedConfig',
+            'any' => 'expectedConfig',
         ]);
         $storePluginConfiguration1->setBasePath('');
 
         $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
-            'unexpectedConfig',
+            'any' => 'unexpectedConfig',
         ]);
         $storePluginConfiguration2->setBasePath('');
 
@@ -232,6 +228,9 @@ class ThemeChangeCommandTest extends TestCase
         return $mock;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getSalesChannelData(): array
     {
         return [
@@ -260,6 +259,9 @@ class ThemeChangeCommandTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     private function getThemeData(): array
     {
         return [

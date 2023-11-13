@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serialize
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializerSubscriber;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
@@ -22,15 +23,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('services-settings')]
 class MediaSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,7 +52,7 @@ class MediaSerializerTest extends TestCase
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addSubscriber($mediaSerializer);
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
 
         $mediaId = Uuid::randomHex();
         $expectedDestination = 'shopware-logo';
@@ -104,7 +105,7 @@ class MediaSerializerTest extends TestCase
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addSubscriber($mediaSerializer);
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
 
         $mediaId = Uuid::randomHex();
         $record = [
@@ -164,7 +165,7 @@ class MediaSerializerTest extends TestCase
         $mediaSerializer->setRegistry($serializerRegistry);
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addSubscriber($mediaSerializer);
+        $eventDispatcher->addSubscriber(new MediaSerializerSubscriber($mediaSerializer));
 
         $expectedDestination = 'shopware-logo';
         $record = [

@@ -2,13 +2,15 @@
 
 namespace Shopware\Core\Framework\Plugin\Requirement\Exception;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ComposerNameMissingException extends RequirementException
 {
-    public function __construct(string $pluginName, ?\Throwable $e = null)
-    {
+    public function __construct(
+        string $pluginName,
+        ?\Throwable $e = null
+    ) {
         parent::__construct(
             '"{{ pluginName }}" has no "name" property in its composer.json file',
             ['pluginName' => $pluginName],

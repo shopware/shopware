@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\Migration\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
-/**
- * @package core
- */
+#[Package('core')]
 class MigrateException extends ShopwareHttpException
 {
-    public function __construct(string $message, \Exception $previous)
-    {
+    public function __construct(
+        string $message,
+        \Exception $previous
+    ) {
         parent::__construct('Migration error: {{ errorMessage }}', ['errorMessage' => $message], $previous);
     }
 

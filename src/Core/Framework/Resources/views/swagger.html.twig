@@ -5,14 +5,11 @@
   <meta charset="UTF-8">
   <title>Swagger UI</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="{{ asset('bundles/framework/swagger-ui.css') }}" >
-  <link rel="icon" type="image/png" href="{{ asset('bundles/framework/favicon-32x32.png') }}" sizes="32x32" />
-  <link rel="icon" type="image/png" href="{{ asset('bundles/framework/favicon-16x16.png') }}" sizes="16x16" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.1/swagger-ui.css" integrity="sha512-pkKqXkAix8w/wgCkShLxOW9ArOmolqwuGqyYxHcJfj+9GKij35CagHOHGDeDIm3V1aXfj5dPjgKjOa3Y39Lzzg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     html
     {
       box-sizing: border-box;
-      overflow: -moz-scrollbars-vertical;
       overflow-y: scroll;
     }
 
@@ -35,8 +32,8 @@
 <body>
 <div id="swagger-ui"></div>
 
-<script nonce="{{ cspNonce }}" src="{{ asset('bundles/framework/swagger-ui-bundle.js') }}"> </script>
-<script nonce="{{ cspNonce }}" src="{{ asset('bundles/framework/swagger-ui-standalone-preset.js') }}"> </script>
+<script nonce="{{ cspNonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.1/swagger-ui-bundle.js" integrity="sha512-SGn/6ZFgyfmSIMLa/hIO3srJ9gKJouzVFfuS/RwrfVpElt/rMv+O8Ikuym7vZUiuHshWjl7NOnCcFoMUgMe6oQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script nonce="{{ cspNonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.1/swagger-ui-standalone-preset.js" integrity="sha512-V5Zdt9ZPs6AWG/eQJp9a27pWGO8iBITXxdCD6/VNbO+XdHD8QnhsifVaUKeAkoYumdQZOFy45hPPLZ5aRolGxQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script nonce="{{ cspNonce }}" >
     window.onload = function() {
 

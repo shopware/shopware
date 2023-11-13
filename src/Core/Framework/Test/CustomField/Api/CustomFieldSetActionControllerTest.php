@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class CustomFieldSetActionControllerTest extends TestCase
@@ -21,7 +22,7 @@ class CustomFieldSetActionControllerTest extends TestCase
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals('application/json', $response->headers->get('Content-Type'));
 
-        $availableRelations = json_decode($response->getContent(), true);
+        $availableRelations = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($availableRelations);
 
         static::assertContains('product', $availableRelations);

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxFreeConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
@@ -29,18 +30,16 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannel
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
 
-/**
- * @package system-settings
- */
+#[Package('buyers-experience')]
 class CountryDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'country';
+    final public const ENTITY_NAME = 'country';
 
-    public const TYPE_CUSTOMER_TAX_FREE = 'customer-tax-free';
+    final public const TYPE_CUSTOMER_TAX_FREE = 'customer-tax-free';
 
-    public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
+    final public const TYPE_COMPANY_TAX_FREE = 'company-tax-free';
 
-    public const DEFAULT_ADDRESS_FORMAT = [
+    final public const DEFAULT_ADDRESS_FORMAT = [
         ['address/company', 'symbol/dash', 'address/department'],
         ['address/first_name', 'address/last_name'],
         ['address/street'],
@@ -110,7 +109,7 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('check_advanced_postal_code_pattern', 'checkAdvancedPostalCodePattern'))->addFlags(new ApiAware()),
             (new StringField('advanced_postal_code_pattern', 'advancedPostalCodePattern'))->addFlags(new ApiAware()),
             (new TranslatedField('addressFormat'))->addFlags(new ApiAware()),
-            (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern'))->addFlags(new ApiAware()),
+            (new StringField('default_postal_code_pattern', 'defaultPostalCodePattern', 1024))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),
@@ -127,7 +126,7 @@ class CountryDefinition extends EntityDefinition
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'country_id', 'id'))
                 ->addFlags(new RestrictDelete()),
 
-            (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, 'country_id', 'sales_channel_id')),
+            new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelCountryDefinition::class, 'country_id', 'sales_channel_id'),
 
             (new OneToManyAssociationField('taxRules', TaxRuleDefinition::class, 'country_id', 'id'))
                 ->addFlags(new RestrictDelete()),

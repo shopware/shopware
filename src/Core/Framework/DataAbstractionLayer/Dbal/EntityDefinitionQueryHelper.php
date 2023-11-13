@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -29,12 +31,11 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * It knows how an association should be joined, how a parent-child inheritance should act, how translation chains work, ...
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityDefinitionQueryHelper
 {
-    public const HAS_TO_MANY_JOIN = 'has_to_many_join';
+    final public const HAS_TO_MANY_JOIN = 'has_to_many_join';
 
     public static function escape(string $string): string
     {
@@ -49,6 +50,16 @@ class EntityDefinitionQueryHelper
     {
         $exists = $connection->fetchOne(
             'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column',
+            ['column' => $column]
+        );
+
+        return !empty($exists);
+    }
+
+    public static function columnIsNullable(Connection $connection, string $table, string $column): bool
+    {
+        $exists = $connection->fetchOne(
+            'SHOW COLUMNS FROM ' . self::escape($table) . ' WHERE `Field` LIKE :column AND `Null` = "YES"',
             ['column' => $column]
         );
 
@@ -234,7 +245,7 @@ class EntityDefinitionQueryHelper
 
         $field = $fields->get($associationKey);
 
-        //case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
+        // case for json object fields, other fields has now same option to act with more point notations but hasn't to be an association field. E.g. price.gross
         if (!$field instanceof AssociationField && ($field instanceof StorageAware || $field instanceof TranslatedField)) {
             return $this->buildInheritedAccessor($field, $root, $definition, $context, $fieldName);
         }
@@ -297,9 +308,7 @@ class EntityDefinitionQueryHelper
         } elseif ($definition->isVersionAware()) {
             $versionIdField = array_filter(
                 $definition->getPrimaryKeys()->getElements(),
-                function ($f) {
-                    return $f instanceof VersionField || $f instanceof ReferenceVersionField;
-                }
+                fn ($f) => $f instanceof VersionField || $f instanceof ReferenceVersionField
             );
 
             if (!$versionIdField) {
@@ -408,11 +417,9 @@ class EntityDefinitionQueryHelper
 
         $fields = $translationDefinition->getFields();
         if (!empty($partial)) {
-            $fields = $translationDefinition->getFields()->filter(function (Field $field) use ($partial) {
-                return $field->is(PrimaryKey::class)
-                    || isset($partial[$field->getPropertyName()])
-                    || $field instanceof FkField;
-            });
+            $fields = $translationDefinition->getFields()->filter(fn (Field $field) => $field->is(PrimaryKey::class)
+                || isset($partial[$field->getPropertyName()])
+                || $field instanceof FkField);
         }
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
@@ -445,7 +452,7 @@ class EntityDefinitionQueryHelper
                 );
             }
 
-            //check if current field is a translated field of the origin definition
+            // check if current field is a translated field of the origin definition
             $origin = $definition->getFields()->get($field->getPropertyName());
             if (!$origin instanceof TranslatedField) {
                 continue;
@@ -453,7 +460,7 @@ class EntityDefinitionQueryHelper
 
             $selects[] = self::escape($root . '.translation.' . $field->getPropertyName());
 
-            //add selection for resolved parent-child and language inheritance
+            // add selection for resolved parent-child and language inheritance
             $query->addSelect(
                 sprintf('COALESCE(%s)', implode(',', $selects)) . ' as '
                 . self::escape($root . '.' . $field->getPropertyName())
@@ -491,7 +498,7 @@ class EntityDefinitionQueryHelper
 
         $field = $translationDefinition->getFields()->get($translatedField->getPropertyName());
 
-        if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {
+        if (!$field instanceof StorageAware) {
             throw new \RuntimeException(
                 sprintf(
                     'Missing translated storage aware property %s in %s',
@@ -509,6 +516,7 @@ class EntityDefinitionQueryHelper
      */
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
+        $chain = [];
         $count = \count($context->getLanguageIdChain()) - 1;
 
         for ($i = $count; $i >= 1; --$i) {
@@ -561,7 +569,7 @@ class EntityDefinitionQueryHelper
                 EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
             ));
 
-            $query->setParameter('ids', $primaryKeys, Connection::PARAM_STR_ARRAY);
+            $query->setParameter('ids', $primaryKeys, ArrayParameterType::BINARY);
 
             return;
         }

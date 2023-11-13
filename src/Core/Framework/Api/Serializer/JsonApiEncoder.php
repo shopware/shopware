@@ -13,11 +13,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 
-/**
- * @package core
- */
+#[Package('core')]
 class JsonApiEncoder
 {
     /**
@@ -32,6 +31,7 @@ class JsonApiEncoder
 
     /**
      * @param EntityCollection<Entity>|Entity|null $data
+     * @param array<string, mixed> $metaData
      *
      * @throws UnsupportedEncoderInputException
      */
@@ -90,7 +90,7 @@ class JsonApiEncoder
             try {
                 /** @var Entity|EntityCollection<Entity>|null $relationData */
                 $relationData = $entity->get($propertyName);
-            } catch (\InvalidArgumentException $ex) {
+            } catch (\InvalidArgumentException) {
                 continue;
             }
 
@@ -162,7 +162,6 @@ class JsonApiEncoder
                 continue;
             }
 
-            /** @var ApiAware|null $flag */
             $flag = $field->getFlag(ApiAware::class);
 
             if ($flag === null || !$flag->isBaseUrlAllowed($result->getBaseUrl())) {
@@ -214,7 +213,7 @@ class JsonApiEncoder
 
     private function formatToJson(JsonApiEncodingResult $result): string
     {
-        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($result, \JSON_PRESERVE_ZERO_FRACTION|\JSON_THROW_ON_ERROR);
     }
 
     private function addExtensions(ResponseFields $fields, Record $serialized, Entity $entity, JsonApiEncodingResult $result): void

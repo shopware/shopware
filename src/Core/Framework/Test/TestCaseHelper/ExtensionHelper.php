@@ -15,7 +15,7 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
  */
 class ExtensionHelper
 {
-    public const IGNORED_PROPERTIES = ['extension', 'extensions', 'elements'];
+    final public const IGNORED_PROPERTIES = ['extension', 'extensions', 'elements'];
 
     /**
      * @var PropertyInfoExtractor
@@ -57,7 +57,7 @@ class ExtensionHelper
         }
 
         if ($object instanceof Struct) {
-            $properties = $this->propertyInfoExtractor->getProperties(\get_class($object));
+            $properties = $this->propertyInfoExtractor->getProperties($object::class);
 
             foreach ($properties as $property) {
                 if (\in_array($property, self::IGNORED_PROPERTIES, true)) {
@@ -66,7 +66,7 @@ class ExtensionHelper
 
                 try {
                     $this->removeExtensions($this->propertyAccessor->getValue($object, $property));
-                } catch (\ArgumentCountError $e) {
+                } catch (\ArgumentCountError) {
                     // nth
                 }
             }

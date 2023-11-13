@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import './acl';
@@ -18,7 +18,6 @@ Shopware.Component.extend('sw-product-stream-filter', 'sw-condition-base', () =>
 
 /**
  * @private
- * @package business-ops
  */
 Module.register('sw-product-stream', {
     type: 'core',

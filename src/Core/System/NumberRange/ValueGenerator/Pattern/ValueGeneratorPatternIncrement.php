@@ -2,22 +2,18 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ValueGeneratorPatternIncrement extends AbstractValueGenerator
 {
-    private AbstractIncrementStorage $incrementConnector;
-
     /**
      * @internal
      */
-    public function __construct(AbstractIncrementStorage $incrementConnector)
+    public function __construct(private readonly AbstractIncrementStorage $incrementConnector)
     {
-        $this->incrementConnector = $incrementConnector;
     }
 
     public function getPatternId(): string

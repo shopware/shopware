@@ -4,7 +4,9 @@ namespace Shopware\Core\Content\Mail\Service;
 
 use Doctrine\DBAL\Exception\DriverException;
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\Mail\MailException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mailer\Transport\Dsn;
@@ -14,36 +16,22 @@ use Symfony\Component\Mailer\Transport\Transports;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailerTransportLoader
 {
-    private Transport $envBasedTransport;
-
-    private SystemConfigService $configService;
-
-    private MailAttachmentsBuilder $attachmentsBuilder;
-
-    private FilesystemOperator $filesystem;
-
-    private EntityRepository $documentRepository;
+    private const VALID_OPTIONS = ['-bs', '-i', '-t'];
 
     /**
      * @internal
      */
     public function __construct(
-        Transport $envBasedTransport,
-        SystemConfigService $configService,
-        MailAttachmentsBuilder $attachmentsBuilder,
-        FilesystemOperator $filesystem,
-        EntityRepository $documentRepository
+        private readonly Transport $envBasedTransport,
+        private readonly SystemConfigService $configService,
+        private readonly MailAttachmentsBuilder $attachmentsBuilder,
+        private readonly FilesystemOperator $filesystem,
+        private readonly EntityRepository $documentRepository
     ) {
-        $this->envBasedTransport = $envBasedTransport;
-        $this->configService = $configService;
-        $this->attachmentsBuilder = $attachmentsBuilder;
-        $this->filesystem = $filesystem;
-        $this->documentRepository = $documentRepository;
     }
 
     /**
@@ -71,7 +59,7 @@ class MailerTransportLoader
             if ($transportConfig === '') {
                 return $this->createTransportUsingDSN($dsn);
             }
-        } catch (DriverException $e) {
+        } catch (DriverException) {
             // We don't have a database connection right now
             return $this->createTransportUsingDSN($dsn);
         }
@@ -101,7 +89,7 @@ class MailerTransportLoader
         return match ($emailAgent) {
             'smtp' => $this->createSmtpTransport($this->configService),
             'local' => new SendmailTransport($this->getSendMailCommandLineArgument($this->configService)),
-            default => throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent)),
+            default => throw MailException::givenMailAgentIsInvalid($emailAgent),
         };
     }
 
@@ -134,16 +122,20 @@ class MailerTransportLoader
     {
         $command = '/usr/sbin/sendmail ';
 
-        $option = $configService->getString('core.mailerSettings.sendMailOptions');
+        $sendMailOptions = trim($configService->getString('core.mailerSettings.sendMailOptions'));
 
-        if ($option === '') {
-            $option = '-t';
+        if ($sendMailOptions === '') {
+            $sendMailOptions = '-t -i';
         }
 
-        if ($option !== '-bs' && $option !== '-t') {
-            throw new \RuntimeException(sprintf('Given sendmail option "%s" is invalid', $option));
+        $options = preg_split('/\s+/', $sendMailOptions) ?: [$sendMailOptions];
+
+        foreach ($options as $sendMailOption) {
+            if (!\in_array(trim($sendMailOption), self::VALID_OPTIONS, true)) {
+                throw MailException::givenSendMailOptionIsInvalid($sendMailOption, self::VALID_OPTIONS);
+            }
         }
 
-        return $command . $option;
+        return $command . $sendMailOptions;
     }
 }

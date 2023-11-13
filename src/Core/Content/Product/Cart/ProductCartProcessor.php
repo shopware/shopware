@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cart;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -24,56 +25,38 @@ use Shopware\Core\Content\Product\State;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Profiling\Profiler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
-    public const CUSTOM_PRICE = 'customPrice';
+    final public const CUSTOM_PRICE = 'customPrice';
 
-    public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
+    final public const ALLOW_PRODUCT_PRICE_OVERWRITES = 'allowProductPriceOverwrites';
 
-    public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
+    final public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
 
-    public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
+    final public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
-    public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+    final public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
 
-    public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
-
-    private ProductGatewayInterface $productGateway;
-
-    private QuantityPriceCalculator $calculator;
-
-    private ProductFeatureBuilder $featureBuilder;
-
-    private AbstractProductPriceCalculator $priceCalculator;
-
-    private EntityCacheKeyGenerator $generator;
-
-    private Connection $connection;
+    final public const KEEP_INACTIVE_PRODUCT = 'keepInactiveProduct';
 
     /**
      * @internal
      */
     public function __construct(
-        ProductGatewayInterface $productGateway,
-        QuantityPriceCalculator $calculator,
-        ProductFeatureBuilder $featureBuilder,
-        AbstractProductPriceCalculator $priceCalculator,
-        EntityCacheKeyGenerator $generator,
-        Connection $connection
+        private readonly ProductGatewayInterface $productGateway,
+        private readonly QuantityPriceCalculator $calculator,
+        private readonly ProductFeatureBuilder $featureBuilder,
+        private readonly AbstractProductPriceCalculator $priceCalculator,
+        private readonly EntityCacheKeyGenerator $generator,
+        private readonly Connection $connection
     ) {
-        $this->productGateway = $productGateway;
-        $this->calculator = $calculator;
-        $this->featureBuilder = $featureBuilder;
-        $this->priceCalculator = $priceCalculator;
-        $this->generator = $generator;
-        $this->connection = $connection;
     }
 
     public function collect(CartDataCollection $data, Cart $original, SalesChannelContext $context, CartBehavior $behavior): void
@@ -108,6 +91,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                     $lineItem->setDataContextHash($hash);
                 }
             }
+
+            // run price calculator in batch
+            $this->recalculate(array_column($lineItems, 'item'), $data, $context, $behavior);
 
             foreach ($lineItems as $match) {
                 // enrich all products in original cart
@@ -293,8 +279,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $label = trim($lineItem->getLabel() ?? '');
 
-        $name = $product->getTranslation('name');
-
         // set the label if its empty or the context does not have the permission to overwrite it
         if ($label === '' || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
             $lineItem->setLabel($product->getTranslation('name'));
@@ -328,7 +312,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             );
         }
 
-        //Check if the price has to be updated
+        // Check if the price has to be updated
         if ($this->shouldPriceBeRecalculated($lineItem, $behavior)) {
             $lineItem->setPriceDefinition(
                 $this->getPriceDefinition($product, $context, $lineItem->getQuantity())
@@ -364,7 +348,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
+            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices, \JSON_THROW_ON_ERROR) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
@@ -378,13 +362,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'stock' => $product->getStock(),
         ];
 
-        $lineItem->replacePayload($payload);
+        $lineItem->replacePayload($payload, ['purchasePrices' => true]);
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            // replace all array values to not have a recursive replace of a numeric-key array
+            $lineItem->setPayloadValue('categoryIds', $payload['categoryIds']);
+            $lineItem->setPayloadValue('customFields', $payload['customFields']);
+            $lineItem->setPayloadValue('optionIds', $payload['optionIds']);
+            $lineItem->setPayloadValue('propertyIds', $payload['propertyIds']);
+            $lineItem->setPayloadValue('streamIds', $payload['streamIds']);
+            $lineItem->setPayloadValue('tagIds', $payload['tagIds']);
+        }
     }
 
     private function getPriceDefinition(SalesChannelProductEntity $product, SalesChannelContext $context, int $quantity): QuantityPriceDefinition
     {
-        $this->priceCalculator->calculate([$product], $context);
-
         if ($product->getCalculatedPrices()->count() === 0) {
             return $this->buildPriceDefinition($product->getCalculatedPrice(), $quantity);
         }
@@ -483,7 +475,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             [
-                'ids' => Connection::PARAM_STR_ARRAY,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 
@@ -525,6 +517,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             return false;
         }
 
+        if ($lineItem->getPriceDefinition() !== null && $lineItem->isModifiedByApp()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -536,5 +532,39 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     private function getDataKey(string $id): string
     {
         return 'product-' . $id;
+    }
+
+    /**
+     * @param array<LineItem> $lineItems
+     */
+    private function recalculate(array $lineItems, CartDataCollection $data, SalesChannelContext $context, CartBehavior $behavior): void
+    {
+        $affected = [];
+
+        foreach ($lineItems as $lineItem) {
+            if (!$this->shouldPriceBeRecalculated($lineItem, $behavior)) {
+                continue;
+            }
+
+            $id = $lineItem->getReferencedId();
+
+            $product = $data->get(
+                $this->getDataKey((string) $id)
+            );
+
+            // no data for enrich exists
+            if (!$product instanceof SalesChannelProductEntity) {
+                continue;
+            }
+
+            $affected[] = $product;
+        }
+
+        // Check if the price has to be updated
+        if (empty($affected)) {
+            return;
+        }
+
+        $this->priceCalculator->calculate($affected, $context);
     }
 }

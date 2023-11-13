@@ -13,6 +13,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -23,34 +25,31 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 trait OrderActionTrait
 {
+    use CountryAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
-    private ?EntityRepository $customerRepository;
+    private ?EntityRepository $customerRepository = null;
 
-    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
+    private function createCustomerAndLogin(): void
     {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
-        $this->prepareCustomer($password, $email);
+        $email = Uuid::randomHex() . '@example.com';
+        $this->prepareCustomer($email);
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
     }
 
     /**
      * @param array<string, mixed> $additionalData
      */
-    private function prepareCustomer(string $password, ?string $email = null, array $additionalData = []): void
+    private function prepareCustomer(?string $email = null, array $additionalData = []): void
     {
         static::assertNotNull($this->customerRepository);
 
@@ -72,7 +71,7 @@ trait OrderActionTrait
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
-                'password' => $password,
+                'password' => TestDefaults::HASHED_PASSWORD,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
                 'salutationId' => $this->getValidSalutationId(),
@@ -170,6 +169,8 @@ trait OrderActionTrait
         $this->getContainer()->get('order.repository')->create([
             array_merge([
                 'id' => $this->ids->create('order'),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -198,6 +199,16 @@ trait OrderActionTrait
                         'city' => 'Schöppingen',
                         'countryId' => $this->getValidCountryId(),
                     ],
+                    [
+                        'id' => $this->ids->create('shipping-address'),
+                        'countryId' => $this->getValidCountryId(),
+                        'salutationId' => $this->getValidSalutationId(),
+                        'firstName' => 'Max',
+                        'lastName' => 'Mustermann',
+                        'street' => 'Ebbinghoff 10',
+                        'zipcode' => '48624',
+                        'city' => 'Schöppingen',
+                    ],
                 ],
                 'lineItems' => [
                     [
@@ -213,7 +224,7 @@ trait OrderActionTrait
                 'deliveries' => [
                     [
                         'id' => $this->ids->create('delivery'),
-                        'shippingOrderAddressId' => $this->ids->create('shipping-address'),
+                        'shippingOrderAddressId' => $this->ids->get('shipping-address'),
                         'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
                         'stateId' => $this->getStateId('open', 'order_delivery.state'),
                         'trackingCodes' => [],

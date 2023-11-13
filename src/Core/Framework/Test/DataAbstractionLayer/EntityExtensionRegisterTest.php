@@ -19,12 +19,13 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class EntityExtensionRegisterTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use KernelTestBehaviour;
 
     protected function tearDown(): void
     {

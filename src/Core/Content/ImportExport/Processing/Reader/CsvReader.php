@@ -3,53 +3,26 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Reader;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package system-settings
- */
+#[Package('services-settings')]
 class CsvReader extends AbstractReader
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
-    /**
-     * @var string
-     */
-    private $delimiter;
+    private int $offset = 0;
 
-    /**
-     * @var string
-     */
-    private $enclosure;
-
-    /**
-     * @var string
-     */
-    private $escape;
-
-    /**
-     * @var bool
-     */
-    private $withHeader;
-
-    /**
-     * @var int
-     */
-    private $offset = 0;
-
-    /**
-     * @var array
-     */
-    private $header = [];
+    private array $header = [];
 
     /**
      * @internal
      */
-    public function __construct(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $withHeader = true)
-    {
-        $this->delimiter = $delimiter;
-        $this->enclosure = $enclosure;
-        $this->escape = $escape;
-        $this->withHeader = $withHeader;
+    public function __construct(
+        private string $delimiter = ';',
+        private string $enclosure = '"',
+        private string $escape = '\\',
+        private bool $withHeader = true
+    ) {
     }
 
     public function read(Config $config, $resource, int $offset): iterable
@@ -82,6 +55,9 @@ class CsvReader extends AbstractReader
         return $this->offset;
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - reason:visibility-change - becomes private
+     */
     public function loadConfig(Config $config): void
     {
         $this->delimiter = $config->get('delimiter') ?? $this->delimiter;

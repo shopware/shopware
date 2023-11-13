@@ -40,7 +40,7 @@ class ThemeFileImporterTest extends TestCase
     {
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
 
-        if (\strpos($path, $projectDir) === 0) {
+        if (str_starts_with($path, $projectDir)) {
             return substr($path, \strlen($projectDir) + 1);
         }
 

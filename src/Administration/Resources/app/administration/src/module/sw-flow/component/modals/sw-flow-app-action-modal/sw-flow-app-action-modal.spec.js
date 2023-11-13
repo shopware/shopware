@@ -44,28 +44,28 @@ const sequence = {
                                 deDE: 'Option 1',
                                 enGB: 'Option 1',
                             },
-                            value: 1
+                            value: 1,
                         },
                         {
                             label: {
                                 deDE: 'Option 2',
                                 enGB: 'Option 2',
                             },
-                            value: 2
+                            value: 2,
                         },
                         {
                             label: {
                                 deDE: 'Option 3',
                                 enGB: 'Option 3',
                             },
-                            value: 3
+                            value: 3,
                         },
                     ],
                     required: true,
-                }
+                },
             ],
-        }
-    }
+        },
+    },
 };
 
 async function createWrapper() {
@@ -80,10 +80,10 @@ async function createWrapper() {
                 create: () => {
                     return {
                         search: () => Promise.resolve([]),
-                        get: () => Promise.resolve()
+                        get: () => Promise.resolve(),
                     };
-                }
-            }
+                },
+            },
         },
 
         propsData: sequence,
@@ -103,15 +103,15 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-entity-single-select': true,
             'sw-label': true,
             'sw-icon': true,
-        }
+        },
     });
 }
 
@@ -121,7 +121,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
         await wrapper.vm.$nextTick();
 
         const fields = wrapper.findAll('.sw-form-field-renderer');
-        expect(fields.length).toEqual(1);
+        expect(fields).toHaveLength(1);
     });
 
     it('should show error if these fields are invalid', async () => {
@@ -138,25 +138,25 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
 
         await wrapper.setData({
             config: {
-                content: [1]
-            }
+                content: [1],
+            },
         });
 
         const saveButton = wrapper.find('.sw-flow-app-action-modal__save-button');
         await saveButton.trigger('click');
         expect(wrapper.emitted()['process-finish'][0][0].config).toEqual({
-            content: [1]
+            content: [1],
         });
     });
 
     it('should correct the action title', async () => {
         sequence.sequence.config = {
-            content: [1, 2]
+            content: [1, 2],
         };
         const wrapper = await createWrapper();
 
         const title = wrapper.find('.sw-flow-app-action-modal__app-badge');
-        expect(title.text()).toEqual('Flow Builder App');
+        expect(title.text()).toBe('Flow Builder App');
     });
 
     it('should have headline and paragraph', async () => {

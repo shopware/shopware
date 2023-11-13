@@ -5,7 +5,24 @@ namespace Shopware\Core\Framework\Test\Migration;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Controller\ProductController;
+use Shopware\Core\Migration\V6_3\Migration1565270366PromotionSetGroupRule;
+use Shopware\Core\Migration\V6_3\Migration1565346846Promotion;
+use Shopware\Core\Migration\V6_3\Migration1566293076AddAutoIncrement;
+use Shopware\Core\Migration\V6_3\Migration1566460168UpdateTexts;
+use Shopware\Core\Migration\V6_3\Migration1566817701AddDisplayGroup;
+use Shopware\Core\Migration\V6_3\Migration1567431050ContactFormTemplate;
+use Shopware\Core\Migration\V6_3\Migration1568120239CmsSection;
+use Shopware\Core\Migration\V6_3\Migration1568120302CmsBlockUpdate;
+use Shopware\Core\Migration\V6_3\Migration1568645037AddEnqueueDbal;
+use Shopware\Core\Migration\V6_3\Migration1568901713PromotionDiscount;
+use Shopware\Core\Migration\V6_3\Migration1569403146ProductVisibilityUnique;
+use Shopware\Core\Migration\V6_3\Migration1570187167AddedAppConfig;
+use Shopware\Core\Migration\V6_3\Migration1570459127AddCmsSidebarLayout;
+use Shopware\Core\Migration\V6_3\Migration1570621541UpdateDefaultMailTemplates;
+use Shopware\Core\Migration\V6_3\Migration1570622696CustomerPasswordRecovery;
+use Shopware\Core\Migration\V6_3\Migration1570629862ClearCategoryBreadcrumbs;
+use Shopware\Core\Migration\V6_3\Migration1570684913ScheduleIndexer;
+use Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKingdom;
 
 /**
  * @internal
@@ -98,52 +115,34 @@ class MigrationSourceTest extends TestCase
         static::assertSame($expected, $sourceAb->getSourceDirectories());
     }
 
-    public function provideCoreRegexDataV6_3(): array
+    public static function provideCoreRegexDataV6_3(): array
     {
         $cases = [
-            ['Shopware\Core\Migration\V6_3\Migration1565270366PromotionSetGroupRule', true],
-            ['Shopware\Core\Migration\V6_3\Migration1565346846Promotion', true],
-            ['Shopware\Core\Migration\V6_3\Migration1566293076AddAutoIncrement', true],
-            ['Shopware\Core\Migration\V6_3\Migration1566460168UpdateTexts', true],
-            ['Shopware\Core\Migration\V6_3\Migration1566817701AddDisplayGroup', true],
-            ['Shopware\Core\Migration\V6_3\Migration1567431050ContactFormTemplate', true],
-            ['Shopware\Core\Migration\V6_3\Migration1568120239CmsSection', true],
-            ['Shopware\Core\Migration\V6_3\Migration1568120302CmsBlockUpdate', true],
-            ['Shopware\Core\Migration\V6_3\Migration1568645037AddEnqueueDbal', true],
-            ['Shopware\Core\Migration\V6_3\Migration1568901713PromotionDiscount', true],
-            ['Shopware\Core\Migration\V6_3\Migration1569403146ProductVisibilityUnique', true],
-            ['Shopware\Core\Migration\V6_3\Migration1570187167AddedAppConfig', true],
-            ['Shopware\Core\Migration\V6_3\Migration1570459127AddCmsSidebarLayout', true],
-            ['Shopware\Core\Migration\V6_3\Migration1570621541UpdateDefaultMailTemplates', true],
-            ['Shopware\Core\Migration\V6_3\Migration1570622696CustomerPasswordRecovery', true],
-            ['Shopware\Core\Migration\V6_3\Migration1570629862ClearCategoryBreadcrumbs', true],
-            ['Shopware\Core\Migration\V6_3\Migration1570684913ScheduleIndexer', true],
-            ['Shopware\Core\Migration\V6_3\Migration1571059598ChangeGreatBritainToUnitedKingdom', true],
+            [Migration1565270366PromotionSetGroupRule::class, true],
+            [Migration1565346846Promotion::class, true],
+            [Migration1566293076AddAutoIncrement::class, true],
+            [Migration1566460168UpdateTexts::class, true],
+            [Migration1566817701AddDisplayGroup::class, true],
+            [Migration1567431050ContactFormTemplate::class, true],
+            [Migration1568120239CmsSection::class, true],
+            [Migration1568120302CmsBlockUpdate::class, true],
+            [Migration1568645037AddEnqueueDbal::class, true],
+            [Migration1568901713PromotionDiscount::class, true],
+            [Migration1569403146ProductVisibilityUnique::class, true],
+            [Migration1570187167AddedAppConfig::class, true],
+            [Migration1570459127AddCmsSidebarLayout::class, true],
+            [Migration1570621541UpdateDefaultMailTemplates::class, true],
+            [Migration1570622696CustomerPasswordRecovery::class, true],
+            [Migration1570629862ClearCategoryBreadcrumbs::class, true],
+            [Migration1570684913ScheduleIndexer::class, true],
+            [Migration1571059598ChangeGreatBritainToUnitedKingdom::class, true],
             ['Shopware\Core\Migration\V6_3\Something\Migration1571059598ChangeGreatBritainToUnitedKingdom', false],
         ];
-
-        if ($this->getContainer()->has(ProductController::class)) {
-            $cases = array_merge(
-                $cases,
-                [
-                    ['Shopware\Storefront\Migration\V6_3\Migration1555406153SalesChannelTheme', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1563785071AddThemeHelpText', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1564385954ThemeMedia', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1564385960ThemeAddActiveFlag', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1565640170ThemeMigrateMedia', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1565640175RemoveSalesChannelTheme', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1568787535AddSeoUrlConstraints', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1595919251MainCategory', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1569907970RemoveUnusedSeoColumns', true],
-                    ['Shopware\Storefront\Migration\V6_3\Migration1572858066UpdateDefaultCategorySeoUrlTemplate', true],
-                ]
-            );
-        }
 
         return $cases;
     }
 
-    public function provideUnitTestData(): array
+    public static function provideUnitTestData(): array
     {
         return [
             ['__NOPE__', false],

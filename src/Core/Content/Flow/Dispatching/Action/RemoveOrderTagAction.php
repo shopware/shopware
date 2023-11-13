@@ -7,22 +7,19 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class RemoveOrderTagAction extends FlowAction implements DelayableAction
 {
-    private EntityRepository $orderTagRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $orderTagRepository)
+    public function __construct(private readonly EntityRepository $orderTagRepository)
     {
-        $this->orderTagRepository = $orderTagRepository;
     }
 
     public static function getName(): string
@@ -40,11 +37,11 @@ class RemoveOrderTagAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasStore(OrderAware::ORDER_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 
-        $this->update($flow->getContext(), $flow->getConfig(), $flow->getStore(OrderAware::ORDER_ID));
+        $this->update($flow->getContext(), $flow->getConfig(), $flow->getData(OrderAware::ORDER_ID));
     }
 
     /**
@@ -62,12 +59,10 @@ class RemoveOrderTagAction extends FlowAction implements DelayableAction
             return;
         }
 
-        $tags = array_map(static function ($tagId) use ($orderId) {
-            return [
-                'orderId' => $orderId,
-                'tagId' => $tagId,
-            ];
-        }, $tagIds);
+        $tags = array_map(static fn ($tagId) => [
+            'orderId' => $orderId,
+            'tagId' => $tagId,
+        ], $tagIds);
 
         $this->orderTagRepository->delete($tags, $context);
     }

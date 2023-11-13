@@ -150,6 +150,7 @@ Component.register('sw-condition-type-select', {
             }
 
             return {
+                disabled: false,
                 width: 260,
                 message: this.$t(
                     'sw-restricted-rules.restrictedConditions.restrictedConditionTooltip',

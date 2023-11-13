@@ -50,40 +50,40 @@ async function createWrapper(startingValue) {
         stubs: {
             'sw-select-field': {
                 template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value']
+                props: ['value'],
             },
             'sw-switch-field': {
                 props: ['value', 'label', 'placeholder'],
-                template: '<input class="sw-switch-field" type="checkbox" :value="value" @input="$emit(\'input\', $event.target.value)" />'
+                template: '<input class="sw-switch-field" type="checkbox" :value="value" @input="$emit(\'input\', $event.target.value)" />',
             },
             'sw-email-field': {
                 props: ['value', 'label', 'placeholder'],
-                template: '<input class="sw-email-field" :value="value" @input="$emit(\'input\', $event.target.value)" />'
+                template: '<input class="sw-email-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
             },
             'sw-text-field': {
                 props: ['value', 'label', 'placeholder'],
-                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />'
+                template: '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
             },
             'sw-entity-single-select': {
                 props: ['value', 'label', 'placeholder'],
-                template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">'
+                template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
             },
             'sw-category-tree-field': {
                 props: ['label', 'placeholder', 'criteria', 'categories-collection'],
-                template: '<div class="sw-category-tree-field"></div>'
+                template: '<div class="sw-category-tree-field"></div>',
             },
             'sw-button': true,
         },
         propsData: {
-            value: startingValue
-        }
+            value: startingValue,
+        },
     });
 }
 
 const responses = global.repositoryFactoryMock.responses;
 const categoryData = {
     id: 'test-id',
-    name: 'category-name'
+    name: 'category-name',
 };
 
 responses.addResponse({
@@ -94,12 +94,12 @@ responses.addResponse({
         data: [{
             id: 'test-id',
             attributes: categoryData,
-            relationships: []
+            relationships: [],
         }],
         meta: {
-            total: 1
-        }
-    }
+            total: 1,
+        },
+    },
 });
 
 describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
@@ -122,7 +122,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                     value: link.value,
                     label: link.label,
                     placeholder: link.placeholder,
-                })
+                }),
             );
 
             let placeholderId = 'some-id';
@@ -155,7 +155,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
             expect.objectContaining({
                 limit: 25,
                 page: 1,
-            })
+            }),
         );
 
         const associations = props.criteria.associations;
@@ -171,17 +171,17 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                 operator: 'OR',
                 queries: [
                     { field: 'product.childCount', type: 'equals', value: 0 },
-                    { field: 'product.childCount', type: 'equals', value: null }
+                    { field: 'product.childCount', type: 'equals', value: null },
                 ],
-                type: 'multi'
-            }]
+                type: 'multi',
+            }],
         ));
 
-        expect(props.categoriesCollection.length).toBe(1);
+        expect(props.categoriesCollection).toHaveLength(1);
         expect(props.categoriesCollection[0]).toEqual(categoryData);
 
         categoryTreeField.vm.$emit('selection-add', {
-            id: 'new-selection'
+            id: 'new-selection',
         });
         await wrapper.vm.$nextTick();
 

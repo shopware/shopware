@@ -7,7 +7,7 @@ import extensionStore from 'src/module/sw-extension/store/extensions.store';
 const userInfo = {
     avatarUrl: 'https://avatar.url',
     email: 'max@muster.com',
-    name: 'Max Muster'
+    name: 'Max Muster',
 };
 
 Shopware.Component.register('sw-extension-my-extensions-account', swExtensionMyExtensionsAccount);
@@ -27,13 +27,13 @@ async function createWrapper() {
                 props: ['value'],
                 template: `
                     <input type="text" :value="value" @input="$emit('input', $event.target.value)" />
-                `
+                `,
             },
             'sw-password-field': {
                 props: ['value'],
                 template: `
 <input type="password" :value="value" @input="$emit('input', $event.target.value)" />
-`
+`,
             },
             'sw-skeleton': true,
         },
@@ -41,9 +41,9 @@ async function createWrapper() {
             shopwareExtensionService: {
                 checkLogin: () => {
                     return Promise.resolve({
-                        userInfo
+                        userInfo,
                     });
-                }
+                },
             },
             systemConfigApiService: {
                 getValues: () => {
@@ -52,7 +52,7 @@ async function createWrapper() {
                         'core.store.licenseHost': 'sw6.test.shopware.in',
                         'core.store.shopSecret': 'very.s3cret',
                     });
-                }
+                },
             },
             storeService: {
                 login: (shopwareId, password) => {
@@ -72,13 +72,13 @@ async function createWrapper() {
 
                     return Promise.resolve();
                 },
-            }
-        }
+            },
+        },
     });
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () => {
     /** @type Wrapper */
@@ -137,7 +137,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.text()).toBe('max@muster.com');
     });
 
-    it('should show the logged in view when logged in ', async () => {
+    it('should show the logged in view when logged in', async () => {
         Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view
@@ -151,7 +151,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-account', () =
         expect(loginStatus.text()).toBe('max@muster.com');
     });
 
-    it('should logout when user clicks logout button ', async () => {
+    it('should logout when user clicks logout button', async () => {
         Shopware.State.get('shopwareExtensions').userInfo = userInfo;
 
         // create component with logged in view

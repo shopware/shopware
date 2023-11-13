@@ -161,6 +161,7 @@ export default {
             });
 
             this.userPromise = this.getUserData();
+            this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
 
             const promises = [
                 languagePromise,
@@ -179,7 +180,6 @@ export default {
 
             Promise.all(promises).then(() => {
                 this.loadLanguages();
-                this.loadTimezones();
             }).then(() => {
                 this.isUserLoading = false;
             });
@@ -219,7 +219,6 @@ export default {
 
                 if (!localeIds.includes(this.user.localeId)) {
                     this.user.localeId = fallbackId;
-                    this.saveUser();
                 }
                 this.isUserLoading = false;
 
@@ -227,21 +226,8 @@ export default {
             });
         },
 
+        // @deprecated tag:v6.6.0 - Unused
         loadTimezones() {
-            return Shopware.Service('timezoneService').loadTimezones()
-                .then((result) => {
-                    this.timezoneOptions.push({
-                        label: 'UTC',
-                        value: 'UTC',
-                    });
-
-                    const loadedTimezoneOptions = result.map(timezone => ({
-                        label: timezone,
-                        value: timezone,
-                    }));
-
-                    this.timezoneOptions.push(...loadedTimezoneOptions);
-                });
         },
 
         async getUserData() {
@@ -315,7 +301,7 @@ export default {
             });
         },
 
-        saveUser(authToken) {
+        saveUser(context) {
             if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
@@ -327,13 +313,28 @@ export default {
                     this.isSaveSuccessful = true;
 
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }).catch((error) => {
+                    State.dispatch('error/addApiError', {
+                        expression: `user.${this.user?.id}.password`,
+                        error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                    });
+                    this.createNotificationError({
+                        message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    });
+                    this.isLoading = false;
+                    this.isSaveSuccessful = false;
                 });
 
                 return;
             }
 
-            const context = { ...Shopware.Context.api };
-            context.authToken.access = authToken;
+            /**
+             * @deprecated tag:v6.6.0 - the "if" block will be removed
+             */
+            if (typeof context === 'string') {
+                context = { ...Shopware.Context.api };
+                context.authToken.access = context;
+            }
 
             this.userRepository.save(this.user, context).then(async () => {
                 await this.updateCurrentUser();
@@ -358,6 +359,8 @@ export default {
                 this.newPasswordConfirm = '';
             }).catch(() => {
                 this.handleUserSaveError();
+                this.isLoading = false;
+                this.isSaveSuccessful = false;
             });
         },
 
@@ -381,31 +384,8 @@ export default {
             this.setMediaItem({ targetId: mediaItem.id });
         },
 
+        // @deprecated tag:v6.6.0 - Unused
         onSubmitConfirmPassword() {
-            return this.loginService.verifyUserToken(this.confirmPassword).then((verifiedToken) => {
-                if (!verifiedToken) {
-                    return;
-                }
-
-                const authObject = {
-                    ...this.loginService.getBearerAuthentication(),
-                    ...{
-                        access: verifiedToken,
-                    },
-                };
-
-                this.loginService.setBearerAuthentication(authObject);
-
-                this.confirmPasswordModal = false;
-                this.isSaveSuccessful = false;
-                this.isLoading = true;
-
-                this.saveUser(verifiedToken);
-            }).catch(() => {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
-            }).finally(() => {
-                this.confirmPassword = '';
-            });
         },
 
         onCloseConfirmPasswordModal() {
@@ -423,9 +403,11 @@ export default {
         },
 
         handleUserSaveError() {
-            this.createNotificationError({
-                message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
-            });
+            if (this.$route.name.includes('sw.profile.index')) {
+                this.createNotificationError({
+                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                });
+            }
             this.isLoading = false;
         },
 
@@ -472,6 +454,14 @@ export default {
                     this.isSaveSuccessful = false;
                     this.createNotificationError({ message: error.message });
                 });
+        },
+
+        onVerifyPasswordFinished(context) {
+            this.confirmPasswordModal = false;
+            this.isSaveSuccessful = false;
+            this.isLoading = true;
+
+            this.saveUser(context);
         },
     },
 };

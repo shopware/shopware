@@ -1,5 +1,5 @@
 /**
- * @package content
+ * @package buyers-experience
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swCmsPageForm from 'src/module/sw-cms/component/sw-cms-page-form';
@@ -13,18 +13,18 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-page-form'), {
         localVue,
         propsData: {
-            page: createPageProp()
+            page: createPageProp(),
         },
         stubs: {
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-card': {
                 template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
-                props: ['title']
+                props: ['title'],
             },
             'sw-cms-el-config-text': {
-                template: '<div class="config-element">Config element</div>'
+                template: '<div class="config-element">Config element</div>',
             },
             'sw-extension-component-section': true,
         },
@@ -36,12 +36,12 @@ async function createWrapper() {
                 getCmsElementRegistry: () => {
                     return {
                         text: {
-                            configComponent: 'sw-cms-el-config-text'
-                        }
+                            configComponent: 'sw-cms-el-config-text',
+                        },
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -54,16 +54,16 @@ function createPageProp() {
                         name: 'BLOCK NAME',
                         slots: [
                             {
-                                type: 'text'
-                            }
-                        ]
-                    }
-                ]
+                                type: 'text',
+                            },
+                        ],
+                    },
+                ],
             },
             {
-                blocks: []
+                blocks: [],
             },
-        ]
+        ],
     };
 }
 

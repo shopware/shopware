@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 abstract class AbstractCheapestPriceQuantitySelector
 {
     abstract public function getDecorated(): AbstractCheapestPriceQuantitySelector;

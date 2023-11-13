@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait CountryAddToSalesChannelTestBehaviour
 {
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 
     abstract protected function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string;
 
@@ -23,9 +23,7 @@ trait CountryAddToSalesChannelTestBehaviour
 
         $countryIds = array_merge([
             ['id' => $this->getValidCountryId($salesChannelId)],
-        ], array_map(static function (string $countryId) {
-            return ['id' => $countryId];
-        }, $additionalCountryIds));
+        ], array_map(static fn (string $countryId) => ['id' => $countryId], $additionalCountryIds));
 
         $salesChannelRepository->update([[
             'id' => $salesChannelId,

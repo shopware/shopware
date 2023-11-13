@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,18 +20,17 @@ use Shopware\Core\Migration\V6_4\Migration1620374229UpdateCustomFieldNameInProdu
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1620374229UpdateCustomFieldNameInProductStreamTableTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $productStreamRepository;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');

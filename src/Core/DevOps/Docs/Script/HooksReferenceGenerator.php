@@ -7,6 +7,8 @@ use phpDocumentor\Reflection\DocBlock\Tags\Generic;
 use phpDocumentor\Reflection\DocBlock\Tags\Since;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use phpDocumentor\Reflection\DocBlockFactory;
+use phpDocumentor\Reflection\DocBlockFactoryInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Awareness\StoppableHook;
 use Shopware\Core\Framework\Script\Execution\DeprecatedHook;
@@ -21,32 +23,33 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class HooksReferenceGenerator implements ScriptReferenceGenerator
 {
-    public const USE_CASE_DATA_LOADING = 'data_loading';
-    public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
-    public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
-    public const USE_CASE_APP_LIFECYCLE = 'app_lifecycle';
+    final public const USE_CASE_DATA_LOADING = 'data_loading';
+    final public const USE_CASE_CART_MANIPULATION = 'cart_manipulation';
+    final public const USE_CASE_CUSTOM_ENDPOINT = 'custom_endpoint';
+    final public const USE_CASE_APP_LIFECYCLE = 'app_lifecycle';
+    final public const USE_CASE_PRODUCT = 'product';
 
-    public const ALLOWED_USE_CASES = [
+    final public const ALLOWED_USE_CASES = [
         self::USE_CASE_CART_MANIPULATION,
         self::USE_CASE_DATA_LOADING,
         self::USE_CASE_CUSTOM_ENDPOINT,
         self::USE_CASE_APP_LIFECYCLE,
+        self::USE_CASE_PRODUCT,
     ];
 
     private const TEMPLATE_FILE = __DIR__ . '/../../Resources/templates/hook-reference.md.twig';
     private const GENERATED_DOC_FILE = __DIR__ . '/../../Resources/generated/script-hooks-reference.md';
 
-    private DocBlockFactory $docFactory;
+    private readonly DocBlockFactoryInterface $docFactory;
 
     public function __construct(
-        private ContainerInterface $container,
-        private Environment $twig,
-        private ServiceReferenceGenerator $serviceReferenceGenerator
+        private readonly ContainerInterface $container,
+        private readonly Environment $twig,
+        private readonly ServiceReferenceGenerator $serviceReferenceGenerator
     ) {
         $this->docFactory = DocBlockFactory::createInstance([
             'hook-use-case' => Generic::class,
@@ -292,6 +295,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         } else {
             $name = $reflection->getConstant('HOOK_NAME');
         }
+        \assert(\is_string($name));
 
         $deprecationNotice = '';
         if ($reflection->implementsInterface(DeprecatedHook::class)) {
@@ -325,7 +329,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
 
     /**
      * @param array<string, mixed> $hookData
-     * @param class-string<Hook> $hook
+     * @param class-string<InterfaceHook> $hook
      *
      * @return array<string, mixed>
      */
@@ -334,7 +338,7 @@ class HooksReferenceGenerator implements ScriptReferenceGenerator
         $hookData['interfaceHook'] = true;
         $hookData['interfaceDescription'] = "**Interface Hook**\n\n" . $hookData['trigger'];
 
-        foreach ($hook::FUNCTIONS as $functionName => $functionHook) {
+        foreach ($hook::FUNCTIONS as $functionName => $functionHook) { /* @phpstan-ignore-line */
             $hookData['functions'][$functionName] = $this->getDataForHook($functionHook);
         }
 

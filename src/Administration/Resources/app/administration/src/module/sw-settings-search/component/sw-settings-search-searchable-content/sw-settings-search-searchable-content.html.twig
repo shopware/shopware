@@ -60,6 +60,8 @@
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="sw-settings-search__searchable-content-show-example-link"
+                role="button"
+                tabindex="0"
                 @click="onShowExampleModal"
             >
                 {{ $tc('sw-settings-search.generalTab.linkExample') }}
@@ -70,6 +72,17 @@
             </a>
             {% endblock %}
 
+            <router-link
+                v-if="!storefrontEsEnable"
+                :to="{ name: 'sw.settings.search.index.liveSearch' }"
+                class="sw-settings-search__searchable-content-rebuild-link"
+            >
+                {{ $tc('sw-settings-search.liveSearchTab.linkRebuildSearchIndex') }}
+                <sw-icon
+                    name="regular-long-arrow-right"
+                    small
+                />
+            </router-link>
         </div>
         {% endblock %}
 
@@ -94,8 +107,9 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_search_searchable_content_general_tab_title %}
             <sw-tabs-item
+                v-bind="$props"
                 class="sw-settings-search__searchable-content-tab-title"
-                name="general"
+                :name="tabNames.generalTab"
                 :active-tab="active"
                 @click="onChangeTab(tabNames.generalTab)"
             >
@@ -103,6 +117,16 @@
             </sw-tabs-item>
             {% endblock %}
 
+            <sw-tabs-item
+                v-if="!storefrontEsEnable"
+                v-bind="$props"
+                class="sw-settings-search__searchable-content-tab-title"
+                :name="tabNames.customTab"
+                :active-tab="active"
+                @click="onChangeTab(tabNames.customTab)"
+            >
+                {{ $tc('sw-settings-search.generalTab.labelCustomFieldsTab') }}
+            </sw-tabs-item>
         </template>
 
         <template #content="{ active }">
@@ -121,6 +145,18 @@
             />
             {% endblock %}
 
+            <sw-settings-search-searchable-content-customfields
+                v-if="active === tabNames.customTab && !storefrontEsEnable"
+                :is-empty="isListEmpty"
+                :is-loading="isLoading"
+                :columns="getProductSearchFieldColumns"
+                :repository="productSearchFieldRepository"
+                :search-configs="searchConfigFields"
+                @data-load="loadData"
+                @config-add="onAddNewConfig"
+                @config-save="saveConfig"
+                @config-delete="deleteConfig"
+            />
         </template>
     </sw-tabs>
     {% endblock %}

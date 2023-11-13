@@ -17,29 +17,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class PropertyGroupDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'property_group';
+    final public const ENTITY_NAME = 'property_group';
 
-    public const DISPLAY_TYPE_TEXT = 'text';
+    final public const DISPLAY_TYPE_TEXT = 'text';
 
-    public const DISPLAY_TYPE_IMAGE = 'image';
+    final public const DISPLAY_TYPE_IMAGE = 'image';
 
-    public const DISPLAY_TYPE_MEDIA = 'media';
+    final public const DISPLAY_TYPE_MEDIA = 'media';
 
-    public const DISPLAY_TYPE_COLOR = 'color';
+    final public const DISPLAY_TYPE_COLOR = 'color';
 
-    public const SORTING_TYPE_ALPHANUMERIC = 'alphanumeric';
+    final public const SORTING_TYPE_ALPHANUMERIC = 'alphanumeric';
 
-    public const SORTING_TYPE_POSITION = 'position';
+    final public const SORTING_TYPE_POSITION = 'position';
 
-    public const FILTERABLE = true;
+    final public const FILTERABLE = true;
 
-    public const VISIBLE_ON_PRODUCT_DETAIL_PAGE = true;
+    final public const VISIBLE_ON_PRODUCT_DETAIL_PAGE = true;
 
     public function getEntityName(): string
     {

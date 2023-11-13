@@ -37,8 +37,8 @@
         {% block sw_bulk_edit_product_smart_bar_header_title %}
         <h2>
             {{ isChild
-                ? $tc('sw-bulk-edit.variant.textTitle', selectedIds.length, { variantTotal: selectedIds.length })
-                : $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length })
+            ? $tc('sw-bulk-edit.variant.textTitle', selectedIds.length, { variantTotal: selectedIds.length })
+            : $tc('sw-bulk-edit.product.textTitle', selectedIds.length, { productTotal: selectedIds.length })
             }}
         </h2>
         {% endblock %}
@@ -101,6 +101,27 @@
                 {% endblock %}
             </sw-card>
             {% endblock %}
+
+            <sw-card
+                v-if="restrictedFields.length"
+                class="sw-bulk-edit-product__restricted-fields"
+                position-identifier="sw-bulk-edit-product-restricted-fields"
+            >
+                <sw-alert
+                    :title="$tc('sw-bulk-edit.product.alertRestrictedFields.title')"
+                    variant="warning"
+                >
+                    <span v-html="$tc('sw-bulk-edit.product.alertRestrictedFields.message')"></span>
+                    <ul>
+                        <li
+                            v-for="(restrictedField, index) in restrictedFields"
+                            :key="index"
+                        >
+                            {{ $tc(`sw-bulk-edit.product.alertRestrictedFields.${restrictedField}`) }}
+                        </li>
+                    </ul>
+                </sw-alert>
+            </sw-card>
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_bulk_edit_product_content_gereral_information_card %}
@@ -165,12 +186,14 @@
                             @inheritance-remove="onInheritanceRemove(formField)"
                         />
 
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <a
                             v-if="['add', 'overwrite'].includes(bulkEditProduct[formField.name].type)"
                             :class="{ 'is--disabled': !!bulkEditProduct[formField.name].isInherited }"
                             class="sw-card__quick-link"
+                            role="link"
+                            tabindex="0"
                             @click="displayAdvancePricesModal = true"
+                            @keydown.enter="displayAdvancePricesModal = true"
                         >
                             {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', 0, { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }) }}
                             <sw-icon
@@ -189,22 +212,25 @@
                             entity-name="rule"
                             :entity-collection="!!bulkEditProduct[formField.name].isInherited ? [] : entity[formField.name]"
                             :disabled="!!bulkEditProduct[formField.name].isInherited"
+                            {% if VUE3 %}
+                            @update:entity-collection="onRuleChange"
+                            {% else %}
                             @change="onRuleChange"
+                            {% endif %}
                         >
                             <template #selection-label-property="{ item }">
                                 {{ item.ruleName }}
                             </template>
 
                             <template #result-item="{ item, index, labelProperty, isSelected, addItem, getKey }">
-                                <li
-                                    is="sw-select-result"
+                                <sw-select-result
                                     :selected="isSelected(item)"
                                     :disabled="!!priceRuleGroups[item.id]"
                                     v-bind="{ item, index }"
                                     @item-select="addItem"
                                 >
                                     {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                </li>
+                                </sw-select-result>
                             </template>
                         </sw-entity-multi-select>
                         {% endblock %}
@@ -424,6 +450,20 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_product_save_modal %}
+        {% if VUE3 %}
+        <router-view
+            v-slot="{ Component }"
+        >
+            <component
+                :is="Component"
+                :item-total="selectedIds.length"
+                :is-loading="isLoading"
+                :process-status="processStatus"
+                @modal-close="closeModal"
+                @bulk-save="onSave"
+            />
+        </router-view>
+        {% else %}
         <router-view
             :item-total="selectedIds.length"
             :is-loading="isLoading"
@@ -431,6 +471,7 @@
             @modal-close="closeModal"
             @bulk-save="onSave"
         />
+        {% endif %}
         {% endblock %}
     </template>
     {% endblock %}

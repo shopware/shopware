@@ -12,26 +12,26 @@ async function createWrapper(customProps = {}) {
         stubs: {
             'sw-condition-tree-node': true,
             'sw-condition-base': await Shopware.Component.build('sw-condition-base'),
-            'sw-condition-goods-price': await Shopware.Component.build('sw-condition-goods-price')
+            'sw-condition-goods-price': await Shopware.Component.build('sw-condition-goods-price'),
         },
         provide: {
             conditionDataProviderService: {
                 getPlaceholderData: () => {},
                 getByType: () => {
                     return {
-                        component: 'sw-condition-goods-price'
+                        component: 'sw-condition-goods-price',
                     };
-                }
+                },
             },
             createCondition,
             insertNodeTree: {},
             insertNodeIntoTree,
             removeNodeFromTree,
-            childAssociationField: 'children'
+            childAssociationField: 'children',
         },
         propsData: {
             parentCondition: {
-                id: 'foo'
+                id: 'foo',
             },
             condition: {
                 type: 'allLineItemsContainer',
@@ -41,16 +41,16 @@ async function createWrapper(customProps = {}) {
                             type: 'cartLineItemUnitPrice',
                             value: {
                                 amount: 12,
-                                operator: '<'
-                            }
+                                operator: '<',
+                            },
                         };
                     },
-                    length: 1
-                }
+                    length: 1,
+                },
             },
             level: 0,
-            ...customProps
-        }
+            ...customProps,
+        },
     });
 }
 
@@ -70,7 +70,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
 
     it('should have disabled condition tree', async () => {
         const wrapper = await createWrapper({
-            disabled: true
+            disabled: true,
         });
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
@@ -95,8 +95,8 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
                 type: 'cartGoodsPrice',
                 value: {
                     amount: 7,
-                    operator: '='
-                }
+                    operator: '=',
+                },
             };
         };
         await wrapper.setProps({ condition });

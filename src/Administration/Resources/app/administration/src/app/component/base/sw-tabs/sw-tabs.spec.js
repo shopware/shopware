@@ -12,13 +12,13 @@ const componentWithTabs = {
     template: `<div class="component-with-tabs">
         <sw-tabs positionIdentifier="test">
             <template v-for="(route, index) in routes">
-                <sw-tabs-item :route="route" :key="index">
+                <sw-tabs-item :route="route" :key="index" :has-error="route.hasError" :has-warning="route.hasWarning">
                     {{route.name}}
                 </sw-tabs-item>
             </template>
         </sw-tabs>
     </div>`,
-    props: ['routes']
+    props: ['routes'],
 };
 
 async function mountSwTabs(routes) {
@@ -31,66 +31,37 @@ async function mountSwTabs(routes) {
     localVue.use(VueRouter);
 
     const router = new VueRouter({
-        routes
+        routes,
     });
 
     return mount(componentWithTabs, {
         localVue,
         router,
         propsData: {
-            routes
+            routes,
         },
         stubs: {
             'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item')
+            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
+
+            'sw-icon': true,
         },
         attachTo: document.body,
     });
 }
 
 describe('sw-tabs', () => {
-    it('renders active tab correctly with sub routes', async () => {
-        const routes = [{
-            name: 'product.base',
-            path: '/sw/product/detail/the-id/base'
-        }, {
-            name: 'product.properties',
-            path: '/sw/product/detail/the-id/properties'
-        }];
-
-        const wrapper = await mountSwTabs(routes);
-        await flushPromises();
-
-        wrapper.vm.$router.push({ name: 'product.base' });
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        let activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
-
-        let activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('product.base');
-
-        wrapper.vm.$router.push({ name: 'product.properties' });
-
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-
-        activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
-
-        activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('product.properties');
-
-        wrapper.destroy();
+    beforeEach(() => {
+        jest.spyOn(global, 'requestAnimationFrame').mockImplementation(cb => cb());
     });
+
     it('renders active tab correctly with sub routes', async () => {
         const routes = [{
             name: 'first.route',
-            path: '/starts'
+            path: '/starts',
         }, {
             name: 'second.route',
-            path: '/starts/with'
+            path: '/starts/with',
         }];
 
         const wrapper = await mountSwTabs(routes);
@@ -101,20 +72,20 @@ describe('sw-tabs', () => {
         await wrapper.vm.$nextTick();
 
         let activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
+        expect(activeTabs).toHaveLength(1);
 
         let activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('first.route');
+        expect(activeTab.text()).toBe('first.route');
 
         wrapper.vm.$router.push({ name: 'second.route' });
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(1);
+        expect(activeTabs).toHaveLength(1);
 
         activeTab = activeTabs.at(0);
-        expect(activeTab.text()).toEqual('second.route');
+        expect(activeTab.text()).toBe('second.route');
 
         wrapper.destroy();
     });
@@ -122,21 +93,100 @@ describe('sw-tabs', () => {
     it('sets active tabs with query parameters', async () => {
         const routes = [{
             name: 'first.route',
-            path: '/route/first'
+            path: '/route/first',
         }];
 
         const wrapper = await mountSwTabs(routes);
         await flushPromises();
 
         const activeTabs = wrapper.findAll('.sw-tabs-item--active');
-        expect(activeTabs.length).toBe(0);
+        expect(activeTabs).toHaveLength(0);
 
         wrapper.vm.$router.push({ name: 'first.route', query: { a: 'a', c: 'c' } });
         await flushPromises();
 
         const activeTab = wrapper.find('.sw-tabs-item--active');
-        expect(activeTab.text()).toEqual('first.route');
+        expect(activeTab.text()).toBe('first.route');
 
+        wrapper.destroy();
+    });
+
+    it('should have a slider with warning state', async () => {
+        const routes = [{
+            name: 'warning.route',
+            path: '/route/warning',
+            hasError: false,
+            hasWarning: true,
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+        await flushPromises();
+
+        wrapper.vm.$router.push({ name: 'warning.route' });
+        await flushPromises();
+
+        const slider = wrapper.find('.sw-tabs__slider');
+        expect(slider.classes()).toContain('has--warning');
+
+        wrapper.destroy();
+    });
+
+    it('should have a slider with error state', async () => {
+        const routes = [{
+            name: 'error.route',
+            path: '/route/error',
+            hasError: true,
+            hasWarning: false,
+        }, {
+            name: 'errorAndWarning.route',
+            path: '/route/errorAndWarning',
+            hasError: true,
+            hasWarning: true,
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+        await flushPromises();
+
+        wrapper.vm.$router.push({ name: 'error.route' });
+        await flushPromises();
+
+        let slider = wrapper.find('.sw-tabs__slider');
+        expect(slider.classes()).toContain('has--error');
+
+        wrapper.vm.$router.push({ name: 'errorAndWarning.route' });
+        await flushPromises();
+
+        slider = wrapper.find('.sw-tabs__slider');
+        expect(slider.classes()).toContain('has--error');
+
+        wrapper.destroy();
+    });
+
+    it('should register the scrollEventHandler and mutationObserver at mounted', async () => {
+        const routes = [{
+            name: 'first.route',
+            path: '/route/first',
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+        await flushPromises();
+
+        // can't test eventhandler in DOM so we need to access it directly
+        expect(wrapper.vm.$children[0].scrollEventHandler).toBeDefined();
+        expect(wrapper.vm.$children[0].tabContentMutationObserver).toBeDefined();
+
+        wrapper.destroy();
+    });
+
+    it('should call the requestAnimationFrame method on mutation change (directly at start)', async () => {
+        const routes = [{
+            name: 'first.route',
+            path: '/route/first',
+        }];
+
+        const wrapper = await mountSwTabs(routes);
+
+        expect(global.requestAnimationFrame).toHaveBeenCalled();
         wrapper.destroy();
     });
 });

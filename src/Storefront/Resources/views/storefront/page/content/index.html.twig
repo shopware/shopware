@@ -8,14 +8,15 @@
                 <div class="breadcrumb cms-breadcrumb container">
                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                         context: context,
+                        themeIconConfig: themeIconConfig,
                         category: page.header.navigation.active
                     } only %}
                 </div>
             {% endblock %}
 
             {% block cms_content %}
-                {% set cmsPageClasses = ('cms-page ' ~ page.landingPage.cmsPage.cssClass|striptags)|trim %}
                 {% set cmsPage = page.landingPage ? page.landingPage.cmsPage : page.cmsPage %}
+                {% set cmsPageClasses = ('cms-page ' ~ cmsPage.cssClass|striptags)|trim %}
                 {% set landingPage = page.landingPage ? page.landingPage : {} %}
                 <div class="{{ cmsPageClasses }}">
                     {% block page_content_blocks %}

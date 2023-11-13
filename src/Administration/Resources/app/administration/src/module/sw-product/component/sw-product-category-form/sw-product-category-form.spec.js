@@ -26,12 +26,12 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 metaTitle: 'Product1',
                 id: 'productId1',
                 isNew: () => false,
-                ...productEntityOverride
+                ...productEntityOverride,
             };
 
         const parentProduct = {
             id: 'productId',
-            ...parentProductOverride
+            ...parentProductOverride,
         };
 
         return shallowMount(await Shopware.Component.build('sw-product-category-form'), {
@@ -39,8 +39,8 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 $route: {
                     name: 'sw.product.detail.base',
                     params: {
-                        id: 1
-                    }
+                        id: 1,
+                    },
                 },
                 $store: new Vuex.Store({
                     modules: {
@@ -52,7 +52,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                                 parentProduct,
                                 loading: {
                                     product: false,
-                                    media: false
+                                    media: false,
                                 },
                                 advancedModeSetting: {
                                     value: {
@@ -61,24 +61,24 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                                                 key: 'visibility_structure',
                                                 label: 'sw-product.detailBase.cardTitleVisibilityStructure',
                                                 enabled: true,
-                                                name: 'general'
-                                            }
+                                                name: 'general',
+                                            },
                                         ],
                                         advancedMode: {
                                             enabled: true,
-                                            label: 'sw-product.general.textAdvancedMode'
-                                        }
-                                    }
-                                }
+                                            label: 'sw-product.general.textAdvancedMode',
+                                        },
+                                    },
+                                },
                             },
-                            creationStates: 'is-physical'
-                        }
-                    }
-                })
+                            creationStates: 'is-physical',
+                        },
+                    },
+                }),
             },
             stubs: {
                 'sw-container': {
-                    template: '<div><slot></slot></div>'
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
                 'sw-modal': true,
@@ -92,7 +92,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 'sw-product-visibility-select': true,
                 'sw-help-text': true,
                 'sw-inheritance-switch': true,
-                'sw-icon': true
+                'sw-icon': true,
             },
             provide: {
                 repositoryFactory: {
@@ -100,20 +100,20 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                         return {
                             search: () => Promise.resolve([{
                                 id: '98432def39fc4624b33213a56b8c944d',
-                                name: 'Headless'
+                                name: 'Headless',
                             }]),
-                            create: () => ({})
+                            create: () => ({}),
                         };
-                    }
+                    },
                 },
                 systemConfigApiService: {
                     getConfig: () => Promise.resolve(),
-                    getValues: () => Promise.resolve(defaultSalesChannelData)
+                    getValues: () => Promise.resolve(defaultSalesChannelData),
                 },
                 feature: {
-                    isActive: () => true
-                }
-            }
+                    isActive: () => true,
+                },
+            },
         });
     }
 
@@ -124,7 +124,7 @@ describe('module/sw-product/component/sw-product-category-form', () => {
 
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
-            '.sw-product-category-form__search-keyword-field'
+            '.sw-product-category-form__search-keyword-field',
         ];
 
         structureFieldsClassName.forEach(item => {
@@ -141,14 +141,14 @@ describe('module/sw-product/component/sw-product-category-form', () => {
                 ...advancedModeSetting.value,
                 advancedMode: {
                     enabled: false,
-                    label: 'sw-product.general.textAdvancedMode'
-                }
-            }
+                    label: 'sw-product.general.textAdvancedMode',
+                },
+            },
         });
 
         const structureFieldsClassName = [
             '.sw-product-category-form__tag-field-wrapper',
-            '.sw-product-category-form__search-keyword-field'
+            '.sw-product-category-form__search-keyword-field',
         ];
 
         structureFieldsClassName.forEach(item => {

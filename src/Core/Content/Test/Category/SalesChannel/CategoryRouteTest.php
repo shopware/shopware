@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class CategoryRouteTest extends TestCase
@@ -71,7 +72,7 @@ class CategoryRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
 
@@ -152,7 +153,7 @@ class CategoryRouteTest extends TestCase
 
     private function assertError(string $categoryId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $error = new CategoryNotFoundException($categoryId);
         $expectedError = [
             'status' => (string) $error->getStatusCode(),
@@ -165,7 +166,7 @@ class CategoryRouteTest extends TestCase
 
     private function assertCmsPage(string $categoryId, string $cmsPageId): void
     {
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertEquals($categoryId, $response['id']);
         static::assertIsArray($response['cmsPage']);

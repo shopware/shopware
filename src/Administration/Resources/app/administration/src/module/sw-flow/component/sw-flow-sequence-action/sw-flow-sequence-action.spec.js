@@ -8,6 +8,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 
 import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
+import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -16,6 +17,10 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
     return { isDiscountCampaignActive: jest.fn(() => true) };
+});
+
+Shopware.Service().register('flowBuilderService', () => {
+    return new FlowBuilderService();
 });
 
 Shopware.Component.register('sw-flow-sequence-action', swFlowSequenceAction);
@@ -30,27 +35,27 @@ const sequenceFixture = {
     trueCase: false,
     config: {
         entity: 'Customer',
-        tagIds: ['123']
-    }
+        tagIds: ['123'],
+    },
 };
 
 const sequencesFixture = [
     {
         ...sequenceFixture,
-        actionName: ACTION.ADD_TAG
+        actionName: ACTION.ADD_TAG,
     },
     {
         ...sequenceFixture,
         actionName: ACTION.MAIL_SEND,
         position: 2,
-        id: '3'
+        id: '3',
     },
     {
         ...sequenceFixture,
         actionName: ACTION.MAIL_SEND,
         position: 3,
-        id: '4'
-    }
+        id: '4',
+    },
 ];
 
 function getSequencesCollection(collection = []) {
@@ -61,11 +66,11 @@ function getSequencesCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
-async function createWrapper(propsData = {}, appFlowResponseData = [], flag = null) {
+async function createWrapper(propsData = {}, appFlowResponseData = [], flag = '') {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -73,7 +78,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
         localVue,
         stubs: {
             'sw-icon': {
-                template: '<div class="sw-icon" v-on="$listeners"></div>'
+                template: '<div class="sw-icon" v-on="$listeners"></div>',
             },
             'sw-context-button': true,
             'sw-context-menu-item': {
@@ -81,7 +86,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
                     <div class="sw-context-menu-item" v-on="$listeners">
                       <slot></slot>
                     </div>
-                `
+                `,
             },
             'sw-single-select': await Shopware.Component.build('sw-single-select'),
             'sw-grouped-single-select': await Shopware.Component.build('sw-grouped-single-select'),
@@ -90,7 +95,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
             'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>'
+                template: '<div class="sw-popover"><slot></slot></div>',
             },
             'sw-select-result': {
                 props: ['item', 'index'],
@@ -100,12 +105,12 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
                 methods: {
                     onClickResult() {
                         this.$parent.$parent.$emit('item-select', this.item);
-                    }
-                }
+                    },
+                },
             },
             'sw-highlight-text': {
                 props: ['text'],
-                template: '<div class="sw-highlight-text">{{ this.text }}</div>'
+                template: '<div class="sw-highlight-text">{{ this.text }}</div>',
             },
             'sw-field-error': true,
             'sw-flow-sequence-modal': {
@@ -119,17 +124,17 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
                             ...this.sequence,
                             config: {
                                 entity: 'Customer',
-                                tagIds: ['123']
-                            }
+                                tagIds: ['123'],
+                            },
                         });
-                    }
-                }
+                    },
+                },
             },
-            'sw-flow-sequence-action-error': true
+            'sw-flow-sequence-action-error': true,
         },
         propsData: {
             sequence: sequenceFixture,
-            ...propsData
+            ...propsData,
         },
 
         provide: {
@@ -140,7 +145,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
                             create: () => {
                                 return {};
                             },
-                            search: () => Promise.resolve(appFlowResponseData)
+                            search: () => Promise.resolve(appFlowResponseData),
                         };
                     }
 
@@ -148,38 +153,27 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
                         create: () => {
                             return {};
                         },
-                        search: () => Promise.resolve([])
-                    };
-                }
-            },
-            flowBuilderService: {
-                getActionTitle: (actionName) => {
-                    return {
-                        value: actionName
+                        search: () => Promise.resolve([]),
                     };
                 },
-
-                getActionModalName() {
-                    return 'sw-flow-modal-name';
-                },
-
-                mapActionType: () => {}
             },
-        }
+
+            flowBuilderService: Shopware.Service('flowBuilderService'),
+        },
     });
     wrapper.vm.$refs = {
         contextButton: [
             {
                 $el: {
                     contains: () => true,
-                }
+                },
             },
             {
                 $el: {
                     contains: () => true,
-                }
-            }
-        ]
+                },
+            },
+        ],
     };
 
     return wrapper;
@@ -187,34 +181,30 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = nu
 
 describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     beforeAll(() => {
-        Shopware.Service().register('flowBuilderService', () => {
-            return {
-                mapActionType: () => {}
-            };
-        });
-
         Shopware.State.registerModule('swFlowState', {
             ...flowState,
             state: {
                 flow: {
                     eventName: '',
-                    sequences: getSequencesCollection([{ ...sequenceFixture }])
+                    sequences: getSequencesCollection([{ ...sequenceFixture }]),
                 },
                 invalidSequences: [],
                 mailTemplates: [],
                 triggerEvent: {
                     data: {
                         customer: '',
-                        order: ''
+                        order: '',
                     },
                     customerAware: true,
+                    orderAware: true,
                     extensions: [],
                     mailAware: true,
                     name: 'checkout.customer.login',
                     aware: [
                         'Shopware\\Core\\Framework\\Event\\CustomerAware',
-                        'Shopware\\Core\\Framework\\Event\\MailAware'
-                    ]
+                        'Shopware\\Core\\Framework\\Event\\OrderAware',
+                        'Shopware\\Core\\Framework\\Event\\MailAware',
+                    ],
                 },
                 triggerActions: [
                     { name: 'action.add.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
@@ -225,8 +215,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     { name: 'action.set.order.state', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
                     { name: 'telegram.send.message', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
                     { name: 'action.stop.flow', requirements: [], extensions: [] },
-                ]
-            }
+                ],
+                appActions: [],
+                originAvailableActions: [],
+            },
         });
     });
 
@@ -246,7 +238,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const newSequence = {
             ...wrapper.props().sequence,
-            actionName: wrapper.vm.actionOptions[0].value
+            actionName: wrapper.vm.actionOptions[0].value,
         };
 
         expect(sequencesState[0]).toEqual(newSequence);
@@ -261,28 +253,28 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         const actionItems = wrapper.findAll('.sw-flow-sequence-action__action-item');
-        expect(actionItems.length).toEqual(2);
+        expect(actionItems).toHaveLength(2);
     });
 
     it('should show dynamic modal', async () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -299,8 +291,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
-                actionName: ACTION.STOP_FLOW
-            }
+                actionName: ACTION.STOP_FLOW,
+            },
         });
 
         const addAction = wrapper.find('.sw-flow-sequence-action__add-action');
@@ -313,23 +305,23 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(3);
+        expect(sequencesState).toHaveLength(3);
 
 
         const deleteContainer = wrapper.find('.sw-flow-sequence-action__delete-action-container');
         await deleteContainer.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(1);
+        expect(sequencesState).toHaveLength(1);
     });
 
     it('should able to remove an action', async () => {
@@ -338,22 +330,22 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
                 3: {
-                    ...sequencesFixture[1]
-                }
-            }
+                    ...sequencesFixture[1],
+                },
+            },
         });
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(3);
+        expect(sequencesState).toHaveLength(3);
 
         const deleteActions = wrapper.findAll('.sw-flow-sequence-action__delete-action');
         await deleteActions.at(0).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(2);
+        expect(sequencesState).toHaveLength(2);
         expect(sequencesState[0]).toEqual(sequencesFixture[0]);
     });
 
@@ -363,8 +355,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             sequence: {
-                ...sequenceFixture
-            }
+                ...sequenceFixture,
+            },
         });
 
         const actionSelection = wrapper.find('.sw-flow-sequence-action__selection-action');
@@ -375,7 +367,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
     it('should remove error for after select an action name', async () => {
         Shopware.State.commit(
             'swFlowState/setSequences',
-            getSequencesCollection([{ ...sequenceFixture }])
+            getSequencesCollection([{ ...sequenceFixture }]),
         );
         Shopware.State.commit('swFlowState/setInvalidSequences', ['2']);
 
@@ -385,8 +377,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({
             sequence: {
-                ...sequenceFixture
-            }
+                ...sequenceFixture,
+            },
         });
 
         const actionSelection = wrapper.find('.sw-flow-sequence-action__selection-action');
@@ -411,8 +403,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 ...sequenceFixture,
-                actionName: ACTION.ADD_TAG
-            }
+                actionName: ACTION.ADD_TAG,
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeFalsy();
@@ -420,7 +412,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(wrapper.find('.sw-flow-sequence-action__select').exists()).toBeTruthy();
 
         await wrapper.setProps({
-            disabled: true
+            disabled: true,
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__context-button').attributes().disabled).toBeTruthy();
@@ -444,8 +436,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 4: {
                     ...sequencesFixture[2],
                     position: 7,
-                }
-            }
+                },
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeTruthy();
@@ -458,9 +450,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const wrapper = await createWrapper({
             sequence: {
                 2: {
-                    ...sequencesFixture[0]
+                    ...sequencesFixture[0],
                 },
-            }
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeFalsy();
@@ -481,7 +473,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     displayGroup: 1,
                     trueCase: true,
                 },
-            }
+            },
         });
 
         expect(wrapper.find('.sw-flow-sequence-action__move-down').exists()).toBeFalsy();
@@ -504,19 +496,19 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 4: {
                     ...sequencesFixture[2],
                     position: 7,
-                }
-            }
+                },
+            },
         });
 
         const moveDownAction = wrapper.find('.sw-flow-sequence-action__move-down');
         expect(moveDownAction.exists()).toBeTruthy();
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState[0].position).toEqual(1);
-        expect(sequencesState[1].position).toEqual(2);
+        expect(sequencesState[0].position).toBe(1);
+        expect(sequencesState[1].position).toBe(2);
         await moveDownAction.trigger('click');
-        expect(sequencesState[0].position).toEqual(1);
-        expect(sequencesState[1].position).toEqual(7);
+        expect(sequencesState[0].position).toBe(1);
+        expect(sequencesState[1].position).toBe(7);
     });
 
     it('should reset position after deleting action', async () => {
@@ -529,8 +521,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 },
                 3: {
                     ...sequencesFixture[1],
-                }
-            }
+                },
+            },
         });
 
         // delete the first action with position 1
@@ -538,7 +530,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         await deleteActions.at(0).trigger('click');
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toBe(2);
+        expect(sequencesState).toHaveLength(2);
         expect(sequencesState[0].position).toBe(1);
     });
 
@@ -547,21 +539,21 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             {
                 technicalName: 'in_progress',
                 stateMachine: {
-                    technicalName: 'order_delivery.state'
+                    technicalName: 'order_delivery.state',
                 },
                 translated: {
-                    name: 'In progress'
-                }
+                    name: 'In progress',
+                },
             },
             {
                 technicalName: 'in_progress',
                 stateMachine: {
-                    technicalName: 'order.state'
+                    technicalName: 'order.state',
                 },
                 translated: {
-                    name: 'In Progress'
-                }
-            }
+                    name: 'In Progress',
+                },
+            },
         ]);
 
         const wrapper = await createWrapper({
@@ -573,14 +565,27 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 displayGroup: 1,
                 trueCase: false,
                 config: {
-                    order: 'in_progress'
+                    order: 'in_progress',
                 },
-                actionName: ACTION.SET_ORDER_STATE
-            }
+                actionName: ACTION.SET_ORDER_STATE,
+            },
         });
 
         const description = wrapper.find('.sw-flow-sequence-action__action-description');
         expect(description.text()).toContain('sw-flow.modals.status.labelOrderStatus: In Progress');
+    });
+
+    it('should group flow builder actions', async () => {
+        const wrapper = await createWrapper();
+
+        const actionSelect = wrapper.find('.sw-single-select__selection');
+        await actionSelect.trigger('click');
+
+        const actionItems = await wrapper.findAll('.sw-grouped-single-select__group-separator');
+
+        expect(actionItems).toHaveLength(2);
+        expect(actionItems.at(0).text()).toBe('sw-flow.actions.group.general');
+        expect(actionItems.at(1).text()).toBe('sw-flow.actions.group.tag');
     });
 
     it('should has actions from app flow actions in actions list', async () => {
@@ -589,20 +594,28 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware']
-            }
+                requirements: ['customerAware', 'orderAware'],
+            },
         ];
 
-        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
+        Shopware.State.commit('swFlowState/setAppActions', [{
+            label: 'Telegram send message',
+            name: 'telegram.send.message',
+            swIcon: 'default-communication-speech-bubbles',
+            requirements: ['customerAware', 'orderAware'],
+        }]);
+
+        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
         await wrapper.vm.$nextTick();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
+        await wrapper.vm.$nextTick();
 
         const actionItems = wrapper.findAll('.sw-select-result');
 
-        expect(actionItems.length).toEqual(5);
-        expect(actionItems.at(3).get('.sw-highlight-text').text()).toBe('Telegram send message');
+        expect(actionItems).toHaveLength(6);
+        expect(actionItems.at(5).get('.sw-highlight-text').text()).toBe('Telegram send message');
     });
 
     it('should disable the actions when inactive the app flow actions', async () => {
@@ -614,16 +627,21 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
-                    name: 'FlowAppSystem'
-                }
-            }
+                    name: 'FlowAppSystem',
+                },
+            },
         ];
 
-        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
+        Shopware.State.commit('swFlowState/setAppActions', [{
+            name: 'telegram.send.message',
+        }]);
+
+        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
         await wrapper.vm.$nextTick();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
+        await wrapper.vm.$nextTick();
 
         const disabledAction = await wrapper.find('.sw-flow-sequence-action__disabled');
         expect(disabledAction.exists()).toBeTruthy();
@@ -635,8 +653,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 label: 'Telegram send message',
                 name: 'telegram.send.message',
                 swIcon: 'default-communication-speech-bubbles',
-                requirements: ['customerAware', 'orderAware']
-            }
+                requirements: ['customerAware', 'orderAware'],
+            },
         ];
 
         const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
@@ -652,19 +670,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(modalElement.exists()).toBeTruthy();
     });
 
-    it('should group flow builder actions', async () => {
-        const wrapper = await createWrapper();
-
-        const actionSelect = wrapper.find('.sw-single-select__selection');
-        await actionSelect.trigger('click');
-
-        const actionItems = wrapper.findAll('.sw-grouped-single-select__group-separator');
-
-        expect(actionItems.length).toEqual(2);
-        expect(actionItems.at(0).text()).toEqual('sw-flow.actions.group.general');
-        expect(actionItems.at(1).text()).toEqual('sw-flow.actions.group.tag');
-    });
-
     it('should have tooltip for disabled actions', async () => {
         const appFlowResponse = [
             {
@@ -674,9 +679,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
-                    name: 'FlowAppSystem'
-                }
-            }
+                    name: 'FlowAppSystem',
+                },
+            },
         ];
 
         const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
@@ -698,7 +703,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 requirements: ['customerAware', 'orderAware'],
                 app: {
                     active: false,
-                    name: 'FlowAppSystem'
+                    name: 'FlowAppSystem',
                 },
                 config: [
                     {
@@ -706,12 +711,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                         label: {
                             'en-GB': 'Label',
                         },
-                    }
-                ]
-            }
+                    },
+                ],
+            },
         ];
 
-        const wrapper = await await createWrapper({
+        const wrapper = await createWrapper({
             sequence: {
                 id: '2',
                 ruleId: null,
@@ -720,15 +725,15 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                 displayGroup: 1,
                 trueCase: false,
                 config: {
-                    message: 'message'
+                    message: 'message',
                 },
-                actionName: 'telegram.send.message'
-            }
+                actionName: 'telegram.send.message',
+            },
         }, appFlowResponse, 'appFlowAction');
 
         await wrapper.vm.$nextTick();
         const description = wrapper.find('.sw-flow-sequence-action__action-description');
         expect(description.exists()).toBeTruthy();
-        expect(description.text()).toEqual('Label: message');
+        expect(description.text()).toBe('message: message');
     });
 });

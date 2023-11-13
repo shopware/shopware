@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Cms\Aggregate\CmsPageTranslation;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class CmsPageTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
@@ -22,6 +21,11 @@ class CmsPageTranslationEntity extends TranslationEntity
      * @var string
      */
     protected $cmsPageId;
+
+    /**
+     * @var string
+     */
+    protected $cmsPageVersionId;
 
     /**
      * @var CmsPageEntity|null
@@ -56,5 +60,15 @@ class CmsPageTranslationEntity extends TranslationEntity
     public function setCmsPage(CmsPageEntity $cmsPage): void
     {
         $this->cmsPage = $cmsPage;
+    }
+
+    public function getCmsPageVersionId(): string
+    {
+        return $this->cmsPageVersionId;
+    }
+
+    public function setCmsPageVersionId(string $cmsPageVersionId): void
+    {
+        $this->cmsPageVersionId = $cmsPageVersionId;
     }
 }

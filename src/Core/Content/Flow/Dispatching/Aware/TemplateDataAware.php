@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
+use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
+ * @deprecated tag:v6.6.0 - Will be removed, use ScalarValuesStorer/ScalarValuesAware instead
  */
+#[Package('services-settings')]
 interface TemplateDataAware extends FlowEventAware
 {
-    public const TEMPLATE_DATA = 'templateData';
+    public const TEMPLATE_DATA = FlowMailVariables::TEMPLATE_DATA;
 
     /**
      * @return array<string, mixed>

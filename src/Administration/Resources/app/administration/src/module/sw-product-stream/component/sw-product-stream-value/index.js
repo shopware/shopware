@@ -1,15 +1,13 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
 const { Criteria } = Shopware.Data;
-
-/**
+/*
  * @private
- * @package business-ops
  */
 export default {
     template,
@@ -156,9 +154,20 @@ export default {
             });
         },
 
+        productStateOptions() {
+            return [
+                { label: this.$tc('sw-product-stream.filter.values.productStates.physical'), value: 'is-physical' },
+                { label: this.$tc('sw-product-stream.filter.values.productStates.digital'), value: 'is-download' },
+            ];
+        },
+
         fieldType() {
             if (!this.fieldDefinition) {
                 return null;
+            }
+
+            if (this.fieldDefinition.type === 'json_list' && this.fieldName === 'states') {
+                return 'product_state_list';
             }
 
             if (this.definition.isJsonField(this.fieldDefinition)) {

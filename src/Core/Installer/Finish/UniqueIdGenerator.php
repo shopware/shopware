@@ -2,14 +2,15 @@
 
 namespace Shopware\Core\Installer\Finish;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class UniqueIdGenerator
 {
-    private string $cacheFilePath;
+    private readonly string $cacheFilePath;
 
     public function __construct(string $projectDir)
     {

@@ -13,23 +13,23 @@ const stateMachineStateMock = [
         technicalName: 'paid',
         translated: { name: 'Paid' },
         stateMachine: {
-            technicalName: 'order_transaction.state'
-        }
+            technicalName: 'order_transaction.state',
+        },
     },
     {
         technicalName: 'shipped',
         translated: { name: 'Shipped' },
         stateMachine: {
-            technicalName: 'order_delivery.state'
-        }
+            technicalName: 'order_delivery.state',
+        },
     },
     {
         technicalName: 'in_progress',
         translated: { name: 'In progress' },
         stateMachine: {
-            technicalName: 'order.state'
-        }
-    }
+            technicalName: 'order.state',
+        },
+    },
 ];
 
 async function createWrapper() {
@@ -42,14 +42,14 @@ async function createWrapper() {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(stateMachineStateMock)
+                        search: () => Promise.resolve(stateMachineStateMock),
                     };
-                }
-            }
+                },
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -60,16 +60,16 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-icon': true,
             'sw-select-field': {
                 model: {
                     prop: 'value',
-                    event: 'change'
+                    event: 'change',
                 },
                 template: `
                     <select class="sw-select-field"
@@ -83,13 +83,13 @@ async function createWrapper() {
                             {{ option.name }}
                         </option>
                     </select>`,
-                props: ['value', 'options']
+                props: ['value', 'options'],
             },
             'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-help-text': true,
             'sw-field-error': true,
-        }
+        },
     });
 }
 
@@ -132,7 +132,7 @@ describe('module/sw-flow/component/sw-flow-set-order-state-modal', () => {
                 order_delivery: 'shipped',
                 order_transaction: 'paid',
                 force_transition: true,
-            }
+            },
         }]);
     });
 });

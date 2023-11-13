@@ -3,6 +3,120 @@ import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 
 describe('module/sw-flow/service/flow-builder.service.js', () => {
     const service = new FlowBuilderService();
+    const data = {
+        appActions: [{
+            label: 'Telegram send message',
+            name: 'telegram.send.message',
+            swIcon: 'default-communication-speech-bubbles',
+            requirements: ['customerAware', 'orderAware'],
+            config: [
+                {
+                    name: 'password',
+                    label: {},
+                    type: 'password',
+                },
+                {
+                    name: 'singleSelect',
+                    label: {},
+                    type: 'single-select',
+                    options: ['2', '3'],
+                },
+                {
+                    name: 'datetime',
+                    label: {},
+                    type: 'datetime',
+                },
+                {
+                    name: 'colorpicker',
+                    label: {},
+                    type: 'colorpicker',
+                },
+            ],
+        }],
+        customerGroups: [
+            {
+                id: '123',
+                translated: {
+                    name: 'customer name',
+                },
+            },
+        ],
+        customFieldSets: [
+            {
+                id: '123',
+                translated: {
+                    name: 'customer name',
+                },
+                config: {
+                    label: 'customFieldSets',
+                },
+            },
+        ],
+        customFields: [
+            {
+                id: '123',
+                translated: {
+                    name: 'customer name',
+                },
+                config: {
+                    label: 'customFieldSets',
+                },
+            },
+        ],
+        stateMachineState: [
+            {
+                technicalName: 'order',
+                stateMachine: {
+                    technicalName: 'order.state',
+                },
+                translated: {
+                    name: 'translated',
+                },
+            },
+            {
+                technicalName: 'order_delivery',
+                stateMachine: {
+                    technicalName: 'order_delivery.state',
+                },
+                translated: {
+                    name: 'translated',
+                },
+            },
+            {
+                technicalName: 'order_transaction',
+                stateMachine: {
+                    technicalName: 'order_transaction.state',
+                },
+                translated: {
+                    name: 'translated',
+                },
+            },
+        ],
+        documentTypes: [
+            {
+                technicalName: 'mail',
+                translated: {
+                    name: 'translated',
+                },
+            },
+        ],
+        mailTemplates: [{
+            id: 'mailTemplate_id',
+            mailTemplateType: {
+                name: 'name',
+                description: 'description',
+            },
+        }],
+    };
+
+    const translator = {
+        $tc: (snippet) => {
+            return snippet;
+        },
+        getInlineSnippet: (snippet) => {
+            return snippet;
+        },
+    };
 
     it('should have the correct modal name for action name', async () => {
         const expected = 'sw-flow-generate-document-modal';
@@ -15,7 +129,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         let expected = {
             value: ACTION.MAIL_SEND,
             icon: 'regular-envelope',
-            label: 'sw-flow.actions.mailSend'
+            label: 'sw-flow.actions.mailSend',
         };
 
         let actionTitle = service.getActionTitle(ACTION.MAIL_SEND);
@@ -25,7 +139,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         expected = {
             value: ACTION.SET_ORDER_STATE,
             icon: 'regular-shopping-bag-alt',
-            label: 'sw-flow.actions.setOrderState'
+            label: 'sw-flow.actions.setOrderState',
         };
 
         actionTitle = service.getActionTitle(ACTION.SET_ORDER_STATE);
@@ -44,7 +158,7 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
         const expected = {
             value: ACTION.ADD_ORDER_TAG,
             icon: 'regular-tag',
-            label: 'sw-flow.actions.addTag'
+            label: 'sw-flow.actions.addTag',
         };
 
         const actionTitle = service.getActionTitle(ACTION.ADD_ORDER_TAG);
@@ -59,19 +173,19 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             { name: 'action.remove.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
             { name: 'action.remove.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
             { name: 'action.mail.send', requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'], extensions: [] },
-            { name: 'action.stop.flow', requirements: [], extensions: [] }
+            { name: 'action.stop.flow', requirements: [], extensions: [] },
         ];
 
         const allowedAware = [
             'Shopware\\Core\\Framework\\Event\\SalesChannelAware',
             'Shopware\\Core\\Framework\\Event\\OrderAware',
             'Shopware\\Core\\Framework\\Event\\MailAware',
-            'Shopware\\Core\\Framework\\Event\\CustomerAware'
+            'Shopware\\Core\\Framework\\Event\\CustomerAware',
         ];
 
         const expected = [
             { label: 'Order', value: 'order' },
-            { label: 'Customer', value: 'customer' }
+            { label: 'Customer', value: 'customer' },
         ];
 
         const entities = service.getAvailableEntities(ACTION.ADD_ORDER_TAG, actions, allowedAware, ['tags']);
@@ -106,5 +220,175 @@ describe('module/sw-flow/service/flow-builder.service.js', () => {
             { id: '944dd8656af44ab982598edb6ad41d58', parentId: 'e4b79d717a684f589257ece332504b96' },
             { id: 'eb342595680d42edbf05e8a953b70fc8', parentId: '944dd8656af44ab982598edb6ad41d58' },
         ]);
+    });
+
+    it('should be able to return empty string with empty action name', async () => {
+        const sequence = {
+            actionName: '',
+            config: {},
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('');
+    });
+
+    it('should be able to show description of app action', async () => {
+        const sequence = {
+            actionName: 'telegram.send.message',
+            config: {
+                bool: true,
+                checkbox: true,
+                colorpicker: '#c98888',
+                content: 'Hello',
+                date: '2023-03-25T00:00:00.000Z',
+                datetime: '2023-03-23T12:00:00.000Z',
+                float: 5,
+                int: 1000,
+                multiSelect: ['2', '3', '5'],
+                password: 'shopware',
+                singleSelect: '3',
+                textEditor: 'editor',
+                textarea: 'area',
+                url: 'https://google.com',
+            },
+        };
+
+        const description = service.getActionDescriptions(data, sequence, translator);
+        const keyFields = Object.keys(sequence.config);
+        keyFields.forEach(key => {
+            expect(description.includes(key)).toBeTruthy();
+        });
+    });
+
+    it('should be able to show stop flow description', () => {
+        const sequence = {
+            actionName: 'action.stop.flow',
+            config: {},
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('sw-flow.actions.textStopFlowDescription');
+    });
+
+    it('should be able to show customer status description', () => {
+        const sequence = {
+            actionName: 'action.change.customer.status',
+            config: {},
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('sw-flow.modals.customerStatus.inactive');
+    });
+
+    it('should be able to show customer affiliate description', () => {
+        const sequence = {
+            actionName: 'action.add.customer.affiliate.and.campaign.code',
+            config: {
+                affiliateCode: {
+                    upsert: 'a',
+                    value: 'value',
+                },
+                campaignCode: {
+                    upsert: 'a',
+                    value: 'value',
+                },
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('sw-flow.actions.labelTo<br>sw-flow.actions.labelAffiliateCode<br>sw-flow.actions.labelCampaignCode');
+    });
+
+    it('should be able to show change customer status description', () => {
+        const sequence = {
+            actionName: 'action.change.customer.group',
+            config: {
+                customerGroupId: '123',
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('customer name');
+    });
+
+    it('should be able to show customer custom field description', () => {
+        const sequence = {
+            actionName: 'action.set.customer.custom.field',
+            config: {
+                customFieldSetId: '123',
+                customFieldId: '123',
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.labelCustomFieldSet<br>sw-flow.actions.labelCustomField');
+    });
+
+    it('should be able to show order status description', () => {
+        const sequence = {
+            actionName: 'action.set.order.state',
+            config: {
+                order: 'order',
+                order_delivery: 'order_delivery',
+                order_transaction: 'order_transaction',
+            },
+        };
+
+        const render = `sw-flow.modals.status.labelOrderStatus: translated<br>
+                sw-flow.modals.status.labelDeliveryStatus: translated
+            <br>sw-flow.modals.status.labelPaymentStatus: translated<br>sw-flow.modals.status.forceTransition: global.default.no`;
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain(render);
+    });
+
+    it('should be able to show generate document description', () => {
+        const sequence = {
+            actionName: 'action.generate.document',
+            config: {
+                documentTypes: [{
+                    documentType: 'mail',
+                }],
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('translated');
+    });
+
+    it('should be able to send mail flow description', () => {
+        const sequence = {
+            actionName: 'action.mail.send',
+            config: {
+                mailTemplateId: 'mailTemplate_id',
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toBe('sw-flow.actions.labelTemplate');
+    });
+
+    it('should be able to default action flow description', () => {
+        const sequence = {
+            actionName: 'action.default',
+            config: {
+                addEntityTag: 'sw-flow.actions.addTag',
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.addTag');
+    });
+
+    it('should be able to render granted download access action description', () => {
+        const sequence = {
+            actionName: 'action.grant.download.access',
+            config: {
+                value: true,
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.downloadAccessLabel.granted');
+    });
+
+    it('should be able to render revoked download access action description', () => {
+        const sequence = {
+            actionName: 'action.grant.download.access',
+            config: {
+                value: false,
+            },
+        };
+        const description = service.getActionDescriptions(data, sequence, translator);
+        expect(description).toContain('sw-flow.actions.downloadAccessLabel.revoked');
     });
 });

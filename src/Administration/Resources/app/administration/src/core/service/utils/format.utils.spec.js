@@ -42,7 +42,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             setLocale('en-US');
             setTimeZone('UTC');
 
-            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 8:30\u202fAM');
+            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 8:30 AM');
         });
 
         it('should convert the date correctly with timezone UTC in de-DE', async () => {
@@ -63,7 +63,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             setLocale('en-US');
             setTimeZone('America/New_York');
 
-            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 4:30\u202fAM');
+            expect(date('2000-06-18T08:30:00.000+00:00')).toBe('June 18, 2000 at 4:30 AM');
         });
 
         it('should convert the date correctly with timezone America/New_York in de-DE', async () => {
@@ -71,6 +71,15 @@ describe('src/core/service/utils/format.utils.js', () => {
             setTimeZone('America/New_York');
 
             expect(date('2000-06-18T08:30:00.000+00:00')).toBe('18. Juni 2000 um 04:30');
+        });
+
+        it('should not convert the date correctly with timezone America/New_York in de-DE', async () => {
+            setLocale('de-DE');
+            setTimeZone('America/New_York');
+
+            expect(date('2000-06-18T08:30:00.000+00:00', {
+                skipTimezoneConversion: true,
+            })).toBe('18. Juni 2000 um 08:30');
         });
     });
 
@@ -128,7 +137,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             Shopware.State.commit('setAdminLocale', {
                 locales: ['de-DE'],
                 locale: 'de-DE',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             });
 
             expect(currencyFilter(42, 'EUR', 0)).toBe('42 €');
@@ -136,7 +145,7 @@ describe('src/core/service/utils/format.utils.js', () => {
             Shopware.State.commit('setAdminLocale', {
                 locales: ['en-GB'],
                 locale: 'en-GB',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b'
+                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
             });
         });
 

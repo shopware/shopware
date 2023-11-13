@@ -6,10 +6,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class EntityWrittenContainerEvent extends NestedEvent
 {
     /**
@@ -19,21 +18,12 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     protected bool $cloned = false;
 
-    /**
-     * @var NestedEventCollection
-     */
-    private $events;
-
-    /**
-     * @var array
-     */
-    private $errors;
-
-    public function __construct(Context $context, NestedEventCollection $events, array $errors)
-    {
+    public function __construct(
+        Context $context,
+        private readonly NestedEventCollection $events,
+        private readonly array $errors
+    ) {
         $this->context = $context;
-        $this->events = $events;
-        $this->errors = $errors;
     }
 
     public function getContext(): Context
@@ -110,9 +100,7 @@ class EntityWrittenContainerEvent extends NestedEvent
 
     public function getDeletedPrimaryKeys(string $entity): array
     {
-        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) {
-            return $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
-        });
+        return $this->findPrimaryKeys($entity, fn (EntityWriteResult $result) => $result->getOperation() === EntityWriteResult::OPERATION_DELETE);
     }
 
     public function getPrimaryKeysWithPayload(string $entity): array

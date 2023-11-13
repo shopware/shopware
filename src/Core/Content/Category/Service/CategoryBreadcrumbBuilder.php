@@ -14,22 +14,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
-/**
- * @package content
- */
+#[Package('inventory')]
 class CategoryBreadcrumbBuilder
 {
-    private EntityRepository $categoryRepository;
-
     /**
      * @internal
      */
-    public function __construct(EntityRepository $categoryRepository)
+    public function __construct(private readonly EntityRepository $categoryRepository)
     {
-        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -104,7 +100,10 @@ class CategoryBreadcrumbBuilder
         $categories = $this->categoryRepository->search($criteria, $context->getContext());
 
         if ($categories->count() > 0) {
-            return $categories->first();
+            /** @var CategoryEntity|null $category */
+            $category = $categories->first();
+
+            return $category;
         }
 
         return null;
@@ -118,9 +117,7 @@ class CategoryBreadcrumbBuilder
             $context->getSalesChannel()->getFooterCategoryId(),
         ]);
 
-        return new OrFilter(array_map(static function (string $id) {
-            return new ContainsFilter('path', '|' . $id . '|');
-        }, $ids));
+        return new OrFilter(array_map(static fn (string $id) => new ContainsFilter('path', '|' . $id . '|'), $ids));
     }
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
@@ -142,9 +139,10 @@ class CategoryBreadcrumbBuilder
 
         $firstCategory = $categories->first();
 
+        /** @var CategoryEntity|null $entity */
         $entity = $firstCategory instanceof MainCategoryEntity ? $firstCategory->getCategory() : $firstCategory;
 
-        return $product->getCategoryIds() !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
+        return $product->getCategoryIds() !== null && $entity !== null && \in_array($entity->getId(), $product->getCategoryIds(), true) ? $entity : null;
     }
 
     private function getMainCategoryFilter(string $productId, SalesChannelContext $context): AndFilter

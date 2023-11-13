@@ -2,32 +2,20 @@
 
 namespace Shopware\Core\DevOps\Environment;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class EnvironmentHelperTransformerData
 {
-    private string $key;
-
-    /**
-     * @var bool|float|int|string|null
-     */
-    private $value;
-
-    /**
-     * @var bool|float|int|string|null
-     */
-    private $default;
-
     /**
      * @param bool|float|int|string|null $value
      * @param bool|float|int|string|null $default
      */
-    public function __construct(string $key, $value, $default)
-    {
-        $this->key = $key;
-        $this->value = $value;
-        $this->default = $default;
+    public function __construct(
+        private readonly string $key,
+        private $value,
+        private $default
+    ) {
     }
 
     public function getKey(): string

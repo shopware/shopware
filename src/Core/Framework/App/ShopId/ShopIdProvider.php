@@ -7,26 +7,22 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
- *
- * @package core
  */
+#[Package('core')]
 class ShopIdProvider
 {
-    public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
+    final public const SHOP_ID_SYSTEM_CONFIG_KEY = 'core.app.shopId';
 
-    private SystemConfigService $systemConfigService;
-
-    private EntityRepository $appRepository;
-
-    public function __construct(SystemConfigService $systemConfigService, EntityRepository $appRepository)
-    {
-        $this->systemConfigService = $systemConfigService;
-        $this->appRepository = $appRepository;
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly EntityRepository $appRepository,
+    ) {
     }
 
     /**
@@ -47,17 +43,17 @@ class ShopIdProvider
         }
 
         if (EnvironmentHelper::getVariable('APP_URL') !== ($shopId['app_url'] ?? '')) {
-            if ($this->hasApps()) {
-                /** @var string $appUrl */
-                $appUrl = EnvironmentHelper::getVariable('APP_URL');
+            /** @var string $appUrl */
+            $appUrl = EnvironmentHelper::getVariable('APP_URL');
 
-                throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl);
+            if ($this->hasApps()) {
+                throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl, $shopId['value']);
             }
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-                'app_url' => EnvironmentHelper::getVariable('APP_URL'),
+            $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, [
+                'app_url' => $appUrl,
                 'value' => $shopId['value'],
             ]);
         }

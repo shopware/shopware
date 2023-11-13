@@ -40,8 +40,10 @@ class EntitySearchResultTest extends TestCase
 
         $newInstance = $entitySearchResult->slice(2);
 
+        $firstInstance = $newInstance->first();
+        static::assertNotNull($firstInstance);
         static::assertSame(ArrayEntity::class, $newInstance->getEntity());
-        static::assertSame(ArrayEntity::class, \get_class($newInstance->first()));
+        static::assertSame(ArrayEntity::class, $firstInstance::class);
         static::assertSame(8, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());
@@ -58,15 +60,17 @@ class EntitySearchResultTest extends TestCase
             return $count++ > 5;
         });
 
+        $firstInstance = $newInstance->first();
+        static::assertNotNull($firstInstance);
         static::assertSame(ArrayEntity::class, $newInstance->getEntity());
-        static::assertSame(ArrayEntity::class, \get_class($newInstance->first()));
+        static::assertSame(ArrayEntity::class, $firstInstance::class);
         static::assertSame(4, $newInstance->getTotal());
         static::assertSame($entitySearchResult->getAggregations(), $newInstance->getAggregations());
         static::assertSame($entitySearchResult->getCriteria(), $newInstance->getCriteria());
         static::assertSame($entitySearchResult->getContext(), $newInstance->getContext());
     }
 
-    public function resultPageCriteriaDataProvider(): \Generator
+    public static function resultPageCriteriaDataProvider(): \Generator
     {
         yield [(new Criteria())->setLimit(5)->setOffset(0), 1];
         yield [(new Criteria())->setLimit(5)->setOffset(1), 1];
@@ -76,6 +80,9 @@ class EntitySearchResultTest extends TestCase
         yield [(new Criteria())->setLimit(10)->setOffset(25), 3];
     }
 
+    /**
+     * @return EntitySearchResult<EntityCollection<ArrayEntity>>
+     */
     private function createEntitySearchResult(): EntitySearchResult
     {
         $entities = [];

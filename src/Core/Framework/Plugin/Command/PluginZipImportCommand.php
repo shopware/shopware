@@ -6,6 +6,7 @@ use Composer\IO\ConsoleIO;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\NoPluginFoundInZipException;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -17,36 +18,22 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
 #[AsCommand(
     name: 'plugin:zip-import',
     description: 'Imports a plugin from a zip file',
 )]
+#[Package('core')]
 class PluginZipImportCommand extends Command
 {
-    protected CacheClearer $cacheClearer;
-
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
-
-    /**
-     * @var PluginService
-     */
-    private $pluginService;
-
     /**
      * @internal
      */
-    public function __construct(PluginManagementService $pluginManagementService, PluginService $pluginService, CacheClearer $cacheClearer)
-    {
+    public function __construct(
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly PluginService $pluginService,
+        protected CacheClearer $cacheClearer
+    ) {
         parent::__construct();
-        $this->pluginManagementService = $pluginManagementService;
-        $this->pluginService = $pluginService;
-        $this->cacheClearer = $cacheClearer;
     }
 
     /**
@@ -54,8 +41,7 @@ class PluginZipImportCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setDescription('Import plugin zip file.')
-            ->addArgument('zip-file', InputArgument::REQUIRED, 'Zip file that contains a shopware platform plugin.')
+        $this->addArgument('zip-file', InputArgument::REQUIRED, 'Zip file that contains a shopware platform plugin.')
             ->addOption('no-refresh', null, InputOption::VALUE_OPTIONAL, 'Do not refresh plugin list.')
             ->addOption('delete', null, InputOption::VALUE_OPTIONAL, 'Delete the zip file after importing successfully.');
     }
@@ -81,7 +67,7 @@ class PluginZipImportCommand extends Command
             $this->cacheClearer->clearContainerCache();
         }
 
-        $io->success('Successfully import zip file ' . basename($zipFile));
+        $io->success('Successfully import zip file ' . basename((string) $zipFile));
 
         if (!$input->getOption('no-refresh')) {
             $composerInput = clone $input;

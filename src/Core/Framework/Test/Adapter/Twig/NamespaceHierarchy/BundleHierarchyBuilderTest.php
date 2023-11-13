@@ -34,7 +34,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'templateLoadPriority' => 2,
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -75,7 +74,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -112,7 +110,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -148,7 +145,6 @@ class BundleHierarchyBuilderTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -206,7 +202,7 @@ class BundleHierarchyBuilderTest extends TestCase
     /**
      * @return iterable<string, array<array<int|string, int|string>>>
      */
-    public function sortingProvider(): iterable
+    public static function sortingProvider(): iterable
     {
         yield 'all with default prio' => [
             ['TestPluginB' => 0, 'TestPluginA' => 0],
@@ -272,8 +268,11 @@ class BundleHierarchyBuilderTest extends TestCase
  */
 class MockBundle extends Bundle
 {
-    public function __construct(string $name, private int $templatePriority, string $path)
-    {
+    public function __construct(
+        string $name,
+        private readonly int $templatePriority,
+        string $path
+    ) {
         $this->name = $name;
         $this->path = $path;
     }

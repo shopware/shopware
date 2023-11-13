@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -191,10 +192,7 @@ class ProductConfiguratorOrderTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'parentId' => $productId,
-                'options' => array_map(function (array $group) {
-                    // Assign first option from each group
-                    return ['id' => $group[0]];
-                }, $optionIds),
+                'options' => array_map(fn (array $group) => ['id' => $group[0]], $optionIds),
             ],
         ];
 
@@ -202,6 +200,7 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->context, $data[0]['tax']);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('product.parentId', $productId));
+        /** @var SalesChannelProductEntity $salesChannelProduct */
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
 
         // get ordered PropertyGroupCollection

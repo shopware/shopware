@@ -3,13 +3,15 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1655730949AddIsRunningColumnToProductExport extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -33,6 +35,6 @@ class Migration1655730949AddIsRunningColumnToProductExport extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        //Implement updateDestructive() method.
+        // Implement updateDestructive() method.
     }
 }

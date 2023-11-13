@@ -9,7 +9,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -44,7 +44,7 @@ export default {
     },
 
     computed: {
-        ...mapState('swFlowState', ['restrictedRules']),
+        ...mapState('swFlowState', ['restrictedRules', 'flow']),
 
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
@@ -80,12 +80,11 @@ export default {
 
         advanceSelectionParameters() {
             return {
-                // TODO: NEXT-18428 - adjust this
-                ruleAwareGroupKey: 'flowConditions',
+                ruleAwareGroupKey: `flowTrigger.${this.flow.eventName}`,
             };
         },
 
-        ...mapState('swFlowState', ['invalidSequences']),
+        ...mapState('swFlowState', ['invalidSequences', 'flow']),
         ...mapGetters('swFlowState', ['sequences']),
     },
 

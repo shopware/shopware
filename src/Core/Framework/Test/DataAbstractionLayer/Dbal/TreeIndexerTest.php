@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -25,10 +26,7 @@ class TreeIndexerTest extends TestCase
      */
     private $categoryRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var Connection
@@ -149,11 +147,11 @@ class TreeIndexerTest extends TestCase
         ], $this->context);
 
         /**
-        Category A
-        ├── Category B
-        ├── Category C
-        │  └── Category D
-        │  └── Category E
+         * Category A
+         * ├── Category B
+         * ├── Category C
+         * │  └── Category D
+         * │  └── Category E
          */
         $categories = $this->categoryRepository->search(
             new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
@@ -208,13 +206,13 @@ class TreeIndexerTest extends TestCase
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
 
-        //update parent of last category in version scope
+        // update parent of last category in version scope
         $updated = ['id' => $categoryD, 'parentId' => $categoryA];
 
         $this->categoryRepository->update([$updated], $versionContext);
 
         /** @var CategoryEntity $category */
-        //check that the path updated
+        // check that the path updated
         $category = $this->categoryRepository->search(new Criteria([$categoryD]), $versionContext)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
         static::assertEquals('|' . $categoryA . '|', $category->getPath());
@@ -225,7 +223,7 @@ class TreeIndexerTest extends TestCase
 
         $this->categoryRepository->merge($versionId, $this->context);
 
-        //test after merge the path is updated too
+        // test after merge the path is updated too
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search(new Criteria([$categoryD]), $this->context)->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
@@ -246,7 +244,7 @@ class TreeIndexerTest extends TestCase
         $categoryC = $this->createCategory($categoryA);
         $categoryD = $this->createCategory($categoryC);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE category SET path = NULL, level = 0 WHERE HEX(id) IN (:ids)',
             [
                 'ids' => [
@@ -256,7 +254,7 @@ class TreeIndexerTest extends TestCase
                     $categoryD,
                 ],
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);

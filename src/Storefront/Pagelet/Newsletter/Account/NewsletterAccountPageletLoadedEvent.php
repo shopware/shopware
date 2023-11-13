@@ -2,20 +2,19 @@
 
 namespace Shopware\Storefront\Pagelet\Newsletter\Account;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package customer-order
- */
+#[Package('checkout')]
 class NewsletterAccountPageletLoadedEvent extends PageletLoadedEvent
 {
-    protected NewsletterAccountPagelet $pagelet;
-
-    public function __construct(NewsletterAccountPagelet $pagelet, SalesChannelContext $salesChannelContext, Request $request)
-    {
-        $this->pagelet = $pagelet;
+    public function __construct(
+        protected NewsletterAccountPagelet $pagelet,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         parent::__construct($salesChannelContext, $request);
     }
 

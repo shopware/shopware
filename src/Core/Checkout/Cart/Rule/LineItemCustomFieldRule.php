@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -12,36 +13,30 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 class LineItemCustomFieldRule extends Rule
 {
-    public const RULE_NAME = 'cartLineItemCustomField';
-
-    protected string $operator;
+    final public const RULE_NAME = 'cartLineItemCustomField';
 
     /**
-     * @var array<string, mixed>
-     */
-    protected array $renderedField;
-
-    /**
-     * @var string|int|float|bool|null
+     * @var array<string>|string|int|float|bool|null
      */
     protected $renderedFieldValue;
+
+    protected ?string $selectedField = null;
+
+    protected ?string $selectedFieldSet = null;
 
     /**
      * @param array<string, mixed> $renderedField
      *
      * @internal
      */
-    public function __construct(string $operator = self::OPERATOR_EQ, array $renderedField = [])
-    {
+    public function __construct(
+        protected string $operator = self::OPERATOR_EQ,
+        protected array $renderedField = []
+    ) {
         parent::__construct();
-
-        $this->operator = $operator;
-        $this->renderedField = $renderedField;
     }
 
     /**
@@ -113,22 +108,15 @@ class LineItemCustomFieldRule extends Rule
             return false;
         }
 
-        switch ($this->operator) {
-            case self::OPERATOR_NEQ:
-                return $actual !== $expected;
-            case self::OPERATOR_GTE:
-                return $actual >= $expected;
-            case self::OPERATOR_LTE:
-                return $actual <= $expected;
-            case self::OPERATOR_EQ:
-                return $actual === $expected;
-            case self::OPERATOR_GT:
-                return $actual > $expected;
-            case self::OPERATOR_LT:
-                return $actual < $expected;
-            default:
-                throw new UnsupportedOperatorException($this->operator, self::class);
-        }
+        return match ($this->operator) {
+            self::OPERATOR_NEQ => $actual !== $expected,
+            self::OPERATOR_GTE => $actual >= $expected,
+            self::OPERATOR_LTE => $actual <= $expected,
+            self::OPERATOR_EQ => $actual === $expected,
+            self::OPERATOR_GT => $actual > $expected,
+            self::OPERATOR_LT => $actual < $expected,
+            default => throw new UnsupportedOperatorException($this->operator, self::class),
+        };
     }
 
     /**
@@ -138,7 +126,7 @@ class LineItemCustomFieldRule extends Rule
     {
         $constraints = [];
 
-        if (!\is_array($this->renderedField) || !\array_key_exists('type', $this->renderedField)) {
+        if (!\array_key_exists('type', $this->renderedField)) {
             return [new NotBlank()];
         }
 
@@ -173,10 +161,10 @@ class LineItemCustomFieldRule extends Rule
     }
 
     /**
-     * @param string|int|float|bool|null $renderedFieldValue
+     * @param array<string>|string|int|float|bool|null $renderedFieldValue
      * @param array<string, mixed> $renderedField
      *
-     * @return string|int|float|bool|null
+     * @return array<string>|string|int|float|bool|null
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {

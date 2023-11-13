@@ -3,15 +3,15 @@
 namespace Shopware\Core\Framework\Test\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\Subscriber\UpdatePostFinishSubscriber;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class UpdatePostFinishSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

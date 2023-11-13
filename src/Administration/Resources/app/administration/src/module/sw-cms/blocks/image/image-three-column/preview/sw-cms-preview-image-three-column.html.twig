@@ -2,15 +2,15 @@
 {% block sw_cms_block_image_three_column_preview %}
 <div class="sw-cms-preview-image-three-column">
     <img
-        :src="'/administration/static/img/cms/preview_camera_small.jpg' | asset"
+        :src="assetFilter('/administration/static/img/cms/preview_camera_small.jpg')"
         alt=""
     >
     <img
-        :src="'/administration/static/img/cms/preview_plant_small.jpg' | asset"
+        :src="assetFilter('/administration/static/img/cms/preview_plant_small.jpg')"
         alt=""
     >
     <img
-        :src="'/administration/static/img/cms/preview_glasses_small.jpg' | asset"
+        :src="assetFilter('/administration/static/img/cms/preview_glasses_small.jpg')"
         alt=""
     >
 </div>

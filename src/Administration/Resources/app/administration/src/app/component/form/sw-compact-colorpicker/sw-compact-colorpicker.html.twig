@@ -2,10 +2,12 @@
 {% block sw_compact_colorpicker %}
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_colorpicker_contextual_field %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     class="sw-field sw-field--colorpicker sw-field--compact-colorpicker sw-text-editor-toolbar-button__fore-color-menu"
+    role="menu"
+    tabindex="0"
     @click="toggleColorPicker"
+    @keydown.enter="toggleColorPicker"
 >
     <div class="sw-colorpicker__field sw-colorpicker__trigger">
         <div class="sw-colorpicker__previewWrapper">
@@ -32,6 +34,7 @@
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_colorpicker_selection %}
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
         ref="colorPicker"
         class="sw-colorpicker__colorpicker-selection"

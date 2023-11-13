@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package buyers-experience
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swSettingsSearchSearchIndex from 'src/module/sw-settings-search/component/sw-settings-search-search-index';
@@ -20,7 +20,7 @@ async function createWrapper(privileges = []) {
                 create: (name) => {
                     if (name === 'product') {
                         return {
-                            search: () => Promise.resolve([])
+                            search: () => Promise.resolve([]),
                         };
                     }
 
@@ -36,13 +36,13 @@ async function createWrapper(privileges = []) {
                                 createdAt: '2021-02-15T12:47:08.464+00:00',
                                 updatedAt: null,
                                 apiAlias: null,
-                                id: 'ffce0992117444529bf702c30f14ae3b'
-                            }])
+                                id: 'ffce0992117444529bf702c30f14ae3b',
+                            }]),
                         };
                     }
 
                     return null;
-                }
+                },
             },
             productIndexService: {
                 index: jest.fn((offset) => {
@@ -50,8 +50,8 @@ async function createWrapper(privileges = []) {
                         return Promise.resolve({
                             finish: false,
                             offset: {
-                                offset: 51
-                            }
+                                offset: 51,
+                            },
                         });
                     }
 
@@ -59,19 +59,21 @@ async function createWrapper(privileges = []) {
                         return Promise.resolve({
                             finish: false,
                             offset: {
-                                offset: 60
-                            }
+                                offset: 60,
+                            },
                         });
                     }
 
                     if (offset === 60) {
                         return Promise.resolve({
-                            finish: true
+                            data: {
+                                finish: true,
+                            },
                         });
                     }
 
                     return Promise.resolve({});
-                })
+                }),
             },
             acl: {
                 can: (identifier) => {
@@ -80,8 +82,8 @@ async function createWrapper(privileges = []) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
 
         },
 
@@ -90,14 +92,14 @@ async function createWrapper(privileges = []) {
             'sw-button-process': await Shopware.Component.build('sw-button-process'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-progress-bar': {
-                template: '<div class="sw-progress-bar"><slot></slot></div>'
+                template: '<div class="sw-progress-bar"><slot></slot></div>',
             },
             'sw-alert': {
-                template: '<div class="sw-alert"><slot></slot></div>'
+                template: '<div class="sw-alert"><slot></slot></div>',
             },
             'sw-icon': true,
             'sw-loader': true,
-        }
+        },
     });
 }
 
@@ -111,7 +113,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
     it('should not able to rebuild the search index', async () => {
         const wrapper = await createWrapper([
-            'product_search_config.viewer'
+            'product_search_config.viewer',
         ]);
         await wrapper.vm.$nextTick();
 
@@ -119,18 +121,18 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         expect(rebuildButton.attributes().disabled).toBeTruthy();
     });
 
-
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {
         let response = {};
         const wrapper = await createWrapper([
-            'product_search_config.editor'
+            'product_search_config.editor',
         ]);
         await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
+        wrapper.vm.createNotificationSuccess = jest.fn();
 
         // First time call the update progress
         await wrapper.setData({
-            offset: 0
+            offset: 0,
         });
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
         await rebuildButton.trigger('click');
@@ -139,7 +141,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
         // Expect to see the notification about index started
         expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
-            message: 'sw-settings-search.notification.index.started'
+            message: 'sw-settings-search.notification.index.started',
         });
         response = await wrapper.vm.productIndexService.index(wrapper.vm.offset);
         expect(response.offset.offset).toBe(51);
@@ -148,7 +150,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
         // Second call with offset 51
         await wrapper.setData({
-            offset: response.offset.offset
+            offset: response.offset.offset,
         });
         response = await wrapper.vm.productIndexService.index(wrapper.vm.offset);
         await flushPromises();
@@ -157,13 +159,31 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
         // Third call with offset 60
         await wrapper.setData({
-            offset: response.offset.offset
+            offset: response.offset.offset,
         });
         response = await wrapper.vm.productIndexService.index(wrapper.vm.offset);
         await flushPromises();
 
         // To polling should be finished
-        expect(response.finish).toBeTruthy();
-        wrapper.vm.createNotificationInfo.mockRestore();
+        expect(response.data.finish).toBeTruthy();
+        wrapper.vm.createNotificationSuccess.mockRestore();
+    });
+
+    it('should display the notification success when the rebuild button process finish successfully', async () => {
+        const wrapper = await createWrapper([
+            'product_search_config.editor',
+        ]);
+        wrapper.vm.createNotificationSuccess = jest.fn();
+        expect(wrapper.vm.isRebuildSuccess).toBeFalsy();
+
+        await wrapper.setData({
+            offset: 60,
+        });
+        await wrapper.vm.updateProgress();
+
+        expect(wrapper.vm.isRebuildSuccess).toBeTruthy();
+        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-settings-search.notification.index.success',
+        });
     });
 });

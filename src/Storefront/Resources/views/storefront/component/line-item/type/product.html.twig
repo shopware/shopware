@@ -26,14 +26,18 @@
             {% block component_line_item_type_product_col_info %}
                 <div class="line-item-info">
                     <div class="row line-item-row">
+                        {% set showLineItemModal = controllerAction is same as('confirmPage') %}
 
                         {% if nestingLevel < 1 %}
                             {% block component_line_item_type_product_image %}
                                 <div class="col-auto line-item-info-img">
                                     <div class="line-item-img-container">
                                         {% block component_line_item_type_product_image_inner %}
+                                            {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string #}
                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
-                                                productLink: true
+                                                productLink: true,
+                                                lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                                lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
                                             } %}
                                         {% endblock %}
                                     </div>
@@ -45,8 +49,11 @@
                             <div class="line-item-details">
                                 <div class="line-item-details-container">
                                     {% block component_line_item_type_product_label %}
+                                        {# @deprecated tag:v6.6.0 - Boolean variable productLink will be removed, use lineItemLink and lineItemModalLink instead and pass the desired url as string #}
                                         {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' with {
-                                            productLink: true
+                                            productLink: true,
+                                            lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                            lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
                                         } %}
                                     {% endblock %}
 
@@ -65,10 +72,15 @@
                                     {% endif %}
 
                                     {% if lineItem.payload.productNumber %}
-                                        {% block component_line_item_type_product_order_number %}
-                                            <div class="line-item-ordernumber">
-                                                {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
-                                            </div>
+                                        {% block component_line_item_type_product_number %}
+
+                                            {# @deprecated tag:v6.6.0 - Block will be removed. Use `component_line_item_type_product_number` instead.  #}
+                                            {% block component_line_item_type_product_order_number %}
+                                                {# @deprecated tag:v6.6.0 - Class `line-item-ordernumber` will be removed. Use `line-item-product-number` instead.  #}
+                                                <div class="line-item-ordernumber line-item-product-number">
+                                                    {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
+                                                </div>
+                                            {%  endblock %}
                                         {% endblock %}
                                     {% endif %}
 

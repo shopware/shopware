@@ -1,17 +1,17 @@
 import 'src/app/decorator/condition-type-data-provider.decorator';
-import createConditionService from 'src/app/service/rule-condition.service';
+import RuleConditionService from 'src/app/service/rule-condition.service';
 
 describe('entity-collection.data.ts', () => {
     beforeAll(async () => {
         Shopware.Service().register('ruleConditionDataProviderService', () => {
-            return createConditionService();
+            return new RuleConditionService();
         });
     });
 
     it('should register conditions with correct scope', async () => {
         const condition = Shopware.Service('ruleConditionDataProviderService').getByType('language');
 
-        expect(condition).not.toBeUndefined();
+        expect(condition).toBeDefined();
         expect(condition.scopes).toEqual(['global']);
     });
 
@@ -22,13 +22,13 @@ describe('entity-collection.data.ts', () => {
                 name: 'foo',
                 group: 'misc',
                 config: {},
-            }
+            },
         ]);
 
         const condition = Shopware.Service('ruleConditionDataProviderService').getByType('bar');
 
-        expect(condition.component).toEqual('sw-condition-script');
-        expect(condition.type).toEqual('scriptRule');
-        expect(condition.label).toEqual('foo');
+        expect(condition.component).toBe('sw-condition-script');
+        expect(condition.type).toBe('scriptRule');
+        expect(condition.label).toBe('foo');
     });
 });

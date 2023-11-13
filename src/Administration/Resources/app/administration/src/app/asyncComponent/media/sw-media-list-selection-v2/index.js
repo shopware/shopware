@@ -2,6 +2,7 @@ import template from './sw-media-list-selection-v2.html.twig';
 import './sw-media-list-selection-v2.scss';
 
 const { Mixin, Context } = Shopware;
+const utils = Shopware.Utils;
 
 /**
  * @package content
@@ -65,7 +66,9 @@ export default {
 
             const items = [...this.entityMediaItems];
             items.splice(this.currentCount, 0, ...this.createPlaceholders(columnCount - this.currentCount));
-
+            items.forEach((item, index) => {
+                item.position = index;
+            });
             return items;
         },
 
@@ -148,6 +151,17 @@ export default {
 
             this.entity.isLoading = false;
         },
+
+        onMediaItemDragSort(dragData, dropData, validDrop) {
+            if (validDrop !== true || (dropData.position > this.currentCount) || (dragData.position > this.currentCount)) {
+                return;
+            }
+            this.$emit('item-sort', dragData, dropData);
+        },
+
+        onDeboundDragDrop: utils.debounce(function debouncedDragDrop(dragData, dropData, validDrop) {
+            this.onMediaItemDragSort(dragData, dropData, validDrop);
+        }, 500),
 
         removeItem(mediaItem, index) {
             this.$emit('item-remove', mediaItem, index);

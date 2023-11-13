@@ -3,12 +3,15 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @package core
+ * @deprecated tag:v6.6.0 - Will be move to Shopware\Core\Framework\App\Flow\Action\Xml
  */
+#[Package('core')]
 class Actions extends XmlElement
 {
     /**
@@ -16,14 +19,14 @@ class Actions extends XmlElement
      */
     protected array $actions;
 
-    public function __construct(array $data)
+    public static function fromXml(\DOMElement $element): static
     {
-        $this->actions = $data;
-    }
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Actions')
+        );
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        return new self(self::parseFlowActions($element));
+        return parent::fromXml($element);
     }
 
     /**
@@ -31,16 +34,26 @@ class Actions extends XmlElement
      */
     public function getActions(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Actions')
+        );
+
         return $this->actions;
     }
 
-    private static function parseFlowActions(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Actions')
+        );
+
         $actions = [];
         foreach ($element->getElementsByTagName('flow-action') as $flowAction) {
             $actions[] = Action::fromXml($flowAction);
         }
 
-        return $actions;
+        return ['actions' => $actions];
     }
 }

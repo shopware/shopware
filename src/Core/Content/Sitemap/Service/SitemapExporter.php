@@ -10,14 +10,13 @@ use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class SitemapExporter implements SitemapExporterInterface
 {
     /**
@@ -31,12 +30,12 @@ class SitemapExporter implements SitemapExporterInterface
      * @param iterable<AbstractUrlProvider> $urlProvider
      */
     public function __construct(
-        private iterable $urlProvider,
-        private CacheItemPoolInterface $cache,
-        private int $batchSize,
-        private FilesystemOperator $filesystem,
-        private SitemapHandleFactoryInterface $sitemapHandleFactory,
-        private EventDispatcherInterface $dispatcher
+        private readonly iterable $urlProvider,
+        private readonly CacheItemPoolInterface $cache,
+        private readonly int $batchSize,
+        private readonly FilesystemOperator $filesystem,
+        private readonly SitemapHandleFactoryInterface $sitemapHandleFactory,
+        private readonly EventDispatcherInterface $dispatcher
     ) {
     }
 

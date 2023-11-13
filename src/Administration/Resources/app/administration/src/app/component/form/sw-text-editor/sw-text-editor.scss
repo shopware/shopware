@@ -119,6 +119,10 @@
         position: relative;
         display: flex;
         flex-direction: column;
+
+        &.is--transparent-background {
+            background: transparent;
+        }
     }
 
     .sw-text-editor__content-placeholder {

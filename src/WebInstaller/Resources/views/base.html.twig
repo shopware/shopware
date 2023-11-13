@@ -1,0 +1,70 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shopware Recovery</title>
+
+    <link rel="shortcut icon" href="{{ app.request.baseUrl }}/assets/images/favicon.png" type="image/x-icon" />
+
+    <link rel="stylesheet" type="text/css" href="{{ app.request.baseUrl }}/assets/styles/reset.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{{ app.request.baseUrl }}/assets/styles/fonts.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{{ app.request.baseUrl }}/assets/styles/icons.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="{{ app.request.baseUrl }}/assets/styles/style.css" media="all"/>
+</head>
+<body class="auto">
+    <header class="header-main">
+        <div class="header-main__branding">
+            <img class="header-main__logo" src="{{ app.request.baseUrl }}/assets/images/sw-logo-blue.svg" width="148" alt="Shopware">
+            <div class="header-main__title">
+                INSTALLER
+            </div>
+        </div>
+    </header>
+
+    <div class="page--wrap">
+        <div class="content--wrapper">
+            {% set navigationPosition = app.request.attributes.get('step') %}
+
+            <nav class="navigation--main">
+                <ul class="navigation--list">
+                    <li class="navigation--entry{% if navigationPosition == '0' %} is--active{% endif %}">
+                        <span class="navigation--link">{{ 'shopware.update.navigation.start'|trans }}</span>
+                    </li>
+
+                    <li class="navigation--entry{% if navigationPosition == '1' %} is--active{% endif %}">
+                        <span class="navigation--link">{{ 'shopware.update.navigation.configure_php'|trans }}</span>
+                    </li>
+
+                    <li class="navigation--entry{% if navigationPosition == '2' %} is--active{% endif %}">
+                        <span class="navigation--link">{{ 'shopware.update.navigation.download'|trans }}</span>
+                    </li>
+
+                    <li class="navigation--entry{% if navigationPosition == '3' %} is--active{% endif %}">
+                        <span class="navigation--link">{{ 'shopware.update.navigation.finish'|trans }}</span>
+                    </li>
+                </ul>
+            </nav>
+            <section class="content--main">
+                {% block main %}{% endblock %}
+            </section>
+        </div>
+    </div>
+    <div class="footer-main">
+        <a href="?language=de" class="language-item{% if app.request.locale == "de" %} is--active{% endif %}">
+            DE
+        </a>
+        <a href="?language=en" class="language-item{% if app.request.locale == "en" %} is--active{% endif %}">
+            EN
+        </a>
+    </div>
+    <script>
+        const baseUrl = '{{ app.request.baseUrl }}';
+
+        {% if isFlexProject is defined %}
+        const isFlexProject = {{ isFlexProject|json_encode|raw }};
+        {% endif %}
+    </script>
+    <script type="application/javascript" src="{{ app.request.baseUrl }}/assets/app.js"></script>
+</body>

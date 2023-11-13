@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\Api\Response;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-/**
- * @package core
- */
+#[Package('core')]
 class JsonApiResponse extends JsonResponse
 {
-    public function update(): static
+    protected function update(): static
     {
         parent::update();
 

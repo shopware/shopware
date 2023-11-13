@@ -8,14 +8,14 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SetOrderCustomFieldActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -41,6 +41,7 @@ class SetOrderCustomFieldActionTest extends TestCase
      * @param array<int, mixed>|null $existedData
      * @param array<int, mixed>|null $updateData
      * @param array<int, mixed>|null $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testCreateCustomFieldForOrder(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
@@ -90,7 +91,7 @@ class SetOrderCustomFieldActionTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],

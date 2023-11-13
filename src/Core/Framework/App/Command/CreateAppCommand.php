@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,22 +16,25 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+
 use function Symfony\Component\String\u;
 
 /**
- * @interal
- * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable}>
+ * @internal
  *
- * @package core
+ * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable(string): string, normaliser?: callable(string): string}>
  */
-#[AsCommand(name: 'app:create')]
+#[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
+#[Package('core')]
 class CreateAppCommand extends Command
 {
     /**
      * @internal
      */
-    public function __construct(private AbstractAppLifecycle $appLifecycle, private string $appDir)
-    {
+    public function __construct(
+        private readonly AbstractAppLifecycle $appLifecycle,
+        private readonly string $appDir
+    ) {
         parent::__construct();
     }
 
@@ -42,8 +46,6 @@ class CreateAppCommand extends Command
 
         $this->addOption('theme', 't', InputOption::VALUE_NONE, 'Create a theme configuration file');
         $this->addOption('install', 'i', InputOption::VALUE_NONE, 'Install the application');
-
-        $this->setDescription('Creates an app skeleton');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -132,7 +134,10 @@ class CreateAppCommand extends Command
         }
     }
 
-    private static function makeRegexValidator(string $regex, string $message): \Closure
+    /**
+     * @return callable(string): string
+     */
+    private static function makeRegexValidator(string $regex, string $message): callable
     {
         return static function (string $value) use ($regex, $message): string {
             if (preg_match($regex, $value) !== 1) {
@@ -158,9 +163,7 @@ class CreateAppCommand extends Command
                     '/^[A-Za-z]\w{3,}$/',
                     'The app name is too short (min 4 characters), contains invalid characters'
                 ),
-                'normaliser' => function (string $name): string {
-                    return u($name)->replace('_', ' ')->camel()->title()->toString();
-                },
+                'normaliser' => fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
             ],
             [
                 'name' => 'label',
@@ -232,11 +235,9 @@ class CreateAppCommand extends Command
         return array_combine(
             array_keys($details),
             array_map(
-                function (string $propertyName, string $value) use ($propertyDefinitions) {
-                    return isset($propertyDefinitions[$propertyName]['normaliser'])
-                        ? $propertyDefinitions[$propertyName]['normaliser']($value)
-                        : $value;
-                },
+                fn (string $propertyName, string $value) => isset($propertyDefinitions[$propertyName]['normaliser'])
+                    ? $propertyDefinitions[$propertyName]['normaliser']($value)
+                    : $value,
                 array_keys($details),
                 $details
             )

@@ -3,7 +3,7 @@ import SwOrderDeliveryMetadata from 'src/module/sw-order/component/sw-order-deli
 import 'src/app/component/base/sw-address';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 Shopware.Component.register('sw-order-delivery-metadata', SwOrderDeliveryMetadata);
@@ -14,8 +14,8 @@ async function createWrapper() {
             delivery: {
                 shippingMethod: {
                     translated: {
-                        name: ''
-                    }
+                        name: '',
+                    },
                 },
                 shippingOrderAddress: {
                     country: {
@@ -26,7 +26,7 @@ async function createWrapper() {
             order: {
                 currency: {
                     shortName: 'EUR',
-                    symbol: '€'
+                    symbol: '€',
                 },
             },
         },
@@ -40,11 +40,11 @@ async function createWrapper() {
             customSnippetApiService: {
                 render() {
                     return Promise.resolve({
-                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>'
+                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
                     });
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 

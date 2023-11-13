@@ -13,7 +13,7 @@ async function createWrapper() {
         localVue,
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         stubs: {
@@ -24,15 +24,15 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-single-select': {
                 model: {
                     prop: 'value',
-                    event: 'change'
+                    event: 'change',
                 },
                 props: ['value'],
                 template: `
@@ -44,9 +44,9 @@ async function createWrapper() {
                         />
                         <slot></slot>
                     </div>
-                `
-            }
-        }
+                `,
+            },
+        },
     });
 }
 
@@ -63,8 +63,8 @@ describe('module/sw-flow/component/sw-flow-change-customer-status-modal', () => 
 
         expect(wrapper.emitted()['process-finish'][0]).toEqual([{
             config: {
-                active: 'false'
-            }
+                active: 'false',
+            },
         }]);
     });
 });

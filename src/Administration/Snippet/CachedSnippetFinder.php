@@ -2,30 +2,21 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 
-/**
- * @package administration
- */
+#[Package('administration')]
 class CachedSnippetFinder implements SnippetFinderInterface
 {
-    /**
-     * @var SnippetFinder
-     */
-    private $snippetFinder;
-
-    /**
-     * @var AdapterInterface
-     */
-    private $cache;
+    public const CACHE_TAG = 'admin-snippet';
 
     /**
      * @internal
      */
-    public function __construct(SnippetFinder $snippetFinder, AdapterInterface $cache)
-    {
-        $this->snippetFinder = $snippetFinder;
-        $this->cache = $cache;
+    public function __construct(
+        private readonly SnippetFinder $snippetFinder,
+        private readonly AdapterInterface $cache
+    ) {
     }
 
     /**
@@ -43,6 +34,7 @@ class CachedSnippetFinder implements SnippetFinderInterface
         $snippets = $this->snippetFinder->findSnippets($locale);
 
         $item->set($snippets);
+        $item->tag(self::CACHE_TAG);
         $this->cache->save($item);
 
         return $snippets;

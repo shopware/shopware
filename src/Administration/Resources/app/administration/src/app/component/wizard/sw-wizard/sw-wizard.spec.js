@@ -13,7 +13,7 @@ async function createWrapper(options = {}) {
         // eslint-disable-next-line no-await-in-loop
         const page = await Shopware.Component.build('sw-wizard-page');
         page.props = {
-            position: i
+            position: i,
         };
         pages.push(page);
     }
@@ -24,20 +24,20 @@ async function createWrapper(options = {}) {
             'sw-wizard-dot-navigation': true,
             'sw-icon': true,
             'sw-button': true,
-            'sw-wizard-page': true
+            'sw-wizard-page': true,
         },
         slots: {
-            default: pages
+            default: pages,
         },
         provide: {
             shortcutService: {
                 startEventListener() {},
-                stopEventListener() {}
-            }
+                stopEventListener() {},
+            },
         },
         propsData: {
-            activePage: 3
-        }
+            activePage: 3,
+        },
     };
 
     return shallowMount(await Shopware.Component.build('sw-wizard'), { ...defaults, ...options });
@@ -63,9 +63,9 @@ describe('src/app/component/wizard/sw-wizard', () => {
 
         // Check events being fired
         expect(wrapper.emitted()['pages-updated']).toBeTruthy();
-        expect(wrapper.emitted()['pages-updated'].length).toBe(5);
+        expect(wrapper.emitted()['pages-updated']).toHaveLength(5);
         expect(wrapper.emitted()['current-page-change']).toBeTruthy();
-        expect(wrapper.emitted()['current-page-change'].length).toBe(1);
+        expect(wrapper.emitted()['current-page-change']).toHaveLength(1);
 
         // Check payload
         expect(wrapper.emitted()['current-page-change'][0][0]).toBe(3);
@@ -76,7 +76,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
 
         const page = await Shopware.Component.build('sw-wizard-page');
         page.props = {
-            position: 5
+            position: 5,
         };
         wrapper.vm.addPage(page);
 
@@ -85,7 +85,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
         await wrapper.vm.$nextTick();
         const emitted = wrapper.emitted();
 
-        expect(emitted['pages-updated'].length).toBe(6);
+        expect(emitted['pages-updated']).toHaveLength(6);
         expect(emitted['pages-updated'][emitted['pages-updated'].length - 1][2]).toBe('add');
     });
 
@@ -100,7 +100,7 @@ describe('src/app/component/wizard/sw-wizard', () => {
         await wrapper.vm.$nextTick();
         const emitted = wrapper.emitted();
 
-        expect(emitted['pages-updated'].length).toBe(6);
+        expect(emitted['pages-updated']).toHaveLength(6);
         expect(emitted['pages-updated'][emitted['pages-updated'].length - 1][2]).toBe('remove');
     });
 

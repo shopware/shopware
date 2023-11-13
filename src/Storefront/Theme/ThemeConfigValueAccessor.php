@@ -2,15 +2,12 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class ThemeConfigValueAccessor
 {
-    private AbstractResolvedConfigLoader $themeConfigLoader;
-
     /**
      * @var array<string, mixed>
      */
@@ -29,9 +26,10 @@ class ThemeConfigValueAccessor
     /**
      * @internal
      */
-    public function __construct(AbstractResolvedConfigLoader $themeConfigLoader)
-    {
-        $this->themeConfigLoader = $themeConfigLoader;
+    public function __construct(
+        private readonly AbstractResolvedConfigLoader $themeConfigLoader,
+        private readonly bool $fineGrainedCache
+    ) {
     }
 
     public static function buildName(string $key): string
@@ -44,8 +42,14 @@ class ThemeConfigValueAccessor
      */
     public function get(string $key, SalesChannelContext $context, ?string $themeId)
     {
-        foreach (array_keys($this->keys) as $trace) {
-            $this->traces[$trace][self::buildName($key)] = true;
+        if ($this->fineGrainedCache) {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace][self::buildName($key)] = true;
+            }
+        } else {
+            foreach (array_keys($this->keys) as $trace) {
+                $this->traces[$trace]['shopware.theme'] = true;
+            }
         }
 
         $config = $this->getThemeConfig($context, $themeId);
@@ -58,7 +62,11 @@ class ThemeConfigValueAccessor
     }
 
     /**
-     * @return mixed|null All kind of data could be cached
+     * @template TReturn of mixed
+     *
+     * @param \Closure(): TReturn $param
+     *
+     * @return TReturn All kind of data could be cached
      */
     public function trace(string $key, \Closure $param)
     {

@@ -1,3 +1,6 @@
+/**
+ * @package inventory
+ */
 import { shallowMount } from '@vue/test-utils';
 
 import swSettingsListingOptionBase from 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';
@@ -18,53 +21,53 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                     field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
+                    naturalSorting: 0,
                 },
                 {
                     field: 'product.cheapestPrice',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
+                    naturalSorting: 0,
                 },
                 {
                     field: 'my_first_custom_field',
                     order: 'desc',
                     position: 0,
-                    naturalSorting: 0
-                }
+                    naturalSorting: 0,
+                },
             ],
             label: 'asasdsafsdfsdafsdafasdf',
             createdAt: '2020-08-06T13:06:03.799+00:00',
             updatedAt: null,
             translated: {
-                label: 'asasdsafsdfsdafsdafasdf'
+                label: 'asasdsafsdfsdafsdafasdf',
             },
             apiAlias: null,
             id: '481a3502b72c4fd99b693c7998b93e37',
-            translations: []
+            translations: [],
         };
     }
 
     async function createWrapper() {
         return shallowMount(await Shopware.Component.build('sw-settings-listing-option-create'), {
             mocks: {
-                $router: {}
+                $router: {},
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve(),
                         create: () => Promise.resolve(getProductSortingEntity()),
-                        save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } })
-                    })
+                        save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
+                    }),
                 },
-                systemConfigApiService: {}
+                systemConfigApiService: {},
             },
             stubs: {
                 'sw-page': {
-                    template: '<div></div>'
-                }
-            }
+                    template: '<div></div>',
+                },
+            },
         });
     }
 
@@ -81,7 +84,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     it('should create a product sorting entity', async () => {
         const productSortingEntity = wrapper.vm.productSortingEntity;
 
-        expect(productSortingEntity).resolves.toEqual({
+        await expect(productSortingEntity).resolves.toEqual({
             active: true,
             apiAlias: null,
             createdAt: '2020-08-06T13:06:03.799+00:00',
@@ -90,20 +93,20 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                     field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
-                    position: 0
+                    position: 0,
                 },
                 {
                     field: 'product.cheapestPrice',
                     naturalSorting: 0,
                     order: 'desc',
-                    position: 0
+                    position: 0,
                 },
                 {
                     field: 'my_first_custom_field',
                     naturalSorting: 0,
                     order: 'desc',
-                    position: 0
-                }
+                    position: 0,
+                },
             ],
             id: '481a3502b72c4fd99b693c7998b93e37',
             key: 'asasdsafsdfsdafsdafasdf',
@@ -112,7 +115,7 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
             position: 1,
             translated: { label: 'asasdsafsdfsdafsdafasdf' },
             translations: [],
-            updatedAt: null
+            updatedAt: null,
         });
     });
 
@@ -131,6 +134,19 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
+    it('should handle the "saveErrorAlreadyExists" case', async () => {
+        wrapper.vm.productSortingEntity.key = 'existingKey';
+        const resolvedValue = [{}];
+        wrapper.vm.productSortingRepository.search = jest.fn().mockResolvedValue(resolvedValue);
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveErrorAlreadyExists', { sortingOptionName: wrapper.vm.productSortingEntity.label }),
+        });
+    });
+
 
     it('should display the entity name for the smart bar heading', async () => {
         wrapper.vm.productSortingEntity.label = 'label';
@@ -147,8 +163,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
         wrapper.vm.productSortingRepository.save = jest.fn().mockResolvedValue({
             config: {
-                data: JSON.stringify([])
-            }
+                data: JSON.stringify([]),
+            },
         });
         wrapper.vm.transformCustomFieldCriterias = jest.fn();
 

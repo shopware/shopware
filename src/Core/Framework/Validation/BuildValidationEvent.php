@@ -5,25 +5,18 @@ namespace Shopware\Core\Framework\Validation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\GenericEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package core
- */
+#[Package('core')]
 class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
 {
-    private DataValidationDefinition $definition;
-
-    private Context $context;
-
-    private DataBag $data;
-
-    public function __construct(DataValidationDefinition $definition, DataBag $data, Context $context)
-    {
-        $this->definition = $definition;
-        $this->context = $context;
-        $this->data = $data;
+    public function __construct(
+        private readonly DataValidationDefinition $definition,
+        private readonly DataBag $data,
+        private readonly Context $context
+    ) {
     }
 
     public function getName(): string

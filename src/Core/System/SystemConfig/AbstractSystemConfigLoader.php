@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
-/**
- * @package system-settings
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('system-settings')]
 abstract class AbstractSystemConfigLoader
 {
     abstract public function getDecorated(): AbstractSystemConfigLoader;

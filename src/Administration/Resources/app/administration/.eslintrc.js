@@ -28,6 +28,10 @@ const baseRules = {
     }],
     'sw-deprecation-rules/private-feature-declarations': 'error',
     'no-restricted-exports': 'off',
+    'filename-rules/match': [2, /^(?!.*\.spec\.ts$).*(?:\.js|\.ts|\.html|\.html\.twig)$/],
+    'vue/multi-word-component-names': ['error', {
+        ignores: ['index.html'],
+    }],
 };
 
 module.exports = {
@@ -47,6 +51,8 @@ module.exports = {
         cy: true,
         autoStub: true,
         flushPromises: true,
+        wrapTestComponent: true,
+        resetFilters: true,
     },
 
     plugins: [
@@ -58,6 +64,7 @@ module.exports = {
         'sw-core-rules',
         'sw-deprecation-rules',
         'sw-test-rules',
+        'filename-rules',
     ],
 
     settings: {
@@ -91,11 +98,11 @@ module.exports = {
     overrides: [
         {
             extends: [
-                'plugin:vue/recommended',
+                'plugin:vue/vue3-recommended',
                 '@shopware-ag/eslint-config-base',
             ],
             files: ['**/*.js'],
-            excludedFiles: '*.spec.js',
+            excludedFiles: ['*.spec.js', '*.spec.vue3.js'],
             rules: {
                 ...baseRules,
                 'vue/require-prop-types': 'error',
@@ -127,16 +134,22 @@ module.exports = {
                         'renderError',
                     ],
                 }],
+                // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
+                'vue/no-deprecated-destroyed-lifecycle': 'off',
+                'vue/no-deprecated-events-api': 'off',
+                'vue/require-slots-as-functions': 'off',
+                'vue/no-deprecated-props-default-this': 'off',
             },
         }, {
             extends: [
+                'plugin:vue/vue3-recommended',
                 'plugin:vue/essential',
                 'plugin:vue/recommended',
                 'eslint:recommended',
                 'plugin:vuejs-accessibility/recommended',
             ],
             processor: 'twig-vue/twig-vue',
-            files: ['**/*.html.twig'],
+            files: ['src/**/*.html.twig', 'test/eslint/**/*.html.twig'],
             rules: {
                 'vue/component-name-in-template-casing': ['error', 'kebab-case', {
                     registeredComponentsOnly: true,
@@ -145,9 +158,7 @@ module.exports = {
                 'vue/html-indent': ['error', 4, {
                     baseIndent: 0,
                 }],
-                'eol-last': 'off', // no newline required at the end of file
                 'no-multiple-empty-lines': ['error', { max: 1 }],
-                'max-len': 'off',
                 'vue/attribute-hyphenation': 'error',
                 'vue/multiline-html-element-content-newline': 'off', // allow more spacy templates
                 'vue/html-self-closing': ['error', {
@@ -159,11 +170,6 @@ module.exports = {
                     svg: 'always',
                     math: 'always',
                 }],
-                'vue/no-multiple-template-root': 'off',
-                'vue/no-unused-vars': 'off',
-                'vue/no-template-shadow': 'off',
-                'vue/no-v-html': 'off',
-                'vue/valid-template-root': 'off',
                 'vue/no-parsing-error': ['error', {
                     'nested-comment': false,
                 }],
@@ -177,24 +183,43 @@ module.exports = {
                 'sw-deprecation-rules/no-twigjs-blocks': 'error',
                 'vue/no-useless-template-attributes': 'error',
                 'vue/no-lone-template': 'error',
+
+                // Disabled rules
+                'eol-last': 'off', // no newline required at the end of file
+                'max-len': 'off',
+                'vue/no-multiple-template-root': 'off',
+                'vue/no-unused-vars': 'off',
+                'vue/no-template-shadow': 'off',
+                'vue/no-v-html': 'off',
+                'vue/valid-template-root': 'off',
+                'vue/no-v-model-argument': 'off',
+                'vue/no-v-for-template-key': 'off',
+                // TODO: NEXT-18182 - Enable this rules again after VUE 3 migration
+                'vue/html-closing-bracket-newline': 'off',
+                'vue/no-v-for-template-key-on-child': 'off',
+                'vue/no-deprecated-filter': 'error',
+                'vue/no-deprecated-dollar-listeners-api': 'off',
+                'vue/no-deprecated-dollar-scopedslots-api': 'off',
+                'vue/no-deprecated-v-on-native-modifier': 'off',
             },
         }, {
-            files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
+            files: ['**/*.spec.js', '**/*.spec.vue3.js', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
                 'sw-test-rules/await-async-functions': 'error',
-                'no-console': 0,
-                'comma-dangle': 0,
                 'max-len': 0,
-                'inclusive-language/use-inclusive-words': 0,
                 'sw-deprecation-rules/private-feature-declarations': 0,
+                'jest/expect-expect': 'error',
+                'jest/no-duplicate-hooks': 'error',
+                'jest/no-test-return-statement': 'error',
+                'jest/prefer-hooks-in-order': 'error',
+                'jest/prefer-hooks-on-top': 'error',
+                'jest/prefer-to-be': 'error',
+                'jest/require-top-level-describe': 'error',
+                'jest/prefer-to-contain': 'error',
+                'jest/prefer-to-have-length': 'error',
+                'jest/consistent-test-it': ['error', { fn: 'it', withinDescribe: 'it' }],
             },
-        }, {
-            files: ['**/*.spec.ts'],
-            rules: {
-                // Disable the base rule as it can report incorrect errors
-                'no-unused-vars': 'off',
-                '@typescript-eslint/no-unused-vars': 'error',
-            },
+            extends: ['plugin:jest/recommended'],
         }, {
             files: ['**/snippet/*.json'],
             rules: {
@@ -202,7 +227,6 @@ module.exports = {
             },
         }, {
             files: ['**/*.ts', '**/*.tsx'],
-            excludedFiles: '*.spec.ts',
             extends: [
                 '@shopware-ag/eslint-config-base',
                 'plugin:@typescript-eslint/eslint-recommended',

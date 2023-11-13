@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\Changelog\Processor;
 
 use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class ChangelogReleaseCreator extends ChangelogProcessor
 {
     /**
@@ -85,7 +85,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         foreach ($collection as $changelog) {
             $log = sprintf(
-                '*  [%s - %s](/changelog/%s)',
+                '*  [%s - %s](./changelog/%s)',
                 $changelog->getDefinition()->getIssue(),
                 $changelog->getDefinition()->getTitle(),
                 $releaseDir . '/' . $changelog->getName()
@@ -94,7 +94,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $author = $changelog->getDefinition()->getAuthor() ?? '';
             $authorEmail = $changelog->getDefinition()->getAuthorEmail() ?? '';
             $github = $changelog->getDefinition()->getAuthorGitHub() ?? '';
-            if (!empty($author) && !empty($github) && !empty($authorEmail) && strpos($authorEmail, '@shopware.com') === false) {
+            if (!empty($author) && !empty($github) && !empty($authorEmail) && !str_contains($authorEmail, '@shopware.com')) {
                 $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', $github));
             }
 
@@ -131,11 +131,16 @@ class ChangelogReleaseCreator extends ChangelogProcessor
      *
      * @return list<string>
      */
-    private function releaseUpgradeInformation(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
-    {
+    private function releaseUpgradeInformation(
+        array $output,
+        string $version,
+        ChangelogFileCollection $collection,
+        bool $dryRun = false
+    ): array {
         $append = [];
         foreach ($collection as $changelog) {
-            if ($upgrade = $changelog->getDefinition()->getUpgradeInformation()) {
+            $upgrade = $changelog->getDefinition()->getUpgradeInformation();
+            if ($upgrade) {
                 $append[] = $upgrade;
             }
         }
@@ -180,11 +185,16 @@ class ChangelogReleaseCreator extends ChangelogProcessor
      *
      * @return list<string>
      */
-    private function releaseMajorUpgradeInformation(array $output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): array
-    {
+    private function releaseMajorUpgradeInformation(
+        array $output,
+        string $version,
+        ChangelogFileCollection $collection,
+        bool $dryRun = false
+    ): array {
         $append = [];
         foreach ($collection as $changelog) {
-            if ($upgrade = $changelog->getDefinition()->getNextMajorVersionChanges()) {
+            $upgrade = $changelog->getDefinition()->getNextMajorVersionChanges();
+            if ($upgrade) {
                 $append[] = $upgrade;
             }
         }

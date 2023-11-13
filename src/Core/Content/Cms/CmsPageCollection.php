@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\Cms;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package content
  * @extends EntityCollection<CmsPageEntity>
  */
+#[Package('buyers-experience')]
 class CmsPageCollection extends EntityCollection
 {
     public function getApiAlias(): string

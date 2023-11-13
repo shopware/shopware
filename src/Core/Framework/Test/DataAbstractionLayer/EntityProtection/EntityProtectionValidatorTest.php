@@ -23,18 +23,18 @@ use Shopware\Core\Test\TestDefaults;
  */
 class EntityProtectionValidatorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use IntegrationTestBehaviour;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->registerDefinitionWithExtensions(PluginDefinition::class, PluginProtectionExtension::class);
         $this->registerDefinitionWithExtensions(SystemConfigDefinition::class, SystemConfigExtension::class);
         $this->registerDefinitionWithExtensions(UserAccessKeyDefinition::class, UserAccessKeyExtension::class);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removeExtension(
             PluginProtectionExtension::class,
@@ -45,6 +45,7 @@ class EntityProtectionValidatorTest extends TestCase
 
     /**
      * @dataProvider blockedApiRequest
+     *
      * @group slow
      */
     public function testItBlocksApiAccess(string $method, string $url): void
@@ -60,7 +61,7 @@ class EntityProtectionValidatorTest extends TestCase
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
     }
 
-    public function blockedApiRequest(): array
+    public static function blockedApiRequest(): array
     {
         return [
             ['GET', 'plugin/' . Uuid::randomHex()], // detail

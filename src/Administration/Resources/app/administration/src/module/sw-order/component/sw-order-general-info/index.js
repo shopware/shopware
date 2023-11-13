@@ -2,12 +2,13 @@ import './sw-order-general-info.scss';
 import template from './sw-order-general-info.html.twig';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { cloneDeep } = Shopware.Utils.object;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -140,6 +141,14 @@ export default {
         delivery() {
             return this.order.deliveries[0];
         },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
     },
 
     watch: {
@@ -156,7 +165,17 @@ export default {
 
     methods: {
         createdComponent() {
-            this.tagCollection = this.order.tags;
+            const tags = cloneDeep(this.order.tags);
+
+            this.tagCollection = new EntityCollection(
+                this.order.tags.source,
+                this.order.tags.entity,
+                Shopware.Context.api,
+                null,
+                tags,
+                tags.length,
+            );
+
             this.getLiveOrder();
             this.getTransitionOptions();
         },

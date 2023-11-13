@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -27,10 +28,7 @@ class ChildCountIndexerTest extends TestCase
      */
     private $categoryRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var ChildCountUpdater
@@ -141,11 +139,11 @@ class ChildCountIndexerTest extends TestCase
         ], $this->context);
 
         /**
-        Category A
-        ├── Category B
-        ├── Category C
-        │  └── Category D
-        │  └── Category E
+         * Category A
+         * ├── Category B
+         * ├── Category C
+         * │  └── Category D
+         * │  └── Category E
          */
         $categories = $this->categoryRepository->search(
             new Criteria([$categoryA, $categoryB, $categoryC, $categoryD, $categoryE]),
@@ -174,7 +172,7 @@ class ChildCountIndexerTest extends TestCase
 
         $categoryD = $this->createCategory($categoryC);
 
-        $this->connection->executeUpdate(
+        $this->connection->executeStatement(
             'UPDATE category SET child_count = 0 WHERE id IN (:ids)',
             [
                 'ids' => Uuid::fromHexToBytesList([
@@ -184,7 +182,7 @@ class ChildCountIndexerTest extends TestCase
                     $categoryD,
                 ]),
             ],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);

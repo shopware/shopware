@@ -29,12 +29,13 @@ Shopware.Component.register('sw-iframe-renderer', {
 
     data(): {
         heightHandler: null | (() => void),
+        urlHandler: null | (() => void),
         locationHeight: null | number,
         signedIframeSrc: null | string,
         } {
         return {
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
             heightHandler: null,
+            urlHandler: null,
             locationHeight: null,
             signedIframeSrc: null,
         };
@@ -46,15 +47,64 @@ Shopware.Component.register('sw-iframe-renderer', {
                 this.locationHeight = Number(height) ?? null;
             }
         });
+
+        this.urlHandler = Shopware.ExtensionAPI.handle('locationUpdateUrl', async ({
+            hash,
+            pathname,
+            searchParams,
+            locationId,
+        }) => {
+            if (locationId !== this.locationId) {
+                return;
+            }
+
+            const filteredSearchParams = JSON.stringify(searchParams.filter(([key]) => {
+                return ![
+                    'location-id',
+                    'privileges',
+                    'shop-id',
+                    'shop-url',
+                    'timestamp',
+                    'sw-version',
+                    'sw-context-language',
+                    'sw-user-language',
+                    'shopware-shop-signature',
+                ].includes(key);
+            }));
+
+            await this.$router.replace({
+                query: {
+                    [this.locationIdHashQueryKey]: hash,
+                    [this.locationIdPathnameQueryKey]: pathname,
+                    [this.locationIdSearchParamsQueryKey]: filteredSearchParams,
+                },
+            });
+        });
     },
 
     beforeDestroy() {
         if (this.heightHandler) {
             this.heightHandler();
         }
+
+        if (this.urlHandler) {
+            this.urlHandler();
+        }
     },
 
     computed: {
+        locationIdHashQueryKey(): string {
+            return `locationId_${this.locationId}_hash`;
+        },
+
+        locationIdPathnameQueryKey(): string {
+            return `locationId_${this.locationId}_pathname`;
+        },
+
+        locationIdSearchParamsQueryKey(): string {
+            return `locationId_${this.locationId}_searchParams`;
+        },
+
         componentName(): string|undefined {
             return Shopware.State.get('sdkLocation').locations[this.locationId];
         },
@@ -107,7 +157,29 @@ Shopware.Component.register('sw-iframe-renderer', {
                         return;
                     }
 
-                    this.signedIframeSrc = uri;
+                    // add information from query with hash, pathname and queries
+                    const urlObject = new URL(uri);
+                    const hash = this.$route.query[this.locationIdHashQueryKey];
+                    const pathname = this.$route.query[this.locationIdPathnameQueryKey];
+                    const searchParams = this.$route.query[this.locationIdSearchParamsQueryKey];
+
+                    if (hash) {
+                        urlObject.hash = hash as string;
+                    }
+
+                    if (pathname) {
+                        urlObject.pathname = pathname as string;
+                    }
+
+                    if (searchParams) {
+                        const parsedSearchParams = JSON.parse(searchParams as string) as [string, string][];
+
+                        parsedSearchParams.forEach(([key, value]) => {
+                            urlObject.searchParams.append(key, value);
+                        });
+                    }
+
+                    this.signedIframeSrc = urlObject.toString();
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                 }).catch(() => {});
             },

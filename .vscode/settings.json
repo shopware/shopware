@@ -1,5 +1,9 @@
 {
   "eslint.validate": [
     "twig"
-  ]
+  ],
+  "eslint.workingDirectories": [
+    {"mode": "auto"}
+  ],
+  "jest.rootPath": "src/Administration/Resources/app/administration",
 }

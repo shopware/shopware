@@ -11,14 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('checkout')]
 class NewsletterRecipientTaskHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -69,11 +69,13 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
     private function installTestData(): void
     {
         $salutationSql = file_get_contents(__DIR__ . '/../fixtures/salutation.sql');
-        $this->getContainer()->get(Connection::class)->exec($salutationSql);
+        static::assertIsString($salutationSql);
+        $this->getContainer()->get(Connection::class)->executeStatement($salutationSql);
 
         $recipientSql = file_get_contents(__DIR__ . '/../fixtures/recipient.sql');
+        static::assertIsString($recipientSql);
         $recipientSql = str_replace(':createdAt', (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT), $recipientSql);
-        $this->getContainer()->get(Connection::class)->exec($recipientSql);
+        $this->getContainer()->get(Connection::class)->executeStatement($recipientSql);
     }
 
     private function getTaskHandler(): NewsletterRecipientTaskHandler

@@ -1,0 +1,201 @@
+<div
+    v-if="(showLinkToSettingsPage || showThankYouBanner) && canBeHidden"
+    class="sw-usage-data-consent-banner-reject-accept-message"
+>
+    <sw-icon
+        v-if="showThankYouBanner"
+        name="solid-check-circle"
+        size="20px"
+        color="#23BE2F"
+    />
+    <i18n
+        tag="p"
+        :path="showThankYouBanner ? 'sw-usage-data-consent-banner.thankYouMessage' : 'sw-usage-data-consent-banner.rejectedMessage'"
+        class="sw-usage-data-consent-banner-reject-accept-message__message"
+    >
+        <template
+            #thanksForParticipation>
+            <strong>{{ $tc('sw-usage-data-consent-banner.thanksForParticipation') }}</strong>
+        </template>
+        <template #link>
+            <sw-internal-link
+                :router-link="{ name: 'sw.settings.usage.data.index' }"
+            >
+                {{ $tc('sw-usage-data-consent-banner.togglePath') }}
+            </sw-internal-link>
+        </template>
+    </i18n>
+    <button
+        class="sw-usage-data-consent-banner-reject-accept-message__close"
+        @click="onClose"
+    >
+        <sw-icon
+            name="solid-times-xs"
+            size="8px" />
+    </button>
+</div>
+
+<div
+    v-else-if="(hasSufficientPrivileges && !isAccepted && !isHidden) || !canBeHidden"
+    class="sw-usage-data-consent-banner">
+    <section class="sw-usage-data-consent-banner__content">
+        <header class="sw-usage-data-consent-banner__title">
+            {{ $tc('sw-usage-data-consent-banner.headline') }}
+        </header>
+        <p>{{ isAccepted ? $tc('sw-usage-data-consent-banner.improvingDescriptionNotAccepted') : $tc('sw-usage-data-consent-banner.improvingDescriptionNotAccepted') }}</p>
+        <aside class="sw-usage-data-consent-banner__data-shared-card">
+            <h4>{{ isAccepted ? $tc('sw-usage-data-consent-banner.collectionInformation.title') : $tc('sw-usage-data-consent-banner.collectionInformation.titleNotAccepted') }}</h4>
+            <ul>
+                <li>
+                    <sw-icon
+                        name="solid-shopping-bag"
+                        size="16" />
+                    <span>{{ $tc('sw-usage-data-consent-banner.collectionInformation.orderData') }}
+                        <sw-help-text
+                            :text="$tc('sw-usage-data-consent-banner.collectionInformation.helpText.orderDataHelp')"
+                            :width="350"
+                            tooltip-position="top"
+                            :show-delay="100"
+                            :hide-delay="100" />
+                    </span>
+                </li>
+                <li>
+                    <sw-icon
+                        name="solid-sidebar"
+                        size="16" />
+                    <span>{{ $tc('sw-usage-data-consent-banner.collectionInformation.usageData') }}
+                        <sw-help-text
+                            :text="$tc('sw-usage-data-consent-banner.collectionInformation.helpText.usageDataHelp')"
+                            :width="350"
+                            tooltip-position="top"
+                            :show-delay="100"
+                            :hide-delay="100" />
+                    </span>
+                </li>
+                <li>
+                    <sw-icon
+                        name="solid-sitemap"
+                        size="16" />
+                    <span>{{ $tc('sw-usage-data-consent-banner.collectionInformation.diagnosticData') }}
+                        <sw-help-text
+                            :text="$tc('sw-usage-data-consent-banner.collectionInformation.helpText.diagnosticDataHelp')"
+                            :width="350"
+                            tooltip-position="top"
+                            :show-delay="100"
+                            :hide-delay="100" />
+                    </span>
+                </li>
+                <li>
+                    <sw-icon
+                        name="solid-storefront"
+                        size="16" />
+                    <span>{{ $tc('sw-usage-data-consent-banner.collectionInformation.storeData') }}
+                        <sw-help-text
+                            :text="$tc('sw-usage-data-consent-banner.collectionInformation.helpText.storeDataHelp')"
+                            :width="350"
+                            tooltip-position="top"
+                            :show-delay="100"
+                            :hide-delay="100" />
+                    </span>
+                </li>
+            </ul>
+        </aside>
+        <aside class="sw-usage-data-consent-banner__data-shared-card">
+            <h4>{{ $tc('sw-usage-data-consent-banner.checkListDataSharing.title') }}</h4>
+            <ul>
+                <li>
+                    <sw-icon
+                        name="solid-check-circle"
+                        size="16px"
+                        color="#23BE2F"
+                    />
+                    <span>{{ $tc('sw-usage-data-consent-banner.checkListDataSharing.gdprCompliant') }}</span></li>
+                <li>
+                    <sw-icon
+                        name="solid-check-circle"
+                        size="16px"
+                        color="#23BE2F"
+                    />
+                    <span>{{ $tc('sw-usage-data-consent-banner.checkListDataSharing.personalData') }}</span></li>
+                <li>
+                    <sw-icon
+                        name="solid-check-circle"
+                        size="16px"
+                        color="#23BE2F"
+                    />
+                    <span>{{ $tc('sw-usage-data-consent-banner.checkListDataSharing.securelyProcessed') }}</span></li>
+                <li>
+                    <sw-icon
+                        name="solid-check-circle"
+                        size="16px"
+                        color="#23BE2F"
+                    />
+                    <span>{{ $tc('sw-usage-data-consent-banner.checkListDataSharing.thirdParty') }}
+                        <sw-help-text
+                            :text="$tc('sw-usage-data-consent-banner.checkListDataSharing.helpText.shareDataHelpText')"
+                            :width="350"
+                            tooltip-position="top"
+                            :show-delay="100"
+                            :hide-delay="100" />
+                    </span>
+                </li>
+            </ul>
+        </aside>
+        <i18n
+            tag="p"
+            path="sw-usage-data-consent-banner.fullDetailsDescription"
+            class="sw-usage-data-consent-banner__description">
+            <template #link>
+                <sw-external-link :href="$tc('sw-usage-data-consent-banner.privacyPolicyLink')">
+                    {{ $tc('sw-usage-data-consent-banner.privacyPolicy') }}
+                </sw-external-link>
+            </template>
+            <template #fullDetailsDescriptionNotAccepted>
+                {{ isAccepted ? '' : $tc('sw-usage-data-consent-banner.fullDetailsDescriptionNotAccepted') }}
+            </template>
+        </i18n>
+
+        <p v-if="!isAccepted">
+            {{ $tc('sw-usage-data-consent-banner.confirmAuthorization') }}
+        </p>
+    </section>
+    <footer
+        class="sw-usage-data-consent-banner__footer"
+        :class="!canBeHidden ? 'sw-usage-data-consent-banner__footer-settings' : ''">
+        <sw-button
+            v-if="!isAccepted"
+            class="sw-usage-data-consent-banner__accept-button"
+            variant="primary"
+            @click="onAccept"
+        >
+            {{ $tc('sw-usage-data-consent-banner.acceptDataCollection') }}
+        </sw-button>
+
+        <sw-button
+            v-if="canBeHidden"
+            class="sw-usage-data-consent-banner__decline-button"
+            @click="onHide"
+        >
+            {{ $tc('sw-usage-data-consent-banner.declineDataCollection') }}
+        </sw-button>
+
+        <div
+            v-if="isAccepted && !canBeHidden"
+            class="sw-usage-data-consent-banner__accepted-message">
+            <sw-icon
+                name="solid-check-circle"
+                size="16px"
+                color="#23BE2F"
+            />{{ $tc('sw-usage-data-consent-banner.settings.sharingInformation') }}
+        </div>
+
+        <sw-button
+            v-if="isAccepted && !canBeHidden"
+            class="sw-usage-data-consent-banner__reject-button"
+            variant="context"
+            @click="onReject"
+        >
+            {{ $tc('sw-usage-data-consent-banner.settings.deactivateDataCollection') }}
+        </sw-button>
+    </footer>
+</div>

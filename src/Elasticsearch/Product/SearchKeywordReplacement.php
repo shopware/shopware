@@ -4,24 +4,19 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
-/**
- * @package core
- */
+#[Package('core')]
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {
-    private SearchKeywordUpdater $decorated;
-
-    private ElasticsearchHelper $helper;
-
     /**
      * @internal
      */
-    public function __construct(SearchKeywordUpdater $decorated, ElasticsearchHelper $helper)
-    {
-        $this->decorated = $decorated;
-        $this->helper = $helper;
+    public function __construct(
+        private readonly SearchKeywordUpdater $decorated,
+        private readonly ElasticsearchHelper $helper
+    ) {
     }
 
     /**

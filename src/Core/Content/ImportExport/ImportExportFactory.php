@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipeFactory;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
@@ -18,67 +18,32 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @package system-settings
- */
+#[Package('services-settings')]
 class ImportExportFactory
 {
-    private ImportExportService $importExportService;
-
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
-
-    private FilesystemOperator $filesystem;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $logRepository;
-
-    private Connection $connection;
-
-    /**
-     * @var \IteratorAggregate<AbstractReaderFactory>
-     */
-    private \IteratorAggregate $readerFactories;
-
-    /**
-     * @var \IteratorAggregate<AbstractWriterFactory>
-     */
-    private \IteratorAggregate $writerFactories;
-
-    /**
-     * @var \IteratorAggregate<AbstractPipeFactory>
-     */
-    private \IteratorAggregate $pipeFactories;
-
-    private AbstractFileService $fileService;
-
     /**
      * @internal
+     *
+     * @param EntityRepository<ImportExportLogCollection> $logRepository
+     * @param \IteratorAggregate<mixed, AbstractReaderFactory> $readerFactories
+     * @param \IteratorAggregate<mixed, AbstractWriterFactory> $writerFactories
+     * @param \IteratorAggregate<mixed, AbstractPipeFactory> $pipeFactories
      */
     public function __construct(
-        ImportExportService $importExportService,
-        DefinitionInstanceRegistry $definitionInstanceRegistry,
-        FilesystemOperator $filesystem,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $logRepository,
-        Connection $connection,
-        AbstractFileService $fileService,
-        \IteratorAggregate $readerFactories,
-        \IteratorAggregate $writerFactories,
-        \IteratorAggregate $pipeFactories
+        private readonly ImportExportService $importExportService,
+        private readonly DefinitionInstanceRegistry $definitionInstanceRegistry,
+        private readonly FilesystemOperator $filesystem,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $logRepository,
+        private readonly Connection $connection,
+        private readonly AbstractFileService $fileService,
+        private readonly \IteratorAggregate $readerFactories,
+        private readonly \IteratorAggregate $writerFactories,
+        private readonly \IteratorAggregate $pipeFactories
     ) {
-        $this->importExportService = $importExportService;
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
-        $this->filesystem = $filesystem;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->logRepository = $logRepository;
-        $this->connection = $connection;
-        $this->fileService = $fileService;
-        $this->readerFactories = $readerFactories;
-        $this->writerFactories = $writerFactories;
-        $this->pipeFactories = $pipeFactories;
     }
 
     public function create(string $logId, int $importBatchSize = 250, int $exportBatchSize = 250): ImportExport
@@ -106,11 +71,12 @@ class ImportExportFactory
     {
         $criteria = new Criteria([$logId]);
         $criteria->addAssociation('profile');
-        $criteria->addAssociation('invalidRecordsLog');
-        $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->first();
+        $criteria->addAssociation('file');
+        $criteria->addAssociation('invalidRecordsLog.file');
+        $logEntity = $this->logRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         if ($logEntity === null) {
-            throw new ProcessingException('LogEntity not found');
+            throw ImportExportException::processingError('LogEntity not found');
         }
 
         return $logEntity;
@@ -118,7 +84,13 @@ class ImportExportFactory
 
     private function getRepository(ImportExportLogEntity $logEntity): EntityRepository
     {
-        return $this->definitionInstanceRegistry->getRepository($logEntity->getProfile()->getSourceEntity());
+        $profile = $logEntity->getProfile();
+
+        if ($profile === null) {
+            throw ImportExportException::profileNotFound($logEntity->getProfileId() ?? 'null');
+        }
+
+        return $this->definitionInstanceRegistry->getRepository($profile->getSourceEntity());
     }
 
     private function getPipe(ImportExportLogEntity $logEntity): AbstractPipe
@@ -129,7 +101,7 @@ class ImportExportFactory
             }
         }
 
-        throw new \RuntimeException('No pipe factory found');
+        throw ImportExportException::processingError('No pipe factory found');
     }
 
     private function getReader(ImportExportLogEntity $logEntity): AbstractReader
@@ -140,7 +112,7 @@ class ImportExportFactory
             }
         }
 
-        throw new \RuntimeException('No reader factory found');
+        throw ImportExportException::processingError('No reader factory found');
     }
 
     private function getWriter(ImportExportLogEntity $logEntity): AbstractWriter
@@ -151,6 +123,6 @@ class ImportExportFactory
             }
         }
 
-        throw new \RuntimeException('No writer factory found');
+        throw ImportExportException::processingError('No writer factory found');
     }
 }

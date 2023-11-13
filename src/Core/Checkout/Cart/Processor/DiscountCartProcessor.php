@@ -16,25 +16,20 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class DiscountCartProcessor implements CartProcessorInterface
 {
-    private PercentagePriceCalculator $percentageCalculator;
-
-    private CurrencyPriceCalculator $currencyCalculator;
-
     /**
      * @internal
      */
-    public function __construct(PercentagePriceCalculator $percentageCalculator, CurrencyPriceCalculator $currencyCalculator)
-    {
-        $this->percentageCalculator = $percentageCalculator;
-        $this->currencyCalculator = $currencyCalculator;
+    public function __construct(
+        private readonly PercentagePriceCalculator $percentageCalculator,
+        private readonly CurrencyPriceCalculator $currencyCalculator
+    ) {
     }
 
     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
@@ -48,7 +43,7 @@ class DiscountCartProcessor implements CartProcessorInterface
 
             try {
                 $price = $this->calculate($definition, $goods, $context);
-            } catch (CartException $e) {
+            } catch (CartException) {
                 $original->remove($item->getId());
                 $toCalculate->addErrors(new IncompleteLineItemError($item->getId(), 'price'));
 

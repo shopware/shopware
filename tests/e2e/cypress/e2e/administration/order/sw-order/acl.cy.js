@@ -21,7 +21,7 @@ describe('Order: Test ACL privileges', () => {
             });
     });
 
-    it('@acl: can read order', { tags: ['pa-customers-orders'] }, () => {
+    it('@acl: can read order', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -64,7 +64,7 @@ describe('Order: Test ACL privileges', () => {
         cy.contains(`${page.elements.dataGridRow}--0`, '19 %');
     });
 
-    it('@acl: can edit order', { tags: ['pa-customers-orders'] }, () => {
+    it('@acl: can edit order', {tags: ['pa-customers-orders', 'quarantined'/*, 'VUE3'*/]}, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
             method: 'POST',
@@ -121,10 +121,16 @@ describe('Order: Test ACL privileges', () => {
         cy.get('.sw-order-product-select__single-select')
             .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
+            method: 'POST',
+        }).as('search');
         cy.get(page.elements.dataGridInlineEditSave).click();
         cy.wait('@orderAddProductCall').its('response.statusCode').should('equal', 204);
 
         cy.wait('@recalculateCall').its('response.statusCode').should('equal', 204);
+
+        cy.wait('@search').its('response.statusCode').should('equal', 200);
 
         // click save
         cy.get(page.elements.smartBarSave).click();
@@ -132,7 +138,7 @@ describe('Order: Test ACL privileges', () => {
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
     });
 
-    it('@acl: can delete order', { tags: ['pa-customers-orders'] }, () => {
+    it('@acl: can delete order', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/order/**`,
             method: 'delete',

@@ -1,9 +1,9 @@
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 import { shallowMount } from '@vue/test-utils';
-import swSalesChannelProductsAssignmentSingleProducts from 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
+import 'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/form/sw-field';
@@ -15,8 +15,6 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/context-menu/sw-context-button';
-
-Shopware.Component.register('sw-sales-channel-products-assignment-single-products', swSalesChannelProductsAssignmentSingleProducts);
 
 let productData = [];
 
@@ -30,7 +28,7 @@ function mockCriteria() {
         },
         addSorting(sorting) {
             this.sortings.push(sorting);
-        }
+        },
     };
 }
 
@@ -39,7 +37,7 @@ function setProductData(products) {
     productData.total = 3;
     productData.criteria = {
         page: 1,
-        limit: 25
+        limit: 25,
     };
 }
 
@@ -48,10 +46,10 @@ async function createWrapper() {
         stubs: {
             'sw-container': true,
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>'
+                template: '<div><slot></slot><slot name="grid"></slot></div>',
             },
             'sw-card-section': {
-                template: '<div><slot></slot></div>'
+                template: '<div><slot></slot></div>',
             },
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
@@ -73,24 +71,24 @@ async function createWrapper() {
             'sw-icon': true,
             'sw-pagination': true,
             'sw-data-grid-skeleton': true,
-            'sw-data-grid-settings': true
+            'sw-data-grid-settings': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
-                        search: () => Promise.resolve(productData)
+                        search: () => Promise.resolve(productData),
                     };
-                }
+                },
             },
-            validationService: {}
+            validationService: {},
         },
         propsData: {
             salesChannel: {
                 id: 1,
-                name: 'Headless'
+                name: 'Headless',
             },
-            containerStyle: {}
+            containerStyle: {},
         },
         attachTo: document.body,
     });
@@ -108,8 +106,8 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         setProductData([
             {
                 name: 'Test product 1',
-                productNumber: '1'
-            }
+                productNumber: '1',
+            },
         ]);
 
         const wrapper = await createWrapper();
@@ -123,18 +121,18 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             {
                 id: 1,
                 name: 'Test product 1',
-                productNumber: '1'
+                productNumber: '1',
             },
             {
                 id: 2,
                 name: 'Test product 2',
-                productNumber: '2'
+                productNumber: '2',
             },
             {
                 id: 3,
                 name: 'Test product 3',
-                productNumber: '3'
-            }
+                productNumber: '3',
+            },
         ]);
 
         const wrapper = await createWrapper();
@@ -146,20 +144,20 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
                 {
                     id: 1,
                     name: 'Test product 1',
-                    productNumber: '1'
+                    productNumber: '1',
                 },
                 {
                     id: 2,
                     name: 'Test product 2',
-                    productNumber: '2'
+                    productNumber: '2',
                 },
                 {
                     id: 3,
                     name: 'Test product 3',
-                    productNumber: '3'
-                }
+                    productNumber: '3',
+                },
             ],
-            'singleProducts'
+            'singleProducts',
         ]);
     });
 
@@ -170,15 +168,15 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         });
 
         await wrapper.setData({
-            page: 2
+            page: 2,
         });
 
-        expect(wrapper.vm.page).toEqual(2);
+        expect(wrapper.vm.page).toBe(2);
 
         await wrapper.vm.onChangeSearchTerm('Standard prices');
 
         expect(wrapper.vm.searchTerm).toBe('Standard prices');
-        expect(wrapper.vm.page).toEqual(1);
+        expect(wrapper.vm.page).toBe(1);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
 
         wrapper.vm.getProducts.mockRestore();
@@ -196,7 +194,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(25);
         expect(wrapper.vm.productCriteria.sortings).toEqual([
-            { field: 'name', naturalSorting: false, order: 'ASC' }
+            { field: 'name', naturalSorting: false, order: 'ASC' },
         ]);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();

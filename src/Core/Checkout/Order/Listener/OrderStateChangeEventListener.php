@@ -9,50 +9,33 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package customer-order
- *
  * @internal
  */
+#[Package('checkout')]
 class OrderStateChangeEventListener implements EventSubscriberInterface
 {
-    private EntityRepository $stateRepository;
-
-    private EntityRepository $orderRepository;
-
-    private EntityRepository $transactionRepository;
-
-    private EntityRepository $deliveryRepository;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private BusinessEventCollector $businessEventCollector;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $orderRepository,
-        EntityRepository $transactionRepository,
-        EntityRepository $deliveryRepository,
-        EventDispatcherInterface $eventDispatcher,
-        BusinessEventCollector $businessEventCollector,
-        EntityRepository $stateRepository
+        private readonly EntityRepository $orderRepository,
+        private readonly EntityRepository $transactionRepository,
+        private readonly EntityRepository $deliveryRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly BusinessEventCollector $businessEventCollector,
+        private readonly EntityRepository $stateRepository
     ) {
-        $this->orderRepository = $orderRepository;
-        $this->transactionRepository = $transactionRepository;
-        $this->deliveryRepository = $deliveryRepository;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->stateRepository = $stateRepository;
-        $this->businessEventCollector = $businessEventCollector;
     }
 
     public static function getSubscribedEvents(): array
@@ -74,7 +57,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $criteria = new Criteria([$orderDeliveryId]);
         $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions');
+        $criteria->addAssociation('order.transactions.stateMachineState');
 
         /** @var OrderDeliveryEntity|null $orderDelivery */
         $orderDelivery = $this->deliveryRepository
@@ -105,7 +88,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria = new Criteria([$orderTransactionId]);
         $criteria->addAssociation('paymentMethod');
         $criteria->addAssociation('order.orderCustomer');
-        $criteria->addAssociation('order.transactions');
+        $criteria->addAssociation('order.transactions.stateMachineState');
 
         $orderTransaction = $this->transactionRepository
             ->search($criteria, $event->getContext())
@@ -199,6 +182,9 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             throw OrderException::orderNotFound($orderId);
         }
 
+        /** @var CashRoundingConfig $itemRounding */
+        $itemRounding = $order->getItemRounding();
+
         $orderContext = new Context(
             $context->getSource(),
             $order->getRuleIds() ?? [],
@@ -208,7 +194,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             $order->getCurrencyFactor(),
             true,
             $order->getTaxStatus(),
-            $order->getItemRounding()
+            $itemRounding
         );
 
         $orderContext->addState(...$context->getStates());

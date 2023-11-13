@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
  * @Annotation
+ *
  * @Target("CLASS")
+ *
  * @ExtensionPattern
  *
  * Services marked with the Handler annotation are designed to be extended by adding a (tagged service)[https://symfony.com/doc/current/service_container/tags.html#reference-tagged-services] implementing a specific interface.
@@ -16,9 +20,8 @@ namespace Shopware\Core\System\Annotation\Concept\ExtensionPattern;
  * The composite uses some logic that is used to determine to which handler it should delegate the work, so that just one of the handlers will be called.
  *
  * The composite is usually the class tagged with this annotation, the handlers can quickly be found by checking all the implementations of the HandlerInterface.
- *
- * @package core
  */
+#[Package('core')]
 class Handler
 {
     public function __construct(array $info)

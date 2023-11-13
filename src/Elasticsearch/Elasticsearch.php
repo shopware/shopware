@@ -3,8 +3,10 @@
 namespace Shopware\Elasticsearch;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Elasticsearch\DependencyInjection\ElasticsearchExtension;
+use Shopware\Elasticsearch\DependencyInjection\ElasticsearchMigrationCompilerPass;
 use Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -21,10 +23,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Elasticsearch extends Bundle
 {
     public function getTemplatePriority(): int
@@ -36,13 +37,15 @@ class Elasticsearch extends Bundle
     {
         parent::build($container);
 
+        $container->addCompilerPass(new ElasticsearchMigrationCompilerPass());
+
         // Needs to run before the ProfilerPass
         $container->addCompilerPass(new ElasticsearchProfileCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 5000);
 
         $this->buildConfig($container);
     }
 
-    public function createContainerExtension(): ?ExtensionInterface
+    protected function createContainerExtension(): ?ExtensionInterface
     {
         return new ElasticsearchExtension();
     }
@@ -68,9 +71,8 @@ class Elasticsearch extends Bundle
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
 
         $env = $container->getParameter('kernel.environment');
-        if (!\is_string($env)) {
-            throw new \RuntimeException('Container parameter "kernel.environment" needs to be a string');
-        }
+        \assert(\is_string($env));
+
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
     }
 }

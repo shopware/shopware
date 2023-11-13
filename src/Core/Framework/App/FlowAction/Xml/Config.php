@@ -3,12 +3,15 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @package core
+ * @deprecated tag:v6.6.0 - Will be move to Shopware\Core\Framework\App\Flow\Action\Xml
  */
+#[Package('core')]
 class Config extends XmlElement
 {
     /**
@@ -16,32 +19,42 @@ class Config extends XmlElement
      */
     protected array $config;
 
-    public function __construct(array $data)
-    {
-        $this->config = $data;
-    }
-
     /**
      * @return InputField[]
      */
     public function getConfig(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Config')
+        );
+
         return $this->config;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
-        return new self(self::parseInputField($element));
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Config')
+        );
+
+        return parent::fromXml($element);
     }
 
-    private static function parseInputField(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Config')
+        );
+
         $values = [];
 
         foreach ($element->getElementsByTagName('input-field') as $parameter) {
             $values[] = InputField::fromXml($parameter);
         }
 
-        return $values;
+        return ['config' => $values];
     }
 }

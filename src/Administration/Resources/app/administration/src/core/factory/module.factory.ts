@@ -17,6 +17,7 @@ import type {
     RoutePropsFunction,
 } from 'vue-router/types/router';
 import type { ComponentConfig } from './async-component.factory';
+import type { Snippets } from './locale.factory';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -74,7 +75,7 @@ interface SettingsItem {
     group: 'shop' | 'system' | 'plugins',
     to: string,
     icon?: string,
-    iconComponent: unknown,
+    iconComponent?: unknown,
     privilege?: string,
     id?: string,
     name?: string,
@@ -420,10 +421,7 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
 
     const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
-    Object.keys(routeComponents).forEach((componentKey) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const component = routeComponents[componentKey];
-
+    Object.entries(routeComponents).forEach(([componentKey, component]) => {
         // Don't register a component without a name
         if (!component) {
             warn(
@@ -480,8 +478,8 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 /**
  * Returns a list of all module specific snippets
  */
-function getModuleSnippets(): { [lang:string]: unknown } {
-    return Array.from(modules.values()).reduce<{ [lang:string] : unknown }>((accumulator, module) => {
+function getModuleSnippets(): { [lang:string]: Snippets | undefined } {
+    return Array.from(modules.values()).reduce<{ [lang:string] : Snippets | undefined }>((accumulator, module) => {
         const manifest = module.manifest;
 
         if (!hasOwnProperty(manifest, 'snippets')) {

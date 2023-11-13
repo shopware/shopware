@@ -7,30 +7,30 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
-use Shopware\Core\Checkout\Test\Cart\Rule\Helper\CartRuleHelperTrait;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class MatchAllLineItemsRuleTest extends TestCase
 {
-    use KernelTestBehaviour;
-    use DatabaseTransactionBehaviour;
     use CartRuleHelperTrait;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository
@@ -42,10 +42,7 @@ class MatchAllLineItemsRuleTest extends TestCase
      */
     private $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -132,6 +129,8 @@ class MatchAllLineItemsRuleTest extends TestCase
     /**
      * @dataProvider getCartScopeTestData
      *
+     * @param array<string> $categoryIdsProductA
+     * @param array<string> $categoryIdsProductB
      * @param array<string> $categoryIds
      */
     public function testIfMatchesAllCorrectWithLineItemScope(
@@ -165,7 +164,10 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartScopeTestData(): array
+    /**
+     * @return array<string, mixed[]>
+     */
+    public static function getCartScopeTestData(): array
     {
         return [
             'all products / equal / match category id' => [['1', '2'], ['1', '3'], MatchAllLineItemsRule::OPERATOR_EQ, ['1'], true],
@@ -180,6 +182,9 @@ class MatchAllLineItemsRuleTest extends TestCase
     /**
      * @dataProvider getCartScopeTestMinimumShouldMatchData
      *
+     * @param array<string> $categoryIdsProductA
+     * @param array<string> $categoryIdsProductB
+     * @param array<string> $categoryIdsProductC
      * @param array<string> $categoryIds
      */
     public function testIfMatchesMinimumCorrectWithLineItemScope(
@@ -206,7 +211,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductC),
         ]);
 
-        $promotionLineItem = ($this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO'))->setPayloadValue('promotionId', 'A');
+        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A');
         $lineItemCollection->add($promotionLineItem);
 
         $cart = $this->createCart($lineItemCollection);
@@ -219,7 +224,10 @@ class MatchAllLineItemsRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    public function getCartScopeTestMinimumShouldMatchData(): array
+    /**
+     * @return array<string, mixed[]>
+     */
+    public static function getCartScopeTestMinimumShouldMatchData(): array
     {
         return [
             'minimum 2 products / equal / match category id' => [['1', '2'], ['1', '3'], ['2', '3'], MatchAllLineItemsRule::OPERATOR_EQ, ['1'], true],
@@ -236,6 +244,6 @@ class MatchAllLineItemsRuleTest extends TestCase
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
-        return ($this->createLineItem())->setPayloadValue('categoryIds', $categoryIds);
+        return $this->createLineItem()->setPayloadValue('categoryIds', $categoryIds);
     }
 }

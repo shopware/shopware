@@ -8,19 +8,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package inventory
  */
+#[Package('inventory')]
 class PropertyGroupGenerator implements DemodataGeneratorInterface
 {
     /**
      * @internal
      */
-    public function __construct(private EntityRepository $propertyGroupRepository)
+    public function __construct(private readonly EntityRepository $propertyGroupRepository)
     {
     }
 
@@ -56,9 +56,7 @@ class PropertyGroupGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressStart(\count($data));
 
         foreach ($data as $group => $options) {
-            $mapped = array_map(function ($option) {
-                return ['id' => Uuid::randomHex(), 'name' => $option];
-            }, $options);
+            $mapped = array_map(fn ($option) => ['id' => Uuid::randomHex(), 'name' => $option], $options);
 
             $this->propertyGroupRepository->create(
                 [

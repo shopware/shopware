@@ -21,7 +21,7 @@ export default class BootstrapUtil {
      * @see https://getbootstrap.com/docs/5.2/components/popovers/#enable-popovers
      */
     static initPopover() {
-        new bootstrap.Popover(document.body, {
+        new bootstrap.Popover(document.querySelector('html'), {
             selector: POPOVER_SELECTOR,
             trigger: 'focus',
         });

@@ -81,8 +81,20 @@ export default {
             return hasFieldsChanged || hasCustomFieldsChanged;
         },
 
+        restrictedFields() {
+            let restrictedFields = [];
+
+            if (this.$route.params.excludeDelivery === '1') {
+                restrictedFields = restrictedFields.concat([
+                    'orderDeliveries',
+                ]);
+            }
+
+            return restrictedFields;
+        },
+
         statusFormFields() {
-            return [
+            const fields = [
                 {
                     name: 'orderTransactions',
                     config: {
@@ -131,6 +143,10 @@ export default {
                     },
                 },
             ];
+
+            return fields.filter((field) => {
+                return !this.restrictedFields.includes(field.name);
+            });
         },
 
         documentsFormFields() {
@@ -205,7 +221,7 @@ export default {
                 const { orders, orderTransactions, orderDeliveries, statusMails } = value;
                 this.isStatusSelected = (orders.isChanged && orders.value)
                     || (orderTransactions.isChanged && orderTransactions.value)
-                    || (orderDeliveries.isChanged && orderDeliveries.value);
+                    || (orderDeliveries?.isChanged && orderDeliveries.value);
 
                 this.isStatusMailsSelected = statusMails.isChanged;
             },
@@ -342,8 +358,11 @@ export default {
 
             const requests = payloadChunks.map(ids => {
                 const criteria = new Criteria(1, null);
-                criteria.addFilter(Criteria.equalsAny(field, ids));
-                criteria.addFilter(Criteria.equals(versionField, Shopware.Context.api.liveVersionId));
+
+                criteria.addFilter(Criteria.multi('AND', [
+                    Criteria.equalsAny(field, ids),
+                    Criteria.equals(versionField, Shopware.Context.api.liveVersionId),
+                ]));
 
                 return this.stateMachineStateRepository.searchIds(criteria);
             });
@@ -498,7 +517,7 @@ export default {
             if (this.bulkEditData.orderTransactions.isChanged) {
                 promises.push(this.fetchStatusOptions('orderTransactions.order.id'));
             }
-            if (this.bulkEditData.orderDeliveries.isChanged) {
+            if (this.bulkEditData.orderDeliveries?.isChanged) {
                 promises.push(this.fetchStatusOptions('orderDeliveries.order.id'));
             }
             if (this.bulkEditData.orders.isChanged) {

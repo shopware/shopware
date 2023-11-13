@@ -28,6 +28,7 @@ use PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixer\Fixer\Phpdoc\PhpdocTrimConsecutiveBlankLineSeparationFixer;
 use PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer;
+use PhpCsFixer\Fixer\PhpTag\LinebreakAfterOpeningTagFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitConstructFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertFixer;
 use PhpCsFixer\Fixer\PhpUnit\PhpUnitDedicateAssertInternalTypeFixer;
@@ -45,18 +46,23 @@ use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessParenthesisFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessStrlenFixer;
+use PhpCsFixerCustomFixers\Fixer\PhpdocTypesCommaSpacesFixer;
 use PhpCsFixerCustomFixers\Fixer\SingleSpaceAfterStatementFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer;
 use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer;
+use Symplify\CodingStandard\Fixer\Spacing\StandaloneLineConstructorParamFixer;
 use Symplify\EasyCodingStandard\Config\ECSConfig;
 use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
 
 return static function (ECSConfig $ecsConfig): void {
+    $ecsConfig->dynamicSets([
+        '@Symfony',
+        '@Symfony:risky',
+    ]);
+
     $ecsConfig->sets([
-        SetList::SYMFONY,
-        SetList::SYMFONY_RISKY,
         SetList::ARRAY,
         SetList::CONTROL_STRUCTURES,
         SetList::STRICT,
@@ -87,6 +93,8 @@ return static function (ECSConfig $ecsConfig): void {
         SingleSpaceAfterStatementFixer::class,
         NoUselessParenthesisFixer::class,
         NoUselessStrlenFixer::class,
+        PhpdocTypesCommaSpacesFixer::class,
+        StandaloneLineConstructorParamFixer::class,
     ]);
 
     $ecsConfig->ruleWithConfiguration(ClassAttributesSeparationFixer::class, ['elements' => ['property' => 'one', 'method' => 'one']]);
@@ -116,9 +124,8 @@ return static function (ECSConfig $ecsConfig): void {
     $ecsConfig->parallel();
 
     $ecsConfig->skip([
-        // Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
-        __DIR__ . '/src/Core/Framework/Compatibility/DocParser.php',
-        __DIR__ . '/src/Core/Framework/Compatibility/AnnotationReader.php',
+        // Fixture
+        'src/WebInstaller/Tests/_fixtures/Options.php',
 
         ArrayOpenerAndCloserNewlineFixer::class => null,
         ArrayListItemNewlineFixer::class => null,
@@ -150,5 +157,7 @@ return static function (ECSConfig $ecsConfig): void {
             'src/**/*Route.php',
         ],
         PhpdocNoPackageFixer::class => null,
+        StandaloneLineConstructorParamFixer::class => null,
+        LinebreakAfterOpeningTagFixer::class => null,
     ]);
 };

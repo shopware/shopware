@@ -3,29 +3,29 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class WriteParameterBag
 {
-    private ?string $currentWriteLanguageId;
+    private ?string $currentWriteLanguageId = null;
 
     public function __construct(
         /** Defines the entity definition where the field placed in */
-        private EntityDefinition $definition,
+        private readonly EntityDefinition $definition,
         /** Contains the write context instance of the current write process */
-        private WriteContext $context,
+        private readonly WriteContext $context,
         /** Contains the current property path for the proccessed field e.g product/{id}/name */
         private string $path,
         /** Contains all already applied write commands of the current write process */
-        private WriteCommandQueue $commandQueue,
+        private readonly WriteCommandQueue $commandQueue,
         private PrimaryKeyBag $primaryKeyBag = new PrimaryKeyBag()
     ) {
     }
@@ -78,7 +78,7 @@ class WriteParameterBag
     public function setCurrentWriteLanguageId(string $languageId): void
     {
         if (!Uuid::isValid($languageId)) {
-            throw new LanguageNotFoundException($languageId);
+            throw DataAbstractionLayerException::invalidLanguageId($languageId);
         }
 
         $this->currentWriteLanguageId = $languageId;

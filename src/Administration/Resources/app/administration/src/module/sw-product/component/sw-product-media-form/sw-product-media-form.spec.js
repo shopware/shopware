@@ -30,11 +30,11 @@ async function createWrapper(privileges = []) {
                     swProductDetail: {
                         namespaced: true,
                         getters: {
-                            isLoading: () => false
-                        }
-                    }
-                }
-            })
+                            isLoading: () => false,
+                        },
+                    },
+                },
+            }),
         },
         provide: {
             repositoryFactory: {},
@@ -43,8 +43,8 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
 
         },
         stubs: {
@@ -58,7 +58,7 @@ async function createWrapper(privileges = []) {
             'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
             'sw-context-button': await Shopware.Component.build('sw-context-button'),
-        }
+        },
     });
 }
 
@@ -68,17 +68,17 @@ const media = [
         position: 0,
         id: 'productMedia1',
         media: {
-            id: 'media1'
-        }
+            id: 'media1',
+        },
     },
     {
         mediaId: 'media2',
         position: 1,
         id: 'productMedia2',
         media: {
-            id: 'media2'
-        }
-    }
+            id: 'media2',
+        },
+    },
 ];
 
 function getMediaCollection(collection = []) {
@@ -89,7 +89,7 @@ function getMediaCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -101,19 +101,19 @@ describe('module/sw-product/component/sw-product-media-form', () => {
                 position: 1,
                 id: 'productMedia1',
                 media: {
-                    id: 'media1'
-                }
+                    id: 'media1',
+                },
             },
             coverId: 'productMedia1',
-            media: getMediaCollection(media)
+            media: getMediaCollection(media),
         };
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.State.registerModule('swProductDetail', {
             namespaced: true,
             state: {
-                product: product
-            }
+                product: product,
+            },
         });
     });
 
@@ -125,7 +125,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
     it('should show the sw-media-upload-v2 component', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeTruthy();
@@ -139,7 +139,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
     it('should only show 1 cover', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
 
         let coverCount = 0;
@@ -158,7 +158,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         wrapper.vm.onOpenMedia();
 
         const pageChangeEvents = wrapper.emitted()['media-open'];
-        expect(pageChangeEvents.length).toBe(1);
+        expect(pageChangeEvents).toHaveLength(1);
     });
 
     it('should can show cover when `showCoverLabel` is true', async () => {
@@ -172,7 +172,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({
-            showCoverLabel: false
+            showCoverLabel: false,
         });
 
         await wrapper.vm.$nextTick();
@@ -182,7 +182,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         await wrapper.vm.$nextTick();
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
-        expect(buttons.length).toBe(1);
+        expect(buttons).toHaveLength(1);
         expect(buttons.at(0).text()).toContain('Remove');
     });
 

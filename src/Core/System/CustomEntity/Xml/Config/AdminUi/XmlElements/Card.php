@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -10,33 +11,17 @@ use Symfony\Component\Config\Util\XmlUtils;
  *
  * admin-ui > entity > detail > tabs > tab > card
  *
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class Card extends ConfigXmlElement
 {
     /**
-     * @param list<CardField> $fields
+     * @var list<CardField>
      */
-    private function __construct(
-        protected readonly array $fields,
-        protected readonly string $name
-    ) {
-    }
+    protected array $fields;
 
-    public static function fromXml(\DOMElement $element): self
-    {
-        $fields = [];
-        foreach ($element->getElementsByTagName('field') as $field) {
-            $fields[] = CardField::fromXml($field);
-        }
-
-        return new self(
-            $fields,
-            XmlUtils::phpize($element->getAttribute('name'))
-        );
-    }
+    protected string $name;
 
     public function getName(): string
     {
@@ -49,5 +34,18 @@ final class Card extends ConfigXmlElement
     public function getFields(): array
     {
         return $this->fields;
+    }
+
+    protected static function parse(\DOMElement $element): array
+    {
+        $fields = [];
+        foreach ($element->getElementsByTagName('field') as $field) {
+            $fields[] = CardField::fromXml($field);
+        }
+
+        return [
+            'fields' => $fields,
+            'name' => XmlUtils::phpize($element->getAttribute('name')),
+        ];
     }
 }

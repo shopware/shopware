@@ -4,10 +4,9 @@ namespace Shopware\Core\System\CustomEntity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CustomEntityEntity extends Entity
 {
     use EntityIdTrait;
@@ -18,9 +17,13 @@ class CustomEntityEntity extends Entity
 
     protected bool $storeApiAware;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
-    protected ?string $pluginId;
+    protected ?string $pluginId = null;
+
+    protected bool $customFieldsAware;
+
+    protected ?string $labelProperty = null;
 
     /**
      * @var array<mixed>
@@ -31,6 +34,8 @@ class CustomEntityEntity extends Entity
      * @var array<string, array<mixed>>|null
      */
     protected ?array $flags;
+
+    protected ?\DateTimeInterface $deletedAt = null;
 
     public function getName(): string
     {
@@ -50,6 +55,11 @@ class CustomEntityEntity extends Entity
     public function setStoreApiAware(bool $storeApiAware): void
     {
         $this->storeApiAware = $storeApiAware;
+    }
+
+    public function getCmsAware(): bool
+    {
+        return $this->cmsAware;
     }
 
     public function getAppId(): ?string
@@ -102,5 +112,35 @@ class CustomEntityEntity extends Entity
     public function setFlags(?array $flags): void
     {
         $this->flags = $flags;
+    }
+
+    public function getCustomFieldsAware(): bool
+    {
+        return $this->customFieldsAware;
+    }
+
+    public function setCustomFieldsAware(bool $customFieldsAware): void
+    {
+        $this->customFieldsAware = $customFieldsAware;
+    }
+
+    public function getLabelProperty(): ?string
+    {
+        return $this->labelProperty;
+    }
+
+    public function setLabelProperty(?string $labelProperty): void
+    {
+        $this->labelProperty = $labelProperty;
+    }
+
+    public function getDeletedAt(): ?\DateTimeInterface
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeInterface $deletedAt): void
+    {
+        $this->deletedAt = $deletedAt;
     }
 }

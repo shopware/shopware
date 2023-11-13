@@ -2,12 +2,19 @@
 
 namespace Shopware\Core\Framework\Util;
 
+use Shopware\Core\Framework\Log\Package;
+
 /**
- * @package core
  * Flattens or expands arrays by concatenating string keys
  */
+#[Package('core')]
 class ArrayNormalizer
 {
+    /**
+     * @param iterable<mixed> $input
+     *
+     * @return array<mixed>
+     */
     public static function flatten(iterable $input): array
     {
         $result = [];
@@ -26,14 +33,20 @@ class ArrayNormalizer
         return $result;
     }
 
+    /**
+     * @param iterable<mixed> $input
+     *
+     * @return array<mixed>
+     */
     public static function expand(iterable $input): array
     {
         $result = [];
         foreach ($input as $key => $value) {
-            if (\is_string($key) && mb_strpos($key, '.') !== false) {
+            if (\is_string($key) && str_contains($key, '.')) {
                 $first = mb_strstr($key, '.', true);
-                /** @var string $rest occurence of dot is checked in if clause, so it can't return null */
                 $rest = mb_strstr($key, '.');
+                // occurrence of dot is checked in if clause, so `mb_strstr` can't return false and the assert should not cause an exception
+                \assert(\is_string($rest));
 
                 if (isset($result[$first])) {
                     $result[$first] = array_merge_recursive($result[$first], self::expand([mb_substr($rest, 1) => $value]));

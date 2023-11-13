@@ -5,12 +5,11 @@ namespace Shopware\Storefront\Page\Product\QuickView;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class MinimalQuickViewPageCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
@@ -28,8 +27,11 @@ class MinimalQuickViewPageCriteriaEvent extends Event implements ShopwareSalesCh
      */
     protected $context;
 
-    public function __construct(string $productId, Criteria $criteria, SalesChannelContext $context)
-    {
+    public function __construct(
+        string $productId,
+        Criteria $criteria,
+        SalesChannelContext $context
+    ) {
         $this->productId = $productId;
         $this->criteria = $criteria;
         $this->context = $context;

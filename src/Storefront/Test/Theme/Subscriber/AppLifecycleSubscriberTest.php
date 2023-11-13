@@ -27,7 +27,7 @@ class AppLifecycleSubscriberTest extends TestCase
 
     private Context $context;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
 
@@ -71,7 +71,7 @@ class AppLifecycleSubscriberTest extends TestCase
         static::assertCount(0, $apps);
     }
 
-    public function themeProvideData(): array
+    public static function themeProvideData(): array
     {
         return [
             'Test with keep data' => [true],

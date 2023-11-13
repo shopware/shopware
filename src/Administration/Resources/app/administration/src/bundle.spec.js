@@ -21,6 +21,7 @@ jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
  * a developer want to make sure that the webpack build with and
  * without plugins are delivering the same code.
  */
+// eslint-disable-next-line jest/no-disabled-tests
 describe.skip('webpack/bundle', () => {
     beforeEach(async () => {
         // Increase default timeout for the webpack build
@@ -67,7 +68,7 @@ describe.skip('webpack/bundle', () => {
         }
     });
 
-    it('should build the bundles with the administration folder', async (done) => {
+    it('should build the bundles with the administration folder', async () => {
         // build administration
         await exec(`cd ${projectRoot} && bin/console bundle:dump`);
         await exec(`cd ${adminPath} && npm run build`);
@@ -80,16 +81,12 @@ describe.skip('webpack/bundle', () => {
         await exec(`rm -rf ${path.resolve(projectRoot, 'public/bundles')}`);
 
         // check if the administration folder exists
-        if (directoryInfo.indexOf('administration') >= 0) {
-            done();
 
-            return;
-        }
-
-        done.fail('The directory does not contain the administration.');
+        expect(directoryInfo).toContain('administration');
+        // 'The directory does not contain the administration.'
     });
 
-    it('the administration bundle should be the same independently of plugins', async (done) => {
+    it('the administration bundle should be the same independently of plugins', async () => {
         // create empty plugins folder
         await exec(`cd ${projectRoot} && mkdir -p custom/plugins`);
 
@@ -145,13 +142,7 @@ describe.skip('webpack/bundle', () => {
         await exec(`cd ${projectRoot} && php bin${sep}console plugin:refresh`);
 
         // expect no difference in diff
-        if (folderComparison && folderComparison.same) {
-            done();
-
-            return;
-        }
-
-        // fail when there is a difference
-        done.fail('The administration bundle is different when a plugin is installed.');
+        expect(folderComparison).toBe(folderComparison.same);
+        // 'The administration bundle is different when a plugin is installed.'
     });
 });

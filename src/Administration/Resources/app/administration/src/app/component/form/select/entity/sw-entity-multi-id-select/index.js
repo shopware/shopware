@@ -10,6 +10,8 @@ Component.register('sw-entity-multi-id-select', {
     template,
     inheritAttrs: false,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
@@ -119,12 +121,24 @@ Component.register('sw-entity-multi-id-select', {
 
             return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
+
+                if (!this.collection.length && this.ids.length) {
+                    this.updateIds(this.collection);
+                }
+
                 return this.collection;
             });
         },
 
         updateIds(collection) {
             this.collection = collection;
+
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:ids', collection.getIds());
+
+                return;
+            }
+
             this.$emit('change', collection.getIds());
         },
     },

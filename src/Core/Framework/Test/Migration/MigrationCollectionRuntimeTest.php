@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
@@ -203,7 +204,7 @@ class MigrationCollectionRuntimeTest extends TestCase
         $executedMigrations = $this->validMigrationCollection->migrateInPlace(1);
 
         $migrations = $this->getMigrations();
-        static::assertSame(["Shopware\Core\Framework\Test\Migration\_test_migrations_valid_run_time\Migration1"], $executedMigrations);
+        static::assertSame([Migration1::class], $executedMigrations);
         static::assertNotNull($migrations[0]['update']);
         static::assertNull($migrations[0]['update_destructive']);
         static::assertNull($migrations[1]['update']);
@@ -216,8 +217,8 @@ class MigrationCollectionRuntimeTest extends TestCase
 
         try {
             $this->exceptionMigrationCollection->migrateInPlace();
-        } catch (\Exception $e) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $migrations = $this->getMigrations();
@@ -233,16 +234,16 @@ class MigrationCollectionRuntimeTest extends TestCase
 
         try {
             $this->exceptionMigrationCollection->migrateInPlace();
-        } catch (\Exception $e) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $this->validMigrationCollection->migrateDestructiveInPlace();
 
         try {
             $this->exceptionMigrationCollection->migrateDestructiveInPlace();
-        } catch (\Exception $e) {
-            //nth
+        } catch (\Exception) {
+            // nth
         }
 
         $migrations = $this->getMigrations();
@@ -292,7 +293,7 @@ class MigrationCollectionRuntimeTest extends TestCase
             ->where('`class` LIKE \'%_test_migrations_valid_run_time%\'
               OR `class` LIKE \'%_test_migrations_valid_run_time_exceptions%\'')
             ->orderBy('creation_timestamp', 'ASC')
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 }

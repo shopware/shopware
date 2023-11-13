@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct\Serializer;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
@@ -9,9 +10,7 @@ use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class StructNormalizer implements DenormalizerInterface, NormalizerInterface
 {
     /**
@@ -61,19 +60,17 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
         }
 
         if (!$this->isObject($data)) {
-            return array_map([$this, 'denormalize'], $data);
+            return array_map($this->denormalize(...), $data);
         }
 
         /** @var class-string<object> $class */
         $class = $data['_class'];
         unset($data['_class']);
 
-        //iterate arguments to resolve other serialized objects
-        $arguments = array_map(function ($argument) {
-            return $this->denormalize($argument);
-        }, $data);
+        // iterate arguments to resolve other serialized objects
+        $arguments = array_map(fn ($argument) => $this->denormalize($argument), $data);
 
-        //create object instance
+        // create object instance
         return $this->createInstance($class, $arguments);
     }
 
@@ -85,6 +82,16 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return \is_array($data) && \array_key_exists('_class', $data);
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            '*' => false,
+        ];
     }
 
     /**

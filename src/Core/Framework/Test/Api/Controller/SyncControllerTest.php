@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
  * @group slow
  */
 class SyncControllerTest extends TestCase
@@ -52,8 +54,8 @@ class SyncControllerTest extends TestCase
                         'id' => $id1,
                         'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
-                        'manufacturer' => ['name' => 'test'],
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'manufacturer' => ['name' => 'manufacturer'],
+                        'tax' => ['name' => 'tax', 'taxRate' => 15],
                         'name' => 'CREATE-1',
                         'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                     ],
@@ -61,9 +63,9 @@ class SyncControllerTest extends TestCase
                         'id' => $id2,
                         'productNumber' => Uuid::randomHex(),
                         'stock' => 1,
-                        'manufacturer' => ['name' => 'test'],
+                        'manufacturer' => ['name' => 'manufacturer'],
                         'name' => 'CREATE-2',
-                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'tax' => ['name' => 'tax', 'taxRate' => 15],
                         'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
                     ],
                 ],
@@ -133,7 +135,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $responseData = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR);
+        $responseData = json_decode((string) $response->getContent(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
         static::assertFalse($responseData['data']['attributes']['active']);
 
         $this->getBrowser()->request('DELETE', '/api/product/' . $id);
@@ -185,7 +187,7 @@ class SyncControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', '/api/product/' . $productId . '/categories');
         $response = $this->getBrowser()->getResponse();
-        $responseData = json_decode((string) $response->getContent(), true);
+        $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $categories = array_column($responseData['data'], 'id');
@@ -244,20 +246,20 @@ class SyncControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR));
 
         $this->getBrowser()->request('GET', '/api/product/' . $product . '/categories');
-        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         $categories = array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
         $this->getBrowser()->request('GET', '/api/product/' . $product2 . '/categories');
-        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         $categories = array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
         $this->getBrowser()->request('GET', '/api/category/' . $category . '/products/');
-        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
         $products = array_column($responseData['data'], 'id');
@@ -303,7 +305,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
         static::assertCount(2, $exists);
 
@@ -323,7 +325,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN (:id)',
             ['id' => [Uuid::fromHexToBytes($product), Uuid::fromHexToBytes($product2)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
         static::assertEmpty($exists);
     }
@@ -350,7 +352,6 @@ class SyncControllerTest extends TestCase
         ];
 
         $this->connection->executeStatement('DELETE FROM messenger_messages;');
-        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
         $this->connection->executeStatement('DELETE FROM `increment`;');
 
         $this->getBrowser()->request(
@@ -365,7 +366,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertNotEmpty($exists);
@@ -400,7 +401,6 @@ class SyncControllerTest extends TestCase
 
         $this->connection->executeStatement('DELETE FROM messenger_messages;');
         $this->connection->executeStatement('DELETE FROM `increment`;');
-        $this->connection->executeStatement('DELETE FROM message_queue_stats;');
 
         $keys = $this->gateway->list('message_queue_stats');
         static::assertEmpty($keys);
@@ -417,7 +417,7 @@ class SyncControllerTest extends TestCase
         $exists = $this->connection->fetchAllAssociative(
             'SELECT * FROM product WHERE id IN(:id)',
             ['id' => [Uuid::fromHexToBytes($product)]],
-            ['id' => Connection::PARAM_STR_ARRAY]
+            ['id' => ArrayParameterType::BINARY]
         );
 
         static::assertNotEmpty($exists);
@@ -460,7 +460,7 @@ class SyncControllerTest extends TestCase
         static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
     }
 
-    public function invalidOperationProvider(): \Generator
+    public static function invalidOperationProvider(): \Generator
     {
         yield 'Invalid entity argument' => [
             'invalid-entity',
@@ -524,7 +524,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(400, $response->getStatusCode());
 
-        $content = json_decode((string) $response->getContent(), true);
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('FRAMEWORK__INVALID_SYNC_OPERATION', $content['errors'][0]['code']);
         static::assertStringContainsString($actor, $content['errors'][0]['detail']);
     }

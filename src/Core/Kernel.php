@@ -6,31 +6,32 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Kernel extends HttpKernel
 {
     use MicroKernelTrait;
 
-    public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    final public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
 
     /**
      * @var Connection|null
@@ -59,8 +60,6 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
-    private string $cacheId;
-
     /**
      * {@inheritdoc}
      */
@@ -68,7 +67,7 @@ class Kernel extends HttpKernel
         string $environment,
         bool $debug,
         KernelPluginLoader $pluginLoader,
-        string $cacheId,
+        private string $cacheId,
         ?string $version = self::SHOPWARE_FALLBACK_VERSION,
         ?Connection $connection = null,
         ?string $projectDir = null
@@ -83,7 +82,6 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->cacheId = $cacheId;
         $this->projectDir = $projectDir;
     }
 
@@ -169,6 +167,21 @@ class Kernel extends HttpKernel
         // init container
         $this->initializeContainer();
 
+        // Taken from \Symfony\Component\HttpKernel\Kernel::preBoot()
+        /** @var ContainerInterface $container */
+        $container = $this->container;
+
+        if ($container->hasParameter('kernel.trusted_hosts') && $trustedHosts = $container->getParameter('kernel.trusted_hosts')) {
+            Request::setTrustedHosts($trustedHosts);
+        }
+
+        if ($container->hasParameter('kernel.trusted_proxies') && $container->hasParameter('kernel.trusted_headers') && $trustedProxies = $container->getParameter('kernel.trusted_proxies')) {
+            \assert(\is_string($trustedProxies) || \is_array($trustedProxies));
+            $trustedHeaderSet = $container->getParameter('kernel.trusted_headers');
+            \assert(\is_int($trustedHeaderSet));
+            Request::setTrustedProxies(\is_array($trustedProxies) ? $trustedProxies : array_map('trim', explode(',', $trustedProxies)), $trustedHeaderSet);
+        }
+
         foreach ($this->getBundles() as $bundle) {
             $bundle->setContainer($this->container);
             $bundle->boot();
@@ -220,7 +233,7 @@ class Kernel extends HttpKernel
         parent::shutdown();
     }
 
-    public function reboot($warmupDir, ?KernelPluginLoader $pluginLoader = null, ?string $cacheId = null): void
+    public function reboot(?string $warmupDir, ?KernelPluginLoader $pluginLoader = null, ?string $cacheId = null): void
     {
         $this->rebooting = true;
 
@@ -239,8 +252,8 @@ class Kernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('container.dumper.inline_class_loader', true);
-        $container->setParameter('container.dumper.inline_factories', true);
+        $container->setParameter('.container.dumper.inline_class_loader', $this->environment !== 'test');
+        $container->setParameter('.container.dumper.inline_factories', $this->environment !== 'test');
 
         $confDir = $this->getProjectDir() . '/config';
 
@@ -276,7 +289,7 @@ class Kernel extends HttpKernel
         $activePluginMeta = [];
 
         foreach ($this->pluginLoader->getPluginInstances()->getActives() as $plugin) {
-            $class = \get_class($plugin);
+            $class = $plugin::class;
             $activePluginMeta[$class] = [
                 'name' => $plugin->getName(),
                 'path' => $plugin->getPath(),
@@ -355,7 +368,7 @@ class Kernel extends HttpKernel
                 return;
             }
             $connection->executeQuery(implode(';', $connectionVariables));
-        } catch (\Throwable $_) {
+        } catch (\Throwable) {
         }
     }
 
@@ -368,6 +381,8 @@ class Kernel extends HttpKernel
         $cacheDir = $this->getCacheDir();
         $cacheName = basename($cacheDir);
         $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
+
+        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
 
         $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
 

@@ -54,14 +54,14 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         const customerPage = new CustomerPageObject();
         const orderPage = new OrderPageObject();
-        const salesChannel = 'E2E install test';
+        const salesChannel = Cypress.env('storefrontName');
 
         // create new customer via UI
         cy.fixture('customer-scenario3').then(customer => {
             cy.get('.sw-button.sw-button--primary.sw-customer-list__button-create').click();
             cy.contains('h2', 'Nieuwe klant').should('be.visible');
             cy.get('.sw-customer-base-form__account-type-select')
-                .typeSingleSelectAndCheck('Commercial', '.sw-customer-base-form__account-type-select');
+                .typeSingleSelectAndCheck('Bedrijf', '.sw-customer-base-form__account-type-select');
             cy.get('.sw-customer-base-form__salutation-select')
                 .typeSingleSelectAndCheck('Mr.', '.sw-customer-base-form__salutation-select');
             cy.get('input[name=sw-field--customer-firstName]').type(customer.firstName);
@@ -95,7 +95,7 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         // add product to the sales channel
         cy.contains(salesChannel).click();
         cy.url().should('include', 'sales/channel/detail');
-        cy.get('[title="Producten"]').click();
+        cy.get('.sw-tabs-item[title="Producten"]').click();
         cy.get('.sw-button.sw-button--ghost').click();
         cy.get('.sw-data-grid__body .sw-data-grid__cell--selection .sw-data-grid__cell-content').click();
         cy.get('.sw-data-grid__bulk-selected-label').should('include.text', 'Geselecteerd');
@@ -112,11 +112,14 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         cy.url().should('include', 'order/index');
         cy.get('.sw-button.sw-button--primary.sw-order-list__add-order').click();
 
-        cy.contains('.sw-order-create__card', 'Details');
+        cy.get(".sw-order-create-initial-modal").contains("Nieuwe bestelling").should("be.visible");
+        cy.contains(".sw-data-grid__row", "Martin Maxwell").find("input[type=radio]").check();
+        cy.get(".sw-button--primary").click();
+
+        cy.contains('.smart-bar__header', 'Nieuwe bestelling');
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-container > .sw-field .sw-entity-single-select__selection-text').type('Martin Maxwell');
-        cy.contains('Martin Maxwell').click();
+        cy.get(".sw-order-create-general").should("be.visible").contains("Martin Maxwell");
         cy.contains('Product toevoegen').click();
         cy.get(`${orderPage.elements.dataGridRow}--0 ${orderPage.elements.dataGridColumn}--label`).dblclick();
         cy.get('.sw-order-product-select__single-select')
@@ -144,9 +147,8 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
 
         // confirmation
         cy.url().should('include', 'order/detail');
-        cy.get('.sw-order-user-card__metadata')
-            .should('be.visible')
-            .and('contain', 'Martin Maxwell - Test Company');
+        cy.contains('.smart-bar__header', 'Bestelling');
+        cy.get(".sw-order-detail-general").should("be.visible").contains("Martin Maxwell");
 
         // verify the new customer's order from the products page
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

@@ -2,14 +2,13 @@
 
 namespace Shopware\Elasticsearch\DependencyInjection;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -27,7 +26,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('hosts')->end()
                 ->scalarNode('index_prefix')->end()
                 ->scalarNode('throw_exception')->end()
-                ->scalarNode('logger_level')->defaultValue($debug ? Logger::DEBUG : Logger::ERROR)->end()
+                ->scalarNode('logger_level')->defaultValue($debug ? Level::Debug : Level::Error)->end()
                 ->arrayNode('ssl')
                     ->children()
                         ->scalarNode('cert_path')->end()
@@ -39,12 +38,20 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('index_settings')->variablePrototype()->end()->end()
                 ->arrayNode('analysis')->performNoDeepMerging()->variablePrototype()->end()->end()
+                ->arrayNode('language_analyzer_mapping')->defaultValue([])->scalarPrototype()->end()->end()
                 ->arrayNode('dynamic_templates')->performNoDeepMerging()->variablePrototype()->end()->end()
                 ->arrayNode('product')
                     ->children()
                         ->arrayNode('custom_fields_mapping')
                             ->variablePrototype()->end()
                         ->end()
+                        ->booleanNode('exclude_source')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('search')
+                    ->children()
+                        ->scalarNode('timeout')->end()
+                        ->integerNode('term_max_length')->end()
                     ->end()
                 ->end()
                 ->arrayNode('administration')
@@ -56,6 +63,12 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('index_settings')->variablePrototype()->end()->end()
                         ->arrayNode('analysis')->performNoDeepMerging()->variablePrototype()->end()->end()
                         ->arrayNode('dynamic_templates')->performNoDeepMerging()->variablePrototype()->end()->end()
+                        ->arrayNode('search')
+                            ->children()
+                                ->scalarNode('timeout')->end()
+                                ->integerNode('term_max_length')->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end();

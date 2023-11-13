@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Product\Cleanup;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 
+#[Package('inventory')]
 class CleanupUnusedDownloadMediaTask extends ScheduledTask
 {
     public static function getTaskName(): string
@@ -13,6 +15,6 @@ class CleanupUnusedDownloadMediaTask extends ScheduledTask
 
     public static function getDefaultInterval(): int
     {
-        return 2628000; //1 month
+        return 2628000; // 1 month
     }
 }

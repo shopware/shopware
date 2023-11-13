@@ -3,12 +3,12 @@
 namespace Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<MailHeaderFooterEntity>
- *
- * @package sales-channel
  */
+#[Package('sales-channel')]
 class MailHeaderFooterCollection extends EntityCollection
 {
     public function getApiAlias(): string

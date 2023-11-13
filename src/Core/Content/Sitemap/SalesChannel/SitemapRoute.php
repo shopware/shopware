@@ -6,49 +6,28 @@ use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
 use Shopware\Core\Content\Sitemap\Service\SitemapListerInterface;
 use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @package sales-channel
- *
- * @Route(defaults={"_routeScope"={"store-api"}})
- */
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+#[Package('sales-channel')]
 class SitemapRoute extends AbstractSitemapRoute
 {
     /**
-     * @var SitemapListerInterface
-     */
-    private $sitemapLister;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
-     * @var SitemapExporterInterface
-     */
-    private $sitemapExporter;
-
-    /**
      * @internal
      */
-    public function __construct(SitemapListerInterface $sitemapLister, SystemConfigService $systemConfigService, SitemapExporterInterface $sitemapExporter)
-    {
-        $this->sitemapLister = $sitemapLister;
-        $this->systemConfigService = $systemConfigService;
-        $this->sitemapExporter = $sitemapExporter;
+    public function __construct(
+        private readonly SitemapListerInterface $sitemapLister,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly SitemapExporterInterface $sitemapExporter
+    ) {
     }
 
-    /**
-     * @Since("6.3.2.0")
-     * @Route(path="/store-api/sitemap", name="store-api.sitemap", methods={"GET", "POST"})
-     */
+    #[Route(path: '/store-api/sitemap', name: 'store-api.sitemap', methods: ['GET', 'POST'])]
     public function load(Request $request, SalesChannelContext $context): SitemapRouteResponse
     {
         $sitemaps = $this->sitemapLister->getSitemaps($context);
@@ -64,7 +43,7 @@ class SitemapRoute extends AbstractSitemapRoute
 
         try {
             $this->generateSitemap($context, true);
-        } catch (AlreadyLockedException $exception) {
+        } catch (AlreadyLockedException) {
             // Silent catch, lock couldn't be acquired. Some other process already generates the sitemap.
         }
 

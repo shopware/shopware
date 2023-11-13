@@ -9,31 +9,25 @@ use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @package business-ops
- *
  * @internal not intended for decoration or replacement
  */
+#[Package('services-settings')]
 class FlowDispatcher implements EventDispatcherInterface
 {
-    private EventDispatcherInterface $dispatcher;
-
     private ContainerInterface $container;
 
-    private LoggerInterface $logger;
-
-    private FlowFactory $flowFactory;
-
-    public function __construct(EventDispatcherInterface $dispatcher, LoggerInterface $logger, FlowFactory $flowFactory)
-    {
-        $this->dispatcher = $dispatcher;
-        $this->logger = $logger;
-        $this->flowFactory = $flowFactory;
+    public function __construct(
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly FlowFactory $flowFactory
+    ) {
     }
 
     public function setContainer(ContainerInterface $container): void
@@ -48,7 +42,7 @@ class FlowDispatcher implements EventDispatcherInterface
      *
      * @return TEvent
      */
-    public function dispatch($event, ?string $eventName = null): object
+    public function dispatch(object $event, ?string $eventName = null): object
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
@@ -72,12 +66,11 @@ class FlowDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * @param string   $eventName
-     * @param callable $listener
-     * @param int      $priority
+     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
      */
-    public function addListener($eventName, $listener, $priority = 0): void
+    public function addListener(string $eventName, $listener, int $priority = 0): void // @phpstan-ignore-line
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->addListener($eventName, $listener, $priority);
     }
 
@@ -86,12 +79,9 @@ class FlowDispatcher implements EventDispatcherInterface
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    /**
-     * @param string   $eventName
-     * @param callable $listener
-     */
-    public function removeListener($eventName, $listener): void
+    public function removeListener(string $eventName, callable $listener): void
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         $this->dispatcher->removeListener($eventName, $listener);
     }
 
@@ -100,17 +90,17 @@ class FlowDispatcher implements EventDispatcherInterface
         $this->dispatcher->removeSubscriber($subscriber);
     }
 
+    /**
+     * @return array<array-key, array<array-key, callable(object): void>|callable(object): void>
+     */
     public function getListeners(?string $eventName = null): array
     {
         return $this->dispatcher->getListeners($eventName);
     }
 
-    /**
-     * @param string $eventName
-     * @param callable $listener
-     */
-    public function getListenerPriority($eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, callable $listener): ?int
     {
+        /** @var callable(object): void $listener - Specify generic callback interface callers can provide more specific implementations */
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }
 

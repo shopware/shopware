@@ -2,26 +2,19 @@
 
 namespace Shopware\Core\System\SystemConfig;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Store\MemoizedSystemConfigStore;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class MemoizedSystemConfigLoader extends AbstractSystemConfigLoader
 {
-    private AbstractSystemConfigLoader $decorated;
-
-    private MemoizedSystemConfigStore $memoizedSystemConfigStore;
-
     /**
      * @internal
      */
     public function __construct(
-        AbstractSystemConfigLoader $decorated,
-        MemoizedSystemConfigStore $memoizedSystemConfigStore
+        private readonly AbstractSystemConfigLoader $decorated,
+        private readonly MemoizedSystemConfigStore $memoizedSystemConfigStore
     ) {
-        $this->decorated = $decorated;
-        $this->memoizedSystemConfigStore = $memoizedSystemConfigStore;
     }
 
     public function getDecorated(): AbstractSystemConfigLoader

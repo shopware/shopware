@@ -14,7 +14,11 @@
             :help-text="helpText"
             :entity-collection="propertyCollection"
             :criteria="criteria"
+            {% if VUE3 %}
+            @update:entity-collection="updateCollection"
+            {% else %}
             @change="updateCollection"
+            {% endif %}
         >
             <template
                 v-if="shouldShowActiveState"
@@ -43,7 +47,11 @@
             :criteria="criteria"
             :selection-disabling-method="isDisabledItem"
             :disabled-selection-tooltip="{ message: disabledTooltipMessage }"
+            {% if VUE3 %}
+            @update:value="updateDefault"
+            {% else %}
             @change="updateDefault"
+            {% endif %}
         />
     </template>
 </sw-container>

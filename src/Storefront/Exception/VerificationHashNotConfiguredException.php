@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+#[Package('storefront')]
 /**
- * @package storefront
+ * @decrecated tag:v6.6.0 - will be removed
  */
 class VerificationHashNotConfiguredException extends ShopwareHttpException
 {

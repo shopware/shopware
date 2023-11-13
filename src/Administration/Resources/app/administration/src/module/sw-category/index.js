@@ -86,6 +86,9 @@ Module.register('sw-category', {
             path: 'index/:id',
             meta: {
                 privilege: 'category.viewer',
+                appSystem: {
+                    view: 'detail',
+                },
             },
             redirect: {
                 name: 'sw.category.detail.base',

@@ -48,7 +48,7 @@
       "text": "Gib die mit Deinem Konto verknüpfte E-Mail-Adresse ein.",
       "email": {
         "label": "E-Mail-Adresse:",
-        "placeholder": "shop@beispiel.de"
+        "placeholder": "shop{'@'}beispiel.de"
       },
       "submit": "Wiederherstellungs-Link senden"
     }

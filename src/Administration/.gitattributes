@@ -1,0 +1,11 @@
+# General ignore rules
+/Test export-ignore
+/Resources/ide-twig.json export-ignore
+/Resources/app/administration/build export-ignore
+/Resources/app/administration/test export-ignore
+/Resources/app/administration/src/meta export-ignore
+/Resources/app/administration/src/scripts/create-spec-file export-ignore
+
+# Ignore all spec files
+/Resources/app/administration/**/*.spec.js export-ignore
+/Resources/app/administration/**/*.spec.ts export-ignore

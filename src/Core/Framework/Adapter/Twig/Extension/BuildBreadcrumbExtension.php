@@ -8,28 +8,27 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @package core
- */
+#[Package('core')]
 class BuildBreadcrumbExtension extends AbstractExtension
 {
     /**
      * @internal
      */
     public function __construct(
-        private CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
-        private EntityRepository $categoryRepository
+        private readonly CategoryBreadcrumbBuilder $categoryBreadcrumbBuilder,
+        private readonly EntityRepository $categoryRepository
     ) {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('sw_breadcrumb_full', [$this, 'getFullBreadcrumb'], ['needs_context' => true]),
+            new TwigFunction('sw_breadcrumb_full', $this->getFullBreadcrumb(...), ['needs_context' => true]),
         ];
     }
 

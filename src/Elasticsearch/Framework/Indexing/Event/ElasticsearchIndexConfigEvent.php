@@ -4,33 +4,21 @@ namespace Shopware\Elasticsearch\Framework\Indexing\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ElasticsearchIndexConfigEvent implements ShopwareEvent
 {
-    private string $indexName;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $config;
-
-    private AbstractElasticsearchDefinition $definition;
-
-    private Context $context;
-
     /**
      * @param array<mixed> $config
      */
-    public function __construct(string $indexName, array $config, AbstractElasticsearchDefinition $definition, Context $context)
-    {
-        $this->indexName = $indexName;
-        $this->config = $config;
-        $this->definition = $definition;
-        $this->context = $context;
+    public function __construct(
+        private readonly string $indexName,
+        private array $config,
+        private readonly AbstractElasticsearchDefinition $definition,
+        private readonly Context $context
+    ) {
     }
 
     public function getIndexName(): string

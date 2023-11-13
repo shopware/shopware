@@ -12,12 +12,12 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
     async function createWrapper(innerTemplate = '') {
         const Parent = {
             components: {
-                swSelectResult
+                swSelectResult,
             },
             name: 'Parent',
             data() {
                 return {
-                    showSwSelectResult: true
+                    showSwSelectResult: true,
                 };
             },
             template: `
@@ -40,30 +40,30 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
                         newsletterRecipients: []
                     }"
             >${innerTemplate}</sw-select-result>
-            </div>`
+            </div>`,
         };
 
         const grandParent = {
             template: '<div><Parent></Parent></div>',
             components: {
-                Parent
+                Parent,
             },
             methods: {
                 emitSelectItemByKeyboard() {
                     this.$emit('item-select-by-keyboard', [0]);
-                }
-            }
+                },
+            },
         };
 
         return mount(grandParent, {
             provide: {
                 repositoryFactory: {
-                    create: () => ({ search: () => Promise.resolve('bar') })
+                    create: () => ({ search: () => Promise.resolve('bar') }),
                 },
                 setActiveItemIndex: () => {
-                }
+                },
             },
-            attachTo: document.body
+            attachTo: document.body,
         });
     }
 
@@ -88,16 +88,16 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
 
     it('should react on $parent.$parent event', async () => {
         const swSelectResultWrapper = wrapper.find('.sw-select-result').vm;
-        expect(swSelectResult.methods.checkIfSelected).toBeCalledTimes(0);
+        expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(0);
         wrapper.vm.emitSelectItemByKeyboard();
         await wrapper.vm.$nextTick();
         await swSelectResultWrapper.$nextTick();
-        expect(swSelectResult.methods.checkIfSelected).toBeCalledTimes(1);
+        expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(1);
     });
 
     it('should remove the event listener', async () => {
         await wrapper.find('.parent').setData({
-            showSwSelectResult: false
+            showSwSelectResult: false,
         });
 
         // $on and $off methods get each called twice in the lifecyclehooks
@@ -109,14 +109,14 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
         expect(onSpy).toHaveBeenCalledTimes(0);
 
         await wrapper.find('.parent').setData({
-            showSwSelectResult: true
+            showSwSelectResult: true,
         });
 
         expect(onSpy).toHaveBeenCalledTimes(2);
         expect(offSpy).toHaveBeenCalledTimes(0);
 
         await wrapper.find('.parent').setData({
-            showSwSelectResult: false
+            showSwSelectResult: false,
         });
 
         expect(onSpy).toHaveBeenCalledTimes(2);

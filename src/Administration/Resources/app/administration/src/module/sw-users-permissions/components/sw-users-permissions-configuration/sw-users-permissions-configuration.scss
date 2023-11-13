@@ -1,0 +1,10 @@
+@import "~scss/variables";
+
+.sw-users-permissions-configuration {
+    &.sw-system-config.is--disabled .sw-field input {
+        cursor: default;
+        pointer-events: none;
+        background: $color-gray-100;
+        border-color: $color-gray-300;
+    }
+}

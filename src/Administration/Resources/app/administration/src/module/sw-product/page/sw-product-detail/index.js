@@ -381,6 +381,12 @@ export default {
                 scope: this,
             });
 
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-product-detail__cmsPage',
+                path: 'currentPage',
+                scope: this,
+            });
+
             Shopware.State.dispatch('cmsPageState/resetCmsPageState');
 
             // when create

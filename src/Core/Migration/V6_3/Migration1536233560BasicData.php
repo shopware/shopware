@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Document\Renderer\CreditNoteRenderer;
@@ -25,15 +24,17 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1536233560BasicData extends MigrationStep
 {
     /**
@@ -50,7 +51,7 @@ class Migration1536233560BasicData extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $hasData = $connection->executeQuery('SELECT 1 FROM `language` LIMIT 1')->fetch();
+        $hasData = $connection->executeQuery('SELECT 1 FROM `language` LIMIT 1')->fetchAssociative();
         if ($hasData) {
             return;
         }
@@ -208,23 +209,19 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function createCountry(Connection $connection): void
     {
-        $languageDE = function (string $countryId, string $name) {
-            return [
-                'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
-                'name' => $name,
-                'country_id' => $countryId,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ];
-        };
+        $languageDE = fn (string $countryId, string $name) => [
+            'language_id' => Uuid::fromHexToBytes($this->getDeDeLanguageId()),
+            'name' => $name,
+            'country_id' => $countryId,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
 
-        $languageEN = static function (string $countryId, string $name) {
-            return [
-                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-                'name' => $name,
-                'country_id' => $countryId,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ];
-        };
+        $languageEN = static fn (string $countryId, string $name) => [
+            'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            'name' => $name,
+            'country_id' => $countryId,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
 
         $deId = Uuid::randomBytes();
         $connection->insert('country', ['id' => $deId, 'iso' => 'DE', 'position' => 1, 'iso3' => 'DEU', 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -886,10 +883,10 @@ class Migration1536233560BasicData extends MigrationStep
 
     private function createSalesChannel(Connection $connection): void
     {
-        $currencies = $connection->executeQuery('SELECT id FROM currency')->fetchAll(FetchMode::COLUMN);
-        $languages = $connection->executeQuery('SELECT id FROM language')->fetchAll(FetchMode::COLUMN);
-        $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchAll(FetchMode::COLUMN);
-        $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchAll(FetchMode::COLUMN);
+        $currencies = $connection->executeQuery('SELECT id FROM currency')->fetchFirstColumn();
+        $languages = $connection->executeQuery('SELECT id FROM language')->fetchFirstColumn();
+        $shippingMethods = $connection->executeQuery('SELECT id FROM shipping_method')->fetchFirstColumn();
+        $paymentMethods = $connection->executeQuery('SELECT id FROM payment_method')->fetchFirstColumn();
         $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchOne();
         $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchOne();
         $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
@@ -972,7 +969,7 @@ class Migration1536233560BasicData extends MigrationStep
             FROM `media_default_folder`
                 LEFT JOIN `media_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
             WHERE `media_folder`.`id` IS NULL
-        ')->fetchAll();
+        ')->fetchAllAssociative();
 
         foreach ($notCreatedDefaultFolders as $notCreatedDefaultFolder) {
             $this->createDefaultFolder(
@@ -1018,9 +1015,7 @@ class Migration1536233560BasicData extends MigrationStep
     private function getMediaFolderName(string $entity): string
     {
         $capitalizedEntityParts = array_map(
-            static function ($part) {
-                return ucfirst($part);
-            },
+            static fn ($part) => ucfirst((string) $part),
             explode('_', $entity)
         );
 
@@ -1159,7 +1154,7 @@ class Migration1536233560BasicData extends MigrationStep
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $openId, 'to_state_id' => $cancelledId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         // from "shipped" to *
-//        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $shippedId, 'to_state_id' => $shippedId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        //        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'ship', 'from_state_id' => $shippedId, 'to_state_id' => $shippedId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour', 'from_state_id' => $shippedId, 'to_state_id' => $returnedId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'retour_partially', 'from_state_id' => $shippedId, 'to_state_id' => $returnedPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'cancel', 'from_state_id' => $shippedId, 'to_state_id' => $cancelledId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -1865,7 +1860,7 @@ class Migration1536233560BasicData extends MigrationStep
         foreach ($definitionMailTypes as $typeName => $mailType) {
             $availableEntities = null;
             if (\array_key_exists('availableEntities', $mailType)) {
-                $availableEntities = json_encode($mailType['availableEntities']);
+                $availableEntities = json_encode($mailType['availableEntities'], \JSON_THROW_ON_ERROR);
             }
 
             $connection->insert(
@@ -2142,7 +2137,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_ORDER_CONFIRM]['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -2315,7 +2310,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()[MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER]['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -2328,7 +2323,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterDoubleOptIn']['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );
@@ -2341,7 +2336,7 @@ class Migration1536233560BasicData extends MigrationStep
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterRegister']['id'],
-                ]),
+                ], \JSON_THROW_ON_ERROR),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

@@ -28,27 +28,10 @@ describe('Order: Visual tests', () => {
             });
     });
 
-    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders'] }, () => {
+    it('@visual: check appearance of basic order workflow', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         const page = new OrderPageObject();
 
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
-        }).as('getData');
-
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
-        cy.get('.navigation-list-item__type-plugin').should('exist');
-        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index',
-        });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
@@ -73,30 +56,16 @@ describe('Order: Visual tests', () => {
 
         cy.get('.sw-order-list__order-view-action').click();
 
+        // Change text of the element to ensure consistent snapshots
+        cy.changeElementText('.sw-order-general-info__summary-sub-description', 'on 01/01/2018, 00:01 with Cash on delivery and Standard');
+        cy.changeElementText('.sw-order-general-info__summary-sub-last-changed-time', 'Last changed: 01/01/2018, 00:01');
+
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[Order] Detail', '.sw-order-detail', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
     });
 
-    it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders'] }, () => {
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'POST',
-        }).as('getData');
-
-        cy.get('.navigation-list-item__type-plugin').should('exist');
-        cy.get('.navigation-list-item__type-plugin').should('have.length', 3);
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/order/index',
-            mainMenuId: 'sw-order',
-            subMenuId: 'sw-order-index',
-        });
-        cy.wait('@getData')
-            .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-skeleton').should('not.exist');
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-list').should('be.visible');
-
+    it('@visual: check appearance of order creation workflow', { tags: ['pa-customers-orders', 'VUE3'] }, () => {
         // Take snapshot for visual testing
         cy.get('.sw-skeleton__listing').should('not.exist');
         cy.get('.sw-order-list').should('be.visible');

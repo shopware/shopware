@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Page\Product\QuickView;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class MinimalQuickViewPageLoadedEvent extends PageLoadedEvent
 {
     /**
@@ -16,8 +15,11 @@ class MinimalQuickViewPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(MinimalQuickViewPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        MinimalQuickViewPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

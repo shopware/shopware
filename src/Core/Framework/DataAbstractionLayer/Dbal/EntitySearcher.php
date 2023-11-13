@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
 /**
@@ -21,15 +22,14 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * Fields which are not necessary to determines which ids are affected are not fetched.
  *
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntitySearcher implements EntitySearcherInterface
 {
     public function __construct(
-        private Connection $connection,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private CriteriaQueryBuilder $criteriaQueryBuilder
+        private readonly Connection $connection,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder
     ) {
     }
 
@@ -63,7 +63,6 @@ class EntitySearcher implements EntitySearcherInterface
             }
         }
 
-        /** @var StorageAware $field */
         foreach ($fields as $field) {
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
@@ -78,7 +77,7 @@ class EntitySearcher implements EntitySearcherInterface
 
         $this->addGroupBy($definition, $criteria, $context, $query, $table);
 
-        //add pagination
+        // add pagination
         if ($criteria->getOffset() !== null) {
             $query->setFirstResult($criteria->getOffset());
         }
@@ -92,7 +91,7 @@ class EntitySearcher implements EntitySearcherInterface
             $query->setTitle($criteria->getTitle() . '::search-ids');
         }
 
-        //execute and fetch ids
+        // execute and fetch ids
         $rows = $query->executeQuery()->fetchAllAssociative();
 
         $total = $this->getTotalCount($criteria, $query, $rows);
@@ -155,6 +154,9 @@ class EntitySearcher implements EntitySearcherInterface
         $query->setMaxResults($criteria->getLimit() * 6 + 1);
     }
 
+    /**
+     * @param list<array<string, mixed>> $data
+     */
     private function getTotalCount(Criteria $criteria, QueryBuilder $query, array $data): int
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
@@ -165,7 +167,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query->setMaxResults(null);
         $query->setFirstResult(0);
 
-        $total = new QueryBuilder($query->getConnection());
+        $total = new QueryBuilder($this->connection);
         $total->select(['COUNT(*)'])
             ->from(sprintf('(%s) total', $query->getSQL()))
             ->setParameters($query->getParameters(), $query->getParameterTypes());
@@ -192,6 +194,12 @@ class EntitySearcher implements EntitySearcherInterface
         }
     }
 
+    /**
+     * @param array<string>|array<array<string, string>> $ids
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private function sortByIdArray(array $ids, array $data): array
     {
         $sorted = [];

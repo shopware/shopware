@@ -11,10 +11,10 @@ import 'src/app/component/form/field-base/sw-field-error';
 Shopware.Component.register('sw-extension-my-extensions-listing-controls', swExtensionMyExtensionsListingControls);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 // eslint-disable-next-line max-len
-describe('src/Administration/Resources/app/administration/src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
+describe('src/module/sw-extension/component/sw-extension-my-extensions-listing-controls', () => {
     /** @type Wrapper */
     let wrapper;
 
@@ -26,8 +26,8 @@ describe('src/Administration/Resources/app/administration/src/module/sw-extensio
                 'sw-field-error': await Shopware.Component.build('sw-field-error'),
                 'sw-select-field': await Shopware.Component.build('sw-select-field'),
                 'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-icon': true
-            }
+                'sw-icon': true,
+            },
         });
     }
 

@@ -38,9 +38,7 @@ class ProductGatewayTest extends TestCase
         );
         $repository->method('search')->willReturn($emptySearchResult);
 
-        $validator = static::callback(static function ($subject) {
-            return $subject instanceof ProductGatewayCriteriaEvent;
-        });
+        $validator = static::callback(static fn ($subject) => $subject instanceof ProductGatewayCriteriaEvent);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->expects(static::once())->method('dispatch')->with($validator);

@@ -2,21 +2,22 @@
 
 namespace Shopware\Core\Migration\Test;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesLists;
 use Shopware\Core\Test\TestDefaults;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -79,7 +80,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             FROM sales_channel_language
             WHERE sales_channel_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 
@@ -97,7 +98,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             ON sc.id = scl.sales_channel_id
             WHERE sc.id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $languages = [];

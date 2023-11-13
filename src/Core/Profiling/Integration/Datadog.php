@@ -3,12 +3,12 @@
 namespace Shopware\Core\Profiling\Integration;
 
 use DDTrace\GlobalTracer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package core
- *
  * @internal experimental atm
  */
+#[Package('core')]
 class Datadog implements ProfilerInterface
 {
     private array $spans = [];

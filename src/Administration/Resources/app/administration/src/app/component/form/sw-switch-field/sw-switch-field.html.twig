@@ -8,31 +8,52 @@
 >
     <div class="sw-field--switch__content">
         <div class="sw-field--switch__input">
+            <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
+                {% if VUE3 %}
+                :id="formFieldName || identification"
+                {% else %}
                 :id="identification"
+                {% endif %}
                 type="checkbox"
                 :name="formFieldName || identification"
                 :checked="inputState"
                 :disabled="disabled"
                 @change="onChange"
             >
+            <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->
             <div class="sw-field__switch-state">
                 <div class="sw-field__switch-state-knob"></div>
             </div>
         </div>
-
+        <!-- eslint-disable vue/no-duplicate-attributes, vue/no-parsing-error -->
         <sw-base-field
+            {% if VUE3 %}
+            v-bind="{
+                ...$attrs,
+                ...inheritanceAttrs
+            }"
+            :is-inheritance-field="inheritanceAttrs.isInheritanceField"
+            :is-inherited="inheritanceAttrs.isInherited"
+            :name="formFieldName || identification"
+            {% else %}
             v-bind="$attrs"
-            :disabled="disabled"
-            :name="identification"
             :is-inheritance-field="isInheritanceField"
             :is-inherited="isInherited"
+            :name="identification"
+            {% endif %}
+            :disabled="disabled"
+            :label="label"
             @inheritance-restore="onInheritanceRestore($event)"
             @inheritance-remove="$emit('inheritance-remove', $event)"
         >
             <template #label>
                 <slot name="label"></slot>
+            </template>
+
+            <template #hint>
+                <slot name="hint"></slot>
             </template>
         </sw-base-field>
 

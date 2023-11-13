@@ -2,15 +2,15 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @package content
- *
  * @internal
  */
+#[Package('content')]
 final class AdminUiXmlSchema
 {
     public const FILENAME = 'admin-ui.xml';

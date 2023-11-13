@@ -16,21 +16,15 @@ class CountingEntitySearcher implements EntitySearcherInterface
     /**
      * @var int[]
      */
-    private static $count = [];
+    private static array $count = [];
 
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $inner;
-
-    public function __construct(EntitySearcherInterface $inner)
+    public function __construct(private readonly EntitySearcherInterface $inner)
     {
-        $this->inner = $inner;
     }
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        static::$count[$definition->getEntityName()] = static::$count[$definition->getEntityName()] ?? 0 + 1;
+        static::$count[$definition->getEntityName()] ??= 0 + 1;
 
         return $this->inner->search($definition, $criteria, $context);
     }

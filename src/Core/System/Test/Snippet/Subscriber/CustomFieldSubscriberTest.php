@@ -3,19 +3,18 @@
 namespace Shopware\Core\System\Test\Snippet\Subscriber;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class CustomFieldSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -30,10 +29,7 @@ class CustomFieldSubscriberTest extends TestCase
      */
     private $customFieldRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     /**
      * @var array
@@ -83,10 +79,10 @@ class CustomFieldSubscriberTest extends TestCase
                 SELECT snippet_set.iso, snippet.*
                 FROM snippet
                 LEFT JOIN snippet_set ON snippet_set.id = snippet.snippet_set_id
-            ')->fetchAll(FetchMode::ASSOCIATIVE)
+            ')->fetchAllAssociative()
         );
 
-        $snippetCount = $this->connection->executeQuery('SELECT count(*) FROM snippet')->fetchAll(\PDO::FETCH_COLUMN);
+        $snippetCount = $this->connection->executeQuery('SELECT count(*) FROM snippet')->fetchFirstColumn();
 
         static::assertSame($expectedCount, (int) $snippetCount[0]);
         foreach ($snippets as $locale => $languageSnippets) {
@@ -96,7 +92,7 @@ class CustomFieldSubscriberTest extends TestCase
         }
     }
 
-    public function dataProvider(): \Traversable
+    public static function dataProvider(): \Traversable
     {
         $customFieldSet = Uuid::randomHex();
         $customField = Uuid::randomHex();
@@ -706,7 +702,7 @@ class CustomFieldSubscriberTest extends TestCase
             ],
         ]], $this->context);
 
-        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchAll(FetchMode::COLUMN);
+        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchFirstColumn();
         static::assertSame([
             'DE - Label 1',
             'DE - Label 2',
@@ -716,7 +712,7 @@ class CustomFieldSubscriberTest extends TestCase
 
         $this->customFieldRepository->delete([['id' => $customFieldId]], $this->context);
 
-        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchAll(FetchMode::COLUMN);
+        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchFirstColumn();
         static::assertSame([
             'DE - Label 2',
             'EN - Label 2',
@@ -748,7 +744,7 @@ class CustomFieldSubscriberTest extends TestCase
 
         $this->customFieldRepository->create([$customField], $this->context);
 
-        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchAll(FetchMode::COLUMN);
+        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchFirstColumn();
         static::assertSame([
             'DE - Label 1',
             'EN - Label 1',

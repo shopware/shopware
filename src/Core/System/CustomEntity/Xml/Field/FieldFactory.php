@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\CustomEntity\Xml\Field;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class FieldFactory
 {
     private const MAPPING = [
@@ -28,6 +28,7 @@ class FieldFactory
      */
     public static function createFromXml(\DOMElement $element): Field
     {
+        /** @var class-string<Field>|null $class */
         $class = self::MAPPING[$element->tagName] ?? null;
 
         if (!$class) {

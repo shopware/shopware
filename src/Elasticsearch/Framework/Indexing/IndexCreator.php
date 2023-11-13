@@ -5,40 +5,30 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexConfigEvent;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexCreatedEvent;
 
-/**
- * @package core
- */
+#[Package('core')]
 class IndexCreator
 {
-    private Client $client;
-
     /**
      * @var array<mixed>
      */
-    private array $config;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $mapping;
-
-    private EventDispatcherInterface $eventDispatcher;
+    private readonly array $config;
 
     /**
      * @internal
      *
      * @param array<mixed> $config
-     * @param array<mixed> $mapping
      */
-    public function __construct(Client $client, array $config, array $mapping, EventDispatcherInterface $eventDispatcher)
-    {
-        $this->client = $client;
-        $this->mapping = $mapping;
-
+    public function __construct(
+        private readonly Client $client,
+        array $config,
+        private readonly IndexMappingProvider $mappingProvider,
+        private readonly EventDispatcherInterface $eventDispatcher
+    ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
                 unset($config['settings']['index']['number_of_shards']);
@@ -50,7 +40,6 @@ class IndexCreator
         }
 
         $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, string $alias, Context $context): void
@@ -62,11 +51,7 @@ class IndexCreator
         }
         // @codeCoverageIgnoreEnd
 
-        $mapping = $definition->getMapping($context);
-
-        $mapping = $this->addFullText($mapping);
-
-        $mapping = array_merge_recursive($mapping, $this->mapping);
+        $mapping = $this->mappingProvider->build($definition, $context);
 
         $body = array_merge(
             $this->config,
@@ -94,32 +79,6 @@ class IndexCreator
     private function indexExists(string $index): bool
     {
         return $this->client->indices()->exists(['index' => $index]);
-    }
-
-    /**
-     * @param array<mixed> $mapping
-     *
-     * @return array<mixed>
-     */
-    private function addFullText(array $mapping): array
-    {
-        $mapping['properties']['fullText'] = [
-            'type' => 'text',
-            'fields' => [
-                'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
-            ],
-        ];
-
-        $mapping['properties']['fullTextBoosted'] = ['type' => 'text'];
-
-        if (!\array_key_exists('_source', $mapping) || !\array_key_exists('includes', $mapping['_source'])) {
-            return $mapping;
-        }
-
-        $mapping['_source']['includes'][] = 'fullText';
-        $mapping['_source']['includes'][] = 'fullTextBoosted';
-
-        return $mapping;
     }
 
     private function createAliasIfNotExisting(string $index, string $alias): void

@@ -1,4 +1,4 @@
-{% sw_extends 'storefront/component/account/register.html.twig' %}
+{% sw_extends '@Storefront/storefront/component/account/register.html.twig' %}
 
 {% set hasSelectedBusiness = page.group.translated.registrationOnlyCompanyRegistration %}
 
@@ -20,15 +20,6 @@
     {{ parent() }}
 
     <input type="hidden" name="requestedGroupId" value="{{ page.group.id }}">
-{% endblock %}
-
-{% block component_account_register_form_action %}
-    <input type="hidden"
-           name="errorRoute"
-           value="frontend.account.customer-group-registration.page"/>
-    <input type="hidden"
-           name="errorParameters"
-           value="{{ errorParameters }}">
 {% endblock %}
 
 {% block component_account_register_personal_address_fields %}

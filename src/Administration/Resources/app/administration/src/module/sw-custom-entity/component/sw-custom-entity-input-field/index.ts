@@ -8,6 +8,8 @@ import template from './sw-custom-entity-input-field.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    inject: ['feature'],
+
     model: {
         prop: 'value',
         event: 'change',
@@ -58,6 +60,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onChange(eventInput: string | number): void {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:value', eventInput);
+
+                return;
+            }
+
             this.$emit('change', eventInput);
         },
     },

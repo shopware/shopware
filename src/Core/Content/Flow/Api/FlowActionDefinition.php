@@ -2,30 +2,20 @@
 
 namespace Shopware\Core\Content\Flow\Api;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 class FlowActionDefinition extends Struct
 {
-    protected string $name;
-
-    /**
-     * @var array<string>
-     */
-    protected array $requirements;
-
-    protected bool $delayable;
-
     /**
      * @param array<string> $requirements
      */
-    public function __construct(string $name, array $requirements, bool $delayable = false)
-    {
-        $this->name = $name;
-        $this->requirements = $requirements;
-        $this->delayable = $delayable;
+    public function __construct(
+        protected string $name,
+        protected array $requirements,
+        protected bool $delayable = false
+    ) {
     }
 
     public function getName(): string

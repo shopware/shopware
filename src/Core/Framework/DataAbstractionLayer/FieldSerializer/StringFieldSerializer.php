@@ -3,26 +3,28 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class StringFieldSerializer extends AbstractFieldSerializer
 {
     /**
@@ -31,7 +33,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
     public function __construct(
         ValidatorInterface $validator,
         DefinitionInstanceRegistry $definitionRegistry,
-        private HtmlSanitizer $sanitizer
+        private readonly HtmlSanitizer $sanitizer
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -43,7 +45,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
         WriteParameterBag $parameters
     ): \Generator {
         if (!$field instanceof StringField) {
-            throw new InvalidSerializerFieldException(StringField::class, $field);
+            throw DataAbstractionLayerException::invalidSerializerField(StringField::class, $field);
         }
 
         $tmp = $data->getValue();
@@ -87,6 +89,10 @@ class StringFieldSerializer extends AbstractFieldSerializer
 
         if (!$field->is(AllowEmptyString::class)) {
             $constraints[] = new NotBlank();
+        }
+
+        if ($field->is(AllowEmptyString::class) && $field->is(Required::class)) {
+            $constraints[] = new NotNull();
         }
 
         return $constraints;

@@ -26,7 +26,7 @@ function createEntityCollection(entities = []) {
 async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-settings-listing-visibility-detail'), {
         propsData: {
-            config
+            config,
         },
         provide: {
             repositoryFactory: {
@@ -36,18 +36,18 @@ async function createWrapper() {
                             {
                                 name: 'Headless',
                                 translated: { name: 'Headless' },
-                                id: '123'
-                            }
+                                id: '123',
+                            },
                         ]));
-                    }
-                })
-            }
+                    },
+                }),
+            },
         },
         stubs: {
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
             'sw-field-error': {
-                template: '<div></div>'
+                template: '<div></div>',
             },
             'sw-grid': await Shopware.Component.build('sw-grid'),
             'sw-pagination': await Shopware.Component.build('sw-pagination'),
@@ -55,9 +55,9 @@ async function createWrapper() {
             'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-icon': {
-                template: '<div></div>'
-            }
-        }
+                template: '<div></div>',
+            },
+        },
     });
 }
 
@@ -67,8 +67,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
             {
                 id: '123',
                 name: 'Headless',
-                visibility: 10
-            }
+                visibility: 10,
+            },
         ];
 
         const wrapper = await createWrapper();

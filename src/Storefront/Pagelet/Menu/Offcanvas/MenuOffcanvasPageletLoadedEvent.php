@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Pagelet\Menu\Offcanvas;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class MenuOffcanvasPageletLoadedEvent extends PageletLoadedEvent
 {
     /**

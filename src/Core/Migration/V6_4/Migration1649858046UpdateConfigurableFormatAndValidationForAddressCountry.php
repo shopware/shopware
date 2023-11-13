@@ -3,16 +3,18 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry extends MigrationStep
 {
-    public const PATTERNS = [
+    final public const PATTERNS = [
         'AC' => '[Aa][Ss][Cc][Nn]\\s{0,1}[1][Zz][Zz]',
         'AD' => 'AD[1-7]0\\d',
         'AF' => '\\d{4}',
@@ -214,7 +216,7 @@ class Migration1649858046UpdateConfigurableFormatAndValidationForAddressCountry 
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('
+        $connection->executeStatement('
             ALTER TABLE `country`
             ADD COLUMN `postal_code_required` TINYINT (1) NOT NULL DEFAULT 0 AFTER `company_tax`,
             ADD COLUMN `default_postal_code_pattern` VARCHAR (1024) NULL AFTER `company_tax`,

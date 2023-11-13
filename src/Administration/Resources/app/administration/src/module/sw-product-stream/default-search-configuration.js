@@ -1,5 +1,5 @@
 /*
- * @package inventory
+ * @package business-ops
  */
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
@@ -14,6 +14,5 @@ const defaultSearchConfiguration = {
 
 /**
  * @private
- * @package business-ops
  */
 export default defaultSearchConfiguration;

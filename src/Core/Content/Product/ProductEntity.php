@@ -30,19 +30,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitEntity;
 
-/**
- * @package inventory
- */
-class ProductEntity extends Entity
+#[Package('inventory')]
+class ProductEntity extends Entity implements \Stringable
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -275,7 +275,7 @@ class ProductEntity extends Entity
     protected $variantListingConfig;
 
     /**
-     * @var array<string>
+     * @var array<array<string>>
      */
     protected $variation = [];
 
@@ -385,11 +385,15 @@ class ProductEntity extends Entity
     protected $coverId;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var array<string>|null
      */
     protected $blacklistIds;
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @var array<string>|null
      */
     protected $whitelistIds;
@@ -496,7 +500,7 @@ class ProductEntity extends Entity
         $this->prices = new ProductPriceCollection();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->getName();
     }
@@ -1148,34 +1152,48 @@ class ProductEntity extends Entity
     }
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @return array<string>|null
      */
     public function getBlacklistIds(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->blacklistIds;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @param array<string>|null $blacklistIds
      */
     public function setBlacklistIds(?array $blacklistIds): void
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->blacklistIds = $blacklistIds;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @return array<string>|null
      */
     public function getWhitelistIds(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->whitelistIds;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - Will be removed without replacement
+     *
      * @param array<string>|null $whitelistIds
      */
     public function setWhitelistIds(?array $whitelistIds): void
     {
+        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->whitelistIds = $whitelistIds;
     }
 
@@ -1242,7 +1260,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @return array<string>
+     * @return array<array<string>>
      */
     public function getVariation(): array
     {
@@ -1250,7 +1268,7 @@ class ProductEntity extends Entity
     }
 
     /**
-     * @param array<string> $variation
+     * @param array<array<string>> $variation
      */
     public function setVariation(array $variation): void
     {

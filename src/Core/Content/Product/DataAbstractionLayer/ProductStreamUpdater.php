@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
@@ -20,40 +21,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/**
- * @package core
- */
-class ProductStreamUpdater extends EntityIndexer
+#[Package('core')]
+class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
-    private Connection $connection;
-
-    private ProductDefinition $productDefinition;
-
-    private EntityRepository $repository;
-
-    private MessageBusInterface $messageBus;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
-
     /**
      * @internal
      */
     public function __construct(
-        Connection $connection,
-        ProductDefinition $productDefinition,
-        EntityRepository $repository,
-        MessageBusInterface $messageBus,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+        private readonly Connection $connection,
+        private readonly ProductDefinition $productDefinition,
+        private readonly EntityRepository $repository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {
-        $this->connection = $connection;
-        $this->productDefinition = $productDefinition;
-        $this->repository = $repository;
-        $this->messageBus = $messageBus;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
     }
 
     public function getName(): string
@@ -91,7 +76,7 @@ class ProductStreamUpdater extends EntityIndexer
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $filter = json_decode((string) $filter, true);
+        $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
 
         $criteria = $this->getCriteria($filter);
 
@@ -100,6 +85,9 @@ class ProductStreamUpdater extends EntityIndexer
         }
 
         $criteria->setLimit(150);
+        $considerInheritance = $message->getContext()->considerInheritance();
+        $message->getContext()->setConsiderInheritance(true);
+
         $iterator = new RepositoryIterator(
             $this->repository,
             $message->getContext(),
@@ -135,6 +123,8 @@ class ProductStreamUpdater extends EntityIndexer
 
             $insert->execute();
         }
+
+        $message->getContext()->setConsiderInheritance($considerInheritance);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(
@@ -174,8 +164,10 @@ class ProductStreamUpdater extends EntityIndexer
 
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
+        $considerInheritance = $context->considerInheritance();
+        $context->setConsiderInheritance(true);
         foreach ($streams as $stream) {
-            $filter = json_decode((string) $stream['api_filter'], true);
+            $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
             if (empty($filter)) {
                 continue;
             }
@@ -188,7 +180,7 @@ class ProductStreamUpdater extends EntityIndexer
 
             try {
                 $matches = $this->repository->searchIds($criteria, $context);
-            } catch (UnmappedFieldException $e) {
+            } catch (UnmappedFieldException) {
                 // skip if filter field is not found
                 continue;
             }
@@ -204,12 +196,13 @@ class ProductStreamUpdater extends EntityIndexer
                 ]);
             }
         }
+        $context->setConsiderInheritance($considerInheritance);
 
         RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => Connection::PARAM_STR_ARRAY]
+                ['ids' => ArrayParameterType::BINARY]
             );
             $insert->execute();
         });
@@ -294,11 +287,11 @@ class ProductStreamUpdater extends EntityIndexer
         $fieldName = $filter['field'];
 
         $prefix = $this->productDefinition->getEntityName() . '.';
-        if (str_starts_with($fieldName, $prefix)) {
-            $fieldName = substr($fieldName, \strlen($prefix));
+        if (str_starts_with((string) $fieldName, $prefix)) {
+            $fieldName = substr((string) $fieldName, \strlen($prefix));
         }
 
-        $accessors = explode('.', $fieldName);
+        $accessors = explode('.', (string) $fieldName);
         if (($accessors[0] ?? '') !== 'cheapestPrice') {
             return null;
         }
@@ -307,8 +300,8 @@ class ProductStreamUpdater extends EntityIndexer
         $accessors = implode('.', $accessors);
 
         return [
-            array_merge($filter, ['field' => $prefix . 'price' . $accessors]),
-            array_merge($filter, ['field' => $prefix . 'prices.price' . $accessors]),
+            [...$filter, ...['field' => $prefix . 'price' . $accessors]],
+            [...$filter, ...['field' => $prefix . 'prices.price' . $accessors]],
         ];
     }
 }

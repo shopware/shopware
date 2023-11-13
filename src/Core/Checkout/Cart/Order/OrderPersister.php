@@ -11,26 +11,19 @@ use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class OrderPersister implements OrderPersisterInterface
 {
-    private EntityRepository $orderRepository;
-
-    private OrderConverter $converter;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityRepository $repository,
-        OrderConverter $converter
+        private readonly EntityRepository $orderRepository,
+        private readonly OrderConverter $converter
     ) {
-        $this->orderRepository = $repository;
-        $this->converter = $converter;
     }
 
     /**

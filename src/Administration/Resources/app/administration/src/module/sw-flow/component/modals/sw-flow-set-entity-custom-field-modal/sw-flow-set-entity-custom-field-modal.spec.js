@@ -18,7 +18,7 @@ import flowState from 'src/module/sw-flow/state/flow.state';
 Shopware.Component.register('sw-flow-set-entity-custom-field-modal', swFlowSetEntityCustomFieldModal);
 const fieldClasses = [
     '.sw-flow-set-entity-custom-field-modal__custom-field-set',
-    '.sw-flow-set-entity-custom-field-modal__custom-field'
+    '.sw-flow-set-entity-custom-field-modal__custom-field',
 ];
 
 const customNormalField = {
@@ -30,8 +30,8 @@ const customNormalField = {
         placeholder: { 'en-GB': 'Type a number...' },
         componentName: 'sw-field',
         customFieldType: 'number',
-        customFieldPosition: 1
-    }
+        customFieldPosition: 1,
+    },
 };
 
 const customMultipleField = {
@@ -41,14 +41,14 @@ const customMultipleField = {
         options: [
             { label: { 'en-GB': 'Option 1' }, value: 'op_1' },
             { label: { 'en-GB': 'Option 2' }, value: 'op_2' },
-            { label: { 'en-GB': 'Option 3' }, value: 'op_3' }
+            { label: { 'en-GB': 'Option 3' }, value: 'op_3' },
         ],
         helpText: { 'en-GB': null },
         placeholder: { 'en-GB': null },
         componentName: 'sw-multi-select',
         customFieldType: 'select',
-        customFieldPosition: 1
-    }
+        customFieldPosition: 1,
+    },
 };
 
 async function createWrapper(customField = customNormalField) {
@@ -59,7 +59,7 @@ async function createWrapper(customField = customNormalField) {
         localVue,
         provide: {
             flowBuilderService: {
-                getActionModalName: () => {}
+                getActionModalName: () => {},
             },
             repositoryFactory: {
                 create: (entity) => {
@@ -69,7 +69,7 @@ async function createWrapper(customField = customNormalField) {
 
                     if (entity === 'custom_field') {
                         return { search: () => Promise.resolve(
-                            [customField]
+                            [customField],
                         ) };
                     }
 
@@ -78,47 +78,47 @@ async function createWrapper(customField = customNormalField) {
                     }
 
                     return { search: () => Promise.resolve() };
-                }
-            }
+                },
+            },
         },
 
         propsData: {
-            sequence: {}
+            sequence: {},
         },
 
         mocks: {
-            $tc: (...args) => JSON.stringify([...args])
+            $tc: (...args) => JSON.stringify([...args]),
         },
 
         data() {
             return {
                 optionUpsert: {
                     id: 'upsert',
-                    name: 'Upsert'
+                    name: 'Upsert',
                 },
                 optionCreate: {
                     id: 'create',
-                    name: '3'
+                    name: '3',
                 },
                 optionClear: {
                     id: 'clear',
-                    name: '3'
+                    name: '3',
                 },
                 optionAdd: {
                     id: 'add',
-                    name: '4'
+                    name: '4',
                 },
                 optionRemove: {
                     id: 'remove',
-                    name: '5'
+                    name: '5',
                 },
                 fieldOptionSelected: 'upsert',
                 fieldOptions: [
                     {
                         id: 'upsert',
-                        name: 'Upsert'
-                    }
-                ]
+                        name: 'Upsert',
+                    },
+                ],
             };
         },
 
@@ -134,7 +134,7 @@ async function createWrapper(customField = customNormalField) {
             'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
             'sw-select-field': {
-                template: '<div class="sw-select-field"></div>'
+                template: '<div class="sw-select-field"></div>',
             },
             'sw-modal': {
                 template: `
@@ -143,10 +143,10 @@ async function createWrapper(customField = customNormalField) {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
             'sw-loader': true,
             'sw-label': true,
@@ -154,8 +154,8 @@ async function createWrapper(customField = customNormalField) {
             'sw-highlight-text': true,
             'sw-field': true,
             'sw-multi-select': true,
-            'sw-single-select': true
-        }
+            'sw-single-select': true,
+        },
     });
 }
 
@@ -169,14 +169,14 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
                     return [
                         {
                             label: 'Order',
-                            value: 'order'
+                            value: 'order',
                         },
                         {
                             label: 'Customer',
-                            value: 'customer'
-                        }
+                            value: 'customer',
+                        },
                     ];
-                }
+                },
             };
         });
     });
@@ -187,8 +187,8 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
             triggerEvent: {
                 data: {
                     order: {
-                        type: 'entity'
-                    }
+                        type: 'entity',
+                    },
                 },
                 customerAware: false,
                 extensions: [],
@@ -198,11 +198,11 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
                 orderAware: true,
                 salesChannelAware: true,
                 userAware: false,
-                webhookAware: true
+                webhookAware: true,
             },
             customFieldSets: [],
-            customFields: []
-        }
+            customFields: [],
+        },
     });
 
     it('should show these fields on modal', async () => {
@@ -340,8 +340,8 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
                 customFieldId: 'field1',
                 customFieldValue: null,
                 option: 'upsert',
-                optionLabel: '[\"sw-flow.modals.setEntityCustomField.options.overwrite\"]'
-            }
+                optionLabel: '[\"sw-flow.modals.setEntityCustomField.options.overwrite\"]',
+            },
         }]);
     });
 

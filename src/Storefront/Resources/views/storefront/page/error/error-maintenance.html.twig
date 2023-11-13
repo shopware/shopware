@@ -19,7 +19,8 @@
                 <noscript class="noscript-main">
                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                         type: 'info',
-                        content: 'general.noscriptNotice'|trans|sw_sanitize
+                        content: 'general.noscriptNotice'|trans|sw_sanitize,
+                        iconCache: false
                     } %}
                 </noscript>
             {% endblock %}
@@ -53,9 +54,9 @@
                         {% else %}
                             {% block error_maintenance_main_fallback %}
                                 <div class="container mt-5">
-                                    <img src="{{ asset('bundles/storefront/assets/illustration/maintenance_mode.svg', 'asset') }}"
+                                    <img src="{{ asset('assets/illustration/maintenance_mode.svg', 'theme') }}"
                                          alt="{{ "general.maintenanceModeHeader"|trans|striptags }}"
-                                         class="rounded mx-auto d-block w-75"/>
+                                         class="rounded mx-auto d-block w-75">
 
                                     <h1 class="mt-4 text-center">{{ "general.maintenanceModeHeader"|trans }}</h1>
                                     <p class="text-center">{{ "general.maintenanceModeDescription"|trans }}</p>

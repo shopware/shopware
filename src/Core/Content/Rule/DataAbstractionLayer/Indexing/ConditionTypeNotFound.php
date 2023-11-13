@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing;
 
-/**
- * @package business-ops
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('services-settings')]
 class ConditionTypeNotFound extends \RuntimeException
 {
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -32,29 +32,29 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
-use function array_filter;
 
 /**
  * @internal
- *
- * @package core
  */
+#[Package('core')]
 class EntityReader implements EntityReaderInterface
 {
-    public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
-    public const FOREIGN_KEYS = 'foreignKeys';
-    public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
+    final public const INTERNAL_MAPPING_STORAGE = 'internal_mapping_storage';
+    final public const FOREIGN_KEYS = 'foreignKeys';
+    final public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
     public function __construct(
-        private Connection $connection,
-        private EntityHydrator $hydrator,
-        private EntityDefinitionQueryHelper $queryHelper,
-        private SqlQueryParser $parser,
-        private CriteriaQueryBuilder $criteriaQueryBuilder,
-        private LoggerInterface $logger
+        private readonly Connection $connection,
+        private readonly EntityHydrator $hydrator,
+        private readonly EntityDefinitionQueryHelper $queryHelper,
+        private readonly SqlQueryParser $parser,
+        private readonly CriteriaQueryBuilder $criteriaQueryBuilder,
+        private readonly LoggerInterface $logger,
+        private readonly CriteriaFieldsResolver $criteriaFieldsResolver
     ) {
     }
 
@@ -69,7 +69,7 @@ class EntityReader implements EntityReaderInterface
         /** @var EntityCollection<Entity> $collectionClass */
         $collectionClass = $definition->getCollectionClass();
 
-        $fields = $this->buildCriteriaFields($criteria, $definition);
+        $fields = $this->criteriaFieldsResolver->resolve($criteria, $definition);
 
         return $this->_read(
             $criteria,
@@ -89,6 +89,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      *
      * @return EntityCollection<Entity>
      */
@@ -110,7 +111,7 @@ class EntityReader implements EntityReaderInterface
 
         if ($partial !== []) {
             $fields = $definition->getFields()->filter(function (Field $field) use (&$partial) {
-                if ($field->getFlag(PrimaryKey::class) || $field instanceof ManyToManyIdField) {
+                if ($field->getFlag(PrimaryKey::class)) {
                     $partial[$field->getPropertyName()] = [];
 
                     return true;
@@ -141,6 +142,9 @@ class EntityReader implements EntityReaderInterface
         return $collection;
     }
 
+    /**
+     * @param array<string, mixed> $partial
+     */
     private function joinBasic(
         EntityDefinition $definition,
         Context $context,
@@ -177,7 +181,7 @@ class EntityReader implements EntityReaderInterface
 
         /** @var Field $field */
         foreach ($filtered as $field) {
-            //translated fields are handled after loop all together
+            // translated fields are handled after loop all together
             if ($field instanceof TranslatedField) {
                 $this->queryHelper->resolveField($field, $definition, $root, $query, $context);
 
@@ -186,12 +190,12 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            //self references can not be resolved if set to autoload, otherwise we get an endless loop
+            // self references can not be resolved if set to autoload, otherwise we get an endless loop
             if (!$field instanceof ParentAssociationField && $field instanceof AssociationField && $field->getAutoload() && $field->getReferenceDefinition() === $definition) {
                 continue;
             }
 
-            //many to one associations can be directly fetched in same query
+            // many to one associations can be directly fetched in same query
             if ($field instanceof ManyToOneAssociationField || $field instanceof OneToOneAssociationField) {
                 $reference = $field->getReferenceDefinition();
 
@@ -212,20 +216,20 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            //add sub select for many to many field
+            // add sub select for many to many field
             if ($field instanceof ManyToManyAssociationField) {
                 if ($this->isAssociationRestricted($criteria, $field->getPropertyName())) {
                     continue;
                 }
 
-                //requested a paginated, filtered or sorted list
+                // requested a paginated, filtered or sorted list
 
                 $this->addManyToManySelect($definition, $root, $field, $query, $context);
 
                 continue;
             }
 
-            //other associations like OneToManyAssociationField fetched lazy by additional query
+            // other associations like OneToManyAssociationField fetched lazy by additional query
             if ($field instanceof AssociationField) {
                 continue;
             }
@@ -237,15 +241,15 @@ class EntityReader implements EntityReaderInterface
             ) {
                 $parentAlias = $root . '.' . $parentAssociation->getPropertyName();
 
-                //contains the field accessor for the child value (eg. `product.name`.`name`)
+                // contains the field accessor for the child value (eg. `product.name`.`name`)
                 $childAccessor = EntityDefinitionQueryHelper::escape($root) . '.'
                     . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-                //contains the field accessor for the parent value (eg. `product.parent`.`name`)
+                // contains the field accessor for the parent value (eg. `product.parent`.`name`)
                 $parentAccessor = EntityDefinitionQueryHelper::escape($parentAlias) . '.'
                     . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-                //contains the alias for the resolved field (eg. `product.name`)
+                // contains the alias for the resolved field (eg. `product.name`)
                 $fieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName());
 
                 if ($field instanceof JsonField) {
@@ -253,13 +257,13 @@ class EntityReader implements EntityReaderInterface
                     $parentFieldAlias = EntityDefinitionQueryHelper::escape($root . '.' . $field->getPropertyName() . '.inherited');
                     $query->addSelect(sprintf('%s as %s', $parentAccessor, $parentFieldAlias));
                 }
-                //add selection for resolved parent-child inheritance field
+                // add selection for resolved parent-child inheritance field
                 $query->addSelect(sprintf('COALESCE(%s, %s) as %s', $childAccessor, $parentAccessor, $fieldAlias));
 
                 continue;
             }
 
-            //all other StorageAware fields are stored inside the main entity
+            // all other StorageAware fields are stored inside the main entity
             if ($field instanceof StorageAware) {
                 $query->addSelect(
                     EntityDefinitionQueryHelper::escape($root) . '.'
@@ -274,6 +278,11 @@ class EntityReader implements EntityReaderInterface
         }
     }
 
+    /**
+     * @param array<string, mixed> $partial
+     *
+     * @return list<array<string, mixed>>
+     */
     private function fetch(Criteria $criteria, EntityDefinition $definition, Context $context, FieldCollection $fields, array $partial = []): array
     {
         $table = $definition->getEntityName();
@@ -300,6 +309,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadManyToMany(
         Criteria $criteria,
@@ -316,16 +326,16 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        //check if the requested criteria is restricted (limit, offset, sorting, filtering)
+        // check if the requested criteria is restricted (limit, offset, sorting, filtering)
         if ($this->isAssociationRestricted($criteria, $association->getPropertyName())) {
-            //if restricted load paginated list of many to many
+            // if restricted load paginated list of many to many
             $this->loadManyToManyWithCriteria($associationCriteria, $association, $context, $collection, $partial);
 
             return;
         }
 
-        //otherwise the association is loaded in the root query of the entity as sub select which contains all ids
-        //the ids are extracted in the entity hydrator (see: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::extractManyToManyIds)
+        // otherwise the association is loaded in the root query of the entity as sub select which contains all ids
+        // the ids are extracted in the entity hydrator (see: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator::extractManyToManyIds)
         $this->loadManyToManyOverExtension($associationCriteria, $association, $context, $collection, $partial);
     }
 
@@ -374,6 +384,8 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     *
+     * @return array<string>
      */
     private function collectManyToManyIds(EntityCollection $collection, AssociationField $association): array
     {
@@ -395,6 +407,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadOneToMany(
         Criteria $criteria,
@@ -415,19 +428,20 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        //association should not be paginated > load data over foreign key condition
+        // association should not be paginated > load data over foreign key condition
         if ($fieldCriteria->getLimit() === null) {
             $this->loadOneToManyWithoutPagination($definition, $association, $context, $collection, $fieldCriteria, $partial);
 
             return;
         }
 
-        //load association paginated > use internal counter loops
+        // load association paginated > use internal counter loops
         $this->loadOneToManyWithPagination($definition, $association, $context, $collection, $fieldCriteria, $partial);
     }
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadOneToManyWithoutPagination(
         EntityDefinition $definition,
@@ -448,7 +462,7 @@ class EntityReader implements EntityReaderInterface
             $propertyName = 'parentId';
         }
 
-        //build orm property accessor to add field sortings and conditions `customer_address.customerId`
+        // build orm property accessor to add field sortings and conditions `customer_address.customerId`
         $propertyAccessor = $association->getReferenceDefinition()->getEntityName() . '.' . $propertyName;
 
         $ids = array_values($collection->getIds());
@@ -456,11 +470,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
-                return $entity->get('parentId');
-            })));
+            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = array_unique([...$ids, ...$parentIds]);
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -492,18 +504,18 @@ class EntityReader implements EntityReaderInterface
             $grouped[$fk][] = $entity;
         }
 
-        //assign loaded data to root entities
+        // assign loaded data to root entities
         foreach ($collection as $entity) {
             $structData = new $collectionClass();
             if (isset($grouped[$entity->getUniqueIdentifier()])) {
                 $structData->fill($grouped[$entity->getUniqueIdentifier()]);
             }
 
-            //assign data of child immediately
+            // assign data of child immediately
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
-                //otherwise the data will be assigned directly as properties
+                // otherwise the data will be assigned directly as properties
                 $entity->assign([$association->getPropertyName() => $structData]);
             }
 
@@ -511,7 +523,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            //if association can be inherited by the parent and the struct data is empty, filter again for the parent id
+            // if association can be inherited by the parent and the struct data is empty, filter again for the parent id
             $structData = new $collectionClass();
             if (isset($grouped[$entity->get('parentId')])) {
                 $structData->fill($grouped[$entity->get('parentId')]);
@@ -528,6 +540,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadOneToManyWithPagination(
         EntityDefinition $definition,
@@ -560,11 +573,9 @@ class EntityReader implements EntityReaderInterface
         $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
-            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
-                return $entity->get('parentId');
-            })));
+            $parentIds = array_values(\array_filter($collection->map(fn (Entity $entity) => $entity->get('parentId'))));
 
-            $ids = array_unique(array_merge($ids, $parentIds));
+            $ids = array_unique([...$ids, ...$parentIds]);
         }
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
@@ -578,7 +589,7 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $fieldCriteria->setIds(array_filter($ids));
+        $fieldCriteria->setIds(\array_filter($ids));
         $fieldCriteria->resetSorting();
         $fieldCriteria->resetFilters();
         $fieldCriteria->resetPostFilters();
@@ -597,15 +608,15 @@ class EntityReader implements EntityReaderInterface
             $partial
         );
 
-        //assign loaded reference collections to root entities
+        // assign loaded reference collections to root entities
         /** @var Entity $entity */
         foreach ($collection as $entity) {
-            //extract mapping ids for the current entity
-            $mappingIds = $mapping[$entity->getUniqueIdentifier()];
+            // extract mapping ids for the current entity
+            $mappingIds = $mapping[$entity->getUniqueIdentifier()] ?? [];
 
             $structData = $data->getList($mappingIds);
 
-            //assign data of child immediately
+            // assign data of child immediately
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
@@ -622,12 +633,12 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            //extract mapping ids for the current entity
+            // extract mapping ids for the current entity
             $mappingIds = $mapping[$parentId];
 
             $structData = $data->getList($mappingIds);
 
-            //assign data of child immediately
+            // assign data of child immediately
             if ($association->is(Extension::class)) {
                 $entity->addExtension($association->getPropertyName(), $structData);
             } else {
@@ -638,6 +649,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadManyToManyOverExtension(
         Criteria $criteria,
@@ -646,7 +658,7 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection,
         array $partial
     ): void {
-        //collect all ids of many to many association which already stored inside the struct instances
+        // collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
 
         $criteria->setIds($ids);
@@ -670,12 +682,12 @@ class EntityReader implements EntityReaderInterface
             /** @var ArrayEntity $extension */
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
-            //use assign function to avoid setter name building
+            // use assign function to avoid setter name building
             $structData = $data->getList(
                 $extension->get($association->getPropertyName())
             );
 
-            //if the association is added as extension (for plugins), we have to add the data as extension
+            // if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
@@ -686,6 +698,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadManyToManyWithCriteria(
         Criteria $fieldCriteria,
@@ -719,7 +732,7 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        //build inverse accessor `product.categories.id`
+        // build inverse accessor `product.categories.id`
         $accessor = $association->getToManyReferenceDefinition()->getEntityName() . '.' . $reference->getPropertyName() . '.id';
 
         $fieldCriteria->addFilter(new EqualsAnyFilter($accessor, $collection->getIds()));
@@ -788,7 +801,7 @@ class EntityReader implements EntityReaderInterface
 
         $ids = [];
         foreach ($mapping as &$row) {
-            $row = array_filter(explode(',', $row));
+            $row = \array_filter(explode(',', (string) $row));
             foreach ($row as $id) {
                 $ids[] = $id;
             }
@@ -819,20 +832,20 @@ class EntityReader implements EntityReaderInterface
             $parentId = $struct->has('parentId') ? $struct->get('parentId') : '';
 
             if (\array_key_exists($struct->getUniqueIdentifier(), $mapping)) {
-                //filter mapping list of whole data array
+                // filter mapping list of whole data array
                 $structData = $data->getList($mapping[$id]);
 
-                //sort list by ids if the criteria contained a sorting
+                // sort list by ids if the criteria contained a sorting
                 $structData->sortByIdArray($mapping[$id]);
             } elseif (\array_key_exists($parentId, $mapping) && $association->is(Inherited::class) && $context->considerInheritance()) {
-                //filter mapping for the inherited parent association
+                // filter mapping for the inherited parent association
                 $structData = $data->getList($mapping[$parentId]);
 
-                //sort list by ids if the criteria contained a sorting
+                // sort list by ids if the criteria contained a sorting
                 $structData->sortByIdArray($mapping[$parentId]);
             }
 
-            //if the association is added as extension (for plugins), we have to add the data as extension
+            // if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {
                 $struct->addExtension($association->getPropertyName(), $structData);
             } else {
@@ -843,6 +856,8 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     *
+     * @return array<string, string[]>
      */
     private function fetchPaginatedOneToManyMapping(
         EntityDefinition $definition,
@@ -856,7 +871,7 @@ class EntityReader implements EntityReaderInterface
         // Remove first entry
         array_shift($sortings);
 
-        //build query based on provided association criteria (sortings, search, filter)
+        // build query based on provided association criteria (sortings, search, filter)
         $query = $this->criteriaQueryBuilder->build(
             new QueryBuilder($this->connection),
             $association->getReferenceDefinition(),
@@ -876,19 +891,19 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        //build sql accessor for foreign key field in reference table `customer_address.customer_id`
+        // build sql accessor for foreign key field in reference table `customer_address.customer_id`
         $sqlAccessor = EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.'
             . EntityDefinitionQueryHelper::escape($foreignKey);
 
         $query->select(
             [
-                //build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
+                // build select with an internal counter loop, the counter loop will be reset if the foreign key changed (this is the reason for the sorting inject above)
                 '@n:=IF(@c=' . $sqlAccessor . ', @n+1, IF(@c:=' . $sqlAccessor . ',1,1)) as id_count',
 
-                //add select for foreign key for join condition
+                // add select for foreign key for join condition
                 $sqlAccessor,
 
-                //add primary key select to group concat them
+                // add primary key select to group concat them
                 EntityDefinitionQueryHelper::escape($association->getReferenceDefinition()->getEntityName()) . '.id',
             ]
         );
@@ -901,12 +916,12 @@ class EntityReader implements EntityReaderInterface
             --$i;
 
             // Strip the ASC/DESC at the end of the sort
-            $query->addSelect(\sprintf('%s as sort_%s', substr($sorting, 0, -4), $i));
+            $query->addSelect(\sprintf('%s as sort_%d', substr((string) $sorting, 0, -4), $i));
         }
 
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
 
-        //create a wrapper query which select the root primary key and the grouped reference ids
+        // create a wrapper query which select the root primary key and the grouped reference ids
         $wrapper = $this->connection->createQueryBuilder();
         $wrapper->select(
             [
@@ -921,7 +936,7 @@ class EntityReader implements EntityReaderInterface
 
         $wrapper->from($root, $root);
 
-        //wrap query into a sub select to restrict the association count from the outer query
+        // wrap query into a sub select to restrict the association count from the outer query
         $wrapper->leftJoin(
             $root,
             '(' . $query->getSQL() . ')',
@@ -929,13 +944,11 @@ class EntityReader implements EntityReaderInterface
             'child.' . $foreignKey . ' = ' . $root . '.id AND id_count >= :offset AND id_count <= :limit'
         );
 
-        //filter result to loaded root entities
+        // filter result to loaded root entities
         $wrapper->andWhere($root . '.id IN (:rootIds)');
 
         $bytes = $collection->map(
-            function (Entity $entity) {
-                return Uuid::fromHexToBytes($entity->getUniqueIdentifier());
-            }
+            fn (Entity $entity) => Uuid::fromHexToBytes($entity->getUniqueIdentifier())
         );
 
         if ($definition->isInheritanceAware() && $context->considerInheritance()) {
@@ -947,7 +960,7 @@ class EntityReader implements EntityReaderInterface
             }
         }
 
-        $wrapper->setParameter('rootIds', $bytes, Connection::PARAM_STR_ARRAY);
+        $wrapper->setParameter('rootIds', $bytes, ArrayParameterType::BINARY);
 
         $limit = $fieldCriteria->getOffset() + $fieldCriteria->getLimit();
         $offset = $fieldCriteria->getOffset() + 1;
@@ -960,14 +973,14 @@ class EntityReader implements EntityReaderInterface
             $wrapper->setParameter($key, $value, $type);
         }
 
-        //initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
+        // initials the cursor and loop counter, pdo do not allow to execute SET and SELECT in one statement
         $this->connection->executeQuery('SET @n = 0; SET @c = null;');
 
         $rows = $wrapper->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
         foreach ($rows as $row) {
-            $id = $row['id'];
+            $id = (string) $row['id'];
 
             if (!isset($grouped[$id])) {
                 $grouped[$id] = [];
@@ -977,7 +990,7 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            $grouped[$id][] = $row['child_id'];
+            $grouped[$id][] = (string) $row['child_id'];
         }
 
         return $grouped;
@@ -1080,6 +1093,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      */
     private function loadToOne(
         AssociationField $association,
@@ -1107,7 +1121,7 @@ class EntityReader implements EntityReaderInterface
             );
         }
 
-        $related = array_filter($collection->map(function (Entity $entity) use ($association) {
+        $related = \array_filter($collection->map(function (Entity $entity) use ($association) {
             if ($association->is(Extension::class)) {
                 return $entity->getExtension($association->getPropertyName());
             }
@@ -1135,7 +1149,6 @@ class EntityReader implements EntityReaderInterface
 
         $this->fetchAssociations($associationCriteria, $referenceDefinition, $context, $relatedCollection, $fields, $partial);
 
-        /** @var Entity $entity */
         foreach ($collection as $entity) {
             if ($association->is(Extension::class)) {
                 $item = $entity->getExtension($association->getPropertyName());
@@ -1143,13 +1156,15 @@ class EntityReader implements EntityReaderInterface
                 $item = $entity->get($association->getPropertyName());
             }
 
-            /** @var Entity|null $item */
-            if ($item === null) {
+            if (!$item instanceof Entity) {
                 continue;
             }
 
             if ($association->is(Extension::class)) {
-                $entity->addExtension($association->getPropertyName(), $relatedCollection->get($item->getUniqueIdentifier()));
+                $extension = $relatedCollection->get($item->getUniqueIdentifier());
+                if ($extension !== null) {
+                    $entity->addExtension($association->getPropertyName(), $extension);
+                }
 
                 continue;
             }
@@ -1162,6 +1177,7 @@ class EntityReader implements EntityReaderInterface
 
     /**
      * @param EntityCollection<Entity> $collection
+     * @param array<string, mixed> $partial
      *
      * @return EntityCollection<Entity>
      */
@@ -1204,50 +1220,5 @@ class EntityReader implements EntityReaderInterface
         }
 
         return $collection;
-    }
-
-    private function addAssociationsToCriteriaFields(Criteria $criteria, array &$fields): void
-    {
-        if ($fields === []) {
-            return;
-        }
-
-        foreach ($criteria->getAssociations() as $fieldName => $fieldCriteria) {
-            if (!isset($fields[$fieldName])) {
-                $fields[$fieldName] = [];
-            }
-
-            $this->addAssociationsToCriteriaFields($fieldCriteria, $fields[$fieldName]);
-        }
-    }
-
-    private function buildCriteriaFields(Criteria $criteria, EntityDefinition $definition): array
-    {
-        if (empty($criteria->getFields())) {
-            return [];
-        }
-
-        $fields = [];
-
-        $this->addAssociationsToCriteriaFields($criteria, $fields);
-
-        foreach ($criteria->getFields() as $field) {
-            $association = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $field, true);
-
-            if ($association !== [] && $association[0] instanceof AssociationField) {
-                $criteria->addAssociation($field);
-            }
-
-            $pointer = &$fields;
-            foreach (explode('.', $field) as $part) {
-                if (!isset($pointer[$part])) {
-                    $pointer[$part] = [];
-                }
-
-                $pointer = &$pointer[$part];
-            }
-        }
-
-        return $fields;
     }
 }

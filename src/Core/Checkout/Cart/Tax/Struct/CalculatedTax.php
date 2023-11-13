@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class CalculatedTax extends Struct
 {
     /**
@@ -25,8 +24,11 @@ class CalculatedTax extends Struct
      */
     protected $price = 0;
 
-    public function __construct(float $tax, float $taxRate, float $price)
-    {
+    public function __construct(
+        float $tax,
+        float $taxRate,
+        float $price
+    ) {
         $this->tax = FloatComparator::cast($tax);
         $this->taxRate = FloatComparator::cast($taxRate);
         $this->price = FloatComparator::cast($price);

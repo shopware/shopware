@@ -16,13 +16,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ShippingMethodPriceDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'shipping_method_price';
+    final public const ENTITY_NAME = 'shipping_method_price';
 
     public function getEntityName(): string
     {

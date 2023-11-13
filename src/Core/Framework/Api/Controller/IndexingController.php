@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,49 +14,33 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(defaults={"_routeScope"={"api"}})
- *
- * @package system-settings
- */
+#[Route(defaults: ['_routeScope' => ['api']])]
+#[Package('system-settings')]
 class IndexingController extends AbstractController
 {
     /**
-     * @var EntityIndexerRegistry
-     */
-    private $registry;
-
-    private MessageBusInterface $messageBus;
-
-    /**
      * @internal
      */
-    public function __construct(EntityIndexerRegistry $registry, MessageBusInterface $messageBus)
-    {
-        $this->registry = $registry;
-        $this->messageBus = $messageBus;
+    public function __construct(
+        private readonly EntityIndexerRegistry $registry,
+        private readonly MessageBusInterface $messageBus
+    ) {
     }
 
-    /**
-     * @Since("6.0.0.0")
-     * @Route("/api/_action/indexing", name="api.action.indexing", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/indexing', name: 'api.action.indexing', methods: ['POST'])]
     public function indexing(Request $request): JsonResponse
     {
-        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         $this->registry->sendIndexingMessage([], $indexingSkips);
 
         return new JsonResponse();
     }
 
-    /**
-     * @Since("6.4.0.0")
-     * @Route("/api/_action/indexing/{indexer}", name="api.action.indexing.iterate", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/indexing/{indexer}', name: 'api.action.indexing.iterate', methods: ['POST'])]
     public function iterate(string $indexer, Request $request): JsonResponse
     {
-        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        $indexingSkips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         if (!$request->request->has('offset')) {
             throw new BadRequestHttpException('Parameter `offset` missing');
@@ -80,10 +64,7 @@ class IndexingController extends AbstractController
         return new JsonResponse(['finish' => false, 'offset' => $message->getOffset()]);
     }
 
-    /**
-     * @Since("6.4.2.1")
-     * @Route("/api/_action/index-products", name="api.action.indexing.products", methods={"POST"})
-     */
+    #[Route(path: '/api/_action/index-products', name: 'api.action.indexing.products', methods: ['POST'])]
     public function products(Request $request): JsonResponse
     {
         if (!$request->request->has('ids')) {
@@ -96,7 +77,7 @@ class IndexingController extends AbstractController
             throw new BadRequestHttpException('Parameter `ids` is no array or empty');
         }
 
-        $skips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+        $skips = array_filter(explode(',', (string) $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
 
         $message = new ProductIndexingMessage($ids, null);
         $message->setIndexer('product.indexer');

@@ -16,7 +16,7 @@
             v-for="currentStar in maxStars"
             :key="`placeholder${currentStar}`"
             class="sw-rating-stars__star star-empty"
-            name="default-review-star-full"
+            name="solid-star"
             :size="iconSize.toString()"
         />
         {% endblock %}
@@ -35,7 +35,7 @@
             v-for="currentStar in Math.floor(cappedValue)"
             :key="`full${currentStar}`"
             class="sw-rating-stars__star star-full"
-            name="default-review-star-full"
+            name="solid-star"
             :size="iconSize.toString()"
         />
         {% endblock %}
@@ -46,7 +46,7 @@
             v-if="(cappedValue % 1) > 0"
             class="sw-rating-stars__star star-partial"
             :style="partialStarCutStyle"
-            name="default-review-star-full"
+            name="solid-star"
             :size="iconSize.toString()"
         />
         {% endblock %}

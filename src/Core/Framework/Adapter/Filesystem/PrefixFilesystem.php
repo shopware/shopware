@@ -7,26 +7,23 @@ use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class PrefixFilesystem implements FilesystemOperator
 {
-    protected FilesystemOperator $filesystem;
-
-    private string $prefix;
+    private readonly string $prefix;
 
     /**
      * @internal
      */
-    public function __construct(FilesystemOperator $filesystem, string $prefix)
-    {
+    public function __construct(
+        protected FilesystemOperator $filesystem,
+        string $prefix
+    ) {
         if (empty($prefix)) {
             throw new \InvalidArgumentException('The prefix must not be empty.');
         }
-
-        $this->filesystem = $filesystem;
         $this->prefix = trim($prefix, '/') . '/';
     }
 
@@ -78,7 +75,7 @@ class PrefixFilesystem implements FilesystemOperator
                 }
                 // @codeCoverageIgnoreStart
                 return $info;
-            // @codeCoverageIgnoreEnd
+                // @codeCoverageIgnoreEnd
             },
             $this->filesystem->listContents($location, $deep)->toArray()
         ));

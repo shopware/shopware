@@ -15,6 +15,28 @@
         v-else
         class="sw-customer-base-info-columns"
     >
+        <template v-if="isBusinessAccountType && !customerEditMode">
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelCompany') }}
+                </dt>
+
+                <dd>
+                    {{ customer.company }}
+                </dd>
+            </sw-description-list>
+
+            <sw-description-list>
+                <dt class="sw-customer-base-info__label">
+                    {{ $tc('sw-customer.baseInfo.labelVatId') }}
+                </dt>
+
+                <dd>
+                    {{ customer.vatIds[0] || '-' }}
+                </dd>
+            </sw-description-list>
+        </template>
+
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_customer_group %}
         <sw-description-list>
@@ -36,10 +58,15 @@
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.groupId"
+                    {% else %}
                     v-model="customer.groupId"
+                    {% endif %}
                     entity="customer_group"
                     size="small"
                     show-clearable-button
+                    :error="customerGroupIdError"
                 />
             </dd>
             {% endblock %}
@@ -70,12 +97,17 @@
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.defaultPaymentMethodId"
+                    {% else %}
                     v-model="customer.defaultPaymentMethodId"
+                    {% endif %}
                     class="sw-customer-base-info__payment-select"
                     entity="payment_method"
                     label-property="distinguishableName"
                     size="small"
                     show-clearable-button
+                    :error="customerDefaultPaymentMethodIdError"
                 />
             </dd>
             {% endblock %}
@@ -106,7 +138,11 @@
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
                 <sw-checkbox-field
+                    {% if VUE3 %}
+                    v-model:value="customer.active"
+                    {% else %}
                     v-model="customer.active"
+                    {% endif %}
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
                     size="small"
@@ -140,7 +176,11 @@
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
+                    {% if VUE3 %}
+                    v-model:value="customer.languageId"
+                    {% else %}
                     v-model="customer.languageId"
+                    {% endif %}
                     class="sw-customer-base-info__language-select"
                     entity="language"
                     :criteria="languageCriteria"
@@ -218,7 +258,7 @@
             </dt>
             <dd class="sw-customer-base__label-last-login">
                 <template v-if="customer.lastLogin">
-                    {{ customer.lastLogin | date }}
+                    {{ dateFilter(customer.lastLogin) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
@@ -235,7 +275,7 @@
             </dt>
             {# price aggregations do not support currencies yet, see NEXT-5069 #}
             <dd class="sw-customer-base__label-turnover">
-                {{ orderAmount | currency('EUR') }}
+                {{ currencyFilter(orderAmount, 'EUR') }}
             </dd>
         </sw-description-list>
         {% endblock %}
@@ -267,7 +307,7 @@
                 class="sw-customer-base__label-birthday"
             >
                 <template v-if="customer.birthday">
-                    {{ customer.birthday | date({ minute: undefined, hour: undefined }) }}
+                    {{ dateFilter(customer.birthday, { minute: undefined, hour: undefined, skipTimezoneConversion: true }) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}
@@ -279,7 +319,11 @@
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
                 <sw-datepicker
+                    {% if VUE3 %}
+                    v-model:value="customer.birthday"
+                    {% else %}
                     v-model="customer.birthday"
+                    {% endif %}
                     size="small"
                     date-type="date"
                 />

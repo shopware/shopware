@@ -12,7 +12,7 @@ const fieldClasses = [
     '.sw-flow-event-change-confirm-modal__title',
     '.sw-flow-event-change-confirm-modal__text-confirmation',
     '.sw-flow-event-change-confirm-modal__confirm-button',
-    '.sw-flow-event-change-confirm-modal__cancel-button'
+    '.sw-flow-event-change-confirm-modal__cancel-button',
 ];
 
 const btnConfirmClass = '.sw-flow-event-change-confirm-modal__confirm-button';
@@ -24,8 +24,8 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-flow-event-change-confirm-modal'), {
         propsData: {
             item: {
-                id: 'action-name'
-            }
+                id: 'action-name',
+            },
         },
 
         stubs: {
@@ -36,19 +36,19 @@ async function createWrapper() {
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
-                `
+                `,
             },
             'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
             },
-            'sw-icon': true
-        }
+            'sw-icon': true,
+        },
     });
 }
 
 describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', () => {
     Shopware.State.registerModule('swFlowState', {
-        ...flowState
+        ...flowState,
     });
 
     it('should show element correctly', async () => {
@@ -77,21 +77,21 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
                 trueCase: false,
                 config: {
                     entity: 'Customer',
-                    tagIds: ['123']
-                }
+                    tagIds: ['123'],
+                },
             }],
             1,
-            null
+            null,
         ));
 
         let sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(1);
+        expect(sequencesState).toHaveLength(1);
 
         const buttonConfirm = wrapper.find(btnConfirmClass);
         await buttonConfirm.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
-        expect(sequencesState.length).toEqual(0);
+        expect(sequencesState).toHaveLength(0);
 
         expect(wrapper.emitted()['modal-confirm']).toBeTruthy();
         expect(wrapper.emitted()['modal-close']).toBeTruthy();

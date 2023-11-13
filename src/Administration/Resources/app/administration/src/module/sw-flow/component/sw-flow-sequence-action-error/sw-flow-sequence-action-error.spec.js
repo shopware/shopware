@@ -27,9 +27,9 @@ async function createWrapper() {
                 ruleId: '1111',
                 parentId: null,
                 position: 1,
-                displayGroup: 1
-            }
-        }
+                displayGroup: 1,
+            },
+        },
     });
 }
 
@@ -41,7 +41,7 @@ function getSequencesCollection(collection = []) {
         { isShopwareContext: true },
         collection,
         collection.length,
-        null
+        null,
     );
 }
 
@@ -55,8 +55,8 @@ const sequenceFixture = {
     trueCase: false,
     config: {
         entity: 'Customer',
-        tagIds: ['123']
-    }
+        tagIds: ['123'],
+    },
 };
 
 describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
@@ -68,9 +68,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
             state: {
                 flow: {
                     eventName: '',
-                    sequences: getSequencesCollection([{ ...sequenceFixture }])
-                }
-            }
+                    sequences: getSequencesCollection([{ ...sequenceFixture }]),
+                },
+            },
         });
     });
 
@@ -89,6 +89,6 @@ describe('src/module/sw-flow/component/sw-flow-sequence-selector', () => {
 
         const sequencesState = await Shopware.State.getters['swFlowState/sequences'];
 
-        expect(sequencesState.length).toEqual(0);
+        expect(sequencesState).toHaveLength(0);
     });
 });

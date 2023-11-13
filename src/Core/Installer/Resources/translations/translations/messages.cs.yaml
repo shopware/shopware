@@ -17,7 +17,8 @@ shopware.installer:
     start: Spustit
     start_installation: 'Spustit instalaci'
     select_language_de: Německy
-    select_language_en: Anglicky
+    select_language_en: Anglicky (Spojené království)
+    select_language_us: Anglicky (Spojené státy americké)
     select_language_nl: Holandsky
     select_language_it: Italsky
     select_language_fr: Francouzsky

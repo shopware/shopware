@@ -168,6 +168,7 @@
     {% block sw_users_permissions_role_listing_empty_state %}
     <sw-empty-state
         v-else
+        :absolute="false"
         :title="$tc('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
         :subline="$tc('sw-users-permissions.roles.role-grid.messageEmptySubline')"
     />

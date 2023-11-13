@@ -4,15 +4,14 @@ namespace Shopware\Storefront\Pagelet\Header;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Tree\Tree;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Pagelet\NavigationPagelet;
 
-/**
- * @package storefront
- */
+#[Package('storefront')]
 class HeaderPagelet extends NavigationPagelet
 {
     /**

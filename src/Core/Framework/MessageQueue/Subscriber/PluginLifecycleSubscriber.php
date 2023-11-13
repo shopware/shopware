@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
@@ -12,22 +13,17 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
  * @internal
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 final class PluginLifecycleSubscriber implements EventSubscriberInterface
 {
-    private TaskRegistry $registry;
-
-    private CacheItemPoolInterface $restartSignalCachePool;
-
     /**
      * @internal
      */
-    public function __construct(TaskRegistry $registry, CacheItemPoolInterface $restartSignalCachePool)
-    {
-        $this->registry = $registry;
-        $this->restartSignalCachePool = $restartSignalCachePool;
+    public function __construct(
+        private readonly TaskRegistry $registry,
+        private readonly CacheItemPoolInterface $restartSignalCachePool
+    ) {
     }
 
     public static function getSubscribedEvents(): array

@@ -5,22 +5,18 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-/**
- * @package sales-channel
- */
+#[Package('sales-channel')]
 class CustomUrlProvider extends AbstractUrlProvider
 {
-    private ConfigHandler $configHandler;
-
     /**
      * @internal
      */
-    public function __construct(ConfigHandler $configHandler)
+    public function __construct(private readonly ConfigHandler $configHandler)
     {
-        $this->configHandler = $configHandler;
     }
 
     public function getDecorated(): AbstractUrlProvider

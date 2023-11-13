@@ -3,16 +3,18 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResult;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @final
- *
- * @package core
  */
+#[Package('core')]
 class CountResult extends AggregationResult
 {
-    public function __construct(string $name, protected int $count)
-    {
+    public function __construct(
+        string $name,
+        protected int $count
+    ) {
         parent::__construct($name);
     }
 

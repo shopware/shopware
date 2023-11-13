@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Api\Context;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class ShopApiSource extends SalesChannelApiSource
 {
     public string $type = 'shop-api';

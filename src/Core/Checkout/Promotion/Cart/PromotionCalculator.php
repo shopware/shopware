@@ -41,70 +41,39 @@ use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundExcepti
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\SetGroupNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
- * @package checkout
- *
  * Cart Promotion Calculator
  */
+#[Package('buyers-experience')]
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
 
-    private AmountCalculator $amountCalculator;
-
-    private AbsolutePriceCalculator $absolutePriceCalculator;
-
-    private LineItemGroupBuilder $groupBuilder;
-
-    private PackageFilter $advancedFilter;
-
-    private AdvancedPackagePicker $advancedPicker;
-
-    private SetGroupScopeFilter $advancedRules;
-
-    private LineItemQuantitySplitter $lineItemQuantitySplitter;
-
-    private DiscountCompositionBuilder $discountCompositionBuilder;
-
-    private PercentagePriceCalculator $percentagePriceCalculator;
-
-    private DiscountPackager $cartScopeDiscountPackager;
-
-    private DiscountPackager $setGroupScopeDiscountPackager;
-
-    private DiscountPackager $setScopeDiscountPackager;
+    /**
+     * @var array<string, LineItem>
+     */
+    private array $splitted = [];
 
     /**
      * @internal
      */
     public function __construct(
-        AmountCalculator $amountCalculator,
-        AbsolutePriceCalculator $absolutePriceCalculator,
-        LineItemGroupBuilder $groupBuilder,
-        DiscountCompositionBuilder $compositionBuilder,
-        PackageFilter $filter,
-        AdvancedPackagePicker $picker,
-        SetGroupScopeFilter $advancedRules,
-        LineItemQuantitySplitter $lineItemQuantitySplitter,
-        PercentagePriceCalculator $percentagePriceCalculator,
-        DiscountPackager $cartScopeDiscountPackager,
-        DiscountPackager $setGroupScopeDiscountPackager,
-        DiscountPackager $setScopeDiscountPackager
+        private readonly AmountCalculator $amountCalculator,
+        private readonly AbsolutePriceCalculator $absolutePriceCalculator,
+        private readonly LineItemGroupBuilder $groupBuilder,
+        private readonly DiscountCompositionBuilder $discountCompositionBuilder,
+        private readonly PackageFilter $advancedFilter,
+        private readonly AdvancedPackagePicker $advancedPicker,
+        private readonly SetGroupScopeFilter $advancedRules,
+        private readonly LineItemQuantitySplitter $lineItemQuantitySplitter,
+        private readonly PercentagePriceCalculator $percentagePriceCalculator,
+        private readonly DiscountPackager $cartScopeDiscountPackager,
+        private readonly DiscountPackager $setGroupScopeDiscountPackager,
+        private readonly DiscountPackager $setScopeDiscountPackager
     ) {
-        $this->amountCalculator = $amountCalculator;
-        $this->absolutePriceCalculator = $absolutePriceCalculator;
-        $this->groupBuilder = $groupBuilder;
-        $this->discountCompositionBuilder = $compositionBuilder;
-        $this->advancedFilter = $filter;
-        $this->advancedPicker = $picker;
-        $this->advancedRules = $advancedRules;
-        $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
-        $this->percentagePriceCalculator = $percentagePriceCalculator;
-        $this->cartScopeDiscountPackager = $cartScopeDiscountPackager;
-        $this->setGroupScopeDiscountPackager = $setGroupScopeDiscountPackager;
-        $this->setScopeDiscountPackager = $setScopeDiscountPackager;
     }
 
     /**
@@ -269,40 +238,27 @@ class PromotionCalculator
      * @throws LineItemGroupSorterNotFoundException
      * @throws SetGroupNotFoundException
      */
-    private function calculateDiscount(LineItem $lineItem, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
+    private function calculateDiscount(LineItem $item, Cart $calculatedCart, SalesChannelContext $context): DiscountCalculatorResult
     {
         /** @var string $label */
-        $label = $lineItem->getLabel();
+        $label = $item->getLabel();
 
         /** @var PriceDefinitionInterface $priceDefinition */
-        $priceDefinition = $lineItem->getPriceDefinition();
+        $priceDefinition = $item->getPriceDefinition();
 
         $discount = new DiscountLineItem(
             $label,
             $priceDefinition,
-            $lineItem->getPayload(),
-            $lineItem->getReferencedId()
+            $item->getPayload(),
+            $item->getReferencedId()
         );
 
-        switch ($discount->getScope()) {
-            case PromotionDiscountEntity::SCOPE_CART:
-                $packager = $this->cartScopeDiscountPackager;
-
-                break;
-
-            case PromotionDiscountEntity::SCOPE_SET:
-                $packager = $this->setScopeDiscountPackager;
-
-                break;
-
-            case PromotionDiscountEntity::SCOPE_SETGROUP:
-                $packager = $this->setGroupScopeDiscountPackager;
-
-                break;
-
-            default:
-                throw new InvalidScopeDefinitionException($discount->getScope());
-        }
+        $packager = match ($discount->getScope()) {
+            PromotionDiscountEntity::SCOPE_CART => $this->cartScopeDiscountPackager,
+            PromotionDiscountEntity::SCOPE_SET => $this->setScopeDiscountPackager,
+            PromotionDiscountEntity::SCOPE_SETGROUP => $this->setGroupScopeDiscountPackager,
+            default => throw new InvalidScopeDefinitionException($discount->getScope()),
+        };
 
         $packages = $packager->getMatchingItems($discount, $calculatedCart, $context);
 
@@ -317,6 +273,11 @@ class PromotionCalculator
 
         // remember our initial package count
         $originalPackageCount = $packages->count();
+
+        foreach ($calculatedCart->getLineItems() as $item) {
+            $item->setStackable(true);
+            $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, 1, $context);
+        }
 
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
 
@@ -339,30 +300,13 @@ class PromotionCalculator
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
 
-        switch ($discount->getType()) {
-            case PromotionDiscountEntity::TYPE_ABSOLUTE:
-                $calculator = new DiscountAbsoluteCalculator($this->absolutePriceCalculator);
-
-                break;
-
-            case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                $calculator = new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator);
-
-                break;
-
-            case PromotionDiscountEntity::TYPE_FIXED:
-                $calculator = new DiscountFixedPriceCalculator($this->absolutePriceCalculator);
-
-                break;
-
-            case PromotionDiscountEntity::TYPE_FIXED_UNIT:
-                $calculator = new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator);
-
-                break;
-
-            default:
-                throw new DiscountCalculatorNotFoundException($discount->getType());
-        }
+        $calculator = match ($discount->getType()) {
+            PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
+            PromotionDiscountEntity::TYPE_PERCENTAGE => new DiscountPercentageCalculator($this->absolutePriceCalculator, $this->percentagePriceCalculator),
+            PromotionDiscountEntity::TYPE_FIXED => new DiscountFixedPriceCalculator($this->absolutePriceCalculator),
+            PromotionDiscountEntity::TYPE_FIXED_UNIT => new DiscountFixedUnitPriceCalculator($this->absolutePriceCalculator),
+            default => throw new DiscountCalculatorNotFoundException($discount->getType()),
+        };
 
         $result = $calculator->calculate($discount, $packages, $context);
 
@@ -462,17 +406,9 @@ class PromotionCalculator
             $cartItemsForUnit = new LineItemFlatCollection();
 
             foreach ($package->getMetaData() as $item) {
-                /** @var LineItem $cartItem */
-                $cartItem = $cart->get($item->getLineItemId());
+                $lineItemId = $item->getLineItemId();
 
-                $cartItem->setStackable(true);
-
-                // create a new item with only a quantity of x
-                // including calculated price for our original cart item
-                $qtyItem = $this->lineItemQuantitySplitter->split($cartItem, $item->getQuantity(), $context);
-
-                // add the single item to our unit
-                $cartItemsForUnit->add($qtyItem);
+                $cartItemsForUnit->add($this->splitted[$lineItemId]);
             }
 
             $package->setCartItems($cartItemsForUnit);

@@ -7,28 +7,19 @@
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use function array_map;
-use function crc32;
-use function dechex;
-use function explode;
-use function implode;
-use function str_replace;
-use function strpos;
-use function strtolower;
-use function strtoupper;
-use function substr;
+use Shopware\Core\Framework\Log\Package;
 
-if (class_exists('\Doctrine\DBAL\Schema\AbstractAsset', false)) {
+if (class_exists('\\' . \Doctrine\DBAL\Schema\AbstractAsset::class, false)) {
     return;
 }
 
 /**
- * @package core
  * The abstract asset allows to reset the name of all assets without publishing this to the public userland.
  *
  * This encapsulation hack is necessary to keep a consistent state of the database schema. Say we have a list of tables
  * array($tableName => Table($tableName)); if you want to rename the table, you have to make sure
  */
+#[Package('core')]
 abstract class AbstractAsset
 {
     /**
@@ -87,7 +78,7 @@ abstract class AbstractAsset
             $shortestName = $this->_name;
         }
 
-        return strtolower($shortestName);
+        return \strtolower($shortestName);
     }
 
     /**
@@ -110,7 +101,7 @@ abstract class AbstractAsset
             $name = $defaultNamespaceName . '.' . $name;
         }
 
-        return strtolower($name);
+        return \strtolower($name);
     }
 
     /**
@@ -146,12 +137,12 @@ abstract class AbstractAsset
     public function getQuotedName(AbstractPlatform $platform)
     {
         $keywords = $platform->getReservedKeywordsList();
-        $parts = explode('.', $this->getName());
+        $parts = \explode('.', $this->getName());
         foreach ($parts as $k => $v) {
             $parts[$k] = $this->_quoted || $keywords->isKeyword($v) ? $platform->quoteIdentifier($v) : $v;
         }
 
-        return implode('.', $parts);
+        return \implode('.', $parts);
     }
 
     /**
@@ -166,8 +157,8 @@ abstract class AbstractAsset
             $name = $this->trimQuotes($name);
         }
 
-        if (strpos($name, '.') !== false) {
-            $parts = explode('.', $name, 2);
+        if (str_contains($name, '.')) {
+            $parts = \explode('.', $name, 2);
             $this->_namespace = $parts[0];
             $name = $parts[1];
         }
@@ -196,7 +187,7 @@ abstract class AbstractAsset
      */
     protected function trimQuotes($identifier)
     {
-        return str_replace(['`', '"', '[', ']'], '', $identifier);
+        return \str_replace(['`', '"', '[', ']'], '', $identifier);
     }
 
     /**
@@ -214,10 +205,8 @@ abstract class AbstractAsset
      */
     protected function _generateIdentifierName($columnNames, $prefix = '', $maxSize = 30)
     {
-        $hash = implode('', array_map(static function ($column) {
-            return dechex(crc32($column));
-        }, $columnNames));
+        $hash = \implode('', \array_map(static fn ($column) => \dechex(\crc32((string) $column)), $columnNames));
 
-        return strtoupper(substr($prefix . '_' . $hash, 0, $maxSize));
+        return \strtoupper(\substr($prefix . '_' . $hash, 0, $maxSize));
     }
 }

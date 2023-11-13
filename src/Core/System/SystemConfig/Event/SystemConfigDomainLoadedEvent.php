@@ -2,27 +2,18 @@
 
 namespace Shopware\Core\System\SystemConfig\Event;
 
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package system-settings
- */
+#[Package('system-settings')]
 class SystemConfigDomainLoadedEvent extends Event
 {
-    private array $config;
-
-    private string $domain;
-
-    private bool $inherit;
-
-    private ?string $salesChannelId;
-
-    public function __construct(string $domain, array $config, bool $inherit, ?string $salesChannelId)
-    {
-        $this->config = $config;
-        $this->domain = $domain;
-        $this->inherit = $inherit;
-        $this->salesChannelId = $salesChannelId;
+    public function __construct(
+        private readonly string $domain,
+        private array $config,
+        private readonly bool $inherit,
+        private readonly ?string $salesChannelId
+    ) {
     }
 
     public function getConfig(): array

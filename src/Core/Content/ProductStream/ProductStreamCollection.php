@@ -3,11 +3,12 @@
 namespace Shopware\Core\Content\ProductStream;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 
 /**
- * @package business-ops
  * @extends EntityCollection<ProductStreamEntity>
  */
+#[Package('inventory')]
 class ProductStreamCollection extends EntityCollection
 {
     public function getApiAlias(): string

@@ -6,12 +6,11 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
@@ -29,8 +28,11 @@ class LineItemRemovedEvent extends Event implements ShopwareSalesChannelEvent
      */
     protected $context;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $context)
-    {
+    public function __construct(
+        LineItem $lineItem,
+        Cart $cart,
+        SalesChannelContext $context
+    ) {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->context = $context;

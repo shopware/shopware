@@ -5,40 +5,29 @@ namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @package core
- */
+#[Package('core')]
 class CategoryUrlExtension extends AbstractExtension
 {
     /**
-     * @var AbstractExtension
-     */
-    private $routingExtension;
-
-    /**
-     * @var AbstractCategoryUrlGenerator
-     */
-    private $categoryUrlGenerator;
-
-    /**
      * @internal
      */
-    public function __construct(RoutingExtension $extension, AbstractCategoryUrlGenerator $categoryUrlGenerator)
-    {
-        $this->routingExtension = $extension;
-        $this->categoryUrlGenerator = $categoryUrlGenerator;
+    public function __construct(
+        private readonly RoutingExtension $routingExtension,
+        private readonly AbstractCategoryUrlGenerator $categoryUrlGenerator
+    ) {
     }
 
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('category_url', [$this, 'getCategoryUrl'], ['needs_context' => true, 'is_safe_callback' => [$this->routingExtension, 'isUrlGenerationSafe']]),
-            new TwigFunction('category_linknewtab', [$this, 'isLinkNewTab']),
+            new TwigFunction('category_url', $this->getCategoryUrl(...), ['needs_context' => true, 'is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...)]),
+            new TwigFunction('category_linknewtab', $this->isLinkNewTab(...)),
         ];
     }
 

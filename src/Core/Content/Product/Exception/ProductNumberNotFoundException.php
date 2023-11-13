@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductNumberNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $number)

@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Event\RouteRequest;
 
-/**
- * @package checkout
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('checkout')]
 class SetPaymentOrderRouteRequestEvent extends RouteRequestEvent
 {
 }

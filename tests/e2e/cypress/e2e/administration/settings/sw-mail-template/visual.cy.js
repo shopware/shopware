@@ -13,7 +13,7 @@ describe('Mail templates: Check module navigation in settings', () => {
             });
     });
 
-    it('@visual: check appearance of email templates module', { tags: ['pa-business-ops'] }, () => {
+    it('@visual: check appearance of email templates module', { tags: ['pa-business-ops', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.intercept({
@@ -30,7 +30,7 @@ describe('Mail templates: Check module navigation in settings', () => {
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
         cy.get('.sw-skeleton').should('not.exist');
         cy.get('.sw-loader').should('not.exist');
-        cy.sortAndCheckListingAscViaColumn('Type', 'Cancellation invoice');
+        cy.sortAndCheckListingAscViaColumn('Type', 'User password recovery');
 
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');

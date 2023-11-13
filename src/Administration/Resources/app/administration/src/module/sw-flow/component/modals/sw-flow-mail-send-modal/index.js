@@ -8,7 +8,7 @@ const { mapState } = Component.getComponentHelper();
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 export default {
     template,
@@ -109,7 +109,11 @@ export default {
             const allowedAwareOrigin = this.triggerEvent.aware ?? [];
             const allowAwareConverted = [];
             allowedAwareOrigin.forEach(aware => {
-                allowAwareConverted.push(aware.slice(aware.lastIndexOf('\\') + 1));
+                aware = aware.slice(aware.lastIndexOf('\\') + 1);
+                const awareUpperCase = aware.charAt(0).toUpperCase() + aware.slice(1);
+                if (!allowAwareConverted.includes(awareUpperCase)) {
+                    allowAwareConverted.push(awareUpperCase);
+                }
             });
 
             if (allowAwareConverted.length === 0) {
@@ -277,7 +281,7 @@ export default {
         },
 
         onAddAction() {
-            this.mailTemplateIdError = this.fieldError(this.mailTemplateId);
+            this.mailTemplateIdError = this.mailTemplateError(this.mailTemplateId);
             if (this.showReplyToField) {
                 this.replyToError = this.setMailError(this.replyTo);
             }
@@ -415,8 +419,8 @@ export default {
             this.recipients.splice(itemIndex, 1);
         },
 
-        fieldError(text) {
-            if (!text) {
+        mailTemplateError(mailTemplate) {
+            if (!mailTemplate) {
                 return new ShopwareError({
                     code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
                 });
@@ -486,7 +490,7 @@ export default {
                     return;
                 case 'contactFormMail':
                     this.replyToError = null;
-                    this.replyTo = null;
+                    this.replyTo = 'contactFormMail';
 
                     return;
                 default:

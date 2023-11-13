@@ -5,16 +5,15 @@ namespace Shopware\Core\Framework\Webhook\EventLog;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class WebhookEventLogEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
-    protected ?string $appName;
+    protected ?string $appName = null;
 
     protected string $webhookName;
 
@@ -22,11 +21,11 @@ class WebhookEventLogEntity extends Entity
 
     protected string $deliveryStatus;
 
-    protected ?int $timestamp;
+    protected ?int $timestamp = null;
 
-    protected ?int $processingTime;
+    protected ?int $processingTime = null;
 
-    protected ?string $appVersion;
+    protected ?string $appVersion = null;
 
     /**
      * @var array<string, mixed>|null
@@ -38,11 +37,13 @@ class WebhookEventLogEntity extends Entity
      */
     protected ?array $responseContent;
 
-    protected ?int $responseStatusCode;
+    protected ?int $responseStatusCode = null;
 
-    protected ?string $responseReasonPhrase;
+    protected ?string $responseReasonPhrase = null;
 
     protected string $url;
+
+    protected bool $onlyLiveVersion;
 
     /**
      * @internal
@@ -179,6 +180,16 @@ class WebhookEventLogEntity extends Entity
     public function setUrl(string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getOnlyLiveVersion(): bool
+    {
+        return $this->onlyLiveVersion;
+    }
+
+    public function setOnlyLiveVersion(bool $onlyLiveVersion): void
+    {
+        $this->onlyLiveVersion = $onlyLiveVersion;
     }
 
     /**

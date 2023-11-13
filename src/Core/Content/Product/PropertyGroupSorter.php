@@ -4,11 +4,11 @@ namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class PropertyGroupSorter extends AbstractPropertyGroupSorter
 {
     public function getDecorated(): AbstractPropertyGroupSorter
@@ -16,33 +16,35 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
         throw new DecorationPatternException(self::class);
     }
 
-    public function sort(PropertyGroupOptionCollection $groupOptionCollection): PropertyGroupCollection
+    public function sort(EntityCollection $options): PropertyGroupCollection
     {
         $sorted = [];
 
-        foreach ($groupOptionCollection as $option) {
-            $origin = $option->getGroup();
+        foreach ($options as $option) {
+            $origin = $option->get('group');
 
-            if ($origin === null || $origin->getVisibleOnProductDetailPage() === false) {
+            if ($origin === null || $origin->get('visibleOnProductDetailPage') === false) {
                 continue;
             }
 
             $group = clone $origin;
 
-            $groupId = $group->getId();
+            $groupId = $group->get('id');
             if (\array_key_exists($groupId, $sorted)) {
-                \assert($sorted[$groupId]->getOptions() !== null);
-                $sorted[$groupId]->getOptions()->add($option);
+                \assert($sorted[$groupId]->get('options') !== null);
+                $sorted[$groupId]->get('options')->add($option);
 
                 continue;
             }
 
-            if ($group->getOptions() === null) {
-                $group->setOptions(new PropertyGroupOptionCollection());
+            if ($group->get('options') === null) {
+                $group->assign([
+                    'options' => new PropertyGroupOptionCollection(),
+                ]);
             }
 
-            \assert($group->getOptions() !== null);
-            $group->getOptions()->add($option);
+            \assert($group->get('options') !== null);
+            $group->get('options')->add($option);
 
             $sorted[$groupId] = $group;
         }

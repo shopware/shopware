@@ -6,8 +6,8 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\SalesChannel\BaseContext;
@@ -26,59 +27,26 @@ use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function array_unique;
 
-/**
- * @package sales-channel
- */
+#[Package('buyers-experience')]
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
-    private EntityRepository $customerRepository;
-
-    private EntityRepository $customerGroupRepository;
-
-    private EntityRepository $addressRepository;
-
-    private EntityRepository $paymentMethodRepository;
-
-    private TaxDetector $taxDetector;
-
-    /**
-     * @var iterable|TaxRuleTypeFilterInterface[]
-     */
-    private $taxRuleTypeFilter;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private EntityRepository $currencyCountryRepository;
-
-    private AbstractBaseContextFactory $baseContextFactory;
-
     /**
      * @internal
      *
      * @param iterable<TaxRuleTypeFilterInterface> $taxRuleTypeFilter
      */
     public function __construct(
-        EntityRepository $customerRepository,
-        EntityRepository $customerGroupRepository,
-        EntityRepository $addressRepository,
-        EntityRepository $paymentMethodRepository,
-        TaxDetector $taxDetector,
-        iterable $taxRuleTypeFilter,
-        EventDispatcherInterface $eventDispatcher,
-        EntityRepository $currencyCountryRepository,
-        AbstractBaseContextFactory $baseContextFactory
+        private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $customerGroupRepository,
+        private readonly EntityRepository $addressRepository,
+        private readonly EntityRepository $paymentMethodRepository,
+        private readonly TaxDetector $taxDetector,
+        private readonly iterable $taxRuleTypeFilter,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityRepository $currencyCountryRepository,
+        private readonly AbstractBaseContextFactory $baseContextFactory
     ) {
-        $this->customerRepository = $customerRepository;
-        $this->customerGroupRepository = $customerGroupRepository;
-        $this->addressRepository = $addressRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->taxDetector = $taxDetector;
-        $this->taxRuleTypeFilter = $taxRuleTypeFilter;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->currencyCountryRepository = $currencyCountryRepository;
-        $this->baseContextFactory = $baseContextFactory;
     }
 
     public function getDecorated(): AbstractSalesChannelContextFactory
@@ -94,7 +62,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         // customer
         $customer = null;
         if (\array_key_exists(SalesChannelContextService::CUSTOMER_ID, $options) && $options[SalesChannelContextService::CUSTOMER_ID] !== null) {
-            //load logged in customer and set active addresses
+            // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
 
@@ -110,13 +78,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         if ($customer) {
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setTitle('context-factory::customer-group');
+            /** @var CustomerGroupEntity $customerGroup */
             $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->first() ?? $customerGroup;
         }
 
-        //loads tax rules based on active customer and delivery address
+        // loads tax rules based on active customer and delivery address
         $taxRules = $this->getTaxRules($base, $customer, $shippingLocation);
 
-        //detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
+        // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $base, $customer);
 
         [$itemRounding, $totalRounding] = $this->getCashRounding($base, $shippingLocation);
@@ -146,8 +115,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $shippingLocation,
             $customer,
             $itemRounding,
-            $totalRounding,
-            []
+            $totalRounding
         );
 
         if (\array_key_exists(SalesChannelContextService::PERMISSIONS, $options)) {
@@ -183,10 +151,19 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
                 return false;
             });
-            $taxRules->sortByTypePosition();
-            $taxRule = $taxRules->first();
 
             $matchingRules = new TaxRuleCollection();
+            $taxRule = $taxRules->highestTypePosition();
+
+            if (!$taxRule) {
+                $tax->setRules($matchingRules);
+
+                continue;
+            }
+
+            $taxRules = $taxRules->filterByTypePosition($taxRule->getType()->getPosition());
+            $taxRule = $taxRules->latestActivationDate();
+
             if ($taxRule) {
                 $matchingRules->add($taxRule);
             }
@@ -199,6 +176,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
+     *
      * @codeCoverageIgnore
      *
      * @param array<string, mixed> $options
@@ -218,12 +196,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media');
         $criteria->setTitle('context-factory::payment-method');
+        $criteria->addFilter(new EqualsFilter('active', 1));
+        $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannel()->getId()));
 
         /** @var PaymentMethodEntity|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->get($id);
 
         if (!$paymentMethod) {
-            throw new UnknownPaymentMethodException($id);
+            return $context->getPaymentMethod();
         }
 
         return $paymentMethod;
@@ -234,6 +214,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      */
     private function loadCustomer(array $options, Context $context): ?CustomerEntity
     {
+        $addressIds = [];
         $customerId = $options[SalesChannelContextService::CUSTOMER_ID];
 
         $criteria = new Criteria([$customerId]);
@@ -264,7 +245,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $addressIds[] = $customer->getDefaultBillingAddressId();
         $addressIds[] = $customer->getDefaultShippingAddressId();
 
-        $criteria = new Criteria(array_unique($addressIds));
+        $criteria = new Criteria(\array_unique($addressIds));
         $criteria->setTitle('context-factory::addresses');
         $criteria->addAssociation('salutation');
         $criteria->addAssociation('country');
@@ -293,6 +274,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
      *
      * @group not-deterministic
      * NEXT-21735 - This is covered randomly
+     *
      * @codeCoverageIgnore
      */
     private function getCashRounding(BaseContext $context, ShippingLocation $shippingLocation): array

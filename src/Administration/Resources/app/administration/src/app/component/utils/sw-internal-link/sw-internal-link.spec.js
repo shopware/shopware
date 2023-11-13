@@ -9,18 +9,18 @@ import 'src/app/component/utils/sw-internal-link';
 const setup = async (propOverride) => {
     const propsData = {
         routerLink: { name: 'sw.product.index' },
-        ...propOverride
+        ...propOverride,
     };
 
     return shallowMount(await Shopware.Component.build('sw-internal-link'), {
         stubs: {
             'sw-icon': true,
-            RouterLink: RouterLinkStub
+            RouterLink: RouterLinkStub,
         },
         slots: {
-            default: 'test internal link'
+            default: 'test internal link',
         },
-        propsData
+        propsData,
     });
 };
 
@@ -56,5 +56,25 @@ describe('components/utils/sw-internal-link', () => {
         const wrapper = await setup({ inline: true });
 
         expect(wrapper.findComponent(RouterLinkStub).classes()).toContain('sw-internal-link--inline');
+    });
+
+    it('should allow links without router-links', async () => {
+        const wrapper = await setup({
+            routerLink: undefined,
+        });
+
+        expect(wrapper.find('a').exists()).toBe(true);
+    });
+
+    it('should emit click event on non-router links', async () => {
+        const wrapper = await setup({
+            routerLink: undefined,
+        });
+
+        expect(wrapper.emitted('click')).toBeFalsy();
+
+        await wrapper.find('a').trigger('click');
+
+        expect(wrapper.emitted('click')).toEqual([[]]);
     });
 });

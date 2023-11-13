@@ -38,7 +38,7 @@ class HappyPathValidatorTest extends TestCase
         static::assertSame($isValid, $isEmpty);
     }
 
-    public function constraintDataProvider(): \Generator
+    public static function constraintDataProvider(): \Generator
     {
         yield 'min range valid' => [
             new Range(['min' => 11]),

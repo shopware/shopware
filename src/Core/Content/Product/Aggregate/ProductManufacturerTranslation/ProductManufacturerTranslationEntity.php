@@ -5,10 +5,9 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductManufacturerTranslationEntity extends TranslationEntity
 {
     use EntityCustomFieldsTrait;
@@ -17,6 +16,11 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
      * @var string
      */
     protected $productManufacturerId;
+
+    /**
+     * @var string
+     */
+    protected $productManufacturerVersionId;
 
     /**
      * @var string|null
@@ -71,5 +75,15 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     public function setProductManufacturer(ProductManufacturerEntity $productManufacturer): void
     {
         $this->productManufacturer = $productManufacturer;
+    }
+
+    public function getProductManufacturerVersionId(): string
+    {
+        return $this->productManufacturerVersionId;
+    }
+
+    public function setProductManufacturerVersionId(string $productManufacturerVersionId): void
+    {
+        $this->productManufacturerVersionId = $productManufacturerVersionId;
     }
 }

@@ -27,8 +27,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontSalesChannelTestHelper;
     use SalesChannelApiTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private EntityRepository $seoUrlRepository;
 
@@ -40,7 +40,7 @@ class SeoUrlPersisterTest extends TestCase
 
     private SalesChannelEntity $salesChannel;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->seoUrlPersister = $this->getContainer()->get(SeoUrlPersister::class);

@@ -9,21 +9,21 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerGroupCustomFieldAct
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class SetCustomerGroupCustomFieldActionTest extends TestCase
 {
-    use OrderActionTrait;
-    use CacheTestBehaviour;
     use AdminApiTestBehaviour;
+    use CacheTestBehaviour;
+    use OrderActionTrait;
 
     private EntityRepository $flowRepository;
 
@@ -44,6 +44,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
      * @param array<int, mixed>|null $existedData
      * @param array<int, mixed>|null $updateData
      * @param array<int, mixed>|null $expectData
+     *
      * @dataProvider createDataProvider
      */
     public function testCreateCustomFieldForCustomerGroup(string $option, ?array $existedData, ?array $updateData, ?array $expectData): void
@@ -53,8 +54,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
         $customFieldId = $this->createCustomField($customFieldName, $entity);
 
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, [
+        $this->prepareCustomer($email, [
             'requestedGroup' => [
                 'id' => $this->ids->create('customer_group'),
                 'name' => 'foo',
@@ -104,7 +104,7 @@ class SetCustomerGroupCustomFieldActionTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             'upsert / existed data / update data / expect data' => ['upsert', ['red', 'green'], ['blue', 'gray'], ['blue', 'gray']],

@@ -2,28 +2,25 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\HandlerChain;
 
 /**
- * @package core
  * @HandlerChain(
  *     serviceTag="shopware.twig.hierarchy_builder",
  *     handlerInterface="TemplateNamespaceHierarchyBuilderInterface"
  * )
  */
+#[Package('core')]
 class NamespaceHierarchyBuilder
 {
     /**
-     * @var TemplateNamespaceHierarchyBuilderInterface[]
-     */
-    private $namespaceHierarchyBuilders;
-
-    /**
      * @internal
+     *
+     * @param TemplateNamespaceHierarchyBuilderInterface[] $namespaceHierarchyBuilders
      */
-    public function __construct(iterable $namespaceHierarchyBuilders)
+    public function __construct(private readonly iterable $namespaceHierarchyBuilders)
     {
-        $this->namespaceHierarchyBuilders = $namespaceHierarchyBuilders;
     }
 
     public function buildHierarchy(): array

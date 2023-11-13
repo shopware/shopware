@@ -2,7 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Api\ScriptResponseEncoder;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
@@ -15,30 +15,20 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @package core
- *
  * @internal
- *
- * @Route(defaults={"_routeScope"={"storefront"}})
- *
- * @internal
+ * Do not use direct or indirect repository calls in a controller. Always use a store-api route to get or put data
  */
+#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Package('core')]
 class ScriptController extends StorefrontController
 {
-    private GenericPageLoaderInterface $pageLoader;
-
-    private ScriptResponseEncoder $scriptResponseEncoder;
-
-    public function __construct(GenericPageLoaderInterface $pageLoader, ScriptResponseEncoder $scriptResponseEncoder)
-    {
-        $this->pageLoader = $pageLoader;
-        $this->scriptResponseEncoder = $scriptResponseEncoder;
+    public function __construct(
+        private readonly GenericPageLoaderInterface $pageLoader,
+        private readonly ScriptResponseEncoder $scriptResponseEncoder
+    ) {
     }
 
-    /**
-     * @Since("6.4.9.0")
-     * @Route("/storefront/script/{hook}", name="frontend.script_endpoint", defaults={"XmlHttpRequest"=true}, methods={"GET", "POST"}, requirements={"hook"=".+"})
-     */
+    #[Route(path: '/storefront/script/{hook}', name: 'frontend.script_endpoint', requirements: ['hook' => '.+'], defaults: ['XmlHttpRequest' => true], methods: ['GET', 'POST'])]
     public function execute(string $hook, Request $request, SalesChannelContext $context): Response
     {
         //  blog/update =>  blog-update
@@ -71,8 +61,11 @@ class ScriptController extends StorefrontController
         return $symfonyResponse;
     }
 
-    public function renderStorefront(string $view, array $parameters = []): Response
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    public function renderStorefrontForScript(string $view, array $parameters = []): Response
     {
-        return parent::renderStorefront($view, $parameters);
+        return $this->renderStorefront($view, $parameters);
     }
 }

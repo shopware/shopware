@@ -78,18 +78,18 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_state_history_card_order%}
         <sw-order-state-history-card-entry
-            class="sw-order-state-history-card__order-state"
-            @state-select="onOrderStateSelected"
-            :history="orderHistory"
-            :disabled="!acl.can('order.editor')"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
                 showOnDisabledElements: true
             }"
-            :transitionOptions="orderOptions"
-            stateMachineName="order.state"
+            class="sw-order-state-history-card__order-state"
+            :history="orderHistory"
+            :disabled="!acl.can('order.editor')"
+            :transition-options="orderOptions"
+            state-machine-name="order.state"
             :title="$tc('sw-order.stateCard.headlineOrderState')"
+            @state-select="onOrderStateSelected"
         />
         {% endblock %}
     </sw-container>

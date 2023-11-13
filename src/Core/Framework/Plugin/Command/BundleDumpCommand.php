@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Plugin\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -10,28 +11,18 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package core
- */
-#[AsCommand(
-    name: 'bundle:dump',
-    description: 'Dumps the bundle configuration for a plugin',
-)]
+#[AsCommand(name: 'bundle:dump', description: 'Dumps the bundle configuration for a plugin', aliases: ['administration:dump:plugins', 'administration:dump:bundles'])]
+#[Package('core')]
 class BundleDumpCommand extends Command
 {
-    private BundleConfigGeneratorInterface $bundleDumper;
-
-    private string $projectDir;
-
     /**
      * @internal
      */
-    public function __construct(BundleConfigGeneratorInterface $pluginDumper, string $projectDir)
-    {
+    public function __construct(
+        private readonly BundleConfigGeneratorInterface $bundleDumper,
+        private readonly string $projectDir
+    ) {
         parent::__construct();
-
-        $this->bundleDumper = $pluginDumper;
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -39,10 +30,7 @@ class BundleDumpCommand extends Command
      */
     protected function configure(): void
     {
-        $this
-            ->setAliases(['administration:dump:plugins', 'administration:dump:bundles'])
-            ->setDescription('Creates a json file with the configuration for each active Shopware bundle.')
-            ->addArgument('dumpFilePath', InputArgument::OPTIONAL, 'By default to var/plugins.json', 'var/plugins.json');
+        $this->addArgument('dumpFilePath', InputArgument::OPTIONAL, 'By default to var/plugins.json', 'var/plugins.json');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -4,43 +4,50 @@ declare(strict_types=1);
 namespace Shopware\Core\Content\Product\Cart;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class ProductStockReachedError extends Error
 {
     /**
      * @var string
+     *
+     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
      */
     protected $id;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
      */
     protected $name;
 
     /**
      * @var int
+     *
+     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
      */
     protected $quantity;
 
-    protected bool $resolved;
-
-    public function __construct(string $id, string $name, int $quantity, bool $resolved = true)
-    {
+    public function __construct(
+        string $id,
+        string $name,
+        int $quantity,
+        /** @deprecated tag:v6.6.0 - Will become private */
+        protected bool $resolved = true
+    ) {
         $this->id = $id;
+        $this->name = $name;
+        $this->quantity = $quantity;
 
         $this->message = sprintf(
-            'The product %s is only available %s times',
+            'The product %s is only available %d times',
             $name,
             $quantity
         );
 
         parent::__construct($this->message);
-        $this->name = $name;
-        $this->quantity = $quantity;
-        $this->resolved = $resolved;
     }
 
     public function getParameters(): array

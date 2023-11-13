@@ -2,13 +2,12 @@
 
 namespace Shopware\Storefront\Page\LandingPage;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @package content
- */
+#[Package('content')]
 class LandingPageLoadedEvent extends PageLoadedEvent
 {
     /**
@@ -16,8 +15,11 @@ class LandingPageLoadedEvent extends PageLoadedEvent
      */
     protected $page;
 
-    public function __construct(LandingPage $page, SalesChannelContext $salesChannelContext, Request $request)
-    {
+    public function __construct(
+        LandingPage $page,
+        SalesChannelContext $salesChannelContext,
+        Request $request
+    ) {
         $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }

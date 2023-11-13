@@ -4,13 +4,15 @@ namespace Shopware\Core\Migration\V6_3;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * @package core
- *
  * @internal
+ *
+ * @codeCoverageIgnore
  */
+#[Package('core')]
 class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -27,21 +29,21 @@ class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
         try {
             $languageEN = $connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
             ON language.translation_code_id = locale.id AND locale.code = \'en-GB\'');
-        } catch (\Exception $e) {
-            //English language not found, no need to update the snippet
+        } catch (\Exception) {
+            // English language not found, no need to update the snippet
         }
 
         try {
             $languageDE = $connection->fetchOne('SELECT language.id FROM language INNER JOIN locale
             ON language.translation_code_id = locale.id AND locale.code = \'de-DE\'');
-        } catch (\Exception $e) {
-            //German language not found, no need to update the snippet
+        } catch (\Exception) {
+            // German language not found, no need to update the snippet
         }
 
         try {
             $countryIdSlovakia = $connection->fetchOne('SELECT id from country WHERE iso3 = \'SVK\'');
-        } catch (\Exception $e) {
-            //country got deleted, no need to update
+        } catch (\Exception) {
+            // country got deleted, no need to update
         }
 
         if ($countryIdSlovakia) {
@@ -58,7 +60,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
                             'name' => 'Slovenia',
                         ]
                     );
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
 
@@ -73,7 +75,7 @@ class Migration1599570560FixSlovakiaDisplayedAsSlovenia extends MigrationStep
                             'name' => 'Slowenien',
                         ]
                     );
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                 }
             }
         }

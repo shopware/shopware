@@ -1,0 +1,15 @@
+{
+    "stub": "stub.php",
+    "main": false,
+    "files": ["index.php"],
+    "directories": ["."],
+    "finder": [
+        {
+            "name": "*",
+            "exclude": ["Tests", "tests", "doc", "docs"],
+            "in": "vendor"
+        }
+    ],
+    "git-commit-short": "git_commit_short",
+    "output": "shopware-installer.phar.php"
+}

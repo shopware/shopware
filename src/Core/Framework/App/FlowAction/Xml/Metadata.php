@@ -3,24 +3,26 @@
 namespace Shopware\Core\Framework\App\FlowAction\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @package core
+ * @deprecated tag:v6.6.0 - Will be move to Shopware\Core\Framework\App\Flow\Action\Xml
  */
+#[Package('core')]
 class Metadata extends XmlElement
 {
-    public const TRANSLATABLE_FIELDS = [
-        'label',
-        'description',
-        'headline',
-    ];
-
-    public const REQUIRED_FIELDS = [
+    protected const REQUIRED_FIELDS = [
         'label',
         'name',
         'url',
+    ];
+    private const TRANSLATABLE_FIELDS = [
+        'label',
+        'description',
+        'headline',
     ];
 
     private const BOOLEAN_FIELD = ['delayable'];
@@ -56,22 +58,15 @@ class Metadata extends XmlElement
     protected bool $delayable = false;
 
     /**
-     * @param array<string, mixed> $data
-     */
-    private function __construct(array $data)
-    {
-        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
-
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
-    }
-
-    /**
      * @return array<string, mixed>
      */
     public function getLabel(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->label;
     }
 
@@ -80,16 +75,31 @@ class Metadata extends XmlElement
      */
     public function getDescription(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->description;
     }
 
     public function getName(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->name;
     }
 
     public function getUrl(): string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->url;
     }
 
@@ -98,16 +108,31 @@ class Metadata extends XmlElement
      */
     public function getRequirements(): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->requirements;
     }
 
     public function getIcon(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->icon;
     }
 
     public function getSwIcon(): ?string
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->swIcon;
     }
 
@@ -116,22 +141,42 @@ class Metadata extends XmlElement
      */
     public function getHeadline(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->headline;
     }
 
     public function getDelayable(): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         return $this->delayable;
     }
 
     public function setDelayable(bool $delayable = false): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         $this->delayable = $delayable;
     }
 
-    public static function fromXml(\DOMElement $element): self
+    public static function fromXml(\DOMElement $element): static
     {
-        return new self(self::parse($element));
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
+        return parent::fromXml($element);
     }
 
     /**
@@ -139,6 +184,11 @@ class Metadata extends XmlElement
      */
     public function toArray(string $defaultLocale): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         $data = parent::toArray($defaultLocale);
 
         foreach (self::TRANSLATABLE_FIELDS as $TRANSLATABLE_FIELD) {
@@ -153,11 +203,13 @@ class Metadata extends XmlElement
         return $data;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    private static function parse(\DOMElement $element): array
+    protected static function parse(\DOMElement $element): array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\Xml\Metadata')
+        );
+
         $values = [];
 
         foreach ($element->childNodes as $child) {

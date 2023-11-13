@@ -2,22 +2,23 @@
 
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package checkout
- *
  * A PercentagePriceDefinition calculate a percentual sum of all previously calculated prices and returns it as its own
  * price. This can be used for percentual discounts.
  */
-class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface
+#[Package('checkout')]
+class PercentagePriceDefinition extends Struct implements PriceDefinitionInterface, FilterableInterface
 {
-    public const TYPE = 'percentage';
-    public const SORTING_PRIORITY = 50;
+    final public const TYPE = 'percentage';
+    final public const SORTING_PRIORITY = 50;
 
     /**
      * @var float
@@ -31,8 +32,10 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
      */
     protected $filter;
 
-    public function __construct(float $percentage, ?Rule $filter = null)
-    {
+    public function __construct(
+        float $percentage,
+        ?Rule $filter = null
+    ) {
         $this->percentage = FloatComparator::cast($percentage);
         $this->filter = $filter;
     }
@@ -65,6 +68,9 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
         return $data;
     }
 
+    /**
+     * @return array<string, Constraint[]>
+     */
     public static function getConstraints(): array
     {
         return [

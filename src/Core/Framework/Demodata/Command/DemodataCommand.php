@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -36,17 +37,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @package core
  */
 #[AsCommand(
     name: 'framework:demodata',
     description: 'Generates demo data',
 )]
+#[Package('core')]
 class DemodataCommand extends Command
 {
     /**
-     * @var array<string,int>
+     * @var array<string, int>
      */
     private array $defaults = [];
 
@@ -54,9 +54,9 @@ class DemodataCommand extends Command
      * @internal
      */
     public function __construct(
-        private DemodataService $demodataService,
-        private EventDispatcherInterface $eventDispatcher,
-        private string $kernelEnv
+        private readonly DemodataService $demodataService,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly string $kernelEnv
     ) {
         parent::__construct();
     }
@@ -164,16 +164,12 @@ class DemodataCommand extends Command
      */
     private function ensureAllDependenciesArePresent(): void
     {
-        if (!class_exists(Factory::class)) {
-            throw new \RuntimeException('Please install composer package "fakerphp/faker" to use the demo-data command.');
-        }
+        $classes = [Factory::class, Commerce::class, ImagesGeneratorProvider::class];
 
-        if (!class_exists(Commerce::class)) {
-            throw new \RuntimeException('Please install composer package "mbezhanov/faker-provider-collection" to use the demo-data command.');
-        }
-
-        if (!class_exists(ImagesGeneratorProvider::class)) {
-            throw new \RuntimeException('Please install composer package "maltyxx/images-generator" to use the demo-data command.');
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                throw new \RuntimeException('Please install composer package "shopware/dev-tools" to use the demo-data command.');
+            }
         }
     }
 }

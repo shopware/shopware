@@ -15,14 +15,14 @@ const exampleNotification = {
     notifications: [
         {
             status: 'success',
-            message: 'This is a successful message'
+            message: 'This is a successful message',
         },
         {
             status: 'error',
-            message: 'This is an error message'
-        }
+            message: 'This is an error message',
+        },
     ],
-    timestamp: null
+    timestamp: null,
 };
 
 describe('notificationsService', () => {
@@ -31,7 +31,7 @@ describe('notificationsService', () => {
 
         clientMock.onGet('/notification/message').reply(
             200,
-            [exampleNotification]
+            [exampleNotification],
         );
 
         const notifications = await notificationsService.fetchNotifications(2);

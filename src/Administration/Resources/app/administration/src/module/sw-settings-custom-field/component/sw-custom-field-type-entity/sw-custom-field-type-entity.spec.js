@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import swCustomFieldTypeEntity from 'src/module/sw-settings-custom-field/component/sw-custom-field-type-entity';
@@ -9,6 +9,17 @@ import swCustomFieldTypeBase from 'src/module/sw-settings-custom-field/component
 Shopware.Component.register('sw-custom-field-type-base', swCustomFieldTypeBase);
 Shopware.Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', swCustomFieldTypeSelect);
 Shopware.Component.extend('sw-custom-field-type-entity', 'sw-custom-field-type-select', swCustomFieldTypeEntity);
+
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/search/custom-entity',
+    status: 200,
+    response: {
+        data: [],
+    },
+});
 
 async function createWrapper(privileges = [], isNew = true) {
     const localVue = createLocalVue();
@@ -21,8 +32,8 @@ async function createWrapper(privileges = [], isNew = true) {
                 return 'foo';
             },
             $i18n: {
-                fallbackLocale: 'en-GB'
-            }
+                fallbackLocale: 'en-GB',
+            },
         },
         provide: {
             acl: {
@@ -32,8 +43,8 @@ async function createWrapper(privileges = [], isNew = true) {
                     }
 
                     return privileges.includes(identifier);
-                }
-            }
+                },
+            },
         },
         propsData: {
             currentCustomField: {
@@ -42,13 +53,13 @@ async function createWrapper(privileges = [], isNew = true) {
                 config: {
                     label: { 'en-GB': 'Entity Type Field' },
                     customFieldType: 'entity',
-                    customFieldPosition: 1
+                    customFieldPosition: 1,
                 },
-                _isNew: isNew
+                _isNew: isNew,
             },
             set: {
-                config: {}
-            }
+                config: {},
+            },
         },
         stubs: {
             'sw-custom-field-type-base': true,
@@ -57,7 +68,7 @@ async function createWrapper(privileges = [], isNew = true) {
             'sw-field': true,
             'sw-switch-field': true,
             'sw-button': true,
-        }
+        },
     });
 }
 

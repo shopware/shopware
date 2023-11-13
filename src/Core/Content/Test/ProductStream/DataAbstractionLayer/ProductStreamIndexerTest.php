@@ -18,19 +18,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('business-ops')]
 class ProductStreamIndexerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private EntityRepository $productStreamRepository;
 
@@ -134,6 +134,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame('multi', $entity->getApiFilter()[1]['type']);
         static::assertSame('OR', $entity->getApiFilter()[1]['operator']);
 
+        /** @var array<int, array<string, string>> $queries */
         $queries = $entity->getApiFilter()[1]['queries'];
         static::assertCount(2, $queries);
 
@@ -239,7 +240,7 @@ class ProductStreamIndexerTest extends TestCase
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
         static::assertSame(MultiFilter::CONNECTION_AND, $entity->getApiFilter()[0]['operator']);
-
+        /** @var array<int, array<string, array<string|mixed>|string>> $childQueries */
         $childQueries = $entity->getApiFilter()[0]['queries'];
         static::assertCount(2, $childQueries);
 
@@ -250,9 +251,9 @@ class ProductStreamIndexerTest extends TestCase
         static::assertSame('multi', $childQueries[1]['type']);
         static::assertSame('OR', $childQueries[1]['operator']);
 
+        /** @var array<int, array<string, string>> $grandchildQueries */
         $grandchildQueries = $childQueries[1]['queries'];
         static::assertCount(2, $grandchildQueries);
-
         static::assertSame('equals', $grandchildQueries[0]['type']);
         static::assertSame('product.id', $grandchildQueries[0]['field']);
         static::assertSame($productId, $grandchildQueries[0]['value']);

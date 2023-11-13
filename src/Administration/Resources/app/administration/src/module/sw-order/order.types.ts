@@ -1,7 +1,7 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 interface TaxRule {
@@ -45,6 +45,7 @@ interface LineItem {
     identifier: string,
     _isNew: boolean,
     price: CalculatedPrice | null,
+    children?: LineItem[],
     priceDefinition: {
         price: number,
         taxRules: TaxRule[],

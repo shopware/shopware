@@ -2,21 +2,22 @@
 
 namespace Shopware\Core\Content\Product\Exception;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @package inventory
- */
+#[Package('inventory')]
 class VariantNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $productId, array $options)
-    {
+    public function __construct(
+        string $productId,
+        array $options
+    ) {
         parent::__construct(
             'Variant for productId {{ productId }} with options {{ options }} not found.',
             [
                 'productId' => $productId,
-                'options' => json_encode($options),
+                'options' => json_encode($options, \JSON_THROW_ON_ERROR),
             ]
         );
     }

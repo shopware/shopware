@@ -3,6 +3,7 @@
 namespace Shopware\Core\Maintenance\User\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -13,23 +14,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * @package core
- *
  * @internal should be used over the CLI only
  */
 #[AsCommand(
     name: 'user:create',
     description: 'Creates a new user',
 )]
+#[Package('core')]
 class UserCreateCommand extends Command
 {
-    private UserProvisioner $userProvisioner;
-
-    public function __construct(UserProvisioner $userProvisioner)
+    public function __construct(private readonly UserProvisioner $userProvisioner)
     {
         parent::__construct();
-
-        $this->userProvisioner = $userProvisioner;
     }
 
     /**

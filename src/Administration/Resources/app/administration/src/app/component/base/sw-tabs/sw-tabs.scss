@@ -40,6 +40,10 @@
         &.has--error {
             background-color: $color-crimson-500;
         }
+
+        &.has--warning {
+            background-color: $color-pumpkin-spice-500;
+        }
     }
 
     .sw-tabs__arrow {

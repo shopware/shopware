@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
  */
 class ToManyAssociationMappingDefinition extends MappingEntityDefinition
 {
-    public const ENTITY_NAME = '_test_to_many_association_mapping';
+    final public const ENTITY_NAME = '_test_to_many_association_mapping';
 
     public function getEntityName(): string
     {
@@ -31,8 +31,8 @@ class ToManyAssociationMappingDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('to_many_id', 'toManyId', ToManyAssociationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('to_many_dependency_id', 'toManyDependencyId', ToManyAssociationDependencyDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new ManyToOneAssociationField('toMany', 'to_many', ToManyAssociationDefinition::class)),
-            (new ManyToOneAssociationField('toManyDependency', 'to_many_dependency', ToManyAssociationDependencyDefinition::class)),
+            new ManyToOneAssociationField('toMany', 'to_many', ToManyAssociationDefinition::class),
+            new ManyToOneAssociationField('toManyDependency', 'to_many_dependency', ToManyAssociationDependencyDefinition::class),
         ]);
     }
 }

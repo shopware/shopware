@@ -22,19 +22,21 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
+use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
-/**
- * @package content
- */
+#[Package('buyers-experience')]
 class MediaEntity extends Entity
 {
-    use EntityIdTrait;
     use EntityCustomFieldsTrait;
+    use EntityIdTrait;
 
     /**
      * @var string|null
@@ -129,9 +131,9 @@ class MediaEntity extends Entity
     protected $productMedia;
 
     /**
-     * @var UserEntity|null
+     * @var UserCollection|null
      */
-    protected $avatarUser;
+    protected $avatarUsers;
 
     /**
      * @var MediaThumbnailCollection|null
@@ -179,6 +181,8 @@ class MediaEntity extends Entity
      * @var string|null
      */
     protected $thumbnailsRo;
+
+    protected ?string $path = null;
 
     /**
      * @var DocumentBaseConfigCollection|null
@@ -229,6 +233,11 @@ class MediaEntity extends Entity
      * @var AppPaymentMethodCollection|null
      */
     protected $appPaymentMethods;
+
+    /**
+     * @var EntityCollection<AppShippingMethodEntity>|null
+     */
+    protected ?EntityCollection $appShippingMethods = null;
 
     protected ?ProductDownloadCollection $productDownloads = null;
 
@@ -389,14 +398,14 @@ class MediaEntity extends Entity
         $this->productMedia = $productMedia;
     }
 
-    public function getAvatarUser(): ?UserEntity
+    public function getAvatarUsers(): ?UserCollection
     {
-        return $this->avatarUser;
+        return $this->avatarUsers;
     }
 
-    public function setAvatarUser(UserEntity $avatarUser): void
+    public function setAvatarUsers(UserCollection $avatarUsers): void
     {
-        $this->avatarUser = $avatarUser;
+        $this->avatarUsers = $avatarUsers;
     }
 
     public function getThumbnails(): ?MediaThumbnailCollection
@@ -423,12 +432,21 @@ class MediaEntity extends Entity
     {
         $hasFile = $this->mimeType !== null && $this->fileExtension !== null && $this->fileName !== null;
 
-        return $this->hasFile = $hasFile;
+        return $this->hasFile = $hasFile || $this->path !== null;
     }
 
     public function getFileName(): ?string
     {
         return $this->fileName;
+    }
+
+    public function getFileNameIncludingExtension(): ?string
+    {
+        if ($this->fileName === null || $this->fileExtension === null) {
+            return null;
+        }
+
+        return sprintf('%s.%s', $this->fileName, $this->fileExtension);
     }
 
     public function setFileName(string $fileName): void
@@ -569,6 +587,7 @@ class MediaEntity extends Entity
     {
         $data = parent::jsonSerialize();
         unset($data['metaDataRaw'], $data['mediaTypeRaw']);
+        $data['hasFile'] = $this->hasFile();
 
         return $data;
     }
@@ -653,6 +672,22 @@ class MediaEntity extends Entity
         $this->appPaymentMethods = $appPaymentMethods;
     }
 
+    /**
+     * @return EntityCollection<AppShippingMethodEntity>|null
+     */
+    public function getAppShippingMethods(): ?EntityCollection
+    {
+        return $this->appShippingMethods;
+    }
+
+    /**
+     * @param EntityCollection<AppShippingMethodEntity> $appShippingMethods
+     */
+    public function setAppShippingMethods(EntityCollection $appShippingMethods): void
+    {
+        $this->appShippingMethods = $appShippingMethods;
+    }
+
     public function getProductDownloads(): ?ProductDownloadCollection
     {
         return $this->productDownloads;
@@ -671,5 +706,20 @@ class MediaEntity extends Entity
     public function setOrderLineItemDownloads(OrderLineItemDownloadCollection $orderLineItemDownloads): void
     {
         $this->orderLineItemDownloads = $orderLineItemDownloads;
+    }
+
+    public function hasPath(): bool
+    {
+        return $this->path !== null;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path ?? '';
+    }
+
+    public function setPath(?string $path): void
+    {
+        $this->path = $path;
     }
 }

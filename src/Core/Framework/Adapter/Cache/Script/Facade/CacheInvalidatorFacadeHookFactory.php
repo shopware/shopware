@@ -3,22 +3,19 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Script\Facade;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
 
 /**
- * @package core
- *
  * @internal
  */
+#[Package('core')]
 class CacheInvalidatorFacadeHookFactory extends HookServiceFactory
 {
-    private CacheInvalidator $cacheInvalidator;
-
-    public function __construct(CacheInvalidator $cacheInvalidator)
+    public function __construct(private readonly CacheInvalidator $cacheInvalidator)
     {
-        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     public function factory(Hook $hook, Script $script): CacheInvalidatorFacade

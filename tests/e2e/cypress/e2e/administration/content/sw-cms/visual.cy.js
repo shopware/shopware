@@ -1,7 +1,7 @@
+/// <reference types="Cypress" />
 /**
- * @package content
+ * @package buyers-experience
  */
-// / <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     // eslint-disable-next-line no-undef
@@ -14,7 +14,7 @@ describe('CMS: Visual tests', () => {
         });
     });
 
-    it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management'] }, () => {
+    it('@visual: check appearance of cms layout workflow', { tags: ['pa-content-management', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'PATCH',
@@ -36,6 +36,29 @@ describe('CMS: Visual tests', () => {
         // Take snapshot for visual testing
         cy.get('.sw-cms-list-item--0').should('be.visible');
         cy.get('.sw-skeleton__gallery').should('not.exist');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/cms-page`,
+            method: 'POST',
+        }).as('siteLoaded');
+
+        cy.get('select#sortType').select('name:DESC').should('contain.text', 'desc');
+        cy.get('.sw-skeleton__gallery').should('exist');
+
+        cy.wait('@siteLoaded')
+            .its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-skeleton__gallery').should('not.exist');
+        cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('.sw-cms-list-item--1').should('be.visible');
+        cy.get('.sw-cms-list-item__title').should('be.visible');
+        cy.get('.sw-pagination__list-item .is-active').click();
+        cy.get('.sw-skeleton__gallery').should('not.exist');
+        cy.get('.sw-cms-list-item--0').should('be.visible');
+        cy.get('.sw-cms-list-item--1').should('be.visible');
+        cy.get('.sw-cms-list-item__title').should('be.visible');
+        cy.get('.sw-cms-list-item--1 .sw-cms-list-item__title').should('contain', 'Terms');
+
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('[CMS] Listing - Layouts', '.sw-cms-list', null, {percyCSS: '.sw-notification-center__context-button--new-available:after { display: none; }'});
 
@@ -72,13 +95,13 @@ describe('CMS: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.contains('.sw-category-tree__inner .sw-tree-item__element', 'Home').click();
         cy.get('.sw-category-detail__tab-cms').click();
-        cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
+        cy.get('.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
 
         cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
         cy.get('.sw-modal .sw-button--primary').click();
-        cy.contains('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
+        cy.contains('.sw-category-layout-card .sw-category-layout-card__desc-headline', 'Vierte Wand');
 
         // Save layout
         cy.get('.sw-category-detail__save-action').click();

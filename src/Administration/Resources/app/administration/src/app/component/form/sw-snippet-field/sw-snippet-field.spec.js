@@ -20,7 +20,7 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
     return shallowMount(await Shopware.Component.build('sw-snippet-field'), {
         localVue,
         propsData: {
-            snippet: 'test.snippet'
+            snippet: 'test.snippet',
         },
         stubs: {
             'sw-field': await Shopware.Component.build('sw-field'),
@@ -32,7 +32,7 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
             'sw-modal': true,
             'sw-loader': true,
             'sw-icon': true,
-            'sw-snippet-field-edit-modal': true
+            'sw-snippet-field-edit-modal': true,
         },
         provide: {
             validationService: {},
@@ -44,13 +44,13 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                                 {
                                     name: 'Base en-GB',
                                     iso: 'en-GB',
-                                    id: uuid.get('en-GB')
+                                    id: uuid.get('en-GB'),
                                 },
                                 {
                                     name: 'Base de-DE',
                                     iso: 'de-DE',
-                                    id: uuid.get('de-DE')
-                                }
+                                    id: uuid.get('de-DE'),
+                                },
                             ]));
                         }
 
@@ -59,29 +59,29 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                                 {
                                     name: 'default language',
                                     locale: {
-                                        code: systemLanguageIso
+                                        code: systemLanguageIso,
                                     },
-                                    id: uuid.get('default language')
-                                }
+                                    id: uuid.get('default language'),
+                                },
                             ]));
                         }
 
                         return Promise.resolve([]);
-                    }
-                })
+                    },
+                }),
             },
             snippetSetService: {
                 getCustomList: () => {
                     return Promise.resolve({
                         total: translations.length,
                         data: {
-                            'test.snippet': translations
-                        }
+                            'test.snippet': translations,
+                        },
                     });
-                }
-            }
+                },
+            },
         },
-        ...customOptions
+        ...customOptions,
     });
 }
 
@@ -105,7 +105,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             origin: null,
             resetTo: 'english',
             translationKey: 'test.snippet',
-            setId: uuid.get('en-GB')
+            setId: uuid.get('en-GB'),
         }, {
             author: 'testUser',
             id: null,
@@ -113,7 +113,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             origin: null,
             resetTo: 'deutsch',
             translationKey: 'test.snippet',
-            setId: uuid.get('de-DE')
+            setId: uuid.get('de-DE'),
         }]);
 
         await flushPromises();
@@ -132,7 +132,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             origin: null,
             resetTo: 'english',
             translationKey: 'test.snippet',
-            setId: uuid.get('en-GB')
+            setId: uuid.get('en-GB'),
         }, {
             author: 'testUser',
             id: null,
@@ -140,7 +140,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             origin: null,
             resetTo: 'deutsch',
             translationKey: 'test.snippet',
-            setId: uuid.get('de-DE')
+            setId: uuid.get('de-DE'),
         }]);
 
         await flushPromises();
@@ -159,7 +159,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             origin: null,
             resetTo: 'english',
             translationKey: 'test.snippet',
-            setId: uuid.get('en-GB')
+            setId: uuid.get('en-GB'),
         }, {
             author: 'testUser',
             id: null,
@@ -167,7 +167,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             origin: null,
             resetTo: 'deutsch',
             translationKey: 'test.snippet',
-            setId: uuid.get('de-DE')
+            setId: uuid.get('de-DE'),
         }]);
 
         await flushPromises();
@@ -190,7 +190,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
     it('should display and hide edit modal', async () => {
         Shopware.State.get('session').currentLocale = 'en-GB';
         Shopware.State.get('session').currentUser = {
-            username: 'testUser'
+            username: 'testUser',
         };
 
         const wrapper = await createWrapper('en-GB', []);

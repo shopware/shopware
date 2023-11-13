@@ -1,48 +1,15 @@
 @import "~scss/variables";
 
-.sw-flow-list {
-    .sw-flow-list__empty-state {
-        min-height: 550px;
+.sw-flow-list-card {
+    overflow: hidden;
+
+    .sw-card__content {
+        padding: 0;
     }
 }
 
-.sw-data-grid--light .sw-data-grid {
-    .sw-data-grid__body {
-        .sw-data-grid__cell--selection {
-            box-shadow: none;
-        }
-
-        .sw-data-grid__cell--actions {
-            box-shadow: none;
-        }
-
-        .sw-data-grid__row:nth-child(even) .sw-data-grid__cell {
-            background: $color-white;
-        }
-
-        .sw-data-grid__row:nth-child(even):hover .sw-data-grid__cell {
-            background-color: $color-shopware-brand-50;
-        }
-
-        .sw-data-grid__row:last-child .sw-data-grid__cell {
-            border-bottom: none;
-        }
-
-        .sw-data-grid__row .sw-data-grid__cell {
-            border-bottom: 1px solid $color-gray-300;
-        }
-    }
-
-    &.sw-data-grid--actions .sw-data-grid__cell {
-        border-right: none;
-    }
-
-    .sw-data-grid__cell--header.sw-data-grid__cell--selection {
-        border-right: none;
-        box-shadow: inset 0 -1px 0 $color-gray-300;
-    }
-
-    .sw-data-grid__cell-settings {
-        box-shadow: inset 0 -1px 0 $color-gray-300;
+.sw-flow-list {
+    .sw-flow-list__empty-state {
+        min-height: 550px;
     }
 }

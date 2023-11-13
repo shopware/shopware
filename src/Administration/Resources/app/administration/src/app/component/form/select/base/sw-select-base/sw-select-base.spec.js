@@ -15,11 +15,11 @@ const createWrapper = async (customOptions) => {
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>',
             },
-            'sw-field-error': await Shopware.Component.build('sw-field-error')
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
         },
-        ...customOptions
+        ...customOptions,
     });
 };
 
@@ -41,7 +41,7 @@ describe('components/sw-select-base', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            showClearableButton: true
+            showClearableButton: true,
         });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
@@ -52,18 +52,18 @@ describe('components/sw-select-base', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            showClearableButton: true
+            showClearableButton: true,
         });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
 
         // expect no clear event
-        expect(wrapper.emitted('clear')).toBe(undefined);
+        expect(wrapper.emitted('clear')).toBeUndefined();
 
         // click on clear
         await clearableIcon.trigger('click');
 
         // expect clear event thrown
-        expect(wrapper.emitted('clear').length).toEqual(1);
+        expect(wrapper.emitted('clear')).toHaveLength(1);
     });
 });

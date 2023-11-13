@@ -2,7 +2,7 @@ import template from './sw-cms-block.html.twig';
 import './sw-cms-block.scss';
 
 /**
- * @package content
+ * @package buyers-experience
  */
 
 const { Filter, State } = Shopware;
@@ -142,14 +142,6 @@ export default {
         createdComponent() {
             if (!this.block.backgroundMediaMode) {
                 this.block.backgroundMediaMode = 'cover';
-            }
-
-            if (!this.block.visibility) {
-                this.block.visibility = {
-                    mobile: true,
-                    tablet: true,
-                    desktop: true,
-                };
             }
         },
 

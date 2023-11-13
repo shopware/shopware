@@ -2,7 +2,7 @@ import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
 
 /**
- * @package customer-order
+ * @package checkout
  */
 
 const { Mixin } = Shopware;
@@ -34,10 +34,12 @@ export default {
             showDeleteModal: false,
             availableAffiliateCodes: [],
             availableCampaignCodes: [],
+            availablePromotionCodes: [],
             filterCriteria: [],
             defaultFilters: [
                 'affiliate-code-filter',
                 'campaign-code-filter',
+                'promotion-code-filter',
                 'document-filter',
                 'order-date-filter',
                 'order-value-filter',
@@ -95,21 +97,26 @@ export default {
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
             criteria.addAssociation('documents');
-            criteria.addAssociation('transactions');
-            criteria.addAssociation('deliveries');
-            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+
+            criteria.addAssociation('stateMachineState');
+
+            criteria.getAssociation('transactions')
+                .addAssociation('stateMachineState')
+                .addSorting(Criteria.sort('createdAt'));
+
+            criteria.getAssociation('deliveries')
+                .addAssociation('stateMachineState')
+                .addAssociation('shippingMethod');
 
             return criteria;
         },
 
         filterSelectCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addFilter(Criteria.not(
-                'AND',
-                [Criteria.equals('affiliateCode', null), Criteria.equals('campaignCode', null)],
-            ));
+
             criteria.addAggregation(Criteria.terms('affiliateCodes', 'affiliateCode', null, null, null));
             criteria.addAggregation(Criteria.terms('campaignCodes', 'campaignCode', null, null, null));
+            criteria.addAggregation(Criteria.terms('promotionCodes', 'lineItems.payload.code', null, null, null));
 
             return criteria;
         },
@@ -179,6 +186,15 @@ export default {
                     labelProperty: 'key',
                     options: this.availableCampaignCodes,
                 },
+                'promotion-code-filter': {
+                    property: 'lineItems.payload.code',
+                    type: 'multi-select-filter',
+                    label: this.$tc('sw-order.filters.promotionCodeFilter.label'),
+                    placeholder: this.$tc('sw-order.filters.promotionCodeFilter.placeholder'),
+                    valueProperty: 'key',
+                    labelProperty: 'key',
+                    options: this.availablePromotionCodes,
+                },
                 'document-filter': {
                     property: 'documents',
                     label: this.$tc('sw-order.filters.documentFilter.label'),
@@ -230,6 +246,18 @@ export default {
             productCriteria.addAssociation('options.group');
 
             return productCriteria;
+        },
+
+        currencyFilter() {
+            return Shopware.Filter.getByName('currency');
+        },
+
+        dateFilter() {
+            return Shopware.Filter.getByName('date');
+        },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
         },
     },
 
@@ -409,8 +437,12 @@ export default {
             this.filterLoading = true;
 
             return this.orderRepository.search(this.filterSelectCriteria).then(({ aggregations }) => {
-                this.availableAffiliateCodes = aggregations?.affiliateCodes?.buckets ?? [];
-                this.availableCampaignCodes = aggregations?.campaignCodes?.buckets ?? [];
+                const { affiliateCodes, campaignCodes, promotionCodes } = aggregations;
+
+                this.availableAffiliateCodes = affiliateCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
+                this.availableCampaignCodes = campaignCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
+                this.availablePromotionCodes = promotionCodes?.buckets.filter(({ key }) => key.length > 0) ?? [];
+
                 this.filterLoading = false;
 
                 return aggregations;
@@ -452,7 +484,18 @@ export default {
 
         async onBulkEditItems() {
             await this.$nextTick();
-            this.$router.push({ name: 'sw.bulk.edit.order' });
+
+            const ordersExcludeDelivery = Object.values(this.$refs.orderGrid.selection).filter((order) => {
+                return !order.deliveries[0];
+            });
+            const excludeDelivery = (ordersExcludeDelivery.length > 0) ? '1' : '0';
+
+            this.$router.push({
+                name: 'sw.bulk.edit.order',
+                params: {
+                    excludeDelivery,
+                },
+            });
         },
 
         transaction(item) {

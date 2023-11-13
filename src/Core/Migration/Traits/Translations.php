@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Migration\Traits;
 
-/**
- * @package core
- */
+use Shopware\Core\Framework\Log\Package;
+
+#[Package('core')]
 class Translations
 {
     /**
@@ -17,8 +17,10 @@ class Translations
      */
     protected $english;
 
-    public function __construct(array $german, array $english)
-    {
+    public function __construct(
+        array $german,
+        array $english
+    ) {
         $this->german = $german;
         $this->english = $english;
     }

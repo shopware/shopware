@@ -9,19 +9,19 @@ use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaig
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 {
-    use OrderActionTrait;
     use CacheTestBehaviour;
+    use OrderActionTrait;
 
     private EntityRepository $flowRepository;
 
@@ -50,8 +50,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     public function testAddAffiliateAndCampaignCodeForCustomer(array $existedData, array $updateData, array $expectData): void
     {
         $email = 'thuy@gmail.com';
-        $password = '12345678';
-        $this->prepareCustomer($password, $email, $existedData);
+        $this->prepareCustomer($email, $existedData);
 
         $sequenceId = Uuid::randomHex();
         $this->flowRepository->create([[
@@ -71,7 +70,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->login($email, $password);
+        $this->login($email, 'shopware');
 
         static::assertNotNull($this->customerRepository);
         /** @var CustomerEntity $customer */
@@ -84,7 +83,7 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     /**
      * @return array<int, mixed>
      */
-    public function createDataProvider(): array
+    public static function createDataProvider(): array
     {
         return [
             // existed data / update data / expect data

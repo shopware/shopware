@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @package core
- */
+#[Package('core')]
 class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
@@ -39,6 +38,10 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCacheSection())
                 ->append($this->createHtmlSanitizerSection())
                 ->append($this->createIncrementSection())
+                ->append($this->createTwigSection())
+                ->append($this->createDompdfSection())
+                ->append($this->createStockSection())
+                ->append($this->createUsageDataSection())
             ->end();
 
         return $treeBuilder;
@@ -50,7 +53,6 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('private')
-
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('visibility')->end()
@@ -157,9 +159,19 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('store')
                     ->children()
                     ->scalarNode('context_lifetime')->defaultValue('P1D')->end()
+                    ->scalarNode('max_limit')->end()
                 ->end()
             ->end()
-            ->integerNode('max_limit')->end()
+            ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
+            ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
+            ->arrayNode('jwt_key')
+                ->children()
+                    ->scalarNode('private_key_path')->end()
+                    ->scalarNode('private_key_passphrase')->defaultValue('shopware')->end()
+                    ->scalarNode('public_key_path')->end()
+                ->end()
+            ->end()
+            ->scalarNode('max_limit')->end()
             ->arrayNode('api_browser')
                 ->children()
                 ->booleanNode('auth_required')
@@ -193,6 +205,12 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(20)
                 ->end()
                 ->booleanNode('enable_admin_worker')
+                    ->defaultValue(true)
+                ->end()
+                ->booleanNode('enable_queue_stats_worker')
+                    ->defaultValue(true)
+                ->end()
+                ->booleanNode('enable_notification_worker')
                     ->defaultValue(true)
                 ->end()
                 ->scalarNode('memory_limit')
@@ -265,6 +283,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('blue_green')->end()
+                ->booleanNode('cluster_setup')->end()
             ->end();
 
         return $rootNode;
@@ -278,9 +297,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
-                    ->validate()->always()->then(function ($value) {
-                        return abs(MemorySizeCalculator::convertToBytes((string) $value));
-                    })->end()
+                    ->validate()->always()->then(fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
             ->end();
 
         return $rootNode;
@@ -333,6 +350,13 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('exclude_exception')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('exclude_events')
+                    ->prototype('scalar')->end()
+                ->end()
+                ->arrayNode('error_code_log_levels')
+                    ->useAttributeAsKey('name')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;
@@ -344,12 +368,37 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('redis_prefix')->end()
+                ->booleanNode('cache_compression')->defaultTrue()->end()
+                ->arrayNode('tagging')
+                    ->children()
+                        ->booleanNode('each_snippet')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('each_config')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('each_theme_config')
+                            ->defaultTrue()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('invalidation')
                     ->children()
                         ->integerNode('delay')
                             ->defaultValue(0)
                         ->end()
+                        ->arrayNode('delay_options')
+                            ->children()
+                                ->scalarNode('storage')
+                                    ->defaultValue('cache')
+                                ->end()
+                                ->scalarNode('dsn')
+                                    ->defaultValue('redis://localhost')
+                                ->end()
+                            ->end()
+                        ->end()
                         ->integerNode('count')
+                            ->setDeprecated('shopware/platform', '6.6.0.0')
                             ->defaultValue(150)
                         ->end()
                         ->arrayNode('http_cache')
@@ -513,6 +562,9 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->booleanNode('enabled')
+                    ->defaultTrue()
+                ->end()
                 ->variableNode('cache_dir')
                     ->defaultValue('%kernel.cache_dir%')
                 ->end()
@@ -532,6 +584,21 @@ class Configuration implements ConfigurationInterface
                                 ->defaultValue([])
                                 ->scalarPrototype()->end()
                             ->end()
+                            ->arrayNode('custom_attributes')
+                                ->defaultValue([])
+                                ->arrayPrototype()
+                                    ->children()
+                                        ->arrayNode('tags')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
+                                        ->arrayNode('attributes')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                            ->end()
                             ->arrayNode('options')
                                 ->useAttributeAsKey('key')
                                 ->defaultValue([])
@@ -539,6 +606,10 @@ class Configuration implements ConfigurationInterface
                                     ->children()
                                         ->scalarNode('key')->end()
                                         ->scalarNode('value')->end()
+                                        ->arrayNode('values')
+                                            ->defaultValue([])
+                                            ->scalarPrototype()->end()
+                                        ->end()
                                     ->end()
                                 ->end()
                             ->end()
@@ -599,6 +670,70 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('integrations')
                     ->performNoDeepMerging()
                     ->scalarPrototype()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createTwigSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('twig');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('allowed_php_functions')
+                    ->performNoDeepMerging()
+                    ->scalarPrototype()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createDompdfSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('dompdf');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('options')
+                ->useAttributeAsKey('name')
+                ->scalarPrototype()
+                ->end()
+            ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createStockSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('stock');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->booleanNode('enable_stock_management')->defaultTrue()->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createUsageDataSection(): ArrayNodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('usage_data');
+
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('gateway')
+                    ->children()
+                        ->scalarNode('base_uri')->end()
+                        ->scalarNode('batch_size')->end()
+                    ->end()
                 ->end()
             ->end();
 

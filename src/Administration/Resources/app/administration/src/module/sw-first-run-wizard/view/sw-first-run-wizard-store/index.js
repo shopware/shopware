@@ -2,7 +2,7 @@ import template from './sw-first-run-wizard-store.html.twig';
 import './sw-first-run-wizard-store.scss';
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -75,6 +75,10 @@ export default {
                 },
             ];
         },
+
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
     },
 
     watch: {
@@ -138,8 +142,12 @@ export default {
                 });
         },
 
-        installExtensionStore() {
-            return this.extensionHelperService.downloadAndActivateExtension('SwagExtensionStore');
+        async installExtensionStore() {
+            const response = await this.extensionHelperService.downloadAndActivateExtension('SwagExtensionStore');
+
+            this.$emit('extension-activated');
+
+            return response;
         },
 
         updateButtons() {

@@ -13,19 +13,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class Cart extends Struct
 {
     use StateAwareTrait;
-
-    protected string $name;
-
-    protected string $token;
 
     protected CartPrice $price;
 
@@ -45,6 +40,14 @@ class Cart extends Struct
 
     protected ?string $campaignCode = null;
 
+    /**
+     * This can be used to identify carts, that are used for different purposes.
+     * Setting this will call different hook names for respective cart sources.
+     * This may be used for multi-cart or subscription applications,
+     * where the regular calculation process is not desired and separate calculation processes are used as an opt-in usage.
+     */
+    protected ?string $source = null;
+
     private ?CartDataCollection $data = null;
 
     /**
@@ -57,25 +60,13 @@ class Cart extends Struct
     /**
      * @internal
      */
-    public function __construct(string $name, string $token)
+    public function __construct(protected string $token)
     {
-        $this->name = $name;
-        $this->token = $token;
         $this->lineItems = new LineItemCollection();
         $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
-    {
-        $this->name = $name;
     }
 
     public function getToken(): string
@@ -305,5 +296,15 @@ class Cart extends Struct
     public function setBehavior(?CartBehavior $behavior): void
     {
         $this->behavior = $behavior;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): void
+    {
+        $this->source = $source;
     }
 }

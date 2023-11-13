@@ -3,10 +3,9 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\Log\Package;
 
-/**
- * @package core
- */
+#[Package('core')]
 class ProductStreamMappingIndexingMessage extends EntityIndexingMessage
 {
 }

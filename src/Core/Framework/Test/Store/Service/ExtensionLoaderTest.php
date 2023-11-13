@@ -25,16 +25,17 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
+ *
  * @group skip-paratest
  */
 class ExtensionLoaderTest extends TestCase
 {
-    use IntegrationTestBehaviour;
     use ExtensionBehaviour;
+    use IntegrationTestBehaviour;
 
     private ExtensionLoader $extensionLoader;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->extensionLoader = $this->getContainer()->get(ExtensionLoader::class);
 
@@ -42,7 +43,7 @@ class ExtensionLoaderTest extends TestCase
         $this->installApp(__DIR__ . '/../_fixtures/TestApp');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->removePlugin(__DIR__ . '/../_fixtures/AppStoreTestPlugin');
         $this->removeApp(__DIR__ . '/../_fixtures/TestApp');
@@ -204,7 +205,7 @@ class ExtensionLoaderTest extends TestCase
         $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-detail.json');
         static::assertIsString($content, 'Could not read extension-detail.json file');
 
-        return json_decode($content, true);
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -215,6 +216,6 @@ class ExtensionLoaderTest extends TestCase
         $content = file_get_contents(__DIR__ . '/../_fixtures/responses/extension-listing.json');
         static::assertIsString($content, 'Could not read extension-listing.json file');
 
-        return json_decode($content, true);
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

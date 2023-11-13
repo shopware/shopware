@@ -7,16 +7,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * @package core
- *
  * @internal
  */
 #[AsMessageHandler(handles: DeleteCascadeAppsTask::class)]
-
+#[Package('core')]
 final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
 {
     private const HARD_DELETE_AFTER_DAYS = 1;
@@ -26,8 +25,8 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
-        private EntityRepository $aclRoleRepository,
-        private EntityRepository $integrationRepository
+        private readonly EntityRepository $aclRoleRepository,
+        private readonly EntityRepository $integrationRepository
     ) {
         parent::__construct($scheduledTaskRepository);
     }
@@ -35,7 +34,7 @@ final class DeleteCascadeAppsHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $context = Context::createDefaultContext();
-        $timeExpired = (new \DateTimeImmutable())->modify(sprintf('-%s day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $timeExpired = (new \DateTimeImmutable())->modify(sprintf('-%d day', self::HARD_DELETE_AFTER_DAYS))->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $criteria = new Criteria();
         $criteria->addFilter(new RangeFilter('deletedAt', [

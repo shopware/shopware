@@ -44,7 +44,7 @@ describe('Import/Export - Check activities in progress are updating', () => {
         logId = null;
     });
 
-    it('@base @settings: Wait for in progress export to be updated', { tags: ['pa-system-settings'] }, () => {
+    it('@base @settings: Wait for in progress export to be updated', { tags: ['pa-system-settings', 'VUE3'] }, () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
             method: 'POST',

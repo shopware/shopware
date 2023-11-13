@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,45 +27,25 @@ use Shopware\Core\Profiling\Profiler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package core
- *
  * @final
+ *
+ * @template TEntityCollection of EntityCollection
  */
+#[Package('core')]
 class EntityRepository
 {
-    private EntityReaderInterface $reader;
-
-    private EntitySearcherInterface $searcher;
-
-    private EntityAggregatorInterface $aggregator;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private VersionManager $versionManager;
-
-    private EntityDefinition $definition;
-
-    private EntityLoadedEventFactory $eventFactory;
-
     /**
      * @internal
      */
     public function __construct(
-        EntityDefinition $definition,
-        EntityReaderInterface $reader,
-        VersionManager $versionManager,
-        EntitySearcherInterface $searcher,
-        EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher,
-        EntityLoadedEventFactory $eventFactory
+        private readonly EntityDefinition $definition,
+        private readonly EntityReaderInterface $reader,
+        private readonly VersionManager $versionManager,
+        private readonly EntitySearcherInterface $searcher,
+        private readonly EntityAggregatorInterface $aggregator,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityLoadedEventFactory $eventFactory
     ) {
-        $this->reader = $reader;
-        $this->searcher = $searcher;
-        $this->aggregator = $aggregator;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->versionManager = $versionManager;
-        $this->definition = $definition;
-        $this->eventFactory = $eventFactory;
     }
 
     public function getDefinition(): EntityDefinition
@@ -72,15 +53,16 @@ class EntityRepository
         return $this->definition;
     }
 
+    /**
+     * @return EntitySearchResult<TEntityCollection>
+     */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
         if (!$criteria->getTitle()) {
             return $this->_search($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle(), function () use ($criteria, $context) {
-            return $this->_search($criteria, $context);
-        }, 'repository');
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $context), 'repository');
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
@@ -199,7 +181,7 @@ class EntityRepository
     {
         ReplicaConnection::ensurePrimary();
 
-        $newId = $newId ?? Uuid::randomHex();
+        $newId ??= Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
         }
@@ -220,12 +202,13 @@ class EntityRepository
     }
 
     /**
-     * @return EntityCollection<Entity>
+     * @return TEntityCollection
      */
     private function read(Criteria $criteria, Context $context): EntityCollection
     {
         $criteria = clone $criteria;
 
+        /** @var TEntityCollection $entities */
         $entities = $this->reader->read($this->definition, $criteria, $context);
 
         if ($criteria->getFields() === []) {
@@ -239,6 +222,9 @@ class EntityRepository
         return $entities;
     }
 
+    /**
+     * @return EntitySearchResult<TEntityCollection>
+     */
     private function _search(Criteria $criteria, Context $context): EntitySearchResult
     {
         $criteria = clone $criteria;
@@ -259,7 +245,7 @@ class EntityRepository
         $ids = $this->searchIds($criteria, $context);
 
         if (empty($ids->getIds())) {
-            /** @var EntityCollection<Entity> $collection */
+            /** @var TEntityCollection $collection */
             $collection = $this->definition->getCollectionClass();
 
             return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $context);
@@ -271,7 +257,6 @@ class EntityRepository
 
         $search = $ids->getData();
 
-        /** @var Entity $element */
         foreach ($entities as $element) {
             if (!\array_key_exists($element->getUniqueIdentifier(), $search)) {
                 continue;

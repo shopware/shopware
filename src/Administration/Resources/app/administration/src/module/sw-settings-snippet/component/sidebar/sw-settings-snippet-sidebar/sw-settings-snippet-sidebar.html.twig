@@ -25,6 +25,8 @@
             <a
                 v-if="activeFilterNumber"
                 class="sw-snippet-settings__sidebar-reset-all"
+                role="button"
+                tabindex="0"
                 @click="resetAll"
             >
                 {{ $tc('sw-sidebar-filter-panel.resetButton') }}

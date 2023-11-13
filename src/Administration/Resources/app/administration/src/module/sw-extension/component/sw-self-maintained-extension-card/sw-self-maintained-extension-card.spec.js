@@ -17,8 +17,8 @@ async function createWrapper() {
                 type: 'app',
                 icon: null,
                 installedAt: null,
-                permissions: []
-            }
+                permissions: [],
+            },
         },
         stubs: {
             'sw-context-button': true,
@@ -26,31 +26,32 @@ async function createWrapper() {
             'router-link': true,
             'sw-context-menu-item': true,
             'sw-loader': true,
-            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card')
+            'sw-meteor-card': await Shopware.Component.build('sw-meteor-card'),
+            'sw-extension-icon': true,
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {};
-                }
+                },
             },
             shopwareExtensionService: new ShopwareService({}, {}, {}, {}),
             cacheApiService: {
                 clear() {
                     return Promise.resolve();
-                }
+                },
             },
             extensionStoreActionService: {
-                downloadExtension: jest.fn()
-            }
-        }
+                downloadExtension: jest.fn(),
+            },
+        },
     });
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
-describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-extension-card-base', () => {
+describe('src/module/sw-extension/component/sw-self-maintained-extension-card', () => {
     /** @type Wrapper */
     let wrapper;
 
@@ -77,8 +78,8 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
             extension: {
                 icon: null,
                 installedAt: 'a',
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         expect(wrapper.vm.isInstalled).toBe(true);
@@ -91,8 +92,8 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
                 icon: null,
                 installedAt: 'a',
                 active: false,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         wrapper.vm.shopwareExtensionService.activateExtension = jest.fn(() => Promise.resolve());
@@ -101,8 +102,8 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
 
         await wrapper.vm.activateExtension();
 
-        expect(wrapper.vm.shopwareExtensionService.activateExtension).toBeCalled();
-        expect(wrapper.vm.clearCacheAndReloadPage).toBeCalled();
+        expect(wrapper.vm.shopwareExtensionService.activateExtension).toHaveBeenCalled();
+        expect(wrapper.vm.clearCacheAndReloadPage).toHaveBeenCalled();
         expect(wrapper.vm.extension.active).toBe(true);
         expect(wrapper.vm.isLoading).toBe(false);
     });
@@ -115,7 +116,7 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
 
         await wrapper.vm.deactivateExtension();
 
-        expect(wrapper.vm.shopwareExtensionService.deactivateExtension).toBeCalled();
+        expect(wrapper.vm.shopwareExtensionService.deactivateExtension).toHaveBeenCalled();
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
@@ -125,31 +126,31 @@ describe('src/module/sw-extension/component/sw-extension-store-purchased/sw-exte
                 icon: null,
                 installedAt: 'a',
                 active: true,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         wrapper.vm.activateExtension = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.changeExtensionStatus();
 
-        expect(wrapper.vm.activateExtension).toBeCalled();
+        expect(wrapper.vm.activateExtension).toHaveBeenCalled();
     });
 
-    it('changeExtensionStatus should call activateExtension when activated', async () => {
+    it('changeExtensionStatus should call deactivateExtension when activated', async () => {
         await wrapper.setProps({
             extension: {
                 icon: null,
                 installedAt: 'a',
                 active: false,
-                permissions: []
-            }
+                permissions: [],
+            },
         });
 
         wrapper.vm.deactivateExtension = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.changeExtensionStatus();
 
-        expect(wrapper.vm.deactivateExtension).toBeCalled();
+        expect(wrapper.vm.deactivateExtension).toHaveBeenCalled();
     });
 });

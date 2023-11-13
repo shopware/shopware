@@ -28,8 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class StoreControllerTest extends TestCase
 {
-    use KernelTestBehaviour;
     use IntegrationTestBehaviour;
+    use KernelTestBehaviour;
 
     private Context $defaultContext;
 
@@ -171,7 +171,7 @@ class StoreControllerTest extends TestCase
             'storeToken' => 'store-token-two',
             'localeId' => $adminUser->getLocaleId(),
             'username' => 'admin-two',
-            'password' => 's3cr3t',
+            'password' => 's3cr3t12345',
             'email' => 'jane.doe@shopware.com',
         ]], $this->defaultContext);
 

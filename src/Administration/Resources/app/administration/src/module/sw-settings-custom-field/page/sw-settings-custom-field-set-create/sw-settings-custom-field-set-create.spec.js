@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount } from '@vue/test-utils';
 import swSettingsCustomFieldSetDetail from 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail';
@@ -34,9 +34,9 @@ async function createWrapper() {
                             return Promise.resolve({
                                 length: 0,
                             });
-                        }
+                        },
                     };
-                }
+                },
             },
         },
         stubs: {
@@ -48,7 +48,7 @@ async function createWrapper() {
             'sw-card': true,
             'sw-card-view': true,
             'sw-skeleton': true,
-        }
+        },
     });
 }
 
@@ -75,7 +75,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
             next,
         );
 
-        expect(next).toBeCalledTimes(1);
+        expect(next).toHaveBeenCalledTimes(1);
         expect(params.hasOwnProperty('id')).toBeTruthy();
     });
 
@@ -83,12 +83,12 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         wrapper.vm.$router.push = jest.fn();
         wrapper.vm.saveFinish();
 
-        expect(wrapper.vm.$router.push).toBeCalledTimes(1);
-        expect(wrapper.vm.$router.push).toBeCalledWith({
+        expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
             name: 'sw.settings.custom.field.detail',
             params: {
                 id: wrapper.vm.setId,
-            }
+            },
         });
     });
 
@@ -106,8 +106,8 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.createNameNotUniqueNotification();
 
-        expect(wrapper.vm.createNotificationError).toBeCalledTimes(1);
-        expect(wrapper.vm.createNotificationError).toBeCalledWith({
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             title: 'translation',
             message: 'translation',
         });
@@ -121,7 +121,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         wrapper.vm.onSave();
         await flushPromises();
 
-        expect(wrapper.vm.$super).toBeCalledTimes(1);
-        expect(wrapper.vm.$super).toBeCalledWith('onSave');
+        expect(wrapper.vm.$super).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.$super).toHaveBeenCalledWith('onSave');
     });
 });

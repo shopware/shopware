@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import swUsersPermissionsRoleViewGeneral from 'src/module/sw-users-permissions/view/sw-users-permissions-role-view-general';
@@ -13,12 +13,14 @@ async function createWrapper(privileges = []) {
         localVue,
         stubs: {
             'sw-card': true,
-            'sw-field': true,
+            'sw-textarea-field': true,
+            'sw-text-field': true,
+            'sw-number-field': true,
             'sw-users-permissions-permissions-grid': true,
-            'sw-users-permissions-additional-permissions': true
+            'sw-users-permissions-additional-permissions': true,
         },
         propsData: {
-            role: {}
+            role: {},
         },
         provide: {
             acl: {
@@ -26,9 +28,9 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
-            }
-        }
+                },
+            },
+        },
     });
 }
 
@@ -41,9 +43,9 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     it('should disable the button and fields when no aclPrivileges exists', async () => {
         const wrapper = await createWrapper();
 
-        const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper
-            .find('sw-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+            .find('sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 
@@ -56,9 +58,9 @@ describe('module/sw-users-permissions/view/sw-users-permissions-role-view-genera
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
         const wrapper = await createWrapper(['users_and_permissions.editor']);
 
-        const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleName = wrapper.find('sw-text-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
         const fieldRoleDescription = wrapper
-            .find('sw-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+            .find('sw-textarea-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
         const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
         const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
 

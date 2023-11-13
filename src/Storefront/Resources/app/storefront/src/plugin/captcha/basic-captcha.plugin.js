@@ -107,6 +107,12 @@ export default class BasicCaptchaPlugin extends Plugin {
         const preCheckId = `#${this.options.formId}-precheck`;
         this.el.querySelector(preCheckId).value = 'allowed';
         this.el.querySelector(this.options.basicCaptchaInputId).value = fakeSession;
+
+        if (!this._form.checkValidity()) {
+            this.el.querySelector(preCheckId).value = '';
+            return;
+        }
+
         this._form.submit();
     }
 

@@ -15,7 +15,6 @@
             <ul class="sw-media-sidebar__quickactions-list">
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_move %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -24,7 +23,10 @@
                     }"
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalMove"
+                    @keydown.enter="openModalMove"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon"
@@ -37,10 +39,12 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_settings %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-media-sidebar__quickaction quickaction--settings"
+                    role="button"
+                    tabindex="0"
                     @click="openFolderSettings"
+                    @keydown.enter="openFolderSettings"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon"
@@ -53,7 +57,6 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -62,7 +65,10 @@
                     }"
                     class="quickaction--dissolve"
                     :class="quickActionClasses(!acl.can('media.editor'))"
+                    role="button"
+                    tabindex="0"
                     @click="openFolderDissolve"
+                    @keydown.enter="openFolderDissolve"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon"
@@ -75,7 +81,6 @@
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_media_quickinfo_folder_quickactions_delete %}
-                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -84,7 +89,10 @@
                     }"
                     class="quickaction--delete is--danger"
                     :class="quickActionClasses(!acl.can('media.deleter'))"
+                    role="button"
+                    tabindex="0"
                     @click="openModalDelete"
+                    @keydown.enter="openModalDelete"
                 >
                     <sw-icon
                         class="sw-media-sidebar__quickactions-icon is--danger"

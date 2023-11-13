@@ -16,25 +16,25 @@ class ThemeCreateCommandTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private const ThemeName = 'TestPlugin';
+    private const THEME_NAME = 'TestPlugin';
 
     private string $projectDir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->projectDir = $this->getContainer()->getParameter('kernel.project_dir');
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        $this->removeTheme(self::ThemeName);
+        $this->removeTheme(self::THEME_NAME);
     }
 
     public function testSuccessfulCreateCommand(): void
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['theme-name' => self::ThemeName]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
         static::assertStringContainsString('Creating theme structure under', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
@@ -43,13 +43,13 @@ class ThemeCreateCommandTest extends TestCase
     {
         $commandTester = $this->getCommandTester();
 
-        $commandTester->execute(['theme-name' => self::ThemeName]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
         static::assertStringContainsString('Creating theme structure under', $commandTester->getDisplay(true));
 
-        $commandTester->execute(['theme-name' => self::ThemeName]);
+        $commandTester->execute(['theme-name' => self::THEME_NAME]);
 
-        static::assertStringContainsString(self::ThemeName . ' already exists', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
+        static::assertStringContainsString(self::THEME_NAME . ' already exists', preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
 
     /**
@@ -64,7 +64,7 @@ class ThemeCreateCommandTest extends TestCase
         static::assertStringContainsString($expectedMessage, preg_replace('/\s+/', ' ', trim($commandTester->getDisplay(true))));
     }
 
-    public function commandFailsWithWrongNameDataProvider(): array
+    public static function commandFailsWithWrongNameDataProvider(): array
     {
         return [
             ['name' => 'abc', 'expectedMessage' => 'The name must start with an uppercase character'],

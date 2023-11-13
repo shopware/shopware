@@ -2,14 +2,13 @@
 
 namespace Shopware\Core\System\NumberRange\ValueGenerator\Pattern;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
-/**
- * @package checkout
- */
+#[Package('checkout')]
 class ValueGeneratorPatternDate extends AbstractValueGenerator
 {
-    public const STANDARD_FORMAT = 'Y-m-d';
+    final public const STANDARD_FORMAT = 'Y-m-d';
 
     public function getPatternId(): string
     {

@@ -7,18 +7,18 @@ use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTest;
+use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @package system-settings
  */
-class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
+#[Package('services-settings')]
+class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCase
 {
     private EntityRepository $logRepository;
 
@@ -30,7 +30,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTest
 
     private DeleteFileHandler $deleteFileHandler;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->logRepository = $this->getContainer()->get('import_export_log.repository');
         $this->fileRepository = $this->getContainer()->get('import_export_file.repository');

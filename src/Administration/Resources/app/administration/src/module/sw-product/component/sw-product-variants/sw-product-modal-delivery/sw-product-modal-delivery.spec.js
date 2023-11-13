@@ -12,7 +12,7 @@ async function createWrapper(privileges = []) {
     return shallowMount(await Shopware.Component.build('sw-product-modal-delivery'), {
         propsData: {
             product: {},
-            selectedGroups: []
+            selectedGroups: [],
         },
         provide: {
             repositoryFactory: {},
@@ -21,7 +21,7 @@ async function createWrapper(privileges = []) {
                     if (!identifier) { return true; }
 
                     return privileges.includes(identifier);
-                }
+                },
             },
             shortcutService: {
                 startEventListener: () => {},
@@ -35,7 +35,7 @@ async function createWrapper(privileges = []) {
             'sw-product-variants-delivery-order': true,
             'sw-button': true,
             'sw-icon': true,
-        }
+        },
     });
 }
 
@@ -56,7 +56,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
 
     it('should have an enabled save button', async () => {
         const wrapper = await createWrapper([
-            'product.editor'
+            'product.editor',
         ]);
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 

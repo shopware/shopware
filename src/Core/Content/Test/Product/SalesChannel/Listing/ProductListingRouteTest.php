@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
+ *
  * @group store-api
  */
 class ProductListingRouteTest extends TestCase
@@ -70,7 +71,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(6, $response['elements']);
@@ -86,7 +87,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
@@ -103,7 +104,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
@@ -121,7 +122,7 @@ class ProductListingRouteTest extends TestCase
             '/store-api/product-listing/' . $this->ids->get('category')
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame('product_listing', $response['apiAlias']);
@@ -144,7 +145,7 @@ class ProductListingRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertArrayNotHasKey('elements', $response);

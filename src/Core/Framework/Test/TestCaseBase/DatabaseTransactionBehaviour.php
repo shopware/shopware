@@ -67,5 +67,5 @@ trait DatabaseTransactionBehaviour
         }
     }
 
-    abstract protected function getContainer(): ContainerInterface;
+    abstract protected static function getContainer(): ContainerInterface;
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Rule\Container;
 
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
@@ -9,14 +10,12 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 
-/**
- * @package business-ops
- */
+#[Package('services-settings')]
 abstract class DaysSinceRule extends Rule
 {
     protected string $operator = Rule::OPERATOR_EQ;
 
-    protected ?int $daysPassed = null;
+    protected ?float $daysPassed = null;
 
     public function match(RuleScope $scope): bool
     {
@@ -38,10 +37,12 @@ abstract class DaysSinceRule extends Rule
             return false;
         }
 
-        if (method_exists($date, 'setTime')) {
-            $date = $date->setTime(0, 0, 0, 0);
-        }
-        $interval = $date->diff($currentDate);
+        $dateTime = (new \DateTime())
+            ->setTimestamp($date->getTimestamp())
+            ->setTime(0, 0);
+
+        /** @var \DateInterval $interval */
+        $interval = $dateTime->diff($currentDate);
 
         if ($this->operator === self::OPERATOR_EMPTY) {
             return false;
@@ -60,7 +61,7 @@ abstract class DaysSinceRule extends Rule
             return $constraints;
         }
 
-        $constraints['daysPassed'] = RuleConstraints::int();
+        $constraints['daysPassed'] = RuleConstraints::float();
 
         return $constraints;
     }
@@ -69,7 +70,7 @@ abstract class DaysSinceRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
-            ->intField('daysPassed');
+            ->numberField('daysPassed', ['unit' => RuleConfig::UNIT_TIME]);
     }
 
     abstract protected function getDate(RuleScope $scope): ?\DateTimeInterface;

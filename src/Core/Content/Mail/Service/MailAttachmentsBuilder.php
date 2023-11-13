@@ -2,46 +2,37 @@
 
 namespace Shopware\Core\Content\Mail\Service;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  *
  * @phpstan-type MailAttachments array<int, array{id?: string, content: string, fileName: string, mimeType: string|null}>
- *
- * @package system-settings
  */
+#[Package('system-settings')]
 class MailAttachmentsBuilder
 {
-    private MediaService $mediaService;
-
-    private EntityRepository $mediaRepository;
-
-    private DocumentGenerator $documentGenerator;
-
-    private Connection $connection;
-
+    /**
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
-        MediaService $mediaService,
-        EntityRepository $mediaRepository,
-        DocumentGenerator $documentGenerator,
-        Connection $connection
+        private readonly MediaService $mediaService,
+        private readonly EntityRepository $mediaRepository,
+        private readonly DocumentGenerator $documentGenerator,
+        private readonly Connection $connection
     ) {
-        $this->mediaService = $mediaService;
-        $this->mediaRepository = $mediaRepository;
-        $this->documentGenerator = $documentGenerator;
-        $this->connection = $connection;
     }
 
     /**
@@ -89,9 +80,7 @@ class MailAttachmentsBuilder
         $criteria = new Criteria($extensions->getMediaIds());
         $criteria->setTitle('send-mail::load-media');
 
-        /** @var MediaCollection<MediaEntity> $entities */
-        $entities = $this->mediaRepository->search($criteria, $context);
-
+        $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
         foreach ($entities as $media) {
             $attachments[] = $this->mediaService->getAttachment($media, $context);
         }
@@ -119,7 +108,7 @@ class MailAttachmentsBuilder
                 'documentTypeIds' => Uuid::fromHexToBytesList($documentTypeIds),
             ],
             [
-                'documentTypeIds' => Connection::PARAM_STR_ARRAY,
+                'documentTypeIds' => ArrayParameterType::BINARY,
             ]
         );
 

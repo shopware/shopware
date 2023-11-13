@@ -133,6 +133,13 @@ Component.register('sw-form-field-renderer', {
 
         componentName() {
             if (this.hasConfig) {
+                if (this.feature.isActive('VUE3')) {
+                    // Handle old "sw-field" component with custom type
+                    if (this.config.componentName === 'sw-field') {
+                        return this.getComponentFromType(this.config.type);
+                    }
+                }
+
                 return this.config.componentName || this.getComponentFromType();
             }
             return this.getComponentFromType();
@@ -148,8 +155,14 @@ Component.register('sw-form-field-renderer', {
                 };
             }
 
-            if (this.componentName !== 'sw-field'
-                || (this.hasConfig && this.config.hasOwnProperty('type'))) {
+            if (this.feature.isActive('VUE3')) {
+                if (this.hasConfig && this.config.hasOwnProperty('type')) {
+                    return {};
+                }
+            } else if (
+                this.componentName !== 'sw-field' ||
+                (this.hasConfig && this.config.hasOwnProperty('type'))
+            ) {
                 return {};
             }
 
@@ -273,7 +286,40 @@ Component.register('sw-form-field-renderer', {
             return translations;
         },
 
-        getComponentFromType() {
+        getComponentFromType(customType = undefined) {
+            if (this.feature.isActive('VUE3')) {
+                const type = customType ?? this.type;
+
+                const components = {
+                    bool: 'sw-switch-field',
+                    checkbox: 'sw-checkbox-field',
+                    colorpicker: 'sw-colorpicker',
+                    compactColorpicker: 'sw-compact-colorpicker',
+                    date: 'sw-datepicker',
+                    datetime: 'sw-datepicker',
+                    email: 'sw-email-field',
+                    float: 'sw-number-field',
+                    int: 'sw-number-field',
+                    'multi-entity-id-select': 'sw-entity-multi-id-select',
+                    'multi-select': 'sw-multi-select',
+                    number: 'sw-number-field',
+                    password: 'sw-password-field',
+                    price: 'sw-price-field',
+                    radio: 'sw-radio-field',
+                    'single-entity-id-select': 'sw-entity-single-select',
+                    'single-select': 'sw-single-select',
+                    string: 'sw-text-field',
+                    switch: 'sw-switch-field',
+                    tagged: 'sw-tagged-field',
+                    text: 'sw-text-field',
+                    textarea: 'sw-textarea-field',
+                    time: 'sw-datepicker',
+                    url: 'sw-url-field',
+                };
+
+                return components[type] ?? 'sw-text-field';
+            }
+
             if (this.type === 'price') {
                 return 'sw-price-field';
             }

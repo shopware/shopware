@@ -218,7 +218,7 @@ class IterateEntityMessageHandlerTest extends TestCase
                 [
                     'exception' => new \Exception('An exception occurred while executing...'),
                     'entity' => 'product',
-                    'operation' => Operation::CREATE,
+                    'operation' => Operation::CREATE->value,
                 ],
             );
 

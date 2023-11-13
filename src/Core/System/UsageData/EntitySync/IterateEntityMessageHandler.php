@@ -80,7 +80,7 @@ final class IterateEntityMessageHandler
                 [
                     'exception' => $e,
                     'entity' => $message->getEntityName(),
-                    'operation' => $message->getOperation(),
+                    'operation' => $message->getOperation()->value,
                 ]
             );
         }

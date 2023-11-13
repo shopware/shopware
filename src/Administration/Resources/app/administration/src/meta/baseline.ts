@@ -10,7 +10,6 @@ const missingTests = [
     'src/app/asyncComponent/media/sw-media-entity-mapper/index.js',
     'src/app/asyncComponent/media/sw-media-folder-content/index.js',
     'src/app/asyncComponent/media/sw-media-list-selection-item-v2/index.js',
-    'src/app/asyncComponent/media/sw-media-media-item/index.js',
     'src/app/asyncComponent/media/sw-media-modal-folder-dissolve/index.js',
     'src/app/asyncComponent/media/sw-media-modal-folder-settings/index.js',
     'src/app/asyncComponent/media/sw-media-modal-move/index.js',

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameValidator;
@@ -8,9 +8,13 @@ use Shopware\Core\Content\Media\MediaException;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Media\File\FileNameValidator
  */
 class FileNameValidatorTest extends TestCase
 {
+    private const MAX_FILE_NAME_LENGTH = 255;
+
     /**
      * @return array<array<string>>
      */
@@ -160,5 +164,27 @@ class FileNameValidatorTest extends TestCase
 
         $validator = new FileNameValidator();
         $validator->validateFileName('file ');
+    }
+
+    public function testValidateFileNameThrowsExceptionIfFileNameIsTooLong(): void
+    {
+        $name = str_repeat('a', self::MAX_FILE_NAME_LENGTH + 1);
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('The provided file name is too long, the maximum length is 255 characters.');
+
+        $validator = new FileNameValidator();
+        $validator->validateFileName($name);
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     */
+    public function testValidateFileNameDoesNothingIfFileNameHasValidLength(): void
+    {
+        $name = str_repeat('a', self::MAX_FILE_NAME_LENGTH);
+
+        $validator = new FileNameValidator();
+        $validator->validateFileName($name);
     }
 }

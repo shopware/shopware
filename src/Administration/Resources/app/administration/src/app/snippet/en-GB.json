@@ -290,6 +290,9 @@
         },
         "renamingError": {
           "message": "Error saving file."
+        },
+        "fileNameTooLong": {
+          "message": "Provided file name is too long. The maximum length is {length} characters."
         }
       },
       "labelUploading": "Uploading..."

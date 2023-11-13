@@ -35,9 +35,7 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 
-    /**
-     * @DisabledFeatures("v6.6.0.0")
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testUnsupportedDefinitionLegacy(): void
     {
         $exception = ElasticsearchException::unsupportedElasticsearchDefinition('product');
@@ -57,9 +55,7 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
-    /**
-     * @DisabledFeatures("v6.6.0.0")
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testIndexingErrorLegacy(): void
     {
         $exception = ElasticsearchException::indexingError([
@@ -124,9 +120,7 @@ class ElasticsearchExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
-    /**
-     * @DisabledFeatures("v6.6.0.0")
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testServerNotAvailableErrorLegacy(): void
     {
         $exception = ElasticsearchException::serverNotAvailable();

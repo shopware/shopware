@@ -35,10 +35,9 @@ class ScheduledTaskCompatibilitySubscriberTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @dataProvider addBackwardsCompatibilityProvider
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testAddBackwardsCompatibility(WriteCommand $inputCommand, WriteCommand $expectedCommand): void
     {
         $event = new PreWriteValidationEvent(WriteContext::createFromContext(Context::createDefaultContext()), [$inputCommand]);

@@ -43,9 +43,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater
  *
  * @deprecated tag:v6.6.0.0 - Will be removed.
- *
- * @DisabledFeatures("STOCK_HANDLING", "v6.6.0.0")
  */
+#[DisabledFeatures(['STOCK_HANDLING'])]
 class StockUpdaterTest extends TestCase
 {
     private EventDispatcher $dispatcher;

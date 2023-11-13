@@ -42,9 +42,7 @@ class StoreExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testExtensionInstallException(): void
     {
         $exception = StoreException::extensionInstallException('Extension not found');
@@ -58,9 +56,7 @@ class StoreExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testExtensionUpdateRequiresConsentAffirmationException(): void
     {
         $exception = StoreException::extensionUpdateRequiresConsentAffirmationException('test-app', [
@@ -88,9 +84,7 @@ class StoreExceptionTest extends TestCase
         ], $exception->getParameters());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testExtensionNotFoundFromId(): void
     {
         $exception = StoreException::extensionNotFoundFromId('123');
@@ -104,9 +98,7 @@ class StoreExceptionTest extends TestCase
         static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testExtensionNotFoundFromTechnicalName(): void
     {
         $exception = StoreException::extensionNotFoundFromTechnicalName('test-app');

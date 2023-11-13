@@ -49,10 +49,9 @@ class DataAbstractionLayerExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testInvalidSerializerFieldLegacy(): void
     {
         $e = DataAbstractionLayerException::invalidSerializerField(FkField::class, new IdField('foo', 'foo'));
@@ -87,10 +86,9 @@ class DataAbstractionLayerExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testInvalidLanguageIdLegacy(): void
     {
         $e = DataAbstractionLayerException::invalidLanguageId('foo');
@@ -117,10 +115,9 @@ class DataAbstractionLayerExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testVersionMergeAlreadyLockedLegacy(): void
     {
         $e = DataAbstractionLayerException::versionMergeAlreadyLocked('version-id');

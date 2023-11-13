@@ -16,9 +16,7 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
  */
 class CacheInvalidatorStorageTest extends TestCase
 {
-    /**
-     * @DisabledFeatures("v6.6.0.0")
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testStorage(): void
     {
         $storage = new CacheInvalidatorStorage(new ArrayAdapter());

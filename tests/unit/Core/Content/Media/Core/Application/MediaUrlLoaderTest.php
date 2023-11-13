@@ -62,9 +62,7 @@ class MediaUrlLoaderTest extends TestCase
         }
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
-     */
+    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
     public function testLegacy(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
@@ -108,9 +106,7 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEquals('http://localhost:8000/foo/thumb.png', $thumbnail->getUrl());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
-     */
+    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
     public function testLegacyPath(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
@@ -154,9 +150,7 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEquals('/foo/thumb.png', $thumbnail->getPath());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
-     */
+    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
     public function testLegacyPathForPrivate(): void
     {
         Feature::skipTestIfActive('v6.6.0.0', $this);
@@ -200,9 +194,7 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEquals('/foo/thumb.png', $thumbnail->getPath());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
-     */
+    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
     public function testLegacySkipped(): void
     {
         $mock = $this->createMock(UrlGeneratorInterface::class);
@@ -223,9 +215,7 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEquals('media/foo.png', $media->getPath());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
-     */
+    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
     public function testLegacyPathWithoutFileName(): void
     {
         $mock = $this->createMock(UrlGeneratorInterface::class);
@@ -248,9 +238,7 @@ class MediaUrlLoaderTest extends TestCase
         static::assertEmpty($media->getPath());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0", "media_path"})
-     */
+    #[DisabledFeatures(['v6.6.0.0', 'media_path'])]
     public function testLegacyFunctionWithoutFilename(): void
     {
         $mock = $this->createMock(UrlGeneratorInterface::class);

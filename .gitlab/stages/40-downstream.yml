@@ -24,6 +24,10 @@
   if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
   when: never
 
+.rule_exclude_on_protected_tag:
+  if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  when: never
+
 .downstream-job:
   stage: downstream
   needs: [ ]
@@ -106,6 +110,7 @@ rufus trunk:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_rufus_match ]
     - !reference [ .rule_exclude_on_deployment_branch ]
+    - !reference [ .rule_exclude_on_protected_tag ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
@@ -124,6 +129,7 @@ commercial trunk:
     - !reference [ .rules, skip ]
     - !reference [ .rule_exclude_on_branch_commercial_match ]
     - !reference [ .rule_exclude_on_deployment_branch ]
+    - !reference [ .rule_exclude_on_protected_tag ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual

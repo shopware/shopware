@@ -115,7 +115,7 @@
             <router-link
                 :to="{ name: column.routerLink, params: { id: item.id } }"
             >
-                <sw-product-variant-info :variations="item.options">
+                <sw-product-variant-info :variations="item.variation">
                     {{ item.name || item.translated.name }}
                 </sw-product-variant-info>
             </router-link>
@@ -126,10 +126,10 @@
         {% block sw_category_detail_product_assignment_column_manufacturer %}
         <template #[manufacturerColumn]="{ item, column }">
             <router-link
-                v-if="item.manufacturerId"
+                v-if="getManufacturer(item)"
                 :to="{ name: column.routerLink, params: { id: item.manufacturerId } }"
             >
-                {{ item.manufacturer.name || item.manufacturer.translated.name }}
+                {{ getManufacturer(item).name || getManufacturer(item).translated.name }}
             </router-link>
             <span v-else></span>
         </template>

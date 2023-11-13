@@ -30,7 +30,7 @@ class PriceFilterHandlerTest extends TestCase
 
         $result = $handler->create($request, $context);
 
-        if (!$expected instanceof \Shopware\Core\Content\Product\SalesChannel\Listing\Filter) {
+        if (!$expected instanceof Filter) {
             static::assertNull($result);
 
             return;

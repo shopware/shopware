@@ -19,9 +19,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 class ElasticsearchIndexingCommandTest extends TestCase
 {
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testExecute(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
@@ -36,9 +34,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testExecuteQueue(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();
@@ -53,9 +49,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
         $commandTester->assertCommandIsSuccessful();
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testEsDisabled(): void
     {
         $oldIndexer = $this->getMockBuilder(ElasticsearchIndexer::class)->disableOriginalConstructor()->getMock();

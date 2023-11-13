@@ -20,9 +20,7 @@ use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
  */
 class DeprecatedAnnotationsTest extends TestCase
 {
-    /**
-     * @DisabledFeatures("v6.6.0.0")
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testDeprecatedAnnotationsCanBeConstructed(): void
     {
         $method = (new \ReflectionClass($this))->getMethod('testMethod');

@@ -44,6 +44,12 @@ export default {
             default: 'is-physical',
             required: false,
         },
+
+        isAddOnly: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
     },
 
     data() {
@@ -64,6 +70,7 @@ export default {
             usageOfFiles: {},
             idToIndex: {},
             productDownloadFolderId: null,
+            originalConfiguratorSettings: [],
         };
     },
 
@@ -143,6 +150,10 @@ export default {
 
             this.variantsGenerator = new VariantsGenerator();
             this.term = '';
+
+            if (this.isAddOnly) {
+                this.emptyConfiguratorSettings();
+            }
 
             this.variantsGenerator.on('queues', (queues) => {
                 const optionIdsToSearch = this.product.configuratorSettings.reduce((result, element) => {
@@ -293,6 +304,7 @@ export default {
             });
 
             this.variantsGenerator.saveVariants(this.variantGenerationQueue).then(() => {
+                this.addOriginalConfiguratorSettings();
                 return this.productRepository.save(this.product);
             }).then(() => {
                 this.$emit('variations-finish-generate');
@@ -310,6 +322,7 @@ export default {
             this.variantsGenerator.generateVariants(
                 this.currencies,
                 this.product,
+                this.isAddOnly,
             );
             this.isLoading = false;
         },
@@ -448,6 +461,38 @@ export default {
         onTermChange(term) {
             this.term = term;
             this.getList();
+        },
+
+        onModalCancel() {
+            this.addOriginalConfiguratorSettings();
+            this.$emit('modal-close');
+        },
+
+        addOriginalConfiguratorSettings() {
+            this.removeDuplicateEntries();
+            this.originalConfiguratorSettings.forEach((configSetting) => {
+                this.product.configuratorSettings.add(configSetting);
+            });
+        },
+
+        emptyConfiguratorSettings() {
+            this.product.configuratorSettings.getIds().forEach((id) => {
+                this.originalConfiguratorSettings.push(this.product.configuratorSettings.get(id));
+                this.product.configuratorSettings.remove(id);
+            });
+        },
+
+        removeDuplicateEntries() {
+            const that = this;
+            this.product.configuratorSettings.getIds().forEach((configSettingId) => {
+                const configSetting = that.product.configuratorSettings.get(configSettingId);
+
+                if (this.originalConfiguratorSettings.find((setting) => {
+                    return setting.optionId === configSetting.optionId;
+                }) !== undefined) {
+                    that.product.configuratorSettings.remove(configSettingId);
+                }
+            });
         },
     },
 };

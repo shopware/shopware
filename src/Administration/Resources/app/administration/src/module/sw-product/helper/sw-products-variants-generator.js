@@ -56,6 +56,7 @@ export default class VariantsGenerator extends EventEmitter {
     generateVariants(
         currencies,
         product,
+        isAddOnly = false,
     ) {
         this.product = product;
         const configuratorSettings = this.product.configuratorSettings;
@@ -87,7 +88,7 @@ export default class VariantsGenerator extends EventEmitter {
 
             this.loadExisting(this.product.id).then((variantsOnServer) => {
                 // filter deletable and creatable variations
-                return this.filterVariations(permutations, variantsOnServer, currencies);
+                return this.filterVariations(permutations, variantsOnServer, currencies, isAddOnly);
             }).then((queues) => {
                 this.emit('queues', queues);
             });
@@ -98,6 +99,7 @@ export default class VariantsGenerator extends EventEmitter {
         newVariations,
         variationOnServer,
         currencies,
+        isAddOnly = false,
     ) {
         const configuratorSettings = this.product.configuratorSettings;
 
@@ -124,8 +126,21 @@ export default class VariantsGenerator extends EventEmitter {
                 numbers[variant.productNumber] = true;
             }
 
-            // Copy the hashed list with the sorted variations on the server.
-            let deleteQueue = deepCopyObject(hashed);
+            let deleteQueue = [];
+            if (!isAddOnly) {
+                // Copy the hashed list with the sorted variations on the server.
+                deleteQueue = deepCopyObject(hashed);
+            } else {
+                // Reassign product numbers
+                let increment = 1;
+                createQueue.forEach((variant) => {
+                    const generated = this.createNumber(this.product.productNumber, increment, numbers);
+                    increment = generated.increment;
+
+                    variant.productNumber = generated.number;
+                });
+            }
+
             const newVariationsSorted = newVariations.map((variation) => variation.sort());
 
             // Get price changes for all option ids

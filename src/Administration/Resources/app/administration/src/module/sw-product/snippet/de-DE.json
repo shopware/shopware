@@ -387,6 +387,7 @@
         "filterReset": "Zurücksetzen",
         "filter": "Filtern",
         "generateVariants": "Varianten generieren",
+        "addVariants": "Varianten hinzufügen",
         "storefrontDelivery": "Storefront-Darstellung"
       },
       "configuratorModal": {

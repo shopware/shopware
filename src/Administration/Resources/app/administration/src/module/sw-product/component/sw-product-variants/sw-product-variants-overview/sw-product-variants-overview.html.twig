@@ -9,7 +9,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_variants_overview_option_list_toolbar_container %}
         <sw-container
-            columns="1fr minmax(min-content, max-content) minmax(min-content, 180px) minmax(min-content, 180px)"
+            columns="1fr minmax(min-content, max-content) minmax(min-content, 180px) minmax(min-content, 180px) minmax(min-content, 180px)"
             gap="0 10px"
         >
 
@@ -110,6 +110,20 @@
                 @click="$emit('generator-open')"
             >
                 {{ $tc('sw-product.variations.overview.generateVariants') }}
+            </sw-button>
+
+            <sw-button
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('product.creator'),
+                    showOnDisabledElements: true
+                }"
+                variant="ghost"
+                :disabled="!acl.can('product.creator')"
+                class="sw-product-variants__add-action"
+                @click="$emit('add-open')"
+            >
+                {{ $tc('sw-product.variations.overview.addVariants') }}
             </sw-button>
 
             <sw-button

@@ -4,7 +4,7 @@
     v-if="!showUploadModal"
     :title="$tc('sw-product.variations.configuratorModal.title')"
     class="sw-product-modal-variant-generation"
-    @modal-close="$emit('modal-close')"
+    @modal-close="onModalCancel"
 >
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -128,7 +128,7 @@
         {% block sw_product_modal_variant_generation_footer_cancel %}
         <sw-button
             size="small"
-            @click="$emit('modal-close')"
+            @click="onModalCancel"
         >
             {{ $tc('sw-product.variations.cancelVariationsButton') }}
         </sw-button>

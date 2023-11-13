@@ -8,6 +8,25 @@
         size="20px"
         color="#23BE2F"
     />
+    {% if VUE3 %}
+    <i18n-t
+        tag="p"
+        :keypath="showThankYouBanner ? 'sw-usage-data-consent-banner.thankYouMessage' : 'sw-usage-data-consent-banner.rejectedMessage'"
+        class="sw-usage-data-consent-banner-reject-accept-message__message"
+    >
+        <template
+            #thanksForParticipation>
+            <strong>{{ $tc('sw-usage-data-consent-banner.thanksForParticipation') }}</strong>
+        </template>
+        <template #link>
+            <sw-internal-link
+                :router-link="{ name: 'sw.settings.usage.data.index' }"
+            >
+                {{ $tc('sw-usage-data-consent-banner.togglePath') }}
+            </sw-internal-link>
+        </template>
+    </i18n-t>
+    {% else %}
     <i18n
         tag="p"
         :path="showThankYouBanner ? 'sw-usage-data-consent-banner.thankYouMessage' : 'sw-usage-data-consent-banner.rejectedMessage'"
@@ -25,6 +44,7 @@
             </sw-internal-link>
         </template>
     </i18n>
+    {% endif %}
     <button
         class="sw-usage-data-consent-banner-reject-accept-message__close"
         @click="onClose"
@@ -141,10 +161,28 @@
                 </li>
             </ul>
         </aside>
+
+        {% if VUE3 %}
+        <i18n-t
+            tag="p"
+            keypath="sw-usage-data-consent-banner.fullDetailsDescription"
+            class="sw-usage-data-consent-banner__description"
+        >
+            <template #link>
+                <sw-external-link :href="$tc('sw-usage-data-consent-banner.privacyPolicyLink')">
+                    {{ $tc('sw-usage-data-consent-banner.privacyPolicy') }}
+                </sw-external-link>
+            </template>
+            <template #fullDetailsDescriptionNotAccepted>
+                {{ isAccepted ? '' : $tc('sw-usage-data-consent-banner.fullDetailsDescriptionNotAccepted') }}
+            </template>
+        </i18n-t>
+        {% else %}
         <i18n
             tag="p"
             path="sw-usage-data-consent-banner.fullDetailsDescription"
-            class="sw-usage-data-consent-banner__description">
+            class="sw-usage-data-consent-banner__description"
+        >
             <template #link>
                 <sw-external-link :href="$tc('sw-usage-data-consent-banner.privacyPolicyLink')">
                     {{ $tc('sw-usage-data-consent-banner.privacyPolicy') }}
@@ -154,6 +192,7 @@
                 {{ isAccepted ? '' : $tc('sw-usage-data-consent-banner.fullDetailsDescriptionNotAccepted') }}
             </template>
         </i18n>
+        {% endif %}
 
         <p v-if="!isAccepted">
             {{ $tc('sw-usage-data-consent-banner.confirmAuthorization') }}

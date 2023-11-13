@@ -25,6 +25,7 @@ async function createWrapper() {
             'sw-button': true,
             'sw-internal-link': true,
             'sw-help-text': true,
+            'i18n-t': true,
             i18n: true,
         },
         provide: {

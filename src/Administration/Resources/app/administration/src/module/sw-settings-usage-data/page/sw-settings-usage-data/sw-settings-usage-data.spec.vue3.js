@@ -35,6 +35,7 @@ async function createWrapper() {
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-internal-link': true,
                 'sw-help-text': true,
+                'i18n-t': true,
                 i18n: true,
             },
         },

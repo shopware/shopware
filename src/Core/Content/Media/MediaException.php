@@ -62,6 +62,8 @@ class MediaException extends HttpException
     public const MEDIA_NOT_FOUND = 'CONTENT__MEDIA_NOT_FOUND';
     public const MEDIA_DUPLICATED_FILE_NAME = 'CONTENT__MEDIA_DUPLICATED_FILE_NAME';
 
+    public const MEDIA_FILE_NAME_IS_TOO_LONG = 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG';
+
     public static function invalidContentLength(): self
     {
         if (!Feature::isActive('v6.6.0.0')) {
@@ -476,6 +478,16 @@ class MediaException extends HttpException
             self::MEDIA_INVALID_URL,
             'The url generator parameter "{{ key }}" is invalid.',
             ['key' => $key]
+        );
+    }
+
+    public static function fileNameTooLong(int $maxLength): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_FILE_NAME_IS_TOO_LONG,
+            'The provided file name is too long, the maximum length is {{ maxLength }} characters.',
+            ['maxLength' => $maxLength]
         );
     }
 }

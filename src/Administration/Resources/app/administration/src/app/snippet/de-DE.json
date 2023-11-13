@@ -290,6 +290,9 @@
         },
         "renamingError": {
           "message": "Fehler beim Umbenennen."
+        },
+        "fileNameTooLong": {
+          "message": "Der angegebene Dateiname ist zu lang. Die Maximallänge beträgt {length} Zeichen."
         }
       },
       "labelUploading": "Wird hochgeladen ..."

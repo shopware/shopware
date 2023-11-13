@@ -161,12 +161,30 @@ export default {
                     message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message'),
                 });
                 this.$emit('media-item-rename-success', item);
-            } catch {
-                this.createNotificationError({
-                    message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+            } catch (exception) {
+                const errors = exception.response.data.errors;
+
+                errors.forEach((error) => {
+                    this.handleErrorMessage(error);
                 });
             } finally {
                 item.isLoading = false;
+            }
+        },
+
+        handleErrorMessage(error) {
+            switch (error.code) {
+                case 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG':
+                    this.createNotificationError({
+                        message: this.$tc('global.sw-media-media-item.notification.fileNameTooLong.message', 0, {
+                            length: error.meta.parameters.maxLength,
+                        }),
+                    });
+                    break;
+                default:
+                    this.createNotificationError({
+                        message: this.$tc('global.sw-media-media-item.notification.renamingError.message'),
+                    });
             }
         },
 

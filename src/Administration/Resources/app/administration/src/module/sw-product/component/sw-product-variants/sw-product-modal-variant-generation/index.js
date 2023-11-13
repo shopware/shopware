@@ -64,6 +64,7 @@ export default {
             usageOfFiles: {},
             idToIndex: {},
             productDownloadFolderId: null,
+            isAddOnly: false,
         };
     },
 
@@ -310,6 +311,7 @@ export default {
             this.variantsGenerator.generateVariants(
                 this.currencies,
                 this.product,
+                this.isAddOnly,
             );
             this.isLoading = false;
         },

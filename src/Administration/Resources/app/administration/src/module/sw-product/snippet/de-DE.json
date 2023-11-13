@@ -420,7 +420,8 @@
         "singleRestrictionAddTitle": "Ausprägungen ausschließen",
         "surchargeNotice": "Änderungen an den Auf-/Abschlägen haben keine Auswirkungen auf bereits generierte Varianten. Bitte nutze die Varianten-Detailseite um Änderungen an den Preisen vorzunehmen.",
         "digitalVariantSwitch": "Alle zu digitalen Varianten machen",
-        "removeAllButton": "Von allen Varianten entfernen"
+        "removeAllButton": "Von allen Varianten entfernen",
+        "addVariantsOnly": "Nur Varianten hinzufügen"
       },
       "deliveryModal": {
         "modalHeadline": "Varianten-Ausspielung in der Storefront",

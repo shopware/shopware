@@ -113,12 +113,12 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should remove version id when beforeunload event is trigger', async () => {
+    it('should remove version id when beforeunload event is triggered', async () => {
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
 
         window.dispatchEvent(new Event('beforeunload'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, wrapper.vm.versionContext.versionId, wrapper.vm.versionContext);
     });
 
     it('should not contain manual label', async () => {

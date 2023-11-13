@@ -190,13 +190,14 @@ export default {
 
         async beforeDestroyComponent() {
             if (this.hasNewVersionId) {
+                const oldVersionContext = this.versionContext;
                 State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
 
                 // clean up recently created version
                 await this.orderRepository.deleteVersion(
                     this.orderId,
-                    this.versionContext.versionId,
-                    this.versionContext,
+                    oldVersionContext.versionId,
+                    oldVersionContext,
                 );
             }
         },

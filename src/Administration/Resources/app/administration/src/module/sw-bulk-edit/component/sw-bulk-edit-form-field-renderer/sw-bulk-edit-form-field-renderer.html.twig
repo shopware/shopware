@@ -12,6 +12,11 @@
     {% endif %}
     class="sw-form-field-renderer"
     @change="$emit('change', $event)"
+    {% if VUE3 %}
+    @update:value="emitChange"
+    @update:ids="emitChange"
+    {% endif %}
+    @input="emitUpdate"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_inner %}

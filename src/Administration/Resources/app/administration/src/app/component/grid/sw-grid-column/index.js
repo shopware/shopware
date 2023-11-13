@@ -88,7 +88,30 @@ Component.register('sw-grid-column', {
         },
 
         registerColumn() {
-            const hasColumn = this.parentGrid.columns.findIndex((column) => column.label === this.label);
+            if (this.feature.isActive('VUE3')) {
+                const hasColumn = this.parentGrid.columns.some(column => {
+                    return column.label === this.label;
+                });
+
+                if (!hasColumn && this.label) {
+                    this.parentGrid.columns.push({
+                        label: this.label,
+                        iconLabel: this.iconLabel,
+                        flex: this.flex,
+                        sortable: this.sortable,
+                        dataIndex: this.dataIndex,
+                        align: this.align,
+                        editable: this.editable,
+                        truncate: this.truncate,
+                    });
+                }
+
+                return;
+            }
+
+            const hasColumn = this.parentGrid.columns.findIndex((column) => {
+                return column.label === this.label;
+            });
 
             if (hasColumn !== -1 && this.label) {
                 return;

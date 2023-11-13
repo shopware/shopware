@@ -242,10 +242,6 @@ class ConsentService
         } catch (EntityNotFoundException) {
         }
 
-        $integration['integrationId'] = null;
-        $this->systemConfigService->set(
-            self::SYSTEM_CONFIG_KEY_INTEGRATION,
-            $integration,
-        );
+        $this->systemConfigService->delete(self::SYSTEM_CONFIG_KEY_INTEGRATION);
     }
 }

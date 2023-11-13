@@ -91,7 +91,9 @@ class JWTFactoryV2Test extends TestCase
 
     public function testInvalidateToken(): void
     {
-        $success = $this->tokenFactory->invalidateToken(Uuid::randomHex());
+        $token = Uuid::randomHex();
+        static::assertNotEmpty($token);
+        $success = $this->tokenFactory->invalidateToken($token);
         static::assertFalse($success);
     }
 

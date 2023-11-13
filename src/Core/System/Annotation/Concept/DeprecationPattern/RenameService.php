@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @Annotation
  *
+ * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-constraint-annotation
+ *
  * @Target("CLASS")
  *
  * @DeprecationPattern

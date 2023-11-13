@@ -2,7 +2,7 @@ import template from './sw-bulk-edit-product.html.twig';
 import './sw-bulk-edit-product.scss';
 import swProductDetailState from '../../../sw-product/page/sw-product-detail/state';
 
-const { Component } = Shopware;
+const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { types } = Shopware.Utils;
 const { chunk } = Shopware.Utils.array;
@@ -83,17 +83,13 @@ export default {
         hasSelectedChanges() {
             return Object.values(this.bulkEditProduct).some(field => field.isChanged) || this.bulkEditSelected.length > 0;
         },
+
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'product'));
 
             return criteria;
-        },
-
-        currencyCriteria() {
-            return (new Criteria(1, 25))
-                .addSorting(Criteria.sort('name', 'ASC'));
         },
 
         taxCriteria() {
@@ -893,8 +889,8 @@ export default {
         },
 
         loadDefaultCurrency() {
-            return this.currencyRepository.search(this.currencyCriteria).then((currencies) => {
-                this.currency = currencies.find(currency => currency.isSystemDefault);
+            return this.currencyRepository.get(Context.app.systemCurrencyId, Context.api).then((currency) => {
+                this.currency = currency;
             });
         },
 

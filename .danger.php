@@ -450,9 +450,4 @@ return (new Config())
             }
         }
     })
-    ->after(function (Context $context): void {
-        if ($context->platform instanceof Github && $context->hasFailures()) {
-            $context->platform->addLabels('Incomplete');
-        }
-    })
 ;

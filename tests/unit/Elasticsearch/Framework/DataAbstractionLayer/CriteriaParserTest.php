@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
@@ -32,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -560,20 +562,7 @@ class CriteriaParserTest extends TestCase
      */
     public function testCheapestPriceSorting(FieldSorting $sorting, array $expectedQuery, Context $context): void
     {
-        $definition = $this->getDefinition();
-
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
-        $sorting = (new CriteriaParser(
-            new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
-            $storage
-        ))->parseSorting($sorting, $definition, $context);
-
-        $script = $sorting->getParameter('script');
-
-        static::assertSame($expectedQuery, $script);
+        $this->executeCheapestPriceTest($sorting, $expectedQuery, $context, true);
     }
 
     /**
@@ -605,6 +594,9 @@ class CriteriaParserTest extends TestCase
         if ($scriptSorting) {
             static::assertTrue($fieldSort->hasParameter('script'));
             $script = $fieldSort->getParameter('script');
+
+            // Unset the 'source' key before comparison.
+            unset($script['source']);
             static::assertSame($expectedQuery, $script);
 
             return;
@@ -619,6 +611,541 @@ class CriteriaParserTest extends TestCase
      * @return iterable<string, array{FieldSorting, array<mixed>, Context}>
      */
     public static function providerCheapestPrice(): iterable
+    {
+        yield 'default cheapest price' => [
+            new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
+                            'factor' => 1,
+                        ],
+                    ],
+                    'decimals' => 100,
+                    'round' => true,
+                    'multiplier' => 100.0,
+                ],
+            ],
+            Context::createDefaultContext(),
+        ];
+
+        yield 'default cheapest price/list price percentage' => [
+            new FieldSorting('cheapestPrice.percentage', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                            'factor' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            Context::createDefaultContext(),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['currencyId' => 'foo']);
+
+        yield 'different currency cheapest price' => [
+            new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyfoo_gross',
+                            'factor' => 1,
+                        ],
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
+                            'factor' => 1.0,
+                        ],
+                    ],
+                    'decimals' => 100,
+                    'round' => true,
+                    'multiplier' => 100.0,
+                ],
+            ],
+            $context,
+        ];
+
+        yield 'different currency cheapest price/list price percentage' => [
+            new FieldSorting('cheapestPrice.percentage', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyfoo_gross_percentage',
+                            'factor' => 1,
+                        ],
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                            'factor' => 1.0,
+                        ],
+                    ],
+                ],
+            ],
+            $context,
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->getRounding()->setDecimals(3);
+
+        yield 'default cheapest price: rounding with 3 decimals' => [
+            new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
+                            'factor' => 1,
+                        ],
+                    ],
+                    'decimals' => 1000,
+                    'round' => false,
+                    'multiplier' => 100.0,
+                ],
+            ],
+            $context,
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->assign(['taxState' => CartPrice::TAX_STATE_NET]);
+        $context->getRounding()->setRoundForNet(false);
+
+        yield 'default cheapest price: net rounding disabled' => [
+            new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'accessors' => [
+                        [
+                            'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_net',
+                            'factor' => 1,
+                        ],
+                    ],
+                    'decimals' => 100,
+                    'round' => false,
+                    'multiplier' => 100.0,
+                ],
+            ],
+            $context,
+        ];
+    }
+
+    /**
+     * @return iterable<string, array{FieldSorting, array{lang: string, params: array{field: string, languages: list<string>}}, bool, ?Field}>
+     */
+    public static function providerTranslatedField(): iterable
+    {
+        yield 'non translated field' => [
+            new FieldSorting('productNumber', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            false,
+            null,
+        ];
+
+        yield 'customFields translated field' => [
+            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'customFields',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                    'suffix' => 'foo',
+                ],
+            ],
+            true,
+            new StringField('foo', 'foo'),
+        ];
+
+        yield 'customFields int translated field' => [
+            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'customFields',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                    'suffix' => 'foo',
+                    'order' => 'asc',
+                ],
+            ],
+            true,
+            new IntField('foo', 'foo'),
+        ];
+
+        yield 'customFields float translated field' => [
+            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'customFields',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                    'suffix' => 'foo',
+                    'order' => 'asc',
+                ],
+            ],
+            true,
+            new FloatField('foo', 'foo'),
+        ];
+
+        yield 'non nested translated field' => [
+            new FieldSorting('product.name', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+            null,
+        ];
+
+        yield 'non translated field with root prefix' => [
+            new FieldSorting('product.name', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+            null,
+        ];
+
+        yield 'nested translated field' => [
+            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'manufacturer.name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+            null,
+        ];
+
+        yield 'nested translated field with root prefix' => [
+            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'manufacturer.name',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                ],
+            ],
+            true,
+            null,
+        ];
+
+        yield 'customFields string translated field in descending order' => [
+            new FieldSorting('customFields.bar', FieldSorting::DESCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'customFields',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                    'suffix' => 'bar',
+                ],
+            ],
+            true,
+            new StringField('bar', 'bar'),
+        ];
+
+        yield 'customFields bool translated field' => [
+            new FieldSorting('customFields.boolField', FieldSorting::DESCENDING),
+            [
+                'lang' => 'painless',
+                'params' => [
+                    'field' => 'customFields',
+                    'languages' => [
+                        Defaults::LANGUAGE_SYSTEM,
+                    ],
+                    'suffix' => 'boolField',
+                ],
+            ],
+            true,
+            new BoolField('boolField', 'boolField'),
+        ];
+    }
+
+    /**
+     * @dataProvider providerFilter
+     *
+     * @param array<mixed> $expectedFilter
+     */
+    public function testFilterParsing(Filter $filter, array $expectedFilter): void
+    {
+        $context = Context::createDefaultContext();
+        $definition = $this->getDefinition();
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $sortedFilter = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $storage
+        ))->parseFilter($filter, $definition, '', $context);
+
+        $sortedFilterArray = $sortedFilter->toArray();
+
+        // Unset the 'source' key before comparison.
+        unset($sortedFilterArray['script']['script']['inline']);
+
+        static::assertEquals($expectedFilter, $sortedFilterArray);
+    }
+
+    /**
+     * @return iterable<string, array{Filter, array<mixed>}>
+     */
+    public static function providerFilter(): iterable
+    {
+        yield 'not filter: and' => [
+            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'bool' => [
+                                'must' => [
+                                    [
+                                        'term' => [
+                                            'test' => 'value',
+                                        ],
+                                    ],
+                                    [
+                                        'term' => [
+                                            'test2' => 'value',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'not filter: or' => [
+            new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'bool' => [
+                                'should' => [
+                                    [
+                                        'term' => [
+                                            'test' => 'value',
+                                        ],
+                                    ],
+                                    [
+                                        'term' => [
+                                            'test2' => 'value',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'not filter: xor' => [
+            new NotFilter(MultiFilter::CONNECTION_XOR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
+            [
+                'bool' => [
+                    'must_not' => [
+                        [
+                            'bool' => [
+                                'should' => [
+                                    [
+                                        'bool' => [
+                                            'must' => [
+                                                [
+                                                    'term' => [
+                                                        'test' => 'value',
+                                                    ],
+                                                ],
+                                            ],
+                                            'must_not' => [
+                                                [
+                                                    'term' => [
+                                                        'test2' => 'value',
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                    [
+                                        'bool' => [
+                                            'must_not' => [
+                                                [
+                                                    'term' => [
+                                                        'test' => 'value',
+                                                    ],
+                                                ],
+                                            ],
+                                            'must' => [
+                                                [
+                                                    'term' => [
+                                                        'test2' => 'value',
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'range filter: cheapestPrice' => [
+            new RangeFilter('cheapestPrice', [RangeFilter::GTE => 10]),
+            [
+                'script' => [
+                    'script' => [
+                        'params' => [
+                            RangeFilter::GTE => 10,
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
+                                    'factor' => 1,
+                                ],
+                            ],
+                            'decimals' => 100,
+                            'round' => true,
+                            'multiplier' => 100.0,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'range filter: cheapestPrice price/list price percentage' => [
+            new RangeFilter('cheapestPrice.percentage', [RangeFilter::GTE => 10]),
+            [
+                'script' => [
+                    'script' => [
+                        'params' => [
+                            RangeFilter::GTE => 10,
+                            'accessors' => [
+                                [
+                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
+                                    'factor' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'range filter: datetime' => [
+            new RangeFilter('createdAt', [RangeFilter::GTE => '2023-06-01', RangeFilter::LT => '2023-06-03 13:47:42.759']),
+            [
+                'range' => [
+                    'createdAt' => [
+                        'gte' => '2023-06-01 00:00:00.000',
+                        'lt' => '2023-06-03 13:47:42.000',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function getDefinition(): EntityDefinition
+    {
+        $instanceRegistry = new StaticDefinitionInstanceRegistry(
+            [ProductDefinition::class, ProductManufacturerDefinition::class, ProductTranslationDefinition::class],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        return $instanceRegistry->getByEntityName('product');
+    }
+
+    /**
+     * @dataProvider providerCheapestPrice
+     *
+     * @param array<mixed> $expectedQuery
+     */
+    public function testCheapestPriceSortingSourceExists(
+        FieldSorting $sorting,
+        array $expectedQuery,
+        Context $context
+    ): void {
+        $definition = $this->getDefinition();
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->method('get')->willReturn(true);
+
+        $sorting = (new CriteriaParser(
+            new EntityDefinitionQueryHelper(),
+            $this->createMock(CustomFieldService::class),
+            $storage
+        ))->parseSorting($sorting, $definition, $context);
+
+        $script = $sorting->getParameter('script');
+
+        static::assertIsArray($script);
+        static::assertArrayHasKey('source', $script);
+        static::assertNotEmpty($script['source']);
+    }
+
+    /**
+     * @dataProvider providerOldFeatureVersion
+     *
+     * @param array<mixed> $expectedQuery
+     */
+    #[DisabledFeatures(['v6.6.0.0'])]
+    public function testCheapestPriceOldFeatureSorting(FieldSorting $sorting, array $expectedQuery, Context $context): void
+    {
+        $this->executeCheapestPriceTest($sorting, $expectedQuery, $context);
+    }
+
+    /**
+     * @return iterable<string, array{FieldSorting, array<mixed>, Context}>
+     */
+    public static function providerOldFeatureVersion(): iterable
     {
         yield 'default cheapest price' => [
             new FieldSorting('cheapestPrice', FieldSorting::ASCENDING),
@@ -748,332 +1275,28 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{FieldSorting, array{id: string, params: array{field: string, languages: list<string>}}, bool, ?Field}>
+     * @param array<string, mixed> $expectedQuery
      */
-    public static function providerTranslatedField(): iterable
+    private function executeCheapestPriceTest(FieldSorting $sorting, array $expectedQuery, Context $context, bool $unsetSource = false): void
     {
-        yield 'non translated field' => [
-            new FieldSorting('productNumber', FieldSorting::ASCENDING),
-            [
-                'id' => 'translated_field_sorting',
-                'params' => [
-                    'field' => 'name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            false,
-            null,
-        ];
-
-        yield 'customFields translated field' => [
-            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
-            [
-                'id' => 'translated_field_sorting',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                    'suffix' => 'foo',
-                ],
-            ],
-            true,
-            new StringField('foo', 'foo'),
-        ];
-
-        yield 'customFields int translated field' => [
-            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
-            [
-                'id' => 'numeric_translated_field_sorting',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                    'suffix' => 'foo',
-                    'order' => 'asc',
-                ],
-            ],
-            true,
-            new IntField('foo', 'foo'),
-        ];
-
-        yield 'customFields float translated field' => [
-            new FieldSorting('customFields.foo', FieldSorting::ASCENDING),
-            [
-                'id' => 'numeric_translated_field_sorting',
-                'params' => [
-                    'field' => 'customFields',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                    'suffix' => 'foo',
-                    'order' => 'asc',
-                ],
-            ],
-            true,
-            new FloatField('foo', 'foo'),
-        ];
-
-        yield 'non nested translated field' => [
-            new FieldSorting('product.name', FieldSorting::ASCENDING),
-            [
-                'id' => 'translated_field_sorting',
-                'params' => [
-                    'field' => 'name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            true,
-            null,
-        ];
-
-        yield 'non translated field with root prefix' => [
-            new FieldSorting('product.name', FieldSorting::ASCENDING),
-            [
-                'id' => 'translated_field_sorting',
-                'params' => [
-                    'field' => 'name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            true,
-            null,
-        ];
-
-        yield 'nested translated field' => [
-            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
-            [
-                'id' => 'translated_field_sorting',
-                'params' => [
-                    'field' => 'manufacturer.name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            true,
-            null,
-        ];
-
-        yield 'nested translated field with root prefix' => [
-            new FieldSorting('manufacturer.name', FieldSorting::ASCENDING),
-            [
-                'id' => 'translated_field_sorting',
-                'params' => [
-                    'field' => 'manufacturer.name',
-                    'languages' => [
-                        Defaults::LANGUAGE_SYSTEM,
-                    ],
-                ],
-            ],
-            true,
-            null,
-        ];
-    }
-
-    /**
-     * @dataProvider providerFilter
-     *
-     * @param array<mixed> $expectedFilter
-     */
-    public function testFilterParsing(Filter $filter, array $expectedFilter): void
-    {
-        $context = Context::createDefaultContext();
         $definition = $this->getDefinition();
 
         $storage = $this->createMock(AbstractKeyValueStorage::class);
         $storage->method('get')->willReturn(true);
 
-        $sortedFilter = (new CriteriaParser(
+        $parsedSorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
             $storage
-        ))->parseFilter($filter, $definition, '', $context);
+        ))->parseSorting($sorting, $definition, $context);
 
-        static::assertEquals($expectedFilter, $sortedFilter->toArray());
-    }
+        $script = $parsedSorting->getParameter('script');
 
-    /**
-     * @return iterable<string, array{Filter, array<mixed>}>
-     */
-    public static function providerFilter(): iterable
-    {
-        yield 'not filter: and' => [
-            new NotFilter(MultiFilter::CONNECTION_AND, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
-            [
-                'bool' => [
-                    'must_not' => [
-                        [
-                            'bool' => [
-                                'must' => [
-                                    [
-                                        'term' => [
-                                            'test' => 'value',
-                                        ],
-                                    ],
-                                    [
-                                        'term' => [
-                                            'test2' => 'value',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        if ($unsetSource) {
+            unset($script['source']);
+        }
 
-        yield 'not filter: or' => [
-            new NotFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
-            [
-                'bool' => [
-                    'must_not' => [
-                        [
-                            'bool' => [
-                                'should' => [
-                                    [
-                                        'term' => [
-                                            'test' => 'value',
-                                        ],
-                                    ],
-                                    [
-                                        'term' => [
-                                            'test2' => 'value',
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        yield 'not filter: xor' => [
-            new NotFilter(MultiFilter::CONNECTION_XOR, [new EqualsFilter('test', 'value'), new EqualsFilter('test2', 'value')]),
-            [
-                'bool' => [
-                    'must_not' => [
-                        [
-                            'bool' => [
-                                'should' => [
-                                    [
-                                        'bool' => [
-                                            'must' => [
-                                                [
-                                                    'term' => [
-                                                        'test' => 'value',
-                                                    ],
-                                                ],
-                                            ],
-                                            'must_not' => [
-                                                [
-                                                    'term' => [
-                                                        'test2' => 'value',
-                                                    ],
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                    [
-                                        'bool' => [
-                                            'must_not' => [
-                                                [
-                                                    'term' => [
-                                                        'test' => 'value',
-                                                    ],
-                                                ],
-                                            ],
-                                            'must' => [
-                                                [
-                                                    'term' => [
-                                                        'test2' => 'value',
-                                                    ],
-                                                ],
-                                            ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        yield 'range filter: cheapestPrice' => [
-            new RangeFilter('cheapestPrice', [RangeFilter::GTE => 10]),
-            [
-                'script' => [
-                    'script' => [
-                        'id' => 'cheapest_price_filter',
-                        'params' => [
-                            RangeFilter::GTE => 10,
-                            'accessors' => [
-                                [
-                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross',
-                                    'factor' => 1,
-                                ],
-                            ],
-                            'decimals' => 100,
-                            'round' => true,
-                            'multiplier' => 100.0,
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        yield 'range filter: cheapestPrice price/list price percentage' => [
-            new RangeFilter('cheapestPrice.percentage', [RangeFilter::GTE => 10]),
-            [
-                'script' => [
-                    'script' => [
-                        'id' => 'cheapest_price_percentage_filter',
-                        'params' => [
-                            RangeFilter::GTE => 10,
-                            'accessors' => [
-                                [
-                                    'key' => 'cheapest_price_ruledefault_currencyb7d2554b0ce847cd82f3ac9bd1c0dfca_gross_percentage',
-                                    'factor' => 1,
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        yield 'range filter: datetime' => [
-            new RangeFilter('createdAt', [RangeFilter::GTE => '2023-06-01', RangeFilter::LT => '2023-06-03 13:47:42.759']),
-            [
-                'range' => [
-                    'createdAt' => [
-                        'gte' => '2023-06-01 00:00:00.000',
-                        'lt' => '2023-06-03 13:47:42.000',
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    public function getDefinition(): EntityDefinition
-    {
-        $instanceRegistry = new StaticDefinitionInstanceRegistry(
-            [ProductDefinition::class, ProductManufacturerDefinition::class, ProductTranslationDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
-
-        return $instanceRegistry->getByEntityName('product');
+        static::assertSame($expectedQuery, $script);
     }
 }
 

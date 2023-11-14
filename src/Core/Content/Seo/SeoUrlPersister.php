@@ -159,7 +159,7 @@ class SeoUrlPersister
 
         $query->setParameter('routeName', $routeName);
         $query->setParameter('language_id', $languageId);
-        $query->setParameter('foreign_keys', $fks, ArrayParameterType::STRING);
+        $query->setParameter('foreign_keys', $fks, ArrayParameterType::BINARY);
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 
@@ -193,7 +193,7 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_canonical', 'NULL')
             ->where('id IN (:ids)')
-            ->setParameter('ids', $ids, ArrayParameterType::STRING);
+            ->setParameter('ids', $ids, ArrayParameterType::BINARY);
 
         if ($salesChannelId) {
             $query->andWhere('sales_channel_id = :salesChannelId');
@@ -219,7 +219,7 @@ class SeoUrlPersister
             ->update('seo_url')
             ->set('is_deleted', $deleted ? '1' : '0')
             ->where('foreign_key IN (:fks)')
-            ->setParameter('fks', $ids, ArrayParameterType::STRING);
+            ->setParameter('fks', $ids, ArrayParameterType::BINARY);
 
         if ($salesChannelId) {
             $query->andWhere('sales_channel_id = :salesChannelId');

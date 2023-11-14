@@ -6,14 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\UsageDataException;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -32,7 +29,6 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
-            new StaticEntityRepository([]),
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -50,7 +46,6 @@ class ConsentControllerTest extends TestCase
     {
         $controller = new ConsentController(
             $this->createMock(ConsentService::class),
-            new StaticEntityRepository([]),
         );
 
         static::expectException(UsageDataException::class);
@@ -66,7 +61,6 @@ class ConsentControllerTest extends TestCase
     {
         $controller = new ConsentController(
             $this->createMock(ConsentService::class),
-            new StaticEntityRepository([]),
         );
 
         static::expectException(UsageDataException::class);
@@ -81,7 +75,6 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
-            new StaticEntityRepository([]),
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -97,7 +90,6 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
-            new StaticEntityRepository([]),
         );
 
         $context = Context::createDefaultContext(new AdminApiSource('018a93bbe90570eda0d89c600de7dd19'));
@@ -105,78 +97,20 @@ class ConsentControllerTest extends TestCase
         $controller->revokeConsent($context);
     }
 
-    public function testCreatesUserConfigIfConsentBannerShouldBeHidden(): void
+    public function testHidesConsentBannerForSpecificUser(): void
     {
-        $userId = '018a93bbe90570eda0d89c600de7dd19';
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('userId', $userId));
-        $criteria->addFilter(new EqualsFilter('key', ConsentService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
-
-        $userConfigRepository = new StaticEntityRepository([
-            new IdSearchResult(
-                0,
-                [],
-                $criteria,
-                Context::createDefaultContext(),
-            ),
-        ]);
-
+        $userId = Uuid::randomHex();
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
-        $controller = new ConsentController(
-            $this->createMock(ConsentService::class),
-            $userConfigRepository,
-        );
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->expects(static::once())
+            ->method('hideConsentBannerForUser')
+            ->with($userId, $context);
 
-        $controller->hideConsentBanner($context);
+        $controller = new ConsentController($consentService);
+        $response = $controller->hideConsentBanner($context);
 
-        $userConfig = $userConfigRepository->upserts[0][0];
-
-        static::assertArrayHasKey('id', $userConfig);
-        unset($userConfig['id']);
-
-        static::assertEquals([
-            'userId' => '018a93bbe90570eda0d89c600de7dd19',
-            'key' => 'core.usageData.hideConsentBanner',
-            'value' => ['_value' => true],
-        ], $userConfig);
-    }
-
-    public function testUpdatesUserConfigIfConsentBannerShouldBeHidden(): void
-    {
-        $userId = '018a93bbe90570eda0d89c600de7dd19';
-        $userConfigId = '1b805e90e74f4981b60ef05e0af734ee';
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('userId', $userId));
-        $criteria->addFilter(new EqualsFilter('key', ConsentService::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
-
-        $userConfigRepository = new StaticEntityRepository([
-            new IdSearchResult(
-                1,
-                [['data' => $userConfigId, 'primaryKey' => $userConfigId]],
-                $criteria,
-                Context::createDefaultContext(),
-            ),
-        ]);
-
-        $context = Context::createDefaultContext(new AdminApiSource($userId));
-
-        $controller = new ConsentController(
-            $this->createMock(ConsentService::class),
-            $userConfigRepository,
-        );
-
-        $controller->hideConsentBanner($context);
-
-        $userConfig = $userConfigRepository->upserts[0][0];
-        static::assertEquals([
-            'id' => $userConfigId,
-            'userId' => $userId,
-            'key' => 'core.usageData.hideConsentBanner',
-            'value' => ['_value' => true],
-        ], $userConfig);
+        static::assertSame(204, $response->getStatusCode());
     }
 
     public function testCatchesConsentAlreadyRequestedException(): void
@@ -190,7 +124,6 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
-            new StaticEntityRepository([]),
         );
 
         $controller->getConsent($context);
@@ -207,7 +140,6 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
-            new StaticEntityRepository([]),
         );
 
         $controller->acceptConsent($context);
@@ -224,7 +156,6 @@ class ConsentControllerTest extends TestCase
 
         $controller = new ConsentController(
             $consentService,
-            new StaticEntityRepository([]),
         );
 
         $controller->revokeConsent($context);

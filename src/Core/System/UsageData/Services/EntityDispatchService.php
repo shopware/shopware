@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Symfony\Component\Clock\ClockInterface;
@@ -25,6 +26,7 @@ class EntityDispatchService
         private readonly MessageBusInterface $messageBus,
         private readonly ClockInterface $clock,
         private readonly ConsentService $consentService,
+        private readonly GatewayStatusService $gatewayStatusService,
     ) {
     }
 
@@ -33,9 +35,22 @@ class EntityDispatchService
         return sprintf('%s-%s', self::LAST_RUN_CONFIG_KEY, $entityName);
     }
 
-    public function start(): void
+    public function dispatchCollectEntityDataMessage(): void
+    {
+        $this->messageBus->dispatch(new CollectEntityDataMessage());
+    }
+
+    public function dispatchIterateEntityMessages(): void
     {
         if (!$this->consentService->isConsentAccepted()) {
+            return;
+        }
+
+        if (!$this->consentService->shouldPushData()) {
+            return;
+        }
+
+        if (!$this->gatewayStatusService->isGatewayAllowsPush()) {
             return;
         }
 
@@ -56,6 +71,13 @@ class EntityDispatchService
                 self::getLastRunKeyForEntity($entityName),
                 $runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT)
             );
+        }
+    }
+
+    public function resetLastRunDateForAllEntities(): void
+    {
+        foreach ($this->entityDefinitionService->getAllowedEntityDefinitions() as $entityDefinition) {
+            $this->appConfig->remove(self::getLastRunKeyForEntity($entityDefinition->getEntityName()));
         }
     }
 

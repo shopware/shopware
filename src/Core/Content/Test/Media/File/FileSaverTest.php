@@ -351,13 +351,9 @@ class FileSaverTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($path));
     }
 
-    public function testPersistFileToMediaWorksWithMoreThan255Characters(): void
+    public function testPersistFileToMediaThrowsExceptionWithMoreThan255Characters(): void
     {
-        $longFileName = '';
-        while (mb_strlen($longFileName) < 512) {
-            $longFileName .= 'Word';
-        }
-
+        $name = str_repeat('a', 256);
         $context = Context::createDefaultContext();
 
         $this->setFixtureContext($context);
@@ -374,27 +370,15 @@ class FileSaverTest extends TestCase
         $path = $png->getPath();
         $this->getPublicFilesystem()->write($path, 'some content');
 
-        try {
-            $this->fileSaver->persistFileToMedia(
-                $mediaFile,
-                $longFileName,
-                $png->getId(),
-                $context
-            );
-        } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
-            }
-        }
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage('The provided file name is too long, the maximum length is 255 characters.');
 
-        $updated = $this->mediaRepository->search(new Criteria([$png->getId()]), $context)->get($png->getId());
-        static::assertInstanceOf(MediaEntity::class, $updated);
-        static::assertIsString($updated->getFileName());
-        static::assertStringEndsWith($longFileName, $updated->getFileName());
-
-        $path = $updated->getPath();
-
-        static::assertTrue($this->getPublicFilesystem()->has($path));
+        $this->fileSaver->persistFileToMedia(
+            $mediaFile,
+            $name,
+            $png->getId(),
+            $context
+        );
     }
 
     public function testRenameMediaThrowsExceptionIfMediaDoesNotExist(): void

@@ -371,4 +371,14 @@ class MediaExceptionTest extends TestCase
         static::assertSame('The file "file-name" does not exist', $exception->getMessage());
         static::assertSame(['path' => $path], $exception->getParameters());
     }
+
+    public function testFileNameTooLong(): void
+    {
+        $exception = MediaException::fileNameTooLong(3);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_FILE_NAME_IS_TOO_LONG, $exception->getErrorCode());
+        static::assertSame('The provided file name is too long, the maximum length is 3 characters.', $exception->getMessage());
+        static::assertSame(['maxLength' => 3], $exception->getParameters());
+    }
 }

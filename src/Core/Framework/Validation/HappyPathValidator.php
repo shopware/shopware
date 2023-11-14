@@ -22,9 +22,11 @@ use Symfony\Component\Validator\Mapping\MetadataInterface;
 use Symfony\Component\Validator\Validator\ContextualValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Package('core
-calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
-this validator implements a subset of the functionality and calls into the real validator if needed.')]
+/**
+ * calling into the validator machinery has a considerable overhead. Doing that thousands of time is notable.
+ * this validator implements a subset of the functionality and calls into the real validator if needed.
+ */
+#[Package('core')]
 class HappyPathValidator implements ValidatorInterface
 {
     /**

@@ -49,6 +49,34 @@ return (new Config())
             },
         ]
     ))
+    /**
+     * MRs that target a release branch that is not trunk should have a thread with link to a trunk MR
+     * to disable this rule you can add the no-trunk label
+     */
+    ->useRule(new Condition(
+        function (Context $context) {
+            $labels = array_map('strtolower', $context->platform->pullRequest->labels);
+
+            return $context->platform instanceof Gitlab
+                && !\in_array('no-trunk', $labels, true)
+                && preg_match('#^6\.\d+.*|saas/\d{4}/\d{1,2}$#', $context->platform->raw['target_branch']);
+        },
+        [
+            function (Context $context): void {
+                $found = false;
+                foreach ($context->platform->pullRequest->getComments() as $comment) {
+                    if (str_contains($comment->body, '/shopware/6/product/platform/-/merge_requests/')) {
+                        $found = true;
+                        break;
+                    }
+                }
+
+                if (!$found) {
+                    $context->failure('This MR should have a dependency on a trunk MR. Please add a thread with a link');
+                }
+            }
+        ]
+    ))
     ->useRule(new Condition(
         function (Context $context) {
             $labels = array_map('strtolower', $context->platform->pullRequest->labels);

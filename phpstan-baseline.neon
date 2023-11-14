@@ -2506,16 +2506,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
 
 		-
-			message: "#^Parameter \\#1 \\$tokens of method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchTermInterpreter\\:\\:permute\\(\\) expects list\\<string\\>, non\\-empty\\-array given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchTermInterpreter.php
-
-		-
-			message: "#^Parameter \\#1 \\$tokens of method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchTermInterpreter\\:\\:slop\\(\\) expects list\\<string\\>, non\\-empty\\-array given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SearchKeyword/ProductSearchTermInterpreter.php
-
-		-
 			message: "#^Parameter \\#2 \\$matches of method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchTermInterpreter\\:\\:score\\(\\) expects list\\<string\\>, array given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SearchKeyword/ProductSearchTermInterpreter.php
@@ -2609,36 +2599,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$ids of method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPersister\\:\\:markAsDeleted\\(\\) expects list\\<string\\>, array\\<int\\<0, max\\>, string\\> given\\.$#"
 			count: 2
 			path: src/Core/Content/Seo/SeoUrlPersister.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createDefaultMapping\\(\\) has parameter \\$matches with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createDefaultMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createSeoMapping\\(\\) has parameter \\$mapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:createSeoMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandler\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandler.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlPlaceholderHandlerInterface\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Seo/SeoUrlPlaceholderHandlerInterface.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlMapping\\:\\:__construct\\(\\) has parameter \\$infoPathContext with no value type specified in iterable type array\\.$#"
@@ -2889,11 +2849,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Flow\\\\GenerateDocumentActionTest\\:\\:createOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Flow/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$order of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Event\\\\CheckoutOrderPlacedEvent constructor expects Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Flow/SetOrderStateActionTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\AbstractImportExportTestCase\\:\\:cloneDefaultProfile\\(\\) should return Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
@@ -5544,26 +5499,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Parser\\\\SqlQueryParser\\:\\:parseRanking\\(\\) has parameter \\$queries with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\AbstractTokenFilter\\:\\:filter\\(\\) has parameter \\$tokens with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\AbstractTokenFilter\\:\\:filter\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/AbstractTokenFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:getConfig\\(\\) should return array\\{excluded_terms\\: list\\<string\\>, min_search_length\\: int\\}\\|null but returns array\\{excluded_terms\\: array, min_search_length\\: int\\}\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\Filter\\\\TokenFilter\\:\\:\\$config \\(array\\<string, array\\{excluded_terms\\: list\\<string\\>, min_search_length\\: int\\}\\>\\) does not accept non\\-empty\\-array\\<string, array\\{excluded_terms\\: array, min_search_length\\: int\\}\\>\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Search/Term/Filter/TokenFilter.php
 
 		-
 			message: "#^Anonymous variable in a `\\$element\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -10914,6 +10849,36 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Config\\\\\\\\Definition\\\\\\\\Builder\\\\\\\\TreeBuilder' and Symfony\\\\Component\\\\Config\\\\Definition\\\\Builder\\\\TreeBuilder will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/DependencyInjection/ConfigurationTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
+			count: 2
+			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
+			count: 2
+			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
+			count: 1
+			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
+			count: 1
+			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
+			count: 1
+			path: tests/unit/Core/Framework/Log/PackageTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
+			count: 1
+			path: tests/unit/Core/Framework/Log/PackageTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Composer\\\\\\\\Composer' and Composer\\\\Composer will always evaluate to true\\.$#"

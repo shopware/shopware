@@ -45,7 +45,7 @@ class FlowPayloadUpdater
                 AND (`flow_sequence`.`id` IS NULL OR (`flow_sequence`.`rule_id` IS NOT NULL OR `flow_sequence`.`action_name` IS NOT NULL))
                 AND `flow`.`id` IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $listFlowSequence = FetchModeHelper::group($listFlowSequence);

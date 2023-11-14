@@ -10,8 +10,15 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,6 +26,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -170,11 +179,19 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
     public function testFetchesOnlyLiveVersion(): void
     {
-        static::assertSame($this->queryHelper, $this->queryHelper->withLiveVersionCheck());
+        $definition = new TestEntityDefinition();
+        new StaticDefinitionInstanceRegistry(
+            [$definition],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGateway::class),
+        );
+
+        static::assertSame($this->queryHelper, $this->queryHelper->checkLiveVersion($definition));
 
         static::assertEquals(
             CompositeExpression::and(
-                '`version_id` = :versionId',
+                sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('version_id')),
+                sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('test_version_id')),
             ),
             $this->queryHelper->getQueryBuilder()->getQueryPart('where'),
         );
@@ -218,7 +235,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
 
         static::assertSame(
             $this->queryHelper,
-            $this->queryHelper->withLastApprovalDateConstraint($message, new \DateTimeImmutable()),
+            $this->queryHelper->withLastApprovalDateConstraint($message, $runDate),
         );
 
         static::assertEquals(
@@ -232,5 +249,27 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
         static::assertCount(1, $parameters);
         static::assertArrayHasKey('lastApprovalDate', $parameters);
         static::assertEquals($runDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $parameters['lastApprovalDate']);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestEntityDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'category';
+
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            new VersionField(),
+            new ReferenceVersionField(self::class, 'test_version_id'),
+        ]);
     }
 }

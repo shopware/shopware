@@ -39,7 +39,7 @@ class Migration1608624028RemoveDefaultSalesChannelAssignmentForCustomerRecoveryE
             $connection->executeStatement(
                 'DELETE FROM event_action_sales_channel WHERE event_action_id IN (:eventActionIds)',
                 ['eventActionIds' => $customerRecoveryEvents],
-                ['eventActionIds' => ArrayParameterType::STRING]
+                ['eventActionIds' => ArrayParameterType::BINARY]
             );
         } catch (\Exception) {
             // nth

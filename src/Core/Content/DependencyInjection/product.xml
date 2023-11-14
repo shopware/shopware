@@ -41,6 +41,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition">
             <tag name="shopware.entity.definition"/>
         </service>

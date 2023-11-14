@@ -108,7 +108,7 @@ class MailAttachmentsBuilder
                 'documentTypeIds' => Uuid::fromHexToBytesList($documentTypeIds),
             ],
             [
-                'documentTypeIds' => ArrayParameterType::STRING,
+                'documentTypeIds' => ArrayParameterType::BINARY,
             ]
         );
 

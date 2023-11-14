@@ -83,7 +83,7 @@ SQL;
             $this->connection->executeStatement(
                 $resetSql,
                 $parameters,
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -91,7 +91,7 @@ SQL;
             $this->connection->executeStatement(
                 $sql,
                 $parameters,
-                ['ids' => ArrayParameterType::STRING, 'states' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY, 'states' => ArrayParameterType::STRING]
             );
         });
     }
@@ -141,7 +141,7 @@ SQL;
         $customers = $this->connection->fetchAllAssociative(
             'SELECT newsletter_sales_channel_ids, email, first_name, last_name FROM customer WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $parameters = [];
@@ -175,7 +175,7 @@ SQL;
                         'firstName' => $parameter['first_name'],
                         'lastName' => $parameter['last_name'],
                     ],
-                    ['ids' => ArrayParameterType::STRING],
+                    ['ids' => ArrayParameterType::BINARY],
                 );
             });
         }

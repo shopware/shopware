@@ -161,7 +161,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         $media = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(id)) as id FROM media WHERE media_folder_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($media)) {
@@ -181,7 +181,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
         $children = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(id)) FROM media_folder WHERE parent_id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($children)) {

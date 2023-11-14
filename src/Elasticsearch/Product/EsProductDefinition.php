@@ -370,7 +370,7 @@ SQL;
                 'liveVersionId' => Uuid::fromHexToBytes($context->getVersionId()),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 
@@ -415,7 +415,7 @@ SQL;
                 'ids' => Uuid::fromHexToBytesList($propertyIds),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

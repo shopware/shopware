@@ -205,6 +205,43 @@ export default {
             }
         },
 
+        async installAndActivateExtension() {
+            this.isLoading = true;
+
+            try {
+                if (this.extension.source === 'store') {
+                    await this.extensionStoreActionService.downloadExtension(
+                        this.extension.name,
+                    );
+                }
+
+                await this.shopwareExtensionService.installExtension(
+                    this.extension.name,
+                    this.extension.type,
+                );
+                await this.shopwareExtensionService.activateExtension(
+                    this.extension.name,
+                    this.extension.type,
+                );
+                await this.clearCacheAndReloadPage();
+            } catch (e) {
+                this.showExtensionErrors(e);
+                const error = extensionErrorHandler.mapErrors(e.response.data.errors)?.[0];
+
+                if (error.parameters) {
+                    this.installationFailedError = error;
+                } else {
+                    this.installationFailedError = {
+                        title: this.$tc(error.title),
+                        message: this.$tc(error.message),
+                    };
+                }
+                this.showExtensionInstallationFailedModal = true;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
         async cancelAndRemoveExtension() {
             try {
                 this.closeRemovalModal();

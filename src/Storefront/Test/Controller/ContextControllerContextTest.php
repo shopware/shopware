@@ -109,6 +109,40 @@ class ContextControllerContextTest extends TestCase
         static::assertSame($this->defaultBaseUrl . '/', $response->headers->get('Location'));
     }
 
+    public function testSwitchWithWrongRedirectTo(): void
+    {
+        $this->browser->request('GET', $this->testBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser->request(
+            'POST',
+            $this->testBaseUrl . '/checkout/language',
+            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => 'frontend.homer.page']
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame($this->defaultBaseUrl . '/', $response->headers->get('Location'));
+    }
+
+    public function testSwitchWithProductIdAndCorrectRedirectTo(): void
+    {
+        $this->browser->request('GET', $this->testBaseUrl);
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $productId = Uuid::randomHex();
+
+        $this->browser->request(
+            'POST',
+            $this->testBaseUrl . '/checkout/language',
+            ['languageId' => Defaults::LANGUAGE_SYSTEM, 'redirectTo' => 'frontend.detail.page', 'redirectParameters' => ['productId' => $productId]]
+        );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent() ?: '');
+        static::assertSame($this->defaultBaseUrl . '/detail/' . $productId, $response->headers->get('Location'));
+    }
+
     public function testConfigure(): void
     {
         $this->browser->request('GET', $this->testBaseUrl);

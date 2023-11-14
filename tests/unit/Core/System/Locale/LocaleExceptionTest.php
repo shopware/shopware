@@ -34,10 +34,9 @@ class LocaleExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testLanguageNotFoundLegacy(): void
     {
         $e = LocaleException::languageNotFound('foo');

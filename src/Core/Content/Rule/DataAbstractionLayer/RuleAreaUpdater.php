@@ -206,7 +206,7 @@ class RuleAreaUpdater implements EventSubscriberInterface
         $query->setParameter(
             'ids',
             Uuid::fromHexToBytesList($ids),
-            ArrayParameterType::STRING
+            ArrayParameterType::BINARY
         )->setParameter(
             'flowTypes',
             $this->conditionRegistry->getFlowRuleNames(),

@@ -71,7 +71,7 @@ class ProductCategoryDenormalizer
             $this->connection->executeStatement(
                 'DELETE FROM product_category_tree WHERE `product_id` IN (:ids) AND `product_version_id` = :version',
                 ['ids' => $allIds, 'version' => $versionId],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 
@@ -139,7 +139,7 @@ class ProductCategoryDenormalizer
 
         $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $ids);
 
-        $query->setParameter('ids', $bytes, ArrayParameterType::STRING);
+        $query->setParameter('ids', $bytes, ArrayParameterType::BINARY);
 
         $rows = $query->executeQuery()->fetchAllAssociative();
 

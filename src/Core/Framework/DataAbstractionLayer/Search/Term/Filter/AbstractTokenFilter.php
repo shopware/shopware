@@ -16,5 +16,10 @@ abstract class AbstractTokenFilter implements ResetInterface
 
     abstract public function getDecorated(): AbstractTokenFilter;
 
+    /**
+     * @param list<string> $tokens
+     *
+     * @return list<string>
+     */
     abstract public function filter(array $tokens, Context $context): array;
 }

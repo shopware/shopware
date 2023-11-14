@@ -29,9 +29,7 @@ class ProductExportExceptionTest extends TestCase
         throw $exception;
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testRenderFooterException(): void
     {
         $exception = ProductExportException::renderFooterException('Footer!');
@@ -43,10 +41,9 @@ class ProductExportExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testRenderHeaderException(): void
     {
         $exception = ProductExportException::renderHeaderException('Header!');
@@ -58,10 +55,9 @@ class ProductExportExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testRenderProductException(): void
     {
         $exception = ProductExportException::renderProductException('Product!');
@@ -103,10 +99,9 @@ class ProductExportExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testProductExportNotFoundLegacy(): void
     {
         $exception = ProductExportException::productExportNotFound('product-id');

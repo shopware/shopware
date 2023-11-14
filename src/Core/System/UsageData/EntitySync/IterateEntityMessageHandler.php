@@ -29,7 +29,7 @@ final class IterateEntityMessageHandler
 
     public function __invoke(IterateEntityMessage $message): void
     {
-        if ($message->getLastRun() === null && $message->getOperation() !== Operation::CREATE) {
+        if (($message->getLastRun() === null && $message->getOperation() !== Operation::CREATE) || !$this->consentService->shouldPushData()) {
             return;
         }
 
@@ -80,7 +80,7 @@ final class IterateEntityMessageHandler
                 [
                     'exception' => $e,
                     'entity' => $message->getEntityName(),
-                    'operation' => $message->getOperation(),
+                    'operation' => $message->getOperation()->value,
                 ]
             );
         }

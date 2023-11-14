@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Flow;
+namespace Shopware\Tests\Integration\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -11,11 +11,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
+use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,6 +28,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -75,7 +78,7 @@ class SetOrderStateActionTest extends TestCase
         $orderStateAfterAction = $this->getOrderState($orderId);
         static::assertSame($orderState, $orderStateAfterAction);
 
-        $orderDeliveryStateAfterAction = $this->getOderDeliveryState($orderId);
+        $orderDeliveryStateAfterAction = $this->getOrderDeliveryState($orderId);
         static::assertSame($orderDeliveryState, $orderDeliveryStateAfterAction);
 
         $orderTransactionStateAfterAction = $this->getOrderTransactionState($orderId);
@@ -96,152 +99,89 @@ class SetOrderStateActionTest extends TestCase
         $orderStateAfterAction = $this->getOrderState($orderId);
         static::assertNotSame($orderState, $orderStateAfterAction);
 
-        $orderDeliveryStateAfterAction = $this->getOderDeliveryState($orderId);
+        $orderDeliveryStateAfterAction = $this->getOrderDeliveryState($orderId);
         static::assertNotSame($orderDeliveryState, $orderDeliveryStateAfterAction);
 
         $orderTransactionStateAfterAction = $this->getOrderTransactionState($orderId);
         static::assertNotSame($orderTransactionState, $orderTransactionStateAfterAction);
     }
 
-    /**
-     * @param array<string, mixed> $config
-     * @param array<string, mixed> $expects
-     *
-     * @dataProvider statusProvider
-     */
-    public function testSetOrderStatus(array $config, array $expects): void
+    public function testThrowsWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
     {
+        // Because this test needs to change savepoint nesting we need to commit the current transaction, as we cannot
+        // change this property inside a running transaction.
+        $this->connection->commit();
+        $this->connection->setNestTransactionsWithSavepoints(false);
+        $this->connection->beginTransaction();
+
         $orderId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $this->orderRepository->create($this->getOrderData($orderId, $context), $context);
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['deliveries'] = [];
+        $this->orderRepository->create($orderData, $context);
         $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+
         $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
 
         $subscriber = new SetOrderStateAction(
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('logger'),
-            $this->getContainer()->get(OrderService::class)
+            $this->getContainer()->get(OrderService::class),
         );
 
         /** @var FlowFactory $flowFactory */
         $flowFactory = $this->getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
-        $flow->setConfig($config);
+        $flow->setConfig(['order_delivery' => 'cancelled']);
 
-        $subscriber->handleFlow($flow);
+        static::expectException(StateMachineException::class);
+        static::expectExceptionMessage('The StateMachine named "order_delivery" was not found.');
 
-        $orderStateAfterAction = $this->getOrderState(Uuid::fromHexToBytes($orderId));
-        static::assertSame($expects['order'], $orderStateAfterAction);
-
-        $orderDeliveryStateAfterAction = $this->getOderDeliveryState(Uuid::fromHexToBytes($orderId));
-        static::assertSame($expects['order_delivery'], $orderDeliveryStateAfterAction);
-
-        $orderTransactionStateAfterAction = $this->getOrderTransactionState(Uuid::fromHexToBytes($orderId));
-        static::assertSame($expects['order_transaction'], $orderTransactionStateAfterAction);
+        $this->connection->transactional(function () use ($subscriber, $flow): void {
+            $subscriber->handleFlow($flow);
+        });
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function statusProvider(): array
+    public function testDoesNotThrowWhenEntityNotFoundAndInsideATransactionWithSavepointNesting(): void
     {
-        return [
-            'Set three states success' => [
-                [
-                    'order' => 'cancelled',
-                    'order_delivery' => 'cancelled',
-                    'order_transaction' => 'cancelled',
-                ],
-                [
-                    'order' => 'cancelled',
-                    'order_delivery' => 'cancelled',
-                    'order_transaction' => 'cancelled',
-                ],
-            ],
-            'Set one state success' => [
-                [
-                    'order' => 'in_progress',
-                ],
-                [
-                    'order' => 'in_progress',
-                    'order_delivery' => 'open',
-                    'order_transaction' => 'open',
-                ],
-            ],
-            'Set state not success' => [
-                [
-                    'order' => 'done',
-                ],
-                [
-                    'order' => 'open',
-                    'order_delivery' => 'open',
-                    'order_transaction' => 'open',
-                ],
-            ],
-            'Set state allow force transition' => [
-                [
-                    'order' => 'completed',
-                    'order_delivery' => 'returned',
-                    'order_transaction' => 'refunded',
-                    'force_transition' => true,
-                ],
-                [
-                    'order' => 'completed',
-                    'order_delivery' => 'returned',
-                    'order_transaction' => 'refunded',
-                ],
-            ],
-            'Set state allow force transition only one state' => [
-                [
-                    'order_delivery' => 'returned',
-                    'force_transition' => true,
-                ],
-                [
-                    'order' => 'open',
-                    'order_delivery' => 'returned',
-                    'order_transaction' => 'open',
-                ],
-            ],
-            'Set state allow force transition with not existing state' => [
-                [
-                    'open' => '',
-                    'order_delivery' => 'fake_state',
-                    'force_transition' => true,
-                ],
-                [
-                    'order' => 'open',
-                    'order_delivery' => 'open',
-                    'order_transaction' => 'open',
-                ],
-            ],
-            'Set state not allow force transition' => [
-                [
-                    'order' => 'completed',
-                    'order_delivery' => 'returned',
-                    'order_transaction' => 'refunded',
-                    'force_transition' => false,
-                ],
-                [
-                    'order' => 'open',
-                    'order_delivery' => 'open',
-                    'order_transaction' => 'open',
-                ],
-            ],
-            'Set state not allow force transition with not existing state' => [
-                [
-                    'order' => 'fake_state',
-                    'order_delivery' => '',
-                    'order_transaction' => false,
-                    'force_transition' => false,
-                ],
-                [
-                    'order' => 'open',
-                    'order_delivery' => 'open',
-                    'order_transaction' => 'open',
-                ],
-            ],
-        ];
+        // Because this test needs to change savepoint nesting we need to commit the current transaction, as we cannot
+        // change this property inside a running transaction.
+        $this->connection->commit();
+        $this->connection->setNestTransactionsWithSavepoints(true);
+        $this->connection->beginTransaction();
+
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['deliveries'] = [];
+        $this->orderRepository->create($orderData, $context);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+
+        $event = new CheckoutOrderPlacedEvent($context, $order, TestDefaults::SALES_CHANNEL);
+
+        $subscriber = new SetOrderStateAction(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('logger'),
+            $this->getContainer()->get(OrderService::class),
+        );
+
+        /** @var FlowFactory $flowFactory */
+        $flowFactory = $this->getContainer()->get(FlowFactory::class);
+        $flow = $flowFactory->create($event);
+        $flow->setConfig(['order_delivery' => 'cancelled']);
+
+        $this->connection->transactional(function () use ($subscriber, $flow): void {
+            $subscriber->handleFlow($flow);
+        });
+
+        // No exception was thrown
+        static::addToAssertionCount(1);
     }
 
     private function prepareFlowSequences(string $orderState, string $orderDeliveryState, string $orderTransactionState): void
@@ -295,7 +235,7 @@ class SetOrderStateActionTest extends TestCase
         );
     }
 
-    private function getOderDeliveryState(string $orderId): string
+    private function getOrderDeliveryState(string $orderId): string
     {
         return $this->connection->fetchOne(
             '

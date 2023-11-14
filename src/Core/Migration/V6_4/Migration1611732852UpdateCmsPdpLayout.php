@@ -51,7 +51,7 @@ class Migration1611732852UpdateCmsPdpLayout extends MigrationStep
             SELECT id, type
             FROM cms_slot
             WHERE cms_block_id IN (:cmsBlockId)
-        ', ['cmsBlockId' => $blockIds], ['cmsBlockId' => ArrayParameterType::STRING]);
+        ', ['cmsBlockId' => $blockIds], ['cmsBlockId' => ArrayParameterType::BINARY]);
 
         foreach ($slots as $slot) {
             $configData = match ($slot['type']) {

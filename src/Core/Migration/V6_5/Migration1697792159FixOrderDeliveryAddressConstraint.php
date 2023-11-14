@@ -19,6 +19,21 @@ class Migration1697792159FixOrderDeliveryAddressConstraint extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $connection->executeStatement('
+            UPDATE `order_delivery`
+                SET
+                    `shipping_order_address_id` = NULL,
+                    `shipping_order_address_version_id` = NULL
+            WHERE
+                NOT EXISTS (
+                    SELECT 1
+                    FROM `order_address`
+                    WHERE
+                        `order_address`.`id` = `order_delivery`.`shipping_order_address_id`
+                        AND `order_address`.`version_id` = `order_delivery`.`shipping_order_address_version_id`
+                );
+        ');
+
         if ($this->keyExists($connection)) {
             return;
         }

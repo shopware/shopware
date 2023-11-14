@@ -94,7 +94,7 @@ final class CategoryAdminSearchIndexer extends AbstractAdminIndexer
                 'ids' => Uuid::fromHexToBytesList($ids),
             ],
             [
-                'ids' => ArrayParameterType::STRING,
+                'ids' => ArrayParameterType::BINARY,
             ]
         );
 

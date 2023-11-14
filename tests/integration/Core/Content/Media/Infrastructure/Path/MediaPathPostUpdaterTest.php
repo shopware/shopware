@@ -79,7 +79,7 @@ class MediaPathPostUpdaterTest extends TestCase
             ->fetchFirstColumn(
                 'SELECT path FROM media WHERE id IN (:ids)',
                 ['ids' => $ids->getByteList(['media-1', 'media-2'])],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         static::assertCount(2, $paths);

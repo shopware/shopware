@@ -76,7 +76,7 @@ class ThemeIndexer extends EntityIndexer
             $this->connection->executeStatement(
                 'DELETE FROM theme_child WHERE parent_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
             $this->connection->executeStatement(
@@ -87,7 +87,7 @@ class ThemeIndexer extends EntityIndexer
                     )
                 ',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
         });
 

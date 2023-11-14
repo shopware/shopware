@@ -13,9 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException
- *
- * @DisabledFeatures(features="v6_6_0_0")
  */
+#[DisabledFeatures(['v6.6.0.0'])]
 class ExtensionThemeStillInUseExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

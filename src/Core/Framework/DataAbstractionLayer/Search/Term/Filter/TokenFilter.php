@@ -34,9 +34,7 @@ class TokenFilter extends AbstractTokenFilter
     }
 
     /**
-     * @param list<string> $tokens
-     *
-     * @return list<string>
+     * {@inheritdoc}
      */
     public function filter(array $tokens, Context $context): array
     {
@@ -124,8 +122,11 @@ class TokenFilter extends AbstractTokenFilter
             return null;
         }
 
+        /** @var list<string> $excludedTerms */
+        $excludedTerms = \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [];
+
         return $this->config[$languageId] = [
-            'excluded_terms' => \is_string($config['excluded_terms']) ? array_flip(json_decode($config['excluded_terms'], true, 512, \JSON_THROW_ON_ERROR)) : [],
+            'excluded_terms' => $excludedTerms,
             'min_search_length' => (int) ($config['min_search_length'] ?? self::DEFAULT_MIN_SEARCH_TERM_LENGTH),
         ];
     }

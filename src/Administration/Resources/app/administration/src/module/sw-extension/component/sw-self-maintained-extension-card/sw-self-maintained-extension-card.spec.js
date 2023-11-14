@@ -153,4 +153,24 @@ describe('src/module/sw-extension/component/sw-self-maintained-extension-card', 
 
         expect(wrapper.vm.deactivateExtension).toHaveBeenCalled();
     });
+
+    it('should install and activate extension', async () => {
+        await wrapper.setProps({
+            extension: {
+                icon: null,
+                installedAt: null,
+                permissions: [],
+            },
+        });
+
+        wrapper.vm.shopwareExtensionService.installAndActivateExtension = jest.fn(() => Promise.resolve());
+
+        wrapper.vm.clearCacheAndReloadPage = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.installAndActivateExtension();
+
+        expect(wrapper.vm.shopwareExtensionService.installAndActivateExtension).toHaveBeenCalled();
+        expect(wrapper.vm.clearCacheAndReloadPage).toHaveBeenCalled();
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
 });

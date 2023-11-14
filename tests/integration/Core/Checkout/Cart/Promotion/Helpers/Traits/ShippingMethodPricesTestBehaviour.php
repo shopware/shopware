@@ -47,7 +47,7 @@ trait ShippingMethodPricesTestBehaviour
         $conn->executeStatement(
             'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id in(:ids)',
             ['currencyPrice' => $priceStruct, 'ids' => array_keys($this->oldValues)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
     }
 

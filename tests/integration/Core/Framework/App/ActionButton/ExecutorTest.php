@@ -320,7 +320,13 @@ class ExecutorTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, ['app_url' => 'http://random-shop.url']);
+        $systemConfigService->set(
+            ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY,
+            [
+                'app_url' => 'http://random-shop.url',
+                'value' => 'shopId',
+            ]
+        );
 
         $appUrl = EnvironmentHelper::getVariable('APP_URL');
         static::assertIsString($appUrl);

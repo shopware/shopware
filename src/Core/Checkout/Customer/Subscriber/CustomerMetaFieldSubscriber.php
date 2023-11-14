@@ -83,7 +83,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         $customerIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(customer_id)) FROM `order_customer` WHERE order_id IN (:ids) AND order_version_id = :version AND customer_id IS NOT NULL',
             ['ids' => Uuid::fromHexToBytesList($orderIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         if (empty($customerIds)) {
@@ -96,14 +96,14 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             'state' => OrderStates::STATE_COMPLETED,
         ];
         $types = [
-            'customerIds' => ArrayParameterType::STRING,
+            'customerIds' => ArrayParameterType::BINARY,
         ];
 
         $whereOrder = '';
         if ($isDelete) {
             $whereOrder = 'AND `order`.id NOT IN (:exceptOrderIds)';
             $parameters['exceptOrderIds'] = Uuid::fromHexToBytesList($orderIds);
-            $types['exceptOrderIds'] = ArrayParameterType::STRING;
+            $types['exceptOrderIds'] = ArrayParameterType::BINARY;
         }
 
         $select = '

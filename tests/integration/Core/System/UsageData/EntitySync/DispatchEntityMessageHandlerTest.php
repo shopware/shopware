@@ -10,6 +10,7 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\DateInterval;
 use Shopware\Core\Framework\Log\Package;
@@ -24,11 +25,11 @@ use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage;
 use Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @internal
@@ -44,6 +45,19 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     protected function setUp(): void
     {
+        /** @var MockHttpClient $client */
+        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
+            return new MockResponse();
+        });
+
         $this->idsCollection = new IdsCollection();
         $this->connection = $this->getContainer()->get(Connection::class);
 
@@ -58,6 +72,13 @@ class DispatchEntityMessageHandlerTest extends TestCase
         /** @var MockHttpClient $client */
         $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
         $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
             $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
             $body = gzdecode($options['body']);
             static::assertIsString($body);
@@ -135,6 +156,88 @@ class DispatchEntityMessageHandlerTest extends TestCase
             [
                 ['id' => $ids->get('test-product-1')],
                 ['id' => $ids->get('test-product-2')],
+            ]
+        );
+
+        $messageHandler = $this->getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler($dispatchEntityMessage);
+    }
+
+    public function testSendsTranslationEntityDataToGateway(): void
+    {
+        $ids = new IdsCollection();
+
+        /** @var MockHttpClient $client */
+        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client->setResponseFactory(function ($method, $url, $options) use ($ids) {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
+            $shopId = $this->getContainer()->get(ShopIdProvider::class)->getShopId();
+            $body = gzdecode($options['body']);
+            static::assertIsString($body);
+
+            $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
+            $headers = array_values($options['headers']);
+
+            static::assertEquals(Request::METHOD_POST, $method);
+            static::assertStringContainsString('/v1/entities', $url);
+            static::assertContains('Shopware-Shop-Id: ' . $shopId, array_values($headers));
+            static::assertContains('Content-Type: application/json', array_values($headers));
+
+            static::assertArrayHasKey('operation', $payload);
+            static::assertEquals(Operation::CREATE->value, $payload['operation']);
+
+            static::assertArrayHasKey('entities', $payload);
+            static::assertCount(2, $payload['entities']);
+
+            $firstProductTranslation = $payload['entities'][0];
+            static::assertIsArray($firstProductTranslation);
+            static::assertArrayNotHasKey('productVersionId', $firstProductTranslation);
+
+            static::assertArrayHasKey('productId', $firstProductTranslation);
+            static::assertEquals($ids->get('test-product-1'), $firstProductTranslation['productId']);
+
+            static::assertArrayHasKey('languageId', $firstProductTranslation);
+            static::assertEquals(Defaults::LANGUAGE_SYSTEM, $firstProductTranslation['languageId']);
+
+            $secondProductTranslation = $payload['entities'][1];
+            static::assertIsArray($secondProductTranslation);
+            static::assertArrayNotHasKey('productVersionId', $secondProductTranslation);
+
+            static::assertArrayHasKey('productId', $secondProductTranslation);
+            static::assertEquals($ids->get('test-product-2'), $secondProductTranslation['productId']);
+
+            static::assertArrayHasKey('languageId', $secondProductTranslation);
+            static::assertEquals(Defaults::LANGUAGE_SYSTEM, $secondProductTranslation['languageId']);
+
+            return new MockResponse('', ['http_code' => 200]);
+        });
+
+        $this->addProductDefinition();
+
+        $this->createTestProduct($ids, 'test-product-1');
+        $this->createTestProduct($ids, 'test-product-2');
+
+        $dispatchEntityMessage = new DispatchEntityMessage(
+            'product_translation',
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            [
+                [
+                    'product_id' => $ids->get('test-product-1'),
+                    'product_version_id' => Defaults::LIVE_VERSION,
+                    'language_id' => Defaults::LANGUAGE_SYSTEM,
+                ],
+                [
+                    'product_id' => $ids->get('test-product-2'),
+                    'product_version_id' => Defaults::LIVE_VERSION,
+                    'language_id' => Defaults::LANGUAGE_SYSTEM,
+                ],
             ]
         );
 
@@ -371,6 +474,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $product = (new ProductBuilder($idsCollection, $productNumber))
             ->name('Testing product')
             ->price(100)
+            ->translation(Defaults::LANGUAGE_SYSTEM, 'title', 'my awesome product')
             ->build();
 
         $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());

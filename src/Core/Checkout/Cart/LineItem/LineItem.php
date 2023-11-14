@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
@@ -302,6 +303,7 @@ class LineItem extends Struct
 
     /**
      * @deprecated tag:v6.6.0 - reason:new-optional-parameter - Parameter $protection will be added in v6.6.0
+     * @deprecated tag:v6.6.0 - reason:behavior-change - The method will replace recursively anymore but only on the first level
      *
      * @param array<string, mixed> $payload
      */
@@ -312,7 +314,11 @@ class LineItem extends Struct
             $protection = func_get_arg(1);
         }
 
-        $this->payload = \array_replace_recursive($this->payload, $payload);
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->payload = \array_replace($this->payload, $payload);
+        } else {
+            $this->payload = \array_replace_recursive($this->payload, $payload);
+        }
 
         return $this->addPayloadProtection($protection);
     }

@@ -17,6 +17,9 @@ use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @internal
@@ -36,6 +39,19 @@ class EntityDeleteSubscriberTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        /** @var MockHttpClient $client */
+        $client = $this->getContainer()->get('shopware.usage_data.gateway.client');
+        $client->setResponseFactory(function (string $method, string $url): ResponseInterface {
+            if (\str_ends_with($url, '/killswitch')) {
+                $body = json_encode(['killswitch' => false]);
+                static::assertIsString($body);
+
+                return new MockResponse($body);
+            }
+
+            return new MockResponse();
+        });
     }
 
     public function testHandleDeleteEventWritesSinglePrimaryKeyToDatabase(): void

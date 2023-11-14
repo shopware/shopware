@@ -98,9 +98,7 @@ class FeatureFlagExtensionTest extends TestCase
         static::assertSame($beforeServerEnv, $_SERVER);
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     */
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testSetsFeatures(): void
     {
         static::assertArrayNotHasKey('V6_5_0_0', $_SERVER);

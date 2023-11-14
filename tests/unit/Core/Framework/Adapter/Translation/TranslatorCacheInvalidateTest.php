@@ -72,7 +72,7 @@ class TranslatorCacheInvalidateTest extends TestCase
         $this->connection->expects(static::once())->method('fetchFirstColumn')->with(
             'SELECT LOWER(HEX(snippet_set_id)) FROM snippet WHERE HEX(id) IN (:ids)',
             ['ids' => $snippetIds],
-            ['ids' => ArrayParameterType::STRING],
+            ['ids' => ArrayParameterType::BINARY],
         )->willReturn($expectedSnippetSetIds);
 
         $writeResults = [];

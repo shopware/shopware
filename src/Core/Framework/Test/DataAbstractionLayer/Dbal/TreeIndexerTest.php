@@ -254,7 +254,7 @@ class TreeIndexerTest extends TestCase
                     $categoryD,
                 ],
             ],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
         $categories = $this->categoryRepository->search(new Criteria([$categoryA, $categoryB, $categoryC, $categoryD]), $this->context);

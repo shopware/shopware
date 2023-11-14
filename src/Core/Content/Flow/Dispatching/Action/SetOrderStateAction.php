@@ -92,8 +92,14 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
 
             $this->connection->commit();
         } catch (ShopwareHttpException $e) {
-            $this->connection->rollBack();
             $this->logger->error($e->getMessage());
+            $this->connection->rollBack();
+            // Silently rolling back a transaction is only safe when it is the top level transaction or transactions are
+            // nested with save points instead of emulating nested transactions. In case a transaction is not the top
+            // level transaction, we need to rethrow the error such that the outer transactions can be rolled back.
+            if ($this->connection->getTransactionNestingLevel() !== 1 && !$this->connection->getNestTransactionsWithSavepoints()) {
+                throw $e;
+            }
         } finally {
             $context->removeState(self::FORCE_TRANSITION);
         }

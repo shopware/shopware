@@ -110,6 +110,10 @@ class PackageAnnotationRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
+        if ($node->getClassReflection()->isAnonymous()) {
+            return [];
+        }
+
         if ($this->isTestClass($node)) {
             return [];
         }

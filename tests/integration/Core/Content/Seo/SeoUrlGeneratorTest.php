@@ -204,7 +204,7 @@ class SeoUrlGeneratorTest extends TestCase
                     'ids' => Uuid::fromHexToBytesList($ids->getList(['parent', 'red', 'green'])),
                     'channel' => Uuid::fromHexToBytes($this->salesChannelId),
                 ],
-                ['ids' => ArrayParameterType::STRING]
+                ['ids' => ArrayParameterType::BINARY]
             );
 
         $urls = FetchModeHelper::keyPair($urls);

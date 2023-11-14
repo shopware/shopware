@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -115,8 +116,10 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            $response->setData([]);
-            $response->setContext(null);
+            if (!Feature::isActive('v6.6.0.0')) {
+                $response->setData([]);
+                $response->setContext(null);
+            }
 
             return $response;
         });

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.6.0 - Will be removed
+ */
 #[Package('storefront')]
 class StorefrontResponse extends Response
 {
@@ -26,6 +29,8 @@ class StorefrontResponse extends Response
 
     public function getData(): array
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         /** @deprecated tag:v6.6.0 - null check can be removed if $data is natively typed */
         if ($this->data === null) {
             return [];
@@ -39,23 +44,21 @@ class StorefrontResponse extends Response
      */
     public function setData(?array $data): void
     {
-        if ($data === null) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.6.0.0',
-                sprintf('Parameter "data" in method "setData" will be strictly typed to "array" in class "%s".', static::class)
-            );
-        }
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
 
         $this->data = $data;
     }
 
     public function getContext(): ?SalesChannelContext
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+
         return $this->context;
     }
 
     public function setContext(?SalesChannelContext $context): void
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->context = $context;
     }
 }

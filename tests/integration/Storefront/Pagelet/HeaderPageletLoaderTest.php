@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Pagelet\Header\HeaderPageletLoader;
 use Shopware\Tests\Integration\Storefront\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,9 +45,7 @@ class HeaderPageletLoaderTest extends TestCase
 
         $context = $this->createSalesChannelContext($this->prepareSalesChannelOverride($createdLanguages));
 
-        $header = $this->getPageLoader()->load(new Request(), $context)->getHeader();
-        static::assertNotNull($header);
-        $pageLanguages = $header->getLanguages();
+        $pageLanguages = $this->getPageLoader()->load(new Request(), $context)->getLanguages()->getElements();
 
         $i = 0;
         foreach ($pageLanguages as $pageLanguage) {
@@ -134,9 +132,9 @@ class HeaderPageletLoaderTest extends TestCase
         ];
     }
 
-    protected function getPageLoader(): GenericPageLoader
+    protected function getPageLoader(): HeaderPageletLoader
     {
-        return $this->getContainer()->get(GenericPageLoader::class);
+        return $this->getContainer()->get(HeaderPageletLoader::class);
     }
 
     /**

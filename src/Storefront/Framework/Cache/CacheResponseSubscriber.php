@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Adapter\Cache\CacheStateSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -23,7 +24,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  */
-#[Package('storefront')]
+#[Package('core')]
 class CacheResponseSubscriber implements EventSubscriberInterface
 {
     final public const STATE_LOGGED_IN = CacheStateSubscriber::STATE_LOGGED_IN;
@@ -31,6 +32,7 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     final public const CURRENCY_COOKIE = 'sw-currency';
     final public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
+
     final public const SYSTEM_STATE_COOKIE = 'sw-states';
     final public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
 
@@ -142,7 +144,9 @@ class CacheResponseSubscriber implements EventSubscriberInterface
         $maxAge = $cache['maxAge'] ?? $this->defaultTtl;
 
         $response->setSharedMaxAge($maxAge);
-        $response->headers->addCacheControlDirective('must-revalidate');
+        if (!Feature::isActive('v6.6.0.0')) {
+            $response->headers->addCacheControlDirective('must-revalidate');
+        }
         $response->headers->set(
             self::INVALIDATION_STATES_HEADER,
             implode(',', $cache['states'] ?? [])

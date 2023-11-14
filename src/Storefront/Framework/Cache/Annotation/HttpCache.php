@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @deprecated tag:v6.6.0 - Will be removed use `defaults: {"_httpCache"=true}` or `{"_httpCache"={"maxAge": 360, "states": {"logged-in", "cart-filled"}}}` instead
  */
-#[Package('storefront')]
+#[Package('core')]
 class HttpCache
 {
     final public const ALIAS = 'httpCache';

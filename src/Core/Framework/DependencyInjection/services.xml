@@ -654,5 +654,49 @@ base-uri 'self';
             <argument type="service" id=".inner"/>
             <argument type="collection"></argument>
         </service>
+
+        <service id="http_kernel" class="Shopware\Core\Framework\Adapter\Kernel\HttpKernel" public="true">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="controller_resolver"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="argument_resolver"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\RequestTransformerInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\CanonicalRedirectService"/>
+
+            <tag name="container.hot_path"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\Runner\Symfony\ResponseRunner"/>
+            <tag name="container.preload" class="Symfony\Component\Runtime\SymfonyRuntime"/>
+        </service>
+
+        <service id="http_kernel.cache" class="Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel" decorates="http_kernel">
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStore" on-invalid="null"/>
+            <argument type="service" id="esi"/>
+            <argument type="collection"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore" public="true">
+            <argument type="service" id="cache.http"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTracer"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator"/>
+            <argument type="service" id="Shopware\Core\Framework\Routing\MaintenanceModeResolver"/>
+            <argument>%session.storage.options%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator">
+            <argument>%kernel.cache.hash%</argument>
+            <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.http_cache.ignored_url_parameters%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator">
+            <argument>%shopware.cache.invalidation.http_cache%</argument>
+        </service>
     </services>
 </container>

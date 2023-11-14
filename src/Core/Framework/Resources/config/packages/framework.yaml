@@ -4,12 +4,16 @@ parameters:
     env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
     env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
     env(MAILER_DSN): 'null://null'
+    '.container.dumper.inline_class_loader': true
+    '.container.dumper.inline_factories': true
 
 framework:
     esi: true
     trusted_hosts: ~
     fragments: ~
     assets: ~
+    http_cache:
+        enabled: true
     session:
         name: 'session-'
         handler_id: ~

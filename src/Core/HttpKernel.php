@@ -29,6 +29,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
+ * @deprecated tag:v6.6.0 - reason:factory-for-deprecation - Will be removed in v6.6.0, use `KernelFactory::create` instead
+ *
  * @psalm-import-type Params from DriverManager
  */
 #[Package('core')]
@@ -69,6 +71,7 @@ class HttpKernel
 
             $message = str_replace([$connectionParams['url'] ?? null, $connectionParams['password'] ?? null, $connectionParams['user'] ?? null], '******', $e->getMessage());
 
+            // @phpstan-ignore-next-line Ignore domain exception - class will be removed
             throw new \RuntimeException(sprintf('Could not connect to database. Message from SQL Server: %s', $message));
         }
     }
@@ -198,6 +201,7 @@ class HttpKernel
             /** @var string $dir */
             $dir = $r->getFileName();
             if (!file_exists($dir)) {
+                // @phpstan-ignore-next-line Ignore domain exception - class will be removed
                 throw new \LogicException(sprintf('Cannot auto-detect project dir for kernel of class "%s".', $r->name));
             }
 
@@ -221,6 +225,7 @@ class HttpKernel
         }
 
         if (!$this->classLoader) {
+            // @phpstan-ignore-next-line Ignore domain exception - class will be removed
             throw new \RuntimeException('No plugin loader and no class loader provided');
         }
 

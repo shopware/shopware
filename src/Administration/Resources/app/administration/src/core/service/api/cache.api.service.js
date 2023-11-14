@@ -33,6 +33,9 @@ class CacheApiService {
         return this.httpClient.delete('/_action/cleanup', { headers });
     }
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     */
     clearAndWarmup() {
         const headers = this.getHeaders();
         return this.httpClient.delete('/_action/cache_warmup', { headers });

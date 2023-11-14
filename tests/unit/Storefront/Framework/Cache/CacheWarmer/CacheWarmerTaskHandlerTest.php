@@ -6,6 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Kernel;
 use Shopware\Storefront\Framework\Cache\CacheStore;
@@ -37,6 +38,8 @@ class CacheWarmerTaskHandlerTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         $this->kernel = $this->createMock(Kernel::class);
         $this->router = $this->createMock(RouterInterface::class);
         $this->requestTransformer = $this->createMock(RequestTransformerInterface::class);

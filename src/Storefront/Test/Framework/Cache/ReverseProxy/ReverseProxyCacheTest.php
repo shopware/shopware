@@ -4,9 +4,9 @@ namespace Shopware\Storefront\Test\Framework\Cache\ReverseProxy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Cache\CacheTracer;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,7 +63,7 @@ class ReverseProxyCacheTest extends TestCase
     public function testTaggingOfRequest(): void
     {
         $gateway = $this->createMock(AbstractReverseProxyGateway::class);
-        $gateway->expects(static::once())->method('tag')->with(['product-1', 'category-1'], '/foo');
+        $gateway->expects(static::once())->method('tag')->with(['product-1', 'category-1'], '/');
 
         $tracer = $this->createMock(CacheTracer::class);
         $tracer->expects(static::once())->method('get')->willReturn(['theme-config-1', 'system-config-1', 'product-1', 'category-1']);
@@ -71,7 +71,6 @@ class ReverseProxyCacheTest extends TestCase
         $store = new ReverseProxyCache($gateway, $tracer, []);
 
         $request = new Request();
-        $request->attributes->set(RequestTransformer::ORIGINAL_REQUEST_URI, '/foo');
         $store->write($request, new Response());
     }
 

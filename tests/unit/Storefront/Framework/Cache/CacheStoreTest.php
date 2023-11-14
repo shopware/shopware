@@ -50,7 +50,6 @@ class CacheStoreTest extends TestCase
 
         $reflectionClass = new \ReflectionClass($item);
         $prop = $reflectionClass->getProperty('expiry');
-        $prop->setAccessible(true);
 
         static::assertEqualsWithDelta(time() + 3, $prop->getValue($item), 1);
     }

@@ -78,7 +78,7 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testGetAppEntityFromTechnicalNameThrowsWithoutMajorFlag(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
@@ -86,7 +86,7 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testGetAppEntityFromTechnicalNameThrowsWithMajorFlag(): void
     {
-        Feature::skipTestIfInActive('V6_6_0_0', $this);
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
 
         $this->expectException(StoreException::class);
         $this->expectExceptionMessage('Could not find extension with technical name "testName"');
@@ -95,7 +95,7 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testGetAppEntityFromIdThrowsWithoutMajorFlag(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->expectException(ExtensionNotFoundException::class);
         $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
@@ -103,7 +103,7 @@ class ExtensionDataProviderTest extends TestCase
 
     public function testGetAppEntityFromIdThrowsWithMajorFlag(): void
     {
-        Feature::skipTestIfInActive('V6_6_0_0', $this);
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
 
         $id = Uuid::randomHex();
 

@@ -6,7 +6,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal
+ */
+#[Package('core')]
 class CacheStateValidator implements CacheStateValidatorInterface
 {
     /**

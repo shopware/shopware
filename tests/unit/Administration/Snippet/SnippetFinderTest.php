@@ -2,12 +2,10 @@
 
 namespace Shopware\Tests\Unit\Administration\Snippet;
 
-use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Snippet\SnippetException;
 use Shopware\Administration\Snippet\SnippetFinder;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Kernel;
 
 /**
@@ -20,7 +18,7 @@ class SnippetFinderTest extends TestCase
     public function testFindSnippetsFromAppNoSnippetsAdded(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelWithNoPlugins(),
+            $this->createMock(Kernel::class),
             $this->getConnectionMock('en-GB', [])
         );
 
@@ -31,7 +29,7 @@ class SnippetFinderTest extends TestCase
     public function testFindSnippetsFromApp(): void
     {
         $snippetFinder = new SnippetFinder(
-            $this->getKernelWithNoPlugins(),
+            $this->createMock(Kernel::class),
             $this->getConnectionMock('en-GB', $this->getSnippetFixtures())
         );
 
@@ -61,7 +59,6 @@ class SnippetFinderTest extends TestCase
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('validateAppSnippets');
-        $reflectionMethod->setAccessible(true);
 
         try {
             $reflectionMethod->invoke($snippetFinder, $existingSnippets, $appSnippets);
@@ -91,7 +88,6 @@ class SnippetFinderTest extends TestCase
 
         $reflectionClass = new \ReflectionClass(SnippetFinder::class);
         $reflectionMethod = $reflectionClass->getMethod('sanitizeAppSnippets');
-        $reflectionMethod->setAccessible(true);
         $result = $reflectionMethod->invoke($snippetFinder, $before);
 
         static::assertEquals($after, $result);
@@ -166,18 +162,6 @@ class SnippetFinderTest extends TestCase
             ->willReturn($returns);
 
         return $connection;
-    }
-
-    private function getKernelWithNoPlugins(): Kernel
-    {
-        $pluginLoader = new StaticKernelPluginLoader(new ClassLoader());
-
-        return new Kernel(
-            'dev',
-            false,
-            $pluginLoader,
-            'foobar'
-        );
     }
 
     /**

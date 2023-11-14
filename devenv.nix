@@ -76,6 +76,7 @@ in {
             trusted_proxies private_ranges
         }
         file_server
+        encode
       '';
     };
   };

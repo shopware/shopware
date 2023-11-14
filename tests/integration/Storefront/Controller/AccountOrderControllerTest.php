@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedHook;
@@ -82,32 +82,48 @@ class AccountOrderControllerTest extends TestCase
         $orderRepo = $this->getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
 
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
+
+                $orderLineItemCollection = $data['orderDetails'];
+                static::assertInstanceOf(OrderLineItemCollection::class, $orderLineItemCollection);
+
+                foreach ($orderLineItemCollection as $orderLineItemEntity) {
+                    static::assertNull($orderLineItemEntity->getProduct());
+                }
+            },
+            0,
+            true
+        );
+
         $browser->request('GET', $_SERVER['APP_URL'] . '/widgets/account/order/detail/' . $orderId);
-        $response = $browser->getResponse();
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-
-        $orderLineItemCollection = $response->getData()['orderDetails'];
-        static::assertInstanceOf(OrderLineItemCollection::class, $orderLineItemCollection);
-
-        foreach ($orderLineItemCollection as $orderLineItemEntity) {
-            static::assertNull($orderLineItemEntity->getProduct());
-        }
 
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $eventDispatcher->addListener(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
             $event->getCriteria()->addAssociation('lineItems.product');
         });
 
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
+
+                $orderLineItemCollection = $data['orderDetails'];
+                static::assertInstanceOf(OrderLineItemCollection::class, $orderLineItemCollection);
+
+                foreach ($orderLineItemCollection as $orderLineItemEntity) {
+                    static::assertNotNull($orderLineItemEntity->getProduct());
+                }
+            },
+            0,
+            true
+        );
+
         $browser->request('GET', $_SERVER['APP_URL'] . '/widgets/account/order/detail/' . $orderId);
-        $response = $browser->getResponse();
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-
-        $orderLineItemCollection = $response->getData()['orderDetails'];
-        static::assertInstanceOf(OrderLineItemCollection::class, $orderLineItemCollection);
-
-        foreach ($orderLineItemCollection as $orderLineItemEntity) {
-            static::assertNotNull($orderLineItemEntity->getProduct());
-        }
     }
 
     public function testGuestCustomerGetsRedirectedToAuth(): void
@@ -141,12 +157,19 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->followRedirects();
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/account/order/' . $orderData[0]['deepLinkCode']);
-        $response = $browser->getResponse();
-        static::assertInstanceOf(StorefrontResponse::class, $response);
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event): void {
+                $data = $event->getParameters();
+                static::assertSame('frontend.account.order.single.page', $data['redirectTo']);
+                static::assertSame('BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY', $data['redirectParameters']['deepLinkCode']);
+            },
+            0,
+            true
+        );
 
-        static::assertSame('frontend.account.order.single.page', $response->getData()['redirectTo']);
-        static::assertSame('BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY', $response->getData()['redirectParameters']['deepLinkCode']);
+        $browser->request('GET', $_SERVER['APP_URL'] . '/account/order/' . $orderData[0]['deepLinkCode']);
 
         $browser->request(
             'POST',
@@ -156,6 +179,8 @@ class AccountOrderControllerTest extends TestCase
                 'zipcode' => $orderData[0]['orderCustomer']['customer']['addresses'][0]['zipcode'],
             ])
         );
+
+        $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
     }
@@ -220,27 +245,37 @@ class AccountOrderControllerTest extends TestCase
         $browser = $this->login($customer->getEmail());
         $browser->followRedirects();
 
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event) use ($differentShippingMethodId): void {
+                static::assertSame($differentShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
+            },
+            0,
+            true
+        );
+
         // Load home page to verify the saleschannel got a different shipping method from the ordered one
         $browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/'
         );
 
-        $response = $browser->getResponse();
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertNotNull($context = $response->getContext());
-        static::assertSame($differentShippingMethodId, $context->getShippingMethod()->getId());
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            StorefrontRenderEvent::class,
+            function (StorefrontRenderEvent $event) use ($orderShippingMethodId): void {
+                static::assertSame($orderShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
+            },
+            0,
+            true
+        );
 
         // Test that the order edit page switches the SalesChannelContext Shipping method to the order one
         $browser->request(
             'GET',
             $_SERVER['APP_URL'] . '/account/order/edit/' . $orderData[0]['id']
         );
-
-        $response = $browser->getResponse();
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertNotNull($context = $response->getContext());
-        static::assertSame($orderShippingMethodId, $context->getShippingMethod()->getId());
     }
 
     public function testAccountOrderPageLoadedScriptsAreExecuted(): void

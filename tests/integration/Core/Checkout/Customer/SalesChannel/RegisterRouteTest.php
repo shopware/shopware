@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -1236,7 +1235,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationWithExistingNotSpecifiedSalutation(): void
     {
-        $connection = KernelLifecycleManager::getConnection();
+        $connection = $this->getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         unset($registrationData['salutationId']);
@@ -1263,7 +1262,7 @@ class RegisterRouteTest extends TestCase
 
     public function testRegistrationToNotSpecifiedWithoutExistingSalutation(): void
     {
-        $connection = KernelLifecycleManager::getConnection();
+        $connection = $this->getContainer()->get(Connection::class);
 
         $registrationData = $this->getRegistrationData();
         unset($registrationData['salutationId']);
@@ -1290,7 +1289,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNull($response['salutationId']);
+        static::assertNull($response['salutationId'], (string) $this->browser->getResponse()->getContent());
     }
 
     /**

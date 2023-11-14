@@ -5,7 +5,10 @@ namespace Shopware\Storefront\Framework\Cache;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - Class will be removed. Use `HttpCacheHitEvent` event to manipulate the cache key. Use `HttpCacheKeyGeneratorInterface` for type hinting.
+ */
+#[Package('core')]
 abstract class AbstractHttpCacheKeyGenerator
 {
     /**

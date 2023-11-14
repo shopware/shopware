@@ -8,7 +8,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - Will be removed, use `Shopware\Core\Framework\Adapter\Cache\Http\Event\HttpCacheHitEvent` instead
+ */
+#[Package('core')]
 class HttpCacheHitEvent extends Event
 {
     public function __construct(

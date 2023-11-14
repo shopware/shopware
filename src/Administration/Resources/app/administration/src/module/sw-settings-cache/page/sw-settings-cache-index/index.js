@@ -26,11 +26,13 @@ export default {
             cacheInfo: null,
             processes: {
                 normalClearCache: false,
+                // @deprecated tag:v6.6.0 - Will be removed
                 clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
             processSuccess: {
                 normalClearCache: false,
+                // @deprecated tag:v6.6.0 - Will be removed
                 clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
@@ -176,6 +178,9 @@ export default {
             });
         },
 
+        /**
+         * @deprecated tag:v6.6.0 - Will be removed
+         */
         clearAndWarmUpCache() {
             this.processes.clearAndWarmUpCache = true;
             this.cacheApiService.clearAndWarmup().then(() => {

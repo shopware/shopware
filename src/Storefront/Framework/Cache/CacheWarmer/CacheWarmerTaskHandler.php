@@ -14,10 +14,12 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
+ * @deprecated tag:v6.6.0 - Will be removed, use site crawlers for real cache warming
+ *
  * @internal
  */
 #[AsMessageHandler]
-#[Package('storefront')]
+#[Package('core')]
 final class CacheWarmerTaskHandler
 {
     public function __construct(

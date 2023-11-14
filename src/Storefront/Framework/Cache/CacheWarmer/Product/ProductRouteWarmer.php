@@ -4,12 +4,16 @@ namespace Shopware\Storefront\Framework\Cache\CacheWarmer\Product;
 
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheRouteWarmer;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\WarmUpMessage;
 
-#[Package('storefront')]
+/**
+ * @deprecated tag:v6.6.0 - Will be removed, use site crawlers for real cache warming
+ */
+#[Package('core')]
 class ProductRouteWarmer implements CacheRouteWarmer
 {
     /**
@@ -26,6 +30,11 @@ class ProductRouteWarmer implements CacheRouteWarmer
      */
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0')
+        );
+
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);
         $query = $iterator->getQuery();
         $query

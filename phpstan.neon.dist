@@ -284,6 +284,13 @@ parameters:
           path: src/Core/Framework/Validation/HappyPathValidator.php
           count: 2
 
+        # Http cache moves to core
+        - message: '#Multiple class\/interface\/trait is not allowed in single file#'
+          path: src/Core/Framework/Adapter/Cache/ReverseProxy/AbstractReverseProxyGateway.php
+        - message: '#Class like namespace \"Shopware\\Storefront\\Framework\\Cache\\ReverseProxy\" does not follow PSR-4 configuration in composer\.json#'
+          path: src/Core/Framework/Adapter/Cache/ReverseProxy/AbstractReverseProxyGateway.php
+
+
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Command;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
@@ -33,6 +34,8 @@ class HttpCacheWarmUpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
+
         $cacheId = null;
 
         if (!$input->getOption('keep-cache')) {

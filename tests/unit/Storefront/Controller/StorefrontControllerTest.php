@@ -19,7 +19,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Framework\Routing\Router;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Tests\Unit\Storefront\Controller\fixtures\TestStorefrontController;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -103,10 +102,8 @@ class StorefrontControllerTest extends TestCase
 
         $response = $this->controller->testRenderStorefront('test.html.twig');
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame('<html lang="en">test</html>', $response->getContent());
         static::assertSame('text/html', $response->headers->get('Content-Type'));
-        static::assertSame($context, $response->getContext());
     }
 
     public function testRenderStorefrontWithException(): void

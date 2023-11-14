@@ -58,7 +58,7 @@ class UserStorer extends FlowStorer
     public function load(array $args): ?UserRecoveryEntity
     {
         Feature::triggerDeprecationOrThrow(
-            'v6_6_0_0',
+            'v6.6.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0.0')
         );
 

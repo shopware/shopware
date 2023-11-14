@@ -14,6 +14,7 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\Compound\DisMaxQuery;
 use OpenSearchDSL\Query\FullText\MultiMatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
+use OpenSearchDSL\Query\Specialized\ScriptQuery;
 use OpenSearchDSL\Query\TermLevel\ExistsQuery;
 use OpenSearchDSL\Query\TermLevel\PrefixQuery;
 use OpenSearchDSL\Query\TermLevel\RangeQuery;
@@ -63,6 +64,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
@@ -131,22 +133,24 @@ class CriteriaParser
     public function parseSorting(FieldSorting $sorting, EntityDefinition $definition, Context $context): FieldSort
     {
         if ($this->isCheapestPriceField($sorting->getField())) {
+            $scriptContent = $this->getScript('cheapest_price');
+
             return new FieldSort('_script', $sorting->getDirection(), null, [
                 'type' => 'number',
-                'script' => [
-                    'id' => 'cheapest_price',
+                'script' => array_merge($scriptContent, [
                     'params' => $this->getCheapestPriceParameters($context),
-                ],
+                ]),
             ]);
         }
 
         if ($this->isCheapestPriceField($sorting->getField(), true)) {
+            $scriptContent = $this->getScript('cheapest_price_percentage');
+
             return new FieldSort('_script', $sorting->getDirection(), null, [
                 'type' => 'number',
-                'script' => [
-                    'id' => 'cheapest_price_percentage',
+                'script' => array_merge($scriptContent, [
                     'params' => ['accessors' => $this->getCheapestPriceAccessors($context, true)],
-                ],
+                ]),
             ]);
         }
 
@@ -736,21 +740,27 @@ class CriteriaParser
     private function parseRangeFilter(RangeFilter $filter, EntityDefinition $definition, Context $context): BuilderInterface
     {
         if ($this->isCheapestPriceField($filter->getField())) {
-            return new ScriptIdQuery('cheapest_price_filter', [
+            $scriptContent = $this->getScript('cheapest_price_filter');
+            $parameters = [
                 'params' => array_merge(
                     $this->getRangeParameters($filter),
                     $this->getCheapestPriceParameters($context)
                 ),
-            ]);
+            ];
+
+            return $this->constructScriptQueryOrFallback($scriptContent, $parameters);
         }
 
         if ($this->isCheapestPriceField($filter->getField(), true)) {
-            return new ScriptIdQuery('cheapest_price_percentage_filter', [
+            $scriptContent = $this->getScript('cheapest_price_percentage_filter');
+            $parameters = [
                 'params' => array_merge(
                     $this->getRangeParameters($filter),
                     ['accessors' => $this->getCheapestPriceAccessors($context, true)]
                 ),
-            ]);
+            ];
+
+            return $this->constructScriptQueryOrFallback($scriptContent, $parameters);
         }
 
         $accessor = $this->buildAccessor($definition, $filter->getField(), $context);
@@ -1021,46 +1031,45 @@ class CriteriaParser
             array_shift($parts);
         }
 
+        $translatedFieldSortingScript = $this->getScript('translated_field_sorting');
         if ($parts[0] === 'customFields') {
             $customField = $this->customFieldService->getCustomField($parts[1]);
 
+            $numericTranslatedFieldSortingScript = $this->getScript('numeric_translated_field_sorting');
             if ($customField instanceof IntField || $customField instanceof FloatField) {
                 return new FieldSort('_script', $sorting->getDirection(), null, [
                     'type' => 'number',
-                    'script' => [
-                        'id' => 'numeric_translated_field_sorting',
+                    'script' => array_merge($numericTranslatedFieldSortingScript, [
                         'params' => [
                             'field' => 'customFields',
                             'languages' => $context->getLanguageIdChain(),
                             'suffix' => $parts[1] ?? '',
                             'order' => strtolower($sorting->getDirection()),
                         ],
-                    ],
+                    ]),
                 ]);
             }
 
             return new FieldSort('_script', $sorting->getDirection(), null, [
                 'type' => 'string',
-                'script' => [
-                    'id' => 'translated_field_sorting',
+                'script' => array_merge($translatedFieldSortingScript, [
                     'params' => [
                         'field' => 'customFields',
                         'languages' => $context->getLanguageIdChain(),
                         'suffix' => $parts[1] ?? '',
                     ],
-                ],
+                ]),
             ]);
         }
 
         return new FieldSort('_script', $sorting->getDirection(), null, [
             'type' => 'string',
-            'script' => [
-                'id' => 'translated_field_sorting',
+            'script' => array_merge($translatedFieldSortingScript, [
                 'params' => [
                     'field' => implode('.', $parts),
                     'languages' => $context->getLanguageIdChain(),
                 ],
-            ],
+            ]),
         ]);
     }
 
@@ -1073,5 +1082,60 @@ class CriteriaParser
         }
 
         return sprintf('%s.%s.%s', $parts[0], $languageId, $parts[1]);
+    }
+
+    private function loadScriptContent(string $filename): string
+    {
+        $scriptPath = realpath(__DIR__ . '/../../Framework/Indexing/Scripts/' . $filename);
+
+        // Check if the file exists and is readable
+        if ($scriptPath === false || !is_readable($scriptPath)) {
+            return '';
+        }
+
+        $scriptContent = file_get_contents($scriptPath);
+
+        // Check for reading issues
+        if ($scriptContent === false) {
+            return '';
+        }
+
+        return $scriptContent;
+    }
+
+    /**
+     * @return array{source?: string, lang?: string, id?: string}
+     */
+    private function getScript(string $scriptName): array
+    {
+        if ($this->isFeatureVersionActive()) {
+            return [
+                'source' => $this->loadScriptContent($scriptName . '.groovy'),
+                'lang' => 'painless',
+            ];
+        }
+
+        return [
+            'id' => $scriptName,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $script
+     * @param array<string, mixed> $parameters
+     * Returns an instance of the new ScriptQuery or the legacy ScriptIdQuery based on the version.
+     */
+    private function constructScriptQueryOrFallback(array $script, array $parameters): BuilderInterface
+    {
+        if ($this->isFeatureVersionActive()) {
+            return new ScriptQuery($script['source'], $parameters);
+        }
+
+        return new ScriptIdQuery($script['id'], $parameters);
+    }
+
+    private function isFeatureVersionActive(): bool
+    {
+        return Feature::isActive('v6.6.0.0');
     }
 }

@@ -17,10 +17,10 @@ trait StorefrontControllerTestBehaviour
     /**
      * @param array<string, mixed> $data
      */
-    public function request(string $method, string $path, array $data): Response
+    public function request(string $method, string $path, array $data, array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true): Response
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data);
+        $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data, $files, $server, $content, $changeHistory);
 
         return $browser->getResponse();
     }

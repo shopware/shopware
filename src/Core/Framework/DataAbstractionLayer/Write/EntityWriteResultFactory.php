@@ -378,7 +378,7 @@ class EntityWriteResultFactory
                 $payload = $this->getCommandPayload($command);
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $primaryKey,
-                    $payload,
+                    \array_merge($payload, ($writeResults[$uniqueId] ?? null)?->getPayload() ?? []),
                     $command->getDefinition()->getEntityName(),
                     $operation,
                     $command->getEntityExistence(),

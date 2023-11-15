@@ -18,6 +18,12 @@ class ScoreQuery extends Filter
     ) {
     }
 
+    public function jsonSerialize(): array
+    {
+        $value = parent::jsonSerialize();
+        return array_merge($value, get_object_vars($this));
+    }
+
     public function getFields(): array
     {
         return $this->query->getFields();

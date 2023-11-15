@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -41,6 +43,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         $service->checkAndHandleIntegrationChanged();
@@ -70,6 +73,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         $service->checkAndHandleIntegrationChanged();
@@ -107,41 +111,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
-        );
-
-        $service->checkAndHandleIntegrationChanged();
-    }
-
-    public function testItReturnsIfNoIntegrationIdIsGiven(): void
-    {
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('isConsentAccepted')
-            ->willReturn(true);
-        $consentService->expects(static::never())
-            ->method('updateConsentIntegrationAppUrl');
-
-        $systemConfigService = $this->createMock(SystemConfigService::class);
-        $systemConfigService->expects(static::once())
-            ->method('get')
-            ->with(ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION)
-            ->willReturn(
-                [
-                    'integrationId' => null,
-                    'appUrl' => 'oldUrl',
-                    'shopId' => 'shopId',
-                ]
-            );
-
-        $integrationRepository = $this->createMock(EntityRepository::class);
-        $integrationRepository->expects(static::never())
-            ->method('search');
-
-        $service = new IntegrationChangedService(
-            $integrationRepository,
-            $systemConfigService,
-            $consentService,
-            $this->createMock(ShopIdProvider::class),
-            $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         $service->checkAndHandleIntegrationChanged();
@@ -193,6 +163,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         $service->checkAndHandleIntegrationChanged();
@@ -261,6 +232,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         $service->checkAndHandleIntegrationChanged();
@@ -320,6 +292,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         static::expectException(\Exception::class);
@@ -358,6 +331,7 @@ class IntegrationChangedServiceTest extends TestCase
             $consentService,
             $shopIdProvider,
             $this->createMock(EntityDispatchService::class),
+            $this->createMock(Connection::class),
         );
 
         $service->checkAndHandleIntegrationChanged();
@@ -369,9 +343,9 @@ class IntegrationChangedServiceTest extends TestCase
         $consentService->method('isConsentAccepted')
             ->willReturn(true);
         $consentService->expects(static::once())
-            ->method('revokeConsent');
+            ->method('deleteIntegration');
         $consentService->expects(static::once())
-            ->method('resetIsBannerHiddenToFalseForAllUsers');
+            ->method('resetIsBannerHiddenForAllUsers');
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects(static::once())
@@ -400,12 +374,23 @@ class IntegrationChangedServiceTest extends TestCase
         $entityDispatchService->expects(static::once())
             ->method('resetLastRunDateForAllEntities');
 
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->expects(static::once())
+            ->method('delete')
+            ->with('usage_data_entity_deletion');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())
+            ->method('createQueryBuilder')
+            ->willReturn($queryBuilder);
+
         $service = new IntegrationChangedService(
             $this->createMock(EntityRepository::class),
             $systemConfigService,
             $consentService,
             $shopIdProvider,
             $entityDispatchService,
+            $connection,
         );
 
         $service->checkAndHandleIntegrationChanged();

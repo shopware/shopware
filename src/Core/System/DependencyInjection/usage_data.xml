@@ -117,6 +117,7 @@
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ShopIdProvider">

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\Services;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
 
 /**
  * @internal
@@ -25,6 +27,7 @@ class IntegrationChangedService
         private readonly ConsentService $consentService,
         private readonly ShopIdProvider $shopIdProvider,
         private readonly EntityDispatchService $entityDispatchService,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -91,16 +94,18 @@ class IntegrationChangedService
 
     private function resetUsageDataState(): void
     {
-        // revoke consent and delete consent state
-        $this->consentService->revokeConsent();
+        $this->consentService->deleteIntegration();
+
         $this->systemConfigService->delete(ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE);
 
         $this->entityDispatchService->resetLastRunDateForAllEntities();
 
+        $this->truncateEntityDeletionTable();
+
         // enable data push again
         $this->systemConfigService->set(ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED, false);
 
-        $this->consentService->resetIsBannerHiddenToFalseForAllUsers();
+        $this->consentService->resetIsBannerHiddenForAllUsers();
     }
 
     private function reportAndSetNewIntegrationAppUrl(IntegrationEntity $integration, string $newAppUrl): void
@@ -124,5 +129,12 @@ class IntegrationChangedService
                 'shopId' => $shopId,
             ]
         );
+    }
+
+    private function truncateEntityDeletionTable(): void
+    {
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->delete(EntityDeleteSubscriber::DELETIONS_TABLE_NAME);
+        $queryBuilder->executeQuery();
     }
 }

@@ -153,7 +153,7 @@ class ConsentService
         return $userConfig->getValue()['_value'] ?? false;
     }
 
-    public function resetIsBannerHiddenToFalseForAllUsers(): void
+    public function resetIsBannerHiddenForAllUsers(): void
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('key', self::USER_CONFIG_KEY_HIDE_CONSENT_BANNER));
@@ -176,6 +176,25 @@ class ConsentService
         }
 
         $this->userConfigRepository->upsert($updates, Context::createDefaultContext());
+    }
+
+    public function deleteIntegration(): void
+    {
+        /** @var SystemConfigIntegration|null $integration */
+        $integration = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_INTEGRATION);
+
+        if (!\is_array($integration)) {
+            return;
+        }
+
+        try {
+            $this->integrationRepository->delete([
+                ['id' => $integration['integrationId']],
+            ], Context::createDefaultContext());
+        } catch (EntityNotFoundException) {
+        }
+
+        $this->systemConfigService->delete(self::SYSTEM_CONFIG_KEY_INTEGRATION);
     }
 
     /**
@@ -224,24 +243,5 @@ class ConsentService
             'secretAccessKey' => $secretAccessKey,
             'appUrl' => $this->appUrl,
         ];
-    }
-
-    private function deleteIntegration(): void
-    {
-        /** @var SystemConfigIntegration|null $integration */
-        $integration = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_INTEGRATION);
-
-        if (!\is_array($integration)) {
-            return;
-        }
-
-        try {
-            $this->integrationRepository->delete([
-                ['id' => $integration['integrationId']],
-            ], Context::createDefaultContext());
-        } catch (EntityNotFoundException) {
-        }
-
-        $this->systemConfigService->delete(self::SYSTEM_CONFIG_KEY_INTEGRATION);
     }
 }

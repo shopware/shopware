@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\UsageData\Services;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -19,6 +20,7 @@ use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Services\IntegrationChangedService;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
+use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -82,6 +84,8 @@ class IntegrationChangedServiceTest extends TestCase
         $userCount = 10;
         $this->createAndHideBannerForUsers($userCount);
 
+        $this->insertDeletions();
+
         $service = $this->getContainer()->get(IntegrationChangedService::class);
         $service->checkAndHandleIntegrationChanged();
 
@@ -90,6 +94,7 @@ class IntegrationChangedServiceTest extends TestCase
         $this->assertLastRunDateIsNull();
         $this->assertDataPushIsEnabled();
         $this->assertBannerIsShownForAllUsers($userCount);
+        $this->assertDeletionTableIsEmpty();
     }
 
     private function createAndHideBannerForUsers(int $userCount): void
@@ -124,6 +129,30 @@ class IntegrationChangedServiceTest extends TestCase
 
         $userConfigs = $userConfigRepository->search($criteria, Context::createDefaultContext());
         static::assertSame($userCount, $userConfigs->getTotal());
+    }
+
+    private function insertDeletions(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->insert(EntityDeleteSubscriber::DELETIONS_TABLE_NAME, [
+            'id' => Uuid::randomBytes(),
+            'entity_name' => 'test',
+            'entity_ids' => json_encode(['test' => 'test'], \JSON_THROW_ON_ERROR),
+            'deleted_at' => (new \DateTimeImmutable('now'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function assertDeletionTableIsEmpty(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $queryBuilder = $connection->createQueryBuilder();
+        $queryBuilder->from(EntityDeleteSubscriber::DELETIONS_TABLE_NAME);
+        $queryBuilder->select('COUNT(*) AS count');
+        $result = $queryBuilder->executeQuery()->fetchAssociative();
+
+        static::assertIsArray($result);
+        static::assertArrayHasKey('count', $result);
+        static::assertSame('0', $result['count']);
     }
 
     private function assertBannerIsShownForAllUsers(int $userCount): void

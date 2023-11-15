@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Query;
+namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Query;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

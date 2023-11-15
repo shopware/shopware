@@ -56,7 +56,7 @@ class ProductStreamDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
             (new JsonField('api_filter', 'apiFilter'))->addFlags(new WriteProtected()),
             (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected()),
 

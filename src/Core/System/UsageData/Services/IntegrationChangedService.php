@@ -11,7 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
+use Shopware\Core\System\UsageData\Exception\ShopIdChangedException;
 use Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber;
+use Shopware\Core\System\UsageData\UsageDataException;
 
 /**
  * @internal
@@ -44,8 +46,13 @@ class IntegrationChangedService
             return;
         }
 
+        try {
+            $this->checkAndHandleIntegrationShopIdChanged($systemConfigIntegration);
+        } catch (ShopIdChangedException) {
+            return;
+        }
+
         $this->checkAndHandleIntegrationAppUrlChanged($systemConfigIntegration);
-        $this->checkAndHandleIntegrationShopIdChanged($systemConfigIntegration);
     }
 
     /**
@@ -90,6 +97,8 @@ class IntegrationChangedService
         }
 
         $this->resetUsageDataState();
+
+        throw UsageDataException::shopIdChanged();
     }
 
     private function resetUsageDataState(): void

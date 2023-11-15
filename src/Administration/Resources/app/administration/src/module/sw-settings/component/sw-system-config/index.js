@@ -111,6 +111,7 @@ export default {
                 this.isLoading = false;
             }
         },
+
         async readConfig() {
             this.config = await this.systemConfigApiService.getConfig(this.domain);
             this.config.every((card) => {
@@ -123,6 +124,7 @@ export default {
                 });
             });
         },
+
         readAll() {
             this.isLoading = true;
             // Return when data for this salesChannel was already loaded
@@ -133,6 +135,7 @@ export default {
 
             return this.loadCurrentSalesChannelConfig();
         },
+
         async loadCurrentSalesChannelConfig() {
             this.isLoading = true;
 
@@ -144,6 +147,7 @@ export default {
                 this.isLoading = false;
             }
         },
+
         saveAll() {
             this.isLoading = true;
             return this.systemConfigApiService
@@ -152,6 +156,7 @@ export default {
                     this.isLoading = false;
                 });
         },
+
         createErrorNotification(errors) {
             let message = `<div>${this.$tc(
                 'sw-config-form-renderer.configLoadErrorMessage',
@@ -168,6 +173,7 @@ export default {
                 autoClose: false,
             });
         },
+
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
             this.readAll();

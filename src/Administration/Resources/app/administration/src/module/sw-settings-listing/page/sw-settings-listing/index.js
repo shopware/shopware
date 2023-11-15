@@ -5,12 +5,13 @@ import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
 
 const { Criteria } = Shopware.Data;
+const { ShopwareError } = Shopware.Classes;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
     mixins: [
         'notification',
@@ -30,6 +31,7 @@ export default {
             isProductSortingOptionsCardLoading: false,
             isDefaultSalesChannelLoading: false,
             customFields: [],
+            hasDefaultSortingError: false,
         };
     },
 
@@ -44,6 +46,10 @@ export default {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        systemConfigRepository() {
+            return this.repositoryFactory.create('system_config');
         },
 
         productSortingsOptionsCriteria() {
@@ -101,6 +107,16 @@ export default {
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
+
+        salesChannelDefaultSortingError() {
+            const code = this.$refs.systemConfig.isNotDefaultSalesChannel
+                ? 'PARENT_MUST_NOT_BE_EMPTY'
+                : 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
+
+            return new ShopwareError({
+                code,
+            });
+        },
     },
 
     created() {
@@ -136,32 +152,44 @@ export default {
         async onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
+            this.hasDefaultSortingError = false;
 
-            const saveSalesChannelConfig = await this.$refs.systemConfig.saveAll();
+            const validateSalesChannelDefaultSortingOption = new Promise((resolve, reject) => {
+                if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting']) {
+                    this.hasDefaultSortingError = true;
+                    reject();
+                }
+                resolve();
+            });
 
-            this.setDefaultSortingActive();
+            return validateSalesChannelDefaultSortingOption.then(async () => {
+                const saveSalesChannelConfig = this.$refs.systemConfig.saveAll();
 
-            const saveProductSortingOptions = await this.saveProductSortingOptions();
+                this.setDefaultSortingActive();
 
-            const saveSalesChannelVisibilityConfig = await this.$refs.defaultSalesChannelCard
-                .saveSalesChannelVisibilityConfig();
+                const saveProductSortingOptions = this.saveProductSortingOptions();
 
-            Promise.all([saveSalesChannelConfig, saveProductSortingOptions, saveSalesChannelVisibilityConfig])
-                .then(() => {
-                    this.isSaveSuccessful = true;
+                const saveSalesChannelVisibilityConfig = this.$refs.defaultSalesChannelCard
+                    .saveSalesChannelVisibilityConfig();
 
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
-                    });
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.general.messageSaveError'),
-                    });
-                })
-                .finally(() => {
-                    this.isLoading = false;
+                return Promise.all([
+                    saveSalesChannelConfig,
+                    saveProductSortingOptions,
+                    saveSalesChannelVisibilityConfig,
+                ]);
+            }).then(() => {
+                this.isSaveSuccessful = true;
+
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
                 });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-settings-listing.general.messageSaveError'),
+                });
+            }).finally(() => {
+                this.isLoading = false;
+            });
         },
 
         saveProductSortingOptions() {
@@ -169,6 +197,28 @@ export default {
         },
 
         onDeleteProductSorting(item) {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('configurationKey', 'core.listing.defaultSorting'));
+            criteria.addFilter(Criteria.equals('configurationValue', item.key));
+
+            this.systemConfigRepository.search(criteria).then((result) => {
+                const actualConfigData = {};
+                result.forEach((entry) => {
+                    actualConfigData[entry.salesChannelId] = {
+                        'core.listing.defaultSorting': null,
+                    };
+                });
+                // cannot delete the entries directly via the systemConfigRepository, because Rufus blocks write access
+                this.systemConfigApiService.batchSave(actualConfigData);
+            });
+
+            Object.keys(this.$refs.systemConfig.actualConfigData).forEach(key => {
+                const configData = this.$refs.systemConfig.actualConfigData[key];
+                if (configData && configData['core.listing.defaultSorting'] === item.key) {
+                    configData['core.listing.defaultSorting'] = null;
+                }
+            });
+
             // closes modal
             this.toBeDeletedProductSortingOption = null;
 

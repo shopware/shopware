@@ -97,24 +97,39 @@
                     @loading-changed="onLoadingChanged"
                 >
 
-                    <template #afterElements="{ config, index }">
+                    <template #afterElements="{ config, index, isNotDefaultSalesChannel, inheritance }">
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_listing_content_card_view_system_config_default_sorting_select %}
-                        <sw-single-select
+                        <sw-inherit-wrapper
                             v-if="config && index === 0"
                             {% if VUE3 %}
                             v-model:value="config['core.listing.defaultSorting']"
                             {% else %}
                             v-model="config['core.listing.defaultSorting']"
                             {% endif %}
-                            class="sw-settings-listing-index__default-sorting-select"
                             :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
-                            :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
-                            :options="productSortingOptions"
-                            label-property="label"
-                            value-property="key"
-                            show-clearable-button
-                        />
+                            :has-parent="isNotDefaultSalesChannel"
+                            :inherited-value="inheritance['core.listing.defaultSorting']"
+                            required
+                        >
+                            <template #content="{ isInherited, currentValue, updateCurrentValue }">
+                                <sw-single-select
+                                    class="sw-settings-listing-index__default-sorting-select"
+                                    :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
+                                    :disabled="isInherited"
+                                    :value="currentValue"
+                                    :options="productSortingOptions"
+                                    :error="hasDefaultSortingError ? salesChannelDefaultSortingError : null"
+                                    label-property="label"
+                                    value-property="key"
+                                    {% if VUE3 %}
+                                    @update:value="updateCurrentValue"
+                                    {% else %}
+                                    @change="updateCurrentValue"
+                                    {% endif %}
+                                />
+                            </template>
+                        </sw-inherit-wrapper>
                         {% endblock %}
                     </template>
 

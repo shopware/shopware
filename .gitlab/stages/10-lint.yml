@@ -170,6 +170,11 @@ Twig lint (storefront):
   allow_failure: true
   image:
     name: maltejanz/ludtwig:0.8.0
+  rules:
+    - changes:
+      - 'src/Storefront/Resources/views/ludtwig-config.toml'
+      - 'src/Storefront/Resources/views/.ludtwig-ignore'
+      - 'src/Storefront/Resources/views/**/*.twig'
   script:
     - cd ./src/Storefront/Resources/views
     - ludtwig .

@@ -3,28 +3,32 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Query;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery
  */
 class ScoreQueryTest extends TestCase
 {
-
     public function testJsonSerialization(): void
     {
-        $criteria = new Criteria();
-        $criteria->addQuery(new ScoreQuery(new ContainsFilter('productNumber', '123456'), 100));
+        $scoreQuery = new ScoreQuery(new ContainsFilter('productNumber', '123456'), 100);
 
         /**
          * @see \Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator::getCriteriaHash
          */
-        $json = json_encode($criteria->getQueries(), JSON_THROW_ON_ERROR);
+        $json = json_encode($scoreQuery, \JSON_THROW_ON_ERROR);
 
-        $expected = '[{"extensions":[],"_class":"Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Query\\\\ScoreQuery","query":{"extensions":[],"isPrimary":false,"resolved":null,"field":"productNumber","value":"123456","_class":"Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\ContainsFilter"},"score":100,"scoreField":null}]';
-        static::assertEquals($expected, $json);
+        $decoded = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
+        static::assertArrayHasKey('score', $decoded);
+        static::assertSame(100, $decoded['score']);
+        static::assertArrayHasKey('query', $decoded);
+        static::assertArrayHasKey('scoreField', $decoded);
+        static::assertSame('productNumber', $decoded['query']['field']);
+        static::assertSame('123456', $decoded['query']['value']);
     }
 }

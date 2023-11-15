@@ -12,16 +12,10 @@ use Shopware\Core\Framework\Log\Package;
 class ScoreQuery extends Filter
 {
     public function __construct(
-        private readonly Filter $query,
-        private readonly float $score,
-        private readonly ?string $scoreField = null
+        protected Filter $query,
+        protected float $score,
+        protected ?string $scoreField = null
     ) {
-    }
-
-    public function jsonSerialize(): array
-    {
-        $value = parent::jsonSerialize();
-        return array_merge($value, get_object_vars($this));
     }
 
     public function getFields(): array

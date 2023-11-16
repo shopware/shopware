@@ -30,6 +30,7 @@ export default {
             productStreamFilter: null,
             productStreamInvalid: false,
             manualAssignedProductsCount: 0,
+            parentProducts: [],
         };
     },
 
@@ -40,6 +41,10 @@ export default {
 
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
         },
 
         productColumns() {
@@ -71,7 +76,13 @@ export default {
             return (new Criteria(1, 10))
                 .addAssociation('options.group')
                 .addAssociation('manufacturer')
-                .addFilter(Criteria.equals('parentId', null));
+                .addFilter(Criteria.multi('OR', [
+                    Criteria.equals('parentId', null),
+                    Criteria.multi('AND', [
+                        Criteria.not('AND', [Criteria.equals('parentId', null)]),
+                        Criteria.equals('categories.id', this.category.id),
+                    ]),
+                ]));
         },
 
         productStreamInvalidError() {
@@ -169,7 +180,40 @@ export default {
         },
 
         onPaginateManualProductAssignment(assignment) {
+            this.getParentProducts(assignment);
+
             this.manualAssignedProductsCount = assignment.total;
+        },
+
+        getParentProducts(products) {
+            const parentIds = products.map((product) => product.parentId)
+                .filter((id) => id !== null);
+
+            if (parentIds.length > 0) {
+                const criteria = new Criteria(1, parentIds.length)
+                    .addAssociation('manufacturer')
+                    .addFilter(Criteria.equalsAny('id', parentIds));
+
+                this.productRepository.search(criteria).then((parentProducts) => {
+                    this.parentProducts = parentProducts;
+                });
+            }
+        },
+
+        getManufacturer(product) {
+            if (product.manufacturerId) {
+                return product.manufacturer;
+            }
+
+            const parent = this.parentProducts.find((parentProduct) => {
+                return parentProduct.id === product.parentId;
+            });
+
+            if (parent && parent.manufacturerId) {
+                return parent.manufacturer;
+            }
+
+            return null;
         },
     },
 };

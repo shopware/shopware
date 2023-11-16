@@ -110,22 +110,6 @@ export default class VueAdapter extends ViewAdapter {
             }
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        this.app.config.warnHandler = (
-            msg: string,
-            instance: unknown,
-            trace: string,
-        ) => {
-            const warnArgs = [`[Vue warn]: ${msg}`, trace, instance];
-
-            console.warn(...warnArgs);
-
-            if (msg.includes('Template compilation error')) {
-                console.error(...[`[Vue error]: ${msg}`, trace, instance]);
-                throw new Error(msg);
-            }
-        };
-
         /**
          * This is a hack for providing the services to the components.
          * We shouldn't use this anymore because it is not supported well

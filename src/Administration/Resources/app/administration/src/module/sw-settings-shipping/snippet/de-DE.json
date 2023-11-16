@@ -26,7 +26,7 @@
       "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
       "columnTaxType": "Steuerberechnung",
       "columnTaxRate": "Steuersatz",
-      "placeholderTaxType": "Wähle einen Steuer-Typ"
+      "placeholderTaxType": "Wähle einen Steuertyp ..."
     },
     "detail": {
       "textHeadline": "Neue Versandart",
@@ -53,14 +53,14 @@
       "labelLogoUpload": "Logo hochladen",
       "labelTrackingUrl": "Tracking-URL",
       "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
-      "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist.",
-      "helpTextTechnicalName": "Der technische Name wird für die Identifikation der Versandart verwendet. Er ist einzigartig und wird ab Version 6.7.0.0 für alle Zahlungs- und Versandmethoden erforderlich sein. Das Ändern des technischen Namens kann bestehende Versandintegrationen brechen.",
+      "helpTextTrackingUrl": "Hier kannst Du die Tracking-URL des Versandanbieters eingeben und \"%s\" als Platzhalter an der Stelle einfügen, an der die eigentliche Sendungsnummer stehen würde. Die Sendungsnummer wird automatisch aus den einzelnen Bestellungen eingefügt.",
+      "helpTextTechnicalName": "Der technische Name wird für die eindeutigen Identifikation der Versandart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Versandintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
       "tax": {
         "fieldName": "Steuerberechnung",
-        "labelTaxType": "Steuer-Typ",
+        "labelTaxType": "Steuertyp",
         "labelTaxRate": "Steuersatz",
-        "placeholderTaxType": "Wähle einen Steuer-Typ...",
-        "placeholderTaxRate": "Wähle einen Steuersatz...",
+        "placeholderTaxType": "Wähle einen Steuertyp ...",
+        "placeholderTaxRate": "Wähle einen Steuersatz ...",
         "helpText": "Wähle aus, wie Steuern in Versandkosten berechnet werden:<ul style='margin-left: 15px'><li>Automatisch - Berechnung auf Basis aller im Warenkorb enthaltener Steuersätze</li><li>Höchste - Berechnung auf Basis des höchsten im Warenkorb enthaltenen Steuersatzes</li><li>Festgelegt - Berechnung auf Basis eines manuell ausgewählten Steuersatzes</li></ul>"
       }
     },
@@ -116,7 +116,7 @@
       "labelUseAsLogo": "Als Logo verwenden"
     },
     "shippingPriceModal": {
-      "modalTitle": "Abstufung hinzufügen"
+      "modalTitle": "Versand-Preisregel hinzufügen"
     },
     "shippingCostOptions": {
       "auto": "Auto",

@@ -239,7 +239,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $url .= $this->getConfirmUrl($context, $customer);
 
         if ($redirectTo) {
-            $params = \is_string($redirectParameters) ? \json_decode($redirectParameters, true) : [];
+            $params = \is_string($redirectParameters) ? (\json_decode($redirectParameters, true) ?? []) : [];
             $url .= '&' . \http_build_query(array_merge(['redirectTo' => $redirectTo], $params));
         }
 

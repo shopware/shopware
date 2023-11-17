@@ -491,22 +491,22 @@ class RegisterRouteTest extends TestCase
 
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $eventDispatcher
-                ->expects(static::atLeast(1))
-                ->method('dispatch')
-                ->with(
-                    static::callback(function ($event): bool {
-                        if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
-                            $query = [];
-                            $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
-                            self::assertIsString($queryString);
-                            \parse_str($queryString, $query);
-                            self::assertArrayHasKey('productId', $query);
-                            self::assertSame('018b906b869273fea7926f161dd23911', $query['productId']);
-                        }
+            ->expects(static::atLeast(1))
+            ->method('dispatch')
+            ->with(
+                static::callback(function ($event): bool {
+                    if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
+                        $query = [];
+                        $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
+                        self::assertIsString($queryString);
+                        \parse_str($queryString, $query);
+                        self::assertArrayHasKey('productId', $query);
+                        self::assertSame('018b906b869273fea7926f161dd23911', $query['productId']);
+                    }
 
-                        return true;
-                    })
-                );
+                    return true;
+                })
+            );
 
         $register = new RegisterRoute(
             $eventDispatcher,
@@ -532,6 +532,79 @@ class RegisterRouteTest extends TestCase
             'storefrontUrl' => 'http://localhost:8000',
             'redirectTo' => 'frontend.wishlist.add.after.login',
             'redirectParameters' => '{"productId":"018b906b869273fea7926f161dd23911"}',
+        ];
+
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $register->register(new RequestDataBag($data), $salesChannelContext, false);
+    }
+
+    public function testInvalidRedirectParameters(): void
+    {
+        $systemConfigService = new StaticSystemConfigService([
+            TestDefaults::SALES_CHANNEL => [
+                'core.loginRegistration.passwordMinLength' => '8',
+                'core.loginRegistration.doubleOptInRegistration' => true,
+                'core.cart.wishlistEnabled' => true,
+            ],
+            'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel' => true,
+        ]);
+
+        $customerEntity = new CustomerEntity();
+        $customerEntity->setDoubleOptInRegistration(true);
+        $customerEntity->setId('customer-1');
+        $customerEntity->setGuest(false);
+        $customerEntity->setEmail('test@test.de');
+
+        $customerRepository = new StaticEntityRepository(
+            [new CustomerCollection([$customerEntity])],
+            new CustomerDefinition(),
+        );
+
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
+        $eventDispatcher
+            ->expects(static::atLeast(1))
+            ->method('dispatch')
+            ->with(
+                static::callback(function ($event): bool {
+                    if ($event instanceof CustomerDoubleOptInRegistrationEvent) {
+                        $query = [];
+                        $queryString = \parse_url($event->getConfirmUrl(), \PHP_URL_QUERY);
+                        self::assertIsString($queryString);
+                        \parse_str($queryString, $query);
+                        self::assertArrayHasKey('redirectTo', $query);
+                        self::assertSame('frontend.wishlist.add.after.login', $query['redirectTo']);
+                    }
+
+                    return true;
+                })
+            );
+
+        $register = new RegisterRoute(
+            $eventDispatcher,
+            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            $this->createMock(DataValidator::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $this->createMock(DataValidationFactoryInterface::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(SalesChannelContextPersister::class),
+            $this->createMock(SalesChannelRepository::class),
+            $this->createMock(Connection::class),
+            $this->createMock(SalesChannelContextService::class),
+            $this->createMock(StoreApiCustomFieldMapper::class),
+            $this->createMock(EntityRepository::class),
+        );
+
+        $data = [
+            'email' => 'test@test.de',
+            'billingAddress' => [
+                'countryId' => Uuid::randomHex(),
+            ],
+            'storefrontUrl' => 'http://localhost:8000',
+            'redirectTo' => 'frontend.wishlist.add.after.login',
+            'redirectParameters' => 'thisisnotajson',
         ];
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

@@ -106,7 +106,7 @@ export default {
 
     watch: {
         searchConfigs(newData) {
-            if (newData[0] && newData[0]._isNew) {
+            if (newData[0] && newData[0]._isNew && this.$refs.customGrid) {
                 this.$refs.customGrid.enableInlineEdit();
                 this.$refs.customGrid.onDbClickCell(this.$refs.customGrid.records[0]);
             }

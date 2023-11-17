@@ -17,6 +17,10 @@ const { Component } = Shopware;
 Component.register('sw-step-item', {
     template,
 
+    inject: [
+        'feature',
+    ],
+
     props: {
         disabledIcon: {
             type: String,
@@ -52,9 +56,25 @@ Component.register('sw-step-item', {
 
             return iconConfig[this.variant];
         },
+
+        stepDisplay() {
+            if (this.feature.isActive('VUE3')) {
+                return this.$parent.$parent;
+            }
+
+            return this.$parent;
+        },
+    },
+
+    mounted() {
+        this.registerStep();
     },
 
     methods: {
+        registerStep() {
+            this.stepDisplay.addStep?.(this);
+        },
+
         setActive(active) {
             this.active = active;
         },

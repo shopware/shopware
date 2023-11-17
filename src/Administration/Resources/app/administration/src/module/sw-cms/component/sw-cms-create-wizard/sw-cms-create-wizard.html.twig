@@ -142,7 +142,7 @@
                             :name="currentPageType?.icon"
                             size="16"
                         />
-                        <p>{{ $tc(currentPageType?.title) }}</p>
+                        <p>{{ $tc((currentPageType?.title ?? "")) }}</p>
                     </div>
                 </div>
                 {% endblock %}

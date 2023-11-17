@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Doctrine;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Doctrine\Doctrine;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -59,5 +59,42 @@ class MultiInsertQueryQueueTest extends TestCase
 
         static::assertNotFalse($actualB);
         static::assertSame($date, $actualB);
+    }
+
+    public function testAddUpdateFieldOnDuplicateKey(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $query = new MultiInsertQueryQueue($connection);
+
+        $date = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        $categoryId = Uuid::randomBytes();
+
+        $query->addInsert(
+            'category',
+            [
+                'id' => $categoryId,
+                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'type' => CategoryDefinition::TYPE_LINK,
+                'created_at' => $date,
+            ]
+        );
+        $query->addInsert(
+            'category',
+            [
+                'id' => $categoryId,
+                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'type' => CategoryDefinition::TYPE_FOLDER,
+                'created_at' => $date,
+            ]
+        );
+
+        $query->addUpdateFieldOnDuplicateKey('category', 'type');
+        $query->execute();
+
+        $type = $connection->fetchOne('SELECT type FROM `category` WHERE id = :id', ['id' => $categoryId]);
+
+        static::assertNotFalse($type);
+        static::assertSame(CategoryDefinition::TYPE_FOLDER, $type);
     }
 }

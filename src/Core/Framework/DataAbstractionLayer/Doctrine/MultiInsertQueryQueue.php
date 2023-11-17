@@ -11,9 +11,14 @@ use Shopware\Core\Framework\Log\Package;
 class MultiInsertQueryQueue
 {
     /**
-     * @var array<string, array{data: array<string, mixed>, columns: list<string>, }>
+     * @var array<string, list<array{data: array<string, mixed>, columns: list<string>}>>
      */
     private array $inserts = [];
+
+    /**
+     * @var array<string, list<string>>
+     */
+    private array $updateFieldsOnDuplicateKey = [];
 
     /**
      * @var int<1, max>
@@ -82,20 +87,44 @@ class MultiInsertQueryQueue
         $this->inserts = [];
     }
 
+    /**
+     * You can add fields which should be updated with the new values on duplicate keys
+     */
+    public function addUpdateFieldOnDuplicateKey(string $table, string $updateField): void
+    {
+        $this->updateFieldsOnDuplicateKey[$table][] = $updateField;
+    }
+
+    /**
+     * @return list<string>
+     */
     private function prepare(): array
     {
         $queries = [];
-        $template = 'INSERT INTO %s (%s) VALUES %s;';
+        $template = 'INSERT INTO %s (%s) VALUES %s';
 
         if ($this->ignoreErrors) {
-            $template = 'INSERT IGNORE INTO %s (%s) VALUES %s;';
+            $template = 'INSERT IGNORE INTO %s (%s) VALUES %s';
         }
 
         if ($this->useReplace) {
-            $template = 'REPLACE INTO %s (%s) VALUES %s;';
+            $template = 'REPLACE INTO %s (%s) VALUES %s';
         }
 
         foreach ($this->inserts as $table => $rows) {
+            $tableTemplate = $template;
+            if ($this->updateFieldsOnDuplicateKey !== []) {
+                $values = [];
+                foreach ($this->updateFieldsOnDuplicateKey[$table] ?? [] as $field) {
+                    // see https://stackoverflow.com/a/2714653/10064036
+                    $values[] = sprintf('%s = VALUES(%s)', EntityDefinitionQueryHelper::escape($field), EntityDefinitionQueryHelper::escape($field));
+                }
+
+                $tableTemplate .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $values);
+            }
+
+            $tableTemplate .= ';';
+
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
 
@@ -104,7 +133,7 @@ class MultiInsertQueryQueue
             $chunks = array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {
                 $queries[] = sprintf(
-                    $template,
+                    $tableTemplate,
                     EntityDefinitionQueryHelper::escape($table),
                     implode(', ', $columns),
                     implode(', ', $chunk)
@@ -115,6 +144,11 @@ class MultiInsertQueryQueue
         return $queries;
     }
 
+    /**
+     * @param list<array{columns: list<string>}> $rows
+     *
+     * @return list<string>
+     */
     private function prepareColumns(array $rows): array
     {
         $columns = [];
@@ -127,6 +161,12 @@ class MultiInsertQueryQueue
         return array_keys($columns);
     }
 
+    /**
+     * @param list<string> $columns
+     * @param list<array{data: array<string, mixed>, columns: list<string>}> $rows
+     *
+     * @return list<string>
+     */
     private function prepareValues(array $columns, array $rows): array
     {
         $stackedValues = [];

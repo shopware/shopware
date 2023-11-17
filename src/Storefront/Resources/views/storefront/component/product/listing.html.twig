@@ -19,8 +19,10 @@
 {% block product_listing %}
     <div class="cms-element-product-listing-wrapper"
          data-listing-pagination="true"
+         {# ludtwig-ignore html-string-quotation #}
          data-listing-pagination-options='{{ paginationConfig }}'
          data-listing="true"
+         {# ludtwig-ignore html-string-quotation #}
          data-listing-options='{{ listingPagination|json_encode }}'>
 
         {% block element_product_listing_wrapper_content %}

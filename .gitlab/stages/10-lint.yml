@@ -164,6 +164,25 @@ PHP lint:
         - ./bin/console sync:composer:version --dry-run
         - composer run bc-check
 
+Twig lint (storefront):
+  extends: .base-no-setup
+  stage: lint
+  allow_failure: true
+  image:
+    name: maltejanz/ludtwig:0.8.0
+  rules:
+    - changes:
+      - 'src/Storefront/Resources/views/ludtwig-config.toml'
+      - 'src/Storefront/Resources/views/.ludtwig-ignore'
+      - 'src/Storefront/Resources/views/**/*.twig'
+  script:
+    - cd ./src/Storefront/Resources/views
+    - ludtwig .
+    - ludtwig --version
+    - echo "If you want to run this locally install https://github.com/MalteJanz/ludtwig in the version above"
+    - echo "And then go into the folder src/Storefront/Resources/views and execute:"
+    - echo "ludtwig ."
+
 NPM CI:
     extends: .base-no-setup
     stage: lint

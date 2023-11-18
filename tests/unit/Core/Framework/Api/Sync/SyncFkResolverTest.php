@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -72,6 +73,51 @@ class SyncFkResolverTest extends TestCase
         static::assertCount(1, $resolved);
         static::assertEquals($expected, $resolved[0]);
     }
+
+    public function testFailResolving(): void
+    {
+        $resolver = new SyncFkResolver(
+            new StaticDefinitionInstanceRegistry(
+                [
+                    ProductDefinition::class,
+                    TaxDefinition::class,
+                ],
+                $this->createMock(ValidatorInterface::class),
+                $this->createMock(EntityWriteGatewayInterface::class)
+            ),
+            [new DummyFkResolver(), new FailingFkResolver()]
+        );
+
+        $payload = [
+            'taxId' => [
+                'resolver' => 'failing',
+                'value' => 't1',
+                'nullOnMissing' => true,
+            ],
+        ];
+        $resolved = $resolver->resolve('product', [$payload]);
+
+        static::assertEquals([
+            [
+                'taxId' => null,
+            ],
+        ], $resolved);
+
+        $payload = [
+            'taxId' => [
+                'resolver' => 'failing',
+                'value' => 't1',
+            ],
+        ];
+
+        try {
+            $resolver->resolve('product', [$payload]);
+            static::fail('Failed to fail a taxId lookup');
+        } catch (EntityNotFoundException $exception) {
+            static::assertSame('tax', $exception->getParameter('entity'));
+            static::assertSame('t1', $exception->getParameter('identifier'));
+        }
+    }
 }
 
 /**
@@ -88,6 +134,28 @@ class DummyFkResolver extends AbstractFkResolver
     {
         foreach ($map as $value) {
             $value->resolved = $value->value;
+        }
+
+        return $map;
+    }
+}
+
+/**
+ * @internal
+ */
+class FailingFkResolver extends AbstractFkResolver
+{
+    public static function getName(): string
+    {
+        return 'failing';
+    }
+
+    public function resolve(array $map): array
+    {
+        foreach ($map as $value) {
+            if (!$value->nullOnMissing) {
+                throw new EntityNotFoundException($value->entityName, $value->value);
+            }
         }
 
         return $map;

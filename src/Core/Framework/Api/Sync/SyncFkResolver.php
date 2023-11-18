@@ -83,7 +83,12 @@ class SyncFkResolver
 
                     $resolver = (string) $value['resolver'];
 
-                    $row[$key] = $reference = new FkReference($value['value']);
+                    $row[$key] = $reference = new FkReference(
+                        $definition->getEntityName(),
+                        $field->getPropertyName(),
+                        $value['value'],
+                        $value['nullOnMissing'] ?? false
+                    );
 
                     $map[$resolver][] = $reference;
                 }

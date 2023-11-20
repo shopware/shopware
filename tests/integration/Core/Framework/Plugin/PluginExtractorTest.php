@@ -61,7 +61,7 @@ class PluginExtractorTest extends TestCase
 
         $archive = __DIR__ . '/_fixtures/TestShippingApp.zip';
 
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);

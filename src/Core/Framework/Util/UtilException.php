@@ -42,7 +42,7 @@ class UtilException extends HttpException
 
     public static function xmlElementNotFound(string $element): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
+        if (!Feature::isActive('v6.7.0.0')) {
             return new XmlElementNotFoundException($element);
         }
 
@@ -55,11 +55,11 @@ class UtilException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      */
     public static function xmlParsingException(string $file, string $message): self|XmlParsingException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
+        if (!Feature::isActive('v6.7.0.0')) {
             return new XmlParsingException($file, $message);
         }
 

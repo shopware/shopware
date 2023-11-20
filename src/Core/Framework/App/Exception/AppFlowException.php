@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
- * @deprecated tag:v6.6.0 - will be removed, use AppException::errorFlowCreateFromXmlFile instead
+ * @deprecated tag:v6.7.0 - will be removed, use AppException::errorFlowCreateFromXmlFile instead
  */
 #[Package('core')]
 class AppFlowException extends XmlParsingException
@@ -18,8 +18,8 @@ class AppFlowException extends XmlParsingException
         string $message
     ) {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'AppException::errorFlowCreateFromXmlFile')
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'AppException::errorFlowCreateFromXmlFile')
         );
 
         parent::__construct(

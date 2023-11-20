@@ -30,7 +30,7 @@ class FlowActionTest extends TestCase
 
     public function testCreateFromXmlMissingFlowAction(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
@@ -44,7 +44,7 @@ class FlowActionTest extends TestCase
 
     public function testCreateFromXmlFlowActionMissingRequiredChild(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
@@ -58,7 +58,7 @@ class FlowActionTest extends TestCase
 
     public function testCreateFromXmlFlowActionConfigMissingRequiredChild(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
@@ -72,7 +72,7 @@ class FlowActionTest extends TestCase
 
     public function testCreateFromXmlFlowActionConfigInputFieldTypeInvalid(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);

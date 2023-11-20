@@ -57,13 +57,13 @@ class AppException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed use AppException::createFromXmlFileFlowError instead
+     * @deprecated tag:v6.7.0 - Will be removed use AppException::createFromXmlFileFlowError instead
      */
     public static function errorFlowCreateFromXmlFile(string $xmlFile, string $message): XmlParsingException
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'AppException::createFromXmlFileFlowError')
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'AppException::createFromXmlFileFlowError')
         );
 
         return new AppFlowException($xmlFile, $message);
@@ -179,11 +179,11 @@ class AppException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      */
     public static function createFromXmlFileFlowError(string $xmlFile, string $message, ?\Throwable $previous = null): self|AppFlowException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
+        if (!Feature::isActive('v6.7.0.0')) {
             return new AppFlowException($xmlFile, $message);
         }
 
@@ -197,11 +197,11 @@ class AppException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Will only return `self` in the future
+     * @deprecated tag:v6.7.0 - reason:return-type-change - Will only return `self` in the future
      */
     public static function xmlParsingException(string $file, string $message): self|XmlParsingException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
+        if (!Feature::isActive('v6.7.0.0')) {
             return new XmlParsingException($file, $message);
         }
 

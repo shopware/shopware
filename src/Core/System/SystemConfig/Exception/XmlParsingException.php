@@ -8,7 +8,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.6.0 - will be removed, use domain specific xmlParsingExceptions instead
+ * @deprecated tag:v6.7.0 - will be removed, use domain specific xmlParsingExceptions instead
  */
 #[Package('system-settings')]
 class XmlParsingException extends ShopwareHttpException
@@ -18,8 +18,8 @@ class XmlParsingException extends ShopwareHttpException
         string $message
     ) {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'domain specific xmlParsingExceptions')
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'domain specific xmlParsingExceptions')
         );
 
         parent::__construct(
@@ -31,8 +31,8 @@ class XmlParsingException extends ShopwareHttpException
     public function getErrorCode(): string
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'domain specific xmlParsingExceptions')
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'domain specific xmlParsingExceptions')
         );
 
         return 'SYSTEM__XML_PARSE_ERROR';
@@ -41,8 +41,8 @@ class XmlParsingException extends ShopwareHttpException
     public function getStatusCode(): int
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'domain specific xmlParsingExceptions')
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'domain specific xmlParsingExceptions')
         );
 
         return Response::HTTP_BAD_REQUEST;

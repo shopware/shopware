@@ -22,7 +22,7 @@ class Action
     }
 
     /**
-     * @deprecated tag:v6.6.0 - Thrown exception will change from AppFlowException to AppException
+     * @deprecated tag:v6.7.0 - Thrown exception will change from AppFlowException to AppException
      */
     public static function createFromXmlFile(string $xmlFile): self
     {

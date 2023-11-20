@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Util\UtilException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.6.0 - will be removed, use UtilException::xmlElementNotFound instead
+ * @deprecated tag:v6.7.0 - will be removed, use UtilException::xmlElementNotFound instead
  */
 #[Package('system-settings')]
 class XmlElementNotFoundException extends UtilException
@@ -16,8 +16,8 @@ class XmlElementNotFoundException extends UtilException
     public function __construct(string $element)
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0', 'AppException::xmlParsingException')
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'AppException::xmlParsingException')
         );
 
         parent::__construct(

@@ -40,7 +40,7 @@ class CmsExtensionsTest extends TestCase
 
     public function testThrowsXmlParsingExceptionIfDuplicateCategory(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
@@ -53,7 +53,7 @@ class CmsExtensionsTest extends TestCase
 
     public function testThrowsXmlParsingExceptionIfDuplicateSlotName(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);

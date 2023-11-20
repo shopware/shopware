@@ -25,7 +25,7 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlMissingFlowEvent(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
@@ -39,7 +39,7 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlFlowEventMissingRequiredChild(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);
@@ -53,7 +53,7 @@ class FlowEventTest extends TestCase
 
     public function testCreateFromXmlFlowEventMetaMissingRequiredChild(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
+        if (Feature::isActive('v6.7.0.0')) {
             $this->expectException(AppException::class);
         } else {
             $this->expectException(XmlParsingException::class);

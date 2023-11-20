@@ -38,7 +38,7 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         $pluginService->expects(static::once())->method('refreshPlugins');
 
-        static::assertInstanceOf(Response::class, $controller->refreshExtensions(Context::createDefaultContext()));
+        $controller->refreshExtensions(Context::createDefaultContext());
     }
 
     public function testUploadExtensionsWithInvalidFile(): void
@@ -99,7 +99,11 @@ class ExtensionStoreActionsControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertEquals(403, $response->getStatusCode());
-        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $responseContent = $response->getContent();
+        static::assertIsString($responseContent);
+
+        $body = \json_decode($responseContent, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $body['errors'][0]['code']);
     }
 
@@ -113,7 +117,11 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         // If we get a missing parameter exception, the request reached the controller and was not blocked due to ACL
         static::assertEquals(400, $response->getStatusCode());
-        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        $responseContent = $response->getContent();
+        static::assertIsString($responseContent);
+
+        $body = \json_decode($responseContent, true, 512, \JSON_THROW_ON_ERROR);
         static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $body['errors'][0]['code']);
     }
 

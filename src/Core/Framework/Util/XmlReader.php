@@ -22,7 +22,7 @@ abstract class XmlReader
      *
      * @return array<int, array<string, mixed>>
      *
-     * @deprecated tag:v6.6.0.0 - reason:exception-change Thrown exception will change from XmlParsingException to UtilXmlParsingException
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from XmlParsingException to UtilXmlParsingException
      */
     public function read(string $xmlFile): array
     {
@@ -121,7 +121,7 @@ abstract class XmlReader
     /**
      * @throws XmlElementNotFoundException|UtilException
      *
-     * @deprecated tag:v6.6.0 - reason:exception-change Thrown exception will change from XmlElementNotFoundException to UtilException
+     * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from XmlElementNotFoundException to UtilException
      */
     public static function getElementChildValueByName(\DOMElement $element, string $name, bool $throwException = false): ?string
     {

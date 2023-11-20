@@ -42,10 +42,6 @@ class Content extends Bundle
         $loader->load('landing_page.xml');
         $loader->load('flow.xml');
 
-        if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('services_test.xml');
-        }
-
         $container->addCompilerPass(new MailerConfigurationCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Store\Api;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotAZipFileException;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +32,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $pluginService = $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $pluginService->expects(static::once())->method('refreshPlugins');
@@ -44,7 +47,37 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock(true)
+        );
+
+        $request = new Request();
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('getMimeType')->willReturn('foo');
+        $file->method('getPathname')->willReturn(tempnam(sys_get_temp_dir(), __METHOD__));
+        $request->files->set('file', $file);
+
+        static::expectException(PluginNotAZipFileException::class);
+        $controller->uploadExtensions($request, Context::createDefaultContext());
+    }
+
+    public function testUploadExtensionsWithInvalidFileAndDeleteFileException(): void
+    {
+        $fileSystemMock = $this->createFileSystemMock();
+        if (!$fileSystemMock instanceof MockObject) {
+            static::fail('Filesystem mock is not a mock object');
+        }
+
+        $fileSystemMock->expects(static::once())
+            ->method('remove')
+            ->willThrowException(new \RuntimeException('Error'));
+
+        $controller = new ExtensionStoreActionsController(
+            $this->createMock(ExtensionLifecycleService::class),
+            $this->createMock(ExtensionDownloader::class),
+            $this->createMock(PluginService::class),
+            $this->createMock(PluginManagementService::class),
+            $fileSystemMock
         );
 
         $request = new Request();
@@ -90,7 +123,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $pluginManagement = $this->createMock(PluginManagementService::class)
+            $pluginManagement = $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock(true)
         );
 
         $pluginManagement->method('uploadPlugin')->willThrowException(new \RuntimeException('Error'));
@@ -111,7 +145,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $request = new Request();
@@ -131,7 +166,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $this->createMock(ExtensionLifecycleService::class),
             $downloader = $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $downloader->expects(static::once())->method('download');
@@ -148,7 +184,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('install');
@@ -165,7 +202,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('uninstall');
@@ -182,7 +220,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('remove');
@@ -199,7 +238,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('activate');
@@ -216,7 +256,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('deactivate');
@@ -233,7 +274,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('update');
@@ -252,7 +294,8 @@ class ExtensionStoreActionsControllerTest extends TestCase
             $lifecycle = $this->createMock(ExtensionLifecycleService::class),
             $this->createMock(ExtensionDownloader::class),
             $this->createMock(PluginService::class),
-            $this->createMock(PluginManagementService::class)
+            $this->createMock(PluginManagementService::class),
+            $this->createFileSystemMock()
         );
 
         $lifecycle->expects(static::once())->method('update');
@@ -263,5 +306,16 @@ class ExtensionStoreActionsControllerTest extends TestCase
             Response::HTTP_NO_CONTENT,
             $controller->updateExtension($request, 'plugin', 'test', Context::createDefaultContext())->getStatusCode()
         );
+    }
+
+    private function createFileSystemMock(?bool $expectCallRemove = false): Filesystem
+    {
+        $fileSystem = $this->createMock(Filesystem::class);
+
+        if ($expectCallRemove) {
+            $fileSystem->expects(static::once())->method('remove');
+        }
+
+        return $fileSystem;
     }
 }

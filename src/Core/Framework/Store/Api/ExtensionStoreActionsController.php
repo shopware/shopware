@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +29,8 @@ class ExtensionStoreActionsController extends AbstractController
         private readonly AbstractExtensionLifecycle $extensionLifecycleService,
         private readonly ExtensionDownloader $extensionDownloader,
         private readonly PluginService $pluginService,
-        private readonly PluginManagementService $pluginManagementService
+        private readonly PluginManagementService $pluginManagementService,
+        private readonly Filesystem $fileSystem
     ) {
     }
 
@@ -50,12 +52,24 @@ class ExtensionStoreActionsController extends AbstractController
         }
 
         if ($file->getMimeType() !== 'application/zip') {
+            try {
+                $this->fileSystem->remove($file->getPathname());
+            } catch (\Throwable $e) {
+                // Do nothing because the tmp file is already deleted by os
+            }
+
             throw new PluginNotAZipFileException((string) $file->getMimeType());
         }
 
         try {
             $this->pluginManagementService->uploadPlugin($file, $context);
         } catch (\Exception $e) {
+            try {
+                $this->fileSystem->remove($file->getPathname());
+            } catch (\Throwable $e) {
+                // Do nothing because the tmp file is already deleted by os
+            }
+
             throw $e;
         }
 

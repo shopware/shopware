@@ -79,7 +79,7 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     public function testBooleanCustomFieldWithNonBooleanData(): void
     {
-        $this->setupRule('this should be true', 'bool');
+        $this->setupRule('true', 'bool');
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => true]), $this->salesChannelContext);
         static::assertTrue($this->rule->match($scope));
     }
@@ -130,6 +130,20 @@ class LineItemCustomFieldRuleTest extends TestCase
         static::assertFalse($this->rule->match($scope));
     }
 
+    public function testMultiSelectCustomField(): void
+    {
+        $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => [1]]), $this->salesChannelContext);
+        static::assertTrue($this->rule->match($scope));
+    }
+
+    public function testMultiSelectCustomFieldInvalid(): void
+    {
+        $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => [3]]), $this->salesChannelContext);;
+        static::assertFalse($this->rule->match($scope));
+    }
+
     /**
      * @dataProvider customFieldCartScopeProvider
      *
@@ -140,9 +154,10 @@ class LineItemCustomFieldRuleTest extends TestCase
         $customFieldValue,
         string $type,
         $customFieldValueInLineItem,
-        bool $result
+        bool $result,
+        array $config = []
     ): void {
-        $this->setupRule($customFieldValue, $type);
+        $this->setupRule($customFieldValue, $type, $config);
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
@@ -162,9 +177,10 @@ class LineItemCustomFieldRuleTest extends TestCase
         $customFieldValue,
         string $type,
         $customFieldValueInLineItem,
-        bool $result
+        bool $result,
+        array $config = []
     ): void {
-        $this->setupRule($customFieldValue, $type);
+        $this->setupRule($customFieldValue, $type, $config);
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
@@ -187,6 +203,8 @@ class LineItemCustomFieldRuleTest extends TestCase
             'testBooleanCustomFieldInvalid' => [false, 'bool', true, false],
             'testStringCustomField' => ['my_test_value', 'string', 'my_test_value', true],
             'testStringCustomFieldInvalid' => ['my_test_value', 'string', 'my_invalid_value', false],
+            'testMultiSelectCustomField' => [[1, 2], 'select', [1], true, ['componentName' => 'sw-multi-select']],
+            'testMultiSelectCustomFieldInvalid' => [[1, 2], 'select', [3], false, ['componentName' => 'sw-multi-select']],
         ];
     }
 
@@ -199,9 +217,9 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param bool|string|null $customFieldValue
+     * @param array|bool|string|null $customFieldValue
      */
-    private function setupRule(mixed $customFieldValue, string $type): void
+    private function setupRule(mixed $customFieldValue, string $type, array $config = []): void
     {
         $this->rule->assign(
             [
@@ -209,6 +227,7 @@ class LineItemCustomFieldRuleTest extends TestCase
                 'renderedField' => [
                     'type' => $type,
                     'name' => self::CUSTOM_FIELD_NAME,
+                    'config' => $config,
                 ],
                 'renderedFieldValue' => $customFieldValue,
             ]

@@ -198,16 +198,31 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertFalse($this->rule->match($this->scope));
     }
 
+    public function testMultiSelectCustomField(): void
+    {
+        $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
+        $this->setCustomerCustomFields([self::CUSTOM_FIELD_NAME => [1]]);
+        static::assertTrue($this->rule->match($this->scope));
+    }
+
+    public function testMultiSelectCustomFieldInvalid(): void
+    {
+        $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
+        $this->setCustomerCustomFields([self::CUSTOM_FIELD_NAME => [3]]);
+        static::assertFalse($this->rule->match($this->scope));
+    }
+
     /**
      * @dataProvider customFieldCheckoutScopeProvider
      */
     public function testCustomFieldCheckoutScope(
-        bool|string|null $customFieldValue,
+        array|bool|string|null $customFieldValue,
         string $type,
-        bool|string|null $customFieldValueInCustomer,
-        bool $result
+        array|bool|string|null $customFieldValueInCustomer,
+        bool $result,
+        array $config = []
     ): void {
-        $this->setupRule($customFieldValue, $type);
+        $this->setupRule($customFieldValue, $type, $config);
         $this->setCustomerCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInCustomer]);
         static::assertSame($result, $this->rule->match($this->scope));
     }
@@ -223,6 +238,8 @@ class CustomerCustomFieldRuleTest extends TestCase
             'testBooleanCustomFieldInvalid' => [false, 'bool', true, false],
             'testStringCustomField' => ['my_test_value', 'string', 'my_test_value', true],
             'testStringCustomFieldInvalid' => ['my_test_value', 'string', 'my_invalid_value', false],
+            'testMultiSelectCustomField' => [[1, 2], 'select', [1], true, ['componentName' => 'sw-multi-select']],
+            'testMultiSelectCustomFieldInvalid' => [[1, 2], 'select', [3], false, ['componentName' => 'sw-multi-select']],
         ];
     }
 
@@ -263,7 +280,7 @@ class CustomerCustomFieldRuleTest extends TestCase
         $this->customer->method('getCustomFields')->willReturn($customFields);
     }
 
-    private function setupRule(bool|string|null $customFieldValue, string $type): void
+    private function setupRule(array|bool|string|null $customFieldValue, string $type, array $config = []): void
     {
         $this->rule->assign(
             [
@@ -271,6 +288,7 @@ class CustomerCustomFieldRuleTest extends TestCase
                 'renderedField' => [
                     'type' => $type,
                     'name' => self::CUSTOM_FIELD_NAME,
+                    'config' => $config,
                 ],
                 'renderedFieldValue' => $customFieldValue,
             ]

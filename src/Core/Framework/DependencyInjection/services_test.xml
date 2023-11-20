@@ -59,10 +59,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
-            <tag name="shopware.entity.definition" entity="calculated_price_field_test" />
-        </service>
-
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition">
             <tag name="shopware.entity.definition" entity="root" />
         </service>
@@ -135,8 +131,7 @@
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Monolog\Handler\NullHandler">
-        </service>
+        <service id="Monolog\Handler\NullHandler"/>
 
         <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
             <tag name="messenger.message_handler"/>

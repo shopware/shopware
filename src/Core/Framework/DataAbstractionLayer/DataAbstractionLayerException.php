@@ -2,15 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -38,13 +32,10 @@ class DataAbstractionLayerException extends HttpException
     public const DATABASE_PLATFORM_INVALID = 'FRAMEWORK__DATABASE_PLATFORM_INVALID';
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
+    public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidSerializerFieldException($expectedClass, $field);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_FIELD_SERIALIZER_CODE,
@@ -99,15 +90,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
-     */
-    public static function invalidLanguageId(?string $languageId): HttpException
+    public static function invalidLanguageId(?string $languageId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new LanguageNotFoundException($languageId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_LANGUAGE_ID,
@@ -116,12 +100,14 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
-     */
-    public static function invalidFilterQuery(string $message, string $path = ''): ShopwareHttpException
+    public static function invalidFilterQuery(string $message, string $path = ''): self
     {
-        return new InvalidFilterQueryException($message, $path);
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_FILTER_QUERY,
+            $message,
+            ['path' => $path]
+        );
     }
 
     public static function cannotCreateNewVersion(string $entity, string $id): self
@@ -136,10 +122,6 @@ class DataAbstractionLayerException extends HttpException
 
     public static function versionMergeAlreadyLocked(string $versionId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new VersionMergeAlreadyLockedException($versionId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,

@@ -952,7 +952,7 @@ class RegisterRouteTest extends TestCase
             static::assertArrayHasKey('errors', $response);
         } else {
             static::assertSame('customer', $response['apiAlias']);
-            static::assertNull($response['vatIds']);
+            static::assertEmpty($response['vatIds']);
             static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             $this->browser

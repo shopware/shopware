@@ -150,6 +150,15 @@ class RegisterRoute extends AbstractRegisterRoute
             $customer['customFields'] = $this->customFieldMapper->map(CustomerDefinition::ENTITY_NAME, $data->get('customFields'));
         }
 
+        // Convert all DataBags to array
+        $customer = array_map(static function (mixed $value) {
+            if ($value instanceof DataBag) {
+                return $value->all();
+            }
+
+            return $value;
+        }, $customer);
+
         $this->customerRepository->create([$customer], $context->getContext());
 
         $criteria = new Criteria([$customer['id']]);

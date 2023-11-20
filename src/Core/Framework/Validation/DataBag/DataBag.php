@@ -20,6 +20,15 @@ class DataBag extends ParameterBag
         parent::__construct($parameters);
     }
 
+    public function __clone(): void
+    {
+        foreach ($this->parameters as &$value) {
+            if ($value instanceof self) {
+                $value = clone $value;
+            }
+        }
+    }
+
     /**
      * @return array<string|int, mixed>
      */
@@ -44,37 +53,31 @@ class DataBag extends ParameterBag
         return $data;
     }
 
+    /**
+     * @param array<mixed> $parameters
+     */
     public function add(array $parameters = []): void
     {
         /**
          * @deprecated tag:v6.6.0 - remove complete if statement, parameters will always be translated to databags
          */
-        if (Feature::has('v6.6.0.0')) {
+        if (Feature::isActive('v6.6.0.0')) {
             $parameters = $this->wrapArrayParameters($parameters);
         }
 
         parent::add($parameters);
     }
 
-    public function set(string $key, $value): void
+    public function set(string $key, mixed $value): void
     {
         /**
          * @deprecated tag:v6.6.0 - remove complete if statement, parameters will always be translated to databags
          */
-        if (Feature::has('v6.6.0.0')) {
+        if (Feature::isActive('v6.6.0.0')) {
             $value = $this->wrapArrayParameters([$value])[0];
         }
 
         parent::set($key, $value);
-    }
-
-    public function __clone(): void
-    {
-        foreach ($this->parameters as &$value) {
-            if ($value instanceof self) {
-                $value = clone $value;
-            }
-        }
     }
 
     /**
@@ -90,6 +93,11 @@ class DataBag extends ParameterBag
         return new RequestDataBag($this->all());
     }
 
+    /**
+     * @param array<mixed> $parameters
+     *
+     * @return array<mixed>
+     */
     private function wrapArrayParameters(array $parameters): array
     {
         foreach ($parameters as $key => $value) {

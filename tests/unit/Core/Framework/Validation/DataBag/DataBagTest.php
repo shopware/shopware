@@ -49,27 +49,38 @@ class DataBagTest extends TestCase
     {
         $bag = new DataBag();
 
-        // test setting databag stays a databag, but converts to array
         $bag->set('1', new DataBag(['a' => 'b']));
 
         static::assertInstanceOf(DataBag::class, $bag->get('1'));
         static::assertSame(['a' => 'b'], $bag->get('1')->all());
+    }
 
-        // test setting array becomes a databag, but converts to array
+    public function testSetDataBag(): void
+    {
+        $bag = new DataBag();
+
         $bag->set('2', ['a' => 'b']);
 
         static::assertInstanceOf(DataBag::class, $bag->get('2'));
         static::assertSame(['a' => 'b'], $bag->get('2')->all());
+    }
 
-        // test adding databag parameter stays a databag, but converts to array
+    public function testAddDataBag(): void
+    {
+        $bag = new DataBag();
+
         $bag->add([
             '3' => new DataBag(['a' => 'b']),
         ]);
 
         static::assertInstanceOf(DataBag::class, $bag->get('3'));
         static::assertSame(['a' => 'b'], $bag->get('3')->all());
+    }
 
-        // test adding array parameters becomes a databag, but converts to array
+    public function testAddArrayConvertsToDataBag(): void
+    {
+        $bag = new DataBag();
+
         $bag->add([
             '4' => ['a' => 'b'],
         ]);

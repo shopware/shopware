@@ -161,7 +161,6 @@ parameters:
         - # @deprecated tag:v6.6.0 Using autoload === true on associations is deprecated and must be refactored
             message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
             paths:
-                - src/Core/System/SalesChannel/SalesChannelDefinition.php
                 - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
                 - src/Core/Content/Product/ProductDefinition.php
                 - src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaDefinition.php

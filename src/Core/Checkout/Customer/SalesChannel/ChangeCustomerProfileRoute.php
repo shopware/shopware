@@ -52,7 +52,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', methods: ['POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(path: '/store-api/account/change-profile', name: 'store-api.account.change-profile', defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true], methods: ['POST'])]
     public function change(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         $validation = $this->customerProfileValidationFactory->update($context);
@@ -90,7 +90,13 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
         $customerData = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company', 'accountType');
 
         if ($vatIds) {
-            $customerData['vatIds'] = $data->get('vatIds');
+            $vatIds = $data->get('vatIds');
+
+            if ($vatIds instanceof DataBag) {
+                $vatIds = $vatIds->all();
+            }
+
+            $customerData['vatIds'] = $vatIds;
         }
 
         if ($birthday = $this->getBirthday($data)) {

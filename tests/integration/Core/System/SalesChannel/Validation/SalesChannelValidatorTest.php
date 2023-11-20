@@ -277,7 +277,8 @@ class SalesChannelValidatorTest extends TestCase
                     'languageId' => 'de-DE',
                     'languages' => [
                         ['id' => 'de-DE'],
-                        ['id' => Defaults::LANGUAGE_SYSTEM]],
+                        ['id' => Defaults::LANGUAGE_SYSTEM],
+                    ],
                 ],
             ],
             [],
@@ -330,17 +331,17 @@ class SalesChannelValidatorTest extends TestCase
         $this->getSalesChannelRepository()
             ->create([$salesChannelData], $context);
 
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage(sprintf(
-            self::DUPLICATED_ENTRY_VALIDATION_MESSAGE,
-            Defaults::LANGUAGE_SYSTEM,
-            $id
-        ));
+        $exception = null;
 
-        $this->getSalesChannelLanguageRepository()->create([[
-            'salesChannelId' => $id,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-        ]], $context);
+        try {
+            $this->getSalesChannelLanguageRepository()->create([[
+                'salesChannelId' => $id,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+            ]], $context);
+        } catch (\Exception $exception) {
+        }
+
+        static::assertNull($exception);
 
         $this->getSalesChannelRepository()->delete([[
             'id' => $id,

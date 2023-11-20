@@ -66,10 +66,10 @@ PHP integration:
     needs: []
     timeout: 30m
     services:
-        - name: mariadb:10.4
+        - name: mariadb:10.11
           alias: database
           entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        - name: redis
+        - name: redis:7.0
           alias: redis
         - name: opensearchproject/opensearch:2.2.0
           alias: elasticsearch
@@ -110,14 +110,15 @@ PHP bench:
     timeout: 30m
     needs: []
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:11.0
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
-        -   name: redis
+        -   name: redis:7.0
             alias: redis
     variables:
         APP_ENV: "dev"
         REDIS_URL: redis://redis:6379
+        MYSQL_CMD: 'mariadbd'
     rules:
         # do not run in merge trains
         - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
@@ -207,7 +208,7 @@ PHP migration coverage:
     needs: []
     timeout: 10m
     services:
-        -   name: mariadb:10.4
+        -   name: mariadb:10.11
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     variables:
@@ -247,7 +248,7 @@ PHP Full:
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
         -   name: swaggerapi/swagger-validator-v2:v2.0.5
             alias: swagger
-        -   name: redis
+        -   name: redis:7.0
             alias: redis
     variables:
         TEST_SUITES: "administration storefront content framework profiling system unit integration migration migration-tests"
@@ -276,18 +277,17 @@ PHP Full:
         matrix:
             -   MYSQL_IMAGE: mysql:8
                 CI_IMAGE_TAG:
-                  - "php8.1"
                   - "latest"
-                  #- "php8.3"
+                  # - "php8.3"
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-            # TODO: remove after fix and add version to array above
+            # TODO: remove after final release and add version to array above
             -   CI_IMAGE_TAG: "php8.3"
                 MYSQL_IMAGE: mysql:8
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
                 FAKE_PHP_VERSION: "8.2.99"
-            -   MYSQL_IMAGE: mariadb:10.4
-            -   MYSQL_IMAGE: mariadb:10.5
+            -   MYSQL_IMAGE: mariadb:10.11
+            -   MYSQL_IMAGE: mariadb:10.11
                 PREFER_LOWEST: 'prefer lowest'
             -   MYSQL_IMAGE: mariadb:10.11
                 ONLY_CORE: 'only core'

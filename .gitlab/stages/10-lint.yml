@@ -162,7 +162,8 @@ PHP lint:
         - composer run lint:changelog
         - composer run lint:snippets
         - ./bin/console sync:composer:version --dry-run
-        - composer run bc-check
+        # ToDo: NEXT-31639 - activate again after first RC release
+        # - composer run bc-check
 
 Twig lint (storefront):
   extends: .base-no-setup

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Media\Commands;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -31,7 +30,6 @@ class DeleteNotUsedMediaCommand extends Command
      */
     public function __construct(
         private readonly UnusedMediaPurger $unusedMediaPurger,
-        private readonly Connection $connection,
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {
         parent::__construct();
@@ -56,14 +54,6 @@ class DeleteNotUsedMediaCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
-
-        try {
-            $this->connection->fetchOne('SELECT JSON_OVERLAPS(JSON_ARRAY(1), JSON_ARRAY(1));');
-        } catch (\Exception $e) {
-            $io->error('Your database does not support the JSON_OVERLAPS function. Please update your database to MySQL 8.0 or MariaDB 10.9 or higher.');
-
-            return self::FAILURE;
-        }
 
         if ($input->getOption('report') && $input->getOption('dry-run')) {
             $io->error('The options --report and --dry-run cannot be used together, pick one or the other.');

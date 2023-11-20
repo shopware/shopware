@@ -23,13 +23,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.5.x-dev",
-            "dev-trunk": "6.5.x-dev"
+            "dev-master": "6.6.x-dev",
+            "dev-trunk": "6.6.x-dev"
         }
     },
     "minimum-stability": "stable",
     "require": {
-        "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
+        "php": "~8.2.0 || ~8.3.0",
         "ext-curl": "*",
         "doctrine/dbal": "^3.7",
         "monolog/monolog": "^3.3.1",

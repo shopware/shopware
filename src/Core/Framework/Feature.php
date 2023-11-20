@@ -40,7 +40,7 @@ class Feature
     /**
      * @template TReturn of mixed
      *
-     * @param array<string> $features
+     * @param array<string>       $features
      * @param \Closure(): TReturn $closure
      *
      * @return TReturn

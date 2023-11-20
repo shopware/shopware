@@ -4746,24 +4746,9 @@ parameters:
 			path: src/Core/Framework/App/Command/AppPrinter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Command\\\\InstallAppCommand\\:\\:getMatchingManifests\\(\\) has parameter \\$requestedApps with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Command/InstallAppCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Command\\\\InstallAppCommand\\:\\:getMatchingManifests\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Command/InstallAppCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Command\\\\UninstallAppCommand\\:\\:getAppByName\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Command/UninstallAppCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Command\\\\ValidateAppCommand\\:\\:validate\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Command/ValidateAppCommand.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\App\\\\Delta\\\\AbstractAppDeltaProvider\\:\\:getReport\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -7693,16 +7678,6 @@ parameters:
 			path: src/Core/Framework/Test/ServiceDefinitionTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/ExtensionStoreActionsControllerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Api/ExtensionStoreActionsControllerTest.php
-
-		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Api/ExtensionStoreDataControllerTest.php
@@ -7936,46 +7911,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\Random\\:\\:getRandomArrayElement\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Util/Random.php
-
-		-
-			message: "#^Cannot access property \\$childNodes on DOMNode\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Cannot access property \\$nodeValue on DOMElement\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\XmlReader\\:\\:getAllChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\XmlReader\\:\\:getChildByName\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\XmlReader\\:\\:parseFile\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\XmlReader\\:\\:parseOptionsNodeList\\(\\) has parameter \\$optionsList with generic class DOMNodeList but does not specify its types\\: TNode$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\XmlReader\\:\\:parseOptionsNodeList\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\XmlReader\\:\\:read\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Util/XmlReader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromBytesToHexList\\(\\) has parameter \\$bytesList with no value type specified in iterable type array\\.$#"
@@ -9156,11 +9091,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader\\:\\:optionsToArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Util/ConfigReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader\\:\\:parseFile\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/SystemConfig/Util/ConfigReader.php
 
@@ -10853,51 +10783,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$c\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 11
 			path: tests/unit/Core/Profiling/Doctrine/ConnectionProfilerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\AdminUiXmlSchema' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\AdminUiXmlSchema will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Columns' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Columns will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Detail' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Detail will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Listing' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Listing will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tab' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tab will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Tabs' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Tabs will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SystemConfig\\\\\\\\Exception\\\\\\\\XmlParsingException' and Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Exception\\\\XmlParsingException will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 5
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\CustomEntityConfigurationException' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\CustomEntityConfigurationException will always evaluate to true\\.$#"

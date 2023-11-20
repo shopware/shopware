@@ -34,6 +34,9 @@ class ValidateAppCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function validate(string $appDir): array
     {
         $context = Context::createDefaultContext();

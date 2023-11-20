@@ -87,8 +87,13 @@ export default {
                         return;
                     }
 
+                    const message = [
+                        this.$tc(error.message),
+                        error.details,
+                    ].filter(Boolean).join('<br />');
+
                     this.createNotificationError({
-                        message: this.$tc(error.message),
+                        message: message,
                     });
                 });
             }).finally(() => {

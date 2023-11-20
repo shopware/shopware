@@ -1,6 +1,7 @@
 type MappedError = {
     title: string,
     message: string,
+    details: string|null|undefined,
     parameters?: {
         documentationLink: string,
     }
@@ -55,12 +56,14 @@ function getNotification(error: StoreApiException): MappedError {
         return {
             title: errorCodes[error.code].title,
             message: errorCodes[error.code].message,
+            details: error.detail,
         };
     }
 
     return {
         title: 'global.default.error',
         message: 'sw-extension.errors.messageGenericFailure',
+        details: error.detail,
     };
 }
 
@@ -69,6 +72,7 @@ function mapErrorWithDocsLink({ title, detail: message, meta }: StoreApiExceptio
         return {
             title,
             message,
+            details: null,
             parameters: {
                 documentationLink: meta.documentationLink,
             },
@@ -78,6 +82,7 @@ function mapErrorWithDocsLink({ title, detail: message, meta }: StoreApiExceptio
     return {
         title,
         message,
+        details: null,
     };
 }
 

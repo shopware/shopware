@@ -2,10 +2,10 @@
 
 namespace Shopware\Core\Framework\App\FlowAction;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\FlowAction\Xml\Actions;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -32,7 +32,7 @@ class FlowAction
         try {
             $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
         } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFile, $e->getMessage());
+            throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
 
         $actions = $doc->getElementsByTagName('flow-actions')->item(0);

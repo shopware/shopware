@@ -71,7 +71,8 @@ class PaymentMethodIndexer extends EntityIndexer
 
         // Create a new context with disabled-indexing state, because DAL is used inside to upsert payment methods.
         $newContext = Context::createFrom($message->getContext());
-        $newContext->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        // Apparently the new context loses the states of the old one during creation. So the old states get added back.
+        $newContext->addState(EntityIndexerRegistry::DISABLE_INDEXING, ...$message->getContext()->getStates());
         $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($newContext);
 
         $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $message->getContext(), $message->getSkip()));

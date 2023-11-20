@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.7.1
+*  [NEXT-31845 - Remove tests classes from services xml](./changelog/release-6-5-7-1/2023-11-20-remove-tests-classes-from-services-xml.md)
+
 ## 6.5.7.0
 *  [NEXT-30834 - Added Http Cache to Route](./changelog/release-6-5-7-0/2022-09-29-cms-navigation-http-cache.md)
 *  [NEXT-30854 - Fix sw-promotion-v2 detail via datepicker usage so timepickers are displayed again.](./changelog/release-6-5-7-0/2023-08-01-fix-promotion-datepicker-prop-usage.md) ([AubreyHewes](https://github.com/AubreyHewes))

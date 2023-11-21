@@ -1278,6 +1278,63 @@ class WebhookDispatcherTest extends TestCase
         );
     }
 
+    public function testItDoesNotDispatchGeneralEventsForDisabledApp(): void
+    {
+        $aclRoleId = Uuid::randomHex();
+        $appId = Uuid::randomHex();
+
+        $appRepository = $this->getContainer()->get('app.repository');
+
+        $apps = $appRepository->search(new Criteria(), Context::createDefaultContext());
+
+        $appRepository->create([[
+            'id' => $appId,
+            'name' => 'SwagApp',
+            'active' => false,
+            'path' => __DIR__ . '/Manifest/_fixtures/test',
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'appSecret' => 's3cr3t',
+            'integration' => [
+                'label' => 'test',
+                'accessKey' => 'api access key',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $aclRoleId,
+                'name' => 'SwagApp',
+            ],
+            'webhooks' => [
+                [
+                    'name' => 'hook1',
+                    'eventName' => 'product.written',
+                    'url' => 'https://test.com',
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $event = $this->getEntityWrittenEvent(Uuid::randomHex());
+
+        $webhookDispatcher = new WebhookDispatcher(
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('shopware.app_system.guzzle'),
+            $this->shopUrl,
+            $this->getContainer(),
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus,
+            true
+        );
+
+        $before = $this->getLastRequest();
+
+        $webhookDispatcher->dispatch($event);
+
+        static::assertSame($before, $this->getLastRequest());
+    }
+
     public function testItDoesDispatchWebhookMessageQueueWithAppActive(): void
     {
         $aclRoleId = Uuid::randomHex();

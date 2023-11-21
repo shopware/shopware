@@ -174,8 +174,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber">
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
-            <argument type="service" id="request_stack"/>
+            <argument type="service" id="http_kernel"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="cache.object"/>

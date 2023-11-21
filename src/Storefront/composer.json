@@ -23,12 +23,12 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.5.x-dev",
-            "dev-trunk": "6.5.x-dev"
+            "dev-master": "6.6.x-dev",
+            "dev-trunk": "6.6.x-dev"
         }
     },
     "require": {
-        "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
+        "php": "~8.2.0 || ~8.3.0",
         "cocur/slugify": "^4.3.0",
         "doctrine/dbal": "^3.7",
         "meyfa/php-svg": "^0.13.0",

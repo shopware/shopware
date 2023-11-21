@@ -123,6 +123,16 @@ global.allowedErrors = [
         method: 'warn',
         msg: 'No extension found for origin ""',
     },
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('you tried to publish is already registered');
+        },
+    },
 ];
 
 global.flushPromises = flushPromises;
@@ -143,7 +153,11 @@ global.console.error = (...args) => {
 
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
-                const shouldBeSilenced = args[0].includes(allowedError.msg);
+                let shouldBeSilenced = args[0].includes(allowedError.msg);
+
+                if (allowedError.msgCheck) {
+                    shouldBeSilenced = allowedError.msgCheck(args[0]);
+                }
 
                 if (shouldBeSilenced) {
                     silenceError = true;
@@ -153,7 +167,7 @@ global.console.error = (...args) => {
             return;
         }
 
-        const shouldBeSilenced = allowedError.msg.test(args[0]);
+        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
 
         if (shouldBeSilenced) {
             silenceError = true;

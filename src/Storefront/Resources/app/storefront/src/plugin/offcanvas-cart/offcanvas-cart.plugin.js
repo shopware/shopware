@@ -1,5 +1,4 @@
 import Plugin from 'src/plugin-system/plugin.class';
-import PluginManager from 'src/plugin-system/plugin.manager';
 import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
@@ -262,7 +261,7 @@ export default class OffCanvasCartPlugin extends Plugin {
      * @private
      */
     _fetchCartWidgets() {
-        const CartWidgetPluginInstances = PluginManager.getPluginInstances('CartWidget');
+        const CartWidgetPluginInstances = window.PluginManager.getPluginInstances('CartWidget');
         Iterator.iterate(CartWidgetPluginInstances, instance => instance.fetch());
 
         this.$emitter.publish('fetchCartWidgets');

@@ -99,6 +99,7 @@
         <service id="Shopware\Storefront\Framework\Twig\TemplateConfigAccessor">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeConfigValueAccessor"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeScripts" />
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeConfigValueAccessor">

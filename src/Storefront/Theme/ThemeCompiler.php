@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemOperator;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
+use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
@@ -21,6 +22,8 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 
@@ -40,7 +43,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ThemeFileImporterInterface $themeFileImporter,
         private readonly iterable $packages,
-        private readonly CacheInvalidator $logger,
+        private readonly CacheInvalidator $cacheInvalidator,
+        private readonly LoggerInterface $logger,
         private readonly AbstractThemePathBuilder $themePathBuilder,
         private readonly string $projectDir,
         private readonly AbstractScssCompiler $scssCompiler,
@@ -93,14 +97,19 @@ class ThemeCompiler implements ThemeCompilerInterface
             $context
         );
 
-        try {
-            $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
-        } catch (\Throwable $e) {
-            throw new ThemeCompileException(
-                $themeConfig->getName() ?? '',
-                'Error while trying to concatenate Scripts: ' . $e->getMessage(),
-                $e
-            );
+        $concatenatedScripts = '';
+
+        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
+        if (!Feature::isActive('v6.6.0.0')) {
+            try {
+                $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
+            } catch (\Throwable $e) {
+                throw new ThemeCompileException(
+                    $themeConfig->getName() ?? '',
+                    'Error while trying to concatenate Scripts: ' . $e->getMessage(),
+                    $e
+                );
+            }
         }
 
         $newThemeHash = Uuid::randomHex();
@@ -122,6 +131,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
+        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
+        if (Feature::isActive('v6.6.0.0')) {
+            $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
+        }
+
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
         // only delete the old directory if the `themePathBuilder` actually returned a new path and supports seeding
@@ -140,7 +154,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         // Reset cache buster state for improving performance in getMetadata
-        $this->logger->invalidate(['theme-metaData'], true);
+        $this->cacheInvalidator->invalidate(['theme-metaData'], true);
     }
 
     /**
@@ -170,6 +184,68 @@ class ThemeCompiler implements ThemeCompilerInterface
 
             return null;
         };
+    }
+
+    private function copyScriptFilesToTheme(
+        StorefrontPluginConfigurationCollection $configurationCollection,
+        string $themePrefix
+    ): void {
+        $scriptsDist = $this->getScriptDistFolders($configurationCollection);
+        $themePath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
+        $distRelativePath = 'Resources' . \DIRECTORY_SEPARATOR . 'app' . \DIRECTORY_SEPARATOR . 'storefront' . \DIRECTORY_SEPARATOR . 'dist' . \DIRECTORY_SEPARATOR . 'storefront';
+
+        foreach ($scriptsDist as $folderName => $basePath) {
+            // For themes, we get basePath with Resources and for Plugins without, so we always remove and add it again
+            $path = str_replace(\DIRECTORY_SEPARATOR . 'Resources', '', $basePath);
+            $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . $folderName;
+            if ($folderName === 'storefront') {
+                $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath;
+            }
+
+            $files = $this->getScriptDistFiles($pathToJsFiles);
+            if ($files === null) {
+                continue;
+            }
+
+            $targetPath = $themePath . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . $folderName;
+            foreach ($files as $file) {
+                $fileName = $file->getFilename();
+                $completeTargetPath = $targetPath . \DIRECTORY_SEPARATOR . $fileName;
+                $content = file_get_contents($file->getRealPath());
+                if ($content !== false && $file->getRealPath() !== false) {
+                    $this->filesystem->write($completeTargetPath, $content);
+                }
+            }
+        }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getScriptDistFolders(StorefrontPluginConfigurationCollection $configurationCollection): array
+    {
+        $scriptsDistFolders = [];
+        foreach ($configurationCollection as $configuration) {
+            $scripts = $configuration->getScriptFiles();
+            $technicalName = preg_replace('/(?<!^)[A-Z]/', '-$0', $configuration->getTechnicalName());
+            if ($technicalName !== null && $scripts->count() > 0) {
+                $outputFolder = strtolower($technicalName);
+                $scriptsDistFolders[$outputFolder] = $configuration->getBasePath();
+            }
+        }
+
+        return $scriptsDistFolders;
+    }
+
+    private function getScriptDistFiles(string $path): ?Finder
+    {
+        try {
+            $finder = (new Finder())->files()->in($path)->exclude('js');
+        } catch (DirectoryNotFoundException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return $finder ?? null;
     }
 
     private function copyAssets(
@@ -445,8 +521,11 @@ PHP_EOL;
         $cssFilePath = $path . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->write($cssFilePath, $compiled);
 
-        $scriptFilepath = $path . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
-        $this->filesystem->write($scriptFilepath, $concatenatedScripts);
+        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
+        if (!Feature::isActive('v6.6.0.0')) {
+            $scriptFilepath = $path . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
+            $this->filesystem->write($scriptFilepath, $concatenatedScripts);
+        }
 
         // assets
         if ($withAssets) {

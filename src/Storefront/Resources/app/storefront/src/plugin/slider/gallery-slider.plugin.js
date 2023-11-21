@@ -2,7 +2,6 @@ import deepmerge from 'deepmerge';
 import { tns } from 'tiny-slider/src/tiny-slider.module';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import SliderSettingsHelper from 'src/plugin/slider/helper/slider-settings.helper';
-import PluginManager from 'src/plugin-system/plugin.manager';
 import Iterator from 'src/helper/iterator.helper';
 import BaseSliderPlugin from 'src/plugin/slider/base-slider.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
@@ -211,8 +210,8 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
 
         if (container) {
             const onInit = () => {
-                PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
-                PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
+                window.PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
+                window.PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
 
                 if (!hasThumbnails) {
                     this.el.classList.remove(this.options.loadingCls);

@@ -1,16 +1,15 @@
 /**
  * @package storefront
+ * @deprecated tag:v6.6.0 - This new webpack uses independent build processes for plugins/apps and the core and also considers async imports.
  */
-
 const chalk = require('chalk');
 
-/** @deprecated tag:v6.6.0 - All contents of webpack.config.js will be replaced contents of webpack-multi-compiler.config.js */
-if (process.env.V6_6_0_0 && parseInt(process.env.V6_6_0_0) === 1) {
-    module.exports = require('./webpack.multi-compiler.config');
-    return;
-}
+console.log(chalk.yellow('#############################################'));
+console.log(chalk.yellow('# v6.6.0 - Storefront async JS is activated #'));
+console.log(chalk.yellow('#############################################'));
+console.log();
 
-const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
+const { merge } = require('webpack-merge');
 const babelrc = require('./.babelrc');
 const path = require('path');
 const webpack = require('webpack');
@@ -32,23 +31,11 @@ const projectRootPath = process.env.PROJECT_ROOT
     : path.resolve('../../../../..');
 
 let themeFiles;
-let watchFilePaths = [];
 let features = {};
 
 if (isHotMode) {
     const themeFilesConfigPath = path.resolve(projectRootPath, 'var/theme-files.json');
     themeFiles = require(themeFilesConfigPath);
-
-    const pluginsConfigPath = path.resolve(projectRootPath, 'var/plugins.json');
-    const plugins = require(pluginsConfigPath);
-
-    Object.values(plugins).map((plugin) => {
-        if (plugin.views && plugin.views.length > 0) {
-            watchFilePaths.push(...plugin.views.map((viewEntry) => {
-                return path.resolve(projectRootPath, plugin.basePath, viewEntry).replace(projectRootPath + '/', '') + '/**/*.twig'; // resolve to normalize it and cut the root path to work with the cwd option of the devServer
-            }));
-        }
-    });
 }
 const featureConfigPath = path.resolve(projectRootPath, 'var/config_js_features.json');
 
@@ -71,8 +58,42 @@ try {
     hostName = undefined;
 }
 
-let webpackConfig = {
+const pluginEntries = (() => {
+    const pluginFile = path.resolve(process.env.PROJECT_ROOT, 'var/plugins.json');
+
+    if (!fs.existsSync(pluginFile)) {
+        throw new Error(`The file ${pluginFile} could not be found. Try bin/console bundle:dump to create this file.`);
+    }
+
+    const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
+
+    return Object.entries(pluginDefinition)
+        .filter(([, definition]) => definition.technicalName !== 'storefront' && !!definition.storefront && !!definition.storefront.entryFilePath && !process.env.hasOwnProperty('SKIP_' + definition.technicalName.toUpperCase().replace(/-/g, '_')))
+        .map(([name, definition]) => {
+            console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
+
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const htmlFilePath = path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path, '..', 'index.html');
+            const hasHtmlFile = fs.existsSync(htmlFilePath);
+
+            return {
+                name,
+                technicalName: technicalName,
+                technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+                basePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath),
+                path: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.path),
+                filePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.entryFilePath),
+                hasHtmlFile,
+                webpackConfig: definition.storefront.webpack ? path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.storefront.webpack) : null,
+            };
+        });
+})();
+
+const coreConfig = {
     cache: true,
+    experiments: {
+        topLevelAwait: true,
+    },
     devServer: (() => {
         if (isHotMode) {
             return {
@@ -83,8 +104,8 @@ let webpackConfig = {
                 devMiddleware: {
                     publicPath: `${hostName}/`,
                     stats: {
-                        colors: true
-                    }
+                        colors: true,
+                    },
                 },
                 hot: true,
                 compress: false,
@@ -107,7 +128,7 @@ let webpackConfig = {
                     'Access-Control-Allow-Origin': '*',
                 },
                 watchFiles: {
-                    paths: watchFilePaths,
+                    paths: [`${themeFiles.basePath}/**/*.twig`],
                     options: {
                         persistent: true,
                         cwd: projectRootPath,
@@ -247,50 +268,6 @@ let webpackConfig = {
     optimization: {
         moduleIds: 'deterministic',
         chunkIds: 'named',
-        runtimeChunk: {
-            name: 'runtime',
-        },
-        splitChunks: {
-            minSize: 0,
-            minChunks: 1,
-            cacheGroups: {
-                'vendor-node': {
-                    enforce: true,
-                    test: path.resolve(__dirname, 'node_modules'),
-                    name: 'vendor-node',
-                    chunks: 'all',
-                },
-                'vendor-shared': {
-                    enforce: true,
-                    test: (content) => {
-                        if (!content.resource) {
-                            return false;
-                        }
-
-                        return !!(content.resource.includes(path.resolve(__dirname, 'src/plugin-system'))
-                            || content.resource.includes(path.resolve(__dirname, 'src/helper'))
-                            || content.resource.includes(path.resolve(__dirname, 'src/utility'))
-                            || content.resource.includes(path.resolve(__dirname, 'src/service')));
-
-                    },
-                    name: 'vendor-shared',
-                    chunks: 'all',
-                },
-                ...(() => {
-                    if (isProdMode) {
-                        return {
-                            vendor: {
-                                test: path.resolve(__dirname, 'node_modules'),
-                                name: 'vendors',
-                                chunks: 'all',
-                            },
-                        }
-                    }
-
-                    return {};
-                })(),
-            },
-        },
         ...(() => {
             if (isProdMode) {
                 return {
@@ -311,9 +288,9 @@ let webpackConfig = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: './js/[name].js',
-        publicPath: `${hostName}/`,
-        chunkFilename: './js/[name].js',
+        filename: './storefront/[name].js',
+        // publicPath: 'auto',
+        chunkFilename: './storefront/[name].js',
     },
     performance: {
         hints: false,
@@ -322,9 +299,6 @@ let webpackConfig = {
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ProvidePlugin({
             Popper: ['popper.js', 'default'],
-        }),
-        new WebpackBar({
-            name: 'Shopware 6 Storefront',
         }),
         new MiniCssExtractPlugin({
             filename: './css/[name].css',
@@ -338,6 +312,28 @@ let webpackConfig = {
             }
 
             return []
+        })(),
+        /**
+         * We hard-code the relocation of the core storefront.js from the configured webpack output directory
+         * to /dist/storefront/js/ to avoid breaking changes in the current theme.json which requires this location.
+         */
+        new (class SwCopyAfterBuildPlugin {
+            apply(compiler) {
+                compiler.hooks.done.tap('sw-copy-after-build', () => {
+                    const from = path.resolve(__dirname, 'dist/js/storefront.js');
+                    const to = path.resolve(__dirname, 'dist/storefront/js/storefront.js');
+
+                    if (!fs.existsSync(from)) {
+                        return;
+                    }
+
+                    // Create output directory
+                    fs.mkdirSync(path.resolve(__dirname, 'dist/storefront/js'), { recursive: true });
+
+                    // Move file to new location which is used by theme.json
+                    fs.renameSync(from, to);
+                });
+            }
         })(),
     ],
     resolve: {
@@ -416,14 +412,76 @@ if (isHotMode) {
         throw new Error(`Unable to write file "${scssEntryFilePath}". ${error.message}`);
     }
 
-    webpackConfig.entry.app = [scssEntryFilePath];
+    coreConfig.entry.app = [scssEntryFilePath];
 
-    webpackConfig.entry.storefront = [...themeFiles.script].map((file) => {
+    coreConfig.entry.storefront = [...themeFiles.script].map((file) => {
         return file.filepath;
     });
 }
 
-const injector = new WebpackPluginInjector('var/plugins.json', webpackConfig, 'storefront');
-webpackConfig = injector.webpackConfig;
+// Create all plugin configs
+const pluginConfigs = pluginEntries.map((plugin) => {
 
-module.exports = webpackConfig;
+    // add custom config optionally when it exists
+    let customPluginConfig = {};
+
+    if (plugin.webpackConfig) {
+        console.log(chalk.green(`# Plugin "${plugin.name}": Extends the webpack config successfully`));
+
+        const pluginWebpackConfigFn = require(path.resolve(plugin.webpackConfig));
+
+        customPluginConfig = pluginWebpackConfigFn({
+            basePath: plugin.basePath,
+            env: process.env.NODE_ENV,
+            config: coreConfig,
+            name: plugin.name,
+            technicalName: plugin.technicalName,
+            technicalFolderName: plugin.technicalFolderName,
+            plugin,
+        });
+    }
+
+    return merge([
+        coreConfig,
+        {
+            name: plugin.technicalName,
+            entry: {
+                [plugin.technicalName]: plugin.filePath,
+            },
+            output: {
+                path: path.resolve(plugin.path, '../dist/storefront'),
+                filename: `./js/${plugin.technicalName}/[name].js`,
+                chunkFilename: `./js/${plugin.technicalName}/[name].js`,
+            },
+            plugins: [
+                new WebpackBar({
+                    name: plugin.name,
+                    color: 'green',
+                }),
+            ],
+            optimization: {
+                splitChunks: false,
+                runtimeChunk: false,
+            },
+        },
+        customPluginConfig,
+    ]);
+});
+
+const mergedCoreConfig = merge([
+    coreConfig,
+    {
+        entry: {
+            storefront: `${path.resolve('src')}/main-async.js`,
+        },
+        plugins: [
+            new WebpackBar({
+                name: 'Shopware 6 Storefront',
+                color: 'blue',
+            }),
+        ],
+    },
+]);
+
+// Use multi-compiler
+module.exports = [mergedCoreConfig, ...pluginConfigs];

@@ -2,7 +2,7 @@ import deepmerge from 'deepmerge';
 import PluginRegistry from 'src/plugin-system/plugin.registry';
 import PluginBaseClass from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
-import 'src//plugin-system/plugin.config.manager';
+import 'src/plugin-system/plugin.config.manager';
 import Iterator from 'src/helper/iterator.helper';
 
 /**
@@ -78,6 +78,11 @@ class PluginManagerSingleton {
     register(pluginName, pluginClass, selector = document, options = {}) {
         if (this._registry.has(pluginName, selector)) {
             throw new Error(`Plugin "${pluginName}" is already registered.`);
+        }
+
+        // If we cannot find the prototype of the class, we assume it will be loaded async
+        if (!Object.getOwnPropertyDescriptor(pluginClass, 'prototype')) {
+            return this._registry.set(pluginName, pluginClass, selector, options, true);
         }
 
         return this._registry.set(pluginName, pluginClass, selector, options);
@@ -203,28 +208,119 @@ class PluginManagerSingleton {
      */
     initializePlugins() {
         const initializationFailures = [];
-        Iterator.iterate(this.getPluginList(), (plugin, pluginName) => {
-            if (pluginName) {
-                if (!this._registry.has(pluginName)) {
-                    throw new Error(`The plugin "${pluginName}" is not registered.`);
-                }
 
-                const plugin = this._registry.get(pluginName);
-                if (plugin.has('registrations')) {
-                    Iterator.iterate(plugin.get('registrations'), entry => {
-                        try {
-                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
-                        } catch (failure) {
-                            initializationFailures.push(failure);
+        (async () => {
+            /** @deprecated tag:v6.6.0 - All async plugins will be fetched via async import */
+            if (window.Feature.isActive('v6.6.0.0')) {
+                await this._fetchAsyncPlugins();
+            }
+
+            for (const [pluginName] of Object.entries(this.getPluginList())) {
+                if (pluginName) {
+                    if (!this._registry.has(pluginName)) {
+                        throw new Error(`The plugin "${pluginName}" is not registered.`);
+                    }
+
+                    const plugin = this._registry.get(pluginName);
+
+                    if (plugin.has('registrations')) {
+                        for (const [, entry] of plugin.get('registrations')) {
+                            try {
+                                this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                            } catch (failure) {
+                                initializationFailures.push(failure);
+                            }
                         }
-                    });
+                    }
                 }
             }
-        });
 
-        initializationFailures.forEach((failure) => {
-            console.error(failure);
-        })
+            initializationFailures.forEach((failure) => {
+                console.error(failure);
+            });
+        })();
+    }
+
+    /**
+     * Fetches all async plugins and sets their class to the PluginRegistry.
+     *
+     * @return {Promise<void>}
+     * @private
+     */
+    async _fetchAsyncPlugins() {
+        // Collect all async plugins that need to be fetched via async import and Promise.all()
+        // [
+        //   { pluginName: 'Example', pluginClassPromise: () => import('./example.plugin') },
+        //   { pluginName: 'FooBar', pluginClassPromise: () => import('./foo-bar.plugin') },
+        // ]
+        const queue = [];
+
+        // Will contain the fetched plugin classes
+        // [
+        //   Module: { __esModule: true, default: class Example ... },
+        //   Module: { __esModule: true, default: class FooBar ... },
+        // ]
+        let fetchedPluginClasses = [];
+
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (!pluginName) {
+                continue;
+            }
+
+            if (!this._registry.has(pluginName)) {
+                throw new Error(`The plugin "${pluginName}" is not registered.`);
+            }
+
+            const plugin = this._registry.get(pluginName);
+
+            if (!plugin.has('registrations')) {
+                continue;
+            }
+
+            for (const [, entry] of plugin.get('registrations')) {
+                if (!plugin.get('async')) {
+                    continue;
+                }
+
+                let selector = entry.selector;
+
+                if (DomAccess.isNode(selector)) {
+                    queue.push({ pluginName: pluginName, pluginClassPromise: plugin.get('class') });
+                    continue;
+                }
+
+                if (typeof selector === 'string') {
+                    selector = PluginManagerSingleton._queryElements(selector);
+                }
+
+                if (selector.length > 0) {
+                    queue.push({ pluginName: pluginName, pluginClassPromise: plugin.get('class') });
+                }
+            }
+        }
+
+        if (!queue.length) {
+            return;
+        }
+
+        // Fetch all needed plugins
+        try {
+            fetchedPluginClasses = await Promise.all(queue.map((queueItem) => {
+                return queueItem.pluginClassPromise();
+            }));
+        } catch (error) {
+            console.error('An error occurred while fetching async JS-plugins', error);
+        }
+
+        // Set the fetched plugin classes to the registry, so they can be initialized later.
+        queue.forEach((plugin, index) => {
+            const pluginClass = fetchedPluginClasses[index].default;
+            const pluginName = plugin.pluginName;
+            const pluginFromRegistry = this._registry.get(pluginName);
+
+            pluginFromRegistry.set('async', false);
+            pluginFromRegistry.set('class', pluginClass);
+        });
     }
 
     /**
@@ -392,7 +488,7 @@ export default class PluginManager {
      * Registers a plugin to the plugin manager.
      *
      * @param {string} pluginName
-     * @param {Plugin} pluginClass
+     * @param {function(): Promise<{readonly default?: *}>} pluginClass
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *

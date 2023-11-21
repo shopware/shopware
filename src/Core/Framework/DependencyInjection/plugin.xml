@@ -83,6 +83,7 @@
                 <argument key="app">%kernel.app_dir%</argument>
             </argument>
             <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="cache.annotations"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginZipDetector"/>

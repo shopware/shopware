@@ -84,11 +84,11 @@ This creates an import return a unique identifier to the import. This endpoint a
 
 #### Examples
 
- * [Create a product with a new media](assets/catalog-import/examples.md#create-a-product-with-a-new-media)
- * [Update a product and update its media](assets/catalog-import/examples.md#update-a-product-and-update-its-media)
- * [Create a category and assign products to it](assets/catalog-import/examples.md#create-a-category-and-assign-products-to-it)
- * [Create a product with a custom entity](assets/catalog-import/examples.md#create-a-product-with-a-custom-entity)
- * [Update a custom entity](assets/catalog-import/examples.md#update-a-custom-entity)
+ * [Create a product with a new media](./assets/catalog-import/examples.md#create-a-product-with-a-new-media)
+ * [Update a product and update its media](./assets/catalog-import/examples.md#update-a-product-and-update-its-media)
+ * [Create a category and assign products to it](./assets/catalog-import/examples.md#create-a-category-and-assign-products-to-it)
+ * [Create a product with a custom entity](./assets/catalog-import/examples.md#create-a-product-with-a-custom-entity)
+ * [Update a custom entity](./assets/catalog-import/examples.md#update-a-custom-entity)
 
 This endpoint is used to create and update entities. The data is stored for later import, specifically during the `commit` http call.
 
@@ -145,7 +145,7 @@ Calling 'record' is not possible after an import has been committed. An error wi
 
 #### Examples
 
-* [Delete a product & media](assets/catalog-import/examples.md#delete-a-product-and-media)
+* [Delete a product & media](./assets/catalog-import/examples.md#delete-a-product-and-media)
 
 This endpoint is used to delete entities from the system, as with POST calls to the `/record` endpoint, the deletions are only queued. They delete will happen during the `/commit` call.
 
@@ -157,7 +157,7 @@ The payload is a simple array of entities with an array of ID's to delete.
 
 #### Examples
 
-* [Un-assign a media from a product](assets/catalog-import/examples.md#un-assign-a-media-from-a-product)
+* [Un-assign a media from a product](./assets/catalog-import/examples.md#un-assign-a-media-from-a-product)
 
 This endpoint is used to remove entity associations. 
 
@@ -195,11 +195,11 @@ Cancelling an import will delete all records pushed to it. This might be useful 
 
 
 ### Http Schema
-[Onpenapi schema](./assets/catalog-import/import-http-schema.yml)
+[Openapi schema](./assets/catalog-import/import-http-schema.yml)
 
 ### Resolver Concept
 
-When associating records it will be possible to specify the ID of the association, for example, when you want to assign a tax entity to a product, you can pass the tax ID.
+When associating records, it will be possible to specify the ID of the association, for example, when you want to assign a tax entity to a product, you can pass the tax ID.
 
 The problem here is that you may not know, or want to keep a record of the referenced entity ID.
 
@@ -221,19 +221,19 @@ We will still honor the configuration setting `media.enable_url_upload_feature`.
 
 Whilst adding import instructions via the '/record' endpoints, errors will be directly reported to you regarding resolving. For example, if you try to update an entity which does not exist. Or assign an entity to another that does not exist.
 
-See [Error Response: Resolving Root Entities](assets/catalog-import/examples.md#error-response-resolving-root-entities) for the request and response when trying to update a product which does not exist.
+See [Error Response: Resolving Root Entities](./assets/catalog-import/examples.md#error-response-resolving-root-entities) for the request and response when trying to update a product which does not exist.
 
 When a nested entity does not exist, the error is reported under the root entity. When an error occurs in a nested entity, the root entity will not be updated.
 
-See [Error Response: Resolving Nested Entities](assets/catalog-import/examples.md#error-response-resolving-nested-entities) for the request and response when trying to assign products which do not exist to a category.
+See [Error Response: Resolving Nested Entities](./assets/catalog-import/examples.md#error-response-resolving-nested-entities) for the request and response when trying to assign products which do not exist to a category.
 
 ### Whilst committing
 
 * When an error occurs created a nested entity, the root entity will also fail, it will not be updated.
-* When a root entity cannot be updated or created, all nested entities will be deleted. Note that it is not possible to updated nested entities so there is no issue with rolling back nested entities to their previous state.
+* When a root entity cannot be updated or created, all nested entities will be deleted. Note that it is not possible to update nested entities, so there is no issue with rolling back nested entities to their previous state.
 
-See [Error Response Status Root](assets/catalog-import/examples.md#error-response-status-root) for the request and response when trying to create a product with a not unique product number.
-See [Error Response Status Nested](assets/catalog-import/examples.md#error-response-status-nested) for the request and response when trying to create a product with a media which cannot be downloaded.
+See [Error Response Status Root](./assets/catalog-import/examples.md#error-response-status-root) for the request and response when trying to create a product with a not unique product number.
+See [Error Response Status Nested](./assets/catalog-import/examples.md#error-response-status-nested) for the request and response when trying to create a product with a media which cannot be downloaded.
 
 
 ## Error reporting

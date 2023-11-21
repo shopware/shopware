@@ -21,7 +21,6 @@ use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\System\UsageData\Services\GatewayStatusService;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
@@ -266,11 +265,8 @@ class EntityDispatchServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $entityDispatchService = new EntityDispatchService(
@@ -502,11 +498,8 @@ class EntityDispatchServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         if ($isApprovalGiven) {

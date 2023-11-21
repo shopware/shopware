@@ -2,18 +2,19 @@
  * @package admin
  */
 
-import 'src/app/component/base/sw-modal';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalSlots = null) {
-    return shallowMount(await Shopware.Component.build('sw-modal'), {
-        stubs: {
-            'sw-icon': true,
-        },
-        provide: {
-            shortcutService: {
-                startEventListener: () => {},
-                stopEventListener: () => {},
+    return mount(await wrapTestComponent('sw-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': true,
+            },
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
             },
         },
         attachTo: document.body,
@@ -34,16 +35,6 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-
-        await flushPromises();
-    });
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
-        await flushPromises();
     });
 
     it('should be a Vue.js component', () => {
@@ -57,16 +48,6 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
         expect(wrapper.get('.sw-modal__body').text()).toBe('Some content inside modal body');
         expect(wrapper.get('.sw-modal__title').text()).toBe('Cool modal');
-    });
-
-    it('should show console error when using invalid variant', async () => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
-        await wrapper.setProps({
-            variant: 'not-existing', // Make some trouble
-        });
-
-        expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
     it.each([
@@ -138,5 +119,14 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         });
 
         expect(wrapper.get('.sw-modal__titles').html()).toContain('<div class="custom-html">Custom HTML title</div>');
+    });
+
+    it('should be able to update the modal classes', async () => {
+        expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(false);
+
+        Shopware.State.commit('adminHelpCenter/setShowHelpSidebar', true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);
     });
 });

@@ -30,12 +30,12 @@
             class="sw-page__top-bar-actions"
             :style="topBarActionStyles"
         >
-            <sw-help-center />
-
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_page_notification_center %}
             <sw-notification-center />
             {% endblock %}
+
+            <sw-help-center-v2 />
         </div>
         {% endblock %}
         {% endblock %}

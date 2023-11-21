@@ -92,6 +92,7 @@ Component.register('sw-modal', {
         modalClasses() {
             return {
                 [`sw-modal--${this.variant}`]: (this.variant && !this.size),
+                'sw-modal--has-sidebar': this.showHelpSidebar,
             };
         },
 
@@ -104,6 +105,10 @@ Component.register('sw-modal', {
 
         hasFooterSlot() {
             return !!this.$slots['modal-footer'];
+        },
+
+        showHelpSidebar() {
+            return Shopware.State.get('adminHelpCenter').showHelpSidebar;
         },
     },
 

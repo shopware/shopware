@@ -209,10 +209,12 @@ Component.register('sw-shortcut-overview', {
     methods: {
         onOpenShortcutOverviewModal() {
             this.showShortcutOverviewModal = true;
+            this.$emit('shortcut-open');
         },
 
         onCloseShortcutOverviewModal() {
             this.showShortcutOverviewModal = false;
+            this.$emit('shortcut-close');
         },
     },
 });

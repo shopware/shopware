@@ -1580,5 +1580,24 @@
       "learnMore": "Learn more",
       "learnMoreUrl": "https://shopware.com/en/privacy/"
     }
+  },
+  "help-center": {
+    "sidebar": {
+      "title": "Help",
+      "ariaLabelButtonOpen": "Open help",
+      "ariaLabelButtonClose": "Close help",
+      "ariaLabelButtonShortcut": "Open keyboard shortcuts",
+      "support": {
+        "title": "Support",
+        "documentation": {
+          "text": "Documentation",
+          "href": "https://docs.shopware.com/en"
+        },
+        "createSupportRequest": {
+          "text": "Create support request",
+          "href": "https://account.shopware.com/"
+        }
+      }
+    }
   }
 }

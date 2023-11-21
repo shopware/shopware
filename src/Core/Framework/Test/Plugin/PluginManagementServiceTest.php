@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -167,7 +168,7 @@ class PluginManagementServiceTest extends TestCase
             new PluginExtractor([
                 'plugin' => self::PLUGINS_PATH,
                 'app' => self::APPS_PATH,
-            ], $this->filesystem),
+            ], $this->filesystem, new ArrayAdapter()),
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),

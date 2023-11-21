@@ -6,6 +6,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Shopware\Core\Framework\Plugin\Util\ZipUtils;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -19,7 +20,8 @@ class PluginExtractor
      */
     public function __construct(
         private readonly array $extensionDirectories,
-        private readonly Filesystem $filesystem
+        private readonly Filesystem $filesystem,
+        private readonly AdapterInterface $annotationsAdapter
     ) {
     }
 
@@ -106,6 +108,8 @@ class PluginExtractor
         if (\function_exists('apcu_clear_cache')) {
             apcu_clear_cache();
         }
+
+        $this->annotationsAdapter->clear();
     }
 
     private function assertPrefix(string $filename, string $prefix): void

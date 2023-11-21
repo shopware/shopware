@@ -9565,59 +9565,9 @@ parameters:
 			path: src/Storefront/Framework/Routing/StorefrontResponse.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:config\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:config\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:getContext\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:getSalesChannelId\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:getThemeId\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:theme\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\ConfigExtension\\:\\:theme\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/Extension/ConfigExtension.php
-
-		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Twig/Extension/IconCacheTwigFilter.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TemplateConfigAccessor\\:\\:config\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TemplateConfigAccessor.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TemplateConfigAccessor\\:\\:getStatic\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TemplateConfigAccessor.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\TemplateConfigAccessor\\:\\:theme\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Twig/TemplateConfigAccessor.php
 
 		-
 			message: "#^Anonymous variable in a `\\$expr\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"

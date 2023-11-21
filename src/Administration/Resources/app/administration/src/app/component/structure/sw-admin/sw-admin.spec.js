@@ -3,7 +3,7 @@ import { shallowMount } from '@vue/test-utils';
 import { BroadcastChannel } from 'worker_threads';
 
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {
-    return shallowMount(await Shopware.Component.build('sw-admin'), {
+    const wrapper = shallowMount(await Shopware.Component.build('sw-admin'), {
         stubs: {
             'sw-notifications': true,
             'sw-duplicated-media-v2': true,
@@ -37,6 +37,10 @@ async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.w
         },
         attachTo: document.body,
     });
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('src/app/component/structure/sw-admin/index.ts', () => {

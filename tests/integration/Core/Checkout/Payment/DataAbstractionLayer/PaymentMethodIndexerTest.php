@@ -4,15 +4,19 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexer;
+use Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentMethodIndexingMessage;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
@@ -179,5 +183,54 @@ class PaymentMethodIndexerTest extends TestCase
         /** @var PaymentMethodEntity $invoicePaymentByApp */
         $invoicePaymentByApp = $payments->get($invoicePaymentByAppId);
         static::assertEquals('Rechnung | App', $invoicePaymentByApp->getDistinguishableName());
+    }
+
+    public function testPaymentMethodIndexerNotLooping(): void
+    {
+        // Setup payment method(s)
+        /** @var EntityRepository $paymentRepository */
+        $paymentRepository = $this->getContainer()->get('payment_method.repository');
+        $context = Context::createFrom($this->context);
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE);
+        $paymentMethodId = Uuid::randomHex();
+        $paymentRepository->create(
+            [
+                [
+                    'id' => $paymentMethodId,
+                    'name' => [
+                        'en-GB' => 'Credit card',
+                        'de-DE' => 'Kreditkarte',
+                    ],
+                    'technicalName' => 'payment_creditcard_test',
+                    'active' => true,
+                    'plugin' => [
+                        'name' => 'Plugin',
+                        'baseClass' => 'Plugin\MyPlugin',
+                        'autoload' => [],
+                        'version' => '1.0.0',
+                        'label' => [
+                            'en-GB' => 'Plugin (English)',
+                            'de-DE' => 'Plugin (Deutsch)',
+                        ],
+                    ],
+                ],
+            ],
+            $context
+        );
+
+        // Run indexer
+        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
+        $messageBus->reset();
+        $ids = [$paymentMethodId];
+        $contextWithQueue = Context::createFrom($this->context);
+        $contextWithQueue->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
+        $message = new PaymentMethodIndexingMessage($ids, null, $contextWithQueue);
+        $this->indexer->handle($message);
+
+        // Check messenger if there is another new PaymentMethodIndexingMessage (it shouldn't)
+        /** @var TraceableMessageBus $messageBus */
+        $messages = $messageBus->getDispatchedMessages();
+        static::assertEmpty($messages);
     }
 }

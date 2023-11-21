@@ -219,6 +219,9 @@ class PaymentMethodIndexerTest extends TestCase
         );
 
         // Run indexer
+        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
+        static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
+        $messageBus->reset();
         $ids = [$paymentMethodId];
         $contextWithQueue = Context::createFrom($this->context);
         $contextWithQueue->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE);
@@ -227,7 +230,6 @@ class PaymentMethodIndexerTest extends TestCase
 
         // Check messenger if there is another new PaymentMethodIndexingMessage (it shouldn't)
         /** @var TraceableMessageBus $messageBus */
-        $messageBus = $this->getContainer()->get('messenger.bus.shopware');
         $messages = $messageBus->getDispatchedMessages();
         static::assertEmpty($messages);
     }

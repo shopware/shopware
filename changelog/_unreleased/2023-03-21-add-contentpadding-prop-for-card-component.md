@@ -1,6 +1,6 @@
 ---
 title: Add `contentPadding` prop for `sw-card` component
-issue: -
+issue: NEXT-31873
 author: Vu Le
 author_email: vu.le@shapeandshift.dev
 author_github: crisalder2806

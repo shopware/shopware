@@ -112,7 +112,7 @@ describe('src/app/component/base/sw-card', () => {
             propsData: {
                 positionIdentifier: 'test',
                 contentPadding: true,
-            }
+            },
         };
         const wrapper = await createWrapper(options);
 
@@ -124,7 +124,7 @@ describe('src/app/component/base/sw-card', () => {
             propsData: {
                 positionIdentifier: 'test',
                 contentPadding: false,
-            }
+            },
         };
         const wrapper = await createWrapper(options);
 

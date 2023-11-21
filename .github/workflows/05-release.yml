@@ -2,6 +2,7 @@ name: Generate Release Info
 
 on:
   release:
+    types: [published,edited]
   workflow_dispatch:
 
 jobs:
@@ -36,3 +37,25 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ secrets.RELEASE_INFO_KEY }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.RELEASE_INFO_SECRET }}
             AWS_DEFAULT_REGION: eu-west-1
+
+        - name: Trigger Store API schema build
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopware/store-api-reference/actions/workflows/manual_versioning.yml/dispatches \
+            -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'
+
+        - name: Trigger Admin API schema build
+          continue-on-error: true
+          run: |
+            curl \
+            -X POST \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/repos/shopware/admin-api-reference/actions/workflows/manual_versioning.yml/dispatches \
+            -d '{"ref": "latest", "inputs": {"shopware_version": "${{ github.event.release.tag_name }}"}}'

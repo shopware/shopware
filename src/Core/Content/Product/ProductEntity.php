@@ -1193,7 +1193,7 @@ class ProductEntity extends Entity implements \Stringable
      */
     public function setWhitelistIds(?array $whitelistIds): void
     {
-        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->whitelistIds = $whitelistIds;
     }
 

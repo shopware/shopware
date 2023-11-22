@@ -14,6 +14,7 @@
               method="post"
               data-form-validation="true"
               data-form-ajax-submit="true"
+              {# ludtwig-ignore html-string-quotation #}
               data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
             {% block page_product_detail_review_form_forward %}
@@ -27,6 +28,7 @@
 
                 <input type="hidden"
                        name="forwardParameters"
+                       {# ludtwig-ignore html-string-quotation #}
                        value='{"productId": "{{ reviews.productId }}"}'>
             {% endblock %}
 

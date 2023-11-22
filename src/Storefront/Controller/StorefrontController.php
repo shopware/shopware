@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -102,14 +103,17 @@ abstract class StorefrontController extends AbstractController
 
         $seoUrlReplacer = $this->container->get(SeoUrlPlaceholderHandlerInterface::class);
         $content = $response->getContent();
+
         if ($content !== false) {
             $response->setContent(
                 $seoUrlReplacer->replace($content, $host, $salesChannelContext)
             );
         }
 
-        $response->setData($parameters);
-        $response->setContext($salesChannelContext);
+        if (!Feature::isActive('v6.6.0.0')) {
+            $response->setData($parameters);
+            $response->setContext($salesChannelContext);
+        }
 
         $response->headers->set('Content-Type', 'text/html');
 

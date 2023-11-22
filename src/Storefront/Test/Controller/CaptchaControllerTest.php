@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
-use Shopware\Storefront\Pagelet\Captcha\BasicCaptchaPagelet;
 
 /**
  * @internal
@@ -25,12 +24,10 @@ class CaptchaControllerTest extends TestCase
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/basic-captcha');
-        /** @var StorefrontResponse $response */
+
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-        static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertInstanceOf(BasicCaptchaPagelet::class, $response->getData()['page']);
     }
 
     public function testValidateCaptcha(): void

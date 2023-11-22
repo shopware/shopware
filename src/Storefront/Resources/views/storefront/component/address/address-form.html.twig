@@ -1,4 +1,5 @@
 {% block component_address_form %}
+    {# ludtwig-ignore twig-block-name-snake-case #}
     {% block component_address_form_addressId %}
         {% if data.get('id') %}
             <input type="hidden"
@@ -82,6 +83,7 @@
                                 </div>
                             {% endblock %}
 
+                            {# ludtwig-ignore twig-block-name-snake-case #}
                             {% block component_address_form_company_vatId %}
                                 {% if prefix == 'address' and showVatIdField %}
                                     <div class="form-group col-md-6">

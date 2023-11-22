@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
-use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -293,7 +292,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $criteria = new Criteria();
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
 
-        static::expectException(ProductException::class);
+        $sortings = $criteria->getSorting();
+
+        static::assertEquals([], $sortings);
 
         $this->eventDispatcher->dispatch($event);
     }
@@ -306,7 +307,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $criteria = new Criteria();
         $event = new ProductSearchCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
 
-        static::expectException(ProductException::class);
+        $sortings = $criteria->getSorting();
+
+        static::assertEquals([], $sortings);
 
         $this->eventDispatcher->dispatch($event);
     }

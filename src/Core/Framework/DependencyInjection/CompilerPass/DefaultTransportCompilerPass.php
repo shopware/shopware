@@ -9,6 +9,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 #[Package('core')]
 class DefaultTransportCompilerPass implements CompilerPassInterface
 {
+    use CompilerPassConfigTrait;
+
     public function process(ContainerBuilder $container): void
     {
         // the default transport is defined by the parameter `messenger.default_transport_name`
@@ -19,41 +21,14 @@ class DefaultTransportCompilerPass implements CompilerPassInterface
         $id = 'messenger.transport.' . $defaultName;
         $container->addAliases(['messenger.default_transport' => $id]);
 
-        $messenger = $this->findMessenger(
-            $container->getExtensionConfig('framework')
-        );
+        $config = $this->getConfig($container, 'framework');
 
-        if (!$messenger || !\array_key_exists('routing', $messenger)) {
+        if (!\array_key_exists('messenger', $config)) {
             return;
         }
 
         $container
             ->getDefinition('messenger.bus.shopware')
-            ->replaceArgument(1, $messenger['routing']);
-    }
-
-    /**
-     * @param array<array<string, mixed>> $config
-     *
-     * @return array<string, mixed>|null
-     */
-    private function findMessenger(array $config): array|null
-    {
-        if (\array_key_exists('messenger', $config)) {
-            return $config['messenger'];
-        }
-
-        foreach ($config as $value) {
-            if (!\is_array($value)) {
-                continue;
-            }
-            $nested = $this->findMessenger($value);
-
-            if ($nested !== null) {
-                return $nested;
-            }
-        }
-
-        return null;
+            ->replaceArgument(1, $config['routing'] ?? []);
     }
 }

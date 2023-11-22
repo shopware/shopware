@@ -28,10 +28,9 @@ class RoutingExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testInvalidRequestParameterLegacy(): void
     {
         $e = RoutingException::invalidRequestParameter('foo');
@@ -48,10 +47,9 @@ class RoutingExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testMissingRequestParameterLegacy(): void
     {
         $e = RoutingException::missingRequestParameter('foo');
@@ -68,10 +66,9 @@ class RoutingExceptionTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures("v6.6.0.0")
-     *
      * @deprecated tag:v6.6.0.0 - will be removed
      */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testLanguageNotFoundLegacy(): void
     {
         $e = RoutingException::languageNotFound('foo');

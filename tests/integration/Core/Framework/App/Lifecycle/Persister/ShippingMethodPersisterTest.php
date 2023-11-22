@@ -177,7 +177,7 @@ class ShippingMethodPersisterTest extends TestCase
      */
     public function testGetAvailabilityRuleUuidReturnsAlwaysValidRule(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->installApp(self::APP_PATH);
 
@@ -197,7 +197,7 @@ class ShippingMethodPersisterTest extends TestCase
      */
     public function testGetAvailabilityRuleUuidReturnsFirstRuleForShippingArea(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->connection->update('rule', ['name' => 'Foo Bar'], ['name' => 'Always valid (Default)']);
 

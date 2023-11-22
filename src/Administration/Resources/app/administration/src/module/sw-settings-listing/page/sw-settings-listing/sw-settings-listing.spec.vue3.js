@@ -1,6 +1,12 @@
 import { mount } from '@vue/test-utils_v3';
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
+    const notificationMixinMock = {
+        methods: {
+            createNotificationError: jest.fn(),
+            createNotificationSuccess: jest.fn(),
+        },
+    };
     const testedSortingKey = 'tested-sorting-key';
     let wrapper;
 
@@ -9,6 +15,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'name-asc',
+                value: 'name-asc',
                 position: 1,
                 active: true,
                 fields: [
@@ -85,6 +92,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'rating',
+                value: 'rating',
                 position: 1,
                 active: true,
                 fields: [
@@ -106,6 +114,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'stock',
+                value: 'stock',
                 position: 1,
                 active: true,
                 fields: [
@@ -127,6 +136,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'product-number',
+                value: 'product-number',
                 position: 1,
                 active: true,
                 fields: [
@@ -148,6 +158,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'units-sold',
+                value: 'units-sold',
                 position: 1,
                 active: false,
                 fields: [
@@ -169,6 +180,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'listing-price',
+                value: 'listing-price',
                 position: 1,
                 active: true,
                 fields: [
@@ -190,6 +202,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: testedSortingKey,
+                value: testedSortingKey,
                 position: 1,
                 active: false,
                 fields: [
@@ -211,6 +224,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: true,
                 key: 'release-date',
+                value: 'release-date',
                 position: 1,
                 active: true,
                 fields: [
@@ -232,6 +246,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'random-key',
+                value: 'random-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -253,6 +268,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'dont-care-key',
+                value: 'dont-care-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -274,6 +290,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             {
                 locked: false,
                 key: 'irrelevant-key',
+                value: 'irrelevant-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -307,44 +324,148 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 renderStubDefaultSlot: true,
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => Promise.resolve(getProductSortingEntities()),
-                        }),
+                        create: (name) => {
+                            if (name === 'product_sorting') {
+                                return {
+                                    search: () => Promise.resolve(getProductSortingEntities()),
+                                    saveAll: () => Promise.resolve(),
+                                    delete: () => Promise.resolve(),
+                                };
+                            }
+                            if (name === 'system_config') {
+                                return {
+                                    search: () => Promise.resolve(getProductSortingEntities()),
+                                    delete: () => Promise.resolve(),
+                                };
+                            }
+                            return { search: () => Promise.resolve(getProductSortingEntities()) };
+                        },
+                    },
+                    systemConfigApiService: {
+                        batchSave: () => {},
                     },
                 },
+                mixins: [
+                    notificationMixinMock,
+                ],
                 stubs: {
                     'sw-page': {
-                        template: '<div><slot name="content"></slot></div>',
+                        template: '<div><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
                     },
                     'sw-system-config': {
                         data() {
                             return {
                                 singleConfig: [true, true],
+                                actualConfigData: {
+                                    null: {
+                                        'core.listing.defaultSorting': 'name-asc',
+                                    },
+                                },
+                                currentSalesChannelId: null,
                             };
                         },
+                        computed: {
+                            isNotDefaultSalesChannel() {
+                                return this.currentSalesChannelId !== null;
+                            },
+                        },
+                        methods: {
+                            saveAll() {
+
+                            },
+                            onSalesChannelChanged(salesChannelId) {
+                                this.currentSalesChannelId = salesChannelId;
+                                if (!this.actualConfigData[salesChannelId]) {
+                                    this.$set(this.actualConfigData, this.currentSalesChannelId, {});
+                                }
+                            },
+                        },
                         template: `
-                        <div class="sw-system-config">
-                            <div v-for="(config, index) in singleConfig">
-                                <slot name="afterElements" v-bind="{ config, index }"></slot>
+                            <div class="sw-system-config">
+                                <div v-for="(config, index) in singleConfig">
+                                    <slot name="afterElements" v-bind="{ config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"></slot>
+                                </div>
                             </div>
-                        </div>
-                    `,
+                        `,
                     },
+                    'sw-sales-channel-switch': true,
                     'sw-card-view': {
-                        template: '<div><slot></slot></div>',
+                        template: '<div class=""><slot></slot></div>',
                     },
                     'sw-card': {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-context-button': true,
-                    'sw-context-menu-item': true,
+                    'sw-button-process': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-context-menu-item': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-empty-state': true,
                     'sw-icon': true,
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
-                    'sw-single-select': true,
-                    'sw-settings-listing-default-sales-channel': true,
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-settings-listing-default-sales-channel': {
+                        methods: {
+                            saveSalesChannelVisibilityConfig() {
+                                Promise.resolve();
+                            },
+                        },
+                        template: `
+                        <div class="sw-settings-listing-default-sales-channel">
+                        </div>
+                    `,
+                    },
                     'router-link': true,
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-inheritance-switch': {
+                        props: {
+                            isInherited: {
+                                type: Boolean,
+                                required: true,
+                                default: false,
+                            },
+                        },
+                        template: `
+                            <div
+                                class="sw-inheritance-switch"
+                                :class="{
+                                    'sw-inheritance-switch--is-inherited': isInherited,
+                                    'sw-inheritance-switch--is-not-inherited': !isInherited,
+                                }"
+                            >
+                                <button
+                                    v-if="isInherited"
+                                    @click="$emit('inheritance-remove')"
+                                />
+                                <button
+                                    v-else
+                                    @click="$emit('inheritance-restore')"
+                                />
+                            </div>
+                        `,
+                    },
+                    'sw-settings-listing-delete-modal': {
+                        template: `
+                            <div
+                                class="sw-settings-listing-delete-modal">
+                                <button variant="danger" @click="$emit('delete')"/>
+                            </div>
+                        `,
+                    },
+                    'sw-skeleton': true,
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-popover': {
+                        template: `
+                            <div class="sw-popover"><slot></slot></div>
+                        `,
+                    },
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
                 },
             },
         });
@@ -383,7 +504,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     it('should disable delete button when product sorting is default product sorting', async () => {
         const deleteButtonOfFirstRecord = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__actions-menu :last-child');
 
-        expect(deleteButtonOfFirstRecord.attributes('disabled')).toBe('true');
+        expect(deleteButtonOfFirstRecord.attributes('disabled')).toBeDefined();
 
         const deleteButtonOfSecondRecord = wrapper.find('.sw-data-grid__row--1 .sw-data-grid__actions-menu :first-child');
 
@@ -424,9 +545,72 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         expect(defaultSorting.active).toBeTruthy();
     });
 
-    it('should render the default sorting selectbox only on first card', async () => {
+    it('should render the default sorting select box only on first card', async () => {
         const defaultSortingSelects = wrapper.findAll('.sw-settings-listing-index__default-sorting-select');
 
         expect(defaultSortingSelects).toHaveLength(1);
+    });
+
+    it('should render the default sorting select box in an inherited wrapper', async () => {
+        const defaultSortingSelect = wrapper.find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select');
+
+        expect(defaultSortingSelect).not.toBeNull();
+    });
+
+    it('should show an error notification on save when the default sorting in "all sales channels" is empty', async () => {
+        const defaultSortingSelectInput = wrapper.find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select input');
+
+        await defaultSortingSelectInput.trigger('click');
+
+        await defaultSortingSelectInput.setValue(null);
+        await defaultSortingSelectInput.trigger('input');
+
+        await defaultSortingSelectInput.trigger('keydown.esc');
+
+        await wrapper.find('.sw-settings-listing__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select.has--error')).toHaveLength(1);
+    });
+
+    it('should show a success notification on save when the default sorting in "all sales channels" is filled', async () => {
+        await wrapper.find('.sw-settings-listing__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select.has--error')).toHaveLength(0);
+    });
+
+    it('should restore inheritance when the selected default sorting was deleted', async () => {
+        wrapper.vm.$refs.systemConfig.onSalesChannelChanged('salesChannelId');
+        await flushPromises();
+
+        const defaultSortingInheritWrapper = wrapper.find('.sw-inherit-wrapper');
+
+        const defaultSortingToggleInheritance = defaultSortingInheritWrapper.find('.sw-inheritance-switch button');
+        await defaultSortingToggleInheritance.trigger('click');
+        await flushPromises();
+
+        const defaultSortingSelectInput = wrapper.find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select input');
+        await defaultSortingSelectInput.trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select .sw-select-option--rating').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-listing__save-action').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-data-grid__row--1 > .sw-data-grid__cell--actions button:last-child').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-listing-delete-modal button').trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-settings-listing__save-action').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.$refs.systemConfig.actualConfigData.salesChannelId['core.listing.defaultSorting']).toBeNull();
+        expect(defaultSortingInheritWrapper.attributes('class')).toContain('is--inherited');
+        expect(defaultSortingInheritWrapper.findAll('.sw-settings-listing-index__default-sorting-select.has--error')).toHaveLength(0);
     });
 });

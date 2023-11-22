@@ -34,10 +34,5 @@ class Checkout extends Bundle
         $loader->load('rule.xml');
         $loader->load('promotion.xml');
         $loader->load('shipping.xml');
-
-        // test classes are only loaded in autoload dev, so they are not available when other projects run platform in test mode
-        if ($container->getParameter('kernel.environment') === 'test' && class_exists('Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider')) {
-            $loader->load('services_test.xml');
-        }
     }
 }

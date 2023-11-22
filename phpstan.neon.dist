@@ -161,7 +161,6 @@ parameters:
         - # @deprecated tag:v6.6.0 Using autoload === true on associations is deprecated and must be refactored
             message: '#^[a-zA-Z_]+\.[a-zA-Z_]+ association has a configured autoload\=\=\=true, this is forbidden for platform integrations$#'
             paths:
-                - src/Core/System/SalesChannel/SalesChannelDefinition.php
                 - src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionDefinition.php
                 - src/Core/Content/Product/ProductDefinition.php
                 - src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaDefinition.php
@@ -283,6 +282,13 @@ parameters:
         - message: '#Use explicit names over dynamic ones#'
           path: src/Core/Framework/Validation/HappyPathValidator.php
           count: 2
+
+        # Http cache moves to core
+        - message: '#Multiple class\/interface\/trait is not allowed in single file#'
+          path: src/Core/Framework/Adapter/Cache/ReverseProxy/AbstractReverseProxyGateway.php
+        - message: '#Class like namespace \"Shopware\\Storefront\\Framework\\Cache\\ReverseProxy\" does not follow PSR-4 configuration in composer\.json#'
+          path: src/Core/Framework/Adapter/Cache/ReverseProxy/AbstractReverseProxyGateway.php
+
 
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan

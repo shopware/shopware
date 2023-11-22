@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,6 +23,16 @@ trait StorefrontControllerTestBehaviour
         $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data);
 
         return $browser->getResponse();
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return (string) $this->getContainer()
+            ->get(Connection::class)
+            ->fetchOne(
+                'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url = :url',
+                ['url' => EnvironmentHelper::getVariable('APP_URL')]
+            );
     }
 
     /**

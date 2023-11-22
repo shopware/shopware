@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
@@ -114,10 +115,15 @@ class IterateEntitiesQueryBuilder
         }
 
         $entityName = $definition->getEntityName();
+        $escapedIdFieldStorageName = EntityDefinitionQueryHelper::escape('id');
 
         $query = $this->createQueryBuilder();
-        $query->select(EntityDefinitionQueryHelper::escape('id'));
         $query->setTitle("UsageData EntitySync - iterate entity deletions for '$entityName'");
+        $query->select(sprintf(
+            'LOWER(HEX(%s)) as %s',
+            $escapedIdFieldStorageName,
+            $escapedIdFieldStorageName,
+        ));
         $query->from(EntityDefinitionQueryHelper::escape('usage_data_entity_deletion'));
         $query->where($query->expr()->eq(EntityDefinitionQueryHelper::escape('entity_name'), ':entityName'));
         $query->andWhere($query->expr()->lte(EntityDefinitionQueryHelper::escape('deleted_at'), ':currentRunDate'));
@@ -145,6 +151,10 @@ class IterateEntitiesQueryBuilder
                 continue;
             }
 
+            if ($primaryKey instanceof ReferenceVersionField) {
+                continue;
+            }
+
             $escapedFieldStorageName = EntityDefinitionQueryHelper::escape($primaryKey->getStorageName());
 
             $selections[] = sprintf(
@@ -162,8 +172,25 @@ class IterateEntitiesQueryBuilder
         $queryBuilder->setMaxResults($this->batchSize);
         $queryBuilder->setFirstResult(0);
 
-        if ($definition->isVersionAware()) {
-            $queryBuilder->where('version_id = :versionId');
+        $queryBuilder = $this->checkLiveVersion($definition, $queryBuilder);
+
+        return $queryBuilder;
+    }
+
+    private function checkLiveVersion(EntityDefinition $definition, QueryBuilder $queryBuilder): QueryBuilder
+    {
+        $hasVersionFields = false;
+
+        foreach ($definition->getFields() as $field) {
+            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                $hasVersionFields = true;
+                $queryBuilder->andWhere(
+                    sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape($field->getStorageName())),
+                );
+            }
+        }
+
+        if ($hasVersionFields) {
             $queryBuilder->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         }
 

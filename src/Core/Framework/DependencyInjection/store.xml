@@ -187,6 +187,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionDownloader"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

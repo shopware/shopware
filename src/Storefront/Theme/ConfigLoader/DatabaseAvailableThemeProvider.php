@@ -36,7 +36,7 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
     {
         if (\count(\func_get_args()) === 1) {
             Feature::triggerDeprecationOrThrow(
-                'v6_6_0_0',
+                'v6.6.0.0',
                 sprintf(
                     'Method %s::%s is deprecated. Second parameter $activeOnly will be required in future versions.',
                     __CLASS__,

@@ -38,6 +38,8 @@ const { Component } = Shopware;
 Component.register('sw-text-editor', {
     template,
 
+    inject: ['feature'],
+
     props: {
         value: {
             type: String,
@@ -900,12 +902,20 @@ Component.register('sw-text-editor', {
         },
 
         emitContent() {
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:modelValue', this.getContentValue());
+                return;
+            }
             this.$emit('input', this.getContentValue());
         },
 
         emitHtmlContent(value) {
             this.content = value;
-            this.$emit('input', value);
+            if (this.feature.isActive('VUE3')) {
+                this.$emit('update:modelValue', value);
+            } else {
+                this.$emit('input', value);
+            }
 
             this.isEmpty = this.emptyCheck(this.content);
             this.placeholderVisible = this.isEmpty;

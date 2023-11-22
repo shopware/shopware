@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 use Doctrine\DBAL\Exception;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
@@ -85,6 +86,7 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->get(ThemeFileImporter::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->getContainer()->get(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
@@ -102,6 +104,7 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->get(ThemeFileImporter::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->getContainer()->get(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),
@@ -448,6 +451,7 @@ PHP_EOL;
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             $this->getContainer()->getParameter('kernel.project_dir'),
             $this->getContainer()->get(ScssPhpCompiler::class),

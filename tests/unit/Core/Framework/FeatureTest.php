@@ -115,10 +115,9 @@ class FeatureTest extends TestCase
     }
 
     /**
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     *
      * @covers ::triggerDeprecationOrThrow
      */
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {
         Feature::resetRegisteredFeatures();
@@ -158,10 +157,9 @@ class FeatureTest extends TestCase
     /**
      * @covers \Shopware\Core\Framework\Feature
      *
-     * @DisabledFeatures(features={"v6.5.0.0"})
-     *
      * @dataProvider callSilentIfInactiveProvider
      */
+    #[DisabledFeatures(['v6.5.0.0'])]
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
     {
         $errorMessage = null;

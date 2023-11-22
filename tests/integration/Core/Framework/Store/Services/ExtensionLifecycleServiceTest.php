@@ -89,14 +89,14 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testUninstallWithInvalidNameWithoutMajorFlag(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
     }
 
     public function testUninstallWithInvalidNameWithMajorFlag(): void
     {
-        Feature::skipTestIfInActive('V6_6_0_0', $this);
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Could not find extension with technical name "notExisting"');
@@ -105,7 +105,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testInstallAppNotExistingWithoutMajorFlag(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->expectException(ExtensionInstallException::class);
         $this->lifecycleService->install('app', 'notExisting', $this->context);
@@ -113,7 +113,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testInstallAppNotExistingWithMajorFlagActivated(): void
     {
-        Feature::skipTestIfInActive('V6_6_0_0', $this);
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
 
         $this->expectException(StoreException::class);
         $this->expectExceptionMessage('Cannot find app by name notExisting');
@@ -170,7 +170,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testUpdateExtensionNotExistingWithoutMajorFlag(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->expectException(ExtensionInstallException::class);
         $this->lifecycleService->update('app', 'foo', false, $this->context);
@@ -178,7 +178,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testUpdateExtensionNotExistingWithMajorFlag(): void
     {
-        Feature::skipTestIfInActive('V6_6_0_0', $this);
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Cannot find extension');
@@ -187,7 +187,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testUpdateExtensionNotInstalledWithoutMajorFlag(): void
     {
-        Feature::skipTestIfActive('V6_6_0_0', $this);
+        Feature::skipTestIfActive('v6.6.0.0', $this);
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
         $this->expectException(ExtensionNotFoundException::class);
@@ -196,7 +196,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testUpdateExtensionNotInstalledWithMajorFlag(): void
     {
-        Feature::skipTestIfInActive('V6_6_0_0', $this);
+        Feature::skipTestIfInActive('v6.6.0.0', $this);
 
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
         $this->expectException(StoreException::class);

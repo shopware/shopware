@@ -701,7 +701,7 @@ class ConsentServiceTest extends TestCase
             'APP_URL',
         );
 
-        $consentService->resetIsBannerHiddenToFalseForAllUsers();
+        $consentService->resetIsBannerHiddenForAllUsers();
     }
 
     public function testEarlyReturnResetIsBannerHiddenIfNoUserConfigsGiven(): void
@@ -735,7 +735,7 @@ class ConsentServiceTest extends TestCase
             'APP_URL',
         );
 
-        $consentService->resetIsBannerHiddenToFalseForAllUsers();
+        $consentService->resetIsBannerHiddenForAllUsers();
     }
 
     private function createUserConfigEntities(IdsCollection $idsCollection, int $count): UserConfigCollection

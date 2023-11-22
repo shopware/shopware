@@ -215,7 +215,7 @@ class IterateEntityMessageHandlerTest extends TestCase
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
         static::assertEquals(
             [
-                ['id' => Uuid::fromHexToBytes($ids->get('product-from-the-past'))],
+                ['id' => $ids->get('product-from-the-past')],
             ],
             $entitySyncMessage->getPrimaryKeys(),
         );

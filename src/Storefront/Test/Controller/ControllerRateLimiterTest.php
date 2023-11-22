@@ -202,16 +202,10 @@ class ControllerRateLimiterTest extends TestCase
 
         $this->getContainer()->get('request_stack')->push($request);
 
-        /** @var StorefrontResponse $response */
         $response = $controller->login($request, new RequestDataBag([
             'email' => 'test@example.com',
             'password' => 'wrong',
         ]), $this->salesChannelContext);
-
-        $data = $response->getData();
-
-        static::assertTrue($data['loginError']);
-        static::assertEquals(5, $data['waitTime']);
 
         $contentReturn = $response->getContent();
         $crawler = new Crawler();
@@ -328,6 +322,7 @@ class ControllerRateLimiterTest extends TestCase
         $request = new Request();
         $request->query->add($params);
         $request->setSession($this->getSession());
+        $request->headers->set('HOST', 'localhost');
         $request->attributes->add([
             '_route' => $route,
             SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,

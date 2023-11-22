@@ -165,22 +165,12 @@
                                                 {% endblock %}
 
                                                 <sw-context-menu-item
-                                                    v-if="cmsPage.type === 'product_list' && !(defaultCategoryId === cmsPage.id)"
+                                                    v-if="cmsPage.type === 'product_list' && defaultCategoryId !== cmsPage.id"
                                                     class="sw-cms-list-item__option-set-as-default"
                                                     :disabled="!acl.can('system_config.editor')"
                                                     @click="onOpenLayoutSetAsDefault(cmsPage)"
                                                 >
                                                     {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                                </sw-context-menu-item>
-
-                                                <!-- @deprecated tag:v6.6.0 default layouts for products will be enabled -->
-                                                <sw-context-menu-item
-                                                    v-else-if="feature.isActive('v6.6.0.0') && cmsPage.type === 'product_detail' && !(defaultProductId === cmsPage.id)"
-                                                    class="sw-cms-list-item__option-set-as-default"
-                                                    :disabled="!acl.can('cms.editor')"
-                                                    @click="onOpenLayoutSetAsDefault(cmsPage)"
-                                                >
-                                                    {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                                 </sw-context-menu-item>
 
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -210,7 +200,7 @@
                                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                                 {% block sw_cms_list_listing_list_item_option_delete %}
                                                 <sw-context-menu-item
-                                                    v-if="!cmsPage.locked && !(defaultProductId === cmsPage.id || defaultCategoryId === cmsPage.id)"
+                                                    v-if="!cmsPage.locked && defaultProductId !== cmsPage.id && defaultCategoryId !== cmsPage.id"
                                                     v-tooltip="deleteDisabledToolTip(cmsPage)"
                                                     class="sw-cms-list-item__option-delete"
                                                     variant="danger"
@@ -335,21 +325,12 @@
                                         {% endblock %}
 
                                         <sw-context-menu-item
-                                            v-if="item.type === 'product_list' && !(defaultCategoryId === item.id)"
+                                            v-if="item.type === 'product_list' && defaultCategoryId !== item.id"
                                             class="sw-cms-list-item__option-set-as-default"
                                             :disabled="!acl.can('system_config.editor')"
                                             @click="onOpenLayoutSetAsDefault(item)"
                                         >
                                             {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductList') }}
-                                        </sw-context-menu-item>
-
-                                        <sw-context-menu-item
-                                            v-else-if="item.type === 'product_detail' && !(defaultProductId === item.id)"
-                                            class="sw-cms-list-item__option-set-as-default"
-                                            :disabled="!acl.can('cms.editor')"
-                                            @click="onOpenLayoutSetAsDefault(item)"
-                                        >
-                                            {{ $tc('sw-cms.components.cmsListItem.setAsDefaultProductDetail') }}
                                         </sw-context-menu-item>
 
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -378,7 +359,7 @@
                                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                         {% block sw_cms_list_listing_list_data_grid_actions_edit_delete %}
                                         <sw-context-menu-item
-                                            v-if="!item.locked && !(defaultProductId === item.id || defaultCategoryId === item.id)"
+                                            v-if="!item.locked && defaultProductId !== item.id && defaultCategoryId !== item.id"
                                             v-tooltip="deleteDisabledToolTip(item)"
                                             variant="danger"
                                             class="sw-cms-list__context-menu-item-delete"

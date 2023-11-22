@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
@@ -27,11 +28,15 @@ use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\ThemeCompilerEnrichScssVarSubscriber;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\AsyncTest\AsyncTest;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\NotFoundPlugin\NotFoundPlugin;
+use Shopware\Tests\Unit\Storefront\Theme\fixtures\ThemeAndPlugin\TestTheme\TestTheme;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -72,6 +77,7 @@ class ThemeCompilerTest extends TestCase
             $this->createMock(ThemeFileImporter::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
@@ -384,6 +390,7 @@ PHP_EOL;
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
@@ -444,6 +451,7 @@ PHP_EOL;
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             __DIR__,
             $this->createMock(ScssPhpCompiler::class),
@@ -503,6 +511,7 @@ PHP_EOL;
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             __DIR__,
             $scssCompiler,
@@ -568,6 +577,7 @@ PHP_EOL;
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             $pathBuilder,
             __DIR__,
             $scssCompiler,
@@ -650,6 +660,7 @@ PHP_EOL;
             $importer,
             [],
             $this->createMock(CacheInvalidator::class),
+            $this->createMock(LoggerInterface::class),
             $pathBuilder,
             __DIR__,
             $scssCompiler,
@@ -671,6 +682,95 @@ PHP_EOL;
         );
 
         static::assertTrue($fs->fileExists('theme/current/all.js'));
+    }
+
+    /**
+     * Write a unit test for copyScriptFilesToTheme function.
+     */
+    public function testCopyScriptFilesToTheme(): void
+    {
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $fs = new Filesystem(new MemoryFilesystemAdapter());
+        $tmpFs = new Filesystem(new MemoryFilesystemAdapter());
+
+        $distLocation = 'fixtures/ThemeAndPlugin/TestTheme/Resources/app/storefront/dist/storefront/js/test-theme';
+        $fs->createDirectory($distLocation);
+        $fs->write($distLocation . '/test-theme.js', '');
+
+        $scssCompiler = $this->createMock(ScssPhpCompiler::class);
+        $scssCompiler->expects(static::once())->method('compileString')->willReturn('');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(static::once())->method('error');
+
+        $pathBuilder = new MD5ThemePathBuilder();
+
+        $this->setEnvVars([
+            'V6_6_0_0' => 1,
+        ]);
+
+        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
+        $compiler = new ThemeCompiler(
+            $fs,
+            $tmpFs,
+            $resolver,
+            true,
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(ThemeFileImporter::class),
+            [],
+            $this->createMock(CacheInvalidator::class),
+            $logger,
+            $pathBuilder,
+            $projectDir,
+            $scssCompiler,
+            new MessageBus(),
+            0,
+            false
+        );
+
+        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
+        $themePluginBundle = new TestTheme();
+        $asyncPluginBundle = new AsyncTest(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncTest');
+        $notFoundPluginBundle = new NotFoundPlugin(
+            true,
+            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
+        );
+        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
+        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
+
+        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
+        $scripts = new FileCollection();
+        $scripts = $scripts::createFromArray([
+            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
+        ]);
+        $notFoundPlugin->setScriptFiles($scripts);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($testTheme);
+        $configCollection->add($asyncPlugin);
+        $configCollection->add($notFoundPlugin);
+
+        $compiler->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'TestTheme',
+            $testTheme,
+            $configCollection,
+            true,
+            Context::createDefaultContext()
+        );
+
+        $themeBasePath = '/theme/2fb1d60e66e241fe65bcedc271cc2174';
+        $asyncMainJsInTheme = $themeBasePath . '/js/async-test/async-test.js';
+        $asyncAnotherJsFileInTheme = $themeBasePath . '/js/async-test/custom_plugins_AsyncTest_src_Resources_app_storefront_src_plugins_lorem-ipsum_plugin_js.js';
+        $themeMainJsInTheme = $themeBasePath . '/js/test-theme/test-theme.js';
+
+        static::assertTrue($fs->directoryExists($distLocation));
+        static::assertTrue($fs->fileExists($distLocation . '/test-theme.js'));
+        static::assertTrue($fs->fileExists($asyncMainJsInTheme));
+        static::assertTrue($fs->fileExists($asyncAnotherJsFileInTheme));
+        static::assertTrue($fs->fileExists($themeMainJsInTheme));
     }
 
     /**

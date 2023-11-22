@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
@@ -16,7 +17,6 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
@@ -47,58 +47,26 @@ class Manifest
     ) {
     }
 
+    public static function validate(string $fileContent, string $file): void
+    {
+        try {
+            $doc = XmlUtils::parse($fileContent, self::XSD_FILE);
+        } catch (\Exception $e) {
+            throw AppException::xmlParsingException($file, $e->getMessage());
+        }
+
+        self::create($doc, $file);
+    }
+
     public static function createFromXmlFile(string $xmlFile): self
     {
         try {
             $doc = XmlUtils::loadFile($xmlFile, self::XSD_FILE);
-
-            $meta = $doc->getElementsByTagName('meta')->item(0);
-            \assert($meta !== null);
-            $metadata = Metadata::fromXml($meta);
-            $setup = $doc->getElementsByTagName('setup')->item(0);
-            $setup = $setup === null ? null : Setup::fromXml($setup);
-            $admin = $doc->getElementsByTagName('admin')->item(0);
-            $admin = $admin === null ? null : Admin::fromXml($admin);
-            $permissions = $doc->getElementsByTagName('permissions')->item(0);
-            $permissions = $permissions === null ? null : Permissions::fromXml($permissions);
-            $allowedHosts = $doc->getElementsByTagName('allowed-hosts')->item(0);
-            $allowedHosts = $allowedHosts === null ? null : AllowedHosts::fromXml($allowedHosts);
-            $customFields = $doc->getElementsByTagName('custom-fields')->item(0);
-            $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
-            $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
-            $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
-            $cookies = $doc->getElementsByTagName('cookies')->item(0);
-            $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
-            $payments = $doc->getElementsByTagName('payments')->item(0);
-            $payments = $payments === null ? null : Payments::fromXml($payments);
-            $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
-            $ruleConditions = $ruleConditions === null ? null : RuleConditions::fromXml($ruleConditions);
-            $storefront = $doc->getElementsByTagName('storefront')->item(0);
-            $storefront = $storefront === null ? null : Storefront::fromXml($storefront);
-            $tax = $doc->getElementsByTagName('tax')->item(0);
-            $tax = $tax === null ? null : Tax::fromXml($tax);
-            $shippingMethods = $doc->getElementsByTagName('shipping-methods')->item(0);
-            $shippingMethods = $shippingMethods === null ? null : ShippingMethods::fromXml($shippingMethods);
         } catch (\Exception $e) {
-            throw new XmlParsingException($xmlFile, $e->getMessage());
+            throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
 
-        return new self(
-            \dirname($xmlFile),
-            $metadata,
-            $setup,
-            $admin,
-            $permissions,
-            $allowedHosts,
-            $customFields,
-            $webhooks,
-            $cookies,
-            $payments,
-            $ruleConditions,
-            $storefront,
-            $tax,
-            $shippingMethods,
-        );
+        return self::create($doc, $xmlFile);
     }
 
     public function getPath(): string
@@ -231,5 +199,57 @@ class Manifest
     public function setManagedByComposer(bool $managedByComposer): void
     {
         $this->managedByComposer = $managedByComposer;
+    }
+
+    private static function create(\DOMDocument $doc, string $xmlFile): self
+    {
+        try {
+            $meta = $doc->getElementsByTagName('meta')->item(0);
+            \assert($meta !== null);
+            $metadata = Metadata::fromXml($meta);
+            $setup = $doc->getElementsByTagName('setup')->item(0);
+            $setup = $setup === null ? null : Setup::fromXml($setup);
+            $admin = $doc->getElementsByTagName('admin')->item(0);
+            $admin = $admin === null ? null : Admin::fromXml($admin);
+            $permissions = $doc->getElementsByTagName('permissions')->item(0);
+            $permissions = $permissions === null ? null : Permissions::fromXml($permissions);
+            $allowedHosts = $doc->getElementsByTagName('allowed-hosts')->item(0);
+            $allowedHosts = $allowedHosts === null ? null : AllowedHosts::fromXml($allowedHosts);
+            $customFields = $doc->getElementsByTagName('custom-fields')->item(0);
+            $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
+            $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
+            $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
+            $cookies = $doc->getElementsByTagName('cookies')->item(0);
+            $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
+            $payments = $doc->getElementsByTagName('payments')->item(0);
+            $payments = $payments === null ? null : Payments::fromXml($payments);
+            $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
+            $ruleConditions = $ruleConditions === null ? null : RuleConditions::fromXml($ruleConditions);
+            $storefront = $doc->getElementsByTagName('storefront')->item(0);
+            $storefront = $storefront === null ? null : Storefront::fromXml($storefront);
+            $tax = $doc->getElementsByTagName('tax')->item(0);
+            $tax = $tax === null ? null : Tax::fromXml($tax);
+            $shippingMethods = $doc->getElementsByTagName('shipping-methods')->item(0);
+            $shippingMethods = $shippingMethods === null ? null : ShippingMethods::fromXml($shippingMethods);
+        } catch (\Exception $e) {
+            throw AppException::xmlParsingException($xmlFile, $e->getMessage());
+        }
+
+        return new self(
+            \dirname($xmlFile),
+            $metadata,
+            $setup,
+            $admin,
+            $permissions,
+            $allowedHosts,
+            $customFields,
+            $webhooks,
+            $cookies,
+            $payments,
+            $ruleConditions,
+            $storefront,
+            $tax,
+            $shippingMethods,
+        );
     }
 }

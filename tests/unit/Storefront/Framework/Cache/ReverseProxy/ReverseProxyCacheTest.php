@@ -4,8 +4,8 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Cache\ReverseProxy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\CacheStore;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.6.0 - Move to core
  *
  * @covers \Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache
  */

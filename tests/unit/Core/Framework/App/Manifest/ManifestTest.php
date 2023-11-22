@@ -3,9 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethods;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
  * @internal
@@ -31,7 +31,7 @@ class ManifestTest extends TestCase
 
     public function testThrowsXmlParsingExceptionIfInvalidWebhookEventNames(): void
     {
-        $this->expectException(XmlParsingException::class);
+        $this->expectException(AppException::class);
         $this->expectExceptionMessage('attribute \'event\': \'test event\' is not a valid value');
         $this->expectExceptionMessage('attribute \'event\': \'\' is not a valid value');
         $this->expectExceptionMessage('Duplicate key-sequence [\'hook2\'] in unique identity-constraint \'uniqueWebhookName\'');
@@ -89,5 +89,26 @@ class ManifestTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test-manifest-withoutShippingMethods.xml');
 
         static::assertNull($manifest->getShippingMethods());
+    }
+
+    public function testValidate(): void
+    {
+        $file = __DIR__ . '/_fixtures/shippingMethod-manifest.xml';
+        $fileContent = file_get_contents($file);
+        static::assertIsString($fileContent);
+
+        Manifest::validate($fileContent, $file);
+    }
+
+    public function testValidateWithInvalidShippingMethod(): void
+    {
+        $file = '/_fixtures/invalidShippingMethods-manifest.xml';
+        $fileContent = file_get_contents(__DIR__ . $file);
+        static::assertIsString($fileContent);
+
+        $this->expectException(AppException::class);
+        $this->expectExceptionMessage('Unable to parse file "/_fixtures/invalidShippingMethods-manifest.xml". Message: name must not be empty');
+
+        Manifest::validate($fileContent, $file);
     }
 }

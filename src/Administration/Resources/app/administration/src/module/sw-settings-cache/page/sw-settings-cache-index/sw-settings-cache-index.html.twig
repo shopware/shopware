@@ -172,8 +172,10 @@
                             {% endblock %}
                         </div>
 
+                        {# @deprecated tag:v6.6.0 - Will be removed #}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_cache_content_clear_and_warm_up_cache_row_button %}
+
                         <sw-button-process
                             variant="ghost"
                             :is-loading="processes.clearAndWarmUpCache"

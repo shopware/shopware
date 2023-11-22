@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
@@ -191,7 +193,11 @@ class IterateEntitiesQueryBuilderTest extends TestCase
         static::assertEquals(IterableTestEntityDefinition::ENTITY_NAME, $queryBuilder->getParameter('entityName'));
     }
 
-    public function testFiltersForVersionId(): void
+    /**
+     * It filters non-live version entities. And it will exclude the version fields and non storage aware
+     * fields from the select clause.
+     */
+    public function testFiltersNonLiveVersionEntities(): void
     {
         $lastApprovalDate = new \DateTimeImmutable('2023-09-11');
         $queryBuilder = $this->iteratorFactory->create(
@@ -212,7 +218,10 @@ class IterateEntitiesQueryBuilderTest extends TestCase
         ], $queryBuilder->getQueryPart('select'));
 
         static::assertEquals(
-            CompositeExpression::and('version_id = :versionId'),
+            CompositeExpression::and(
+                EntityDefinitionQueryHelper::escape('version_id') . ' = :versionId',
+                EntityDefinitionQueryHelper::escape('version_aware_test_version_id') . ' = :versionId',
+            ),
             $queryBuilder->getQueryPart('where')
         );
 
@@ -256,7 +265,9 @@ class VersionAwareTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
+            (new VersionField())->addFlags(new PrimaryKey(), new Required()),
+            (new ReferenceVersionField(self::class, 'version_aware_test_version_id'))->addFlags(new PrimaryKey(), new Required()),
+            (new OneToManyAssociationField('association_field', self::class, 'id'))->addFlags(new PrimaryKey(), new Required()),
         ]);
     }
 }

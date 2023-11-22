@@ -7,14 +7,16 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
+ * @deprecated tag:v6.6.0 - reason:becomes-internal
  * @see https://github.com/varnish/varnish-modules/blob/master/src/vmod_xkey.vcc
  */
-#[Package('storefront')]
+#[Package('core')]
 class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
 {
     /**
@@ -39,16 +41,12 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
      */
     public function tag(array $tags, string $url, Response $response): void
     {
-        /** @var Response|null $response */
-        $response = \func_num_args() === 3 ? func_get_arg(2) : null;
-
-        if ($response === null) {
-            throw new \InvalidArgumentException('Parameter $response is required for VarnishReverseProxyGateway');
-        }
-
         $response->headers->set('xkey', implode(' ', $tags));
     }
 
+    /**
+     * @param array<string> $tags
+     */
     public function invalidate(array $tags): void
     {
         $list = [];
@@ -61,7 +59,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }
 
                 throw $reason;
@@ -71,6 +69,9 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
         $pool->promise()->wait();
     }
 
+    /**
+     * @param array<string> $urls
+     */
     public function ban(array $urls): void
     {
         $list = [];
@@ -85,7 +86,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
             'concurrency' => $this->concurrency,
             'rejected' => function (TransferException $reason): void {
                 if ($reason instanceof ServerException) {
-                    throw new \RuntimeException(sprintf('BAN request failed to %s failed with error: %s', $reason->getRequest()->getUri()->__toString(), $reason->getMessage()), 0, $reason);
+                    throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }
 
                 throw $reason;

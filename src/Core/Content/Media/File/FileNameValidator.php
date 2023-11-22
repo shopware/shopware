@@ -27,6 +27,8 @@ class FileNameValidator
         '}',
     ];
 
+    private const MAX_FILE_NAME_LENGTH = 255;
+
     /**
      * @throws MediaException
      */
@@ -40,6 +42,7 @@ class FileNameValidator
         $this->validateFileNameDoesNotEndOrStartWithDot($fileName);
         $this->validateFileNameDoesNotContainForbiddenCharacter($fileName);
         $this->validateFileNameDoesNotContainC0Character($fileName);
+        $this->validateFileNameIsLessOrEqualThanMaxLength($fileName);
     }
 
     private function validateFileNameDoesNotEndOrStartWithDot(string $fileName): void
@@ -82,5 +85,14 @@ class FileNameValidator
         if (mb_substr($fileName, -1) === ' ') {
             throw MediaException::illegalFileName($fileName, 'Filename must not end with spaces');
         }
+    }
+
+    private function validateFileNameIsLessOrEqualThanMaxLength(string $fileName): void
+    {
+        if (\strlen($fileName) <= self::MAX_FILE_NAME_LENGTH) {
+            return;
+        }
+
+        throw MediaException::fileNameTooLong(self::MAX_FILE_NAME_LENGTH);
     }
 }

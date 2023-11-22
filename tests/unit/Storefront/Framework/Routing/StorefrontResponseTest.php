@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -24,6 +25,12 @@ use Shopware\Storefront\Framework\Routing\StorefrontResponse;
  */
 class StorefrontResponseTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+    }
+
     public function testInit(): void
     {
         $response = new StorefrontResponse();

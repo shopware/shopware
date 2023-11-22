@@ -222,7 +222,7 @@ class RateLimiterTest extends TestCase
             $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 3) {
-                static::assertArrayHasKey('errors', $response);
+                static::assertArrayHasKey('errors', $response, print_r($response, true));
                 static::assertEquals(429, $response['errors'][0]['status']);
                 static::assertEquals('FRAMEWORK__RATE_LIMIT_EXCEEDED', $response['errors'][0]['code']);
             } else {
@@ -246,6 +246,7 @@ class RateLimiterTest extends TestCase
             $response = $this->browser->getResponse()->getContent();
 
             if ($i >= 3) {
+                static::assertJson((string) $response, (string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
                 static::assertIsArray($response);
                 static::assertArrayHasKey('errors', $response);
@@ -327,6 +328,7 @@ class RateLimiterTest extends TestCase
             $response = $this->browser->getResponse()->getContent();
 
             if ($i >= 3) {
+                static::assertJson((string) $response);
                 $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
 
                 static::assertArrayHasKey('errors', $response);

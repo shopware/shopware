@@ -43,9 +43,7 @@ class DatabaseAvailableThemeProviderTest extends TestCase
         $themeProvider->load(Context::createDefaultContext());
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testLoadCanStillBeCalledWithOneParameter(): void
     {
         $themeProvider = new DatabaseAvailableThemeProvider(new StaticEntityRepository([new SalesChannelCollection()]));

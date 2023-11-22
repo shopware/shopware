@@ -87,11 +87,27 @@ Component.register('sw-select-selection-list', {
         },
     },
 
+    data() {
+        return {
+            tagLimit: true,
+        };
+    },
+
     computed: {
         showPlaceholder() {
             return (this.alwaysShowPlaceholder || this.selections.length === 0 || this.hideLabels)
                 ? this.placeholder
                 : '';
+        },
+
+        visibleTags() {
+            return this.tagLimit ? this.selections.slice(0, 5) : this.selections;
+        },
+
+        numberOfHiddenTags() {
+            const hiddenTagsLength = this.selections.length - this.visibleTags.length;
+
+            return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
         },
     },
 
@@ -140,6 +156,10 @@ Component.register('sw-select-selection-list', {
 
         getFocusEl() {
             return this.$refs.swSelectInput;
+        },
+
+        removeTagLimit() {
+            this.tagLimit = false;
         },
     },
 });

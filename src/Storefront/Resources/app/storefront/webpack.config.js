@@ -2,16 +2,22 @@
  * @package storefront
  */
 
+const chalk = require('chalk');
+
+/** @deprecated tag:v6.6.0 - All contents of webpack.config.js will be replaced contents of webpack-multi-compiler.config.js */
+if (process.env.V6_6_0_0 && parseInt(process.env.V6_6_0_0) === 1) {
+    module.exports = require('./webpack.multi-compiler.config');
+    return;
+}
+
 const WebpackPluginInjector = require('@shopware-ag/webpack-plugin-injector');
 const babelrc = require('./.babelrc');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
-const chalk = require('chalk');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const crypto = require('crypto');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');

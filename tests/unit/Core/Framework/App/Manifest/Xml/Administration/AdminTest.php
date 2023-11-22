@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\Administration;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 
 /**
  * @internal
@@ -94,7 +94,8 @@ class AdminTest extends TestCase
 
     public function testManifestWithMultipleMainModulesIsInvalid(): void
     {
-        $this->expectException(XmlParsingException::class);
+        $this->expectException(AppException::class);
+
         Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithTwoMainModules.xml');
     }
 }

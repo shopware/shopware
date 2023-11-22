@@ -15,16 +15,19 @@ trait EventDispatcherBehaviour
         EventDispatcherInterface $dispatcher,
         string $eventName,
         callable $callback,
-        int $priority = 0
+        int $priority = 0,
+        bool $once = false
     ): void {
+        $instance = new EventDispatcherWrapper($callback, $dispatcher, $once, $eventName);
+
         /** @var callable(object): void $callback - Specify generic callback interface callers can provide more specific implementations */
         $this->registered[] = [
             'dispatcher' => $dispatcher,
             'name' => $eventName,
-            'callback' => $callback,
+            'callback' => $instance,
         ];
 
-        $dispatcher->addListener($eventName, $callback, $priority);
+        $dispatcher->addListener($eventName, $instance, $priority);
     }
 
     /**

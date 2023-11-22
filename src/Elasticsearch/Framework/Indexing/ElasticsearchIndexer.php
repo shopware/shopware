@@ -234,7 +234,9 @@ class ElasticsearchIndexer
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
-        $this->createScripts();
+        if (!Feature::isActive('v6.6.0.0')) {
+            $this->createScripts();
+        }
 
         $languages = $this->languageProvider->getLanguages(Context::createDefaultContext());
 

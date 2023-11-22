@@ -191,9 +191,7 @@ final class DispatchEntityMessageHandler
             $queryBuilder->withPersonalUniqueIdentifier();
         }
 
-        if ($definition->isVersionAware()) {
-            $queryBuilder->withLiveVersionCheck();
-        }
+        $queryBuilder->checkLiveVersion($definition);
 
         $entities = $queryBuilder->execute()->iterateAssociative();
 

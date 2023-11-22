@@ -49,6 +49,12 @@ export default class ShopwareExtensionService {
         });
     }
 
+    public async installAndActivateExtension(extensionName: string, type: ExtensionType): Promise<void> {
+        await this.extensionStoreActionService.installExtension(extensionName, type);
+        await this.extensionStoreActionService.activateExtension(extensionName, type);
+        await this.updateExtensionData();
+    }
+
     public async installExtension(extensionName: string, type: ExtensionType): Promise<void> {
         await this.extensionStoreActionService.installExtension(extensionName, type);
 

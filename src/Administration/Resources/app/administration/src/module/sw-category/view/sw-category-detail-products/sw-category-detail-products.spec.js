@@ -3,6 +3,8 @@
  */
 import { shallowMount } from '@vue/test-utils';
 import swCategoryDetailProducts from 'src/module/sw-category/view/sw-category-detail-products';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 Shopware.Component.register('sw-category-detail-products', swCategoryDetailProducts);
 
@@ -16,6 +18,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         navigationSalesChannels: [],
         serviceSalesChannels: [],
         productAssignmentType: 'product',
+        type: 'page',
         isNew: () => false,
     };
 
@@ -46,13 +49,8 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                 'sw-text-field': true,
                 'sw-switch-field': true,
                 'sw-single-select': true,
-                'sw-many-to-many-assignment-card': {
-                    template: `<div>
-                                   <slot name="prepend-select"></slot>
-                                   <slot name="select"><div class="sw-entity-many-to-many-select"></div></slot>
-                                   <slot name="data-grid"><div class="sw-many-to-many-assignment-card__grid"></div></slot>
-                               </div>`,
-                },
+                'sw-many-to-many-assignment-card': true,
+                'sw-empty-state': true,
                 'sw-product-stream-grid-preview': {
                     template: '<div class="sw-product-stream-grid-preview"></div>',
                 },
@@ -74,6 +72,7 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
                     create: () => {
                         return {
                             get: () => Promise.resolve(productStreamMock),
+                            search: jest.fn(() => Promise.resolve({})),
                         };
                     },
                 },
@@ -150,5 +149,72 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
 
     it('should return filters from filter registry', () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
+
+    it('should display manufacturer name of assignment variant product', async () => {
+        const parentProduct = {
+            id: 'product_parent_1',
+            parentId: null,
+            manufacturerId: 'manufacturer_1',
+            manufacturer: {
+                id: 'manufacturer_1',
+                name: 'Test manufacturer 1',
+            },
+        };
+
+        await wrapper.setData({
+            parentProducts: new EntityCollection(null, 'product', null, new Criteria(1, 25), [parentProduct]),
+        });
+
+        let product = {
+            id: 'product_1',
+            parentId: null,
+            manufacturerId: 'manufacturer_2',
+            manufacturer: {
+                id: 'manufacturer_2',
+                name: 'Test manufacturer 2',
+            },
+        };
+        expect(wrapper.vm.getManufacturer(product)).toEqual(product.manufacturer);
+
+        product = {
+            id: 'product_1',
+            parentId: 'product_parent_1',
+        };
+        expect(wrapper.vm.getManufacturer(product)).toEqual(parentProduct.manufacturer);
+    });
+
+    it('should get parent products on paginate manual product assignment', async () => {
+        const manualProductAssignmentCard = wrapper.find('sw-many-to-many-assignment-card-stub');
+        expect(manualProductAssignmentCard.exists()).toBe(true);
+
+        const assignment = [
+            {
+                id: 'product_1',
+                parentId: 'product_parent_1',
+                manufacturerId: null,
+                manufacturer: null,
+            },
+            {
+                id: 'product_2',
+                parentId: null,
+                manufacturerId: 'manufacturer_1',
+                manufacturer: {
+                    id: 'manufacturer_1',
+                    name: 'Test manufacturer 1',
+                },
+            },
+        ];
+        await manualProductAssignmentCard.vm.$emit('paginate', new EntityCollection(
+            null,
+            'product',
+            null,
+            new Criteria(1, 25),
+            [assignment],
+            2,
+        ));
+
+        expect(wrapper.vm.productRepository.search).toHaveBeenCalled();
+        expect(wrapper.vm.manualAssignedProductsCount).toBe(2);
     });
 });

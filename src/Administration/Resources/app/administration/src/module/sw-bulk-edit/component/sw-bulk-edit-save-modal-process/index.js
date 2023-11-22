@@ -46,7 +46,7 @@ export default {
         },
 
         selectedDocumentTypes() {
-            if (this.documentTypeConfigs.length <= 0) {
+            if (!this.documentTypeConfigs || this.documentTypeConfigs.length <= 0) {
                 return [];
             }
 

@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ExtensionNotFoundExceptionTest extends TestCase
 {
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testGetErrorCode(): void
     {
         static::assertSame(
@@ -27,9 +25,7 @@ class ExtensionNotFoundExceptionTest extends TestCase
         );
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testGetStatusCode(): void
     {
         static::assertSame(
@@ -38,9 +34,7 @@ class ExtensionNotFoundExceptionTest extends TestCase
         );
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testGetMessageFromTechnicalName(): void
     {
         static::assertSame(
@@ -49,9 +43,7 @@ class ExtensionNotFoundExceptionTest extends TestCase
         );
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testGetMessageFromId(): void
     {
         static::assertSame(

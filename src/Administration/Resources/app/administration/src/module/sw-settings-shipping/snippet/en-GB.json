@@ -53,8 +53,8 @@
             "labelLogoUpload": "Upload logo",
             "labelTrackingUrl": "Tracking URL",
             "placeholderTrackingUrl": "Enter URL...",
-            "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details.",
-            "helpTextTechnicalName": "The technical name is used to reference the shipping method. It is unique and required for all payment and shipping methods from version 6.7.0.0 onwards. Changing the technical name can break existing shipping integrations.",
+            "helpTextTrackingUrl": "Enter the tracking URL of the shipping provider and insert \"%s\" as a placeholder where the actual tracking code would be. The tracking code is automatically inserted from the individual orders.",
+            "helpTextTechnicalName": "The technical name is used to uniquely identify the shipping method. A subsequent change to the technical name can cause shipping integrations that rely on it to no longer work.",
             "tax": {
                 "fieldName": "Tax calculation",
                 "labelTaxType": "Type",

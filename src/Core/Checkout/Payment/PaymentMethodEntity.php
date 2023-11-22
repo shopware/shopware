@@ -339,7 +339,7 @@ class PaymentMethodEntity extends Entity
      */
     public function getShortName(): ?string
     {
-        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
 
         return $this->shortName;
     }
@@ -349,7 +349,7 @@ class PaymentMethodEntity extends Entity
      */
     public function setShortName(?string $shortName): void
     {
-        Feature::triggerDeprecationOrThrow('v6_6_0_0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
         $this->shortName = $shortName;
     }
 

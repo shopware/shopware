@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event as SymfonyBaseEvent;
 /**
  * @Annotation
  *
+ * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-constraint-annotation
+ *
  * @Target("ALL")
  */
 #[Package('business-ops')]

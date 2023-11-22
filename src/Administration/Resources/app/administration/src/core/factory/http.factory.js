@@ -44,6 +44,7 @@ function createClient() {
     globalErrorHandlingInterceptor(client);
     storeSessionExpiredInterceptor(client);
     client.CancelToken = CancelToken;
+    tracingInterceptor(client);
 
     /**
      * Don´t use cache in unit tests because it is possible
@@ -342,6 +343,31 @@ function storeSessionExpiredInterceptor(client) {
 
         return Promise.reject(error);
     });
+
+    return client;
+}
+
+/**
+ * Sets up an interceptor to add tracing information to the request headers on which admin page this request has been fired
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function tracingInterceptor(client) {
+    /**
+     * axios-client-mock does not work with request interceptors. So we have to disable it for tests.
+     */
+    if (process.env.NODE_ENV !== 'test') {
+        client.interceptors.request.use((config) => {
+            const currentRoute = Shopware?.Application?.view?.router?.history?.current?.name;
+
+            if (currentRoute) {
+                config.headers['shopware-admin-active-route'] = currentRoute;
+            }
+
+            return config;
+        });
+    }
 
     return client;
 }

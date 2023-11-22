@@ -15,6 +15,7 @@
                       {% else %}
                           data-search-form="true"
                       {% endif %}
+                      {# ludtwig-ignore html-string-quotation #}
                       data-search-widget-options='{{ searchWidgetOptions|json_encode }}'
                       data-url="{{ path('frontend.search.suggest') }}?search="
                       class="header-search-form">

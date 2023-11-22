@@ -9,7 +9,10 @@ use Doctrine\DBAL\Result;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -111,10 +114,22 @@ class DispatchEntitiesQueryBuilder
         return $this;
     }
 
-    public function withLiveVersionCheck(): self
+    public function checkLiveVersion(EntityDefinition $definition): self
     {
-        $this->queryBuilder->andWhere(sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape('version_id')));
-        $this->queryBuilder->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $hasVersionFields = false;
+
+        foreach ($definition->getFields() as $field) {
+            if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                $hasVersionFields = true;
+                $this->queryBuilder->andWhere(
+                    sprintf('%s = :versionId', EntityDefinitionQueryHelper::escape($field->getStorageName())),
+                );
+            }
+        }
+
+        if ($hasVersionFields) {
+            $this->queryBuilder->setParameter('versionId', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        }
 
         return $this;
     }

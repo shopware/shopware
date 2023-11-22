@@ -283,13 +283,6 @@ export default {
         this.mountedComponent();
     },
 
-    /**
-     * Free up memory
-     */
-    beforeDestroy() {
-        this.beforeDestroyComponent();
-    },
-
     methods: {
         createdComponent() {
             this.createConfig();
@@ -307,10 +300,13 @@ export default {
          * Free up memory
          */
         beforeDestroyComponent() {
-            if (this.flatpickrInstance !== null) {
-                this.flatpickrInstance.destroy();
-                this.flatpickrInstance = null;
-            }
+            // NextTick is needed to avoid patching issue when used in a modal
+            this.$nextTick(() => {
+                if (this.flatpickrInstance !== null) {
+                    this.flatpickrInstance.destroy();
+                    this.flatpickrInstance = null;
+                }
+            });
         },
 
         /**

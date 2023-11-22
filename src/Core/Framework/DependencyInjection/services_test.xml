@@ -59,10 +59,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition">
-            <tag name="shopware.entity.definition" entity="calculated_price_field_test" />
-        </service>
-
         <service id="Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\RootDefinition">
             <tag name="shopware.entity.definition" entity="root" />
         </service>
@@ -126,16 +122,16 @@
             <argument type="service" id="debug.event_dispatcher" on-invalid="ignore" />
         </service>
 
-        <service id="test.browser" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
+        <service id="test.browser" alias="test.client" />
+
+        <service id="test.client" class="Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser" shared="false" public="true">
             <argument type="service" id="kernel" />
-            <argument type="service" id="event_dispatcher"/>
             <argument>%test.client.parameters%</argument>
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />
         </service>
 
-        <service id="Monolog\Handler\NullHandler">
-        </service>
+        <service id="Monolog\Handler\NullHandler"/>
 
         <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
             <tag name="messenger.message_handler"/>

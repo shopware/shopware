@@ -125,6 +125,10 @@ Component.register('sw-icon', {
     watch: {
         name: {
             handler(newName) {
+                if (!newName) {
+                    return;
+                }
+
                 const [variant, ...iconName] = newName.split('-');
                 this.loadIconSvgData(variant, iconName.join('-'), newName);
             },

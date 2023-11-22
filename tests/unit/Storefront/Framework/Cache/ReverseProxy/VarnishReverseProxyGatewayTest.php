@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
+ * @deprecated tag:v6.6.0 - Move to core
+ *
  * @covers \Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway
  */
 class VarnishReverseProxyGatewayTest extends TestCase

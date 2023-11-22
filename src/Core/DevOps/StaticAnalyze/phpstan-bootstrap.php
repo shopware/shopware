@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Symfony\Component\Dotenv\Dotenv;
 
@@ -40,7 +41,16 @@ if (class_exists(Dotenv::class) && (file_exists(TEST_PROJECT_DIR . '/.env.local.
 }
 
 $pluginLoader = new StaticKernelPluginLoader($classLoader);
-$kernel = new StaticAnalyzeKernel('phpstan_dev', true, $pluginLoader, 'phpstan-test-cache-id');
+KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
+/** @var StaticAnalyzeKernel $kernel */
+$kernel = KernelFactory::create(
+    environment: 'phpstan_dev',
+    debug: true,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader
+);
+
 $kernel->boot();
 
 return $classLoader;

@@ -41,13 +41,18 @@ export default class PluginRegistry {
      * @param {string|NodeList|HTMLElement} selector
      * @param {Object} options
      *
+     * @param async
      * @returns {Map<any, any>}
      */
-    set(name, plugin, selector, options) {
+    set(name, plugin, selector, options, async = false) {
         if (!this.has(name)) this._registry.set(name, new Map());
         const pluginMap = this._registry.get(name);
         pluginMap.set('class', plugin);
         pluginMap.set('name', name);
+
+        if (async) {
+            pluginMap.set('async', true);
+        }
 
         if (!pluginMap.has('registrations')) pluginMap.set('registrations', new Map());
         if (!pluginMap.has('instances')) pluginMap.set('instances', []);

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Test\PHPUnit\Extension;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use PHPUnit\Runner\AfterTestHook;
 use PHPUnit\Runner\BeforeTestHook;
 use Shopware\Core\Framework\Feature;
@@ -17,8 +16,6 @@ use Shopware\Tests\Unit\Core\Test\FeatureFlagExtensionTest;
 #[Package('core')]
 class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 {
-    private readonly AnnotationReader $annotationReader;
-
     /**
      * @var array<mixed>|null
      */
@@ -33,7 +30,6 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
         private readonly string $namespacePrefix = 'Shopware\\Tests\\Unit\\',
         private readonly bool $testMode = false
     ) {
-        $this->annotationReader = new AnnotationReader();
     }
 
     public function executeBeforeTest(string $test): void
@@ -56,11 +52,11 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
         $reflectedMethod = new \ReflectionMethod($class, $method);
 
-        /** @var DisabledFeatures[] $features */
-        $features = array_filter([
-            $this->annotationReader->getMethodAnnotation($reflectedMethod, DisabledFeatures::class) ?? [],
-            $this->annotationReader->getClassAnnotation($reflectedMethod->getDeclaringClass(), DisabledFeatures::class) ?? [],
-        ]);
+        /** @var \ReflectionAttribute<DisabledFeatures>[] $features */
+        $features = array_merge(
+            $reflectedMethod->getAttributes(DisabledFeatures::class),
+            $reflectedMethod->getDeclaringClass()->getAttributes(DisabledFeatures::class),
+        );
 
         $this->savedFeatureConfig = null;
 
@@ -81,7 +77,10 @@ class FeatureFlagExtension implements BeforeTestHook, AfterTestHook
 
         $disabledFlags = [];
         foreach ($features as $feature) {
-            foreach ($feature->features as $featureName) {
+            /** @var DisabledFeatures $attr */
+            $attr = $feature->newInstance();
+
+            foreach ($attr->features as $featureName) {
                 $disabledFlags[Feature::normalizeName($featureName)] = true;
             }
         }

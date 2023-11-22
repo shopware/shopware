@@ -21,6 +21,8 @@ Component.register('sw-select-result-list', {
         };
     },
 
+    inject: ['feature'],
+
     props: {
         options: {
             type: Array,
@@ -135,7 +137,9 @@ Component.register('sw-select-result-list', {
 
             const popoverContentClicked = this.$refs.popoverContent.contains(event.target);
             const componentClicked = this.$el.contains(event.target);
-            const parentClicked = this.$parent.$el.contains(event.target);
+            const parentClicked = this.feature.isActive('VUE3') ?
+                this.$parent.$parent.$el.contains(event.target) :
+                this.$parent.$el.contains(event.target);
 
             if (popoverContentClicked || componentClicked || parentClicked) {
                 return;

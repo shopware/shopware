@@ -13,8 +13,13 @@ describe('core/factory/http.factory.js', () => {
     let mock;
 
     beforeEach(async () => {
+        /**
+         * axios-client-mock does not work with request interceptors. So we enable our interceptor here
+         */
+        process.env.NODE_ENV = 'prod';
         httpClient = createHTTPClient();
         mock = new MockAdapter(httpClient);
+        process.env.NODE_ENV = 'test';
     });
 
     it('should create a HTTP client with response interceptors', async () => {
@@ -112,5 +117,27 @@ describe('core/factory/http.factory.js', () => {
 
 
         expect(mock.history.get).toHaveLength(4);
+    });
+
+    it('should add current vue route, as http header to trace', async () => {
+        Shopware.Application.view = {
+            router: {
+                history: {
+                    current: {
+                        name: 'sw-dashboard-index',
+                    },
+                },
+            },
+        };
+
+        mock
+            .onGet('/test')
+            .reply((request) => {
+                expect(request.headers['shopware-admin-active-route']).toBe('sw-dashboard-index');
+
+                return [200, {}];
+            });
+
+        await httpClient.get('/test');
     });
 });

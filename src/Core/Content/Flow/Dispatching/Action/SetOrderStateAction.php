@@ -185,9 +185,10 @@ class SetOrderStateAction extends FlowAction implements DelayableAction
     {
         $escaped = EntityDefinitionQueryHelper::escape($machine);
         $id = $this->connection->fetchOne(
-            'SELECT state_id FROM ' . $escaped . 'WHERE id = :id',
+            'SELECT state_id FROM ' . $escaped . 'WHERE id = :id AND version_id = :version',
             [
                 'id' => Uuid::fromHexToBytes($machineId),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]
         );
 

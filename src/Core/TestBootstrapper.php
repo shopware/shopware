@@ -6,6 +6,7 @@ use Composer\Autoload\ClassLoader;
 use DG\BypassFinals;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -100,7 +101,17 @@ class TestBootstrapper
     public function getStaticAnalyzeKernel(): StaticAnalyzeKernel
     {
         $pluginLoader = new DbalKernelPluginLoader($this->getClassLoader(), null, $this->getContainer()->get(Connection::class));
-        $kernel = new StaticAnalyzeKernel('test', true, $pluginLoader, 'phpstan-test-cache-id');
+
+        KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
+        /** @var StaticAnalyzeKernel $kernel */
+        $kernel = KernelFactory::create(
+            environment: 'phpstan_dev',
+            debug: true,
+            classLoader: $this->getClassLoader(),
+            pluginLoader: $pluginLoader
+        );
+
         $kernel->boot();
 
         return $kernel;

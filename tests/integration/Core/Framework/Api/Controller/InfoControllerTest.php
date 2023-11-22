@@ -78,14 +78,11 @@ class InfoControllerTest extends TestCase
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        foreach (array_keys($expected) as $key) {
-            static::assertArrayHasKey($key, $decodedResponse);
-        }
+        // reset environment based miss match
+        $decodedResponse['bundles'] = [];
+        $decodedResponse['versionRevision'] = $expected['versionRevision'];
 
-        static::assertEquals($expected['settings'], $decodedResponse['settings']);
-
-        unset($expected['settings']);
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+        static::assertEquals($decodedResponse, $expected);
     }
 
     public function testGetConfigWithPermissions(): void

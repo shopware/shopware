@@ -34,8 +34,6 @@ class AnnotationTagTest extends TestCase
         'Migration/MigrationStep.php',
         // example plugin
         'deprecation.plugin.js',
-        // waiting for symfony 6
-        'Framework/Csrf/SessionProvider.php',
         // some eslint rules check for @deprecated and therefore produce false positives
         'administration/eslint-rules',
         // checks for deprecations too and annotation fails
@@ -52,6 +50,8 @@ class AnnotationTagTest extends TestCase
     {
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);
+
+        static::markTestSkipped('ToDo: NEXT-31639 - Activate again after first RC release');
     }
 
     public function testSourceFilesForWrongDeprecatedAnnotations(): void

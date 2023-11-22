@@ -45,9 +45,7 @@ class StaticFileAvailableThemeProviderTest extends TestCase
         static::assertSame(['test' => 'test'], $s->load(Context::createDefaultContext()));
     }
 
-    /**
-     * @DisabledFeatures(features={"v6.6.0.0"})
-     */
+    #[DisabledFeatures(['v6.6.0.0'])]
     public function testLoadCanStillBeCalledWithOneParameter(): void
     {
         $fs = new Filesystem(new InMemoryFilesystemAdapter());

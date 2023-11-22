@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
@@ -65,6 +66,8 @@ class CacheControllerTest extends TestCase
 
     public function testWarmupCacheEndpoint(): void
     {
+        Feature::skipTestIfActive('v6.6.0.0', $this);
+
         if (!$this->getContainer()->has(CacheWarmer::class)) {
             static::markTestSkipped('CacheWarmer test needs storefront bundle to be installed');
         }

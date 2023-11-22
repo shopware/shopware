@@ -162,6 +162,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     $language = $languageCollection->get($languageId);
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
+                    if (empty($title)) {
+                        continue;
+                    }
+
                     if (!isset($buildUrls[$languageId])) {
                         $buildUrls[$languageId] = [
                             'urls' => [],

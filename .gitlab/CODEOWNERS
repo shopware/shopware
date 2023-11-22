@@ -105,3 +105,6 @@ deprecation.ignore                                               @product/engine
 
 [Main]
 /.gitlab/CODEOWNERS     @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
+
+[UsageData]
+src/Core/System/UsageData/usage-data-allow-list.json @product/engineering/solution-teams/ctrl-alt-elite

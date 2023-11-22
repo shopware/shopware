@@ -81,7 +81,7 @@
         </template>
         <slot
             name="afterElements"
-            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index }"
+            v-bind="{ card, config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"
         >
         </slot>
     </sw-card>

@@ -1,7 +1,7 @@
 ---
-title: Add form validation to address editor modal
+title: NEXT-31894 - Add form validation to address editor modal
 author: Adrian Pietrzak
-issue: 2941
+issue: NEXT-31894
 author_email: contact@pietrzakadrian.com
 author_github: pietrzakadrian
 ---

@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Twig\Environment;
-use Twig\Error\RuntimeError;
 use Twig\Loader\ArrayLoader;
 
 /**
@@ -15,28 +14,50 @@ use Twig\Loader\ArrayLoader;
  */
 class SecurityExtensionTest extends TestCase
 {
-    public function testMapNotAllowedFunction(): void
+    /**
+     * @dataProvider notAllowedTemplates
+     */
+    public function testNotAllowedTemplates(string $template): void
     {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|map("str_rot13")|join }}');
+        // Depending on the twig version it might throw a RuntimeError or a TypeError,
+        // all we care about is that it throws
+        $this->expectException(\Throwable::class);
+        $this->runTwig($template);
     }
 
-    public function testMapNotAllowedCallbackFunctionString(): void
+    public static function notAllowedTemplates(): \Generator
     {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|map("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}');
-    }
+        yield 'map not allowed function' => ['{{ ["a", "b", "c"]|map("str_rot13")|join }}'];
 
-    public function testMapNotAllowedCallbackFunctionArray(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|map([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
-    }
+        yield 'map not allowed callback function string' => ['{{ ["a", "b", "c"]|map("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
 
-    public function testMapOnArrayThrowsTypeError(): void
-    {
-        $this->expectException(\TypeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|map([\'SecurityExtensionGadget\', \'do\'])|join }}');
+        yield 'map not allowed callback function array' => ['{{ ["a", "b", "c"]|map([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'map on array throws error' => ['{{ ["a", "b", "c"]|map([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'reduce not allowed function' => ['{{ ["a", "b", "c"]|reduce("empty")|join }}'];
+
+        yield 'reduce not allowed callback function string' => ['{{ ["a", "b", "c"]|reduce("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
+
+        yield 'reduce not allowed callback function array' => ['{{ ["a", "b", "c"]|reduce([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'reduce on array throws error' => ['{{ ["a", "b", "c"]|reduce([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'filter not allowed function' => ['{{ ["a", "b", "c"]|filter("str_rot13")|join }}'];
+
+        yield 'filter not allowed callback function string' => ['{{ ["a", "b", "c"]|filter("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
+
+        yield 'filter not allowed callback function array' => ['{{ ["a", "b", "c"]|filter([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'filter on array throws error' => ['{{ ["a", "b", "c"]|filter([\'SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'sort not allowed function' => ['{{ ["a", "b", "c"]|sort("str_rot13")|join }}'];
+
+        yield 'sort not allowed callback function string' => ['{{ ["a", "b", "c"]|sort("\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do")|join }}'];
+
+        yield 'sort not allowed callback function array' => ['{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}'];
+
+        yield 'sort on array throws error' => ['{{ ["a", "b", "c"]|sort([\'SecurityExtensionGadget\', \'do\'])|join }}'];
     }
 
     public function testMapWithAllowedFunction(): void
@@ -60,30 +81,6 @@ class SecurityExtensionTest extends TestCase
         static::assertSame('a-testb-testc-test', $this->runTwig('{{ ["a", "b", "c"]|map(v => (v ~ "-test"))|join }}'));
     }
 
-    public function testReduceNotAllowedFunction(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|reduce("empty")|join }}');
-    }
-
-    public function testReduceNotAllowedFunctionClosureString(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|reduce(\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do\')|join }}');
-    }
-
-    public function testReduceNotAllowedFunctionClosureArray(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|reduce([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
-    }
-
-    public function testReduceOnArrayThrowsError(): void
-    {
-        $this->expectException(\TypeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|reduce([\'Fooo\', \'do\'])|join }}');
-    }
-
     public function testReduceAllowedFunction(): void
     {
         static::assertSame('6', $this->runTwig('{{ [1 , 5]|reduce((a, b) => a + b)|json_encode|raw }}'));
@@ -92,30 +89,6 @@ class SecurityExtensionTest extends TestCase
     public function testReduceOnIterator(): void
     {
         static::assertSame('3', $this->runTwig('{{ test|reduce((a, b) => a + b)|json_encode|raw }}', [], ['test' => new \ArrayIterator([1, 2])]));
-    }
-
-    public function testFilterNotAllowedFunctionWithAllowedFunction(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|filter("str_rot13")|join }}');
-    }
-
-    public function testFilterNotAllowedFunctionString(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|filter(\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do\')|join }}');
-    }
-
-    public function testFilterNotAllowedFunctionArray(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|filter([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
-    }
-
-    public function testFilterOnArray(): void
-    {
-        $this->expectException(\TypeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|filter([\'SecurityExtensionGadget\', \'do\'])|join }}');
     }
 
     public function testFilterClosure(): void
@@ -129,30 +102,6 @@ class SecurityExtensionTest extends TestCase
             'a',
             $this->runTwig('{{ test|filter(v => v == "a")|join }}', [], ['test' => new \ArrayIterator(['a', 'b', 'c'])])
         );
-    }
-
-    public function testSortNotAllowedFunction(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|sort("str_rot13")|join }}');
-    }
-
-    public function testSortNotAllowedFunctionClosureString(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|sort(\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget::do\')|join }}');
-    }
-
-    public function testSortNotAllowedFunctionClosureArray(): void
-    {
-        $this->expectException(RuntimeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|sort([\'\\\\Shopware\\\\Tests\\\\Unit\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\SecurityExtensionGadget\', \'do\'])|join }}');
-    }
-
-    public function testSortOnArray(): void
-    {
-        $this->expectException(\TypeError::class);
-        $this->runTwig('{{ ["a", "b", "c"]|sort([\'\\\\SecurityExtensionGadget\', \'do\'])|join }}');
     }
 
     public function testSortAllowedFunction(): void

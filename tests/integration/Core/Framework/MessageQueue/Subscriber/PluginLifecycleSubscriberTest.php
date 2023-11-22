@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\MessageQueue\Subscriber;
+namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Subscriber;
 
-use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
 use Shopware\Core\Framework\MessageQueue\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 
 /**
@@ -34,7 +34,7 @@ class PluginLifecycleSubscriberTest extends TestCase
         $taskRegistry = $this->createMock(TaskRegistry::class);
         $taskRegistry->expects(static::once())->method('registerTasks');
 
-        $signalCachePool = new MemoryCacheItemPool();
+        $signalCachePool = new ArrayAdapter();
         $subscriber = new PluginLifecycleSubscriber($taskRegistry, $signalCachePool);
         $subscriber->afterPluginStateChange();
 

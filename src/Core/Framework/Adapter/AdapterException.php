@@ -13,6 +13,7 @@ class AdapterException extends HttpException
     public const UNEXPECTED_TWIG_EXPRESSION = 'FRAMEWORK__UNEXPECTED_TWIG_EXPRESSION';
     public const MISSING_EXTENDING_TWIG_TEMPLATE = 'FRAMEWORK__MISSING_EXTENDING_TWIG_TEMPLATE';
     public const TEMPLATE_SCOPE_DEFINITION_ERROR = 'FRAMEWORK__TEMPLATE_SCOPE_DEFINITION_ERROR';
+    public const MISSING_DEPENDENCY_ERROR_CODE = 'FRAMEWORK__FILESYSTEM_ADAPTER_DEPENDENCY_MISSING';
 
     public static function unexpectedTwigExpression(AbstractExpression $expression): self
     {
@@ -46,6 +47,18 @@ class AdapterException extends HttpException
             'Template scope is wronly defined: {{ scope }}',
             [
                 'scope' => $scope,
+            ],
+        );
+    }
+
+    public static function missingDependency(string $dependency): self
+    {
+        return new self(
+            Response::HTTP_FAILED_DEPENDENCY,
+            self::MISSING_DEPENDENCY_ERROR_CODE,
+            'Missing dependency "{{ dependency }}". Check the suggested composer dependencies for version and install the package.',
+            [
+                'dependency' => $dependency,
             ],
         );
     }

@@ -2,12 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\DevOps\System\Command;
 
-use AsyncAws\Core\Test\Http\SimpleMockedResponse;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\OpenApiValidationCommand;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
@@ -19,7 +19,7 @@ class OpenApiValidationCommandTest extends TestCase
     public function testRunWithoutErrors(): void
     {
         $command = new OpenApiValidationCommand(
-            new MockHttpClient([new SimpleMockedResponse('{"messages": [], "schemaValidationMessages": []}', [])]),
+            new MockHttpClient([new MockResponse('{"messages": [], "schemaValidationMessages": []}', [])]),
             $this->createMock(DefinitionService::class)
         );
         $tester = new CommandTester($command);
@@ -33,7 +33,7 @@ class OpenApiValidationCommandTest extends TestCase
     {
         $command = new OpenApiValidationCommand(
             new MockHttpClient(
-                [new SimpleMockedResponse(json_encode([
+                [new MockResponse(json_encode([
                     'schemaValidationMessages' => [
                         [
                             'level' => 'error',

@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Plugin;
+namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
-use Google\Auth\Cache\MemoryCacheItemPool;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -21,6 +20,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
+use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
@@ -30,6 +30,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\SwagTest;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * @internal
@@ -355,7 +356,7 @@ class KernelPluginIntegrationTest extends TestCase
             $this->createMock(AssetService::class),
             $this->createMock(CommandExecutor::class),
             $this->createMock(RequirementsValidator::class),
-            new MemoryCacheItemPool(),
+            new ArrayAdapter(),
             $container->getParameter('kernel.shopware_version'),
             $this->createMock(SystemConfigService::class),
             $this->createMock(CustomEntityPersister::class),

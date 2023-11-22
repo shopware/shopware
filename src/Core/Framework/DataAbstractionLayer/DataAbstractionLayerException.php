@@ -33,6 +33,11 @@ class DataAbstractionLayerException extends HttpException
     final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
+    public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
+    public const MIGRATION_DIRECTORY_NOT_FOUND = 'FRAMEWORK__MIGRATION_DIRECTORY_NOT_FOUND';
+    public const DATABASE_PLATFORM_INVALID = 'FRAMEWORK__DATABASE_PLATFORM_INVALID';
+    public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
+    public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -160,6 +165,55 @@ class DataAbstractionLayerException extends HttpException
             self::VERSION_NOT_EXISTS,
             'Version {{ versionId }} does not exist. Version was probably deleted or already merged.',
             ['versionId' => $versionId]
+        );
+    }
+
+    public static function migrationStubNotFound(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MIGRATION_STUB_NOT_FOUND,
+            'Unable to load stub file from: {{ path }}.',
+            ['path' => $path]
+        );
+    }
+
+    public static function migrationDirectoryNotFound(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MIGRATION_DIRECTORY_NOT_FOUND,
+            'Migration directory not found: {{ path }}.',
+            ['path' => $path]
+        );
+    }
+
+    public static function databasePlatformInvalid(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DATABASE_PLATFORM_INVALID,
+            'Database platform can not be detected'
+        );
+    }
+
+    public static function fieldHasNoType(string $fieldName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_TYPE_NOT_FOUND,
+            'Field {{ fieldName }} has no type',
+            ['fieldName' => $fieldName]
+        );
+    }
+
+    public static function pluginNotFound(string $pluginName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PLUGIN_NOT_FOUND,
+            'Plugin {{ fieldName }} not be found',
+            ['pluginName' => $pluginName]
         );
     }
 }

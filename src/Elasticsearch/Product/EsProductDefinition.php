@@ -70,6 +70,7 @@ class EsProductDefinition extends AbstractElasticsearchDefinition
             'properties' => ElasticsearchFieldBuilder::nested([
                 'groupId' => self::KEYWORD_FIELD,
                 'name' => $languageFields,
+                'group' => ElasticsearchFieldBuilder::nested(),
             ]),
             'parentId' => self::KEYWORD_FIELD,
             'active' => self::BOOLEAN_FIELD,
@@ -380,7 +381,7 @@ SQL;
     /**
      * @param list<string> $propertyIds
      *
-     * @return array<string, array{id: string, groupId: string, translations?: string, name: array<int|string, string>}>
+     * @return array<string, array{id: string, groupId: string, group: array<string, string|int>, translations?: string, name: array<int|string, string>}>
      */
     private function fetchProperties(array $propertyIds): array
     {
@@ -422,6 +423,10 @@ SQL;
         foreach ($options as $optionId => $option) {
             $translation = ElasticsearchIndexingUtils::parseJson($option, 'translations');
 
+            $options[$optionId]['group'] = [
+                'id' => $option['groupId'],
+                '_count' => 1,
+            ];
             $options[$optionId]['name'] = $option['name'] ?? [];
             foreach ($translation as $item) {
                 $options[$optionId]['name'][$item['languageId']] = ElasticsearchIndexingUtils::stripText($item['name'] ?? '');

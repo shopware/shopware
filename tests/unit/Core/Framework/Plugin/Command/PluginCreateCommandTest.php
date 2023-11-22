@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\App\Command\CreateAppCommand
+ * @covers \Shopware\Core\Framework\Plugin\Command\PluginCreateCommand
  */
 class PluginCreateCommandTest extends TestCase
 {

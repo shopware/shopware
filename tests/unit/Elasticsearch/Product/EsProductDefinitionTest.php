@@ -270,6 +270,18 @@ class EsProductDefinitionTest extends TestCase
                             'type' => 'keyword',
                             'normalizer' => 'sw_lowercase_normalizer',
                         ],
+                        'group' => [
+                            'type' => 'nested',
+                            'properties' => [
+                                'id' => [
+                                    'type' => 'keyword',
+                                    'normalizer' => 'sw_lowercase_normalizer',
+                                ],
+                                '_count' => [
+                                    'type' => 'long',
+                                ],
+                            ],
+                        ],
                         '_count' => [
                             'type' => 'long',
                         ],
@@ -626,6 +638,10 @@ class EsProductDefinitionTest extends TestCase
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     '_count' => 1,
                     'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
+                    'group' => [
+                        'id' => 'a73b9355da654243b92ce16c63e9b6cd',
+                        '_count' => 1,
+                    ],
                     'name' => [
                         Defaults::LANGUAGE_SYSTEM => 'Property A',
                     ],
@@ -634,6 +650,10 @@ class EsProductDefinitionTest extends TestCase
                     'id' => 'e4a08f9dd88f4a228240de7107e4ae4b',
                     '_count' => 1,
                     'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
+                    'group' => [
+                        'id' => 'a73b9355da654243b92ce16c63e9b6cd',
+                        '_count' => 1,
+                    ],
                     'name' => [
                         Defaults::LANGUAGE_SYSTEM => 'Property B',
                     ],
@@ -734,6 +754,9 @@ class EsProductDefinitionTest extends TestCase
                     '809c1844f4734243b6aa04aba860cd45' => [
                         'id' => '809c1844f4734243b6aa04aba860cd45',
                         'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
+                        'group' => [
+                            'id' => 'a73b9355da654243b92ce16c63e9b6cd',
+                        ],
                         'translations' => json_encode([
                             [
                                 'languageId' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
@@ -744,6 +767,9 @@ class EsProductDefinitionTest extends TestCase
                     'e4a08f9dd88f4a228240de7107e4ae4b' => [
                         'id' => 'e4a08f9dd88f4a228240de7107e4ae4b',
                         'groupId' => 'a73b9355da654243b92ce16c63e9b6cd',
+                        'group' => [
+                            'id' => 'a73b9355da654243b92ce16c63e9b6cd',
+                        ],
                         'translations' => json_encode([
                             [
                                 'languageId' => '2fbb5fe2e29a4d70aa5854ce7ce3e20b',

@@ -33,7 +33,7 @@ public function defineFields(): FieldCollection
    $fields = new FieldCollection(...);
 
   if (Feature::isActive('v6.6.0.0') {
-     $fields->add(new ManyToOneAssociationField(..., autoload: false); //or don't specify the autoload flag, the default value is false
+     $fields->add(new ManyToOneAssociationField(..., autoload: false);
   } else {
      $fields->add(new ManyToOneAssociationField(..., autoload: true);
   }

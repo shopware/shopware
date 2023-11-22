@@ -149,7 +149,7 @@ class SitemapExporter implements SitemapExporterInterface
 
             foreach ($result->getUrls() as $url) {
                 $newUrl = clone $url;
-                $newUrl->setLoc(empty($newUrl->getLoc()) ? $host : $host . '/' . $newUrl->getLoc());
+                $newUrl->setLoc(rtrim($host, '/') . '/' . $newUrl->getLoc());
                 $urls[] = $newUrl;
             }
 

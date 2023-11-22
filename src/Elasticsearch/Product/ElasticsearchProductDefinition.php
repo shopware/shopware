@@ -124,6 +124,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                         'name' => self::KEYWORD_FIELD + self::SEARCH_FIELD,
                         'groupId' => self::KEYWORD_FIELD,
                         '_count' => self::INT_FIELD,
+                        'group' => [
+                            'type' => 'nested',
+                            'properties' => [
+                                'id' => self::KEYWORD_FIELD,
+                                '_count' => self::INT_FIELD,
+                            ],
+                        ],
                     ],
                 ],
                 'ratingAverage' => self::FLOAT_FIELD,
@@ -298,7 +305,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'categoriesRo' => array_values(array_map(fn (string $categoryId) => ['id' => $categoryId, '_count' => 1], $categoriesRo)),
                 'categoryIds' => $categoryIds,
                 'categoryTree' => $categoriesRo,
-                'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], '_count' => 1], $propertyIds)),
+                'properties' => array_values(array_map(fn (string $propertyId) => ['id' => $propertyId, 'name' => $groups[$propertyId]['name'], 'groupId' => $groups[$propertyId]['property_group_id'], 'group' => ['id' => $groups[$propertyId]['property_group_id'], '_count' => 1], '_count' => 1], $propertyIds)),
                 'propertyIds' => $propertyIds,
                 'taxId' => $item['taxId'],
                 'tags' => array_values(array_map(fn (string $tagId) => ['id' => $tagId, 'name' => $tags[$tagId]['name'], '_count' => 1], $tagIds)),

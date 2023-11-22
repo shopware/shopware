@@ -5,14 +5,20 @@ namespace Shopware\Core\Framework\Adapter\Filesystem\Adapter;
 use Google\Cloud\Storage\StorageClient;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 #[Package('core')]
 class GoogleStorageFactory implements AdapterFactoryInterface
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function create(array $config): FilesystemAdapter
     {
+        $this->validateDependencies();
+
         $options = $this->resolveStorageConfig($config);
         $storageConfig = ['projectId' => $options['projectId']];
         if (isset($config['keyFile'])) {
@@ -31,6 +37,11 @@ class GoogleStorageFactory implements AdapterFactoryInterface
         return 'google-storage';
     }
 
+    /**
+     * @param array<string, mixed> $definition
+     *
+     * @return array<string, mixed>
+     */
     private function resolveStorageConfig(array $definition): array
     {
         $options = new OptionsResolver();
@@ -49,5 +60,12 @@ class GoogleStorageFactory implements AdapterFactoryInterface
         $options->setDefault('options', []);
 
         return $options->resolve($definition);
+    }
+
+    private function validateDependencies(): void
+    {
+        if (!class_exists(GoogleCloudStorageAdapter::class)) {
+            throw AdapterException::missingDependency('league/flysystem-google-cloud-storage');
+        }
     }
 }

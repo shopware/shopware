@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Filesystem\Adapter;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
 use PHPUnit\Framework\TestCase;
@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory
  */
 class GoogleStorageFactoryTest extends TestCase
 {
@@ -16,9 +18,12 @@ class GoogleStorageFactoryTest extends TestCase
         $googleStorageFactory = new GoogleStorageFactory();
         static::assertSame('google-storage', $googleStorageFactory->getType());
 
+        /** @var string $key */
+        $key = file_get_contents(__DIR__ . '/fixtures/keyfile.json');
+
         $config = [
             'projectId' => 'TestGoogleStorage',
-            'keyFile' => json_decode(file_get_contents(__DIR__ . '/fixtures/keyfile.json'), true, 512, \JSON_THROW_ON_ERROR),
+            'keyFile' => json_decode($key, true, 512, \JSON_THROW_ON_ERROR),
             'bucket' => 'TestBucket',
             'root' => '/',
         ];
@@ -32,7 +37,6 @@ class GoogleStorageFactoryTest extends TestCase
 
     public function testCreateGoogleStorageFromConfigFile(): void
     {
-        /** @var GoogleStorageFactory $googleStorageFactory */
         $googleStorageFactory = new GoogleStorageFactory();
 
         $config = [

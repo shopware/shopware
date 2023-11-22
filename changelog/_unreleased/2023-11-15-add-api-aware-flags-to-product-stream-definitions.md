@@ -1,6 +1,6 @@
 ---
 title: Update product stream definitions to make them ApiAware
-issue: 3419
+issue: NEXT-31901
 author: Sander Drenth
 author_email: sander.drenth@webstores.nl
 author_github: sdrenth

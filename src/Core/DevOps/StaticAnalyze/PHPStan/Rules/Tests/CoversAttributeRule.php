@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
  * @implements Rule<InClassNode>
  */
 #[Package('core')]
-class CoversAnnotationRule implements Rule
+class CoversAttributeRule implements Rule
 {
     public function getNodeType(): string
     {

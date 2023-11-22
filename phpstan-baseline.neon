@@ -4946,36 +4946,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Doctrine/FetchModeHelper.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepare\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareColumns\\(\\) has parameter \\$rows with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareColumns\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareValues\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareValues\\(\\) has parameter \\$rows with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Doctrine\\\\MultiInsertQueryQueue\\:\\:prepareValues\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityGenerator\\:\\:generate\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/EntityGenerator.php

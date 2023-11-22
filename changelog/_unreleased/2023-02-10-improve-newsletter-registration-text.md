@@ -1,6 +1,6 @@
 ---
 title: Improve newsletter registration text
-issue:
+issue: NEXT-31908
 author: Alexander Menk
 author_email: a.menk@imi.de
 author_github: @amenk

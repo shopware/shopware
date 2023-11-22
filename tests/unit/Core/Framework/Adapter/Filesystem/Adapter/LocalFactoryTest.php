@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Filesystem\Adapter;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory
  */
 class LocalFactoryTest extends TestCase
 {

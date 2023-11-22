@@ -4161,56 +4161,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Filesystem/Adapter/AdapterFactoryInterface.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\GoogleStorageFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/GoogleStorageFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\GoogleStorageFactory\\:\\:resolveStorageConfig\\(\\) has parameter \\$definition with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/GoogleStorageFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\GoogleStorageFactory\\:\\:resolveStorageConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/GoogleStorageFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:create\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:resolveDirectoryPermissions\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:resolveDirectoryPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:resolveFilePermissions\\(\\) has parameter \\$permissions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:resolveFilePermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:resolveOptions\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Adapter\\\\LocalFactory\\:\\:resolveOptions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Filesystem/Adapter/LocalFactory.php
-
-		-
 			message: "#^Parameter \\#1 \\$tags of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\CacheInvalidator\\:\\:invalidate\\(\\) expects list\\<string\\>, array\\<non\\-falsy\\-string\\> given\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Translation/TranslatorCacheInvalidate.php
@@ -6249,11 +6199,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructDecoder\\:\\:format\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Serializer/StructDecoder.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Adapter/Filesystem/Adapter/GoogleStorageFactoryTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Adapter\\\\\\\\Twig\\\\\\\\AppTemplateIterator' and Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\AppTemplateIterator will always evaluate to true\\.$#"

@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule;
+use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,7 +39,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         $rule = new DaysSinceLastOrderRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
+        $result = $rule->match($this->createMock(RuleScope::class));
 
         static::assertFalse($result);
     }

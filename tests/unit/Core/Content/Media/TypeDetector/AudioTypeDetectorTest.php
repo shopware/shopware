@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\TypeDetector;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\AudioType;
@@ -10,9 +11,8 @@ use Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector
  */
+#[CoversClass(AudioTypeDetector::class)]
 class AudioTypeDetectorTest extends TestCase
 {
     public function testDetectGif(): void

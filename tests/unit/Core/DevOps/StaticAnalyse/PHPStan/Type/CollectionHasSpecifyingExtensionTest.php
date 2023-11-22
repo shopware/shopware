@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Type;
 
 use PHPStan\Testing\TypeInferenceTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension;
 
 /**
  * @internal

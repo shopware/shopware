@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand
  */
+#[CoversClass(CreateMigrationCommand::class)]
 class CreateMigrationCommandTest extends TestCase
 {
     /**
@@ -67,8 +67,8 @@ class CreateMigrationCommandTest extends TestCase
             ->expects($fileRendererInvocation)
             ->method('render')
             ->willReturnCallback(function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
-                static::assertEquals($expectedNamespaces[$fileRendererInvocation->getInvocationCount() - 1], $namespace);
-                static::assertEquals($expectedClassNames[$fileRendererInvocation->getInvocationCount() - 1], $className);
+                static::assertEquals($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
+                static::assertEquals($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
 
                 return 'Migration file content';
             });
@@ -79,7 +79,7 @@ class CreateMigrationCommandTest extends TestCase
             ->expects($filesystemInvocation)
             ->method('dumpFile')
             ->willReturnCallback(function (string $path) use ($filesystemInvocation, $expectedPaths): void {
-                static::assertEquals($expectedPaths[$filesystemInvocation->getInvocationCount() - 1], $path);
+                static::assertEquals($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
             });
 
         $input = [

@@ -7,6 +7,9 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Node\InClassNode;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -35,7 +38,7 @@ class CoversAttributeRule implements Rule
         }
 
         if ($this->isTestClass($node)) {
-            return ['Test classes must have @covers annotation'];
+            return ['Test classes must have CoversClass, CoversFunction or CoversNothing  attribute'];
         }
 
         return [];
@@ -64,17 +67,11 @@ class CoversAttributeRule implements Rule
             /** @var Node\Name\FullyQualified $name */
             $name = $attribute->name;
 
-            if ($name->toString() === 'PHPUnit\Metadata\CoversClass\CoversClass') {
+            if (\in_array($name->toString(), [CoversClass::class, CoversFunction::class, CoversNothing::class], true)) {
                 return true;
             }
         }
 
-        $doc = $class->getDocComment();
-
-        if ($doc === null) {
-            return false;
-        }
-
-        return \str_contains($doc->getText(), '@covers') || \str_contains($doc->getText(), '@coversNothing');
+        return false;
     }
 }

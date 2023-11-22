@@ -147,7 +147,7 @@ class OrderTotalAmountRuleTest extends TestCase
         $rule = new OrderTotalAmountRule();
         $rule->assign(['amount' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
+        $result = $rule->match($this->createMock(RuleScope::class));
 
         static::assertFalse($result);
     }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\Fixture\TestElement;
 
 /**

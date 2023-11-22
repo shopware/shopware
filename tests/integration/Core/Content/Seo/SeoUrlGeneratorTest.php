@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -131,7 +130,9 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertIsIterable($urls);
 
         foreach ($urls as $url) {
-            static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
+            if (!empty($pathInfo)) {
+                static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
+            }
         }
     }
 
@@ -140,10 +141,6 @@ class SeoUrlGeneratorTest extends TestCase
      */
     public static function templateDataProvider(): array
     {
-        $connection = KernelLifecycleManager::getConnection();
-
-        $categoryId = Uuid::fromBytesToHex((string) $connection->fetchOne('SELECT id FROM category'));
-
         return [
             [
                 'template' => '{{ id }}',

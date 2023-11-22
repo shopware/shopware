@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
@@ -13,9 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @group cache
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator
  */
+#[CoversClass(CacheStateValidator::class)]
 class CacheStateValidatorTest extends TestCase
 {
     #[DataProvider('cases')]

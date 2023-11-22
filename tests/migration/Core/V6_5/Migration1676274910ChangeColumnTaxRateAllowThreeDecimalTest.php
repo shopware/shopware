@@ -20,14 +20,14 @@ class Migration1676274910ChangeColumnTaxRateAllowThreeDecimalTest extends TestCa
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
-        $sqlUpdateToTaxTable = <<<SQL
+        $sqlUpdateToTaxTable = <<<'SQL'
             ALTER TABLE tax
             MODIFY COLUMN `tax_rate` DECIMAL(10,2);
         SQL;
 
         $this->connection->executeStatement($sqlUpdateToTaxTable);
 
-        $sqlUpdateToTaxRuleTable = <<<SQL
+        $sqlUpdateToTaxRuleTable = <<<'SQL'
             ALTER TABLE tax_rule
             MODIFY COLUMN `tax_rate` DOUBLE(10,2);
         SQL;
@@ -41,7 +41,7 @@ class Migration1676274910ChangeColumnTaxRateAllowThreeDecimalTest extends TestCa
 
         $migration->update($this->connection);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT NUMERIC_PRECISION, NUMERIC_SCALE, COLUMN_TYPE
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'tax'
@@ -65,7 +65,7 @@ SQL;
 
         $migration->update($this->connection);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT NUMERIC_PRECISION, NUMERIC_SCALE, COLUMN_TYPE
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'tax_rule'

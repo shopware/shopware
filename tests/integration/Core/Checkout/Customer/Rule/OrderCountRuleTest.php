@@ -161,7 +161,7 @@ class OrderCountRuleTest extends TestCase
         $rule = new OrderCountRule();
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_LT]);
 
-        $result = $rule->match($this->getMockForAbstractClass(RuleScope::class));
+        $result = $rule->match($this->createMock(RuleScope::class));
 
         static::assertFalse($result);
     }

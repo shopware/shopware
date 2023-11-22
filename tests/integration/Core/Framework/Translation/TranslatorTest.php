@@ -23,7 +23,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\SnippetFile_UnitTest;
+use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -54,7 +54,7 @@ class TranslatorTest extends TestCase
 
     public function testPassthru(): void
     {
-        $snippetFile = new SnippetFile_UnitTest();
+        $snippetFile = new UnitTest_SnippetFile();
         $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
 
         $stack = $this->getContainer()->get(RequestStack::class);

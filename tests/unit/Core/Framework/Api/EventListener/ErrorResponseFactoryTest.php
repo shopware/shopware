@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Util\Annotation\DocBlock;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -44,11 +43,11 @@ class ErrorResponseFactoryTest extends TestCase
         static::assertSame(self::class, $stack[0]['class']);
         static::assertSame('getResponseFromExceptionProvider', $stack[0]['function']);
 
-        static::assertSame(DocBlock::class, $stack[1]['class']);
-        static::assertSame('getDataFromDataProviderAnnotation', $stack[1]['function']);
+        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[1]['class']);
+        static::assertSame('dataProvidedByMethods', $stack[1]['function']);
 
-        static::assertSame(DocBlock::class, $stack[2]['class']);
-        static::assertSame('getProvidedData', $stack[2]['function']);
+        static::assertSame(\PHPUnit\Metadata\Api\DataProvider::class, $stack[2]['class']);
+        static::assertSame('providedData', $stack[2]['function']);
     }
 
     #[DataProvider('getResponseFromExceptionProvider')]

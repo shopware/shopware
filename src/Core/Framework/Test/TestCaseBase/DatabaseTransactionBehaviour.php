@@ -38,7 +38,7 @@ trait DatabaseTransactionBehaviour
             ->get(Connection::class)
             ->beginTransaction();
 
-        static::$lastTestCase = $this->getName();
+        static::$lastTestCase = $this->nameWithDataSet();
     }
 
     /**
@@ -62,7 +62,7 @@ trait DatabaseTransactionBehaviour
 
         self::$nextNestTransactionsWithSavepoints = true;
 
-        if (static::$lastTestCase === $this->getName()) {
+        if (static::$lastTestCase === $this->nameWithDataSet()) {
             static::$lastTestCase = null;
         }
     }

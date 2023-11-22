@@ -180,7 +180,7 @@ class CartLineItemControllerTest extends TestCase
                     $expectedLineItemData,
                     $expectedLineItemData2
                 ) {
-                    match ($matcher->getInvocationCount()) {
+                    match ($matcher->numberOfInvocations()) {
                         default => static::fail('to many calls of create'),
                         2 => static::assertEquals($expectedLineItemData2, $lineItemDataPar),
                         1 => static::assertEquals($expectedLineItemData, $lineItemDataPar),

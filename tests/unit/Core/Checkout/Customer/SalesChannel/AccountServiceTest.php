@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -29,10 +30,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\SalesChannel\AccountService
  */
 #[Package('checkout')]
+#[CoversClass(AccountService::class)]
 class AccountServiceTest extends TestCase
 {
     public function testLoginByValidCredentials(): void

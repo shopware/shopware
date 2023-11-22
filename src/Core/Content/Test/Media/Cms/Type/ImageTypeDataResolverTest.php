@@ -80,7 +80,8 @@ class ImageTypeDataResolverTest extends TestCase
 
         $criteriaCollection = $this->imageResolver->collect($slot, $resolverContext);
 
-        static::assertCount(1, $criteriaCollection);
+        static::assertNotNull($criteriaCollection);
+        static::assertCount(1, iterator_to_array($criteriaCollection));
 
         $expectedCriteria = new Criteria(['media123']);
 

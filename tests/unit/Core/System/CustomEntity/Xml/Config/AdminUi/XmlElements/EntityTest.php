@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlEle
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
 
 /**

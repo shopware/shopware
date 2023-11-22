@@ -103,6 +103,7 @@ class SeoUrlUpdaterTest extends TestCase
      * Checks whether the seo url updater is using the correct language for translations.
      *
      * @param list<string> $translations
+     * @param non-empty-string $pathInfo
      */
     #[DataProvider('seoLanguageDataProvider')]
     public function testSeoLanguageInheritance(array $translations, string $pathInfo): void
@@ -165,7 +166,7 @@ class SeoUrlUpdaterTest extends TestCase
     }
 
     /**
-     * @return list<array{translations: list<string>, pathInfo: string}>
+     * @return list<array{translations: list<string>, pathInfo: non-empty-string}>
      */
     public static function seoLanguageDataProvider(): array
     {

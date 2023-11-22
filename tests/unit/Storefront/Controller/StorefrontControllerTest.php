@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestSessionStorage;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
+use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Tests\Unit\Storefront\Controller\fixtures\TestStorefrontController;

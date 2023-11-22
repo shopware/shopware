@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Update\Event\UpdateEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 
 /**

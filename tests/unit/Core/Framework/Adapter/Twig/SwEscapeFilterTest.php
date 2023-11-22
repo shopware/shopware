@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -14,10 +14,8 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_escape_filter;
 
 /**
  * @internal
- *
- * @see Twig\Tests\Twig_Tests_Extension_EscaperTest
  */
-#[CoversClass(sw_escape_filter::class)]
+#[CoversFunction('Shopware\Core\Framework\Adapter\Twig\sw_escape_filter')]
 class SwEscapeFilterTest extends TestCase
 {
     /**

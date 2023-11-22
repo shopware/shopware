@@ -2661,11 +2661,6 @@ parameters:
 			path: src/Core/Content/Test/Media/Aggregate/MediaFolderConfigurationThumbnailSize/MediaFolderConfigurationMediaThumbnailSizeTest.php
 
 		-
-			message: "#^Cannot call method all\\(\\) on Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
 			message: "#^Cannot call method getFileExtension\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\MediaEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
@@ -2687,11 +2682,6 @@ parameters:
 
 		-
 			message: "#^Constant Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\Cms\\\\Type\\\\ImageTypeDataResolverTest\\:\\:FIXTURES_DIRECTORY is unused\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertCount\\(\\) expects Countable\\|iterable, Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\CriteriaCollection\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/Cms/Type/ImageTypeDataResolverTest.php
 

@@ -67,7 +67,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
-        static::assertEquals(1, $c->getTime());
+        static::assertEquals(1, floor($c->getTime()));
 
         $queries = [
             ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 1],
@@ -76,7 +76,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
-        static::assertEquals(3, $c->getTime());
+        static::assertEquals(3, floor($c->getTime()));
     }
 
     public function testCollectQueryWithNoTypes(): void

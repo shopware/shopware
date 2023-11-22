@@ -91,8 +91,8 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         );
 
         $this->addTestPluginToKernel(
-            __DIR__ . '/_fixture/plugins/SwagManualMigrationTest',
-            'SwagManualMigrationTest'
+            __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin',
+            'SwagManualMigrationTestPlugin'
         );
         $this->requireMigrationFiles();
 
@@ -108,7 +108,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         static::assertNull($migrationPlugin->getInstalledAt());
 
         $this->pluginLifecycleService->installPlugin($migrationPlugin, $this->context);
-        $migrationCollection = $this->getMigrationCollection('SwagManualMigrationTest');
+        $migrationCollection = $this->getMigrationCollection('SwagManualMigrationTestPlugin');
         $this->assertMigrationState($migrationCollection, 4, 1);
 
         return $migrationCollection;
@@ -193,14 +193,14 @@ class PluginLifecycleServiceMigrationTest extends TestCase
     private function getMigrationTestPlugin(): PluginEntity
     {
         return $this->pluginService
-            ->getPluginByName('SwagManualMigrationTest', $this->context);
+            ->getPluginByName('SwagManualMigrationTestPlugin', $this->context);
     }
 
     private function requireMigrationFiles(): void
     {
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTest/src/Migration/Migration1.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTest/src/Migration/Migration2.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTest/src/Migration/Migration3.php';
-        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTest/src/Migration/Migration4.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration1.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration2.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration3.php';
+        require_once __DIR__ . '/_fixture/plugins/SwagManualMigrationTestPlugin/src/Migration/Migration4.php';
     }
 }

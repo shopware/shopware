@@ -29,7 +29,7 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
     {
         $this->connection = KernelLifecycleManager::getConnection();
 
-        $getDeLanguageSql = <<<SQL
+        $getDeLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -38,7 +38,7 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
 
         $deLanguageId = $this->connection->fetchOne($getDeLanguageSql);
 
-        $getEnLanguageSql = <<<SQL
+        $getEnLanguageSql = <<<'SQL'
             SELECT language.id
             FROM language
             JOIN locale ON locale.id = language.locale_id
@@ -60,7 +60,7 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
 
         $migration->update($this->connection);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT country_translation.*
             FROM country
             JOIN country_translation ON country.id = country_translation.country_id

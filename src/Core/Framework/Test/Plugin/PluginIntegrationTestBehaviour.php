@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use SwagTest\SwagTest;
+use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use SwagTestWithBundle\SwagTestWithBundle;
 
@@ -78,7 +78,7 @@ trait PluginIntegrationTestBehaviour
         $plugin->assign([
             'id' => Uuid::randomHex(),
             'name' => 'SwagTest',
-            'baseClass' => SwagTest::class,
+            'baseClass' => SwagTestPlugin::class,
             'version' => '1.0.1',
             'active' => false,
             'path' => __DIR__ . '/_fixture/plugins/SwagTest',

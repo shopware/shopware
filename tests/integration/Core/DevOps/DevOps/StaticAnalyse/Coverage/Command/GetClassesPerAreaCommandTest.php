@@ -164,8 +164,8 @@ class GetClassesPerAreaCommandTest extends TestCase
         static::assertNotFalse($xml);
         $corePhpUnit = json_decode((string) json_encode($xml), true);
 
-        static::assertNotEmpty($corePhpUnit['coverage']['include']['file'] ?? []);
+        static::assertNotEmpty($corePhpUnit['source']['include']['file'] ?? []);
 
-        return array_filter(array_map('realpath', $corePhpUnit['coverage']['include']['file']));
+        return array_filter(array_map('realpath', $corePhpUnit['source']['include']['file']));
     }
 }

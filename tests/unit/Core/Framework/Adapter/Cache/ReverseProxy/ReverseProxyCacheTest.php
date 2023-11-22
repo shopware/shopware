@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\ReverseProxy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
@@ -16,9 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache
  */
+#[CoversClass(ReverseProxyCache::class)]
 class ReverseProxyCacheTest extends TestCase
 {
     public function testFlushIsCalledInDestruct(): void

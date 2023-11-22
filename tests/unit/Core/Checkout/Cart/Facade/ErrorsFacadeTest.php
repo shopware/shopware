@@ -22,7 +22,7 @@ class ErrorsFacadeTest extends TestCase
         $facade->error('error');
         $facade->notice('notice');
 
-        static::assertCount(3, $facade);
+        static::assertCount(3, iterator_to_array($facade));
         static::assertTrue($facade->has('warning'));
         static::assertTrue($facade->has('error'));
         static::assertTrue($facade->has('notice'));
@@ -30,10 +30,10 @@ class ErrorsFacadeTest extends TestCase
         $facade->warning('duplicate');
         $facade->warning('duplicate');
         static::assertTrue($facade->has('duplicate'));
-        static::assertCount(4, $facade);
+        static::assertCount(4, iterator_to_array($facade));
         $facade->remove('duplicate');
         static::assertFalse($facade->has('duplicate'));
-        static::assertCount(3, $facade);
+        static::assertCount(3, iterator_to_array($facade));
 
         static::assertInstanceOf(Error::class, $facade->get('error'));
         static::assertEquals(Error::LEVEL_ERROR, $facade->get('error')->getLevel());

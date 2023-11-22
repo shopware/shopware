@@ -24,7 +24,7 @@ class CriteriaCollectionTest extends TestCase
         static::assertCount(1, $collection->all());
 
         // test iterator
-        static::assertCount(1, $collection);
+        static::assertCount(1, iterator_to_array($collection));
     }
 
     public function testAddMultipleCriteriaOfDifferentDefinition(): void
@@ -38,7 +38,7 @@ class CriteriaCollectionTest extends TestCase
         static::assertCount(3, $collection->all());
 
         // test iterator
-        static::assertCount(3, $collection);
+        static::assertCount(3, iterator_to_array($collection));
     }
 
     public function testAddMultipleCriteriaOfSameDefinition(): void
@@ -52,7 +52,7 @@ class CriteriaCollectionTest extends TestCase
         static::assertCount(1, $collection->all());
 
         // test iterator
-        static::assertCount(1, $collection);
+        static::assertCount(1, iterator_to_array($collection));
 
         // test indexed by definition
         static::assertCount(3, $collection->all()[ProductDefinition::class]);

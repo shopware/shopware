@@ -66,8 +66,8 @@ class CartFacadeTest extends TestCase
         $price = $facade->price();
         static::assertEquals(100, $price->getTotal());
 
-        $errors = $facade->errors();
-        static::assertCount(1, $errors);
+        $errors = $facade->errors()->getIterator();
+        static::assertCount(1, iterator_to_array($errors));
 
         static::assertSame('my-container', $facade->container('my-container')->getId());
         static::assertEquals(3, $facade->count());

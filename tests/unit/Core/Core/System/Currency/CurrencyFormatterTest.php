@@ -50,6 +50,9 @@ class CurrencyFormatterTest extends TestCase
         static::assertMatchesRegularExpression($pattern, $formattedPrice);
     }
 
+    /**
+     * @param non-empty-string $expectedCurrencySymbol
+     */
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillWriteCorrectCurrencySymbol(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
@@ -86,7 +89,7 @@ class CurrencyFormatterTest extends TestCase
     }
 
     /**
-     * @return array<array{float, int, string, string, string}> price, locale.code, decimal places, expected currency symbol
+     * @return array<array{float, int, non-empty-string, non-empty-string, non-empty-string, non-empty-string}> price, locale.code, decimal places, currency iso, expected currency symbol
      */
     public static function formattingParameterProvider(): array
     {

@@ -10,9 +10,12 @@ use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Columns;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tab;
+use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Tabs;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

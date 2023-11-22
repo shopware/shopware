@@ -58,9 +58,10 @@
     </testsuites>
     <extensions>
         <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
-<!--        <extension class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension"/>-->
-        <!--Enable to see the db sideeffects of the tests. -->
-        <!--<extension class="Shopware\Core\Framework\Test\TestCaseBase\DatabaseCleanTestExtension" />-->
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
+        <!-- Enable to see the db side effects of the tests. -->
+<!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
     </extensions>
     <source>
         <include>

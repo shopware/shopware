@@ -65,7 +65,7 @@ class DemodataCommandTest extends TestCase
         $this->command = new DemodataCommand(
             $this->createMock(DemodataService::class),
             $this->dispatcher,
-            $this->getName() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
+            $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
         );
     }
 

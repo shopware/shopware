@@ -187,7 +187,10 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+
+        $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
+        static::assertNotEmpty($version);
+        static::assertStringStartsWith($version, $content);
     }
 
     public function testGetShopwareVersionOldVersion(): void
@@ -204,7 +207,10 @@ class InfoControllerTest extends TestCase
         static::assertNotFalse($content);
         static::assertJson($content);
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertStringStartsWith(mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3), $content);
+
+        $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
+        static::assertNotEmpty($version);
+        static::assertStringStartsWith($version, $content);
     }
 
     public function testBusinessEventRoute(): void

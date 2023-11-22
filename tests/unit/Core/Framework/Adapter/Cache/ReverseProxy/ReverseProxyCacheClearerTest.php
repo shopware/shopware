@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
@@ -13,9 +14,8 @@ use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer
  */
+#[CoversClass(ReverseProxyCacheClearer::class)]
 class ReverseProxyCacheClearerTest extends TestCase
 {
     private MockHandler $mockHandler;

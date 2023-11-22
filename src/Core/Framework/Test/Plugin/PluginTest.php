@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin;
 
 use PHPUnit\Framework\TestCase;
-use SwagTest\SwagTest;
+use SwagTestPlugin\SwagTestPlugin;
 
 /**
  * @internal
@@ -37,28 +37,28 @@ class PluginTest extends TestCase
 
     public function testGetPathWithNonSymlinkedPlugin(): void
     {
-        $plugin = new SwagTest(true, self::$swagTestPluginPath);
+        $plugin = new SwagTestPlugin(true, self::$swagTestPluginPath);
 
         static::assertEquals(self::$swagTestPluginPath . '/src', $plugin->getPath());
     }
 
     public function testGetPathWithSymlinkedPlugin(): void
     {
-        $plugin = new SwagTest(true, self::$symlinkedSwagTestPluginPath);
+        $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
 
         static::assertEquals(self::$symlinkedSwagTestPluginPath . '/src', $plugin->getPath());
     }
 
     public function testGetBasePath(): void
     {
-        $plugin = new SwagTest(true, self::$symlinkedSwagTestPluginPath);
+        $plugin = new SwagTestPlugin(true, self::$symlinkedSwagTestPluginPath);
 
         static::assertEquals(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
     }
 
     public function testGetBasePathIncludingSlash(): void
     {
-        $plugin = new SwagTest(true, 'somePlugin', '/www/');
+        $plugin = new SwagTestPlugin(true, 'somePlugin', '/www/');
 
         static::assertEquals('/www/somePlugin', $plugin->getBasePath());
     }

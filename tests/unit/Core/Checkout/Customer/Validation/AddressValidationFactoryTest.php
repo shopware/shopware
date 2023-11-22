@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
 use Monolog\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory;
@@ -16,10 +17,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory
  */
 #[Package('checkout')]
+#[CoversClass(AddressValidationFactory::class)]
 class AddressValidationFactoryTest extends TestCase
 {
     private AddressValidationFactory $addressValidationFactory;

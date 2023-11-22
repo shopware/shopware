@@ -38,6 +38,12 @@ return static function (RectorConfig $rectorConfig): void {
         ]
     );
 
+    // PHPUnit v10 update
+    // $rectorConfig->rule(\Rector\PHPUnit\AnnotationsToAttributes\Rector\Class_\CoversAnnotationWithValueToAttributeRector::class);
+    // $rectorConfig->rule(\Rector\PHPUnit\AnnotationsToAttributes\Rector\ClassMethod\DataProviderAnnotationToAttributeRector::class);
+    // $rectorConfig->rule(\Rector\PHPUnit\AnnotationsToAttributes\Rector\ClassMethod\DependsAnnotationWithValueToAttributeRector::class);
+    // $rectorConfig->rule(\Rector\PHPUnit\AnnotationsToAttributes\Rector\Class_\AnnotationWithValueToAttributeRector::class);
+
 //    $rectorConfig->rule(ClassPackageRector::class);
 //    $rectorConfig->ruleWithConfiguration(
 //        ChangeMethodVisibilityRector::class,

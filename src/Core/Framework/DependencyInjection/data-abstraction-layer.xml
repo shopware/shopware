@@ -32,6 +32,29 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator"/>
+            <argument type="service" id="kernel"/>
+            <argument type="service" id="Symfony\Component\Filesystem\Filesystem"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer"/>
+            <argument>%kernel.shopware_core_dir%</argument>
+            <argument>%kernel.shopware_version%</argument>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder">
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer">
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
         </service>

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<ImageStruct>
  */
 #[Package('services-settings')]
 class ImageCollection extends StoreCollection

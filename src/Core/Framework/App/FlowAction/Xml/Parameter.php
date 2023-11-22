@@ -70,11 +70,10 @@ class Parameter extends XmlElement
 
         $values = [];
 
-        /** @var \DOMNamedNodeMap $attributes */
-        $attributes = $element->attributes;
-
-        /** @var \DOMAttr $item */
-        foreach ($attributes as $item) {
+        foreach ($element->attributes as $item) {
+            if (!$item instanceof \DOMAttr) {
+                continue;
+            }
             $values[$item->name] = XmlUtils::phpize($item->value);
         }
 

@@ -40,7 +40,7 @@ abstract class AbstractResponse extends Struct
     {
         foreach ($options as $key => $value) {
             if (property_exists($this, $key)) {
-                $this->$key = $value;  /* @phpstan-ignore-line */
+                $this->$key = $value;
             }
         }
 

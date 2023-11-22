@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<FaqStruct>
  */
 #[Package('services-settings')]
 class FaqCollection extends StoreCollection

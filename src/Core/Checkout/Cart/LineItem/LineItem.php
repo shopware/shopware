@@ -115,7 +115,7 @@ class LineItem extends Struct
         $self = new self($lineItem->id, $lineItem->type, $lineItem->getReferencedId(), $lineItem->quantity);
 
         foreach (get_object_vars($lineItem) as $property => $value) {
-            $self->$property = $value; /* @phpstan-ignore-line */
+            $self->$property = $value;
         }
 
         return $self;

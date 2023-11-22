@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type CustomFieldSetArray array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
  */
 #[Package('core')]
 class CustomFieldSet extends XmlElement
@@ -42,7 +44,7 @@ class CustomFieldSet extends XmlElement
     protected bool $global = false;
 
     /**
-     * @return array{name: string, global: bool, config: array<string, mixed>, relations: array<array<string, string>>, appId: string, customFields: list<array<string, mixed>>}
+     * @return CustomFieldSetArray
      */
     public function toEntityArray(string $appId): array
     {

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 trait AssignArrayTrait
 {
     /**
-     * @param array<mixed> $options
+     * @param array<array-key, mixed> $options
      *
      * @return $this
      */
@@ -22,7 +22,7 @@ trait AssignArrayTrait
             }
 
             try {
-                $this->$key = $value; /* @phpstan-ignore-line */
+                $this->$key = $value;
             } catch (\Error|\Exception $error) {
                 // nth
             }

@@ -14,6 +14,9 @@ final class DocumentGenerateOperation extends Struct
 
     protected string $orderVersionId = Defaults::LIVE_VERSION;
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(
         protected string $orderId,
         protected string $fileType = FileTypes::PDF,
@@ -34,6 +37,9 @@ final class DocumentGenerateOperation extends Struct
         return $this->fileType;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;

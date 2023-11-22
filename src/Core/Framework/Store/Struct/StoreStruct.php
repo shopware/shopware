@@ -11,5 +11,8 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('services-settings')]
 abstract class StoreStruct extends Struct
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     abstract public static function fromArray(array $data): self;
 }

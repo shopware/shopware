@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<ReviewStruct>
  */
 #[Package('services-settings')]
 class ReviewCollection extends StoreCollection

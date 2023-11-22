@@ -25,7 +25,6 @@ class FlowActionPersister
 
     public function updateActions(Action $flowAction, string $appId, Context $context, string $defaultLocale): void
     {
-        /** @var array<string, string> $existingFlowActions */
         $existingFlowActions = $this->connection->fetchAllKeyValue('SELECT name, LOWER(HEX(id)) FROM app_flow_action WHERE app_id = :appId', [
             'appId' => Uuid::fromHexToBytes($appId),
         ]);

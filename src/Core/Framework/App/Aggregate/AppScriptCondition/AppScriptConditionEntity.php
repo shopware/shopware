@@ -5,10 +5,15 @@ namespace Shopware\Core\Framework\App\Aggregate\AppScriptCondition;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptConditionTranslation\AppScriptConditionTranslationCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Validator\Constraint;
 
+/**
+ * @phpstan-import-type CustomFieldTypeArray from CustomFieldType
+ */
 #[Package('core')]
 class AppScriptConditionEntity extends Entity
 {
@@ -31,10 +36,13 @@ class AppScriptConditionEntity extends Entity
     /**
      * @internal
      *
-     * @var string|array|null
+     * @var string|array<string, list<Constraint>>|null
      */
     protected $constraints;
 
+    /**
+     * @var CustomFieldTypeArray|null
+     */
     protected ?array $config;
 
     protected ?RuleConditionCollection $ruleConditions = null;
@@ -114,7 +122,7 @@ class AppScriptConditionEntity extends Entity
     /**
      * @internal
      *
-     * @return string|array|null
+     * @return string|array<string, list<Constraint>>|null
      */
     public function getConstraints()
     {
@@ -126,18 +134,24 @@ class AppScriptConditionEntity extends Entity
     /**
      * @internal
      *
-     * @param string|array|null $constraints
+     * @param string|array<string, list<Constraint>>|null $constraints
      */
     public function setConstraints($constraints): void
     {
         $this->constraints = $constraints;
     }
 
+    /**
+     * @return CustomFieldTypeArray|null
+     */
     public function getConfig(): ?array
     {
         return $this->config;
     }
 
+    /**
+     * @param CustomFieldTypeArray|null $config
+     */
     public function setConfig(?array $config): void
     {
         $this->config = $config;

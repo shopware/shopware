@@ -20,7 +20,7 @@ abstract class XmlReader
      *
      * @throws XmlParsingException|UtilException
      *
-     * @return array<int, array<string, mixed>>
+     * @return array<array<string, mixed>>
      *
      * @deprecated tag:v6.7.0 - reason:exception-change Thrown exception will change from XmlParsingException to UtilXmlParsingException
      */
@@ -36,7 +36,7 @@ abstract class XmlReader
     }
 
     /**
-     * @return array<int, \DOMElement>
+     * @return list<\DOMElement>
      */
     public static function getAllChildren(\DOMNode $node): array
     {
@@ -51,7 +51,7 @@ abstract class XmlReader
     }
 
     /**
-     * @return array<int, \DOMElement>
+     * @return list<\DOMElement>
      */
     public static function getChildByName(\DOMNode $node, string $name): array
     {
@@ -86,7 +86,7 @@ abstract class XmlReader
     }
 
     /**
-     * @param \DOMNodeList<\DOMNode> $optionsList
+     * @param \DOMNodeList<\DOMElement> $optionsList
      *
      * @return array<string, mixed>|null
      */
@@ -96,19 +96,14 @@ abstract class XmlReader
             return null;
         }
 
-        $item = $optionsList->item(0);
-        if (!$item instanceof \DOMNode) {
-            return null;
-        }
+        $optionList = $optionsList->item(0)?->childNodes;
 
-        $optionList = $item->childNodes;
-        if ($optionList->length === 0) {
+        if (!$optionList instanceof \DOMNodeList || $optionList->length === 0) {
             return null;
         }
 
         $options = [];
 
-        /** @var \DOMElement $option */
         foreach ($optionList as $option) {
             if ($option instanceof \DOMElement) {
                 $options[$option->nodeName] = static::phpize($option->nodeValue);
@@ -135,12 +130,7 @@ abstract class XmlReader
             return null;
         }
 
-        $item = $children->item(0);
-        if (!$item instanceof \DOMNode) {
-            return null;
-        }
-
-        return $item->nodeValue;
+        return $children->item(0)?->nodeValue;
     }
 
     public static function validateTextAttribute(string $type, string $defaultValue = ''): string
@@ -175,7 +165,7 @@ abstract class XmlReader
     /**
      * This method is the main entry point to parse a xml file.
      *
-     * @return array<int, mixed>
+     * @return array<array<string, mixed>>
      */
     abstract protected function parseFile(\DOMDocument $xml): array;
 }

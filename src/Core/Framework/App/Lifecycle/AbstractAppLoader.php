@@ -25,12 +25,12 @@ abstract class AbstractAppLoader
     abstract public function getDecorated(): AbstractAppLoader;
 
     /**
-     * @return Manifest[]
+     * @return array<string, Manifest>
      */
     abstract public function load(): array;
 
     /**
-     * @return array<mixed>|null
+     * @return array<array<string, mixed>>|null
      */
     public function getConfiguration(AppEntity $app): ?array
     {

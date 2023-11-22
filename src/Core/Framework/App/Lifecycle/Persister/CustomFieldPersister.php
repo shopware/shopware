@@ -10,13 +10,19 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
+ *
+ * @phpstan-import-type CustomFieldSetArray from CustomFieldSet
  */
 #[Package('core')]
 class CustomFieldPersister
 {
+    /**
+     * @param EntityRepository<CustomFieldSetCollection> $customFieldSetRepository
+     */
     public function __construct(private readonly EntityRepository $customFieldSetRepository)
     {
     }
@@ -58,11 +64,15 @@ class CustomFieldPersister
         $this->customFieldSetRepository->upsert($payload, $context);
     }
 
+    /**
+     * @param list<CustomFieldSet> $customFieldSets
+     *
+     * @return list<CustomFieldSetArray>
+     */
     private function generateCustomFieldSets(array $customFieldSets, string $appId): array
     {
         $payload = [];
 
-        /** @var CustomFieldSet $customFieldSet */
         foreach ($customFieldSets as $customFieldSet) {
             $payload[] = $customFieldSet->toEntityArray($appId);
         }

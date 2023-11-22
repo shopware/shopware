@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class ShopIdProvider
@@ -42,10 +42,8 @@ class ShopIdProvider
             return $newShopId;
         }
 
-        if (EnvironmentHelper::getVariable('APP_URL') !== ($shopId['app_url'] ?? '')) {
-            /** @var string $appUrl */
-            $appUrl = EnvironmentHelper::getVariable('APP_URL');
-
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        if (\is_string($appUrl) && $appUrl !== ($shopId['app_url'] ?? '')) {
             if ($this->hasApps()) {
                 throw new AppUrlChangeDetectedException($shopId['app_url'], $appUrl, $shopId['value']);
             }

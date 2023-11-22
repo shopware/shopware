@@ -26,6 +26,9 @@ class PaymentMethodPersister
 {
     private FinfoMimeTypeDetector $mimeDetector;
 
+    /**
+     * @param EntityRepository<PaymentMethodCollection> $paymentMethodRepository
+     */
     public function __construct(
         private readonly EntityRepository $paymentMethodRepository,
         private readonly MediaService $mediaService,
@@ -47,7 +50,6 @@ class PaymentMethodPersister
             $payload['handlerIdentifier'] = sprintf('app\\%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
             $payload['technicalName'] = \sprintf('payment_%s_%s', $manifest->getMetadata()->getName(), $paymentMethod->getIdentifier());
 
-            /** @var PaymentMethodEntity|null $existing */
             $existing = $existingPaymentMethods->filterByProperty('handlerIdentifier', $payload['handlerIdentifier'])->first();
             $existingAppPaymentMethod = $existing ? $existing->getAppPaymentMethod() : null;
 
@@ -126,10 +128,7 @@ class PaymentMethodPersister
         ]));
 
         return $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($criteria) {
-            /** @var PaymentMethodCollection $paymentMethods */
-            $paymentMethods = $this->paymentMethodRepository->search($criteria, $context)->getEntities();
-
-            return $paymentMethods;
+            return $this->paymentMethodRepository->search($criteria, $context)->getEntities();
         });
     }
 

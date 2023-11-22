@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type CustomFieldTypeArray array{name: string, config: array{label: array<string, string>, helpText: array<string, string>, customFieldPosition: int, validation?: 'required'}, allowCustomerWrite?: true, allowCartExpose?: true}
  */
 #[Package('core')]
 abstract class CustomFieldType extends XmlElement
@@ -38,7 +40,7 @@ abstract class CustomFieldType extends XmlElement
     protected array $helpText = [];
 
     /**
-     * @return array<string, mixed>
+     * @return CustomFieldTypeArray
      */
     public function toEntityPayload(): array
     {
@@ -63,6 +65,7 @@ abstract class CustomFieldType extends XmlElement
             $entityArray['allowCartExpose'] = true;
         }
 
+        /** @phpstan-ignore-next-line because of the array method, PHPStan could not recognize the array shape correctly */
         return array_merge_recursive($entityArray, $this->toEntityArray());
     }
 

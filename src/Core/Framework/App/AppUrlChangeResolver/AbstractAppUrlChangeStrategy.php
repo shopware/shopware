@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class AbstractAppUrlChangeStrategy
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly AbstractAppLoader $appLoader,
         private readonly EntityRepository $appRepository,
@@ -40,7 +43,6 @@ abstract class AbstractAppUrlChangeStrategy
     protected function forEachInstalledApp(Context $context, callable $callback): void
     {
         $manifests = $this->appLoader->load();
-        /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         foreach ($manifests as $manifest) {

@@ -20,6 +20,9 @@ class ImageStruct extends StoreStruct
      */
     protected $raw;
 
+    /**
+     * @return ImageStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

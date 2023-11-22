@@ -25,6 +25,9 @@ class BinaryStruct extends StoreStruct
      */
     protected $creationDate;
 
+    /**
+     * @return BinaryStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

@@ -153,11 +153,18 @@ global.console.error = (...args) => {
 
         if (typeof allowedError.msg === 'string') {
             if (typeof args[0] === 'string') {
-                let shouldBeSilenced = args[0].includes(allowedError.msg);
+                const shouldBeSilenced = args[0].includes(allowedError.msg);
 
-                if (allowedError.msgCheck) {
-                    shouldBeSilenced = allowedError.msgCheck(args[0]);
+                if (shouldBeSilenced) {
+                    silenceError = true;
                 }
+            }
+            return;
+        }
+
+        if (typeof allowedError.msgCheck === 'function') {
+            if (allowedError.msgCheck) {
+                const shouldBeSilenced = allowedError.msgCheck(args[0]);
 
                 if (shouldBeSilenced) {
                     silenceError = true;

@@ -4,27 +4,27 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules\Symplify\N
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule;
 use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
 
 /**
+ * Rule decorates symplify rule, so we copy the test case and adjust it, see https://github.com/symplify/phpstan-rules/pull/39
+ *
  * @extends RuleTestCase<NoReturnSetterMethodWithFluentSettersRule>
  *
  * @internal
- *
- * @covers \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
- *
- * Rule decorates symplify rule, so we copy the test case and adjust it, see https://github.com/symplify/phpstan-rules/pull/39
  */
+#[CoversClass(NoReturnSetterMethodWithFluentSettersRule::class)]
 class NoReturnSetterMethodWithFluentSettersRuleTest extends RuleTestCase
 {
     /**
      * @param list<array{0: string, 1: int, 2?: string}> $expectedErrorsWithLines
      *
-     * @dataProvider provideData
-     *
      * @runInSeparateProcess run in separate process to prevent autoloading issues, see https://github.com/phpstan/phpdoc-parser/issues/188
      */
+    #[DataProvider('provideData')]
     public function testRule(string $filePath, array $expectedErrorsWithLines): void
     {
         $this->analyse([$filePath], $expectedErrorsWithLines);

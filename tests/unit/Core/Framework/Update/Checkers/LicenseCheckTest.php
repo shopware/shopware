@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Checkers;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Update\Checkers\LicenseCheck;
@@ -9,9 +10,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Checkers\LicenseCheck
  */
+#[CoversClass(LicenseCheck::class)]
 class LicenseCheckTest extends TestCase
 {
     public function testLicenseIsValidWithoutLicenseHost(): void

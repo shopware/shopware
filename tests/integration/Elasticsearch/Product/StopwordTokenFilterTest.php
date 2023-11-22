@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,11 +27,10 @@ class StopwordTokenFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider cases
-     *
      * @param list<string> $tokens
      * @param list<string> $expected
      */
+    #[DataProvider('cases')]
     public function testExcludedFilterFilter(array $tokens, array $expected): void
     {
         $service = new StopwordTokenFilter($this->connection);

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -17,10 +19,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule
  */
 #[Package('business-ops')]
+#[CoversClass(CustomerCustomFieldRule::class)]
 class CustomerCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -118,9 +119,7 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertTrue($this->rule->match($this->scope));
     }
 
-    /**
-     * @dataProvider getStringRuleValueWhichShouldBeConsideredAsTrueProvider
-     */
+    #[DataProvider('getStringRuleValueWhichShouldBeConsideredAsTrueProvider')]
     public function testBooleanCustomFieldTrueWhenIsRuleIsSetupAsString(string $value): void
     {
         $this->setupRule($value, 'bool');
@@ -130,9 +129,7 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertTrue($this->rule->match($this->scope));
     }
 
-    /**
-     * @dataProvider getStringRuleValueWhichShouldBeConsideredAsFalseProvider
-     */
+    #[DataProvider('getStringRuleValueWhichShouldBeConsideredAsFalseProvider')]
     public function testBooleanCustomFieldFalseWhenIsRuleIsSetupAsString(string $value): void
     {
         $this->setupRule($value, 'bool');
@@ -142,9 +139,7 @@ class CustomerCustomFieldRuleTest extends TestCase
         static::assertTrue($this->rule->match($this->scope));
     }
 
-    /**
-     * @dataProvider getStringRuleValueWhichShouldBeConsideredAsTrueProvider
-     */
+    #[DataProvider('getStringRuleValueWhichShouldBeConsideredAsTrueProvider')]
     public function testBooleanCustomFieldInvalidAsString(string $value): void
     {
         $this->setupRule($value, 'bool');
@@ -213,12 +208,11 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider customFieldCheckoutScopeProvider
-     *
      * @param array<int>|bool|string|null $customFieldValue
      * @param array<int>|bool|string|null $customFieldValueInCustomer
      * @param array<string, string> $config
      */
+    #[DataProvider('customFieldCheckoutScopeProvider')]
     public function testCustomFieldCheckoutScope(
         array|bool|string|null $customFieldValue,
         string $type,

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Newsletter\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\NewsletterException;
@@ -31,10 +32,9 @@ class NewsletterRecipientServiceTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @dataProvider dataProvider_testSubscribeNewsletterExpectsConstraintViolationException
-     *
      * @param array<int, array<int, array<string, string|null>>> $testData
      */
+    #[DataProvider('dataProvider_testSubscribeNewsletterExpectsConstraintViolationException')]
     public function testSubscribeNewsletterExpectsConstraintViolationException(array $testData): void
     {
         $this->installTestData();

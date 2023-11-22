@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
@@ -31,9 +32,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute
  */
+#[CoversClass(ProductDetailRoute::class)]
 class ProductDetailRouteTest extends TestCase
 {
     /**

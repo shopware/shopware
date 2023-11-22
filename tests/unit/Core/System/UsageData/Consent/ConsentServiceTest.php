@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -28,10 +29,9 @@ use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Consent\ConsentService
  */
 #[Package('data-services')]
+#[CoversClass(ConsentService::class)]
 class ConsentServiceTest extends TestCase
 {
     public function testIsApprovalGivenReturnsConfigValue(): void

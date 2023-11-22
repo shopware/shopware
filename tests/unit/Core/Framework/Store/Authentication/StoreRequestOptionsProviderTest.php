@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Authentication;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
@@ -25,10 +26,9 @@ use Shopware\Core\System\User\UserEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider
  */
 #[Package('services-settings')]
+#[CoversClass(StoreRequestOptionsProvider::class)]
 class StoreRequestOptionsProviderTest extends TestCase
 {
     public function testGetAuthenticationHeaderContainsShopSecretIfExists(): void

@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Requirements\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Requirements\Struct\RequirementCheck
- * @covers \Shopware\Core\Installer\Requirements\Struct\SystemCheck
  */
+#[CoversClass(RequirementCheck::class)]
+#[CoversClass(SystemCheck::class)]
 class SystemCheckTest extends TestCase
 {
     public function testGetters(): void

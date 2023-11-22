@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,9 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\FlowFactory
  */
+#[CoversClass(FlowFactory::class)]
 class FlowFactoryTest extends TestCase
 {
     public function testCreate(): void

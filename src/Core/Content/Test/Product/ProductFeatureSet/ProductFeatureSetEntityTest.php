@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\ProductFeatureSet;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -27,9 +28,7 @@ class ProductFeatureSetEntityTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider definitionMethodProvider
-     */
+    #[DataProvider('definitionMethodProvider')]
     public function testEntityDefinitionIsComplete(string $method, string $returnValue): void
     {
         $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);

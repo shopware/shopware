@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\SalesChannel\Subscriber;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -20,9 +21,7 @@ class SalesChannelTypeValidatorTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @dataProvider listAvailable
-     */
+    #[DataProvider('listAvailable')]
     public function testCannotBeDeleted(string $id): void
     {
         $repo = $this->getContainer()->get('sales_channel_type.repository');

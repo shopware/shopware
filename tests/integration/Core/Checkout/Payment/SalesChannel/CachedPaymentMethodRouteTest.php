@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodRouteCacheTagsEvent;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
@@ -61,9 +62,7 @@ class CachedPaymentMethodRouteTest extends TestCase
             ->invalidateTags([self::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

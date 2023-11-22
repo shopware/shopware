@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -270,9 +272,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testUpdate(IdsCollection $ids): void
     {
         try {
@@ -308,9 +308,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEmptySearch(IdsCollection $data): void
     {
         try {
@@ -328,9 +326,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testPagination(IdsCollection $data): void
     {
         try {
@@ -351,9 +347,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEqualsFilter(IdsCollection $data): void
     {
         try {
@@ -373,9 +367,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEqualsFilterWithNumericEncodedBoolFields(IdsCollection $data): void
     {
         try {
@@ -395,9 +387,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testRangeFilter(IdsCollection $data): void
     {
         try {
@@ -417,9 +407,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEqualsAnyFilter(IdsCollection $data): void
     {
         try {
@@ -440,9 +428,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMultiNotFilterFilter(IdsCollection $data): void
     {
         try {
@@ -477,13 +463,11 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider multiFilterWithOneToManyRelationProvider
-     *
      * @param array<string> $expectedProducts
      * @param Filter $filter
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('multiFilterWithOneToManyRelationProvider')]
     public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void
     {
         try {
@@ -594,9 +578,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testContainsFilter(IdsCollection $data): void
     {
         try {
@@ -642,9 +624,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testPrefixFilter(IdsCollection $data): void
     {
         try {
@@ -690,9 +670,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSuffixFilter(IdsCollection $data): void
     {
         try {
@@ -738,9 +716,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSingleGroupBy(IdsCollection $data): void
     {
         try {
@@ -768,9 +744,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMultiGroupBy(IdsCollection $data): void
     {
         try {
@@ -794,9 +768,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAvgAggregation(IdsCollection $data): void
     {
         try {
@@ -824,9 +796,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -870,9 +840,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermsAggregationWithAvg(IdsCollection $data): void
     {
         try {
@@ -929,9 +897,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermsAggregationWithAssociation(IdsCollection $data): void
     {
         try {
@@ -975,9 +941,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSumAggregation(IdsCollection $data): void
     {
         try {
@@ -1005,9 +969,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSumAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1062,9 +1024,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMaxAggregation(IdsCollection $data): void
     {
         try {
@@ -1092,9 +1052,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMaxAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1149,9 +1107,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMinAggregation(IdsCollection $data): void
     {
         try {
@@ -1179,9 +1135,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMinAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1236,9 +1190,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCountAggregation(IdsCollection $data): void
     {
         try {
@@ -1266,9 +1218,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCountAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1323,9 +1273,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testStatsAggregation(IdsCollection $data): void
     {
         try {
@@ -1357,9 +1305,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testStatsAggregationWithTermsAggregation(IdsCollection $data): void
     {
         try {
@@ -1423,9 +1369,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEntityAggregation(IdsCollection $data): void
     {
         try {
@@ -1457,9 +1401,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEntityAggregationWithTermQuery(IdsCollection $data): void
     {
         try {
@@ -1490,9 +1432,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTermAlgorithm(IdsCollection $data): void
     {
         try {
@@ -1527,9 +1467,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterAggregation(IdsCollection $data): void
     {
         try {
@@ -1563,9 +1501,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterAggregationWithNestedFilterAndAggregation(IdsCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -1636,9 +1572,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterForProperties(IdsCollection $data): void
     {
         try {
@@ -1660,9 +1594,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNestedFilterAggregationWithRootQuery(IdsCollection $data): void
     {
         try {
@@ -1702,9 +1634,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterAggregationWithRootFilter(IdsCollection $data): void
     {
         try {
@@ -1742,11 +1672,8 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends      testIndexing
-     *
-     * @dataProvider dateHistogramProvider
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('dateHistogramProvider')]
     public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
     {
         try {
@@ -1901,9 +1828,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testDateHistogramWithNestedAvg(IdsCollection $data): void
     {
         try {
@@ -1962,9 +1887,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterCustomTextField(IdsCollection $data): void
     {
         try {
@@ -1983,9 +1906,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testXorQuery(IdsCollection $data): void
     {
         try {
@@ -2012,9 +1933,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNegativXorQuery(IdsCollection $data): void
     {
         try {
@@ -2041,9 +1960,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testTotalWithGroupFieldAndPostFilter(IdsCollection $data): void
     {
         try {
@@ -2068,9 +1985,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testIdsSorting(IdsCollection $data): void
     {
         try {
@@ -2102,9 +2017,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSorting(IdsCollection $data): void
     {
         try {
@@ -2135,9 +2048,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMaxLimit(IdsCollection $data): void
     {
         try {
@@ -2157,9 +2068,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testStorefrontListing(): void
     {
         try {
@@ -2201,9 +2110,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSortingIsCaseInsensitive(IdsCollection $data): void
     {
         try {
@@ -2235,9 +2142,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPriceFilter(IdsCollection $ids): void
     {
         try {
@@ -2329,9 +2234,7 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPriceSorting(IdsCollection $ids): void
     {
         try {
@@ -2516,9 +2419,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPriceAggregation(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -2556,9 +2457,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
     {
         try {
@@ -2656,9 +2555,7 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCheapestPricePercentageAggregation(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -2685,9 +2582,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testLanguageFieldsWorkSimilarToDAL(IdsCollection $ids): void
     {
         $context = $this->createIndexingContext();
@@ -2796,9 +2691,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testReleaseDate(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2810,9 +2703,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame('2019-01-01T10:11:00+00:00', $product['releaseDate']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2828,9 +2719,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(0, $product['sales']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCategoriesProperties(IdsCollection $ids): void
     {
         $dal1 = $ids->getBytes('dal-1');
@@ -2847,9 +2736,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($ids->get('xl'), $product['propertyIds']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCustomFieldsGetMapped(IdsCollection $ids): void
     {
         $mapping = $this->definition->getMapping($this->context);
@@ -2918,9 +2805,7 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals($expected, $mapping['properties']['customFields']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSortByCustomFieldIntAsc(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -2945,9 +2830,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSortByCustomFieldIntDesc(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -2976,9 +2859,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCustomFieldsAreMerged(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3003,9 +2884,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCustomFieldDateType(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3046,9 +2925,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSortByPropertiesCount(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3094,9 +2971,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFetchFloatedCustomFieldIds(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3120,9 +2995,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterByCustomFieldDate(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3144,9 +3017,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterByStates(IdsCollection $ids): void
     {
         $context = $this->context;
@@ -3169,9 +3040,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testEmptyEntityAggregation(IdsCollection $ids): void
     {
         $criteria = new Criteria();
@@ -3198,11 +3067,8 @@ class ElasticsearchProductTest extends TestCase
         static::assertEmpty($agg->getEntities());
     }
 
-    /**
-     * @depends      testIndexing
-     *
-     * @dataProvider variantListingConfigProvider
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('variantListingConfigProvider')]
     public function testVariantListingConfig(string $productIds, int $expected, IdsCollection $ids): void
     {
         $criteria = new Criteria($ids->prefixed($productIds));
@@ -3251,13 +3117,11 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider rangeAggregationDataProvider
-     *
      * @param array<int, array<string, string|float>> $rangesDefinition
      * @param array<string, int> $rangesExpectedResult
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('rangeAggregationDataProvider')]
     public function testRangeAggregation(array $rangesDefinition, array $rangesExpectedResult, IdsCollection $data): void
     {
         $aggregator = $this->createEntityAggregator();
@@ -3279,9 +3143,7 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterCoreDateFields(): void
     {
         $criteria = new EsAwareCriteria();

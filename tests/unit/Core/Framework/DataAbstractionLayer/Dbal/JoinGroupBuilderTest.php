@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -17,10 +18,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder
  */
 #[Package('core')]
+#[CoversClass(JoinGroupBuilder::class)]
 class JoinGroupBuilderTest extends TestCase
 {
     public function testCanGroupProvidedFilters(): void

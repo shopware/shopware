@@ -9,6 +9,8 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -17,8 +19,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway
+ * @deprecated tag:v6.6.0 - Move to core
  */
+#[CoversClass(VarnishReverseProxyGateway::class)]
 class VarnishReverseProxyGatewayTest extends TestCase
 {
     private Client $client;
@@ -77,9 +80,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         static::assertEquals('tag-1 tag-2', $request->getHeader('xkey')[0]);
     }
 
-    /**
-     * @dataProvider providerExceptions
-     */
+    #[DataProvider('providerExceptions')]
     public function testInvalidateFails(\Throwable $e, string $message): void
     {
         $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client);
@@ -108,9 +109,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         static::assertEquals('http://localhost/', $request->getUri()->__toString());
     }
 
-    /**
-     * @dataProvider providerExceptions
-     */
+    #[DataProvider('providerExceptions')]
     public function testBanFails(\Throwable $e, string $message): void
     {
         $gateway = new VarnishReverseProxyGateway(['http://localhost'], 0, $this->client);

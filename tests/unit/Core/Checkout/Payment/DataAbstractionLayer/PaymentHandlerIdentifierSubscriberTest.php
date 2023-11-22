@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
@@ -19,11 +20,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\PaymentHandler\MultipleTestPaymentHandler;
 
 /**
- * @covers \Shopware\Core\Checkout\Payment\DataAbstractionLayer\PaymentHandlerIdentifierSubscriber
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(PaymentHandlerIdentifierSubscriber::class)]
 class PaymentHandlerIdentifierSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

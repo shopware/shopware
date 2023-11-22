@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -20,9 +21,8 @@ use Shopware\Core\System\Tax\TaxCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator
  */
+#[CoversClass(PaymentMethodValidator::class)]
 class PaymentMethodValidatorTest extends TestCase
 {
     private PaymentMethodValidator $validator;

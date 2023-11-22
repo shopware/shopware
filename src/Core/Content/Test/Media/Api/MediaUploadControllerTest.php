@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -20,9 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @group needsWebserver
- *
- * @covers \Shopware\Core\Content\Media\Api\MediaUploadController
  */
+#[CoversClass(MediaUploadController::class)]
 class MediaUploadControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

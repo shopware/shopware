@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Reader;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -2220,12 +2221,11 @@ class EntityReaderTest extends TestCase
     }
 
     /**
-     * @dataProvider casesToManyPaginated
-     *
      * @param list<array<string, mixed>> $data
      * @param callable(Criteria): void $modifier
      * @param list<string> $expected
      */
+    #[DataProvider('casesToManyPaginated')]
     public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
     {
         $id = Uuid::randomHex();
@@ -2394,11 +2394,10 @@ class EntityReaderTest extends TestCase
     }
 
     /**
-     * @dataProvider casesToManyReadPaginatedInherited
-     *
      * @param array<string, mixed> $criteriaConfig
      * @param list<string> $expectedMedia
      */
+    #[DataProvider('casesToManyReadPaginatedInherited')]
     public function testOneToManyReadingInherited(array $criteriaConfig, array $expectedMedia, string $type): void
     {
         $ids = new IdsCollection();

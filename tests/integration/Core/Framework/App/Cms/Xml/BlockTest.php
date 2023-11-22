@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Cms\Xml;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 
@@ -76,9 +77,8 @@ class BlockTest extends TestCase
 
     /**
      * @param array<string, mixed> $expectedEntityArray
-     *
-     * @dataProvider provideEntityArrays
      */
+    #[DataProvider('provideEntityArrays')]
     public function testToEntityArray(int $i, array $expectedEntityArray): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');

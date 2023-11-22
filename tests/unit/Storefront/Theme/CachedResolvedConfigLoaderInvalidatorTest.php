@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -13,9 +14,8 @@ use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\CachedResolvedConfigLoaderInvalidator
  */
+#[CoversClass(CachedResolvedConfigLoaderInvalidator::class)]
 class CachedResolvedConfigLoaderInvalidatorTest extends TestCase
 {
     private CachedResolvedConfigLoaderInvalidator $cachedResolvedConfigLoaderInvalidator;

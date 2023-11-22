@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -17,9 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent
  */
+#[CoversClass(EntityWriteEvent::class)]
 class EntityWriteEventTest extends TestCase
 {
     public function testGetters(): void

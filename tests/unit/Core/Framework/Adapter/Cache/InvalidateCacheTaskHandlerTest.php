@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler
  */
+#[CoversClass(InvalidateCacheTaskHandler::class)]
 class InvalidateCacheTaskHandlerTest extends TestCase
 {
     public function testRunWithoutDelay(): void

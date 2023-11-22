@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTask;
 use Shopware\Core\Framework\Context;
@@ -23,16 +25,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler
  */
+#[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {
     /**
      * @param AggregationResult[] $aggregationResult
-     *
-     * @dataProvider providerGetNextExecutionTime
      */
+    #[DataProvider('providerGetNextExecutionTime')]
     public function testGetNextExecutionTime(array $aggregationResult, ?\DateTime $time): void
     {
         $scheduledTaskRepository = $this->createMock(EntityRepository::class);
@@ -78,9 +78,8 @@ class TaskSchedulerTest extends TestCase
 
     /**
      * @param AggregationResult[] $aggregationResult
-     *
-     * @dataProvider providerGetMinRunInterval
      */
+    #[DataProvider('providerGetMinRunInterval')]
     public function testGetMinRunInterval(array $aggregationResult, ?int $time): void
     {
         $scheduledTaskRepository = $this->createMock(EntityRepository::class);
@@ -181,9 +180,7 @@ class TaskSchedulerTest extends TestCase
         $scheduler->queueScheduledTasks();
     }
 
-    /**
-     * @dataProvider providerScheduledTaskQueues
-     */
+    #[DataProvider('providerScheduledTaskQueues')]
     public function testScheduledTaskQueues(int $delay, bool $expected): void
     {
         $scheduledTask = new ScheduledTaskEntity();

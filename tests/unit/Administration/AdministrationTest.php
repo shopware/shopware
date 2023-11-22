@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Administration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 
 /**
  * @internal
- *
- * @coversDefaultClass \Shopware\Administration\Administration
  */
+#[CoversClass(Administration::class)]
 class AdministrationTest extends TestCase
 {
     public function testTemplatePriority(): void

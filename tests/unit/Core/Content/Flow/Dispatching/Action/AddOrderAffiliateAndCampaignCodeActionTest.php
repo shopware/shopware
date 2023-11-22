@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction;
@@ -15,9 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderAffiliateAndCampaignCodeAction
  */
+#[CoversClass(AddOrderAffiliateAndCampaignCodeAction::class)]
 class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -54,9 +55,8 @@ class AddOrderAffiliateAndCampaignCodeActionTest extends TestCase
      * @param array<string, mixed> $config
      * @param array<string, mixed> $existedData
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, array $existedData, array $expected): void
     {
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturn($existedData);

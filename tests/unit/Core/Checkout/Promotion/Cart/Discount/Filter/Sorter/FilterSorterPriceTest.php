@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
@@ -19,20 +21,18 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceAsc
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter\FilterSorterPriceDesc
  */
 #[Package('buyers-experience')]
+#[CoversClass(FilterSorterPriceAsc::class)]
+#[CoversClass(FilterSorterPriceDesc::class)]
 class FilterSorterPriceTest extends TestCase
 {
     /**
-     * @dataProvider sortingProvider
-     *
      * @param array<LineItem> $items
      * @param array<LineItemQuantity> $meta
      * @param array<string> $expected
      */
+    #[DataProvider('sortingProvider')]
     public function testSorting(AbstractPriceSorter $sorter, array $meta, array $items, array $expected): void
     {
         $package = new DiscountPackage(new LineItemQuantityCollection($meta));

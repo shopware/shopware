@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
@@ -23,9 +25,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerBirthdayRule
  */
+#[CoversClass(CustomerBirthdayRule::class)]
 class CustomerBirthdayRuleTest extends TestCase
 {
     private CustomerBirthdayRule $rule;
@@ -61,9 +62,7 @@ class CustomerBirthdayRuleTest extends TestCase
         static::assertEquals(new Choice($operators), $constraints['operator'][1]);
     }
 
-    /**
-     * @dataProvider getMatchBirthdayValues
-     */
+    #[DataProvider('getMatchBirthdayValues')]
     public function testBirthdayRuleMatching(bool $expected, ?string $customerBirthday, ?string $birthdayValue, string $operator): void
     {
         $customer = new CustomerEntity();

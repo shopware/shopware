@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -18,15 +20,12 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @package business-ops
  *
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule
- *
  * @internal
  */
+#[CoversClass(CartHasDeliveryFreeItemRule::class)]
 class CartHasDeliveryFreeItemRuleTest extends TestCase
 {
-    /**
-     * @dataProvider inputProvider
-     */
+    #[DataProvider('inputProvider')]
     public function testMatchInLineItemScope(?bool $lineItemWithFreeDelivery): void
     {
         $scope = new LineItemScope($this->getLineItem($lineItemWithFreeDelivery), $this->createMock(SalesChannelContext::class));
@@ -37,9 +36,7 @@ class CartHasDeliveryFreeItemRuleTest extends TestCase
         static::assertSame(!$lineItemWithFreeDelivery, $rule->match($scope));
     }
 
-    /**
-     * @dataProvider inputProvider
-     */
+    #[DataProvider('inputProvider')]
     public function testMatchInCartScope(?bool $lineItemWithFreeDelivery): void
     {
         $scope = new CartRuleScope(new Cart(Uuid::randomHex()), $this->createMock(SalesChannelContext::class));

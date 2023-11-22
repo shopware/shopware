@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Struct\ValidationResult;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Struct\ValidationResult
  */
+#[CoversClass(ValidationResult::class)]
 class ValidationResultTest extends TestCase
 {
     public function testCreateResult(): void

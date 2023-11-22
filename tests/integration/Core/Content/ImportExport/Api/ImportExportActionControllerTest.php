@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Api;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -155,10 +156,9 @@ class ImportExportActionControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider mappingFromProvider
-     *
      * @param list<array{key: string, mappedKey: string}> $expectedMapping
      */
+    #[DataProvider('mappingFromProvider')]
     public function testMappingFromTemplate(string $sourceEntity, string $fileContent, array $expectedMapping, ?int $expectedErrorCode = null, ?string $expectedErrorMessage = null): void
     {
         $file = [];

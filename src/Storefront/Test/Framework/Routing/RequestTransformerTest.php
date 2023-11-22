@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoResolver;
 use Shopware\Core\Defaults;
@@ -53,11 +54,10 @@ class RequestTransformerTest extends TestCase
     }
 
     /**
-     * @dataProvider domainProvider
-     *
      * @param array<string, string|array<string, string>> $salesChannels
      * @param ExpectedRequest[] $requests
      */
+    #[DataProvider('domainProvider')]
     public function testDomainResolving(array $salesChannels, array $requests): void
     {
         $this->createSalesChannels($salesChannels);
@@ -233,9 +233,7 @@ class RequestTransformerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider seoRedirectProvider
-     */
+    #[DataProvider('seoRedirectProvider')]
     public function testRedirectLinksUsesSalesChannelPath(string $baseUrl, string $virtualUrl, string $resolvedUrl): void
     {
         $gerUkId = Uuid::randomHex();

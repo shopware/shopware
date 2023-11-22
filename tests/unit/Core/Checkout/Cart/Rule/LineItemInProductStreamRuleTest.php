@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,13 +20,12 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule
- *
  * @internal
  *
  * @group rules
  */
 #[Package('business-ops')]
+#[CoversClass(LineItemInProductStreamRule::class)]
 class LineItemInProductStreamRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -50,11 +51,10 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getLineItemScopeTestData
-     *
      * @param array<string> $streamIds
      * @param array<string> $lineItemProductStreamIds
      */
+    #[DataProvider('getLineItemScopeTestData')]
     public function testIfMatchesCorrectWithLineItemScope(
         array $streamIds,
         string $operator,
@@ -89,11 +89,10 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartRuleScopeTestData
-     *
      * @param array<string> $streamIds
      * @param array<string> $lineItemCategoryIds
      */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         array $streamIds,
         string $operator,
@@ -121,11 +120,10 @@ class LineItemInProductStreamRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartRuleScopeTestData
-     *
      * @param array<string> $streamIds
      * @param array<string> $lineItemCategoryIds
      */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $streamIds,
         string $operator,

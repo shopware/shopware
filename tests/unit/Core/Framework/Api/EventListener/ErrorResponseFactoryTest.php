@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Util\Annotation\DocBlock;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
@@ -14,14 +16,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory
  */
+#[CoversClass(ErrorResponseFactory::class)]
 class ErrorResponseFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider getResponseFromExceptionProvider
-     */
+    #[DataProvider('getResponseFromExceptionProvider')]
     public function testStackTraceForExceptionInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
@@ -52,9 +51,7 @@ class ErrorResponseFactoryTest extends TestCase
         static::assertSame('getProvidedData', $stack[2]['function']);
     }
 
-    /**
-     * @dataProvider getResponseFromExceptionProvider
-     */
+    #[DataProvider('getResponseFromExceptionProvider')]
     public function testNoStackTraceForExceptionNotInDebugMode(\Exception $exception): void
     {
         $factory = new ErrorResponseFactory();
@@ -270,9 +267,7 @@ class ErrorResponseFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidUtf8SequencesProvider
-     */
+    #[DataProvider('invalidUtf8SequencesProvider')]
     public function testInvalidUtf8CharactersShouldNotThrow(string $invalid): void
     {
         $prefix = 'valid prefix';

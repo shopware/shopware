@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -18,9 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction
  */
+#[CoversClass(GenerateDocumentAction::class)]
 class GenerateDocumentActionTest extends TestCase
 {
     private MockObject&DocumentGenerator $documentGenerator;
@@ -56,9 +57,8 @@ class GenerateDocumentActionTest extends TestCase
 
     /**
      * @param array<string, mixed> $config
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, int $expected): void
     {
         $this->flow->expects(static::exactly(2))->method('hasData')->willReturn(true);

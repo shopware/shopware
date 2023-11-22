@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemQuantity::class)]
 class LineItemQuantityTest extends TestCase
 {
     /**

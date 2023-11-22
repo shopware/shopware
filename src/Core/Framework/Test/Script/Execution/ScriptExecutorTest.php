@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Script\Execution;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
@@ -35,9 +36,8 @@ class ScriptExecutorTest extends TestCase
     /**
      * @param array<string> $hooks
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider executeProvider
      */
+    #[DataProvider('executeProvider')]
     public function testExecute(array $hooks, array $expected): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Seo\SeoResolver;
@@ -68,9 +69,7 @@ class StorefrontRoutingTest extends TestCase
         $this->router->setContext($this->oldContext);
     }
 
-    /**
-     * @dataProvider getRequestTestCaseProvider
-     */
+    #[DataProvider('getRequestTestCaseProvider')]
     public function testInvariants(RequestTestCase $case): void
     {
         $salesChannelContext = $this->registerDomain($case);

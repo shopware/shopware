@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -185,11 +186,10 @@ class DatabaseConfigLoaderTest extends TestCase
     }
 
     /**
-     * @dataProvider configurationLoadingProvider
-     *
      * @param array<string, mixed> $config
      * @param array<string|int, mixed> $expected>
      */
+    #[DataProvider('configurationLoadingProvider')]
     public function testConfigurationLoading(string $key, array $config, array $expected): void
     {
         $themes = [

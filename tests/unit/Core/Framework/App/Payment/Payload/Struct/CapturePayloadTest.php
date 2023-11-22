@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -12,11 +13,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
- * @covers \Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(CapturePayload::class)]
 class CapturePayloadTest extends TestCase
 {
     public function testPayload(): void

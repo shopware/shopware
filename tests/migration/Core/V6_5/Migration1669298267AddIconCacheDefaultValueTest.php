@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -11,9 +12,8 @@ use Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1669298267AddIconCacheDefaultValue
  */
+#[CoversClass(Migration1669298267AddIconCacheDefaultValue::class)]
 class Migration1669298267AddIconCacheDefaultValueTest extends TestCase
 {
     public function testInsertValue(): void

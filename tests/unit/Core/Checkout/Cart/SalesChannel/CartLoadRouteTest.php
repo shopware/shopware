@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute
  */
+#[CoversClass(CartLoadRoute::class)]
 class CartLoadRouteTest extends TestCase
 {
     public function testLoadCartCreatesNewCart(): void

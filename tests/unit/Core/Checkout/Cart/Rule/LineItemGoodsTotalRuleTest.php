@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -19,12 +21,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule
- *
  * @internal
  *
  * @group rules
  */
+#[CoversClass(LineItemGoodsTotalRule::class)]
 class LineItemGoodsTotalRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -41,9 +42,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
         static::assertFalse($lineItemGoodsTotalRule->match($scope));
     }
 
-    /**
-     * @dataProvider matchWithoutFilterTestDataProvider
-     */
+    #[DataProvider('matchWithoutFilterTestDataProvider')]
     public function testMatchWithoutFilter(string $operator, int $count, bool $expectedResult): void
     {
         $lineItemCollection = new LineItemCollection([
@@ -94,9 +93,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
         yield 'OPERATOR_LT with count 7 expect true' => [Rule::OPERATOR_LT, 7, true];
     }
 
-    /**
-     * @dataProvider matchWithFilterTestDataProvider
-     */
+    #[DataProvider('matchWithFilterTestDataProvider')]
     public function testMatchWithFilter(string $operator, int $count, bool $expectedResult): void
     {
         $lineItemCollection = new LineItemCollection([

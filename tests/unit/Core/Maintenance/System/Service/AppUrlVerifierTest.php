@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Service\AppUrlVerifier
  */
+#[CoversClass(AppUrlVerifier::class)]
 class AppUrlVerifierTest extends TestCase
 {
     private Client&MockObject $guzzleMock;

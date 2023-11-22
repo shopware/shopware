@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Node;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Node\FeatureCallSilentToken;
 use Twig\Compiler;
@@ -11,9 +12,8 @@ use Twig\Node\TextNode;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\Node\FeatureCallSilentToken
  */
+#[CoversClass(FeatureCallSilentToken::class)]
 class FeatureCallSilentTokenTest extends TestCase
 {
     public function testCompile(): void

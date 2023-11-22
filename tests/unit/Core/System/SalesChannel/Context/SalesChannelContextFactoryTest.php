@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
@@ -38,10 +39,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory
  */
 #[Package('buyers-experience')]
+#[CoversClass(SalesChannelContextFactory::class)]
 class SalesChannelContextFactoryTest extends TestCase
 {
     public function testCustomerPaymentMethodIsOnlyUsedIfActive(): void

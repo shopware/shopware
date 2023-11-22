@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Product\Repository;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Category\CategoryCollection;
@@ -2888,13 +2889,12 @@ class ProductRepositoryTest extends TestCase
     }
 
     /**
-     * @dataProvider customFieldVariantsProvider
-     *
      * @group slow
      *
      * @param array<string, mixed> $translations
      * @param array<string, mixed> $expected
      */
+    #[DataProvider('customFieldVariantsProvider')]
     public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
     {
         $ids = new TestDataCollection();

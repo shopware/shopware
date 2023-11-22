@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Framework\Context;
@@ -14,9 +15,8 @@ use Shopware\Storefront\Theme\ThemeService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Subscriber\UnusedMediaSubscriber
  */
+#[CoversClass(UnusedMediaSubscriber::class)]
 class UnusedMediaSubscriberTest extends TestCase
 {
     public function testSubscribedEvents(): void

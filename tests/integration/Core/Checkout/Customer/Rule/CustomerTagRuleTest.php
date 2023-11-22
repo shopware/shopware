@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
 use Shopware\Core\Framework\Context;
@@ -20,9 +21,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @group rules
  *
  * @package business-ops
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule
  */
+#[CoversClass(CustomerAgeRule::class)]
 class CustomerTagRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

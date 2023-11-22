@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -133,10 +134,9 @@ json
     }
 
     /**
-     * @dataProvider dataProviderForTestGetStoreFrontSnippets
-     *
      * @param array<int, array<int, MessageCatalogue|array<int|string, string>>> $expectedResult
      */
+    #[DataProvider('dataProviderForTestGetStoreFrontSnippets')]
     public function testGetStoreFrontSnippets(MessageCatalogueInterface $catalog, array $expectedResult): void
     {
         $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));

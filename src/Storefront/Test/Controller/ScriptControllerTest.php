@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -120,9 +121,7 @@ class ScriptControllerTest extends TestCase
         static::assertSame('/detail/' . $ids->get('p1'), $response->headers->get('location'));
     }
 
-    /**
-     * @dataProvider ensureLoginProvider
-     */
+    #[DataProvider('ensureLoginProvider')]
     public function testEnsureLogin(bool $login, bool $isGuest, bool $allowGuest, int $expectedStatus, string $expectedResponse): void
     {
         $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');

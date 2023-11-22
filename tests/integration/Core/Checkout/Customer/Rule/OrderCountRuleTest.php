@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -165,9 +166,7 @@ class OrderCountRuleTest extends TestCase
         static::assertFalse($result);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, ?int $orderCount, int $ruleOrderCount, bool $noCustomer = false): void
     {
         $rule = new OrderCountRule();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin;
@@ -22,9 +23,8 @@ use Shopware\Storefront\Theme\ThemeLifecycleService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber
  */
+#[CoversClass(PluginLifecycleSubscriber::class)]
 class PluginLifecycleSubscriberTest extends TestCase
 {
     private PluginLifecycleSubscriber $pluginSubscriber;

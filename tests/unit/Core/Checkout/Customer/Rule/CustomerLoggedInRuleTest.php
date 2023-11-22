@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -16,9 +18,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerLoggedInRule
  */
+#[CoversClass(CustomerLoggedInRule::class)]
 class CustomerLoggedInRuleTest extends TestCase
 {
     public function testGetConstraints(): void
@@ -66,9 +67,7 @@ class CustomerLoggedInRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testMatch(bool $isLoggedIn, bool $hasCustomer, bool $isMatching): void
     {
         $rule = new CustomerLoggedInRule($isLoggedIn);

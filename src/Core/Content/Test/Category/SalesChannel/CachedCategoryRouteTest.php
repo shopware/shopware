@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\CategoryRouteCacheTagsEvent;
 use Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute;
@@ -65,9 +66,7 @@ class CachedCategoryRouteTest extends TestCase
             ->rollBack();
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(IdsCollection $ids, \Closure $after, int $calls): void
     {
         if (!$ids->has('navigation')) {

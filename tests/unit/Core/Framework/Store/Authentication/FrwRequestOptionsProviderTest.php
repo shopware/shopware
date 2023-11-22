@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Authentication;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
@@ -18,10 +19,9 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider
  */
 #[Package('services-settings')]
+#[CoversClass(FrwRequestOptionsProvider::class)]
 class FrwRequestOptionsProviderTest extends TestCase
 {
     public function testGetAuthenticationHeaderReturnsFrwToken(): void

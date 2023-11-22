@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchUpdateMappingCommand;
 use Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater;
@@ -9,9 +10,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Command\ElasticsearchUpdateMappingCommand
  */
+#[CoversClass(ElasticsearchUpdateMappingCommand::class)]
 class ElasticsearchUpdateMappingCommandTest extends TestCase
 {
     public function testUpdate(): void

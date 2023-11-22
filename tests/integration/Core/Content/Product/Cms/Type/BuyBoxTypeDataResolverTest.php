@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Cms\Type;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -211,9 +212,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
         static::assertSame(3, $buyBoxStruct->getTotalReviews());
     }
 
-    /**
-     * @dataProvider reviewCountDataProvider
-     */
+    #[DataProvider('reviewCountDataProvider')]
     public function testReviewCountLoadedWithVariants(int $variantCount, int $reviewsPerProduct, int $expectedReviews): void
     {
         $productId = Uuid::randomHex();

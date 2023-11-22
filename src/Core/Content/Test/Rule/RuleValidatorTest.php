@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
@@ -42,10 +43,9 @@ class RuleValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider providerRuleCases
-     *
      * @param array<array<string, string|array<string, mixed>>> $conditions
      */
+    #[DataProvider('providerRuleCases')]
     public function testItCanCreateRulesOnValidInput(string $conditionId, array $conditions): void
     {
         $ruleId = Uuid::randomHex();

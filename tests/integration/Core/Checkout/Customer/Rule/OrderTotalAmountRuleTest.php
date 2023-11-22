@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -271,9 +272,7 @@ class OrderTotalAmountRuleTest extends TestCase
         static::assertSame(0, (int) $result->first()->getOrderTotalAmount());
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, ?float $orderAmount, float $ruleOrderAmount, bool $noCustomer = false): void
     {
         $rule = new OrderTotalAmountRule();

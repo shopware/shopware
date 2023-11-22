@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -44,10 +45,9 @@ class EntityProtectionValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider blockedApiRequest
-     *
      * @group slow
      */
+    #[DataProvider('blockedApiRequest')]
     public function testItBlocksApiAccess(string $method, string $url): void
     {
         $this->getBrowser()

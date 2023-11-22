@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Routing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
@@ -38,9 +39,7 @@ class ApiRouteScopeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideAllowedData
-     */
+    #[DataProvider('provideAllowedData')]
     public function testAllowedCombinations(ContextSource $source, bool $authRequired): void
     {
         $scope = $this->getContainer()->get(ApiRouteScope::class);
@@ -53,9 +52,7 @@ class ApiRouteScopeTest extends TestCase
         static::assertTrue($scope->isAllowed($request));
     }
 
-    /**
-     * @dataProvider provideForbiddenData
-     */
+    #[DataProvider('provideForbiddenData')]
     public function testForbiddenCombinations(ContextSource $source, bool $authRequired): void
     {
         $scope = $this->getContainer()->get(ApiRouteScope::class);

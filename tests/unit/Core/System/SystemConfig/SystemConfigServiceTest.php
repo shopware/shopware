@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\AbstractSystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -11,16 +13,14 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\SystemConfigService
  */
+#[CoversClass(SystemConfigService::class)]
 class SystemConfigServiceTest extends TestCase
 {
     /**
      * @param array<string> $tags
-     *
-     * @dataProvider provideTracingExamples
      */
+    #[DataProvider('provideTracingExamples')]
     public function testTracing(bool $enabled, array $tags): void
     {
         $config = new SystemConfigService(

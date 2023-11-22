@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Util;
 
 use Composer\IO\NullIO;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Util\PluginFinder
  */
+#[CoversClass(PluginFinder::class)]
 class PluginFinderTest extends TestCase
 {
     public function testFailsOnMissingRootComposerFile(): void

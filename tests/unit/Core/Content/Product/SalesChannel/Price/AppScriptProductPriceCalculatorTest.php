@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
 use Shopware\Core\Content\Product\SalesChannel\Price\AppScriptProductPriceCalculator;
@@ -12,9 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Price\AppScriptProductPriceCalculator
  */
+#[CoversClass(AppScriptProductPriceCalculator::class)]
 class AppScriptProductPriceCalculatorTest extends TestCase
 {
     public function testHookWillBeExecuted(): void

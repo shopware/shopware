@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\ShopIdProvider
  */
+#[CoversClass(ShopIdProvider::class)]
 class ShopIdProviderTest extends TestCase
 {
     public function testReturnsShopIdWithoutAnyException(): void

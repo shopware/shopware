@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Services\RecoveryManager;
 use Symfony\Component\Filesystem\Filesystem;
@@ -12,9 +13,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Services\RecoveryManager
  */
+#[CoversClass(RecoveryManager::class)]
 class RecoveryManagerTest extends TestCase
 {
     public function testGetBinary(): void

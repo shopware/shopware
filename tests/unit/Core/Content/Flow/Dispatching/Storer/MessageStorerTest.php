@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Aware\MessageAware;
@@ -15,9 +16,8 @@ use Symfony\Component\Mime\Email;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer
  */
+#[CoversClass(MessageStorer::class)]
 class MessageStorerTest extends TestCase
 {
     public function testStoreNewData(): void

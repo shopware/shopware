@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_5;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -11,9 +12,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1690456899AddCustomFieldPrivilegeForSaleUnitViewer
  */
+#[CoversClass(Migration1690456899AddCustomFieldPrivilegeForSaleUnitViewer::class)]
 class Migration1690456899AddCustomFieldPrivilegeForSaleUnitViewerTest extends TestCase
 {
     use MigrationTestTrait;

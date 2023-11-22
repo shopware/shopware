@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -15,10 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\UsageDataException
  */
 #[Package('data-services')]
+#[CoversClass(UsageDataException::class)]
 class UsageDataExceptionTest extends TestCase
 {
     public function testMissingUserInContextSource(): void

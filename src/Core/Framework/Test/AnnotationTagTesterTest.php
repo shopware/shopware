@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
@@ -233,9 +234,7 @@ class AnnotationTagTesterTest extends TestCase
         $this->annotationTagTester->validateDeprecationElements('<deprecatedd>tag:v6.5</deprecatedd>');
     }
 
-    /**
-     * @dataProvider incorrectExperimentalAnnotationsFormatProvider
-     */
+    #[DataProvider('incorrectExperimentalAnnotationsFormatProvider')]
     public function testExperimentalWithIncorrectPropertiesDeclarationWillThrowException(string $content): void
     {
         static::expectException(\InvalidArgumentException::class);
@@ -314,9 +313,7 @@ class AnnotationTagTesterTest extends TestCase
         $this->annotationTagTester->validateExperimentalAnnotations($deprecatedContent);
     }
 
-    /**
-     * @dataProvider incorrectFeaturePropertyValueProvider
-     */
+    #[DataProvider('incorrectFeaturePropertyValueProvider')]
     public function testExperimentalWithIncorrectFeatureValueWillThrowException(string $content): void
     {
         static::expectException(\InvalidArgumentException::class);

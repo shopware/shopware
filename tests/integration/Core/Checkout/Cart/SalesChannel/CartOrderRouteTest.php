@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
@@ -29,9 +30,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @internal
  *
  * @group store-api
- *
- * @covers \Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute
  */
+#[CoversClass(CartOrderRoute::class)]
 class CartOrderRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

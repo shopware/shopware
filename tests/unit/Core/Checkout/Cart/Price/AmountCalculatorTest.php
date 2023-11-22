@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Price;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -22,14 +24,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Price\AmountCalculator
  */
+#[CoversClass(AmountCalculator::class)]
 class AmountCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider calculateAmountWithGrossPricesProvider
-     */
+    #[DataProvider('calculateAmountWithGrossPricesProvider')]
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -51,9 +50,7 @@ class AmountCalculatorTest extends TestCase
         static::assertEquals($expected, $cartPrice);
     }
 
-    /**
-     * @dataProvider calculateAmountWithNetPricesProvider
-     */
+    #[DataProvider('calculateAmountWithNetPricesProvider')]
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -75,9 +72,7 @@ class AmountCalculatorTest extends TestCase
         static::assertEquals($expected, $cartPrice);
     }
 
-    /**
-     * @dataProvider calculateAmountForNetDeliveriesProvider
-     */
+    #[DataProvider('calculateAmountForNetDeliveriesProvider')]
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -465,9 +460,7 @@ class AmountCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider cashRoundingProvider
-     */
+    #[DataProvider('cashRoundingProvider')]
     public function testCashRounding(CashRoundingConfig $item, CashRoundingConfig $total, PriceCollection $prices, CartPrice $expected): void
     {
         $context = $this->createMock(SalesChannelContext::class);

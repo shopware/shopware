@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -31,10 +32,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder
  */
 #[Package('data-services')]
+#[CoversClass(DispatchEntitiesQueryBuilder::class)]
 class DispatchEntitiesQueryBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

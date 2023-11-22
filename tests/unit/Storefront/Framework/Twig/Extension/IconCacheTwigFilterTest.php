@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -32,10 +33,9 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter
- * @covers \Shopware\Storefront\Framework\Twig\IconExtension
  */
+#[CoversClass(IconCacheTwigFilter::class)]
+#[CoversClass(IconExtension::class)]
 class IconCacheTwigFilterTest extends TestCase
 {
     /**

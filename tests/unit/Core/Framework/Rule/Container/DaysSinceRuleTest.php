@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Rule\Container;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
@@ -11,10 +12,9 @@ use Shopware\Tests\Unit\Core\Framework\Rule\Fixture\DaysSinceRuleFixture;
 /**
  * @package business-ops
  *
- * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
- *
  * @internal
  */
+#[CoversClass(DaysSinceRule::class)]
 class DaysSinceRuleTest extends TestCase
 {
     private DaysSinceRuleFixture $rule;

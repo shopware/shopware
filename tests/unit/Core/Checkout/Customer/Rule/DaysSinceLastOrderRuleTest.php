@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -19,10 +21,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule
- * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */
+#[CoversClass(DaysSinceLastOrderRule::class)]
+#[CoversClass(DaysSinceRule::class)]
 class DaysSinceLastOrderRuleTest extends TestCase
 {
     private DaysSinceLastOrderRule $rule;
@@ -226,9 +227,7 @@ class DaysSinceLastOrderRuleTest extends TestCase
         static::assertEquals(new Type('numeric'), $daysPassed[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, float $daysPassed, ?\DateTimeImmutable $day, bool $noCustomer = false): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);

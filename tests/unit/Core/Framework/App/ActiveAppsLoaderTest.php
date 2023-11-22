@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\ActiveAppsLoader
  */
+#[CoversClass(ActiveAppsLoader::class)]
 class ActiveAppsLoaderTest extends TestCase
 {
     public function testLoadAppsFromDatabase(): void

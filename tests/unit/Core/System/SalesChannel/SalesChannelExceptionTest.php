@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -10,15 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\SalesChannelException
  */
 #[Package('buyers-experience')]
+#[CoversClass(SalesChannelException::class)]
 class SalesChannelExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
+    #[DataProvider('exceptionDataProvider')]
     public function testExceptions(ShopwareHttpException|SalesChannelException $exception, int $statusCode, string $errorCode, string $message): void
     {
         static::assertSame($statusCode, $exception->getStatusCode());

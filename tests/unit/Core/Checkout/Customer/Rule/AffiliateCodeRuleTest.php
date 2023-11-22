@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -18,9 +20,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\AffiliateCodeRule
  */
+#[CoversClass(AffiliateCodeRule::class)]
 class AffiliateCodeRuleTest extends TestCase
 {
     public function testGetConstraints(): void
@@ -82,9 +83,7 @@ class AffiliateCodeRuleTest extends TestCase
         $rule->match($scope);
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testMatch(string $operator, ?string $ruleCode, ?string $customerCode, bool $hasCustomer, bool $isMatching): void
     {
         $rule = new AffiliateCodeRule($operator, $ruleCode);

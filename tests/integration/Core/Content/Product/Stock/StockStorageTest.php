@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
@@ -35,11 +36,10 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Product\Stock\StockStorage
- *
  * @group slow
  */
 #[Package('inventory')]
+#[CoversClass(StockStorage::class)]
 class StockStorageTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -16,9 +17,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder
  */
+#[CoversClass(ElasticsearchFieldBuilder::class)]
 class ElasticsearchFieldBuilderTest extends TestCase
 {
     public function testBuildTranslatedField(): void

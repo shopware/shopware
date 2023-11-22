@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -15,9 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  */
 class EntitySearchResultTest extends TestCase
 {
-    /**
-     * @dataProvider resultPageCriteriaDataProvider
-     */
+    #[DataProvider('resultPageCriteriaDataProvider')]
     public function testResultPage(Criteria $criteria, int $page): void
     {
         $entity = new ArrayEntity(['id' => Uuid::randomHex()]);

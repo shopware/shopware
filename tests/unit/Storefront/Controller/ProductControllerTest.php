@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -40,9 +41,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\ProductController
  */
+#[CoversClass(ProductController::class)]
 class ProductControllerTest extends TestCase
 {
     private MockObject&ProductPageLoader $productPageLoaderMock;

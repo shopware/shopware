@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -36,9 +37,7 @@ class CartWeightRuleTest extends TestCase
         $this->rule = new CartWeightRule();
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         float $weight,
@@ -58,9 +57,7 @@ class CartWeightRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectOnEqualWeightNested(
         string $operator,
         float $weight,

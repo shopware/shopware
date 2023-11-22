@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -11,11 +12,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(PaymentTransactionStructFactory::class)]
 class PaymentTransactionStructFactoryTest extends TestCase
 {
     public function testDecorated(): void

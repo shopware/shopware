@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductDetailRouteCacheTagsEvent;
@@ -42,9 +43,7 @@ class CachedProductDetailRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $closure, int $calls, bool $isTestingWithVariant = false): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

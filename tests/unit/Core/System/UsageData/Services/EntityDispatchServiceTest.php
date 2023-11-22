@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -32,10 +33,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\EntityDispatchService
  */
 #[Package('data-services')]
+#[CoversClass(EntityDispatchService::class)]
 class EntityDispatchServiceTest extends TestCase
 {
     private DefinitionInstanceRegistry $registry;

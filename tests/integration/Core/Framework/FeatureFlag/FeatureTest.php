@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\FeatureFlag;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
@@ -232,9 +233,7 @@ class FeatureTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider featureAllDataProvider
-     */
+    #[DataProvider('featureAllDataProvider')]
     public function testFeatureAll(string $appEnv, bool $active): void
     {
         $_SERVER['FEATURE_NEXT_102'] = 'true';
@@ -571,9 +570,8 @@ class FeatureTest extends TestCase
     /**
      * @param array<string, array{name?: string, default?: boolean, major?: boolean, description?: string}> $featureConfig
      * @param array<string, string> $env
-     *
-     * @dataProvider isActiveDataProvider
      */
+    #[DataProvider('isActiveDataProvider')]
     public function testIsActive(array $featureConfig, array $env, string $feature, bool $expected): void
     {
         $_SERVER['APP_ENV'] = 'prod';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -20,9 +21,8 @@ use Shopware\Core\Framework\Rule\Rule;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\PromotionEntity
  */
+#[CoversClass(PromotionEntity::class)]
 class PromotionEntityTest extends TestCase
 {
     /**

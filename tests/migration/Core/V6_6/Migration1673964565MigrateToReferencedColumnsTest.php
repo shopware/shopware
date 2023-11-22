@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -10,9 +11,8 @@ use Shopware\Core\Migration\V6_6\Migration1673964565MigrateToReferencedColumns;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_6\Migration1673964565MigrateToReferencedColumns
  */
+#[CoversClass(Migration1673964565MigrateToReferencedColumns::class)]
 class Migration1673964565MigrateToReferencedColumnsTest extends TestCase
 {
     private Connection $connection;

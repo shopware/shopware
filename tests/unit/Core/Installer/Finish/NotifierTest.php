@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Installer\Finish;
 
 use GuzzleHttp\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Finish\Notifier;
 use Shopware\Core\Installer\Finish\UniqueIdGenerator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Finish\Notifier
  */
+#[CoversClass(Notifier::class)]
 class NotifierTest extends TestCase
 {
     public function testTrackEvent(): void

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Category\DataAbstractionLayer;
 use Doctrine\DBAL\Driver\PDO\PDOException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\DBAL\Query;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler
  */
+#[CoversClass(CategoryNonExistentExceptionHandler::class)]
 class CategoryNonExistentExceptionHandlerTest extends TestCase
 {
     public function testExceptionHandler(): void

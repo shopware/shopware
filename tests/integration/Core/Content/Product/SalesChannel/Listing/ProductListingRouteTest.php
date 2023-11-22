@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
@@ -23,19 +25,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute
  */
+#[CoversClass(ProductListingRoute::class)]
 class ProductListingRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     /**
-     * @dataProvider filterAggregationsWithProducts
-     *
      * @param array<string, mixed> $product
      * @param array<string, mixed> $expected
      */
+    #[DataProvider('filterAggregationsWithProducts')]
     public function testFilterAggregationsWithProducts(IdsCollection $ids, array $product, Request $request, array $expected): void
     {
         $parent = $this->getContainer()->get(Connection::class)->fetchOne(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\HealthCheckController;
 use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
@@ -12,9 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Controller\HealthCheckController
  */
+#[CoversClass(HealthCheckController::class)]
 class HealthCheckControllerTest extends TestCase
 {
     public function testCheck(): void

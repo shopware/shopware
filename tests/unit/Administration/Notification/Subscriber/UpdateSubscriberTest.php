@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Administration\Notification\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Constraint\TraversableContainsIdentical;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Notification\Subscriber\UpdateSubscriber
  */
+#[CoversClass(UpdateSubscriber::class)]
 class UpdateSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

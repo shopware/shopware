@@ -8,6 +8,8 @@ use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
@@ -19,9 +21,8 @@ use Shopware\Core\Test\Stub\Checkout\Payment\Cart\Token\TestSigner;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2
  */
+#[CoversClass(JWTFactoryV2::class)]
 class JWTFactoryV2Test extends TestCase
 {
     private JWTFactoryV2 $tokenFactory;
@@ -34,9 +35,7 @@ class JWTFactoryV2Test extends TestCase
         $this->tokenFactory = new JWTFactoryV2($configuration, $connection);
     }
 
-    /**
-     * @dataProvider dataProviderExpiration
-     */
+    #[DataProvider('dataProviderExpiration')]
     public function testGenerateAndGetToken(int $expiration, bool $expired): void
     {
         $transaction = self::createTransaction();

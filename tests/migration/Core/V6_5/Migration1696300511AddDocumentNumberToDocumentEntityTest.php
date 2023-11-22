@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -29,10 +30,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1696300511AddDocumentNumberToDocumentEntity
  */
 #[Package('checkout')]
+#[CoversClass(Migration1696300511AddDocumentNumberToDocumentEntity::class)]
 class Migration1696300511AddDocumentNumberToDocumentEntityTest extends TestCase
 {
     use KernelTestBehaviour;

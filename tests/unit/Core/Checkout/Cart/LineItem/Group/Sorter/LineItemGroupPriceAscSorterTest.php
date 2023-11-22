@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Sorter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
@@ -10,11 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupPriceAscSorter::class)]
 class LineItemGroupPriceAscSorterTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

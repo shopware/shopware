@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Finish;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Finish\SystemLocker;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Finish\SystemLocker
  */
+#[CoversClass(SystemLocker::class)]
 class SystemLockerTest extends TestCase
 {
     public function testLock(): void

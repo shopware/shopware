@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
@@ -12,10 +13,9 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\OpenApi\_fixt
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder
- *
  * @internal
  */
+#[CoversClass(OpenApiDefinitionSchemaBuilder::class)]
 class OpenApiDefinitionSchemaBuilderTest extends TestCase
 {
     private OpenApiDefinitionSchemaBuilder $schemaBuilder;

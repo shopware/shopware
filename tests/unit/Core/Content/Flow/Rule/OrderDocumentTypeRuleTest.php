@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -22,10 +24,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule
  */
 #[Package('business-ops')]
+#[CoversClass(OrderDocumentTypeRule::class)]
 class OrderDocumentTypeRuleTest extends TestCase
 {
     private OrderDocumentTypeRule $rule;
@@ -58,10 +59,9 @@ class OrderDocumentTypeRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchingValues
-     *
      * @param list<string> $selectedDocumentIds
      */
+    #[DataProvider('getMatchingValues')]
     public function testOrderDocumentTypeRuleMatching(bool $expected, string|null $documentId, array $selectedDocumentIds, string $operator): void
     {
         $order = new OrderEntity();

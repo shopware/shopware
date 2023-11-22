@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle;
 
 use Composer\InstalledVersions;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -13,10 +14,9 @@ use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\AppLoader
- * @covers \Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader
  */
+#[CoversClass(AppLoader::class)]
+#[CoversClass(AbstractAppLoader::class)]
 class AppLoaderTest extends TestCase
 {
     /**

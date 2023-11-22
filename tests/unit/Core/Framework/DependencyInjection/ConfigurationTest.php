@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -11,9 +12,8 @@ use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\Configuration
  */
+#[CoversClass(Configuration::class)]
 class ConfigurationTest extends TestCase
 {
     public function testGetConfigTreeBuilder(): void

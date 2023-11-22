@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Write;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
@@ -23,16 +25,14 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor
  */
+#[CoversClass(WriteCommandExtractor::class)]
 class WriteCommandExtractorTest extends TestCase
 {
     /**
      * @param array<string, mixed> $payload
-     *
-     * @dataProvider writeProtectedFieldsProvider
      */
+    #[DataProvider('writeProtectedFieldsProvider')]
     public function testExceptionForWriteProtectedFields(array $payload, ContextSource $scope, bool $valid): void
     {
         $extractor = new WriteCommandExtractor(

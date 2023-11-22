@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
@@ -24,9 +25,7 @@ class HoneypotCaptchaTest extends TestCase
         $this->captcha = self::getContainer()->get(HoneypotCaptcha::class);
     }
 
-    /**
-     * @dataProvider requestDataProvider
-     */
+    #[DataProvider('requestDataProvider')]
     public function testIsValid(Request $request, bool $shouldBeValid): void
     {
         if ($shouldBeValid) {

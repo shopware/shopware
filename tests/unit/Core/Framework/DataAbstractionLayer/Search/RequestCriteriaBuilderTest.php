@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -28,9 +30,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder
  */
+#[CoversClass(RequestCriteriaBuilder::class)]
 class RequestCriteriaBuilderTest extends TestCase
 {
     private RequestCriteriaBuilder $requestCriteriaBuilder;
@@ -73,9 +74,7 @@ class RequestCriteriaBuilderTest extends TestCase
         yield 'Test max limit with lower limit' => [50, 100, 50, false];
     }
 
-    /**
-     * @dataProvider maxApiLimitProvider
-     */
+    #[DataProvider('maxApiLimitProvider')]
     public function testMaxApiLimit(?int $limit, ?int $max, ?int $expected, bool $exception = false): void
     {
         $body = ['limit' => $limit];
@@ -121,10 +120,9 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidCriteriaIdsProvider
-     *
      * @param array<mixed> $ids
      */
+    #[DataProvider('invalidCriteriaIdsProvider')]
     public function testInvalidCriteriaIds(array $ids): void
     {
         $body = ['ids' => $ids];
@@ -171,11 +169,10 @@ class RequestCriteriaBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider validCriteriaIdsProvider
-     *
      * @param string|array<mixed> $idPayload
      * @param array<string>|array<int, array<string>> $expectedIds
      */
+    #[DataProvider('validCriteriaIdsProvider')]
     public function testValidCriteriaIds($idPayload, array $expectedIds): void
     {
         $body = ['ids' => $idPayload];
@@ -377,9 +374,7 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertEmpty($criteria->getAssociations());
     }
 
-    /**
-     * @dataProvider providerTotalCount
-     */
+    #[DataProvider('providerTotalCount')]
     public function testDifferentTotalCount(mixed $totalCountMode, int $expectedMode): void
     {
         $payload = [

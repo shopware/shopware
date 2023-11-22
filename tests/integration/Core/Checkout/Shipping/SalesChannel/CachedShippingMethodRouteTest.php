@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Event\ShippingMethodRouteCacheTagsEvent;
 use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
@@ -63,9 +64,7 @@ class CachedShippingMethodRouteTest extends TestCase
             ->invalidateTags([self::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\RuleMatcher;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher;
@@ -22,10 +23,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher
- *
  * @internal
  */
+#[CoversClass(AnyRuleMatcher::class)]
 class AnyRuleMatcherTest extends TestCase
 {
     use LineItemGroupTestFixtureBehaviour;

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\ConnectionException;
 use Monolog\Logger;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,10 +22,9 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler
  */
 #[Package('data-services')]
+#[CoversClass(IterateEntityMessageHandler::class)]
 class IterateEntityMessageHandlerTest extends TestCase
 {
     public function testDispatchesNoMessageToFetchDeletedOrUpdatedEntitiesOnInitialRun(): void

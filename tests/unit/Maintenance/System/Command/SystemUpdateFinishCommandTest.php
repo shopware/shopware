@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Maintenance\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -19,9 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand
  */
+#[CoversClass(SystemUpdateFinishCommand::class)]
 class SystemUpdateFinishCommandTest extends TestCase
 {
     private ContainerBuilder $container;

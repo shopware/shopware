@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -23,9 +25,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderTagRule
  */
+#[CoversClass(OrderTagRule::class)]
 class OrderTagRuleTest extends TestCase
 {
     private OrderTagRule $rule;
@@ -84,11 +85,10 @@ class OrderTagRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param array<string>|string|null $givenIdentifier
      * @param array<string> $ruleIdentifiers
      */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, $givenIdentifier): void
     {
         $order = new OrderEntity();

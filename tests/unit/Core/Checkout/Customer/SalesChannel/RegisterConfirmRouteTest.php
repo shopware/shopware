@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -28,9 +29,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute
  */
+#[CoversClass(RegisterConfirmRoute::class)]
 class RegisterConfirmRouteTest extends TestCase
 {
     protected SalesChannelContext&MockObject $context;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -14,10 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute
- *
  * @group store-api
  */
+#[CoversClass(ProductDetailRoute::class)]
 class ProductDetailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

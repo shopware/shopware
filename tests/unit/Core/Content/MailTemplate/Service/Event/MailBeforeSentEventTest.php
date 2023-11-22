@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\MailTemplate\Service\Event;
 
 use Monolog\Level;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -15,9 +16,8 @@ use Symfony\Component\Mime\Email;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent
  */
+#[CoversClass(MailBeforeSentEvent::class)]
 class MailBeforeSentEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Cms;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -233,11 +234,10 @@ class ProductListingCMSElementResolverTest extends TestCase
     }
 
     /**
-     * @dataProvider filtersProvider
-     *
      * @param array<string, mixed> $expectations
      * @param array<string, mixed> $slotConfig
      */
+    #[DataProvider('filtersProvider')]
     public function testFiltersAndPropertyWhitelist(array $expectations, array $slotConfig): void
     {
         $resolverContext = new ResolverContext(

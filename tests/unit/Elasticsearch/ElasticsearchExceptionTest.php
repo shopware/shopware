@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\ElasticsearchException
  */
+#[CoversClass(ElasticsearchException::class)]
 class ElasticsearchExceptionTest extends TestCase
 {
     public function testDefinitionNotFound(): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Subscriber\InstallerLocaleListener;
 use Symfony\Component\HttpFoundation\HeaderBag;
@@ -13,9 +15,8 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Subscriber\InstallerLocaleListener
  */
+#[CoversClass(InstallerLocaleListener::class)]
 class InstallerLocaleListenerTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
@@ -26,9 +27,7 @@ class InstallerLocaleListenerTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider installerLocaleProvider
-     */
+    #[DataProvider('installerLocaleProvider')]
     public function testSetInstallerLocale(Request $request, string $expectedLocale): void
     {
         $listener = new InstallerLocaleListener(['de' => 'de-DE', 'en' => 'en-GB', 'nl' => 'nl-NL', 'fr' => 'fr-FR']);

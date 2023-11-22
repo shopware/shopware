@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -39,9 +40,7 @@ class CartLineItemControllerTest extends TestCase
         $this->getFlashBag()->clear();
     }
 
-    /**
-     * @dataProvider productNumbers
-     */
+    #[DataProvider('productNumbers')]
     public function testAddAndDeleteProductByNumber(string $productId, string $productNumber, bool $available = true): void
     {
         $contextToken = Uuid::randomHex();
@@ -92,9 +91,7 @@ class CartLineItemControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider productVariations
-     */
+    #[DataProvider('productVariations')]
     public function testAddVariationProductByNumber(string $productId, string $productNumber, bool $containerProductHasChildren, bool $expected): void
     {
         $contextToken = Uuid::randomHex();
@@ -188,9 +185,7 @@ class CartLineItemControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider promotions
-     */
+    #[DataProvider('promotions')]
     public function testAddPromotion(string $code): void
     {
         $contextToken = Uuid::randomHex();

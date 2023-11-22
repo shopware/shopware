@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Lifecycle;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand;
@@ -18,9 +19,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand
  */
+#[CoversClass(PluginUpdateAllCommand::class)]
 class PluginUpdateAllCommandTest extends TestCase
 {
     public function testNoUpdates(): void

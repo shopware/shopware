@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
@@ -16,10 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  *
  * @group needsWebserver
- *
- * @covers \Shopware\Core\Content\Media\File\FileFetcher
  */
 #[Package('buyers-experience')]
+#[CoversClass(FileFetcher::class)]
 class FileFetcherTest extends TestCase
 {
     final public const TEST_IMAGE = __DIR__ . '/../../../../../../src/Core/Content/Test/Media/fixtures/shopware-logo.png';

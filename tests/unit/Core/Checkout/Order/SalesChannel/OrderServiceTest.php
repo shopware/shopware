@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Order\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -24,9 +25,8 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Order\SalesChannel\OrderService
  */
+#[CoversClass(OrderService::class)]
 class OrderServiceTest extends TestCase
 {
     private MockObject&CartService $cartService;

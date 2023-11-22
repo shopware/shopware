@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
@@ -75,10 +76,9 @@ class StornoRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider stornoNoteRendererDataProvider
-     *
      * @param array<string, string> $additionalConfig
      */
+    #[DataProvider('stornoNoteRendererDataProvider')]
     public function testRender(array $additionalConfig, \Closure $assertionCallback): void
     {
         $cart = $this->generateDemoCart([7, 31]);

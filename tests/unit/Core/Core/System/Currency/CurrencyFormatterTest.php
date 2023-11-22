@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Core\System\Currency;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -17,10 +19,9 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Currency\CurrencyFormatter
  */
 #[Package('buyers-experience')]
+#[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {
     private MockObject&LanguageLocaleCodeProvider $localeProvider;
@@ -33,9 +34,7 @@ class CurrencyFormatterTest extends TestCase
         $this->formatter = new CurrencyFormatter($this->localeProvider);
     }
 
-    /**
-     * @dataProvider formattingParameterProvider
-     */
+    #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO): void
     {
         $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
@@ -51,9 +50,7 @@ class CurrencyFormatterTest extends TestCase
         static::assertMatchesRegularExpression($pattern, $formattedPrice);
     }
 
-    /**
-     * @dataProvider formattingParameterProvider
-     */
+    #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillWriteCorrectCurrencySymbol(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
         $this->localeProvider->expects(static::once())->method('getLocaleForLanguageId')->willReturn($localeCode);
@@ -73,9 +70,7 @@ class CurrencyFormatterTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider formattingParameterProvider
-     */
+    #[DataProvider('formattingParameterProvider')]
     public function testResetWillRemoveExistingFormatters(): void
     {
         $reflector = new \ReflectionClass($this->formatter);

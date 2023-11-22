@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\Country;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
@@ -10,15 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Country\CountryException
  */
 #[Package('buyers-experience')]
+#[CoversClass(CountryException::class)]
 class CountryExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
+    #[DataProvider('exceptionDataProvider')]
     public function testItThrowsException(ShopwareHttpException|CountryException $exception, int $statusCode, string $errorCode, string $message): void
     {
         try {

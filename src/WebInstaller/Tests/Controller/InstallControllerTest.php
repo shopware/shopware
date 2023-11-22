@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\InstallController;
@@ -21,10 +22,9 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Controller\InstallController
- * @covers \Shopware\WebInstaller\Services\ProjectComposerJsonUpdater
  */
+#[CoversClass(InstallController::class)]
+#[CoversClass(ProjectComposerJsonUpdater::class)]
 class InstallControllerTest extends TestCase
 {
     public function testStartPage(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -166,9 +167,7 @@ class DateRangeRuleTest extends TestCase
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
     }
 
-    /**
-     * @dataProvider matchDataProvider
-     */
+    #[DataProvider('matchDataProvider')]
     public function testMatch(
         ?string $fromDate,
         ?string $toDate,

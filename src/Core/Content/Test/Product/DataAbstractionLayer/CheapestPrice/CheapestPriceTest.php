@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\CheapestPrice;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
@@ -354,9 +355,7 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCalculator(IdsCollection $ids): void
     {
         try {
@@ -422,9 +421,7 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testCalculatorBackwardsCompatibility(IdsCollection $ids): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -510,9 +507,7 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterPercentage(IdsCollection $ids): void
     {
         try {
@@ -552,9 +547,7 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFilterPrice(IdsCollection $ids): void
     {
         try {
@@ -594,9 +587,7 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSorting(IdsCollection $ids): void
     {
         try {
@@ -618,9 +609,7 @@ class CheapestPriceTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAggregation(IdsCollection $ids): void
     {
         try {

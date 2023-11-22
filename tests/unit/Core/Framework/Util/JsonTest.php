@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Util\UtilException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\Json
  */
+#[CoversClass(Json::class)]
 class JsonTest extends TestCase
 {
     public function testDecodeArrayReturnsEmptyArrayOnEmptyString(): void
@@ -71,9 +72,7 @@ class JsonTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider nonArrayInput
-     */
+    #[DataProvider('nonArrayInput')]
     public function testDecodeListThrowsExceptionOnNonArrayInputs(mixed $input): void
     {
         try {

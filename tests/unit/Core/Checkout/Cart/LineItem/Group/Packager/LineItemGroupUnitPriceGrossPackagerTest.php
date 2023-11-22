@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Packager;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
@@ -12,11 +13,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGrossPackager
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupUnitPriceGrossPackager::class)]
 class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

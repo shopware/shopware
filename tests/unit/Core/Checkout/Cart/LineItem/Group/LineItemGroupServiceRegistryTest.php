@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
@@ -12,10 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupServiceRegistry::class)]
 class LineItemGroupServiceRegistryTest extends TestCase
 {
     /**

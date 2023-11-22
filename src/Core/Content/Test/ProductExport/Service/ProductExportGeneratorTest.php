@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ProductExport\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -248,9 +249,7 @@ class ProductExportGeneratorTest extends TestCase
         static::assertStringContainsString('options-group', $exportResult->getContent());
     }
 
-    /**
-     * @dataProvider isoCodeProvider
-     */
+    #[DataProvider('isoCodeProvider')]
     public function testExportRendersGivenCurrencies(string $code): void
     {
         $productExportId = $this->createTestEntity([

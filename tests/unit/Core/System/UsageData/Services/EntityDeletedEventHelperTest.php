@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -28,9 +29,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\EntityDeleteEventHelper
  */
+#[CoversClass(EntityDeleteEventHelper::class)]
 class EntityDeletedEventHelperTest extends TestCase
 {
     /**

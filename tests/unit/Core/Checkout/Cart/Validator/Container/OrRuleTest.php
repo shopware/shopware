@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Validator\Container;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -10,10 +11,9 @@ use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
 
 /**
- * @covers \Shopware\Core\Framework\Rule\Container\OrRule
- *
  * @internal
  */
+#[CoversClass(OrRule::class)]
 class OrRuleTest extends TestCase
 {
     public function testTrue(): void

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Category\Service;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -109,10 +110,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider breadcrumbDataProvider
-     *
      * @group slow
      */
+    #[DataProvider('breadcrumbDataProvider')]
     public function testIsWithoutEntrypoint(string $key, bool $withSalesChannel, bool $withCategoryId = false): void
     {
         $categoryId = $withCategoryId ? $this->ids->get($key) : null;
@@ -172,10 +172,9 @@ class CategoryBreadcrumbBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider seoCategoryProvider
-     *
      * @group slow
      */
+    #[DataProvider('seoCategoryProvider')]
     public function testItHasSeoCategory(bool $hasCategories, bool $hasMainCategory, bool $hasMainCategory2ndChannel): void
     {
         $this->createTestData('navigation-sc2');

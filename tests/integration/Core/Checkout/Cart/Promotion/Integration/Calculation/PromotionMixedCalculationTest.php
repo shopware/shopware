@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Calculation;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -244,10 +245,9 @@ class PromotionMixedCalculationTest extends TestCase
      * the percent rate
      * and the type of picking (vertical or horizontal)
      *
-     * @dataProvider groupPackageAndPickerProvider
-     *
      * @group promotions
      */
+    #[DataProvider('groupPackageAndPickerProvider')]
     public function testSetGroupPackageAndPickerCombinations(
         float $expectedDiscount,
         string $applyTo,
@@ -616,9 +616,8 @@ class PromotionMixedCalculationTest extends TestCase
      * buy 3 t-shirts get first one free. Test vertical and horizontal picking
      *
      * @group promotions
-     *
-     * @dataProvider getBuyThreeTshirtsGetFirstOneFreeTestData
      */
+    #[DataProvider('getBuyThreeTshirtsGetFirstOneFreeTestData')]
     public function testBuy3TshirtsGetFirstOneFree(float $expectedDiscount, string $pickingType): void
     {
         $tshirt1 = Uuid::randomHex();
@@ -702,9 +701,8 @@ class PromotionMixedCalculationTest extends TestCase
      * buy 3 t-shirts get second one free. Test vertical and horizontal picking
      *
      * @group promotions
-     *
-     * @dataProvider getBuyThreeTshirtsGetSecondOneFreeTestData
      */
+    #[DataProvider('getBuyThreeTshirtsGetSecondOneFreeTestData')]
     public function testBuy3TshirtsGetSecondOneFree(float $expectedDiscount, string $pickingType): void
     {
         $tshirt1 = Uuid::randomHex();

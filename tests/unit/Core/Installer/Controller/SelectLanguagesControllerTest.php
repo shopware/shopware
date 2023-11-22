@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Controller\SelectLanguagesController;
 use Shopware\Core\Installer\Finish\Notifier;
@@ -9,10 +10,9 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Controller\SelectLanguagesController
- * @covers \Shopware\Core\Installer\Controller\InstallerController
  */
+#[CoversClass(SelectLanguagesController::class)]
+#[CoversClass(InstallerController::class)]
 class SelectLanguagesControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;

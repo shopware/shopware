@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Context;
@@ -18,9 +19,7 @@ class MediaThumbnailRepositoryTest extends TestCase
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
-    /**
-     * @dataProvider deleteThumbnailProvider
-     */
+    #[DataProvider('deleteThumbnailProvider')]
     public function testDeleteThumbnail(bool $private): void
     {
         $service = $private ? 'shopware.filesystem.private' : 'shopware.filesystem.public';

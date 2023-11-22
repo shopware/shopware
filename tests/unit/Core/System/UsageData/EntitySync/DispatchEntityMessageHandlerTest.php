@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -45,10 +46,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler
  */
 #[Package('data-services')]
+#[CoversClass(DispatchEntityMessageHandler::class)]
 class DispatchEntityMessageHandlerTest extends TestCase
 {
     public function testIgnoresMessageIfEntityDefinitionIsNotFound(): void

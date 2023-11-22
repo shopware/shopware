@@ -5,15 +5,15 @@ namespace Shopware\Tests\Unit\Core\Profiling\Doctrine;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Doctrine\ProfilingMiddleware
  */
+#[CoversClass(ProfilingMiddleware::class)]
 class ProfilingMiddlewareTest extends TestCase
 {
     public function testData(): void

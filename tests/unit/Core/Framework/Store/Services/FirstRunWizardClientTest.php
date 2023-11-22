@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -17,10 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\FirstRunWizardClient
  */
 #[Package('services-settings')]
+#[CoversClass(FirstRunWizardClient::class)]
 class FirstRunWizardClientTest extends TestCase
 {
     private Context $context;

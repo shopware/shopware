@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -57,9 +58,7 @@ class Migration1595492054SeoUrlTemplateDataTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider customTemplateProvider
-     */
+    #[DataProvider('customTemplateProvider')]
     public function testMigrationHasNoEffectWithCustomProductTemplate(array $templates): void
     {
         $migration = new Migration1595492054SeoUrlTemplateData();

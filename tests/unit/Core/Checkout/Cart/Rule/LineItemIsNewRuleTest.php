@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -14,13 +16,12 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule
- *
  * @internal
  *
  * @group rules
  */
 #[Package('business-ops')]
+#[CoversClass(LineItemIsNewRule::class)]
 class LineItemIsNewRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -55,9 +56,7 @@ class LineItemIsNewRuleTest extends TestCase
         static::assertEquals($boolType, $ruleConstraints['isNew'][0]);
     }
 
-    /**
-     * @dataProvider getLineItemScopeTestData
-     */
+    #[DataProvider('getLineItemScopeTestData')]
     public function testIfMatchesCorrectWithLineItem(bool $ruleActive, bool $isNew, bool $expected): void
     {
         $this->rule->assign(['isNew' => $ruleActive]);
@@ -83,9 +82,7 @@ class LineItemIsNewRuleTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(bool $ruleActive, bool $isNew, bool $expected): void
     {
         $this->rule->assign(['isNew' => $ruleActive]);
@@ -105,9 +102,7 @@ class LineItemIsNewRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getCartRuleScopeTestData
-     */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(bool $ruleActive, bool $isNew, bool $expected): void
     {
         $this->rule->assign(['isNew' => $ruleActive]);

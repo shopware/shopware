@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
@@ -19,9 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute
  */
+#[CoversClass(ProductListingRoute::class)]
 class ProductListingRouteTest extends TestCase
 {
     public function testFiltersAreSetForCategories(): void

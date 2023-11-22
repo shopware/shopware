@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -378,9 +379,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
     }
 
-    /**
-     * @dataProvider pluralTranslationProvider
-     */
+    #[DataProvider('pluralTranslationProvider')]
     public function testPluralRules(string $expected, string $id, int $number, string $locale): void
     {
         static::assertEquals($expected, $this->translator->trans($id, ['%count%' => (string) $number], null, $locale));

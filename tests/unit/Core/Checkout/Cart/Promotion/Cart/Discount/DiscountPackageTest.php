@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
@@ -11,9 +12,8 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Traits\Promo
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage
  */
+#[CoversClass(DiscountPackage::class)]
 class DiscountPackageTest extends TestCase
 {
     use PromotionLineItemTestFixtureBehaviour;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -35,9 +36,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\RegisterController
  */
+#[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends TestCase
 {
     private RegisterControllerTestClass $controller;

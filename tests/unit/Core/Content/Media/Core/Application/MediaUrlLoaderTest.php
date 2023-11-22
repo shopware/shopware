@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Media\Core\Application;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaUrlLoader;
 use Shopware\Core\Content\Media\Infrastructure\Path\MediaUrlGenerator;
@@ -13,16 +15,14 @@ use Shopware\Core\Framework\Test\IdsCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Application\MediaUrlLoader
  */
+#[CoversClass(MediaUrlLoader::class)]
 class MediaUrlLoaderTest extends TestCase
 {
     /**
-     * @dataProvider loadedProvider
-     *
      * @param array<string, string> $expected
      */
+    #[DataProvider('loadedProvider')]
     public function testLoad(IdsCollection $ids, PartialEntity $entity, array $expected): void
     {
         $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
@@ -21,10 +22,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute
  */
 #[Package('checkout')]
+#[CoversClass(ChangeCustomerProfileRoute::class)]
 class ChangeCustomerProfileRouteTest extends TestCase
 {
     public function testCustomFieldsGetPassed(): void

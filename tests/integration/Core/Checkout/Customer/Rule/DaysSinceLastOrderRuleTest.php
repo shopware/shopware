@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -28,9 +29,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceLastOrderRule
  */
+#[CoversClass(DaysSinceLastOrderRule::class)]
 class DaysSinceLastOrderRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

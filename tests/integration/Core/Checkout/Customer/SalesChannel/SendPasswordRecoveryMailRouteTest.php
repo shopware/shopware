@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
@@ -132,9 +133,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     /**
      * @param array{domain: string, expectDomain: string} $domainUrlTest
-     *
-     * @dataProvider sendMailWithDomainAndLeadingSlashProvider
      */
+    #[DataProvider('sendMailWithDomainAndLeadingSlashProvider')]
     public function testSendMailWithDomainAndLeadingSlash(array $domainUrlTest): void
     {
         $this->createCustomer('foo-test@test.de');

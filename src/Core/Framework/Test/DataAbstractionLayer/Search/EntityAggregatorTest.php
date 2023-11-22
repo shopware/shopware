@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -1107,10 +1108,9 @@ class EntityAggregatorTest extends TestCase
     }
 
     /**
-     * @dataProvider dateHistogramProvider
-     *
      * @group slow
      */
+    #[DataProvider('dateHistogramProvider')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();

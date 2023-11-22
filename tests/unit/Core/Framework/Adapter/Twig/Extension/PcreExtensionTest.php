@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
 use Twig\Environment;
@@ -10,14 +12,11 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension
  */
+#[CoversClass(PcreExtension::class)]
 class PcreExtensionTest extends TestCase
 {
-    /**
-     * @dataProvider replaceCases
-     */
+    #[DataProvider('replaceCases')]
     public function testReplaces(string $template, string $expected): void
     {
         $extension = new PcreExtension();
@@ -56,9 +55,7 @@ class PcreExtensionTest extends TestCase
         $env->render('test');
     }
 
-    /**
-     * @dataProvider matchCases
-     */
+    #[DataProvider('matchCases')]
     public function testMatch(string $template, string $expected): void
     {
         $extension = new PcreExtension();

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -13,10 +14,9 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\StoreClientFactory
  */
 #[Package('services-settings')]
+#[CoversClass(StoreClientFactory::class)]
 class StoreClientFactoryTest extends TestCase
 {
     public function testCreatesClientWithoutMiddlewares(): void

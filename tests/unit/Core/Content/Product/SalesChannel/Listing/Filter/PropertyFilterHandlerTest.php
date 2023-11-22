@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
@@ -35,9 +37,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PropertyListingFilterHandler
  */
+#[CoversClass(PropertyListingFilterHandler::class)]
 class PropertyFilterHandlerTest extends TestCase
 {
     public function testDeactivateFilter(): void
@@ -95,9 +96,8 @@ class PropertyFilterHandlerTest extends TestCase
     /**
      * @param array<string> $input
      * @param array<array<string, string>> $mapping
-     *
-     * @dataProvider createProvider
      */
+    #[DataProvider('createProvider')]
     public function testCreate(array $input, AndFilter $expected, array $mapping): void
     {
         $request = new Request([], ['properties' => implode('|', $input)]);

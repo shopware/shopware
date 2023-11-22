@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing\NotFound;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -24,9 +26,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber
  */
+#[CoversClass(NotFoundSubscriber::class)]
 class NotFoundSubscriberTest extends TestCase
 {
     public function testDebugIsOnDoesNothing(): void
@@ -138,9 +139,7 @@ class NotFoundSubscriberTest extends TestCase
         $subscriber->reset();
     }
 
-    /**
-     * @dataProvider providerSystemConfigKeys
-     */
+    #[DataProvider('providerSystemConfigKeys')]
     public function testInvalidationHappensOnSystemConfigChange(string $key, bool $shouldInvalidate): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);

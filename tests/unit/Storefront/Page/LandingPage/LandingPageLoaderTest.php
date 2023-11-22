@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\LandingPage;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -37,10 +38,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\LandingPage\LandingPageLoader
  */
 #[Package('buyers-experience')]
+#[CoversClass(LandingPageLoader::class)]
 class LandingPageLoaderTest extends TestCase
 {
     public function testNoLandingPageIdException(): void

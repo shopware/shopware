@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
@@ -35,9 +37,8 @@ use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeService
  */
+#[CoversClass(ThemeService::class)]
 class ThemeServiceTest extends TestCase
 {
     private Connection&MockObject $connectionMock;
@@ -535,11 +536,10 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfiguration(array $ids, ThemeCollection $themeCollection, ?array $expected = null): void
     {
         $this->themeRepositoryMock->method('search')->willReturn(
@@ -573,12 +573,11 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationNoTranslation(
         array $ids,
         ThemeCollection $themeCollection,
@@ -620,13 +619,12 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationStructured(
         array $ids,
         ThemeCollection $themeCollection,
@@ -665,14 +663,13 @@ class ThemeServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getThemeCollectionForThemeConfiguration
-     *
      * @param array<string, mixed> $ids
      * @param array<string, mixed>|null $expected
      * @param array<string, mixed>|null $expectedNotTranslated
      * @param array<string, mixed>|null $expectedStructured
      * @param array<string, mixed>|null $expectedStructuredNotTranslated
      */
+    #[DataProvider('getThemeCollectionForThemeConfiguration')]
     public function testGetThemeConfigurationStructuredNoTranslation(
         array $ids,
         ThemeCollection $themeCollection,

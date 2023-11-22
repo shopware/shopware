@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
@@ -20,9 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AggregationListingProcessor
  */
+#[CoversClass(AggregationListingProcessor::class)]
 class AggregationProcessorTest extends TestCase
 {
     public function testByPassPrepare(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Context;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\StorableFlow
  */
+#[CoversClass(StorableFlow::class)]
 class StorableFlowTest extends TestCase
 {
     private StorableFlow $storableFlow;

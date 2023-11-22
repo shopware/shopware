@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Changelog;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand;
 use Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand;
@@ -162,10 +163,9 @@ class ChangelogCommandTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCheckCommandFixtures
-     *
      * @param list<string> $expectedOutputSnippets
      */
+    #[DataProvider('provideCheckCommandFixtures')]
     public function testChangelogCheckCommand(string $path, array $expectedOutputSnippets): void
     {
         self::getContainer()->get(ChangelogValidator::class)->setPlatformRoot($path);
@@ -182,11 +182,10 @@ class ChangelogCommandTest extends TestCase
     }
 
     /**
-     * @dataProvider provideChangeCommandFixtures
-     *
      * @param class-string<\Throwable>|null $expectedException
      * @param list<string> $expectedOutputSnippets
      */
+    #[DataProvider('provideChangeCommandFixtures')]
     public function testChangelogChangeCommand(string $path, ?string $expectedException, array $expectedOutputSnippets): void
     {
         self::getContainer()->get(ChangelogReleaseExporter::class)->setPlatformRoot($path);
@@ -208,11 +207,10 @@ class ChangelogCommandTest extends TestCase
     }
 
     /**
-     * @dataProvider provideReleaseCommandFixtures
-     *
      * @param class-string<\Throwable>|null $expectedException
      * @param array<string, list<string>> $expectedFileContents
      */
+    #[DataProvider('provideReleaseCommandFixtures')]
     public function testChangelogReleaseCommand(string $path, string $version, ?string $expectedException, array $expectedFileContents): void
     {
         self::getContainer()->get(ChangelogReleaseCreator::class)->setPlatformRoot($path);

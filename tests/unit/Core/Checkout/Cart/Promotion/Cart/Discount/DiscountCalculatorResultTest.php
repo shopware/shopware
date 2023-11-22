@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -11,9 +12,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult
  */
+#[CoversClass(DiscountCalculatorResult::class)]
 class DiscountCalculatorResultTest extends TestCase
 {
     /**

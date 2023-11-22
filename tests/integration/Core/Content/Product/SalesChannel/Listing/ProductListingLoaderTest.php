@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
@@ -30,10 +31,9 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader
- *
  * @group slow
  */
+#[CoversClass(ProductListingLoader::class)]
 class ProductListingLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Cms\CmsPageEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\CmsPageAdminSearchIndexer
  */
+#[CoversClass(CmsPageAdminSearchIndexer::class)]
 class CmsPageAdminSearchIndexerTest extends TestCase
 {
     private CmsPageAdminSearchIndexer $searchIndexer;

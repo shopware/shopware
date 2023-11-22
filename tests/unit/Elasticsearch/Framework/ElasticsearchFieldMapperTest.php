@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -16,9 +17,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper
  */
+#[CoversClass(ElasticsearchFieldMapper::class)]
 class ElasticsearchFieldMapperTest extends TestCase
 {
     public function testMapTranslatedField(): void

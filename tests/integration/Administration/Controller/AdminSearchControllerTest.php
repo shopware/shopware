@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Administration\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -28,12 +29,11 @@ class AdminSearchControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider searchDataProvider
-     *
      * @param array<string, mixed> $data
      * @param array<string, int> $expectedEntities
      * @param array<string, string> $expectedErrors
      */
+    #[DataProvider('searchDataProvider')]
     public function testSearch(array $data, bool $hasResponse, array $expectedEntities, array $expectedErrors = []): void
     {
         $this->getBrowser()->request('POST', '/api/_admin/search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);

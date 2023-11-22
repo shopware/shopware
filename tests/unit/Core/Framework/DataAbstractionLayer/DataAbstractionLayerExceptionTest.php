@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -10,11 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException
- *
  * @internal
  */
 #[Package('core')]
+#[CoversClass(DataAbstractionLayerException::class)]
 class DataAbstractionLayerExceptionTest extends TestCase
 {
     public function testInvalidCronIntervalFormat(): void

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -11,9 +12,8 @@ use Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions
  */
+#[CoversClass(Migration1696262484AddDefaultSendMailOptions::class)]
 class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 {
     public function testValueNotExist(): void

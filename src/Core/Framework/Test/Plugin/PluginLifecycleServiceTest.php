@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -464,9 +465,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->activatePlugin($pluginEntity, $this->context);
     }
 
-    /**
-     * @dataProvider themeProvideData
-     */
+    #[DataProvider('themeProvideData')]
     public function testThemeRemovalOnUninstall(bool $keepUserData): void
     {
         static::markTestSkipped('This test needs the storefront bundle installed.');

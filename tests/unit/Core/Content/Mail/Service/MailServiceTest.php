@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Mail\Service;
 
 use Monolog\Level;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -32,9 +33,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\Service\MailService
  */
+#[CoversClass(MailService::class)]
 class MailServiceTest extends TestCase
 {
     /**

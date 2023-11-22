@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App\Cms\Xml;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Cms\CmsExtensions;
 
@@ -22,9 +23,8 @@ class SlotTest extends TestCase
 
     /**
      * @param array<string, mixed> $config
-     *
-     * @dataProvider provideSlots
      */
+    #[DataProvider('provideSlots')]
     public function testSlotsFromXml(int $i, string $name, string $type, array $config): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');
@@ -39,9 +39,8 @@ class SlotTest extends TestCase
 
     /**
      * @param array<string, mixed> $config
-     *
-     * @dataProvider provideSlots
      */
+    #[DataProvider('provideSlots')]
     public function testToArray(int $i, string $name, string $type, array $config): void
     {
         $cmsExtensions = CmsExtensions::createFromXmlFile(__DIR__ . '/../_fixtures/valid/cmsExtensionsWithBlocks.xml');

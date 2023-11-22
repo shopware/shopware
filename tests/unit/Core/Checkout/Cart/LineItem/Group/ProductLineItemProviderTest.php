@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\AbstractProductLineItemProvider;
@@ -14,11 +15,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\ProductLineItemProvider
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(ProductLineItemProvider::class)]
 class ProductLineItemProviderTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;

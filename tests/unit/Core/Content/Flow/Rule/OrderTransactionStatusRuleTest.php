@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -24,9 +26,8 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderTransactionStatusRule
  */
+#[CoversClass(OrderTransactionStatusRule::class)]
 class OrderTransactionStatusRuleTest extends TestCase
 {
     private OrderTransactionStatusRule $rule;
@@ -53,10 +54,9 @@ class OrderTransactionStatusRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchingValues
-     *
      * @param list<string> $selectedOrderStateIds
      */
+    #[DataProvider('getMatchingValues')]
     public function testOrderPaymentStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
         $stateMachineState = new StateMachineStateEntity();

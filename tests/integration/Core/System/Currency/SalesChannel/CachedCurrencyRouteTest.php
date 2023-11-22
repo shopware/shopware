@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\Currency\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -65,9 +66,7 @@ class CachedCurrencyRouteTest extends TestCase
             ->invalidateTags([self::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')->invalidateTags([self::ALL_TAG]);

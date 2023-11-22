@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook\Hookable;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -17,9 +18,8 @@ use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent
  */
+#[CoversClass(HookableEntityWrittenEvent::class)]
 class HookableEntityWrittenEventTest extends TestCase
 {
     public function testGetter(): void

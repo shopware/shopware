@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -15,10 +16,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
 #[Package('buyers-experience')]
+#[CoversClass(UnusedMediaPurger::class)]
 class UnusedMediaPurgerTest extends TestCase
 {
     use IntegrationTestBehaviour;

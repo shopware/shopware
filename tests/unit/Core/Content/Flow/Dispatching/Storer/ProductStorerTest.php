@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Storer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -22,9 +23,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer
  */
+#[CoversClass(ProductStorer::class)]
 class ProductStorerTest extends TestCase
 {
     private ProductStorer $storer;

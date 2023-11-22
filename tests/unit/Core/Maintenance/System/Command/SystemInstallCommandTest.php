@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand;
@@ -26,9 +28,8 @@ use Symfony\Component\Filesystem\Filesystem;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Command\SystemInstallCommand
  */
+#[CoversClass(SystemInstallCommand::class)]
 class SystemInstallCommandTest extends TestCase
 {
     protected function tearDown(): void
@@ -42,9 +43,8 @@ class SystemInstallCommandTest extends TestCase
 
     /**
      * @param array<string, mixed> $mockInputValues
-     *
-     * @dataProvider dataProviderTestExecuteWhenInstallLockExists
      */
+    #[DataProvider('dataProviderTestExecuteWhenInstallLockExists')]
     public function testExecuteWhenInstallLockExists(array $mockInputValues): void
     {
         touch(__DIR__ . '/install.lock');

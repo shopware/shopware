@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
@@ -84,9 +85,7 @@ class ContactFormRouteTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
-    /**
-     * @dataProvider navigationProvider
-     */
+    #[DataProvider('navigationProvider')]
     public function testContactFormSendMailWithNavigationIdAndSlotId(string $entityName): void
     {
         [$navigationId, $slotId] = match ($entityName) {
@@ -192,9 +191,7 @@ class ContactFormRouteTest extends TestCase
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
-    /**
-     * @dataProvider contactFormWithDomainProvider
-     */
+    #[DataProvider('contactFormWithDomainProvider')]
     public function testContactFormWithInvalid(string $firstName, string $lastName, \Closure $expectClosure): void
     {
         $this->browser

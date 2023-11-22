@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Framework\Log\Package;
@@ -10,10 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\ImportExportException
  */
 #[Package('services-settings')]
+#[CoversClass(ImportExportException::class)]
 class ImportExportExceptionTest extends TestCase
 {
     public function testItThrowsException(): void

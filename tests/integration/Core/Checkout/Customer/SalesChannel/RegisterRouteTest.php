@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -171,9 +172,7 @@ class RegisterRouteTest extends TestCase
         static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
     }
 
-    /**
-     * @dataProvider customerBoundToSalesChannelProvider
-     */
+    #[DataProvider('customerBoundToSalesChannelProvider')]
     public function testRegistrationWithCustomerScope(bool $isCustomerScoped, bool $hasGlobalAccount, bool $hasBoundAccount, bool $requestOnSameSalesChannel, int $expectedStatus): void
     {
         $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
@@ -268,10 +267,9 @@ class RegisterRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider registerWithDomainAndLeadingSlashProvider
-     *
      * @param array<string, string> $domainUrlTest
      */
+    #[DataProvider('registerWithDomainAndLeadingSlashProvider')]
     public function testRegistrationWithTrailingSlashUrl(array $domainUrlTest): void
     {
         $browser = $this->createCustomSalesChannelBrowser([

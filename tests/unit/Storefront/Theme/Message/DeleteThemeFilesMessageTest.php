@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage
  */
+#[CoversClass(DeleteThemeFilesMessage::class)]
 class DeleteThemeFilesMessageTest extends TestCase
 {
     public function testStruct(): void

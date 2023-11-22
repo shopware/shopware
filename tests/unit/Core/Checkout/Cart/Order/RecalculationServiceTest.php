@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -51,9 +52,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Order\RecalculationService
  */
+#[CoversClass(RecalculationService::class)]
 class RecalculationServiceTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;

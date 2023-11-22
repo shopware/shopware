@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1675247112ChangeCountryNamingConvention;
@@ -10,9 +12,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1675247112ChangeCountryNamingConvention
  */
+#[CoversClass(Migration1675247112ChangeCountryNamingConvention::class)]
 class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
 {
     use MigrationTestTrait;
@@ -52,9 +53,7 @@ class Migration1675247112ChangeCountryNamingConventionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderForTestChangeCountryNamingConvention
-     */
+    #[DataProvider('dataProviderForTestChangeCountryNamingConvention')]
     public function testChangeCountryNamingConvention(string $language, string $expected): void
     {
         $migration = new Migration1675247112ChangeCountryNamingConvention();

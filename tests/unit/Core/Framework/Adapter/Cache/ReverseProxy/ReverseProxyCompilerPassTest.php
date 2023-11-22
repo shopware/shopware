@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\ReverseProxy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
@@ -15,9 +16,8 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass
  */
+#[CoversClass(ReverseProxyCompilerPass::class)]
 class ReverseProxyCompilerPassTest extends TestCase
 {
     public function testFastlyReplaces(): void

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -1130,9 +1131,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         );
     }
 
-    /**
-     * @dataProvider salesChannelAssignmentCsvProvider
-     */
+    #[DataProvider('salesChannelAssignmentCsvProvider')]
     public function testSalesChannelAssignment(string $csvPath): void
     {
         $connection = static::getContainer()->get(Connection::class);

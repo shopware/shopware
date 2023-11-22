@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension
  */
+#[CoversClass(CartExtension::class)]
 class CartExtensionTest extends TestCase
 {
     /**

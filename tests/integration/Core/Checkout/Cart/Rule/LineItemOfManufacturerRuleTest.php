@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -47,10 +48,9 @@ class LineItemOfManufacturerRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getLineItemScopeTestData
-     *
      * @param array<string> $manufacturerIds
      */
+    #[DataProvider('getLineItemScopeTestData')]
     public function testIfMatchesCorrectWithLineItemScope(
         array $manufacturerIds,
         string $operator,
@@ -83,10 +83,9 @@ class LineItemOfManufacturerRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartRuleScopeTestData
-     *
      * @param array<string> $manufacturerIds
      */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScope(
         array $manufacturerIds,
         string $operator,
@@ -113,10 +112,9 @@ class LineItemOfManufacturerRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getCartRuleScopeTestData
-     *
      * @param array<string> $manufacturerIds
      */
+    #[DataProvider('getCartRuleScopeTestData')]
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         array $manufacturerIds,
         string $operator,

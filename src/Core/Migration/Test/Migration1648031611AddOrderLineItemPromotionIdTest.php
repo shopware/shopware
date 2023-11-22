@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -58,9 +59,7 @@ class Migration1648031611AddOrderLineItemPromotionIdTest extends TestCase
         static::assertTrue($this->hasColumn('order_line_item', 'promotion_id'));
     }
 
-    /**
-     * @dataProvider dataProviderPromotion
-     */
+    #[DataProvider('dataProviderPromotion')]
     public function testMigrationMigratesPromotionId(bool $promotionExists): void
     {
         $context = Context::createDefaultContext();

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_5\Migration1674204177TaxProvider;
@@ -11,9 +12,8 @@ use Shopware\Core\Migration\V6_5\Migration1674204177TaxProvider;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1674204177TaxProvider
  */
+#[CoversClass(Migration1674204177TaxProvider::class)]
 class Migration1656657834TaxProviderTest extends TestCase
 {
     use KernelTestBehaviour;

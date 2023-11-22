@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \Shopware\Core\Framework\Routing\RoutingException
- *
  * @internal
  */
 #[Package('core')]
+#[CoversClass(RoutingException::class)]
 class RoutingExceptionTest extends TestCase
 {
     public function testInvalidRequestParameter(): void

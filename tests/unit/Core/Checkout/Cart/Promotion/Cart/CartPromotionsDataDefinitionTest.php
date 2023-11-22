@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCodeTuple;
@@ -9,9 +10,8 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\CartPromotionsDataDefinition
  */
+#[CoversClass(CartPromotionsDataDefinition::class)]
 class CartPromotionsDataDefinitionTest extends TestCase
 {
     /**

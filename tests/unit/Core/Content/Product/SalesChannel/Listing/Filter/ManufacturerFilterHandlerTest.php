@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler;
@@ -12,9 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ManufacturerListingFilterHandler
  */
+#[CoversClass(ManufacturerListingFilterHandler::class)]
 class ManufacturerFilterHandlerTest extends TestCase
 {
     private ManufacturerListingFilterHandler $handler;

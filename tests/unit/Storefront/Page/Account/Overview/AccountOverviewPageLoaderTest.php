@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Account\Overview;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -27,9 +28,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader
  */
+#[CoversClass(AccountOverviewPageLoader::class)]
 class AccountOverviewPageLoaderTest extends TestCase
 {
     private CollectingEventDispatcher $eventDispatcher;

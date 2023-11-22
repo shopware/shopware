@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\DevOps\StaticAnalyze\Coverage\Command\GetJSFilesPerAreaCommand;
@@ -15,10 +16,9 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class GetJSFilesPerAreaCommandTest extends TestCase
 {
     /**
-     * @dataProvider pathAreaDataProvider
-     *
      * @param string[] $expectedFiles
      */
+    #[DataProvider('pathAreaDataProvider')]
     public function testGetFiles(string $area, array $expectedFiles): void
     {
         $adminDir = \dirname((string) (new \ReflectionClass(Administration::class))->getFileName());

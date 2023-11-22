@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -20,9 +22,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\ShippingCityRule
  */
+#[CoversClass(ShippingCityRule::class)]
 class ShippingCityRuleTest extends TestCase
 {
     private ShippingCityRule $rule;
@@ -54,9 +55,7 @@ class ShippingCityRuleTest extends TestCase
         static::assertEquals(new Type('string'), $cityName[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $billingCity): void
     {
         $cityName = 'kyln123';

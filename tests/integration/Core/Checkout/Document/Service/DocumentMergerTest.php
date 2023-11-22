@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
@@ -162,9 +163,7 @@ class DocumentMergerTest extends TestCase
         static::assertNull($mergeResult);
     }
 
-    /**
-     * @dataProvider documentMergeDataProvider
-     */
+    #[DataProvider('documentMergeDataProvider')]
     public function testMerge(int $numDocs, bool $static, bool $withMedia, \Closure $assertionCallback): void
     {
         $docIds = [];

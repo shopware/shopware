@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -20,10 +21,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @group store-api
- *
- * @covers \Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(ContextSwitchRoute::class)]
 class ContextSwitchRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -4,6 +4,9 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -31,10 +34,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\ProductSearchQueryBuilder
  */
 #[Package('system-settings')]
+#[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -98,9 +100,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         return $ids;
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testAndSearch(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(true, ['name']);
@@ -128,9 +128,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         );
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testOrSearch(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, ['name']);
@@ -160,13 +158,11 @@ class ProductSearchQueryBuilderTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider providerSearchCases
-     *
      * @param array<string> $config
      * @param array<string> $expectedProducts
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('providerSearchCases')]
     public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, $config);
@@ -189,9 +185,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         }
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testSearchWithStopWord(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, ['name', 'description']);
@@ -210,9 +204,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         static::assertCount(0, $resultIds, 'Product count mismatch, Got ' . $ids->getKeys($resultIds));
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testScoring(IdsCollection $ids): void
     {
         $this->setSearchConfiguration(false, ['name', 'description', 'customSearchKeywords']);

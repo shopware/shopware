@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer\Requirements;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Requirements\FilesystemRequirementsValidator;
 use Shopware\Core\Installer\Requirements\Struct\PathCheck;
@@ -10,9 +11,8 @@ use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Requirements\FilesystemRequirementsValidator
  */
+#[CoversClass(FilesystemRequirementsValidator::class)]
 class FilesystemRequirementsValidatorTest extends TestCase
 {
     public function testValidate(): void

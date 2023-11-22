@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
@@ -95,9 +96,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
     /**
      * @param array<int, string[]> $productDownloads
-     *
-     * @dataProvider orderCaseProvider
      */
+    #[DataProvider('orderCaseProvider')]
     public function testFlowActionRunsOnEnterState(array $productDownloads): void
     {
         $orderId = $this->placeOrder($productDownloads);
@@ -136,9 +136,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
     /**
      * @param array<int, string[]> $productDownloads
-     *
-     * @dataProvider orderCaseProvider
      */
+    #[DataProvider('orderCaseProvider')]
     public function testFlowActionRunsOnOrderPlaced(array $productDownloads): void
     {
         $this->cloneDefaultFlow();

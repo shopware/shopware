@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToWriteFile;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -39,10 +40,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\FirstRunWizardService
  */
 #[Package('services-settings')]
+#[CoversClass(FirstRunWizardService::class)]
 class FirstRunWizardServiceTest extends TestCase
 {
     private Context $context;

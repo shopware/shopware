@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
@@ -21,9 +22,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\CartRuleLoader
  */
+#[CoversClass(CartRuleLoader::class)]
 class CartRuleLoaderTest extends TestCase
 {
     public function testLoadByTokenCreatesNewCart(): void

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Profiler\DataCollector;
@@ -12,9 +13,8 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Profiler\ElasticsearchProfileCompilerPass
  */
+#[CoversClass(ElasticsearchProfileCompilerPass::class)]
 class ElasticsearchProfileCompilerPassTest extends TestCase
 {
     public function testCompilerPassRemovesDataCollector(): void

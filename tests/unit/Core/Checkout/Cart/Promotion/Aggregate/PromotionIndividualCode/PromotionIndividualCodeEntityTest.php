@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionIndividualCode;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity
  */
+#[CoversClass(PromotionIndividualCodeEntity::class)]
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**

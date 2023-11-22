@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -11,9 +12,8 @@ use Shopware\Core\System\Tax\TaxEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\BusinessEventEncoder
  */
+#[CoversClass(BusinessEventEncoder::class)]
 class BusinessEventEncoderTest extends TestCase
 {
     public function testEncodeData(): void

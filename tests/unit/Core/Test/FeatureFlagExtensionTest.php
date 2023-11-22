@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Test;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -11,9 +12,8 @@ use Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension;
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
- *
- * @covers \Shopware\Core\Test\PHPUnit\Extension\FeatureFlagExtension
  */
+#[CoversClass(FeatureFlagExtension::class)]
 class FeatureFlagExtensionTest extends TestCase
 {
     /**

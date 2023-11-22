@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
@@ -14,15 +15,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ItemsFacade
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsAddTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsHasTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsRemoveTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsCountTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsGetTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\ItemsIteratorTrait
  */
+#[CoversClass(ItemsFacade::class)]
+#[CoversClass(ItemsAddTrait::class)]
+#[CoversClass(ItemsHasTrait::class)]
+#[CoversClass(ItemsRemoveTrait::class)]
+#[CoversClass(ItemsCountTrait::class)]
+#[CoversClass(ItemsGetTrait::class)]
+#[CoversClass(ItemsIteratorTrait::class)]
 class ItemsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -16,9 +18,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule
  */
+#[CoversClass(CustomerAgeRule::class)]
 class CustomerAgeRuleTest extends TestCase
 {
     private CustomerAgeRule $rule;
@@ -49,9 +50,7 @@ class CustomerAgeRuleTest extends TestCase
         $this->rule->match(new CheckoutRuleScope($salesChannelContext));
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testIfMatchesCorrect(
         ?string $birthday,
         string $operator,

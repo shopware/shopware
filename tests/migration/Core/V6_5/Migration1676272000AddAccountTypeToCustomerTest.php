@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
@@ -17,9 +18,8 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  *
  * @phpstan-type CustomerData array{account_type:string, id: string, billing_company: ?string, company: ?string, vat_ids: ?string}
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1676272000AddAccountTypeToCustomer
  */
+#[CoversClass(Migration1676272000AddAccountTypeToCustomer::class)]
 class Migration1676272000AddAccountTypeToCustomerTest extends TestCase
 {
     private Connection $connection;

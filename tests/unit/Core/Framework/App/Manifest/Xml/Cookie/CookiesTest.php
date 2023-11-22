@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\Cookie;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies
  */
+#[CoversClass(Cookies::class)]
 class CookiesTest extends TestCase
 {
     public function testFromXml(): void

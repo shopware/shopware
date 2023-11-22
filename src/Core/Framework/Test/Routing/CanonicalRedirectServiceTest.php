@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Routing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\SalesChannelRequest;
@@ -17,9 +18,7 @@ class CanonicalRedirectServiceTest extends TestCase
 {
     final public const CONFIG_KEY = 'core.seo.redirectToCanonicalUrl';
 
-    /**
-     * @dataProvider requestDataProvider
-     */
+    #[DataProvider('requestDataProvider')]
     public function testGetRedirect(Request $request, ?Response $response): void
     {
         $shouldRedirect = $response->getStatusCode() === Response::HTTP_MOVED_PERMANENTLY;

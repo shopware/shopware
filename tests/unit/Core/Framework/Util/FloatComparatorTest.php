@@ -2,19 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\FloatComparator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\FloatComparator
  */
+#[CoversClass(FloatComparator::class)]
 class FloatComparatorTest extends TestCase
 {
-    /**
-     * @dataProvider equalsDataProvider
-     */
+    #[DataProvider('equalsDataProvider')]
     public function testEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::equals($a, $b));
@@ -53,9 +52,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider notEqualsDataProvider
-     */
+    #[DataProvider('notEqualsDataProvider')]
     public function testNotEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::notEquals($a, $b));
@@ -74,9 +71,7 @@ class FloatComparatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider lessThanDataProvider
-     */
+    #[DataProvider('lessThanDataProvider')]
     public function testLessThan(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::lessThan($a, $b));
@@ -110,9 +105,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider greaterThanDataProvider
-     */
+    #[DataProvider('greaterThanDataProvider')]
     public function testGreaterThan(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::greaterThan($a, $b));
@@ -145,9 +138,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider lessThanOrEqualsDataProvider
-     */
+    #[DataProvider('lessThanOrEqualsDataProvider')]
     public function testLessThanOrEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::lessThanOrEquals($a, $b));
@@ -180,9 +171,7 @@ class FloatComparatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider greaterThanOrEqualsDataProvider
-     */
+    #[DataProvider('greaterThanOrEqualsDataProvider')]
     public function testGreaterThanOrEquals(float $a, float $b, bool $expected): void
     {
         static::assertSame($expected, FloatComparator::greaterThanOrEquals($a, $b));

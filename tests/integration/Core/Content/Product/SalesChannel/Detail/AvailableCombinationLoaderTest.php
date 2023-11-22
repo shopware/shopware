@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractAvailableCombinationLoader;
@@ -68,9 +69,7 @@ class AvailableCombinationLoaderTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider availabilityProvider
-     */
+    #[DataProvider('availabilityProvider')]
     public function testCombinationAvailability(
         int $stock,
         bool $expected,

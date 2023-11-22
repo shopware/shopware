@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Type;
 
 use PHPStan\Testing\TypeInferenceTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
  */
+#[CoversClass(CollectionHasSpecifyingExtension::class)]
 class CollectionHasSpecifyingExtensionTest extends TypeInferenceTestCase
 {
     /**

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,9 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderStatusRule
  */
+#[CoversClass(OrderStatusRule::class)]
 class OrderStatusRuleTest extends TestCase
 {
     private OrderStatusRule $rule;
@@ -49,10 +50,9 @@ class OrderStatusRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchingValues
-     *
      * @param list<string> $selectedOrderStateIds
      */
+    #[DataProvider('getMatchingValues')]
     public function testOrderDeliveryStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
         $order = new OrderEntity();

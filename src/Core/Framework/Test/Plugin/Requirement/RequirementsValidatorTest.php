@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Plugin\Requirement;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,9 +17,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator
  */
+#[CoversClass(RequirementsValidator::class)]
 class RequirementsValidatorTest extends TestCase
 {
     private string $projectDir;

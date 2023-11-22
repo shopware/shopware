@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -20,10 +21,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Api\ConsentController
  */
 #[Package('data-services')]
+#[CoversClass(ConsentController::class)]
 class ConsentControllerTest extends TestCase
 {
     public function testGetConsentReturnsStateFromDetector(): void

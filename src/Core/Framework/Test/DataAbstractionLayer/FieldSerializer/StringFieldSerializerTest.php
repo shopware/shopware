@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -65,9 +66,7 @@ class StringFieldSerializerTest extends TestCase
         yield 'Update with empty and allow empty and required' => [$allowEmptyAndRequired, '', '', false, $update];
     }
 
-    /**
-     * @dataProvider serializerProvider
-     */
+    #[DataProvider('serializerProvider')]
     public function testSerialize(StringField $field, ?string $value, ?string $expected, bool $expectError, EntityExistence $existence): void
     {
         $field->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));

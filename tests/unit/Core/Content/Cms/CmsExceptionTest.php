@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Cms;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\Log\Package;
@@ -9,15 +11,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Cms\CmsException
  */
 #[Package('buyers-experience')]
+#[CoversClass(CmsException::class)]
 class CmsExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
+    #[DataProvider('exceptionDataProvider')]
     public function testItThrowsException(CmsException $exception, int $statusCode, string $errorCode, string $message): void
     {
         $exceptionWasThrown = false;

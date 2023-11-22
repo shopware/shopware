@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Framework;
 
 /**
  * @internal
- *
- * @coversDefaultClass \Shopware\Core\Framework\Framework
  */
+#[CoversClass(Framework::class)]
 class FrameworkTest extends TestCase
 {
     public function testTemplatePriority(): void

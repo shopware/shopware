@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 use Doctrine\DBAL\Cache\ArrayResult;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -24,10 +25,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\ManyToManyAssociationService
  */
 #[Package('data-services')]
+#[CoversClass(ManyToManyAssociationService::class)]
 class ManyToManyAssociationServiceTest extends TestCase
 {
     public function testGetMappingIdsForAssociationFields(): void

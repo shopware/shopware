@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer
  */
+#[CoversClass(PropertyGroupAdminSearchIndexer::class)]
 class PropertyGroupAdminSearchIndexerTest extends TestCase
 {
     private PropertyGroupAdminSearchIndexer $searchIndexer;

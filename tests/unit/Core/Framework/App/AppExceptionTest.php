@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
@@ -12,10 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\AppException
  */
 #[Package('core')]
+#[CoversClass(AppException::class)]
 class AppExceptionTest extends TestCase
 {
     public function testCannotDeleteManaged(): void

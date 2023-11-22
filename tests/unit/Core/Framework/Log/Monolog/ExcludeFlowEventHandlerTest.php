@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
@@ -14,16 +16,14 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler
  */
+#[CoversClass(ExcludeFlowEventHandler::class)]
 class ExcludeFlowEventHandlerTest extends TestCase
 {
     /**
      * @param list<string> $excludeList
-     *
-     * @dataProvider cases
      */
+    #[DataProvider('cases')]
     public function testHandler(LogRecord $record, array $excludeList, bool $shouldBePassed): void
     {
         $innerHandler = $this->createMock(FingersCrossedHandler::class);

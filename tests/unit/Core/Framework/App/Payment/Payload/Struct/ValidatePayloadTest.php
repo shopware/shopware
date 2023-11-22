@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Payment\Payload\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\App\Payment\Payload\Struct\Source;
@@ -10,11 +11,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 
 /**
- * @covers \Shopware\Core\Framework\App\Payment\Payload\Struct\CapturePayload
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(CapturePayload::class)]
 class ValidatePayloadTest extends TestCase
 {
     public function testPayload(): void

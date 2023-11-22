@@ -6,6 +6,8 @@ use Composer\Autoload\ClassLoader;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration as ShopwareAdministration;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -21,9 +23,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Util\AssetService
  */
+#[CoversClass(AssetService::class)]
 class AssetServiceTest extends TestCase
 {
     public function testCopyAssetsFromBundlePluginDoesNotExists(): void
@@ -287,12 +288,11 @@ class AssetServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider adminFilesProvider
-     *
      * @param array<string, string> $manifest
      * @param array<string, string> $expectedWrites
      * @param array<string> $expectedDeletes
      */
+    #[DataProvider('adminFilesProvider')]
     public function testCopyAssetsFromAdminBundle(array $manifest, array $expectedWrites, array $expectedDeletes): void
     {
         ksort($manifest);

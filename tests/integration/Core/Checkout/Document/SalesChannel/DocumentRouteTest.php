@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -56,9 +57,7 @@ class DocumentRouteTest extends TestCase
         $this->createOrder($this->customerId);
     }
 
-    /**
-     * @dataProvider documentDownloadRouteDataProvider
-     */
+    #[DataProvider('documentDownloadRouteDataProvider')]
     public function testDownload(bool $isGuest, ?bool $withValidDeepLinkCode, \Closure $assertionCallback): void
     {
         $token = $this->getLoggedInContextToken($isGuest ? $this->guestId : $this->customerId, $this->ids->get('sales-channel'));

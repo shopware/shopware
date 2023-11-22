@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Seo;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
@@ -10,10 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Seo\SeoException
  */
 #[Package('buyers-experience')]
+#[CoversClass(SeoException::class)]
 class SeoExceptionTest extends TestCase
 {
     public function testInvalidSalesChannelId(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Review\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent
  */
+#[CoversClass(ReviewFormEvent::class)]
 class ReviewFormEventTest extends TestCase
 {
     public function testInstance(): void

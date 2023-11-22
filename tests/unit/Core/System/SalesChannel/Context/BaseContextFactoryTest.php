@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
@@ -41,19 +43,17 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Context\BaseContextFactory
  */
 #[Package('buyers-experience')]
+#[CoversClass(BaseContextFactory::class)]
 class BaseContextFactoryTest extends TestCase
 {
     /**
-     * @dataProvider factoryCreationDataProvider
-     *
      * @param array<string, mixed> $options
      * @param array<string, array<mixed>> $entitySearchResult
      * @param false|array<string, mixed> $fetchDataResult
      */
+    #[DataProvider('factoryCreationDataProvider')]
     public function testCreate(
         array $options,
         false|array $fetchDataResult,

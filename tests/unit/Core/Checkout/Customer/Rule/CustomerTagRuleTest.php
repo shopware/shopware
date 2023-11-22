@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -17,9 +19,8 @@ use Symfony\Component\Validator\Constraints\Choice;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\CustomerTagRule
  */
+#[CoversClass(CustomerTagRule::class)]
 class CustomerTagRuleTest extends TestCase
 {
     private CustomerTagRule $rule;
@@ -73,11 +74,10 @@ class CustomerTagRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param string|list<string>|null $givenIdentifier
      * @param array<string> $ruleIdentifiers
      */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, array $ruleIdentifiers, array|string|null $givenIdentifier, bool $noCustomer = false): void
     {
         $customer = new CustomerEntity();

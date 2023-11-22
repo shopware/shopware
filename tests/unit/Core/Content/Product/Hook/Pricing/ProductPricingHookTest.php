@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Hook\Pricing;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\PriceFactoryFactory;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
@@ -16,10 +17,9 @@ use Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Hook\Pricing\ProductPricingHook
  */
 #[Package('inventory')]
+#[CoversClass(ProductPricingHook::class)]
 class ProductPricingHookTest extends TestCase
 {
     public function testGetProducts(): void

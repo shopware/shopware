@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\Country;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Context;
@@ -61,9 +62,7 @@ class CachedCountryRouteTest extends TestCase
             ->invalidateTags([CachedCountryRoute::buildName(TestDefaults::SALES_CHANNEL)]);
     }
 
-    /**
-     * @dataProvider criteriaProvider
-     */
+    #[DataProvider('criteriaProvider')]
     public function testCriteria(Criteria $criteria): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -106,9 +105,7 @@ class CachedCountryRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')

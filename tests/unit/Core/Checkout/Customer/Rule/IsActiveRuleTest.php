@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
@@ -18,9 +20,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\IsActiveRule
  */
+#[CoversClass(IsActiveRule::class)]
 class IsActiveRuleTest extends TestCase
 {
     private IsActiveRule $rule;
@@ -30,9 +31,7 @@ class IsActiveRuleTest extends TestCase
         $this->rule = new IsActiveRule();
     }
 
-    /**
-     * @dataProvider getCustomerScopeTestData
-     */
+    #[DataProvider('getCustomerScopeTestData')]
     public function testValidateRule(
         bool $isActive,
         bool $customerActiveValue,

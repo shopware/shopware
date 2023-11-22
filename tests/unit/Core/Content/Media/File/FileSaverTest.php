@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
@@ -27,10 +29,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\File\FileSaver
  */
 #[Package('buyers-experience')]
+#[CoversClass(FileSaver::class)]
 class FileSaverTest extends TestCase
 {
     private MockObject&EntityRepository $mediaRepository;
@@ -66,9 +67,7 @@ class FileSaverTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider duplicateFileNameProvider
-     */
+    #[DataProvider('duplicateFileNameProvider')]
     public function testDuplicatedMediaFileNameInFileSystem(bool $isPrivate): void
     {
         $mediaA = new MediaEntity();
@@ -120,9 +119,7 @@ class FileSaverTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider uniqueFileNameProvider
-     */
+    #[DataProvider('uniqueFileNameProvider')]
     public function testFileNameUniqueInFileSystem(
         bool $isPrivate
     ): void {

@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -22,9 +24,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler
  */
+#[CoversClass(TaskScheduler::class)]
 class TaskSchedulerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -107,9 +108,7 @@ class TaskSchedulerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
     }
 
-    /**
-     * @dataProvider nonScheduledStatus
-     */
+    #[DataProvider('nonScheduledStatus')]
     public function testScheduleTasksDoesntScheduleNotScheduledTask(string $status): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\RecurringPaymentOrderCriteriaEvent;
 use Shopware\Core\Framework\Context;
@@ -10,9 +11,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Event\RecurringPaymentOrderCriteriaEvent
  */
+#[CoversClass(RecurringPaymentOrderCriteriaEvent::class)]
 class RecurringPaymentOrderCriteriaEventTest extends TestCase
 {
     public function testEvent(): void

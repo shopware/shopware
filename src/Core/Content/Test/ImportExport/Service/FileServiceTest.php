@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Service\FileService;
@@ -20,9 +21,7 @@ class FileServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @dataProvider fileTypesProvider
-     */
+    #[DataProvider('fileTypesProvider')]
     public function testDetectType($fileData): void
     {
         $fileService = new FileService(

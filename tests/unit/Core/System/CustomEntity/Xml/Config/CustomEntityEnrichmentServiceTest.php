@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
@@ -16,10 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityEnrichmentService
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException
  */
+#[CoversClass(CustomEntityEnrichmentService::class)]
+#[CoversClass(CustomEntityConfigurationException::class)]
 class CustomEntityEnrichmentServiceTest extends TestCase
 {
     private const FIXTURE_PATH = '%s/../../_fixtures/CustomEntityEnrichmentServiceTest/%s';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -79,12 +80,11 @@ class CheckoutControllerTest extends TestCase
     private ?string $customerId = null;
 
     /**
-     * @dataProvider customerComments
-     *
      * @group slow
      *
      * @param string|float|int|bool|null $customerComment
      */
+    #[DataProvider('customerComments')]
     public function testOrderCustomerComment($customerComment, ?string $savedCustomerComment): void
     {
         $order = $this->performOrder($customerComment);
@@ -197,10 +197,9 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider errorDataProvider
-     *
      * @param array<string> $errorKeys
      */
+    #[DataProvider('errorDataProvider')]
     public function testOffCanvasWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false): void
     {
         $browser = $this->getBrowserWithLoggedInCustomer();
@@ -254,10 +253,9 @@ class CheckoutControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider errorDataProvider
-     *
      * @param array<string> $errorKeys
      */
+    #[DataProvider('errorDataProvider')]
     public function testConfirmWithErrorsFlash(ErrorCollection $errors, array $errorKeys, bool $testSwitchToDefault = false, bool $orderShouldBeBlocked = false): void
     {
         $browser = $this->getBrowserWithLoggedInCustomer();

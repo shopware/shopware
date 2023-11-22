@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\SalesChannel\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -20,16 +22,14 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand
  */
+#[CoversClass(SalesChannelCreateCommand::class)]
 class SalesChannelCreateCommandTest extends TestCase
 {
     /**
      * @param array<string, mixed> $inputMockValues
-     *
-     * @dataProvider dataProviderTestExecuteSuccess
      */
+    #[DataProvider('dataProviderTestExecuteSuccess')]
     public function testExecuteSuccess(array $inputMockValues): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('sales-channel');
@@ -55,9 +55,8 @@ class SalesChannelCreateCommandTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputMockValues
-     *
-     * @dataProvider dataProviderTestExecuteFailure
      */
+    #[DataProvider('dataProviderTestExecuteFailure')]
     public function testExecuteFailure(array $inputMockValues): void
     {
         $constraintViolationMock = $this->createMock(ConstraintViolationInterface::class);

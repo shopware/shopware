@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Page\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
@@ -34,9 +35,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Product\ProductPageLoader
  */
+#[CoversClass(ProductPageLoader::class)]
 class ProductPageLoaderTest extends TestCase
 {
     public function testItLoadsReviews(): void

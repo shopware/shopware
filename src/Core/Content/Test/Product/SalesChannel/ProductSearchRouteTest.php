@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
@@ -93,9 +95,7 @@ class ProductSearchRouteTest extends TestCase
         return [$browser, $this->ids];
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFindingProductsByTerm(array $services): void
     {
         [$browser, $ids] = $services;
@@ -119,9 +119,7 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testNotFindingProducts(array $services): void
     {
         [$browser, $ids] = $services;
@@ -144,9 +142,7 @@ class ProductSearchRouteTest extends TestCase
         static::assertCount(0, $response['elements']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testMissingSearchTerm(array $services): void
     {
         [$browser, $ids] = $services;
@@ -174,11 +170,8 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('FRAMEWORK__MISSING_REQUEST_PARAMETER', $response['errors'][0]['code']);
     }
 
-    /**
-     * @depends testIndexing
-     *
-     * @dataProvider searchOrCases
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('searchOrCases')]
     public function testSearchOr(string $term, array $expected, array $services): void
     {
         [$browser, $ids] = $services;
@@ -190,11 +183,8 @@ class ProductSearchRouteTest extends TestCase
         $this->proceedTestSearch($browser, $term, $expected);
     }
 
-    /**
-     * @depends testIndexing
-     *
-     * @dataProvider searchAndCases
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('searchAndCases')]
     public function testSearchAnd(string $term, array $expected, array $services): void
     {
         [$browser, $ids] = $services;
@@ -206,9 +196,7 @@ class ProductSearchRouteTest extends TestCase
         $this->proceedTestSearch($browser, $term, $expected);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFindingProductAlreadyHaveVariantsWithCustomSearchKeywords(array $services): void
     {
         [$browser, $ids] = $services;
@@ -246,9 +234,7 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFindingProductWhenAddedVariantsAfterSettingCustomSearchKeywords(array $services): void
     {
         [$browser, $ids] = $services;
@@ -286,9 +272,7 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFindingProductAlreadySetCustomSearchKeywordsWhenRemovedVariants(array $services): void
     {
         [$browser, $ids] = $services;
@@ -314,9 +298,7 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    /**
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
     public function testFindingProductWithVariantsHaveDifferentKeyword(array $services): void
     {
         [$browser, $ids] = $services;
@@ -354,11 +336,8 @@ class ProductSearchRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
-    /**
-     * @dataProvider searchTestCases
-     *
-     * @depends testIndexing
-     */
+    #[Depends('testIndexing')]
+    #[DataProvider('searchTestCases')]
     public function testProductSearch(string $productNumber, array $searchTerms, ?string $languageId, array $services): void
     {
         [$browser, $ids] = $services;

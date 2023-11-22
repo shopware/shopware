@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -24,10 +25,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory
  */
 #[Package('checkout')]
+#[CoversClass(CustomerProfileValidationFactory::class)]
 class CustomerProfileValidationFactoryTest extends TestCase
 {
     /**

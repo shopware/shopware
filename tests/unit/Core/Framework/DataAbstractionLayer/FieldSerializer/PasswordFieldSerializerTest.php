@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -29,9 +31,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PasswordFieldSerializer
  */
+#[CoversClass(PasswordFieldSerializer::class)]
 class PasswordFieldSerializerTest extends TestCase
 {
     protected PasswordFieldSerializer $serializer;
@@ -69,10 +70,9 @@ class PasswordFieldSerializerTest extends TestCase
     }
 
     /**
-     * @dataProvider encodeProvider
-     *
      * @param array<int, Constraint> $constraints
      */
+    #[DataProvider('encodeProvider')]
     public function testEncode(string $for, int $minPasswordValue, array $constraints, bool $shouldThrowViolationException, ?string $inputPassword): void
     {
         $constraintViolations = new ConstraintViolationList();

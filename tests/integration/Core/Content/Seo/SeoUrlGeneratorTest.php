@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -31,10 +33,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Seo\SeoUrlGenerator
  */
 #[Package('buyers-experience')]
+#[CoversClass(SeoUrlGenerator::class)]
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -81,9 +82,8 @@ class SeoUrlGeneratorTest extends TestCase
     /**
      * Checks whether the amount of generated URLs is correct. Empty SEO-URL
      * templates should lead to no SEO-URL being generated.
-     *
-     * @dataProvider templateDataProvider
      */
+    #[DataProvider('templateDataProvider')]
     public function testGenerateUrlCount(string $template, int $count, string $pathInfo): void
     {
         $id = $this->getValidCategoryId();
@@ -106,9 +106,8 @@ class SeoUrlGeneratorTest extends TestCase
 
     /**
      * Checks whether the SEO-URL path generated fits the expected template.
-     *
-     * @dataProvider templateDataProvider
      */
+    #[DataProvider('templateDataProvider')]
     public function testGenerateSeoPathInfo(string $template, int $count, string $pathInfo): void
     {
         $id = $this->getValidCategoryId();

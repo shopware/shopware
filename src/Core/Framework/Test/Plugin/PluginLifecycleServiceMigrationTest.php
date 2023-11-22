@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -113,9 +114,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         return $migrationCollection;
     }
 
-    /**
-     * @depends testInstall
-     */
+    #[Depends('testInstall')]
     public function testActivate(MigrationCollection $migrationCollection): MigrationCollection
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
@@ -125,9 +124,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         return $migrationCollection;
     }
 
-    /**
-     * @depends testActivate
-     */
+    #[Depends('testActivate')]
     public function testUpdate(MigrationCollection $migrationCollection): MigrationCollection
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
@@ -137,9 +134,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         return $migrationCollection;
     }
 
-    /**
-     * @depends testUpdate
-     */
+    #[Depends('testUpdate')]
     public function testDeactivate(MigrationCollection $migrationCollection): MigrationCollection
     {
         $migrationPlugin = $this->getMigrationTestPlugin();
@@ -149,9 +144,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         return $migrationCollection;
     }
 
-    /**
-     * @depends testDeactivate
-     */
+    #[Depends('testDeactivate')]
     public function testUninstallKeepUserData(MigrationCollection $migrationCollection): void
     {
         $migrationPlugin = $this->getMigrationTestPlugin();

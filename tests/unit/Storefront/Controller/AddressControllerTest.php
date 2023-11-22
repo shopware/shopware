@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -28,10 +29,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\AddressController
  */
 #[Package('checkout')]
+#[CoversClass(AddressController::class)]
 class AddressControllerTest extends TestCase
 {
     private AddressControllerTestClass $controller;

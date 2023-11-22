@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
@@ -17,9 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CacheStateValidatorTest extends TestCase
 {
-    /**
-     * @dataProvider cases
-     */
+    #[DataProvider('cases')]
     public function testValidation(bool $isValid, Request $request, Response $response): void
     {
         $validator = new CacheStateValidator([]);

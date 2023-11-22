@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractRuleLoader;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -39,9 +41,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\FlowExecutor
  */
+#[CoversClass(FlowExecutor::class)]
 class FlowExecutorTest extends TestCase
 {
     private const ACTION_ADD_ORDER_TAG = 'action.add.order.tag';
@@ -49,14 +50,13 @@ class FlowExecutorTest extends TestCase
     private const ACTION_STOP_FLOW = 'action.stop.flow';
 
     /**
-     * @dataProvider actionsProvider
-     *
      * @param array<int, mixed> $actionSequencesExecuted
      * @param array<int, mixed> $actionSequencesTrueCase
      * @param array<int, mixed> $actionSequencesFalseCase
      *
      * @throws ExecuteSequenceException
      */
+    #[DataProvider('actionsProvider')]
     public function testExecute(array $actionSequencesExecuted, array $actionSequencesTrueCase, array $actionSequencesFalseCase, ?string $appAction = null): void
     {
         $ids = new TestDataCollection();

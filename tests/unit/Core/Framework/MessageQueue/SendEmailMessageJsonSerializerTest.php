@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
@@ -12,9 +13,8 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer
  */
+#[CoversClass(SendEmailMessageJsonSerializer::class)]
 class SendEmailMessageJsonSerializerTest extends TestCase
 {
     public function testSerialize(): void

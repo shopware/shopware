@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -14,13 +16,12 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemPromotedRule
- *
  * @internal
  *
  * @group rules
  */
 #[Package('business-ops')]
+#[CoversClass(LineItemPromotedRule::class)]
 class LineItemPromotedRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -75,9 +76,8 @@ class LineItemPromotedRuleTest extends TestCase
     /**
      * This test verifies that our rule works correctly
      * when matching using a line item scope.
-     *
-     * @dataProvider matchTestData
      */
+    #[DataProvider('matchTestData')]
     public function testMatchScopeLineItem(bool $expected, bool $ruleValue, bool $itemValue): void
     {
         $this->rule->assign(['isPromoted' => $ruleValue]);
@@ -93,9 +93,8 @@ class LineItemPromotedRuleTest extends TestCase
     /**
      * This test verifies that our rule works correctly
      * when matching using a cart rule scope.
-     *
-     * @dataProvider matchTestData
      */
+    #[DataProvider('matchTestData')]
     public function testMatchScopeCart(bool $expected, bool $ruleValue, bool $itemValue): void
     {
         $this->rule->assign(['isPromoted' => $ruleValue]);

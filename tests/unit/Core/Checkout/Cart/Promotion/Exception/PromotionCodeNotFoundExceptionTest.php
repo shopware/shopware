@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
 use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException
  */
+#[CoversClass(PromotionCodeNotFoundException::class)]
 class PromotionCodeNotFoundExceptionTest extends TestCase
 {
     protected function setUp(): void

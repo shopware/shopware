@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer;
@@ -12,9 +13,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField
  */
+#[CoversClass(FlowTemplateConfigField::class)]
 class FlowTemplateConfigFieldTest extends TestCase
 {
     private FlowTemplateConfigField $field;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -9,9 +10,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem
  */
+#[CoversClass(DiscountLineItem::class)]
 class DiscountLineItemTest extends TestCase
 {
     private DiscountLineItem $discount;

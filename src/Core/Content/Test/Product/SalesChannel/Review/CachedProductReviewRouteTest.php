@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute;
@@ -61,9 +62,7 @@ class CachedProductReviewRouteTest extends TestCase
             ->invalidateTags([CachedProductReviewRoute::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider criteriaProvider
-     */
+    #[DataProvider('criteriaProvider')]
     public function testCriteria(Criteria $criteria): void
     {
         $context = $this->createMock(SalesChannelContext::class);
@@ -107,9 +106,7 @@ class CachedProductReviewRouteTest extends TestCase
         yield 'Sorted criteria' => [(new Criteria())->addSorting(new FieldSorting('active'))];
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(IdsCollection $ids, \Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')

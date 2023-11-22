@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -20,9 +22,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule
  */
+#[CoversClass(OrderCreatedByAdminRule::class)]
 class OrderCreatedByAdminRuleTest extends TestCase
 {
     private OrderCreatedByAdminRule $rule;
@@ -73,9 +74,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testMatch(OrderCreatedByAdminRule $rule, OrderEntity $order, bool $isMatching): void
     {
         $scope = $this->createScope($order);

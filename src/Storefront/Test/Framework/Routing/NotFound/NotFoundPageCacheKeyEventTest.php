@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Routing\NotFound;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -10,9 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Routing\NotFound\NotFoundPageCacheKeyEvent
  */
+#[CoversClass(NotFoundPageCacheKeyEvent::class)]
 class NotFoundPageCacheKeyEventTest extends TestCase
 {
     public function testEvent(): void

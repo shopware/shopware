@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Hook;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\PriceFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
@@ -18,9 +19,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Hook\Pricing\ProductProxy
  */
+#[CoversClass(ProductProxy::class)]
 class ProductProxyTest extends TestCase
 {
     public function testProxyPropertyAccess(): void

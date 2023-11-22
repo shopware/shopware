@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -16,10 +17,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\StoreApiGenerator
- *
  * @internal
  */
+#[CoversClass(StoreApiGenerator::class)]
 class StoreApiGeneratorTest extends TestCase
 {
     private StoreApiGenerator $generator;

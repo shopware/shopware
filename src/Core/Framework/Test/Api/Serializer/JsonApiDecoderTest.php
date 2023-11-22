@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Serializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Serializer\JsonApiDecoder;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
@@ -56,9 +57,7 @@ class JsonApiDecoderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider emptyInputProvider
-     */
+    #[DataProvider('emptyInputProvider')]
     public function testEncodeWithEmptyInput($input): void
     {
         $this->expectException(UnexpectedValueException::class);
@@ -67,9 +66,7 @@ class JsonApiDecoderTest extends TestCase
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
-    /**
-     * @dataProvider inputWithoutDataOnRootProvider
-     */
+    #[DataProvider('inputWithoutDataOnRootProvider')]
     public function testInputWithoutDataOnRoot($input): void
     {
         $this->expectException(UnexpectedValueException::class);
@@ -78,9 +75,7 @@ class JsonApiDecoderTest extends TestCase
         $this->decoder->decode(json_encode($input, \JSON_THROW_ON_ERROR), 'jsonapi');
     }
 
-    /**
-     * @dataProvider resourceIdentifierWIthInvalidStructureProvider
-     */
+    #[DataProvider('resourceIdentifierWIthInvalidStructureProvider')]
     public function testResourceIdentifierWithInvalidStructure($input): void
     {
         $this->expectException(UnexpectedValueException::class);

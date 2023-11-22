@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Tax;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -30,9 +31,8 @@ class TaxCalculationTypeTest extends TestCase
 
     /**
      * @param ItemBlueprint[] $items
-     *
-     * @dataProvider calculationProvider
      */
+    #[DataProvider('calculationProvider')]
     public function testCalculation(
         array $items,
         CalculatedTaxCollection $horizontal,

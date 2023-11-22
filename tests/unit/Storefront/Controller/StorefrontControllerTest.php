@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
@@ -38,11 +39,10 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 
 /**
- * @covers \Shopware\Storefront\Controller\StorefrontController
- *
  * @internal
  */
 #[Package('storefront')]
+#[CoversClass(StorefrontController::class)]
 class StorefrontControllerTest extends TestCase
 {
     private readonly TestStorefrontController $controller;

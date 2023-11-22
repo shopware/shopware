@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
@@ -102,12 +103,11 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider propertyCases
-     *
      * @param array<mixed> $product
      * @param array<mixed> $expected
      * @param array<mixed> $unexpected
      */
+    #[DataProvider('propertyCases')]
     public function testSortProperties(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
         $this->getContainer()->get('product.repository')
@@ -161,12 +161,11 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider propertyCases
-     *
      * @param array<mixed> $product
      * @param array<mixed> $expected
      * @param array<mixed> $unexpected
      */
+    #[DataProvider('propertyCases')]
     public function testSortPropertiesPartial(array $product, array $expected, array $unexpected, Criteria $criteria): void
     {
         $this->getContainer()->get('product.repository')
@@ -357,13 +356,11 @@ class ProductLoadedSubscriberTest extends TestCase
 
     /**
      * @param non-empty-array<string> $languageChain
-     *
-     * @dataProvider variationCases
-     *
      * @param array<mixed> $product
      * @param array<mixed> $expected
      * @param array<string> $languageChain
      */
+    #[DataProvider('variationCases')]
     public function testVariation(array $product, array $expected, array $languageChain, Criteria $criteria, bool $sort, string $languageId): void
     {
         $this->getContainer()
@@ -1090,11 +1087,10 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @dataProvider optionCases
-     *
      * @param array<mixed> $product
      * @param array<string, string> $expected
      */
+    #[DataProvider('optionCases')]
     public function testOptionSorting(array $product, array $expected, Criteria $criteria): void
     {
         $productId = $product['id'];

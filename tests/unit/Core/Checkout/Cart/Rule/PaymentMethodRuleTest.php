@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -18,9 +19,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule
  */
+#[CoversClass(PaymentMethodRule::class)]
 class PaymentMethodRuleTest extends TestCase
 {
     public function testNameReturnsKnownName(): void

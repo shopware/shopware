@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Content\Cms\Subscriber;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
@@ -17,10 +19,9 @@ use Shopware\Core\System\SystemConfig\Event\BeforeSystemConfigChangedEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 #[Package('buyers-experience')]
+#[CoversClass(CmsPageDefaultChangeSubscriber::class)]
 class CmsPageDefaultChangeSubscriberTest extends TestCase
 {
     public function testHasEvents(): void
@@ -36,9 +37,8 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
     /**
      * @param list<string> $event
      * @param array<mixed> $connectionData
-     *
-     * @dataProvider beforeDeletionEventDataProvider
      */
+    #[DataProvider('beforeDeletionEventDataProvider')]
     public function testBeforeDeletionEvent(array $event, array $connectionData, ?string $expectedExceptionCode = null): void
     {
         $connection = $this->getConnectionMock($connectionData);
@@ -64,9 +64,8 @@ class CmsPageDefaultChangeSubscriberTest extends TestCase
 
     /**
      * @param array<mixed> $connectionData
-     *
-     * @dataProvider beforeSystemConfigChangedEventDataProvider
      */
+    #[DataProvider('beforeSystemConfigChangedEventDataProvider')]
     public function testBeforeSystemConfigChangedEvent(BeforeSystemConfigChangedEvent $event, array $connectionData, ?string $expectedExceptionCode = null): void
     {
         $connection = $this->getConnectionMock($connectionData);

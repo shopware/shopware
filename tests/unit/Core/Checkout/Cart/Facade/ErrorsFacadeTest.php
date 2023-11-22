@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -9,9 +10,8 @@ use Shopware\Core\Checkout\Cart\Facade\ErrorsFacade;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ErrorsFacade
  */
+#[CoversClass(ErrorsFacade::class)]
 class ErrorsFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

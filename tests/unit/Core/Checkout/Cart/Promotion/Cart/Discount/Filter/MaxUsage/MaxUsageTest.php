@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount\Filter\MaxUsage;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\MaxUsage\MaxUsage
  */
+#[CoversClass(MaxUsage::class)]
 class MaxUsageTest extends TestCase
 {
     /**

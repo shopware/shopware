@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -89,9 +90,7 @@ class DateTimeFieldSerializerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider serializerProvider
-     */
+    #[DataProvider('serializerProvider')]
     public function testSerializer(\DateTimeInterface $in, \DateTimeInterface $expected): void
     {
         $kvPair = new KeyValuePair('date', $in, true);
@@ -101,9 +100,7 @@ class DateTimeFieldSerializerTest extends TestCase
         static::assertEquals($expected, $decoded, 'Output should be ' . print_r($expected, true));
     }
 
-    /**
-     * @dataProvider serializerProviderString
-     */
+    #[DataProvider('serializerProviderString')]
     public function testSerializerString(string $in, string $expected): void
     {
         $kvPair = new KeyValuePair('date', $in, true);

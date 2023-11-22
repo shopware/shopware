@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -17,9 +18,8 @@ use Shopware\Core\Test\TestDefaults;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Subscriber\ProductReviewSubscriber
  */
+#[CoversClass(ProductReviewSubscriber::class)]
 class ProductReviewSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;

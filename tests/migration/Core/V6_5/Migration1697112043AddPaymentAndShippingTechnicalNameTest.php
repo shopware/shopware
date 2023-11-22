@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\CashPayment;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DebitPayment;
@@ -19,10 +20,9 @@ use Shopware\Core\Migration\V6_5\Migration1697112043AddPaymentAndShippingTechnic
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1697112043AddPaymentAndShippingTechnicalName
  */
 #[Package('checkout')]
+#[CoversClass(Migration1697112043AddPaymentAndShippingTechnicalName::class)]
 class Migration1697112043AddPaymentAndShippingTechnicalNameTest extends TestCase
 {
     use KernelTestBehaviour;

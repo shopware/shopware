@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Sitemap\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\SalesChannel\AbstractSitemapRoute;
 use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
@@ -59,9 +60,7 @@ class CachedSitemapRouteTest extends TestCase
             ->invalidateTags([CachedSitemapRoute::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(\Closure $before, \Closure $after, int $calls, int $strategy = SitemapExporterInterface::STRATEGY_SCHEDULED_TASK): void
     {
         $this->getContainer()->get('cache.object')

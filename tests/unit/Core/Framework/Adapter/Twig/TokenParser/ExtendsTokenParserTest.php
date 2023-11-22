@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig\TokenParser;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
@@ -13,9 +14,8 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser
  */
+#[CoversClass(ExtendsTokenParser::class)]
 class ExtendsTokenParserTest extends TestCase
 {
     public function testParseStringExtendsInMatchingScope(): void

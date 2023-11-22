@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
@@ -26,10 +27,9 @@ class RatingMatrixTest extends TestCase
     /**
      * check that matrix calculates correctly
      *
-     * @dataProvider getRatings
-     *
      * @group reviews
      */
+    #[DataProvider('getRatings')]
     public function testMatrixCalculation(float $expectedScore, int $reviewCounts, float $total, array $aggregation): void
     {
         $matrix = new RatingMatrix($aggregation);

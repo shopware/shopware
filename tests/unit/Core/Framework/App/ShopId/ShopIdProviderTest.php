@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\ShopId;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
@@ -14,9 +15,8 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\ShopId\ShopIdProvider
  */
+#[CoversClass(ShopIdProvider::class)]
 class ShopIdProviderTest extends TestCase
 {
     public function testGetShopIdWillCreateOneIfNoneIsGiven(): void

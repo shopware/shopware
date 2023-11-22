@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Gateway\Template;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePromotions;
@@ -12,9 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePromotions
  */
+#[CoversClass(PermittedIndividualCodePromotions::class)]
 class PermittedIndividualCodePromotionsTest extends TestCase
 {
     private SalesChannelEntity $salesChannel;

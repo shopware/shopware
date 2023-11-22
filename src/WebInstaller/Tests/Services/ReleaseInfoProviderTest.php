@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -10,9 +11,8 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Services\ReleaseInfoProvider
  */
+#[CoversClass(ReleaseInfoProvider::class)]
 class ReleaseInfoProviderTest extends TestCase
 {
     public function testGetReleaseInfo(): void

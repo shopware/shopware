@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupSorterNotFoundException::class)]
 class LineItemGroupSorterNotFoundExceptionTest extends TestCase
 {
     /**

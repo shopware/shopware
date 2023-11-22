@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
@@ -9,9 +10,8 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder
  */
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPlaceholderTest extends TestCase
 {
     /**

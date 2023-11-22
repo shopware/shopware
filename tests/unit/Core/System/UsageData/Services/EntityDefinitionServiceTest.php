@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -22,10 +24,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\EntityDefinitionService
  */
 #[Package('data-services')]
+#[CoversClass(EntityDefinitionService::class)]
 class EntityDefinitionServiceTest extends TestCase
 {
     /**
@@ -100,9 +101,7 @@ class EntityDefinitionServiceTest extends TestCase
         static::assertEquals('EntityWithManyToManyWithIdFieldAssociationName', $result[0]['idField']->getAssociationName());
     }
 
-    /**
-     * @dataProvider provideEntityDefinitions
-     */
+    #[DataProvider('provideEntityDefinitions')]
     public function testNewsletterRecipientDefinitionIsPuidEntity(
         EntityDefinition $entityDefinition,
         bool $isPuidEntity,

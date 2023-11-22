@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -9,9 +10,8 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\DefinitionService
  */
+#[CoversClass(DefinitionService::class)]
 class DefinitionServiceTest extends TestCase
 {
     public function testConversionFromStringToApiType(): void

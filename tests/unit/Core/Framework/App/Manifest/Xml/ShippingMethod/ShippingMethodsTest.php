@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\ShippingMethod;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod;
@@ -10,9 +11,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\ShippingMethod\ShippingMethod
  */
+#[CoversClass(ShippingMethod::class)]
 class ShippingMethodsTest extends TestCase
 {
     public const XSD_FILE = __DIR__ . '/../../../../../../../../src/Core/Framework/App/Manifest/Schema/manifest-2.0.xsd';

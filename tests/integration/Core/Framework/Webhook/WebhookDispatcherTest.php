@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
@@ -45,9 +46,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\WebhookDispatcher
  */
+#[CoversClass(WebhookDispatcher::class)]
 class WebhookDispatcherTest extends TestCase
 {
     use GuzzleTestClientBehaviour;

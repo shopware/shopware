@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
@@ -15,9 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ItemFacade
  */
+#[CoversClass(ItemFacade::class)]
 class ItemFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

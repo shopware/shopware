@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Log;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
- * @covers \Shopware\Core\Framework\Log\Package
- *
  * @package core
  */
+#[CoversClass(Package::class)]
 class PackageTest extends TestCase
 {
     public function testConstructor(): void

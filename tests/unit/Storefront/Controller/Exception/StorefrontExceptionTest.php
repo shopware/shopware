@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\Exception\StorefrontException
  */
+#[CoversClass(StorefrontException::class)]
 class StorefrontExceptionTest extends TestCase
 {
     public function testCannotRenderView(): void

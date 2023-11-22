@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -13,9 +14,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage
  */
+#[CoversClass(SqlMediaPathStorage::class)]
 class MediaPathStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

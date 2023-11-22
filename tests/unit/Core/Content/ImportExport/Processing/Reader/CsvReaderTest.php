@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Reader;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -101,9 +102,7 @@ class CsvReaderTest extends TestCase
         yield 'unix' => ["\n"];
     }
 
-    /**
-     * @dataProvider eolProvider
-     */
+    #[DataProvider('eolProvider')]
     public function testDifferentEOL(string $eol): void
     {
         $content = 'foo;bar' . $eol;

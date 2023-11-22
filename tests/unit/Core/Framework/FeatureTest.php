@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -10,9 +12,9 @@ use Shopware\Core\Test\Annotation\DisabledFeatures;
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
- *
- * @coversDefaultClass \Shopware\Core\Framework\Feature
  */
+#[CoversClass(Feature::class)]
+#[CoversClass(Feature::class)]
 class FeatureTest extends TestCase
 {
     /**
@@ -45,9 +47,6 @@ class FeatureTest extends TestCase
         Feature::registerFeatures($this->featureConfigBackup);
     }
 
-    /**
-     * @covers ::fake
-     */
     public function testFakeFeatureFlagsAreClean(): void
     {
         $_SERVER['FEATURE_ALL'] = true;
@@ -74,9 +73,6 @@ class FeatureTest extends TestCase
         static::assertTrue($_SERVER['V6_4_5_0']);
     }
 
-    /**
-     * @covers ::fake
-     */
     public function testFakeRestoresFeatureConfigAndEnv(): void
     {
         $beforeFeatureFlagConfig = Feature::getRegisteredFeatures();
@@ -92,9 +88,6 @@ class FeatureTest extends TestCase
         static::assertSame($beforeServerEnv, $_SERVER);
     }
 
-    /**
-     * @covers ::fake
-     */
     public function testFakeSetsFeatures(): void
     {
         static::assertArrayNotHasKey('FEATURE_NEXT_0000', $_SERVER);
@@ -114,9 +107,6 @@ class FeatureTest extends TestCase
         static::assertArrayNotHasKey('v6.4.5.0', $_SERVER);
     }
 
-    /**
-     * @covers ::triggerDeprecationOrThrow
-     */
     #[DisabledFeatures(['v6.5.0.0'])]
     public function testTriggerDeprecationOrThrowDoesNotThrowIfUninitialized(): void
     {
@@ -128,9 +118,6 @@ class FeatureTest extends TestCase
         $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @covers \Shopware\Core\Framework\Feature
-     */
     public function testTriggerDeprecationOrThrowThrows(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -154,12 +141,8 @@ class FeatureTest extends TestCase
         ];
     }
 
-    /**
-     * @covers \Shopware\Core\Framework\Feature
-     *
-     * @dataProvider callSilentIfInactiveProvider
-     */
     #[DisabledFeatures(['v6.5.0.0'])]
+    #[DataProvider('callSilentIfInactiveProvider')]
     public function testCallSilentIfInactiveProvider(string $majorVersion, string $deprecatedMessage, \Closure $assertion): void
     {
         $errorMessage = null;

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1677470540AddProvincesForCanada;
@@ -10,9 +11,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1677470540AddProvincesForCanada
  */
+#[CoversClass(Migration1677470540AddProvincesForCanada::class)]
 class Migration1677470540AddProvincesForCanadaTest extends TestCase
 {
     use MigrationTestTrait;

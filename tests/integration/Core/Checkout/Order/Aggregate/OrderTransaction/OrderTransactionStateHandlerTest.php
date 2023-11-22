@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Order\Aggregate\OrderTransaction;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -98,10 +99,9 @@ class OrderTransactionStateHandlerTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderActions
-     *
      * @param array<string, string> $path
      */
+    #[DataProvider('dataProviderActions')]
     public function testAction(array $path): void
     {
         $context = Context::createDefaultContext();

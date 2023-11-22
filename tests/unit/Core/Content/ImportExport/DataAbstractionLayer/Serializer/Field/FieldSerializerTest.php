@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -16,17 +18,15 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer
  */
 #[Package('services-settings')]
+#[CoversClass(FieldSerializer::class)]
 class FieldSerializerTest extends TestCase
 {
     /**
-     * @dataProvider serializeDataProvider
-     *
      * @throws \JsonException
      */
+    #[DataProvider('serializeDataProvider')]
     public function testSerialize(Field $field, mixed $inputValue, mixed $expected): void
     {
         $fieldSerializer = new FieldSerializer();
@@ -36,10 +36,9 @@ class FieldSerializerTest extends TestCase
     }
 
     /**
-     * @dataProvider deserializeDataProvider
-     *
      * @throws \JsonException
      */
+    #[DataProvider('deserializeDataProvider')]
     public function testDeserialize(Field $field, mixed $inputValue, mixed $expected): void
     {
         $fieldSerializer = new FieldSerializer();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
@@ -10,11 +11,10 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupBuilderResult::class)]
 class LineItemGroupBuilderResultTest extends TestCase
 {
     /**

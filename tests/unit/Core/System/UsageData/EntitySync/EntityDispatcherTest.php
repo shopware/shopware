@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
@@ -22,10 +24,9 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\EntityDispatcher
  */
 #[Package('data-services')]
+#[CoversClass(EntityDispatcher::class)]
 class EntityDispatcherTest extends TestCase
 {
     private readonly ClockInterface $clock;
@@ -381,9 +382,7 @@ class EntityDispatcherTest extends TestCase
         $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
     }
 
-    /**
-     * @dataProvider recoverableResponseCodesDataProvider
-     */
+    #[DataProvider('recoverableResponseCodesDataProvider')]
     public function testItThrowsRecoverableServerException(int $responseCode): void
     {
         $client = new MockHttpClient(function () use ($responseCode): MockResponse {
@@ -405,9 +404,7 @@ class EntityDispatcherTest extends TestCase
         $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
     }
 
-    /**
-     * @dataProvider unrecoverableResponseCodesDataProvider
-     */
+    #[DataProvider('unrecoverableResponseCodesDataProvider')]
     public function testItThrowsUnrecoverableMessageHandlingException(int $responseCode): void
     {
         $client = new MockHttpClient(function () use ($responseCode): MockResponse {

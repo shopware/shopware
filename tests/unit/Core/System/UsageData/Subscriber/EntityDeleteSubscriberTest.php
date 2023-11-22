@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -38,10 +39,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber
  */
 #[Package('data-services')]
+#[CoversClass(EntityDeleteSubscriber::class)]
 class EntityDeleteSubscriberTest extends TestCase
 {
     private UsageDataAllowListService $usageDataAllowListServiceMock;

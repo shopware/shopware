@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\Util;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
@@ -38,9 +39,7 @@ class PromotionCodeServiceTest extends TestCase
         static::assertMatchesRegularExpression('/([A-Z]\d){4}/', $code);
     }
 
-    /**
-     * @dataProvider codePreviewDataProvider
-     */
+    #[DataProvider('codePreviewDataProvider')]
     public function testGetCodePreview(string $codePattern, string $expectedRegex): void
     {
         $actualCode = $this->codesService->getPreview($codePattern);
@@ -80,9 +79,7 @@ class PromotionCodeServiceTest extends TestCase
         static::assertCount(0, $codeList);
     }
 
-    /**
-     * @dataProvider generateIndividualCodesDataProvider
-     */
+    #[DataProvider('generateIndividualCodesDataProvider')]
     public function testGenerateIndividualCodesWithValidRequirements(int $requestedAmount): void
     {
         $pattern = 'PREFIX_%s%d%s%d_SUFFIX';
@@ -109,9 +106,7 @@ class PromotionCodeServiceTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider generateIndividualCodesWithInsufficientPatternDataProvider
-     */
+    #[DataProvider('generateIndividualCodesWithInsufficientPatternDataProvider')]
     public function testGenerateIndividualCodesWithInsufficientPattern(int $requestedCodeAmount): void
     {
         // Only has 10 possibilities -> 6 or more requested codes would be invalid

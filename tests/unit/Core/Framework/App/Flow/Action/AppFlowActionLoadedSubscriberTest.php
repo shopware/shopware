@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionDefinition;
 use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber
  */
+#[CoversClass(AppFlowActionLoadedSubscriber::class)]
 class AppFlowActionLoadedSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void

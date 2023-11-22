@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Shipping\Validator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator;
@@ -17,11 +19,10 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeConnection;
 
 /**
- * @covers \Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(ShippingMethodValidator::class)]
 class ShippingMethodValidatorTest extends TestCase
 {
     private WriteContext $context;
@@ -35,9 +36,7 @@ class ShippingMethodValidatorTest extends TestCase
         $this->shippingMethodDefinition = new ShippingMethodDefinition();
     }
 
-    /**
-     * @dataProvider shippingMethodTaxProvider
-     */
+    #[DataProvider('shippingMethodTaxProvider')]
     public function testShippingMethodValidator(?string $taxType, ?string $taxId, bool $success): void
     {
         $commands = [];

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Validator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -21,9 +23,8 @@ use Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Helpers\Fakes\FakeCo
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Validator\PromotionValidator
  */
+#[CoversClass(PromotionValidator::class)]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;
@@ -163,13 +164,12 @@ class PromotionValidatorTest extends TestCase
      *
      * @group promotions
      *
-     * @dataProvider invalidProvider
-     *
      * @throws \ReflectionException
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
+    #[DataProvider('invalidProvider')]
     public function testDiscountValueInvalid(string $type, float $value): void
     {
         $commands = [];
@@ -224,13 +224,12 @@ class PromotionValidatorTest extends TestCase
      *
      * @group promotions
      *
-     * @dataProvider validProvider
-     *
      * @throws \ReflectionException
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
+    #[DataProvider('validProvider')]
     public function testDiscountValueValid(string $type, float $value): void
     {
         $commands = [];

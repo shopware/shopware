@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\Tax;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\Tax\TaxProvider
  */
+#[CoversClass(TaxProvider::class)]
 class TaxProviderTest extends TestCase
 {
     public function testFromXml(): void

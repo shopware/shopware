@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\LandingPageAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\LandingPageAdminSearchIndexer
  */
+#[CoversClass(LandingPageAdminSearchIndexer::class)]
 class LandingPageAdminSearchIndexerTest extends TestCase
 {
     private LandingPageAdminSearchIndexer $searchIndexer;

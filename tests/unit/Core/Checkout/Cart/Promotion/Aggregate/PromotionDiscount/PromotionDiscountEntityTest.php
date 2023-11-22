@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionDiscount;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity
  */
+#[CoversClass(PromotionDiscountEntity::class)]
 class PromotionDiscountEntityTest extends TestCase
 {
     /**

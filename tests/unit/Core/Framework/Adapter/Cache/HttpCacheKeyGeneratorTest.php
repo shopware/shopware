@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -23,9 +24,7 @@ class HttpCacheKeyGeneratorTest extends TestCase
         $this->cacheKeyGenerator = new HttpCacheKeyGenerator('foo', new EventDispatcher(), ['_ga']);
     }
 
-    /**
-     * @dataProvider differentKeyProvider
-     */
+    #[DataProvider('differentKeyProvider')]
     public function testDifferentCacheKey(Request $requestA, Request $requestB): void
     {
         static::assertNotSame(
@@ -34,9 +33,7 @@ class HttpCacheKeyGeneratorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider sameKeyProvider
-     */
+    #[DataProvider('sameKeyProvider')]
     public function testSameCacheKey(Request $requestA, Request $requestB): void
     {
         static::assertSame(

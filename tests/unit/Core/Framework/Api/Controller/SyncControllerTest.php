@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
@@ -14,9 +15,8 @@ use Symfony\Component\Serializer\Serializer;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Controller\SyncController
  */
+#[CoversClass(SyncController::class)]
 class SyncControllerTest extends TestCase
 {
     public function testRequestGetsConverted(): void

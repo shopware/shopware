@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\ConfigLoader;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -12,9 +13,8 @@ use Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider
  */
+#[CoversClass(StaticFileAvailableThemeProvider::class)]
 class StaticFileAvailableThemeProviderTest extends TestCase
 {
     public function testFileNotExisting(): void

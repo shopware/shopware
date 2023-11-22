@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Rule\Rule\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\CartVolumeRule;
@@ -13,11 +15,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartVolumeRule
- *
  * @internal
  */
 #[Package('business-ops')]
+#[CoversClass(CartVolumeRule::class)]
 class CartVolumeRuleTest extends TestCase
 {
     public function testMatchWithWrongScopeShouldReturnFalse(): void
@@ -41,9 +42,7 @@ class CartVolumeRuleTest extends TestCase
         $cartVolumeRule->match($cartRuleScope);
     }
 
-    /**
-     * @dataProvider matchTestDataProvider
-     */
+    #[DataProvider('matchTestDataProvider')]
     public function testMatch(string $operator, float $volume, bool $expectedResult): void
     {
         $cartVolumeRule = new CartVolumeRule($operator, $volume);

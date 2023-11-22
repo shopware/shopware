@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub
  */
+#[CoversClass(Stub::class)]
 class StubTest extends TestCase
 {
     public function testTemplateConstructor(): void
@@ -36,9 +37,8 @@ class StubTest extends TestCase
 
     /**
      * @param array<string, string> $params
-     *
-     * @dataProvider contentProvider
      */
+    #[DataProvider('contentProvider')]
     public function testGetContent(string $type, string $content, ?string $expectedContent, array $params = []): void
     {
         $stub = new Stub('/path/to/destination', $content, $type, $params);

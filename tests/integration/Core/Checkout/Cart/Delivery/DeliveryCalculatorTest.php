@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Delivery;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -1705,9 +1706,7 @@ class DeliveryCalculatorTest extends TestCase
         static::assertEquals(10, $taxRule->getTaxRate());
     }
 
-    /**
-     * @dataProvider mixedShippingProvider
-     */
+    #[DataProvider('mixedShippingProvider')]
     public function testCalculateWithMixedFreeShipping(int $calculation, float $price, int $quantity): void
     {
         $shippingMethod = new ShippingMethodEntity();

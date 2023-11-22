@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Administration\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
@@ -28,10 +29,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Administration\Controller\AdministrationController
  */
 #[Package('checkout')]
+#[CoversClass(AdministrationController::class)]
 class AdministrationControllerTest extends TestCase
 {
     private AdministrationController $administrationController;

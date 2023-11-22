@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount\Filter\Applier;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Applier\Applier
  */
+#[CoversClass(Applier::class)]
 class ApplierTest extends TestCase
 {
     /**

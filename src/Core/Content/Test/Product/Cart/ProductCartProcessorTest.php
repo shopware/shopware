@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Product\Cart;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -139,9 +140,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertNull($lineItem->getPrice()->getReferencePrice());
     }
 
-    /**
-     * @dataProvider advancedPricingProvider
-     */
+    #[DataProvider('advancedPricingProvider')]
     public function testAdvancedPricing(bool $valid, float $price): void
     {
         $ids = new IdsCollection();
@@ -310,14 +309,13 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @dataProvider productFeatureProdiver
-     *
      * @param array{type: string} $testedFeature
      * @param array<string, mixed> $productData
      * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
      *
      * @group slow
      */
+    #[DataProvider('productFeatureProdiver')]
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
         $this->createLanguage(self::TEST_LANGUAGE_ID);
@@ -592,10 +590,9 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @dataProvider productDeliverabilityProvider
-     *
      * @group slow
      */
+    #[DataProvider('productDeliverabilityProvider')]
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -115,9 +116,7 @@ class ProductControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider variantProvider
-     */
+    #[DataProvider('variantProvider')]
     public function testVariantGrayedOut(
         string $requestVariant,
         bool $blue,

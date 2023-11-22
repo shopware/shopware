@@ -6,6 +6,8 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
@@ -18,10 +20,9 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Profiling\Doctrine\ConnectionProfiler
- *
  * @group time-sensitive
  */
+#[CoversClass(ConnectionProfiler::class)]
 class ConnectionProfilerTest extends TestCase
 {
     protected function setUp(): void
@@ -107,10 +108,9 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @dataProvider paramProvider
-     *
      * @param array<mixed> $types
      */
+    #[DataProvider('paramProvider')]
     public function testCollectQueries(mixed $param, array $types, mixed $expected): void
     {
         $queries = [
@@ -175,10 +175,9 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @dataProvider paramProvider
-     *
      * @param array<mixed> $types
      */
+    #[DataProvider('paramProvider')]
     public function testSerialization(mixed $param, array $types, mixed $expected): void
     {
         $queries = [

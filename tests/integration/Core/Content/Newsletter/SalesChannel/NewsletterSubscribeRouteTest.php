@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Newsletter\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
@@ -22,10 +24,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @group store-api
- *
- * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(NewsletterSubscribeRoute::class)]
 class NewsletterSubscribeRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -300,10 +301,9 @@ class NewsletterSubscribeRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider subscribeWithDomainAndLeadingSlashProvider
-     *
      * @param array<string, string> $domainUrlTest
      */
+    #[DataProvider('subscribeWithDomainAndLeadingSlashProvider')]
     public function testSubscribeWithTrailingSlashUrl(array $domainUrlTest): void
     {
         $browser = $this->createCustomSalesChannelBrowser([
@@ -332,9 +332,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         static::assertSame(1, $count);
     }
 
-    /**
-     * @dataProvider subscribeWithDomainProvider
-     */
+    #[DataProvider('subscribeWithDomainProvider')]
     public function testSubscribeWithInvalid(string $firstName, string $lastName, \Closure $expectClosure): void
     {
         $this->browser

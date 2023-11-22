@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -28,11 +29,10 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentRecurringProcessor
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(PaymentRecurringProcessor::class)]
 class PaymentRecurringProcessorTest extends TestCase
 {
     public function testCorrectCriteriaIsUsed(): void

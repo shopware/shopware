@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\Country\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -68,9 +69,7 @@ class CachedCountryStateRouteTest extends TestCase
             ->invalidateTags([self::ALL_TAG]);
     }
 
-    /**
-     * @dataProvider invalidationProvider
-     */
+    #[DataProvider('invalidationProvider')]
     public function testInvalidation(string $countryId, \Closure $before, \Closure $after, int $calls): void
     {
         $ids = new IdsCollection();

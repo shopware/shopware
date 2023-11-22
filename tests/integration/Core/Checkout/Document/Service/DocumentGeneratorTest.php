@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
@@ -229,9 +230,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertStringContainsString('Customer no. ' . $customerNo, $stornoStruct->getHtml());
     }
 
-    /**
-     * @dataProvider uploadDataProvider
-     */
+    #[DataProvider('uploadDataProvider')]
     public function testUpload(bool $preGenerateDoc, Request $uploadFileRequest, bool $static = true, ?\Exception $expectedException = null): void
     {
         if ($expectedException instanceof \Exception) {
@@ -787,9 +786,7 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($media);
     }
 
-    /**
-     * @dataProvider readDocumentDataProvider
-     */
+    #[DataProvider('readDocumentDataProvider')]
     public function testReadDocument(bool $withMedia, bool $static): void
     {
         $operation = new DocumentGenerateOperation($this->orderId, FileTypes::PDF, [], null, $static);

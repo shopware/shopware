@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -30,9 +32,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber
  */
+#[CoversClass(CacheResponseSubscriber::class)]
 class CacheResponseSubscriberTest extends TestCase
 {
     private const IP = '127.0.0.1';
@@ -177,9 +178,7 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertNull($event->getResponse()->headers->get(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER));
     }
 
-    /**
-     * @dataProvider cashHashProvider
-     */
+    #[DataProvider('cashHashProvider')]
     public function testGenerateCashHashWithItemsInCart(?CustomerEntity $customer, Cart $cart, bool $hasCookie, ?string $hashName = null): void
     {
         $service = $this->createMock(CartService::class);
@@ -259,9 +258,8 @@ class CacheResponseSubscriberTest extends TestCase
 
     /**
      * @param string[] $whitelist
-     *
-     * @dataProvider maintenanceRequest
      */
+    #[DataProvider('maintenanceRequest')]
     public function testMaintenanceRequest(bool $active, array $whitelist, bool $shouldBeCached): void
     {
         $cartService = $this->createMock(CartService::class);
@@ -339,9 +337,7 @@ class CacheResponseSubscriberTest extends TestCase
         yield 'Cache requests if ip is not whitelisted' => [true, ['120.0.0.0'], true];
     }
 
-    /**
-     * @dataProvider headerCases
-     */
+    #[DataProvider('headerCases')]
     public function testResponseHeaders(bool $reverseProxyEnabled, ?string $beforeHeader, string $afterHeader): void
     {
         $response = new Response();
@@ -438,9 +434,7 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertTrue($request->attributes->has(PlatformRequest::ATTRIBUTE_HTTP_CACHE));
     }
 
-    /**
-     * @dataProvider providerCurrencyChange
-     */
+    #[DataProvider('providerCurrencyChange')]
     public function testCurrencyChange(?string $currencyId): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -515,9 +509,7 @@ class CacheResponseSubscriberTest extends TestCase
         static::assertSame(1, $cookies[0]->getExpiresTime());
     }
 
-    /**
-     * @dataProvider notCacheableRequestProvider
-     */
+    #[DataProvider('notCacheableRequestProvider')]
     public function testNotCacheablePages(Request $request): void
     {
         $subscriber = new CacheResponseSubscriber(
@@ -675,9 +667,7 @@ class CacheResponseSubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providerSetResponseCacheOnLogin
-     */
+    #[DataProvider('providerSetResponseCacheOnLogin')]
     public function testSetResponseCacheOnLogin(
         string $route,
         string $requestMethod,

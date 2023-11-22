@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,9 +20,8 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector
  */
+#[CoversClass(ElasticsearchOutdatedIndexDetector::class)]
 class ElasticsearchOutdatedIndexDetectorTest extends TestCase
 {
     public function testUsesChunks(): void

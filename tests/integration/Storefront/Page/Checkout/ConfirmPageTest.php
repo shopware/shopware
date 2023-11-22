@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\AddressValidationError;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -19,9 +20,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage
  */
+#[CoversClass(CheckoutConfirmPage::class)]
 class ConfirmPageTest extends TestCase
 {
     use IntegrationTestBehaviour;

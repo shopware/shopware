@@ -8,6 +8,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -36,9 +37,8 @@ use Symfony\Component\Messenger\Envelope;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Webhook\WebhookDispatcher
  */
+#[CoversClass(WebhookDispatcher::class)]
 class WebhookDispatcherTest extends TestCase
 {
     private EventDispatcherInterface&MockObject $dispatcher;

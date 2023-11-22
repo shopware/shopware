@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Exception\ExpectationFailedException;
@@ -22,10 +23,9 @@ use Symfony\Component\HttpKernel\Exception\UnsupportedMediaTypeHttpException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\ApiException
  */
 #[Package('core')]
+#[CoversClass(ApiException::class)]
 class ApiExceptionTest extends TestCase
 {
     public function testInvalidSyncCriteriaException(): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
@@ -14,9 +16,8 @@ use function Shopware\Core\Framework\Adapter\Twig\sw_escape_filter;
  * @internal
  *
  * @see Twig\Tests\Twig_Tests_Extension_EscaperTest
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\sw_escape_filter
  */
+#[CoversClass(sw_escape_filter::class)]
 class SwEscapeFilterTest extends TestCase
 {
     /**
@@ -256,7 +257,6 @@ class SwEscapeFilterTest extends TestCase
     /**
      * Range tests to confirm escaped range of characters is within OWASP recommendation.
      */
-
     /**
      * Only testing the first few 2 ranges on this prot. function as that's all these
      * other range tests require.
@@ -344,13 +344,12 @@ class SwEscapeFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCustomEscaperCases
-     *
      * @param string|int|null $string
      *
      * @runInSeparateProcess
      * custom escaper are cached inside twig, therefore this test has to run in seperate processes, where the custom escapers are not yet cached
      */
+    #[DataProvider('provideCustomEscaperCases')]
     public function testCustomEscaper(string $expected, $string, string $strategy): void
     {
         $twig = new Environment($this->createMock(LoaderInterface::class));
@@ -383,10 +382,9 @@ class SwEscapeFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider provideObjectsForEscaping
-     *
      * @param array<string, string> $safeClasses
      */
+    #[DataProvider('provideObjectsForEscaping')]
     public function testObjectEscaping(string $escapedHtml, string $escapedJs, array $safeClasses): void
     {
         $obj = new Extension_TestClass();

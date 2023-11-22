@@ -4,15 +4,15 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<NoDALAutoload>
- *
- * @covers \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
  */
+#[CoversClass(NoDALAutoload::class)]
 class NoDALAutoloadTest extends RuleTestCase
 {
     /**

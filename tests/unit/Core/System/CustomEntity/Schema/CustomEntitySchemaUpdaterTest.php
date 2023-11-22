@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Schema;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
@@ -12,10 +13,9 @@ use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater
  */
 #[Package('core')]
+#[CoversClass(CustomEntitySchemaUpdater::class)]
 class CustomEntitySchemaUpdaterTest extends TestCase
 {
     public function testAddsDoctrineTypeMappingForEnum(): void

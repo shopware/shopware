@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core\V6_5;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -9,9 +10,8 @@ use Shopware\Core\Migration\V6_5\Migration1698919811AddDeletedAtToCustomEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1698919811AddDeletedAtToCustomEntity
  */
+#[CoversClass(Migration1698919811AddDeletedAtToCustomEntity::class)]
 class Migration1698919811AddDeletedAtToCustomEntityTest extends TestCase
 {
     public function testMultipleExecution(): void

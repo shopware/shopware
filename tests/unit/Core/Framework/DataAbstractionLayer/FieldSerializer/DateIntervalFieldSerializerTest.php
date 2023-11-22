@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
@@ -23,11 +24,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\DateIntervalFieldSerializer
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(DateIntervalFieldSerializer::class)]
 class DateIntervalFieldSerializerTest extends TestCase
 {
     private const REGEX_DATE_INTERVAL_VALIDATION = '/^P(\d+Y)(\d+M)(\d+D)T(\d+H)(\d+M)(\d+S)$/';

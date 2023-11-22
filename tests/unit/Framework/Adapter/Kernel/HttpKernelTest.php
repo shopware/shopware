@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Framework\Adapter\Kernel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
@@ -17,9 +18,8 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Kernel\HttpKernel
  */
+#[CoversClass(HttpKernel::class)]
 class HttpKernelTest extends TestCase
 {
     private ControllerResolverInterface&MockObject $controllerResolver;

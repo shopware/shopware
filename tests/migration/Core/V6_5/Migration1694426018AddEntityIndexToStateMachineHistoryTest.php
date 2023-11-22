@@ -3,15 +3,15 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_5\Migration1694426018AddEntityIndexToStateMachineHistory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1694426018AddEntityIndexToStateMachineHistory
  */
+#[CoversClass(Migration1694426018AddEntityIndexToStateMachineHistory::class)]
 class Migration1694426018AddEntityIndexToStateMachineHistoryTest extends TestCase
 {
     private Connection $connection;

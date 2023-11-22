@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\SystemConfig;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -59,9 +60,8 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $expected
-     *
-     * @dataProvider differentTypesProvider
      */
+    #[DataProvider('differentTypesProvider')]
     public function testSetGetDifferentTypes($expected): void
     {
         $this->systemConfigService->set('foo.bar', $expected);
@@ -89,9 +89,8 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
-     *
-     * @dataProvider getStringProvider
      */
+    #[DataProvider('getStringProvider')]
     public function testGetString($writtenValue, string $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
@@ -123,9 +122,8 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
-     *
-     * @dataProvider getIntProvider
      */
+    #[DataProvider('getIntProvider')]
     public function testGetInt($writtenValue, int $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
@@ -157,9 +155,8 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
-     *
-     * @dataProvider getFloatProvider
      */
+    #[DataProvider('getFloatProvider')]
     public function testGetFloat($writtenValue, float $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);
@@ -192,9 +189,8 @@ class SystemConfigServiceTest extends TestCase
 
     /**
      * @param array<mixed>|bool|int|float|string|null $writtenValue
-     *
-     * @dataProvider getBoolProvider
      */
+    #[DataProvider('getBoolProvider')]
     public function testGetBool($writtenValue, bool $expected): void
     {
         $this->systemConfigService->set('foo.bar', $writtenValue);

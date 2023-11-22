@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer
  */
+#[CoversClass(OrderAdminSearchIndexer::class)]
 class OrderAdminSearchIndexerTest extends TestCase
 {
     private OrderAdminSearchIndexer $searchIndexer;

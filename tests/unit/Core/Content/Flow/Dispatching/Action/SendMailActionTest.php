@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -31,9 +33,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction
  */
+#[CoversClass(SendMailAction::class)]
 class SendMailActionTest extends TestCase
 {
     private MailTemplateEntity $mailTemplate;
@@ -101,10 +102,9 @@ class SendMailActionTest extends TestCase
     }
 
     /**
-     * @dataProvider replyToProvider
-     *
      * @param array<string, string> $exptectedReplyTo
      */
+    #[DataProvider('replyToProvider')]
     public function testActionExecuted(?string $replyTo, array $exptectedReplyTo = []): void
     {
         $orderId = Uuid::randomHex();

@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation
  */
+#[CoversClass(BucketAggregation::class)]
 class BucketAggregationTest extends TestCase
 {
     public function testEncode(): void

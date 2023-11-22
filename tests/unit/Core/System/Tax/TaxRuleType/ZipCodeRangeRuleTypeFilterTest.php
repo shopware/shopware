@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Tax\TaxRuleType;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -12,9 +13,8 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter
  */
+#[CoversClass(ZipCodeRangeRuleTypeFilter::class)]
 class ZipCodeRangeRuleTypeFilterTest extends TestCase
 {
     public function testMatchesNotWithWrongType(): void

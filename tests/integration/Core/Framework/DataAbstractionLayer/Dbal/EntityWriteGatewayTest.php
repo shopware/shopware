@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -36,9 +38,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway
  */
+#[CoversClass(EntityWriteGateway::class)]
 class EntityWriteGatewayTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -465,10 +466,9 @@ class EntityWriteGatewayTest extends TestCase
     }
 
     /**
-     * @dataProvider methodProvider
-     *
      * @param 'delete'|'upsert'|'update'|'create' $method
      */
+    #[DataProvider('methodProvider')]
     public function testEntityWriteEventDispatched(string $method): void
     {
         $id1 = $this->ids->get('p-1');

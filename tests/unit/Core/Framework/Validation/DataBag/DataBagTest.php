@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Validation\DataBag;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Validation\DataBag\DataBag
  */
+#[CoversClass(DataBag::class)]
 class DataBagTest extends TestCase
 {
     public function testConversion(): void

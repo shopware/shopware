@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\System\Snippet;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,9 +22,8 @@ use Symfony\Component\Translation\MessageCatalogue;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Snippet\SnippetService
  */
+#[CoversClass(SnippetService::class)]
 class SnippetServiceTest extends TestCase
 {
     private SnippetFileCollection $snippetCollection;
@@ -37,12 +38,11 @@ class SnippetServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider getStorefrontSnippetsDataProvider
-     *
      * @param list<string> $catalogMessages
      * @param \Throwable|list<string> $expected
      * @param list<string> $databaseSnippets
      */
+    #[DataProvider('getStorefrontSnippetsDataProvider')]
     public function testGetStorefrontSnippets(
         array|\Throwable $expected = [],
         false|string $fetchLocaleResult = 'en-GB',
@@ -162,9 +162,8 @@ class SnippetServiceTest extends TestCase
 
     /**
      * @param array<string, string> $locales
-     *
-     * @dataProvider findSnippetSetIdDataProvider
      */
+    #[DataProvider('findSnippetSetIdDataProvider')]
     public function testFindSnippetSetIdWithoutSalesChannelDomain(array $locales, string $id): void
     {
         $this->connection->expects(static::once())->method('fetchOne')->willReturn(null);

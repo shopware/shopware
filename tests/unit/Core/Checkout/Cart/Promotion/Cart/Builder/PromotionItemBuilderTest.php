@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -25,9 +27,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder
  */
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderTest extends TestCase
 {
     private PromotionEntity $promotion;
@@ -399,11 +400,10 @@ class PromotionItemBuilderTest extends TestCase
      *
      * @group promotions
      *
-     * @dataProvider getDefaultCurrencyDataProvider
-     *
      * @throws CartException
      * @throws UnknownPromotionDiscountTypeException
      */
+    #[DataProvider('getDefaultCurrencyDataProvider')]
     public function testDefaultCurrencyFactor(string $type): void
     {
         $discount = new PromotionDiscountEntity();

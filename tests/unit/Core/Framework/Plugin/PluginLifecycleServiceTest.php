@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
@@ -48,9 +49,8 @@ use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginLifecycleService
  */
+#[CoversClass(PluginLifecycleService::class)]
 class PluginLifecycleServiceTest extends TestCase
 {
     private PluginLifecycleService $pluginLifecycleService;

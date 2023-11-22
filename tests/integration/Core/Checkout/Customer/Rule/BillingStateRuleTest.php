@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\BillingStateRule;
 use Shopware\Core\Framework\Context;
@@ -17,9 +18,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @internal
  *
  * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\BillingStateRule
  */
+#[CoversClass(BillingStateRule::class)]
 class BillingStateRuleTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\File;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 
@@ -10,9 +11,7 @@ use Shopware\Core\Content\Media\File\FileUrlValidator;
  */
 class FileUrlValidatorTest extends TestCase
 {
-    /**
-     * @dataProvider fileSourceProvider
-     */
+    #[DataProvider('fileSourceProvider')]
     public function testIsValid(string $source, bool $expectedResult): void
     {
         $validator = new FileUrlValidator();

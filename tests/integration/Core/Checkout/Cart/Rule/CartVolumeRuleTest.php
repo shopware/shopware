@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -47,9 +48,7 @@ class CartVolumeRuleTest extends TestCase
         $this->rule = new CartVolumeRule();
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrect(
         string $operator,
         float $volume,
@@ -65,9 +64,7 @@ class CartVolumeRuleTest extends TestCase
         static::assertSame($expected, $match);
     }
 
-    /**
-     * @dataProvider getMatchingRuleTestData
-     */
+    #[DataProvider('getMatchingRuleTestData')]
     public function testIfMatchesCorrectOnNested(
         string $operator,
         float $volume,

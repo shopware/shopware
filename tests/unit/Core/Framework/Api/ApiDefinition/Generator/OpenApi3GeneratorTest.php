@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -16,10 +17,9 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Sim
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator
- *
  * @internal
  */
+#[CoversClass(OpenApi3Generator::class)]
 class OpenApi3GeneratorTest extends TestCase
 {
     private OpenApi3Generator $generator;

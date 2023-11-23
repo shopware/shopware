@@ -3,7 +3,7 @@ title: Specify priority of translations in DAL write payloads
 date: 2022-03-29
 area: core
 tags: [dal, translations]
---- 
+---
 
 ## Context
 

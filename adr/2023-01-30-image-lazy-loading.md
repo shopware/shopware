@@ -3,7 +3,7 @@ title: Add native lazy loading for images to the storefront
 date: 2023-01-30
 area: storefront
 tags: [image, lazy-loading, storefront]
---- 
+---
 
 ## Context
 
@@ -22,17 +22,17 @@ tags: [image, lazy-loading, storefront]
 * The default is not `lazy` in order to avoid unexpected behaviour for extensions which might have added the thumbnail component while using a JavaScript solution for lazy loading.
 * We add native lazy loading in appropriate areas to reduce the initial network load:
     * Main menu flyout: Category preview images will only load when flyout is being opened.
-    * Product boxes: Product images will only load when they appear in the viewport inside the listing. This also effects product sliders with horizontal scrolling, e.g. cross-selling.
-    * CMS image elements: CMS layouts will only load images which appear in the viewport (e.g. when scrolling down the page).
-    * Line item images: Product images in line items (e.g. cart page) will only load when they appear in the viewport.
+    * Product boxes: Product images will only load when they appear in the viewport inside the listing. This also affects product sliders with horizontal scrolling, e.g. cross-selling.
+    * CMS image elements: CMS layouts will only load images which appear in the viewport (e.g., when scrolling down the page).
+    * Line item images: Product images in line items (e.g., cart page) will only load when they appear in the viewport.
 
 ### Why don't we just add `loading="lazy"` everywhere?
 
-* Even though this would technically work, there are a few pitfalls which need to be considered. 
+* Even though this would technically work, there are a few pitfalls that need to be considered. 
 * For example, it is not recommended to add lazy loading to images which are very likely inside the initial viewport when loading the page aka "above-the-fold". Further reading: https://web.dev/browser-level-lazy-loading-for-cmss/#avoid-lazy-loading-above-the-fold-elements
 * For a system like shopware, where the content is almost entirely dynamic, it is not easy to determine where a generic image component will be rendered. It could have any position on any CMS page.
 * Even "guesses" like "only add lazy loading after the 8th product in a listing" can be invalid as soon as a monitor is in portrait mode or the viewport changes to mobile.
-* Therefore, we live with the small drawback that e.g. all product boxes have lazy loading. Some of them will appear "above-the-fold". However, we still have the benefit of loading images later when scrolling down a page or scrolling in product sliders. 
+* Therefore, we live with the small drawback that, e.g., all product boxes have lazy loading. Some of them will appear "above-the-fold". However, we still have the benefit of loading images later when scrolling down a page or scrolling in product sliders. 
 * Implementing a JavaScript solution for this would contradict the usage of native lazy loading.
 
 #### Areas without loading="lazy"`

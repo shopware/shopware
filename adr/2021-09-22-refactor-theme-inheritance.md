@@ -3,15 +3,15 @@ title: Refactor theme inheritance
 date: 2021-09-22
 area: storefront
 tags: [theme, storefront, inheritance]
---- 
+---
 
 ## Context
-Currently the themes can only inherit config fields from the default Storefront theme.
-Also this inheritence is only a snapshot by activation time of the theme - The configs are copied to the new theme and changes to the default theme config will not appear in the new theme without a re-activation.
+Currently, the themes can only inherit config fields from the default Storefront theme.
+Also, this inheritance is only a snapshot by activation time of the theme - The configs are copied to the new theme and changes to the default theme config will not appear in the new theme without a re-activation.
 The different possibilities to inherit different parts of a theme, like scripts, templates and config, can also cause problems on later updates.
 
 ## Decision
-To take this points into account we have decided to add a new inheritance key for the `configFields` in the `theme.json` which allow a theme to inherit its config from other themes in a given order:
+To take this points into account, we have decided to add a new inheritance key for the `configFields` in the `theme.json` which allow a theme to inherit its config from other themes in a given order:
 ```json
 "configInheritance": [
         "@Storefront",
@@ -162,11 +162,11 @@ To take this points into account we have decided to add a new inheritance key fo
 ## Consequences
 The Consequences for the two approaches are described below:
 ### 1. New config inheritance:
-* The inheritance **can still cause incompatibility errors** because of missing subsets of a dependend theme.
-* The current themes will work as always but one can also add an inheritance for the config fields.
-* The inhertiance will no longer be a snapshot, but a dynamic copy of the inherited themes (The changes of child themes will be considered by the new theme automaticaly)
-* The admin for the themes will get an inheritation mechanism which allows users to decide if a field will use its inherited or a new value (simmiliar to productvariant inherited fields)
-* Themes which are dependend on other themes than the default storefront theme, need to add the other themes into there composer.json as `required` to prevent incomplete setups.
+* The inheritance **can still cause incompatibility errors** because of missing subsets of a dependent theme.
+* The current themes will work as always, but one can also add an inheritance for the config fields.
+* The inheritance will no longer be a snapshot, but a dynamic copy of the inherited themes (The changes of child themes will be considered by the new theme automatically)
+* The admin for the themes will get an inheritance mechanism which allows users to decide if a field will use its inherited or a new value (similar to product variant inherited fields)
+* Themes which are dependent on other themes than the default storefront theme, need to add the other themes into there composer.json as `required` to prevent incomplete setups.
 ```json
  "require": {
         "swag/previous-theme": "~1.1"

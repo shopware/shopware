@@ -3,7 +3,7 @@ title: Unstructured ADRs
 date: 2023-02-23
 area: core
 tags: [adr, file-structure, workflow]
---- 
+---
 
 ## Context
 Currently, our ADRs are grouped into folders according to different areas. We have added this structure to help people find their way around when they are looking for specific ADRs.

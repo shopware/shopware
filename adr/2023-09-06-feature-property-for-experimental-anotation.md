@@ -74,8 +74,8 @@ In addition to that, we can also mark the whole template as experimental:
 
 ## Combining `@experimental` annotation and `feature flag` 
 
-Despite that, the `@experimental` annotation and the `feature flag` are two different concepts.  The `@experimental` annotation is used to mark code as experimental and influent only on BC promises regarding this code, while the `feature flag` is used to control the visibility of the experimental code.
-There might be scenarios where introducing a feature flag (akin to a switch) becomes necessary, for example in integration points. 'Experimental features' ADR doesn't explicitly prohibit this practice and does not regulate it in any way. Simultaneously, it would be beneficial to ensure a clear linkage between the feature flag and the experimental functionality it enables.
+Despite that, the `@experimental` annotation and the `feature flag` are two different concepts.  The `@experimental` annotation is used to mark code as experimental and influential only on BC promises regarding this code, while the `feature flag` is used to control the visibility of the experimental code.
+There might be scenarios where introducing a feature flag (akin to a switch) becomes necessary, for example, in integration points. 'Experimental features' ADR doesn't explicitly prohibit this practice and does not regulate it in any way. Simultaneously, it would be beneficial to ensure a clear linkage between the feature flag and the experimental functionality it enables.
 
 To achieve this linkage, we recommend the following:
 1. Ensure that the feature flag's name matches the name used in the @experimental annotation's `feature` property.

@@ -3,7 +3,7 @@ title: Composer-based web updater
 date: 2022-11-09
 area: core
 tags: [composer, plugin, web-updater]
---- 
+---
 
 ## Context
 

@@ -12,7 +12,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-config', {
     template,
 
-    inject: ['systemConfigApiService', 'repositoryFactory'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+        'feature',
+    ],
 
     props: {
         domain: {

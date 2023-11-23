@@ -132,13 +132,11 @@ class Action extends XmlElement
      */
     private function normalizeParameters(): array
     {
-        /** @var array<string, mixed> $parameters */
         $parameters = array_map(fn ($parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
 
         $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
 
-        /** @var string $parameters */
-        $parameters = \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
+        $parameters = (string) \preg_replace('/\\\\([a-zA-Z])/', '$1', $parameters);
 
         return json_decode($parameters, true, 512, \JSON_THROW_ON_ERROR);
     }

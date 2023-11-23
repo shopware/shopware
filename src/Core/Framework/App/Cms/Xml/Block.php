@@ -7,6 +7,25 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @phpstan-type BlockArray array{
+ *           name: string,
+ *           category: string,
+ *           label: array<string, string>,
+ *           slots: array<string, array{
+ *               type: string,
+ *               default: array{
+ *                   config: array<string, array{
+ *                       source: string,
+ *                       value: string
+ *                   }>
+ *               }
+ *           }>,
+ *           defaultConfig: array<string, array{
+ *               source: string,
+ *               value: string
+ *           }>
+ *      }
  */
 #[Package('content')]
 class Block extends XmlElement
@@ -52,24 +71,7 @@ class Block extends XmlElement
      *     appId: string,
      *     name: string,
      *     label: array<string, string>,
-     *     block: array{
-     *          name: string,
-     *          category: string,
-     *          label: array<string, string>,
-     *          slots: array<string, array{
-     *              type: string,
-     *              default: array{
-     *                  config: array<string, array{
-     *                      source: string,
-     *                      value: string
-     *                  }>
-     *              }
-     *          }>,
-     *          defaultConfig: array<string, array{
-     *              source: string,
-     *              value: string
-     *          }>
-     *     }
+     *     block: BlockArray
      * }
      */
     public function toEntityArray(string $appId, string $defaultLocale): array

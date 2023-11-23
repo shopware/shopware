@@ -87,7 +87,6 @@ class AppJWTGenerateRoute
      */
     private function fetchAppDetails(string $name): array
     {
-        /** @var array{app_secret: non-empty-string, privileges: string} $row */
         $row = $this->connection->fetchAssociative('SELECT
     `app`.app_secret,
     `acl_role`.privileges
@@ -102,6 +101,7 @@ WHERE `app`.name = ? AND
 
         $row['privileges'] = json_decode($row['privileges'], true, 512, \JSON_THROW_ON_ERROR);
 
+        /** @phpstan-ignore-next-line PHPStan could not recognize the loaded array shape from the database */
         return $row;
     }
 }

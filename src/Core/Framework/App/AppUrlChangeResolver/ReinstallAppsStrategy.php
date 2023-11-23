@@ -16,7 +16,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  *
  * Resolver used when apps should be reinstalled
  * and the shopId should be regenerated, meaning the old shops and old apps work like before

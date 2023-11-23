@@ -36,9 +36,6 @@ class AppLoader extends AbstractAppLoader
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @return Manifest[]
-     */
     public function load(): array
     {
         return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];

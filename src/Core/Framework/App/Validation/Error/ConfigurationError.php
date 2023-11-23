@@ -12,6 +12,9 @@ class ConfigurationError extends Error
 {
     private const KEY = 'manifest-invalid-config';
 
+    /**
+     * @param list<string> $violations
+     */
     public function __construct(array $violations)
     {
         $this->message = sprintf(

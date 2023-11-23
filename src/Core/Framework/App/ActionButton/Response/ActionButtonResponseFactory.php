@@ -21,7 +21,7 @@ class ActionButtonResponseFactory
     }
 
     /**
-     * @param array<mixed> $payload
+     * @param array<string, mixed> $payload
      */
     public function createFromResponse(AppAction $action, string $actionType, array $payload, Context $context): ActionButtonResponse
     {

@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @template-extends StoreCollection<BinaryStruct>
  */
 #[Package('services-settings')]
 class BinaryCollection extends StoreCollection

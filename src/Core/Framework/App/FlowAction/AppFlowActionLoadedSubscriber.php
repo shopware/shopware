@@ -35,8 +35,10 @@ class AppFlowActionLoadedSubscriber implements EventSubscriberInterface
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', '\Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider')
         );
 
-        /** @var AppFlowActionEntity $appFlowAction */
         foreach ($event->getEntities() as $appFlowAction) {
+            if (!$appFlowAction instanceof AppFlowActionEntity) {
+                continue;
+            }
             $iconRaw = $appFlowAction->getIconRaw();
 
             if ($iconRaw !== null) {

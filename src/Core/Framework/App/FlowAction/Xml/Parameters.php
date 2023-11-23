@@ -15,12 +15,12 @@ use Shopware\Core\Framework\Log\Package;
 class Parameters extends XmlElement
 {
     /**
-     * @var Parameter[]
+     * @var list<Parameter>
      */
     protected array $parameters;
 
     /**
-     * @return Parameter[]
+     * @return list<Parameter>
      */
     public function getParameters(): array
     {

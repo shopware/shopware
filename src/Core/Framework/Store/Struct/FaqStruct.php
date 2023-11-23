@@ -20,6 +20,9 @@ class FaqStruct extends StoreStruct
      */
     protected $answer;
 
+    /**
+     * @return FaqStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

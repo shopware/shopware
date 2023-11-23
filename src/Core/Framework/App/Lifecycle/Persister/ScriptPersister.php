@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\ScriptFileReader;
 use Shopware\Core\Framework\Context;
@@ -10,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\ScriptCollection;
-use Shopware\Core\Framework\Script\ScriptEntity;
 
 /**
  * @internal only for use by the app-system
@@ -18,6 +18,10 @@ use Shopware\Core\Framework\Script\ScriptEntity;
 #[Package('core')]
 class ScriptPersister
 {
+    /**
+     * @param EntityRepository<ScriptCollection> $scriptRepository
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly ScriptFileReader $scriptReader,
         private readonly EntityRepository $scriptRepository,
@@ -28,9 +32,8 @@ class ScriptPersister
     public function updateScripts(string $appId, Context $context): void
     {
         $app = $this->getAppWithExistingScripts($appId, $context);
-
-        /** @var ScriptCollection $existingScripts */
         $existingScripts = $app->getScripts();
+        \assert($existingScripts !== null);
 
         $scriptPaths = $this->scriptReader->getScriptPathsForApp($app->getPath());
 
@@ -40,7 +43,6 @@ class ScriptPersister
                 'script' => $this->scriptReader->getScriptContent($scriptPath, $app->getPath()),
             ];
 
-            /** @var ScriptEntity|null $existing */
             $existing = $existingScripts->filterByProperty('name', $scriptPath)->first();
             if ($existing) {
                 $existingScripts->remove($existing->getId());
@@ -105,7 +107,6 @@ class ScriptPersister
 
         $apps = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
-        /** @var AppEntity $app */
         foreach ($apps as $app) {
             $this->updateScripts($app->getId(), Context::createDefaultContext());
         }
@@ -113,7 +114,6 @@ class ScriptPersister
 
     private function deleteOldScripts(ScriptCollection $toBeRemoved, Context $context): void
     {
-        /** @var array<string> $ids */
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
@@ -128,8 +128,8 @@ class ScriptPersister
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('scripts');
 
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
+        $app = $this->appRepository->search($criteria, $context)->getEntities()->first();
+        \assert($app !== null);
 
         return $app;
     }

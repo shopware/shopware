@@ -6,9 +6,10 @@ use Composer\Semver\VersionParser;
 use Doctrine\DBAL\Connection;
 use Shopware\Administration\Snippet\AppAdministrationSnippetPersister;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppStateService;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Module;
+use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -51,8 +53,8 @@ use Shopware\Core\System\CustomEntity\CustomEntityCollection;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomEntity\Xml\Field\AssociationField;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Integration\IntegrationCollection;
+use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -63,6 +65,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class AppLifecycle extends AbstractAppLifecycle
 {
     /**
+     * @param EntityRepository<AppCollection> $appRepository
+     * @param EntityRepository<LanguageCollection> $languageRepository
+     * @param EntityRepository<IntegrationCollection> $integrationRepository
+     * @param EntityRepository<AclRoleCollection> $aclRoleRepository
      * @param EntityRepository<CustomEntityCollection> $customEntityRepository
      */
     public function __construct(
@@ -135,9 +141,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->updateAclRole($app->getName(), $context);
     }
 
-    /**
-     * @param array{id: string, roleId: string} $app
-     */
     public function update(Manifest $manifest, array $app, Context $context): void
     {
         $this->ensureIsCompatible($manifest);
@@ -151,9 +154,6 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->scriptExecutor->execute(new AppUpdatedHook($event));
     }
 
-    /**
-     * @param array{id: string} $app
-     */
     public function delete(string $appName, array $app, Context $context, bool $keepUserData = false): void
     {
         $appEntity = $this->loadApp($app['id'], $context);
@@ -188,7 +188,6 @@ class AppLifecycle extends AbstractAppLifecycle
         bool $install
     ): AppEntity {
         // accessToken is not set on update, but in that case we don't run registration, so we won't need it
-        /** @var string $secretAccessKey */
         $secretAccessKey = $metadata['accessToken'] ?? '';
         unset($metadata['accessToken'], $metadata['icon']);
         $metadata['path'] = str_replace($this->projectDir . '/', '', $manifest->getPath());
@@ -387,8 +386,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private function loadApp(string $id, Context $context): AppEntity
     {
-        /** @var AppEntity $app */
-        $app = $this->appRepository->search(new Criteria([$id]), $context)->first();
+        $app = $this->appRepository->search(new Criteria([$id]), $context)->getEntities()->first();
+        \assert($app !== null);
 
         return $app;
     }
@@ -398,10 +397,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
 
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, $context)->first();
-
-        return $app;
+        return $this->appRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function updateModules(Manifest $manifest, string $id, string $defaultLocale, Context $context): void
@@ -438,10 +434,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $criteria = new Criteria([Defaults::LANGUAGE_SYSTEM]);
         $criteria->addAssociation('locale');
 
-        /** @var LanguageEntity $language */
-        $language = $this->languageRepository->search($criteria, $context)->first();
-        /** @var LocaleEntity $locale */
-        $locale = $language->getLocale();
+        $language = $this->languageRepository->search($criteria, $context)->getEntities()->first();
+        $locale = $language?->getLocale();
+        \assert($locale !== null);
 
         return $locale->getCode();
     }
@@ -453,14 +448,13 @@ class AppLifecycle extends AbstractAppLifecycle
             NotFilter::CONNECTION_AND,
             [new EqualsFilter('users.id', null)]
         ));
-        $roles = $this->aclRoleRepository->search($criteria, $context);
+        $roles = $this->aclRoleRepository->search($criteria, $context)->getEntities();
 
         $newPrivileges = [
             'app.' . $appName,
         ];
         $dataUpdate = [];
 
-        /** @var AclRoleEntity $role */
         foreach ($roles as $role) {
             $currentPrivileges = $role->getPrivileges();
 
@@ -486,12 +480,11 @@ class AppLifecycle extends AbstractAppLifecycle
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('app.id', null));
-        $roles = $this->aclRoleRepository->search($criteria, $context);
+        $roles = $this->aclRoleRepository->search($criteria, $context)->getEntities();
 
         $appPrivileges = 'app.' . $appName;
         $dataUpdate = [];
 
-        /** @var AclRoleEntity $role */
         foreach ($roles as $role) {
             $currentPrivileges = $role->getPrivileges();
 
@@ -569,7 +562,7 @@ class AppLifecycle extends AbstractAppLifecycle
     }
 
     /**
-     * @return array<array<string, array{name: string, eventName: string, url: string, appId: string, active: bool, errorCount: int}>>
+     * @return array<array{name: string, eventName: string, url: string, appId: string, active?: bool, errorCount?: int}>
      */
     private function getWebhooks(Manifest $manifest, ?Action $flowActions, string $appId, string $defaultLocale, bool $hasAppSecret): array
     {
@@ -593,12 +586,12 @@ class AppLifecycle extends AbstractAppLifecycle
         }, $actions);
 
         if (!$hasAppSecret) {
-            /** @phpstan-ignore-next-line - return typehint with active: bool, errorCount: int does not work here because active will always be true and errorCount will always be 0 */
             return $webhooks;
         }
 
         $manifestWebhooks = $manifest->getWebhooks()?->getWebhooks() ?? [];
-        $webhooks = array_merge($webhooks, array_map(function ($webhook) use ($defaultLocale, $appId) {
+        $webhooks = array_merge($webhooks, array_map(function (Webhook $webhook) use ($defaultLocale, $appId) {
+            /** @var array{name: string, event: string, url: string} $payload */
             $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();

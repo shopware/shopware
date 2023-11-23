@@ -19,7 +19,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
+ * @internal only for use by the app-system
  */
 #[Package('core')]
 class CustomFieldProtectionSubscriber implements EventSubscriberInterface
@@ -52,8 +52,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         $violationList = new ConstraintViolationList();
 
         foreach ($event->getCommands() as $command) {
-            if (
-                !($command->getDefinition() instanceof CustomFieldSetDefinition)
+            if (!($command->getDefinition() instanceof CustomFieldSetDefinition)
                 || $command instanceof InsertCommand
             ) {
                 continue;

@@ -40,6 +40,9 @@ class DiscountCampaignStruct extends StoreStruct
      */
     protected $discountAppliesForMonths;
 
+    /**
+     * @return DiscountCampaignStruct
+     */
     public static function fromArray(array $data): StoreStruct
     {
         return (new self())->assign($data);

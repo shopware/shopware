@@ -73,9 +73,6 @@ class PluginLifecycleServiceTest extends TestCase
 
     private MockObject&PluginService $pluginServiceMock;
 
-    /**
-     * @var (object&MockObject)|MockObject|CommandExecutor|(CommandExecutor&object&MockObject)|(CommandExecutor&MockObject)
-     */
     private CommandExecutor&MockObject $commandExecutor;
 
     protected function setUp(): void

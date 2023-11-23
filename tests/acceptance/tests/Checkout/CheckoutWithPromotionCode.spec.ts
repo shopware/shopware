@@ -32,7 +32,7 @@ test('Registered shop customer uses a promotion code during checkout. @checkout 
 
     await shopCustomer.attemptsTo(SubmitOrder());
     await shopCustomer.expects(checkoutFinishPage.page.getByText(promotionName)).toBeVisible();
-    await shopCustomer.expects(checkoutFinishPage.grandTotalPrice).toHaveText('€90.00');
+    await shopCustomer.expects(checkoutFinishPage.grandTotalPrice).toHaveText('€90.00*');
 
     await test.step('Validate that the order was submitted successfully.', async () => {
         const orderId = checkoutFinishPage.getOrderId();

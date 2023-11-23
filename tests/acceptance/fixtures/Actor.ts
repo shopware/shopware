@@ -1,6 +1,5 @@
 import type { Page } from '@playwright/test';
 import type { PageObject} from '@fixtures/PageObject';
-import type { Task } from '@fixtures/Task';
 import { test, expect } from '@fixtures/AcceptanceTest';
 
 export class Actor {

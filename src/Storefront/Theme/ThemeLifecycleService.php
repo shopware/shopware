@@ -417,15 +417,6 @@ class ThemeLifecycleService
                     continue;
                 }
 
-                if (
-                    isset($installedBaseConfig['fields'][$key]['value'])
-                    && $field['value'] === $installedBaseConfig['fields'][$key]['value']
-                ) {
-                    $baseConfig['fields'][$key]['value'] = $currentMediaIds[$key] ?? $baseConfig['fields'][$key]['value'];
-
-                    continue;
-                }
-
                 $path = $pluginConfiguration->getBasePath() . \DIRECTORY_SEPARATOR . $field['value'];
 
                 if (!\array_key_exists($path, $media)) {

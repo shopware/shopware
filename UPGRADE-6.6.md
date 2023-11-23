@@ -1,4 +1,228 @@
 # 6.6.0.0
+## Introduced in 6.5.7.0
+## New media url generator and path strategy
+* Removed deprecated `UrlGeneratorInterface` interface, use `AbstractMediaUrlGenerator` instead to generate the urls for media entities
+* Removed deprecated `AbstractPathNameStrategy` abstract class, use `AbstractMediaPathStrategy` instead to implement own strategies
+
+```php
+<?php 
+
+namespace Examples;
+
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaUrlGenerator;use Shopware\Core\Content\Media\Core\Params\UrlParams;use Shopware\Core\Content\Media\MediaCollection;use Shopware\Core\Content\Media\MediaEntity;use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+
+class BeforeChange
+{
+    private UrlGeneratorInterface $urlGenerator;
+    
+    public function foo(MediaEntity $media) 
+    {
+        $relative = $this->urlGenerator->getRelativeMediaUrl($media);
+        
+        $absolute = $this->urlGenerator->getAbsoluteMediaUrl($media);
+    }
+    
+    public function bar(MediaThumbnailEntity $thumbnail) 
+    {
+        $relative = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail);
+        
+        $absolute = $this->urlGenerator->getAbsoluteThumbnailUrl($thumbnail);
+    }
+}
+
+class AfterChange
+{
+    private AbstractMediaUrlGenerator $generator;
+    
+    public function foo(MediaEntity $media) 
+    {
+        $relative = $media->getPath();
+
+        $urls = $this->generator->generate([UrlParams::fromMedia($media)]);
+        
+        $absolute = $urls[0];
+    }
+    
+    public function bar(MediaThumbnailEntity $thumbnail) 
+    {
+        // relative is directly stored at the entity
+        $relative = $thumbnail->getPath();
+        
+        // path generation is no more entity related, you could also use partial entity loading and you can also call it in batch, see below
+        $urls = $this->generator->generate([UrlParams::fromMedia($media)]);
+        
+        $absolute = $urls[0];
+    }
+    
+    public function batch(MediaCollection $collection) 
+    {
+        $params = [];
+        
+        foreach ($collection as $media) {
+            $params[$media->getId()] = UrlParams::fromMedia();
+            
+            foreach ($media->getThumbnails() as $thumbnail) {
+                $params[$thumbnail->getId()] = UrlParams::fromThumbnail($thumbnail);
+            }
+        }
+        
+        $urls = $this->generator->generate($paths);
+
+        // urls is a flat list with {id} => {url} for media and also for thumbnails        
+    }
+}
+```
+## New custom fields mapping event
+
+* Previously the event `ElasticsearchProductCustomFieldsMappingEvent` is dispatched when create new ES index so you can add your own custom fields mapping.
+* We replaced the event with a new event `Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent`, this provides a better generic way to add custom fields mapping
+
+```php
+class ExampleCustomFieldsMappingEventSubscriber implements EventSubscriberInterface {
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ElasticsearchCustomFieldsMappingEvent::class => 'addCustomFieldsMapping',
+        ];
+    }
+
+    public function addCustomFieldsMapping(ElasticsearchCustomFieldsMappingEvent $event): void 
+    {
+        if ($event->getEntity() === 'product') {
+            $event->setMapping('productCfFoo', CustomFieldTypes::TEXT);
+        }
+
+        if ($event->getEntity() === 'category') {
+            $event->setMapping('categoryCfFoo', CustomFieldTypes::TEXT);
+        }
+        // ...
+    }
+}
+```
+
+## Adding sugar syntax for ES Definition
+
+We added new utility classes to make creating custom ES definition look simpler
+
+In this example, assuming you have a custom ES definition with `name` & `description` fields are translatable fields:
+
+```php
+<?php declare(strict_types=1);
+
+namespace Shopware\Commercial\AdvancedSearch\Domain\Indexing\ElasticsearchDefinition\Manufacturer;
+
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SqlHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+
+class YourElasticsearchDefinition extends AbstractElasticsearchDefinition
+{
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly EntityDefinition $definition,
+        private readonly CompletionDefinitionEnrichment $completionDefinitionEnrichment,
+        private readonly ElasticsearchFieldBuilder $fieldBuilder
+    ) {
+    }
+
+    public function getMapping(Context $context): array
+    {
+        $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+
+        $properties = [
+            'id' => self::KEYWORD_FIELD,
+            'name' => $languageFields,
+            'description' => $languageFields,
+        ];
+
+        return [
+            '_source' => ['includes' => ['id']],
+            'properties' => $properties,
+        ];
+    }
+
+    public function fetch(array $ids, Context $context): array
+    {
+        $data = $this->fetchData($ids, $context);
+
+        $documents = [];
+
+        foreach ($data as $id => $item) {
+            $translations = ElasticsearchIndexingUtils::parseJson($item, 'translation');
+
+            $documents[$id] = [
+                'id' => $id,
+                'name' => ElasticsearchFieldMapper::translated('name', $translations),
+                'description' => ElasticsearchFieldMapper::translated('description', $translations),
+            ];
+        }
+
+        return $documents;
+    }
+}
+```
+## \Shopware\Core\Framework\Log\LoggerFactory:
+`\Shopware\Core\Framework\Log\LoggerFactory` will be removed. You can use monolog configuration to achieve the same results. See https://symfony.com/doc/current/logging/channels_handlers.html.
+## Removal of separate Elasticsearch exception classes
+Removed the following exception classes:
+* `\Shopware\Elasticsearch\Exception\ElasticsearchIndexingException`
+* `\Shopware\Elasticsearch\Exception\NoIndexedDocumentsException`
+* `\Shopware\Elasticsearch\Exception\ServerNotAvailableException`
+* `\Shopware\Elasticsearch\Exception\UnsupportedElasticsearchDefinitionException`
+* `\Shopware\Elasticsearch\Exception\ElasticsearchIndexingException`
+Use the exception factory class `\Shopware\Elasticsearch\ElasticsearchException` instead.
+## Configure queue workers to consume low_priority queue
+Explicitly configure your workers to additionally consume messages from the `low_priority` queue.
+Up to 6.6 the `low_priority` queue is automatically added to the workers, even if not specified explicitly.
+
+Before:
+```bash
+php bin/console messenger:consume async
+```
+
+After:
+```bash
+php bin/console messenger:consume async low_priority
+```
+
+## Configure another transport for the "low priority" queue
+The transport defaults to use Doctrine. You can use the `MESSENGER_TRANSPORT_LOW_PRIORITY_DSN` environment variable to change it.
+
+Before:
+```yaml
+parameters:
+    messenger.default_transport_name: 'v65'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+```
+
+After:
+```yaml
+parameters:
+    messenger.default_transport_name: 'v65'
+    env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
+    env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
+```
+
+For further details on transports with different priorities, please refer to the Symfony Docs: https://symfony.com/doc/current/messenger.html#prioritized-transports
+## `availabilityRuleId` in `\Shopware\Core\Checkout\Shipping\ShippingMethodEntity`:
+* Type changed from `string` to be also nullable and will be natively typed to enforce strict data type checking.
+## `getAvailabilityRuleId` in `\Shopware\Core\Checkout\Shipping\ShippingMethodEntity`:
+* Return type is nullable.
+## `getAvailabilityRuleUuid` in `\Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister`:
+* Has been removed without replacement.
+## `Required` flag for `availability_rule_id` in `\Shopware\Core\Checkout\Shipping\ShippingMethodDefinition`:
+* Has been removed.
+## ES Definition's buildTermQuery could return BuilderInterface:
+* In 6.5 we only allow return `BoolQuery` from `AbstractElasticsearchDefinition::buildTermQuery` method which is not always the case. From next major version, we will allow return `BuilderInterface` from this method.
+
 ## Introduced in 6.5.6.0
 ## Removal of CacheInvalidatorStorage
 

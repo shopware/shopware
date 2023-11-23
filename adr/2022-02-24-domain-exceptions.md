@@ -3,7 +3,7 @@ title: Domain exceptions
 date: 2022-02-24
 area: core
 tags: [architecture, exception, domain]
---- 
+---
 
 ## Context
 
@@ -12,12 +12,12 @@ However, this pattern is very cumbersome for developers to maintain properly, wh
 Another disadvantage of this pattern is that the system is overwhelmed with exception classes and therefore the overview of possible exceptions suffers.
 
 Domain exceptions should be specific in 99% of cases, otherwise, they are no longer clearly identifiable and traceable. If we want to add a generic exception like EntityNotFound exceptions everywhere, it will not help API consumer to identify the root cause.
-Therefore, it is for a good reason that there're similar exceptions occur again in many places. If there's something goes wrong from anywhere, there should be an unique code for it.
+Therefore, it is for a good reason that there are similar exceptions occur again in many places. If something goes wrong from anywhere, there should be a unique code for it.
 In good software, you have a unique code for each error. This code is then listed in a code list that is publicly available. 
-For each code, there is then a clear documentation, of when and where it occurs and how to fix it.
+For each code, there is clear documentation of when and where it occurs and how to fix it.
 
 ## Solution
-With the following pattern I would like to achieve the following goals:
+With the following pattern, we would like to achieve the following goals:
 - Developers can **no longer** just throw any **\RuntimeException** that can't be traced.
 - Each exception has its **own error code**, which is passed to external APIs
 - We **reduce the number of exception classes** we don't react to in the system (e.g. `\InvalidArgumentException`)
@@ -51,7 +51,7 @@ class CmsException extends HttpException
 }
 ```
 
-However, the DomainExceptions are not (necessarily) made to be caught and handled in a try-catch. Therefore, we will continue to implement own exception classes, for exceptions that we want to catch ourselves in the system via a `try-catch`, which extends the `DomainException`. These exceptions are then stored in an exception sub folder:
+However, the DomainExceptions are not (necessarily) made to be caught and handled in a try-catch. Therefore, we will continue to implement our own exception classes, for exceptions that we want to catch ourselves in the system via a `try-catch`, which extends the `DomainException`. These exceptions are then stored in an exception subfolder:
 
 ```php
 <?php

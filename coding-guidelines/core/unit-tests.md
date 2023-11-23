@@ -19,17 +19,17 @@ When writing unit tests, the following is important:
 
 ## Examples
 Here are some good examples of shopware unit tests:
-- [CriteriaTest](https://github.com/shopware/platform/blob/trunk/tests/unit/php/Core/Framework/DataAbstractionLayer/Search/CriteriaTest.php)
+- [CriteriaTest](https://github.com/shopware/shopware/blob/trunk/tests/unit/Core/Framework/DataAbstractionLayer/Search/CriteriaTest.php)
   - Good example for simple DTO tests
-- [CashRounding](https://github.com/shopware/platform/blob/trunk/tests/unit/php/Core/Checkout/Cart/Price/CashRoundingTest.php)
+- [CashRounding](https://github.com/shopware/shopware/blob/trunk/tests/unit/Core/Checkout/Cart/Price/CashRoundingTest.php)
   - Nice test matrix for single service coverage
-- [AddCustomerTagActionTest](https://github.com/shopware/platform/blob/trunk/tests/unit/php/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php)
+- [AddCustomerTagActionTest](https://github.com/shopware/shopware/blob/trunk/tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php)
   - A good example of how to test flow actions and use mocks for repositories
 
 Here are some good examples of integration tests:
-- [ProductCartTest](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Test/Product/Cart/ProductCartTest.php)
+- [ProductCartTest](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Test/Product/Cart/ProductCartTest.php)
   - Slim product cart test with good helper function integrations
-- [CachedProductListingRouteTest](https://github.com/shopware/platform/blob/trunk/src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php)
+- [CachedProductListingRouteTest](https://github.com/shopware/shopware/blob/trunk/src/Core/Content/Test/Product/SalesChannel/Listing/CachedProductListingRouteTest.php)
   - This test is a little complex, but has a very good test case matrix with good descriptions and reusable test code.
 
 # Mocks and its influence on software design

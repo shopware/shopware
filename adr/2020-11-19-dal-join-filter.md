@@ -3,7 +3,7 @@ title: DAL join filter
 date: 2020-11-19
 area: core
 tags: [dal, join-filter, negated-filter, criteria]
---- 
+---
 
 ## Context
 Currently, there are various difficulties with the current implementation of the `anti-join-filter`. 

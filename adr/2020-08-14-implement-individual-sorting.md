@@ -3,7 +3,7 @@ title: Implement individual sorting
 date: 2020-08-14
 area: core
 tags: [repository, dal, entity, sort, product]
---- 
+---
 
 ## Context
 

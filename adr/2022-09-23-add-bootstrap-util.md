@@ -3,7 +3,7 @@ title: Add bootstrap JS-plugin initialization utility to storefront JS
 date: 2022-09-23
 area: storefront
 tags: [storefront, javascript, bootstrap]
---- 
+---
 
 ## Context
 

@@ -3,7 +3,7 @@ title: Implement architecture decision records
 date: 2020-06-25
 area: core
 tags: [adr, workflow]
---- 
+---
 
 ## Context
 We should document architecture and technical decisions for the shopware platform. The documentation should be easy to understand and easy to follow. The workflow for new decisions should add to our existing workflows and should not block the whole development process. One solution could be the form of architecture decision records (ADR) as described in the following articles:
@@ -66,4 +66,3 @@ The status of an ADR is symbolized by the directory. All ADR located in the main
 
 **Can an ADR be changed?**  
 When an ADR is accepted and merged in to the code, it can no longer be changed. If a decision is outdated or has to be changed, the ADR has to be superseded by a new ADR. Superseded ADRs have to be moved to the `/adr/_superseded` directory.
-

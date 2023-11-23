@@ -3,7 +3,7 @@ title: Integrate an app into the flow event
 date: 2022-10-11
 area: business-ops
 tags: [flow, app]
---- 
+---
 
 # 2022-10-11 - Integrate an app into the flow event
 

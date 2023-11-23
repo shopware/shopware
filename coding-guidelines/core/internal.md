@@ -19,7 +19,7 @@ Classes that are intended for **service decoration** are provided with an abstra
 ## Final classes
 Tendentiously, just about all classes in Shopware should be declared as `final`. We do this for the following reasons:
 - We declare a DI container service as `final` so that it will not be extended. All services that can be exchanged via DI-Container have an `abstract class` implementation. Per `extends` from core services is not intended.
-- We declare **DTO classes** as `final` to indicate that we do not intend thrid party developers to derive from these classes. To append more data to DTO's we use the base `Struct` class which allows **Extensions**.
+- We declare **DTO classes** as `final` to indicate that we do not intend third party developers to derive from these classes. To append more data to DTO's we use the base `Struct` class which allows **Extensions**.
 - We declare **Event Subscriber** as `final` as we do not foresee deriving from them in order to leverage the events or extend their functionality.
 
 Classes that we declare as `final` are still Public API, because **Third Party Developers are consumers** of these classes. That means they access the public methods and functions of the classes.

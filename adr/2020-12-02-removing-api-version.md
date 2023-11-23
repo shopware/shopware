@@ -3,7 +3,7 @@ title: API version removal
 date: 2020-12-02
 area: core
 tags: [api, versioning, deprecation]
---- 
+---
 
 ## Context
 

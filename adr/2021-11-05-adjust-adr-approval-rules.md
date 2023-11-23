@@ -3,7 +3,7 @@ title: Adjust ADR approval rules for the new org structure
 date: 2021-11-05
 area: core
 tags: [architecture, adr, approval-rules]
---- 
+---
 
 ## Context
 

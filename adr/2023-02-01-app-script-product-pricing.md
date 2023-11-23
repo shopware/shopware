@@ -3,7 +3,7 @@ title: App script product pricing
 date: 2023-02-01
 area: core
 tags: [app-script, product, pricing]
---- 
+---
 
 ## Context
 We want to provide the opportunity to manipulate the price of a product inside the cart and within the store.

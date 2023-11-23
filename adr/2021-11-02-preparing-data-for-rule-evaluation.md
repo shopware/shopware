@@ -3,7 +3,7 @@ title: Preparing data for rule evaluation
 date: 2021-11-02
 area: business-ops
 tags: [framework, rules, context, data-handling]
---- 
+---
 
 ## Context
 

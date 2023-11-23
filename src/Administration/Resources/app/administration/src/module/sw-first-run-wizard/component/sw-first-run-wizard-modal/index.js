@@ -165,9 +165,7 @@ export default {
 
     watch: {
         '$route'(to) {
-            const toName = to.name.replace('sw.first.run.wizard.index.', '');
-
-            this.currentStep = this.stepper[toName];
+            this.handleRouteUpdate(to);
         },
     },
 
@@ -182,6 +180,12 @@ export default {
     },
 
     methods: {
+        handleRouteUpdate(to) {
+            const toName = to.name.replace('sw.first.run.wizard.index.', '');
+
+            this.currentStep = this.stepper[toName];
+        },
+
         createdComponent() {
             this.firstRunWizardService.setFRWStart();
         },

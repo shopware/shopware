@@ -115,6 +115,7 @@
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
+                    class="sw-product-detail-variants__generated-variants-empty-state-button"
                     variant="ghost"
                     :disabled="!acl.can('product.creator')"
                     @click="openModal('variantGeneration')"

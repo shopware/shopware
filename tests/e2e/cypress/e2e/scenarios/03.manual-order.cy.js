@@ -163,7 +163,7 @@ describe('Create customer via UI, product via API and make a manual order', ()=>
         cy.get('.sw-loader').should('not.exist');
         cy.contains('h2', 'Bestellingen').should('be.visible');
         cy.get('.sw-order-list__manual-order-label .sw-label__caption')
-            .should('include.text', 'Handmatige bestelling');
+            .should('include.text', 'Gemaakt door admin');
         cy.get('.sw-data-grid__cell--amountTotal > .sw-data-grid__cell-content').should('be.visible')
             .and('include.text', '8,00');
     });

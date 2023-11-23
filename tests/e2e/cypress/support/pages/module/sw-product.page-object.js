@@ -82,7 +82,7 @@ export default class ProductPageObject {
 
         if (totalCount !== 1) {
             cy.get('.sw-product-modal-variant-generation__infoBox')
-                .contains(new RegExp(`${totalCount} (variants will be added|varianten worden toegevoegd)`));
+                .contains(new RegExp(`${totalCount} (variants will be added|varianten wordt toegevoegd)`));
         }
 
         cy.get('.sw-product-modal-variant-generation__upload_files .sw-button--primary').click()

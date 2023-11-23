@@ -88,7 +88,7 @@ describe('Sales Channel: create product, change currency and language', () => {
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
         cy.contains('.line-item-total-price-value', '€ 49,98*').should('be.visible');
-        cy.get('a[title="Naar de kassa"]').should('be.visible');
+        cy.get('a[title="Ga naar de kassa"]').should('be.visible');
         cy.contains('Doorgaan met winkelen').click();
 
         // Change currency

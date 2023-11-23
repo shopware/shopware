@@ -26,7 +26,6 @@ class SalesChannelValidatorTest extends TestCase
     private const DELETE_VALIDATION_MESSAGE = 'Cannot delete default language id from language list of the sales channel with id "%s".';
     private const INSERT_VALIDATION_MESSAGE = 'The sales channel with id "%s" does not have a default sales channel language id in the language list.';
     private const UPDATE_VALIDATION_MESSAGE = 'Cannot update default language id because the given id is not in the language list of sales channel with id "%s"';
-    private const DUPLICATED_ENTRY_VALIDATION_MESSAGE = 'The sales channel language "%s" for the sales channel "%s" already exists.';
 
     /**
      * @param array<string, mixed> $inserts
@@ -269,6 +268,20 @@ class SalesChannelValidatorTest extends TestCase
             [],
             [$id1, $id2],
         ];
+
+        yield 'Update default language id and multiple languages in same time' => [
+            [
+                [
+                    'id' => $id1,
+                    'languageId' => 'de-DE',
+                    'languages' => [
+                        ['id' => 'de-DE'],
+                        ['id' => Defaults::LANGUAGE_SYSTEM]],
+                ],
+            ],
+            [],
+            [$id1, $id2],
+        ];
     }
 
     public function testPreventDeletionOfDefaultLanguageId(): void
@@ -302,35 +315,6 @@ class SalesChannelValidatorTest extends TestCase
 
         $result = $salesChannelRepository->search(new Criteria([$id]), $context);
         static::assertCount(0, $result);
-    }
-
-    public function testInsertSalesChannelLanguageWhichAlreadyExist(): void
-    {
-        $id = Uuid::randomHex();
-
-        $salesChannelData = $this
-            ->getSalesChannelData($id, Defaults::LANGUAGE_SYSTEM, [Defaults::LANGUAGE_SYSTEM]);
-
-        $context = Context::createDefaultContext();
-
-        $this->getSalesChannelRepository()
-            ->create([$salesChannelData], $context);
-
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage(sprintf(
-            self::DUPLICATED_ENTRY_VALIDATION_MESSAGE,
-            Defaults::LANGUAGE_SYSTEM,
-            $id
-        ));
-
-        $this->getSalesChannelLanguageRepository()->create([[
-            'salesChannelId' => $id,
-            'languageId' => Defaults::LANGUAGE_SYSTEM,
-        ]], $context);
-
-        $this->getSalesChannelRepository()->delete([[
-            'id' => $id,
-        ]], Context::createDefaultContext());
     }
 
     public function testOnlyStorefrontAndHeadlessSalesChannelsWillBeSupported(): void

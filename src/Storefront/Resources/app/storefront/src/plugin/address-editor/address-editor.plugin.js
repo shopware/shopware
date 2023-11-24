@@ -196,6 +196,7 @@ export default class AddressEditorPlugin extends Plugin {
 
                         const shouldBeClosed = ajaxForm.classList.contains(this.options.closeEditorClass);
                         if (shouldBeClosed) {
+                            this.$emitter.publish('registerAjaxSubmitCallbackModalClose', { pseudoModal });
                             pseudoModal.close();
                             PageLoadingIndicatorUtil.create();
 

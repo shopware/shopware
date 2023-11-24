@@ -21,6 +21,72 @@ class AfterSort
             return $elements;
         }
 
+        $latestGroup = 0;
+        $groups = [];
+        $referenceList = [];
+        foreach ($elements as $child) {
+            // Find first element with null
+            if (null === $child->$propertyName) {
+                $groups[$latestGroup][$child->getId()] = $child;
+                $referenceList[$child->getId()] = $latestGroup;
+            }
+            $elements[$child->getId()] = $child;
+        }
+
+        // Group elements into chain groups using $propertyName and $id as link
+        foreach ($elements as $child) {
+            if (isset($elements[$child->$propertyName])) {
+                $parent = $elements[$child->$propertyName];
+                if (false === isset($referenceList[$parent->getId()])
+                    && false === isset($referenceList[$child->getId()])) {
+                    // Parent and child not existing at any group - create new
+                    $latestGroup++;
+
+                    $referenceList[$child->getId()] = $latestGroup;
+                    $referenceList[$parent->getId()] = $latestGroup;
+                    $groups[$latestGroup] = [
+                        $parent->getId() => $parent,
+                        $child->getId() => $child,
+                    ];
+                } elseif (false === isset($referenceList[$child->getId()])) {
+                    // Parent existing using in to create link
+                    $referenceList[$child->getId()] = $referenceList[$parent->getId()];
+                    $groups[$latestGroup][$child->getId()] = $child;
+                } elseif (false === isset($referenceList[$parent->getId()])) {
+                    // child existing using in to create link
+                    $referenceList[$parent->getId()] = $referenceList[$child->getId()];
+                    $groups[$latestGroup][$parent->getId()] = $parent;
+                }
+            }
+        }
+        //Combining group into single array, after sorting,
+        $list = [];
+        foreach ($groups as $groupElements) {
+            $groupElements = self::basicSort($groupElements, $propertyName);
+            if (null !== array_key_last($list)) {
+                // Joining link between two groups
+                $firstCategory = $groupElements[array_key_first($groupElements)];
+                $firstCategory->$propertyName = array_key_last($list);
+            }
+            $list += $groupElements;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @template TElement of Struct
+     *
+     * @param array<array-key, TElement> $elements
+     *
+     * @return array<array-key, TElement>
+     */
+    public static function basicSort(array $elements, string $propertyName = 'afterId'): array
+    {
+        if (!$elements) {
+            return $elements;
+        }
+
         // NEXT-21735 - This is covered randomly
         // @codeCoverageIgnoreStart
 

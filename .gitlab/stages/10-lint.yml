@@ -127,7 +127,7 @@ PHP static analysis:
         GIT_DEPTH: 0
     stage: lint
     rules:
-        - if: '$CI_COMMIT_BRANCH == "trunk"'
+        - if: '$CI_COMMIT_BRANCH == "6.5.x"'
           when: never
         - !reference [.rules, skip]
         - !reference [.rules, run]

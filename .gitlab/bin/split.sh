@@ -24,7 +24,7 @@ split_repo() {
   local split_repos_dir="${PLATFORM_DIR}/repos"
   local split_repo_dir="${PLATFORM_DIR}/repos/$(lowercase ${package})"
   local tmp_target_repo_dir="$(mktemp -d)/"
-  local default_branch="$(git config --global init.defaultBranch)"; default_branch=${default_branch:-trunk}
+  local default_branch="$(git config --global init.defaultBranch)"; default_branch=${default_branch:-6.5.x}
 
   git config --global --add safe.directory "${PLATFORM_DIR}" # TODO: Find out why this is necessary in CI.
 

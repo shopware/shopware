@@ -64,7 +64,7 @@ create_branch() {
 create_deployment_branch() {
     local project_path="${1}" # Path of the project, the branch should be created in. URL-escaped.
     local deployment_branch_name="${2}"
-    local latest_succeeded_pipeline_sha="$(get_latest_succeeded_pipeline_sha ${project_path} 'trunk')"
+    local latest_succeeded_pipeline_sha="$(get_latest_succeeded_pipeline_sha ${project_path} '6.5.x')"
 
     create_branch "${project_path}" "${deployment_branch_name}" "${latest_succeeded_pipeline_sha}"
 }

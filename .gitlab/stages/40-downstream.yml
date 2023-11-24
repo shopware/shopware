@@ -32,7 +32,7 @@
   stage: downstream
   needs: [ ]
   variables:
-    PLATFORM_BRANCH: 'trunk'
+    PLATFORM_BRANCH: '6.5.x'
   inherit:
     default: false
     variables:
@@ -121,6 +121,7 @@ rufus trunk:
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
   trigger:
     project: shopware/6/product/rufus
+    branch: '6.5.x'
     strategy: depend
 
 commercial trunk:
@@ -140,6 +141,7 @@ commercial trunk:
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
   trigger:
     project: shopware/6/product/commercial
+    branch: '6.5.x'
     strategy: depend
 
 commercial tag:

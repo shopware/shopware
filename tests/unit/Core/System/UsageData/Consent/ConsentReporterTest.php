@@ -40,6 +40,7 @@ class ConsentReporterTest extends TestCase
             $shopIdProvider,
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
+            'APP_URL',
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -64,6 +65,7 @@ class ConsentReporterTest extends TestCase
             $shopIdProvider,
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
+            'APP_URL',
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -84,6 +86,7 @@ class ConsentReporterTest extends TestCase
             $this->createMock(ShopIdProvider::class),
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
+            'APP_URL',
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -108,6 +111,7 @@ class ConsentReporterTest extends TestCase
             $this->createMock(ShopIdProvider::class),
             new StaticSystemConfigService(),
             $instanceService,
+            'APP_URL',
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -130,77 +134,10 @@ class ConsentReporterTest extends TestCase
                 StoreRequestOptionsProvider::CONFIG_KEY_STORE_LICENSE_DOMAIN => 'licenseHost',
             ]),
             $this->createMock(InstanceService::class),
+            'APP_URL',
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
-    }
-
-    public function testReportConsentAddsApiCredentialToPayload(): void
-    {
-        $httpClient = new MockHttpClient([
-            static function ($method, $url, $options): MockResponse {
-                self::assertPayloadContains(
-                    'api_credential',
-                    [
-                        'app_url' => 'APP_URL',
-                        'access_key' => '4cc3ss-k3y',
-                        'secret_access_key' => 's3cr3t-4cc3ss-k3y',
-                    ],
-                    $options['body']
-                );
-
-                return new MockResponse('', ['http_code' => 204]);
-            },
-        ]);
-
-        $reporter = new ConsentReporter(
-            $httpClient,
-            $this->createMock(ShopIdProvider::class),
-            new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
-        );
-
-        $accessKeys = [
-            'appUrl' => 'APP_URL',
-            'accessKey' => '4cc3ss-k3y',
-            'secretAccessKey' => 's3cr3t-4cc3ss-k3y',
-        ];
-
-        $reporter->reportConsent(ConsentState::REQUESTED, $accessKeys);
-    }
-
-    public function testReportConsentIntegrationAppUrlChanged(): void
-    {
-        $httpClient = new MockHttpClient([
-            static function ($method, $url, $options): MockResponse {
-                self::assertPayloadContains(
-                    'api_credential',
-                    [
-                        'app_url' => 'APP_URL',
-                        'access_key' => '4cc3ss-k3y',
-                        'secret_access_key' => 's3cr3t-4cc3ss-k3y',
-                    ],
-                    $options['body']
-                );
-
-                return new MockResponse('', ['http_code' => 204]);
-            },
-        ]);
-
-        $reporter = new ConsentReporter(
-            $httpClient,
-            $this->createMock(ShopIdProvider::class),
-            new StaticSystemConfigService(),
-            $this->createMock(InstanceService::class),
-        );
-
-        $accessKeys = [
-            'appUrl' => 'APP_URL',
-            'accessKey' => '4cc3ss-k3y',
-            'secretAccessKey' => 's3cr3t-4cc3ss-k3y',
-        ];
-
-        $reporter->reportConsentIntegrationAppUrlChanged('shopId', $accessKeys);
     }
 
     private static function assertPayloadContains(string $key, mixed $value, string $body): void

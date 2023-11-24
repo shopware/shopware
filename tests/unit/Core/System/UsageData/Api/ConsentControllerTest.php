@@ -13,7 +13,6 @@ use Shopware\Core\System\UsageData\Api\ConsentController;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\Clock\MockClock;
@@ -183,11 +182,8 @@ class ConsentControllerTest extends TestCase
             $this->getSystemConfigService(),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'test-shop.com',
         );
     }
 

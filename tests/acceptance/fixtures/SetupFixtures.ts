@@ -5,7 +5,6 @@ import { WorkerFixtures } from './WorkerFixtures';
 export interface SetupFixtures {
     adminPage: Page;
     storefrontPage: Page;
-    anonStorefrontPage: Page;
     shopCustomer: Actor;
 }
 
@@ -68,30 +67,6 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
     },
 
     storefrontPage: async ({ defaultStorefront, browser }, use) => {
-        const { customer, url } = defaultStorefront;
-
-        const context = await browser.newContext({
-            baseURL: url,
-        });
-        const page = await context.newPage();
-
-        // Go to login page and login
-        await page.goto('./account/login');
-
-        await page.getByLabel('Your email address').type(customer.email);
-        await page.getByLabel('Your password').type(customer.password);
-        await page.getByRole('button', { name: 'Log in' }).click();
-        await page.getByRole('heading', { name: 'Overview' }).isVisible();
-
-        await page.goto('./');
-
-        await use(page);
-
-        await page.close();
-        await context.close();
-    },
-
-    anonStorefrontPage: async ({ defaultStorefront, browser }, use) => {
         const { url } = defaultStorefront;
 
         const context = await browser.newContext({

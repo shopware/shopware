@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "bin": {
-    "createTask": "./bin/createTask.js"
+    "createTask": "./bin/createTask.js",
+    "createPage": "./bin/createPage.js"
   },
   "scripts": {
     "lint": "eslint . --ext .ts",

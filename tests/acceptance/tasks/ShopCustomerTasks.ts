@@ -1,6 +1,11 @@
 import { mergeTests } from '@playwright/test';
 
 /**
+ * Account
+ */
+import { Login } from './ShopCustomer/Account/Login';
+
+/**
  * Cart
  */
 import { AddPromotionCodeToCart } from './ShopCustomer/Cart/AddPromotionCodeToCart';
@@ -24,6 +29,7 @@ import { AddProductToCart } from './ShopCustomer/ProductDetail/AddProductToCart'
 import { ProceedFromProductToCheckout } from './ShopCustomer/ProductDetail/ProceedFromProductToCheckout';
 
 export const test = mergeTests(
+    Login,
     AddPromotionCodeToCart,
     ProceedFromCartToCheckout,
     ConfirmTermsAndConditions,

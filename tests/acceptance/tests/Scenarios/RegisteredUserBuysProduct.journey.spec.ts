@@ -8,6 +8,7 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
     productDetailPage,
     checkoutConfirmPage,
     checkoutFinishPage,
+    Login,
     AddProductToCart,
     ProceedFromProductToCheckout,
     ConfirmTermsAndConditions,
@@ -20,6 +21,8 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
         description:
             'This scenario tests a full shop customer journey from selecting a product, adding it to the cart and performing a checkout.',
     });
+
+    await shopCustomer.attemptsTo(Login());
 
     await shopCustomer.goesTo(productDetailPage);
     await shopCustomer.expects(productDetailPage.page).toHaveTitle(

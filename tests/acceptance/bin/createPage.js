@@ -50,7 +50,3 @@ if (!fs.existsSync(pageFile)) {
 } else {
     console.warn('Page object not created. File already exists.');
 }
-
-
-
-

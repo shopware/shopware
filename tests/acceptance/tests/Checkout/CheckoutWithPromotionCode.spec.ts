@@ -10,6 +10,7 @@ test('Registered shop customer uses a promotion code during checkout. @checkout 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cartWithProductData,
     promotionWithCodeData,
+    Login,
     AddPromotionCodeToCart,
     ProceedFromCartToCheckout,
     ConfirmTermsAndConditions,
@@ -17,6 +18,8 @@ test('Registered shop customer uses a promotion code during checkout. @checkout 
 }) => {
     const promotionCode = promotionWithCodeData.code;
     const promotionName = promotionWithCodeData.name;
+
+    await shopCustomer.attemptsTo(Login());
 
     await shopCustomer.goesTo(checkoutCartPage);
 

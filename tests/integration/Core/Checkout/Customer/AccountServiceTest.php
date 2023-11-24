@@ -177,7 +177,6 @@ class AccountServiceTest extends TestCase
         ]);
         $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, false);
 
-
         $this->expectException(CustomerNotFoundException::class);
         $this->expectExceptionMessage('No matching customer for the email "johndoe@example.com" was found.');
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
@@ -201,7 +200,6 @@ class AccountServiceTest extends TestCase
         $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', md5('shopware'), 'Md5');
 
         $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
-        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertEquals($email, $customer->getEmail());
         static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
 
@@ -210,9 +208,10 @@ class AccountServiceTest extends TestCase
             ->get('customer.repository')
             ->search(new Criteria([$idCustomer]), $context->getContext())
             ->first();
-        self::assertNull($customer->getLegacyPassword());
-        self::assertNull($customer->getLegacyEncoder());
-        self::assertNotNull($customer->getPassword());
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        static::assertNull($customer->getLegacyPassword());
+        static::assertNull($customer->getLegacyEncoder());
+        static::assertNotNull($customer->getPassword());
     }
 
     public function testCustomerFailsToLoginByLegacyPasswordWithOutdatedPasswordPolicy(): void

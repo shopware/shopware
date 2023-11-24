@@ -28,9 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\Messenger\Exception\ValidationFailedException;
 use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 #[Package('checkout')]
 class AccountService
@@ -278,7 +276,7 @@ class AccountService
             /** @var ConstraintViolation $constraintViolation */
             foreach ($exception->getViolations() as $constraintViolation) {
                 if ($constraintViolation->getPropertyPath() === '/password') {
-                    throw new PasswordPoliciesUpdatedException();
+                    throw CustomerException::passwordPoliciesUpdated();
                 }
             }
         }

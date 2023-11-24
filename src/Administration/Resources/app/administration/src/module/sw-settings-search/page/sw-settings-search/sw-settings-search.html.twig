@@ -79,6 +79,9 @@
                     {{ $tc('sw-settings-search.page.liveSearchTab') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_setting_search_tabs_after %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 

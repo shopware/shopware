@@ -15,8 +15,8 @@ test('Registered shop customer uses a promotion code during checkout. @checkout 
     ConfirmTermsAndConditions,
     SubmitOrder,
 }) => {
-    const promotionCode = promotionWithCodeData.promotionCode;
-    const promotionName = promotionWithCodeData.promotionName;
+    const promotionCode = promotionWithCodeData.code;
+    const promotionName = promotionWithCodeData.name;
 
     await shopCustomer.goesTo(checkoutCartPage);
 

@@ -2,8 +2,8 @@ import { test, expect } from '@fixtures/AcceptanceTest';
 
 test('Journey: Registered shop customer buys a product. @journey @checkout', async ({
     shopCustomer,
-    salesChannelProduct,
     defaultStorefront,
+    productData,
     adminApiContext,
     productDetailPage,
     checkoutConfirmPage,
@@ -23,10 +23,10 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
 
     await shopCustomer.goesTo(productDetailPage);
     await shopCustomer.expects(productDetailPage.page).toHaveTitle(
-        `${salesChannelProduct.translated.name} | ${salesChannelProduct.productNumber}`
+        `${productData.translated.name} | ${productData.productNumber}`
     );
 
-    await shopCustomer.attemptsTo(AddProductToCart(salesChannelProduct));
+    await shopCustomer.attemptsTo(AddProductToCart(productData));
     await shopCustomer.attemptsTo(ProceedFromProductToCheckout());
 
     await shopCustomer.attemptsTo(ConfirmTermsAndConditions());

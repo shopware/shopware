@@ -1,12 +1,16 @@
 import { test as base } from '@playwright/test';
 import { expect } from '@fixtures/AcceptanceTest';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
+import { components } from '@shopware/api-client/admin-api-types';
 
-export const PromotionWithCodeData = base.extend({
+export const PromotionWithCodeData = base.extend<FixtureTypes>({
     promotionWithCodeData: async ({ adminApiContext, defaultStorefront, idProvider }, use) => {
+
+        // Generate promotion code
         const promotionCode = `${idProvider.getIdPair().id}`;
         const promotionName = `Test Promotion ${promotionCode}`;
 
-        // Create a new promotion code via admin API context.
+        // Create a new promotion with code via admin API context
         const promotionResponse = await adminApiContext.post('promotion?_response=1', {
             data: {
                 name: promotionName,
@@ -37,8 +41,16 @@ export const PromotionWithCodeData = base.extend({
                 ],
             },
         });
+
         expect(promotionResponse.ok()).toBeTruthy();
 
-        use({ promotionCode, promotionName });
+        const { data: promotion } = (await promotionResponse.json()) as { data: components['schemas']['Promotion'] };
+
+        // User promotion data in the test
+        await use(promotion);
+
+        // Delete promotion after test is done
+        const cleanupResponse = await adminApiContext.delete(`promotion/${promotion.id}`);
+        expect(cleanupResponse.ok()).toBeTruthy();
     },
 });

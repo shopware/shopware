@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import { SetupFixtures } from '@fixtures/SetupFixtures';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
 import { ProductDetailPage } from './Storefront/ProductDetail';
 import { CheckoutCartPage } from './Storefront/CheckoutCart';
 import { CheckoutConfirmPage } from './Storefront/CheckoutConfirm';
@@ -12,9 +12,9 @@ export interface StorefrontPages {
     checkoutFinishPage: CheckoutFinishPage,
 }
 
-export const test = base.extend<StorefrontPages, SetupFixtures>({
-    productDetailPage: async ({ storefrontPage, salesChannelProduct }, use) => {
-        await use(new ProductDetailPage(storefrontPage, salesChannelProduct));
+export const test = base.extend<FixtureTypes>({
+    productDetailPage: async ({ storefrontPage, productData }, use) => {
+        await use(new ProductDetailPage(storefrontPage, productData));
     },
 
     checkoutCartPage: async ({ storefrontPage }, use) => {

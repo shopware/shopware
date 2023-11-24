@@ -2,7 +2,7 @@ import { test as base } from '@playwright/test';
 import { expect } from '@fixtures/AcceptanceTest';
 
 export const CartWithProductData = base.extend({
-    cartWithProductData: async ({ storeApiContext, defaultStorefront, salesChannelProduct }, use) => {
+    cartWithProductData: async ({ storeApiContext, defaultStorefront, productData }, use) => {
         // Login customer in store API context.
         await storeApiContext.login(defaultStorefront.customer);
 
@@ -20,7 +20,7 @@ export const CartWithProductData = base.extend({
                 items: [
                     {
                         type: 'product',
-                        referencedId: salesChannelProduct.id,
+                        referencedId: productData.id,
                         quantity: 10,
                     },
                 ],
@@ -30,6 +30,6 @@ export const CartWithProductData = base.extend({
 
         const cartData = await lineItemResponse.json();
 
-        use(cartData);
+        await use(cartData);
     },
 });

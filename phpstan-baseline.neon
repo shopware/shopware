@@ -2936,16 +2936,6 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Commands/ImportEntityCommandTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, array\\|Traversable given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/CountrySerializerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, array\\|Traversable given\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializerTest.php
-
-		-
 			message: "#^Cannot access offset 'id' on array\\|Traversable\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
@@ -2964,11 +2954,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializerTest\\:\\:getProductCrossSelling\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSelling\\\\ProductCrossSellingEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, array\\|Traversable given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/SalutationSerializerTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Field\\\\PriceSerializerTest\\:\\:first\\(\\) has no return type specified\\.$#"
@@ -2996,22 +2981,12 @@ parameters:
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/ChainPipeTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/ChainPipeTest.php
-
-		-
 			message: "#^Cannot call method first\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductTranslation\\\\ProductTranslationCollection\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/EntityPipeTest.php
 
 		-
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductTranslation\\\\ProductTranslationEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ImportExport/Processing/Pipe/EntityPipeTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$iterator of function iterator_to_array expects Traversable, iterable given\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/EntityPipeTest.php
 

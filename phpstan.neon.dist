@@ -7,7 +7,7 @@ includes:
     - src/Core/DevOps/StaticAnalyze/PHPStan/core-rules.neon
 
 parameters:
-    phpVersion: 80100
+    phpVersion: 80200
     level: 8
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: true

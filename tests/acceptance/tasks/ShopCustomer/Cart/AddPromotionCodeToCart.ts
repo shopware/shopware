@@ -1,6 +1,8 @@
 import { test as base } from '@playwright/test';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
+import type { Task } from '@fixtures/Task';
 
-export const AddPromotionCodeToCart = base.extend({
+export const AddPromotionCodeToCart = base.extend<{ AddPromotionCodeToCart: Task }, FixtureTypes>({
     AddPromotionCodeToCart: async ({ shopCustomer, checkoutCartPage }, use)=> {
         const task = (promotionName, promotionCode) => {
             return async function AddPromotionCodeToCart() {
@@ -13,6 +15,6 @@ export const AddPromotionCodeToCart = base.extend({
             }
         };
 
-        use(task);
+        await use(task);
     },
 });

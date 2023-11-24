@@ -1,4 +1,2 @@
-import { Actor } from '@fixtures/Actor';
-
-export type Task = (actor: Actor) => Promise<void>;
+export type Task = (...args: unknown[]) => () => Promise<void>;
 

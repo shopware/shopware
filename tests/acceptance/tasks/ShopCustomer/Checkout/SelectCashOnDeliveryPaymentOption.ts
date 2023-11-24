@@ -1,6 +1,8 @@
 import { test as base } from '@playwright/test';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
+import type { Task } from '@fixtures/Task';
 
-export const SelectCashOnDeliveryPaymentOption = base.extend({
+export const SelectCashOnDeliveryPaymentOption = base.extend<{ SelectCashOnDeliveryPaymentOption: Task }, FixtureTypes>({
     SelectCashOnDeliveryPaymentOption: async ({ shopCustomer, checkoutConfirmPage }, use)=> {
         const task = () => {
             return async function SelectCashOnDeliveryPaymentOption() {
@@ -9,6 +11,6 @@ export const SelectCashOnDeliveryPaymentOption = base.extend({
             }
         };
 
-        use(task);
+        await use(task);
     },
 });

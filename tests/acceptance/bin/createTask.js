@@ -14,8 +14,10 @@ const taskFile = `./tasks/${task}.ts`;
 const taskName = path.basename(task);
 
 const content = `import { test as base } from '@playwright/test';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
+import type { Task } from '@fixtures/Task';
 
-export const ${taskName} = base.extend({
+export const ${taskName} = base.extend<{ ${taskName}: Task }, FixtureTypes>({
     ${taskName}: async ({ shopCustomer }, use)=> {
         const task = () => {
             return async function ${taskName}() {
@@ -25,7 +27,7 @@ export const ${taskName} = base.extend({
             }
         };
 
-        use(task);
+        await use(task);
     },
 });
 `;

@@ -5,8 +5,6 @@ import { CheckoutCartPage } from './Storefront/CheckoutCart';
 import { CheckoutConfirmPage } from './Storefront/CheckoutConfirm';
 import { CheckoutFinishPage } from './Storefront/CheckoutFinish';
 
-export { ProductDetailPage, CheckoutCartPage, CheckoutConfirmPage, CheckoutFinishPage };
-
 export interface StorefrontPages {
     productDetailPage: ProductDetailPage,
     checkoutCartPage: CheckoutCartPage,

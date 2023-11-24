@@ -1,6 +1,8 @@
 import { test as base } from '@playwright/test';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
+import type { Task } from '@fixtures/Task';
 
-export const SubmitOrder = base.extend({
+export const SubmitOrder = base.extend<{ SubmitOrder: Task }, FixtureTypes>({
     SubmitOrder: async ({ shopCustomer, checkoutConfirmPage, checkoutFinishPage }, use)=> {
         const task = () => {
             return async function SubmitOrder() {
@@ -9,6 +11,6 @@ export const SubmitOrder = base.extend({
             }
         };
 
-        use(task);
+        await use(task);
     },
 });

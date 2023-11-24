@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,14 +14,12 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigEntity;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyAcceptedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRequestedException;
 use Shopware\Core\System\UsageData\Exception\ConsentAlreadyRevokedException;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -47,11 +44,8 @@ class ConsentServiceTest extends TestCase
             $systemConfig,
             new StaticEntityRepository([]),
             new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertTrue($consentService->isConsentAccepted());
@@ -67,11 +61,8 @@ class ConsentServiceTest extends TestCase
             new StaticSystemConfigService(),
             new StaticEntityRepository([]),
             new StaticEntityRepository([]),
-            new StaticEntityRepository([]),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertFalse($consentService->isConsentAccepted());
@@ -89,11 +80,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $consentReporter,
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::expectException(ConsentAlreadyRequestedException::class);
@@ -113,11 +101,8 @@ class ConsentServiceTest extends TestCase
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $consentReporter,
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->requestConsent();
@@ -128,38 +113,21 @@ class ConsentServiceTest extends TestCase
         );
     }
 
-    public function testStoresAndReportsConsentStateWithAccessKeysWhenAccepted(): void
+    public function testStoresAndReportsConsentStateWhenAccepted(): void
     {
         $consentReporter = $this->createMock(ConsentReporter::class);
         $consentReporter->expects(static::once())
             ->method('reportConsent')
-            ->with(ConsentState::ACCEPTED, static::callback(static function (array $accessKeys): bool {
-                static::assertArrayHasKey('accessKey', $accessKeys);
-                static::assertIsString($accessKeys['accessKey']);
-                static::assertNotEmpty($accessKeys['accessKey']);
-
-                static::assertArrayHasKey('secretAccessKey', $accessKeys);
-                static::assertIsString($accessKeys['secretAccessKey']);
-                static::assertNotEmpty($accessKeys['secretAccessKey']);
-
-                return true;
-            }));
+            ->with(ConsentState::ACCEPTED);
 
         $systemConfigService = new StaticSystemConfigService();
-
-        $integrationRepository = $this->createMock(EntityRepository::class);
-        $integrationRepository->expects(static::once())
-            ->method('create');
 
         $consentService = new ConsentService(
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $integrationRepository,
             $consentReporter,
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->acceptConsent();
@@ -170,34 +138,21 @@ class ConsentServiceTest extends TestCase
         );
     }
 
-    public function testStoresAndReportsConsentStateAndRemovesIntegrationWhenRevoked(): void
+    public function testStoresAndReportsConsentStateWhenRevoked(): void
     {
-        $integrationRepository = $this->createMock(EntityRepository::class);
-        $integrationRepository->expects(static::once())
-            ->method('delete')
-            ->with([['id' => 'integration-id']]);
-
         $consentReporter = $this->createMock(ConsentReporter::class);
         $consentReporter->expects(static::once())
             ->method('reportConsent')
             ->with(ConsentState::REVOKED);
 
-        $systemConfigService = new StaticSystemConfigService([
-            ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION => [
-                'integrationId' => 'integration-id',
-                'appUrl' => 'APP_URL',
-            ],
-        ]);
+        $systemConfigService = new StaticSystemConfigService([]);
 
         $consentService = new ConsentService(
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $integrationRepository,
             $consentReporter,
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->revokeConsent();
@@ -222,11 +177,8 @@ class ConsentServiceTest extends TestCase
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $consentReporter,
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::expectException(ConsentAlreadyAcceptedException::class);
@@ -248,11 +200,8 @@ class ConsentServiceTest extends TestCase
             $systemConfigService,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $consentReporter,
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->revokeConsent();
@@ -269,11 +218,8 @@ class ConsentServiceTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertFalse($consentService->hasConsentState());
@@ -288,11 +234,8 @@ class ConsentServiceTest extends TestCase
                 ]),
                 $this->createMock(EntityRepository::class),
                 $this->createMock(EntityRepository::class),
-                $this->createMock(EntityRepository::class),
                 $this->createMock(ConsentReporter::class),
-                $this->createMock(ShopIdProvider::class),
                 new MockClock(),
-                'APP_URL',
             );
 
             static::assertTrue($consentService->hasConsentState());
@@ -307,11 +250,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertTrue($consentService->isConsentAccepted());
@@ -330,11 +270,8 @@ class ConsentServiceTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(EntityRepository::class),
             $userConfigRepository,
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertFalse($consentService->hasUserHiddenConsentBanner($userId, $context));
@@ -361,11 +298,8 @@ class ConsentServiceTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(EntityRepository::class),
             $userConfigRepository,
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertTrue($consentService->hasUserHiddenConsentBanner($userId, $context));
@@ -379,41 +313,11 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::expectException(ConsentAlreadyRevokedException::class);
-        $consentService->revokeConsent();
-    }
-
-    public function testIgnoresEntityNotFoundExceptionWhenRevokingConsent(): void
-    {
-        $integrationRepository = $this->createMock(EntityRepository::class);
-        $integrationRepository->expects(static::once())
-            ->method('delete')
-            ->willThrowException(new EntityNotFoundException('integration', 'id'));
-
-        $consentService = new ConsentService(
-            new StaticSystemConfigService([
-                ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ConsentService::SYSTEM_CONFIG_KEY_INTEGRATION => [
-                    'integrationId' => 'id',
-                    'appUrl' => 'APP_URL',
-                ],
-            ]),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $integrationRepository,
-            $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
-            new MockClock(),
-            'APP_URL',
-        );
-
         $consentService->revokeConsent();
     }
 
@@ -429,11 +333,8 @@ class ConsentServiceTest extends TestCase
             $systemConfig,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock($currentTime),
-            'APP_URL',
         );
 
         static::assertEquals($currentTime, $consentService->getLastConsentIsAcceptedDate());
@@ -457,11 +358,8 @@ class ConsentServiceTest extends TestCase
             $systemConfig,
             $systemConfigRepository,
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertNull($consentService->getLastConsentIsAcceptedDate());
@@ -489,49 +387,11 @@ class ConsentServiceTest extends TestCase
             $systemConfig,
             $systemConfigRepository,
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertEquals($updatedAt, $consentService->getLastConsentIsAcceptedDate());
-    }
-
-    public function testUpdateConsentIntegrationAppUrl(): void
-    {
-        $consentReporter = $this->createMock(ConsentReporter::class);
-        $consentReporter->expects(static::once())
-            ->method('reportConsentIntegrationAppUrlChanged')
-            ->with(
-                'shopId',
-                [
-                    'accessKey' => 'accessKey',
-                    'secretAccessKey' => 'secretAccessKey',
-                    'appUrl' => 'APP_URL',
-                ]
-            );
-
-        $consentService = new ConsentService(
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
-            $consentReporter,
-            $this->createMock(ShopIdProvider::class),
-            new MockClock(),
-            'APP_URL',
-        );
-
-        $consentService->updateConsentIntegrationAppUrl(
-            'shopId',
-            [
-                'accessKey' => 'accessKey',
-                'secretAccessKey' => 'secretAccessKey',
-                'appUrl' => 'APP_URL',
-            ]
-        );
     }
 
     public function testShouldPushDataReturnsFalse(): void
@@ -542,11 +402,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertFalse($consentService->shouldPushData());
@@ -560,11 +417,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         static::assertTrue($consentService->shouldPushData());
@@ -594,11 +448,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $userConfigRepository,
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->hideConsentBannerForUser($userId, $context);
@@ -640,11 +491,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $userConfigRepository,
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->hideConsentBannerForUser($userId, $context);
@@ -694,11 +542,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $userConfigRepository,
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->resetIsBannerHiddenForAllUsers();
@@ -728,11 +573,8 @@ class ConsentServiceTest extends TestCase
             ]),
             $this->createMock(EntityRepository::class),
             $userConfigRepository,
-            $this->createMock(EntityRepository::class),
             $this->createMock(ConsentReporter::class),
-            $this->createMock(ShopIdProvider::class),
             new MockClock(),
-            'APP_URL',
         );
 
         $consentService->resetIsBannerHiddenForAllUsers();

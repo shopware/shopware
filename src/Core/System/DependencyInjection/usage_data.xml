@@ -19,11 +19,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="system_config.repository"/>
             <argument type="service" id="user_config.repository"/>
-            <argument type="service" id="integration.repository"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentReporter"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
             <argument type="service" id="clock"/>
-            <argument type="string">%env(APP_URL)%</argument>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber">
@@ -107,18 +104,10 @@
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="string">%env(APP_URL)%</argument>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\UsageDataAllowListService"/>
-
-        <service id="Shopware\Core\System\UsageData\Services\IntegrationChangedService" public="true">
-            <argument type="service" id="integration.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ShopIdProvider">
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
@@ -141,17 +130,6 @@
         <service id="Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
-
-            <tag name="messenger.message_handler"/>
-        </service>
-
-        <service id="Shopware\Core\System\UsageData\ScheduledTask\CheckIntegrationChangedTask">
-            <tag name="shopware.scheduled.task"/>
-        </service>
-
-        <service id="Shopware\Core\System\UsageData\ScheduledTask\CheckIntegrationChangedTaskHandler">
-            <argument type="service" id="scheduled_task.repository"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\IntegrationChangedService"/>
 
             <tag name="messenger.message_handler"/>
         </service>

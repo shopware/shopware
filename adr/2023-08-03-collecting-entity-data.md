@@ -140,9 +140,6 @@ For deletions, an event subscriber will take care of storing the deletions of th
 These deletions will be sent and deleted when the process is run.
 No deletion will be stored if the consent for collecting data is revoked or not given in the first place.
 
-#### Kill-switch and granting API access via an integration
-When the merchant is willing to share their data with us and the consent is given, we will create an integration to get access to the shop's Admin API.
-Once the consent is revoked, the integration will be deleted and thus the access to the Admin API will be revoked, too.
-
-A kill-switch enables us to stop the pushing of data and switch over to pulling data.
-The kill-switch will be implemented in the system config and can be (de-)activated remotely via API using the integration that is created when the consent is given. 
+#### Remote kill-switch
+A kill-switch on the Gateway enables us to (temporarily) stop shops from sending us data.
+Messages already dispatched to the queue will still be handled but no new messages will be added by the scheduled task if the kill-switch is enabled.

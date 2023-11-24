@@ -93,7 +93,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
-        expect(fileInput.attributes().accept).toBe('image/*');
+        expect(fileInput.attributes().accept).toBe('*/*');
     });
 
     it('should contain "application/pdf" value', async () => {

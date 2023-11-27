@@ -3,42 +3,32 @@
 namespace Shopware\Core\System\UsageData\Consent;
 
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\UsageDataException;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
  * @internal
- *
- * @phpstan-type AccessKeys array{accessKey: string, secretAccessKey: string, appUrl: string}
- * @phpstan-type SystemConfigIntegration array{integrationId: string|null, appUrl: string, shopId: string}
  */
 #[Package('merchant-services')]
 class ConsentService
 {
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';
     public const USER_CONFIG_KEY_HIDE_CONSENT_BANNER = 'core.usageData.hideConsentBanner';
-    public const SYSTEM_CONFIG_KEY_INTEGRATION = 'core.usageData.integration';
     public const SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED = 'core.usageData.dataPushDisabled';
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $systemConfigRepository,
         private readonly EntityRepository $userConfigRepository,
-        private readonly EntityRepository $integrationRepository,
         private readonly ConsentReporter $consentReporter,
-        private readonly ShopIdProvider $shopIdProvider,
         private readonly ClockInterface $clock,
-        private readonly string $appUrl,
     ) {
     }
 
@@ -57,9 +47,7 @@ class ConsentService
             throw UsageDataException::consentAlreadyAccepted();
         }
 
-        $accessKeys = $this->createIntegration();
-
-        $this->storeAndReportConsentState(ConsentState::ACCEPTED, $accessKeys);
+        $this->storeAndReportConsentState(ConsentState::ACCEPTED);
     }
 
     public function revokeConsent(): void
@@ -68,17 +56,7 @@ class ConsentService
             throw UsageDataException::consentAlreadyRevoked();
         }
 
-        $this->deleteIntegration();
-
         $this->storeAndReportConsentState(ConsentState::REVOKED);
-    }
-
-    /**
-     * @param AccessKeys $accessKeys
-     */
-    public function updateConsentIntegrationAppUrl(string $shopId, array $accessKeys): void
-    {
-        $this->consentReporter->reportConsentIntegrationAppUrlChanged($shopId, $accessKeys);
     }
 
     /**
@@ -178,29 +156,7 @@ class ConsentService
         $this->userConfigRepository->upsert($updates, Context::createDefaultContext());
     }
 
-    public function deleteIntegration(): void
-    {
-        /** @var SystemConfigIntegration|null $integration */
-        $integration = $this->systemConfigService->get(self::SYSTEM_CONFIG_KEY_INTEGRATION);
-
-        if (!\is_array($integration)) {
-            return;
-        }
-
-        try {
-            $this->integrationRepository->delete([
-                ['id' => $integration['integrationId']],
-            ], Context::createDefaultContext());
-        } catch (EntityNotFoundException) {
-        }
-
-        $this->systemConfigService->delete(self::SYSTEM_CONFIG_KEY_INTEGRATION);
-    }
-
-    /**
-     * @param AccessKeys|null $accessKeys
-     */
-    private function storeAndReportConsentState(ConsentState $consentState, ?array $accessKeys = null): void
+    private function storeAndReportConsentState(ConsentState $consentState): void
     {
         $this->systemConfigService->set(
             self::SYSTEM_CONFIG_KEY_CONSENT_STATE,
@@ -208,40 +164,8 @@ class ConsentService
         );
 
         try {
-            $this->consentReporter->reportConsent($consentState, $accessKeys);
+            $this->consentReporter->reportConsent($consentState);
         } catch (\Throwable) {
         }
-    }
-
-    /**
-     * @return AccessKeys
-     */
-    private function createIntegration(): array
-    {
-        $this->integrationRepository->create([
-            [
-                'id' => $integrationId = Uuid::randomHex(),
-                'writeAccess' => true,
-                'accessKey' => $accessKey = AccessKeyHelper::generateAccessKey('integration'),
-                'secretAccessKey' => $secretAccessKey = AccessKeyHelper::generateSecretAccessKey(),
-                'label' => 'Data sharing with shopware AG',
-                'admin' => true,
-            ],
-        ], Context::createDefaultContext());
-
-        $this->systemConfigService->set(
-            self::SYSTEM_CONFIG_KEY_INTEGRATION,
-            [
-                'integrationId' => $integrationId,
-                'appUrl' => $this->appUrl,
-                'shopId' => $this->shopIdProvider->getShopId(),
-            ],
-        );
-
-        return [
-            'accessKey' => $accessKey,
-            'secretAccessKey' => $secretAccessKey,
-            'appUrl' => $this->appUrl,
-        ];
     }
 }

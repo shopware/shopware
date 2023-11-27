@@ -665,7 +665,6 @@
           "label": "Kunden-E-Mail-Adresse",
           "placeholder": "Eindeutige E-Mail-Adresse eingeben, oder \"*\" als Platzhalterzeichen verwenden ..."
         },
-        "isNewCustomerRule": "Neukunde",
         "lastNameRule": "Kundennachname",
         "isCompanyRule": "Firmenkunde",
         "cartTaxDisplay": {

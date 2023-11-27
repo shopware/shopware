@@ -665,7 +665,6 @@
           "label": "Customer email address",
           "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character..."
         },
-        "isNewCustomerRule": "New customer",
         "lastNameRule": "Customer surname",
         "isCompanyRule": "Commercial customer",
         "cartTaxDisplay": {

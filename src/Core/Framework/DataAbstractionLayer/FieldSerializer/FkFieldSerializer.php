@@ -83,7 +83,12 @@ class FkFieldSerializer extends AbstractFieldSerializer
         return Uuid::fromBytesToHex($value);
     }
 
-    protected function shouldUseContext(FkField $field, bool $isRaw, mixed $value): bool
+    /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - Parameter $value will be natively typed as mixed
+     *
+     * @param mixed $value
+     */
+    protected function shouldUseContext(FkField $field, bool $isRaw, $value): bool
     {
         return $isRaw && $value === null && $field->is(Required::class);
     }

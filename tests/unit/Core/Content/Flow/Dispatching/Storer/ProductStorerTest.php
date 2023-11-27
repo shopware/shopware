@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\ProductAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -73,32 +72,6 @@ class ProductStorerTest extends TestCase
         $this->storer->restore($storable);
 
         static::assertEmpty($storable->data());
-    }
-
-    public function testLoadEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = new ProductEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $res = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($res, $entity);
-    }
-
-    public function testLoadNullEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $res = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($res, $entity);
     }
 
     public function testLazyLoadEntity(): void

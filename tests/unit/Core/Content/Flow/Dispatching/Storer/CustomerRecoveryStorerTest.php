@@ -14,7 +14,6 @@ use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -71,32 +70,6 @@ class CustomerRecoveryStorerTest extends TestCase
         $this->storer->restore($storable);
 
         static::assertEmpty($storable->data());
-    }
-
-    public function testLoadEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = new CustomerRecoveryEntity();
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $res = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($res, $entity);
-    }
-
-    public function testLoadNullEntity(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-        $entity = null;
-        $result = $this->createMock(EntitySearchResult::class);
-        $result->expects(static::once())->method('get')->willReturn($entity);
-
-        $this->repository->expects(static::once())->method('search')->willReturn($result);
-        $res = $this->storer->load(['3443', Context::createDefaultContext()]);
-
-        static::assertEquals($res, $entity);
     }
 
     public function testLazyLoadEntity(): void

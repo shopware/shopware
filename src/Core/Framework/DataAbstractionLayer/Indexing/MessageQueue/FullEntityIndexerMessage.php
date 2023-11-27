@@ -21,7 +21,7 @@ class FullEntityIndexerMessage implements AsyncMessageInterface
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getSkip(): array
     {
@@ -29,7 +29,7 @@ class FullEntityIndexerMessage implements AsyncMessageInterface
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getOnly(): array
     {

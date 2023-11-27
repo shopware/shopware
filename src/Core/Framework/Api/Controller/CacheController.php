@@ -43,11 +43,8 @@ class CacheController extends AbstractController
     {
         $data = $dataBag->all();
 
-        $skip = !empty($data['skip']) && \is_array($data['skip']) ? $data['skip'] : [];
-        $only = !empty($data['only']) && \is_array($data['only']) ? $data['only'] : [];
-
-        $skip = \array_map('strval', $skip);
-        $only = \array_map('strval', $only);
+        $skip = !empty($data['skip']) && \is_array($data['skip']) ? array_values($data['skip']) : [];
+        $only = !empty($data['only']) && \is_array($data['only']) ? array_values($data['only']) : [];
 
         $this->indexerRegistry->sendFullIndexingMessage($skip, $only);
 

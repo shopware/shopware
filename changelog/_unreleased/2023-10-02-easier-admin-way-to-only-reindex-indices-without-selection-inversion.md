@@ -3,6 +3,7 @@ title: Add easier way to admin to only reindex some indices without inversion of
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens
+issue: NEXT-31920
 ---
 # Core
 * Added `\Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage`, that will be handled as `dal:refresh:index`

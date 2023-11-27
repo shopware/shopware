@@ -114,7 +114,6 @@ class ActionButtonLoaderTest extends TestCase
             ],
             'integration' => [
                 'label' => 'App1',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -140,7 +139,6 @@ class ActionButtonLoaderTest extends TestCase
             ],
             'integration' => [
                 'label' => 'App2',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -166,7 +164,6 @@ class ActionButtonLoaderTest extends TestCase
             ],
             'integration' => [
                 'label' => 'App3',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

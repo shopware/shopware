@@ -60,7 +60,6 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
                 'accessToken' => 'test',
                 'integration' => [
                     'label' => 'App1',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

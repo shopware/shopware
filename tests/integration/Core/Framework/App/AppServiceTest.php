@@ -83,7 +83,6 @@ class AppServiceTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -116,7 +115,6 @@ class AppServiceTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -158,7 +156,6 @@ class AppServiceTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -200,7 +197,6 @@ class AppServiceTest extends TestCase
                 ],
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],
@@ -225,7 +221,6 @@ class AppServiceTest extends TestCase
                 ],
                 'integration' => [
                     'label' => 'test',
-                    'writeAccess' => false,
                     'accessKey' => 'test',
                     'secretAccessKey' => 'test',
                 ],

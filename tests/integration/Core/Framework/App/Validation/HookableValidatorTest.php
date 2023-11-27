@@ -82,7 +82,6 @@ class HookableValidatorTest extends TestCase
             'label' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

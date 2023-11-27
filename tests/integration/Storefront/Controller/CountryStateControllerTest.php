@@ -107,7 +107,6 @@ class CountryStateControllerTest extends TestCase
             'integration' => [
                 'id' => $integrationId,
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

@@ -408,7 +408,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -573,7 +572,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -713,7 +711,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -799,7 +796,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -846,7 +842,6 @@ class AppLifecycleTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -889,7 +884,6 @@ class AppLifecycleTest extends TestCase
             'configurable' => true,
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -935,7 +929,6 @@ class AppLifecycleTest extends TestCase
             'appSecret' => 'iamsecret',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -989,7 +982,6 @@ class AppLifecycleTest extends TestCase
             'integration' => [
                 'id' => $integrationId,
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -1066,7 +1058,6 @@ class AppLifecycleTest extends TestCase
             ],
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

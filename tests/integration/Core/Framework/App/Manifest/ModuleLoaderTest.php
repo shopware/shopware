@@ -159,7 +159,6 @@ class ModuleLoaderTest extends TestCase
             'appSecret' => $this->defaultSecret,
             'integration' => [
                 'label' => $name,
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

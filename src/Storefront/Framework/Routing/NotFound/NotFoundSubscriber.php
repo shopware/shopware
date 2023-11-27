@@ -18,10 +18,10 @@ use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -42,8 +42,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
      * @param AbstractCacheTracer<Response> $cacheTracer
      */
     public function __construct(
-        private readonly ErrorController $controller,
-        private readonly RequestStack $requestStack,
+        private readonly HttpKernelInterface $httpKernel,
         private readonly SalesChannelContextServiceInterface $contextService,
         private bool $kernelDebug,
         private readonly CacheInterface $cache,
@@ -66,10 +65,11 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
     public function onError(ExceptionEvent $event): void
     {
-        $request = $event->getRequest();
         if ($this->kernelDebug) {
             return;
         }
+
+        $request = $event->getRequest();
 
         $event->stopPropagation();
 
@@ -86,11 +86,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
         // If the exception is not a 404 status code, we don't need to cache it.
         if (!$is404StatusCode) {
-            $event->setResponse($this->controller->error(
-                $event->getThrowable(),
-                $request,
-                $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
-            ));
+            $event->setResponse($this->renderErrorPage($request, $event->getThrowable()));
 
             return;
         }
@@ -101,17 +97,10 @@ class NotFoundSubscriber implements EventSubscriberInterface
         $name = self::buildName($salesChannelId, $domainId, $languageId);
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
-        $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context) {
+        $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
             /** @var StorefrontResponse $response */
-            $response = $this->cacheTracer->trace($name, function () use ($event) {
-                /** @var Request $request */
-                $request = $this->requestStack->getMainRequest();
-
-                return $this->controller->error(
-                    $event->getThrowable(),
-                    $request,
-                    $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
-                );
+            $response = $this->cacheTracer->trace($name, function () use ($event, $request) {
+                return $this->renderErrorPage($request, $event->getThrowable());
             });
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
@@ -184,5 +173,22 @@ class NotFoundSubscriber implements EventSubscriberInterface
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+    }
+
+    /**
+     * We enable HTTP-Cache for this request, so any external reverse proxy can cache also 404 pages.
+     * So that kind of requests doesn't hit our PHP application.
+     */
+    private function renderErrorPage(Request $request, \Throwable $e): Response
+    {
+        $errorRequest = $request->duplicate(null, null, [
+            ...$request->attributes->all(),
+            '_controller' => [ErrorController::class, 'error'],
+            '_routeScope' => ['storefront'],
+            '_httpCache' => true,
+            'exception' => $e,
+        ]);
+
+        return $this->httpKernel->handle($errorRequest, HttpKernelInterface::MAIN_REQUEST);
     }
 }

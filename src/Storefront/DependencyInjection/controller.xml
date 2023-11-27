@@ -201,7 +201,7 @@
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\ErrorController" lazy="true">
+        <service id="Shopware\Storefront\Controller\ErrorController" lazy="true" public="true">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>

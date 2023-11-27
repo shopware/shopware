@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
-use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -20,6 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -33,8 +33,7 @@ class NotFoundSubscriberTest extends TestCase
     public function testDebugIsOnDoesNothing(): void
     {
         $subscriber = new NotFoundSubscriber(
-            $this->createMock(ErrorController::class),
-            $this->createMock(RequestStack::class),
+            $this->createMock(HttpKernelInterface::class),
             $this->createMock(SalesChannelContextServiceInterface::class),
             true,
             $this->createMock(CacheInterface::class),
@@ -57,10 +56,10 @@ class NotFoundSubscriberTest extends TestCase
 
     public function testErrorHandled(): void
     {
-        $controller = $this->createMock(ErrorController::class);
-        $controller
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+        $httpKernel
             ->expects(static::once())
-            ->method('error')
+            ->method('handle')
             ->willReturn(new StorefrontResponse());
 
         $cacheTracer = $this->createMock(AbstractCacheTracer::class);
@@ -73,8 +72,7 @@ class NotFoundSubscriberTest extends TestCase
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $subscriber = new NotFoundSubscriber(
-            $controller,
-            $requestStack,
+            $httpKernel,
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
@@ -101,10 +99,10 @@ class NotFoundSubscriberTest extends TestCase
 
     public function testOtherExceptionsDoesNotGetCached(): void
     {
-        $controller = $this->createMock(ErrorController::class);
-        $controller
+        $httpKernel = $this->createMock(HttpKernelInterface::class);
+        $httpKernel
             ->expects(static::once())
-            ->method('error')
+            ->method('handle')
             ->willReturn(new StorefrontResponse());
 
         $cacheTracer = $this->createMock(AbstractCacheTracer::class);
@@ -116,8 +114,7 @@ class NotFoundSubscriberTest extends TestCase
         $requestStack->method('getMainRequest')->willReturn(new Request());
 
         $subscriber = new NotFoundSubscriber(
-            $controller,
-            $requestStack,
+            $httpKernel,
             $this->createMock(SalesChannelContextServiceInterface::class),
             false,
             new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter()),
@@ -151,8 +148,7 @@ class NotFoundSubscriberTest extends TestCase
             ->method('invalidate');
 
         $subscriber = new NotFoundSubscriber(
-            $this->createMock(ErrorController::class),
-            $this->createMock(RequestStack::class),
+            $this->createMock(HttpKernelInterface::class),
             $this->createMock(SalesChannelContextServiceInterface::class),
             true,
             $this->createMock(CacheInterface::class),

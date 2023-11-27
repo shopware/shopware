@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
@@ -134,11 +133,8 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
     private function executeCommands(array $commands, WriteContext $context): void
     {
         $entityDeleteEvent = EntityDeleteEvent::create($context, $commands);
-        $entityDeleteEventLegacy = BeforeDeleteEvent::create($context, $commands);
         if ($entityDeleteEvent->filled()) {
             $this->eventDispatcher->dispatch($entityDeleteEvent);
-
-            Feature::ifNotActive('v6.6.0.0', fn () => $this->eventDispatcher->dispatch($entityDeleteEventLegacy));
         }
 
         // throws exception on violation and then aborts/rollbacks this transaction
@@ -238,7 +234,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $mappings->execute();
             $inserts->execute();
             $entityDeleteEvent->success();
-            Feature::ifNotActive('v6.6.0.0', fn () => $entityDeleteEventLegacy->success());
         } catch (Exception $e) {
             // Match exception without passing a specific command when feature-flag 16640 is active
             $innerException = $this->exceptionHandlerRegistry->matchException($e);
@@ -248,7 +243,6 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $context->getExceptions()->add($e);
 
             $entityDeleteEvent->error();
-            Feature::ifNotActive('v6.6.0.0', fn () => $entityDeleteEventLegacy->error());
 
             throw $e;
         }

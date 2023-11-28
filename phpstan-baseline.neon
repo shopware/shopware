@@ -7696,21 +7696,6 @@ parameters:
 			path: src/Core/Profiling/Integration/Tideways.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Annotation\\\\Concept\\\\DeprecationPattern\\\\RenameService\\:\\:__construct\\(\\) has parameter \\$info with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Annotation/Concept/DeprecationPattern/RenameService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Annotation\\\\Concept\\\\DeprecationPattern\\\\ReplaceDecoratedInterface\\:\\:__construct\\(\\) has parameter \\$info with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\Annotation\\\\Concept\\\\ExtensionPattern\\\\Handler\\:\\:__construct\\(\\) has parameter \\$info with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/Annotation/Concept/ExtensionPattern/Handler.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Country\\\\Aggregate\\\\CountryStateTranslation\\\\CountryStateTranslationCollection\\:\\:getCountryStateIds\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/Country/Aggregate/CountryStateTranslation/CountryStateTranslationCollection.php

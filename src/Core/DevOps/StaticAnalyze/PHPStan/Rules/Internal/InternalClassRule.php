@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Test\Api\ApiDefinition\ApiRoute\StoreApiTestOtherRoute;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -34,10 +33,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[Package('core')]
 class InternalClassRule implements Rule
 {
-    private const TEST_CLASS_EXCEPTIONS = [
-        StoreApiTestOtherRoute::class, // The test route is used to test the OpenApiGenerator, that class would ignore internal classes
-    ];
-
     private const INTERNAL_NAMESPACES = [
         '\\DevOps\\StaticAnalyze',
     ];
@@ -118,10 +113,6 @@ class InternalClassRule implements Rule
     private function isTestClass(InClassNode $node): bool
     {
         $namespace = $node->getClassReflection()->getName();
-
-        if (\in_array($namespace, self::TEST_CLASS_EXCEPTIONS, true)) {
-            return false;
-        }
 
         if (\str_contains($namespace, 'Shopware\\Core\\Test\\Stub\\')) {
             return false;

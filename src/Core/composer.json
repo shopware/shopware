@@ -55,7 +55,6 @@
         "composer-runtime-api": "^2.0",
         "composer/composer": "^2.4.4",
         "composer/semver": "^3.2",
-        "doctrine/annotations": "^1.14 || ^2.0",
         "doctrine/dbal": "^3.7",
         "doctrine/inflector": "^2.0",
         "dompdf/dompdf": "2.0.3",

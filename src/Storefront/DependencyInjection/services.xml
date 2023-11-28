@@ -184,6 +184,7 @@
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">

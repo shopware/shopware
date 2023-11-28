@@ -135,6 +135,8 @@ class NotFoundSubscriberTest extends TestCase
         $subscriber->onError($event);
 
         static::assertInstanceOf(Response::class, $event->getResponse());
+
+        $subscriber->reset();
     }
 
     /**

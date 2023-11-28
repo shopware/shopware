@@ -36,7 +36,7 @@ async function createWrapper(privileges = []) {
 }
 
 /**
- * @package merchant-services
+ * @package buyers-experience
  */
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', () => {
     it('should be a Vue.js component', async () => {

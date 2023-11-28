@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 enum Operation: string
 {
     case CREATE = 'create';

@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDeleteSubscriber implements EventSubscriberInterface
 {
     public const DELETIONS_TABLE_NAME = 'usage_data_entity_deletion';

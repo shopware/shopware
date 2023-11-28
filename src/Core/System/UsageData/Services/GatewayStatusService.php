@@ -9,7 +9,7 @@ use Symfony\Component\HttpClient\Exception\ServerException;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class GatewayStatusService
 {
     public function __construct(

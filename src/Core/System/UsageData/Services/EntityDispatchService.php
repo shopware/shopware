@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDispatchService
 {
     private const LAST_RUN_CONFIG_KEY = 'usageData-entitySync-lastRun';

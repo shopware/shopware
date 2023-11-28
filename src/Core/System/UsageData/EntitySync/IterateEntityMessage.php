@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class IterateEntityMessage implements LowPriorityMessageInterface
 {
     public function __construct(

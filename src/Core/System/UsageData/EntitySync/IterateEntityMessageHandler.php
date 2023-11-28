@@ -15,7 +15,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @internal
  */
 #[AsMessageHandler(handles: IterateEntityMessage::class)]
-#[Package('merchant-services')]
+#[Package('data-services')]
 final class IterateEntityMessageHandler
 {
     public function __construct(

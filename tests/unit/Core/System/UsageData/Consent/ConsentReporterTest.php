@@ -18,7 +18,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
  *
  * @covers \Shopware\Core\System\UsageData\Consent\ConsentReporter
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ConsentReporterTest extends TestCase
 {
     public function testReportConsentAddsShopIdHeader(): void

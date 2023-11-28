@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ShopIdProvider
 {
     public function __construct(

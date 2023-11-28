@@ -9,7 +9,7 @@ const usageDataService = {
 };
 
 /**
- * @package merchant-services
+ * @package data-services
  */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
     const wrapper = mount(await wrapTestComponent('sw-usage-data-consent-banner', {

@@ -10,7 +10,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * @internal
  */
 #[AsMessageHandler(handles: CollectEntityDataMessage::class)]
-#[Package('merchant-services')]
+#[Package('data-services')]
 final class CollectEntityDataMessageHandler
 {
     public function __construct(

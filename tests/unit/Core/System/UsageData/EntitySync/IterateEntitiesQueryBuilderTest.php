@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class IterateEntitiesQueryBuilderTest extends TestCase
 {
     private IterateEntitiesQueryBuilder $iteratorFactory;

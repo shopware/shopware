@@ -210,7 +210,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         /** @var WebhookCollection $webhooks */
         $webhooks = $this->container->get('webhook.repository')->search($criteria, Context::createDefaultContext())->getEntities();
 
-        return $this->webhooks = $webhooks;
+        return $this->webhooks = $webhooks->allowedForDispatching();
     }
 
     /**

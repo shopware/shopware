@@ -13,6 +13,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 abstract class ManifestChangedEvent extends AppChangedEvent
 {
+    public const LIFECYCLE_EVENTS = [
+        AppActivatedEvent::NAME,
+        AppDeactivatedEvent::NAME,
+        AppDeletedEvent::NAME,
+        AppInstalledEvent::NAME,
+        AppUpdatedEvent::NAME,
+    ];
+
     public function __construct(
         AppEntity $app,
         private readonly Manifest $manifest,

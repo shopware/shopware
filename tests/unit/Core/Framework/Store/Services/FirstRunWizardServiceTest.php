@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -37,12 +38,11 @@ use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigServi
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Services\FirstRunWizardService
  */
+#[Package('services-settings')]
 class FirstRunWizardServiceTest extends TestCase
 {
     private Context $context;

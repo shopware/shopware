@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSessionExpiredException;
 use Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -15,12 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Services\StoreSessionExpiredMiddleware
  */
+#[Package('services-settings')]
 class StoreSessionExpiredMiddlewareTest extends TestCase
 {
     public function testReturnsResponseIfStatusCodeIsNotUnauthorized(): void

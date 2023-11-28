@@ -16,7 +16,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @covers \Shopware\Core\Framework\Store\Services\StoreClientFactory
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class StoreClientFactoryTest extends TestCase
 {
     public function testCreatesClientWithoutMiddlewares(): void

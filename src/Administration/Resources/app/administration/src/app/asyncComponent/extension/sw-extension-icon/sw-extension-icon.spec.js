@@ -4,7 +4,7 @@ import swExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon'
 Shopware.Component.register('sw-extension-icon', swExtensionIcon);
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-icon', () => {
     it('passes correct props to image', async () => {

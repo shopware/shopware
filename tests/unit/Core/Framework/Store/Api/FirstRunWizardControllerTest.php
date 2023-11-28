@@ -35,7 +35,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  *
  * @covers \Shopware\Core\Framework\Store\Api\FirstRunWizardController
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class FirstRunWizardControllerTest extends TestCase
 {
     private FirstRunWizardService&MockObject $firstRunWizardService;

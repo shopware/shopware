@@ -3,16 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Exception\InvalidExtensionIdException
  */
+#[Package('services-settings')]
 class InvalidExtensionIdExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

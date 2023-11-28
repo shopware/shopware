@@ -171,7 +171,12 @@ class EntitySearchResult extends EntityCollection
         return $this->entities->getAt($position);
     }
 
-    protected function createNew(iterable $elements = []): static
+    /**
+     * @return static
+     *
+     * @deprecated tag:v6.6.0  - reason:return-type-change - Return type will be changed to `static`
+     */
+    protected function createNew(iterable $elements = [])
     {
         if (!($elements instanceof EntityCollection)) {
             $elements = new EntityCollection($elements);

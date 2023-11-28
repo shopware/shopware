@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Script\Execution\Hook;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
+use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -87,10 +89,14 @@ abstract class StorefrontController extends AbstractController
             IconCacheTwigFilter::enable();
         }
 
-        $response = Profiler::trace('twig-rendering', fn () => $this->render($view, $event->getParameters(), new Response()));
+        $response = Profiler::trace('twig-rendering', fn () => $this->render($view, $event->getParameters(), new StorefrontResponse()));
 
         if ($iconCacheEnabled) {
             IconCacheTwigFilter::disable();
+        }
+
+        if (!$response instanceof StorefrontResponse) {
+            throw StorefrontException::unSupportStorefrontResponse();
         }
 
         $host = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
@@ -102,6 +108,11 @@ abstract class StorefrontController extends AbstractController
             $response->setContent(
                 $seoUrlReplacer->replace($content, $host, $salesChannelContext)
             );
+        }
+
+        if (!Feature::isActive('v6.6.0.0')) {
+            $response->setData($parameters);
+            $response->setContext($salesChannelContext);
         }
 
         $response->headers->set('Content-Type', 'text/html');

@@ -55,6 +55,11 @@ class DefinitionValidator
         'product.cheapestPriceContainer',
         'product.cheapest_price',
         'product.cheapest_price_accessor',
+
+        // @deprecated tag:v6.6.0 - Deprecated columns
+        'shipping_method_price.currency',
+        'payment_method.shortName',
+        'state_machine_history.entityId',
     ];
 
     private const PLURAL_EXCEPTIONS = [

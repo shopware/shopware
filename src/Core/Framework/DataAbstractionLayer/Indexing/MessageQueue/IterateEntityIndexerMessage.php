@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
@@ -16,12 +17,14 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
     /**
      * @internal
      *
+     * @deprecated tag:v6.6.0 - parameter $offset will be natively typed to type `?array`
+     *
      * @param array{offset: int|null}|null $offset
      * @param list<string> $skip
      */
     public function __construct(
         string $indexer,
-        protected ?array $offset,
+        protected $offset,
         protected array $skip = []
     ) {
         $this->indexer = $indexer;
@@ -33,18 +36,29 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
     }
 
     /**
+     * @deprecated tag:v6.6.0 - reason:return-type-change - return type will be natively typed to type `?array`
+     *
      * @return array{offset: int|null}|null
      */
-    public function getOffset(): ?array
+    public function getOffset()
     {
         return $this->offset;
     }
 
     /**
+     * @deprecated tag:v6.6.0 - parameter $offset will be natively typed to type `?array`
+     *
      * @param array{offset: int|null}|null $offset
      */
-    public function setOffset(?array $offset): void
+    public function setOffset($offset): void
     {
+        if ($offset !== null && !\is_array($offset)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                'The parameter $offset of method ' . __METHOD__ . ' will be natively typed to type `?array` in v6.6.0.0.'
+            );
+        }
+
         $this->offset = $offset;
     }
 

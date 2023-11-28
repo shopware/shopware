@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Parser;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -40,13 +40,13 @@ class QueryStringParserTest extends TestCase
 {
     public function testWithUnsupportedFormat(): void
     {
-        $this->expectException(DataAbstractionLayerException::class);
+        $this->expectException(InvalidFilterQueryException::class);
         QueryStringParser::fromArray(new ProductDefinition(), ['type' => 'foo'], new SearchRequestException());
     }
 
     public function testInvalidParameters(): void
     {
-        $this->expectException(DataAbstractionLayerException::class);
+        $this->expectException(InvalidFilterQueryException::class);
         QueryStringParser::fromArray(new ProductDefinition(), ['foo' => 'bar'], new SearchRequestException());
     }
 
@@ -102,7 +102,7 @@ class QueryStringParserTest extends TestCase
     public function testEqualsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         /** @var EqualsFilter $result */
@@ -139,7 +139,7 @@ class QueryStringParserTest extends TestCase
     public function testContainsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         /** @var EqualsFilter $result */
@@ -172,7 +172,7 @@ class QueryStringParserTest extends TestCase
     public function testPrefixFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         /** @var EqualsFilter $result */
@@ -205,7 +205,7 @@ class QueryStringParserTest extends TestCase
     public function testSuffixFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         /** @var EqualsFilter $result */
@@ -238,7 +238,7 @@ class QueryStringParserTest extends TestCase
     public function testEqualsAnyFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         /** @var EqualsAnyFilter $result */
@@ -283,7 +283,7 @@ class QueryStringParserTest extends TestCase
     public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
     {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
@@ -354,7 +354,7 @@ class QueryStringParserTest extends TestCase
         bool $thresholdInFuture = true
     ): void {
         if ($expectException) {
-            $this->expectException(DataAbstractionLayerException::class);
+            $this->expectException(InvalidFilterQueryException::class);
         }
 
         /** @var MultiFilter $result */

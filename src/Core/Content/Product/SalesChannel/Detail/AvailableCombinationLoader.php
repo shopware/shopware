@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,6 +28,34 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     public function getDecorated(): AbstractAvailableCombinationLoader
     {
         throw new DecorationPatternException(self::class);
+    }
+
+    /**
+     * @deprecated tag:v6.6.0 - Method will be removed. Use `loadCombinations` instead.
+     */
+    public function load(string $productId, Context $context, string $salesChannelId): AvailableCombinationResult
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.6.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'loadCombinations')
+        );
+
+        $combinations = $this->getCombinations($productId, $context, $salesChannelId);
+
+        $result = new AvailableCombinationResult();
+
+        foreach ($combinations as $combination) {
+            try {
+                $options = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                continue;
+            }
+
+            $available = (bool) $combination['available'];
+            $result->addCombination($options, $available);
+        }
+
+        return $result;
     }
 
     public function loadCombinations(string $productId, SalesChannelContext $salesChannelContext): AvailableCombinationResult

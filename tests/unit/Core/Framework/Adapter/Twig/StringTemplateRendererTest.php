@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
@@ -23,7 +24,7 @@ class StringTemplateRendererTest extends TestCase
      */
     public function testTranslationRendering(string $label, string $expected): void
     {
-        $template = <<<TWIG
+        $template = <<<'TWIG'
 {% set label = item.label|trans({}, 'storefront') %}
 {{ label }}
 TWIG;
@@ -59,5 +60,21 @@ TWIG;
         yield 'Test with special chars' => ['Some cool ! % & product name', 'Some cool ! % &amp; product name'];
         yield 'Test existing snippet' => ['general.homeLink', 'Home'];
         yield 'Test none existing snippet' => ['general.homeLink-foo', 'general.homeLink-foo'];
+    }
+
+    public function testRenderThrowsAdapterExceptionDueInvalidSyntax(): void
+    {
+        $template = <<<'TWIG'
+{{ label }
+TWIG;
+
+        $context = Context::createDefaultContext();
+        $environment = new Environment(new ArrayLoader());
+
+        $renderer = new StringTemplateRenderer($environment, sys_get_temp_dir());
+
+        $this->expectException(AdapterException::class);
+        $this->expectExceptionMessage('Failed rendering Twig string template due syntax error: "Unexpected "}" in "04e92a9efc07ae62e1ec342418711bbd" at line 1."');
+        $renderer->render($template, [], $context);
     }
 }

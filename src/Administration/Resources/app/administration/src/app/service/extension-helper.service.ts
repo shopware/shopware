@@ -3,7 +3,7 @@ import type { ExtensionStoreActionService, ExtensionType } from '../../module/sw
 
 /**
  * @private
- * @package merchant-services
+ * @package services-settings
  */
 export default class ExtensionHelperService {
     private readonly extensionStoreActionService: ExtensionStoreActionService;

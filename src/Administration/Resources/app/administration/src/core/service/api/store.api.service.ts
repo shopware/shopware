@@ -19,7 +19,7 @@ interface UserInfoResponse {
 
 /**
  * @private
- * @package merchant-services
+ * @package services-settings
  * Gateway for the API end point "store"
  */
 export default class StoreApiService extends ApiService {
@@ -96,6 +96,6 @@ export default class StoreApiService extends ApiService {
 
 /**
  * @private
- * @package merchant-services
+ * @package services-settings
  */
 export type { StoreApiService, UserInfo };

@@ -30,7 +30,7 @@ async function createWrapper(customString = '') {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  */
 describe('src/module/sw-settings-store/page/sw-settings-store', () => {
     it('should be a vue.js component', async () => {

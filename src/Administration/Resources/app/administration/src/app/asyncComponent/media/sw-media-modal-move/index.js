@@ -128,27 +128,34 @@ export default {
             } else if (child.parentId === null) {
                 this.parentFolder = { id: null, name: this.rootFolderName };
             } else {
-                const criteria = new Criteria(1, 1)
-                    .addFilter(Criteria.equals('id', child.parentId))
-                    .addAssociation('children');
-                const items = await this.mediaFolderRepository.search(criteria, Context.api);
-                if (items.length === 1) {
-                    this.parentFolder = items[0];
-                } else {
-                    this.parentFolder = null;
-                }
+                this.parentFolder = await this.fetchParentFolder(child.parentId);
             }
+        },
+
+        async fetchParentFolder(id) {
+            let items = null;
+
+            const criteria = new Criteria(1, 1)
+                .addFilter(Criteria.equals('id', id))
+                .addAssociation('children');
+
+            try {
+                items = await this.mediaFolderRepository.search(criteria, Context.api);
+            } catch {
+                this.createNotificationError({
+                    message: this.$tc('global.sw-media-modal-move.notification.errorFetchNavigation.message'),
+                });
+            }
+
+            if (items?.length) {
+                return items[0];
+            }
+
+            return null;
         },
 
         onSelection(folder) {
             this.targetFolder = folder;
-            // the children aren't always loaded
-            if (folder.children) {
-                if (folder.children.filter(this.isNotPartOfItemsToMove).length > 0) {
-                    this.displayFolder = folder;
-                }
-                return;
-            }
 
             if (folder.id === null || folder.childCount > 0) {
                 this.displayFolder = folder;

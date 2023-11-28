@@ -137,7 +137,7 @@ describe('Account: indicate non-shippable country on register page', () => {
             .should('be.visible');
 
         cy.get('#shipping-address-list form[action="/widgets/account/address-book"] button')
-            .contains('Set as default shipping address')
+            .contains('Use as default shipping address')
             .should('be.disabled');
 
         cy.get('.js-pseudo-modal .close').click();
@@ -152,7 +152,7 @@ describe('Account: indicate non-shippable country on register page', () => {
             .should('be.visible');
 
         cy.get('.address-action-set-default-shipping')
-            .contains('Set as default shipping address')
+            .contains('Use as default shipping address')
             .should('be.disabled');
     });
 });

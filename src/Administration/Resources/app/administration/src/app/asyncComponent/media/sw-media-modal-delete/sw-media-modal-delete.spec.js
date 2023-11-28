@@ -1,10 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import SwMediaModalDelete from 'src/app/asyncComponent/media/sw-media-modal-delete';
-
-Shopware.Component.register('sw-media-modal-delete', SwMediaModalDelete);
+import { mount } from '@vue/test-utils_v3';
 
 describe('components/media/sw-media-modal-delete', () => {
     const itemDeleteMock = (options = {}) => {
@@ -30,24 +27,27 @@ describe('components/media/sw-media-modal-delete', () => {
     const createWrapper = async (itemDeleteOptions = null) => {
         const itemsToDelete = itemDeleteOptions || [itemDeleteMock()];
 
-        return shallowMount(await Shopware.Component.build('sw-media-modal-delete'), {
-            stubs: {
-                'sw-modal': true,
-                'sw-button': true,
-                'sw-media-quickinfo-usage': {
-                    template: '<div class="sw-media-quickinfo-usage"></div>',
+        return mount(await wrapTestComponent('sw-media-modal-delete', { sync: true }), {
+            props: { itemsToDelete },
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-modal': true,
+                    'sw-button': true,
+                    'sw-media-quickinfo-usage': {
+                        template: '<div class="sw-media-quickinfo-usage"></div>',
+                    },
+                    'sw-media-media-item': {
+                        template: '<div class="sw-media-media-item"></div>',
+                    },
+                    'sw-alert': true,
                 },
-                'sw-media-media-item': {
-                    template: '<div class="sw-media-media-item"></div>',
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({ search: () => Promise.resolve() }),
+                    },
                 },
-                'sw-alert': true,
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({ search: () => Promise.resolve() }),
-                },
-            },
-            propsData: { itemsToDelete },
         });
     };
 

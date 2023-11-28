@@ -1,16 +1,22 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionRatingsSummary from 'src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary';
-import 'src/app/component/utils/sw-progress-bar';
-
-Shopware.Component.register('sw-extension-ratings-summary', swExtensionRatingsSummary);
+import { mount } from '@vue/test-utils_v3';
 
 /**
  * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summary', () => {
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-extension-ratings-summary'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-extension-ratings-summary', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-progress-bar': await wrapTestComponent('sw-progress-bar', { sync: true }),
+                },
+                provide: {
+                    userActivityService: {
+                        updateLastUserActivity: () => {},
+                    },
+                },
+            },
+            props: {
                 summary: {
                     ratingAssignment: [
                         { rating: 5, count: 5 },
@@ -24,22 +30,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-ratings-summ
                     extensions: [],
                 },
             },
-            stubs: {
-                'sw-extension-rating-stars': true,
-                'sw-progress-bar': await Shopware.Component.build('sw-progress-bar'),
-            },
-            provide: {
-                userActivityService: {
-                    updateLastUserActivity: () => {},
-                },
-            },
         });
     }
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should display amount of ratings correctly', async () => {
         const wrapper = await createWrapper();

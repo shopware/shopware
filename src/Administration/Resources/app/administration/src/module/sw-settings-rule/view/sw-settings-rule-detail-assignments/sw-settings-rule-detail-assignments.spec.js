@@ -1,52 +1,14 @@
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swSettingsRuleAssignmentListing from 'src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing';
-import swSettingsRuleDetailAssignments from 'src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments';
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/context-menu/sw-context-menu';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/utils/sw-popover';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-Shopware.Component.extend('sw-settings-rule-assignment-listing', 'sw-entity-listing', swSettingsRuleAssignmentListing);
-Shopware.Component.register('sw-settings-rule-detail-assignments', swSettingsRuleDetailAssignments);
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
 }
 
 async function createWrapper(entitiesWithResults = [], customProps = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-rule-detail-assignments'), {
-        localVue,
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot name="toolbar"></slot><slot name="grid"></slot></div>',
-            },
-            'sw-loader': true,
-            'sw-empty-state': true,
-            'sw-settings-rule-assignment-listing': await Shopware.Component.build('sw-settings-rule-assignment-listing'),
-            'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-pagination': true,
-            'sw-context-button': await Shopware.Component.build('sw-context-button'),
-            'sw-checkbox-field': true,
-            'sw-context-menu-item': true,
-            'sw-icon': true,
-            'sw-button': true,
-            'sw-field-error': true,
-            'sw-card-filter': true,
-            'router-link': {
-                template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
-                props: ['to'],
-            },
-            'sw-alert': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-rule-detail-assignments', { sync: true }), {
+        props: {
             ruleId: 'uuid1',
             rule: {
                 name: 'Test rule',
@@ -56,44 +18,74 @@ async function createWrapper(entitiesWithResults = [], customProps = {}) {
             },
             ...customProps,
         },
-        provide: {
-            validationService: {},
-            shortcutService: {
-                startEventListener: () => {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot name="toolbar"></slot><slot name="grid"></slot></div>',
                 },
-                stopEventListener: () => {
+                'sw-loader': true,
+                'sw-empty-state': true,
+                'sw-settings-rule-assignment-listing': await wrapTestComponent('sw-settings-rule-assignment-listing'),
+                'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-pagination': true,
+                'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-checkbox-field': true,
+                'sw-context-menu-item': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-field-error': true,
+                'sw-card-filter': true,
+                'router-link': {
+                    template: '<a class="router-link" :detail-route="to.name"><slot></slot></a>',
+                    props: ['to'],
                 },
+                'sw-alert': true,
             },
-
-            repositoryFactory: {
-                create: (entityName) => {
-                    return {
-                        search: (_, api) => {
-                            const entities = [
-                                { name: 'Foo' },
-                                { name: 'Bar' },
-                                { name: 'Baz' },
-                            ];
-
-                            if (api.inheritance) {
-                                entities.push({ name: 'Inherited' });
-                            }
-
-                            if (entitiesWithResults.includes(entityName)) {
-                                return Promise.resolve(createEntityCollectionMock(entityName, entities));
-                            }
-
-                            return Promise.resolve(createEntityCollectionMock(entityName));
-                        },
-                    };
+            provide: {
+                validationService: {},
+                shortcutService: {
+                    startEventListener: () => {
+                    },
+                    stopEventListener: () => {
+                    },
                 },
-            },
 
-            ruleConditionDataProviderService: {
-                getRestrictedAssociations: () => {},
-                getTranslatedConditionViolationList: () => { return 'text'; },
-                isRuleRestricted: () => { return true; },
-                getRestrictedRuleTooltipConfig: () => ({ message: 'tooltipConfig', disabled: true }),
+                repositoryFactory: {
+                    create: (entityName) => {
+                        return {
+                            search: (_, api) => {
+                                const entities = [
+                                    { name: 'Foo' },
+                                    { name: 'Bar' },
+                                    { name: 'Baz' },
+                                ];
+
+                                if (api.inheritance) {
+                                    entities.push({ name: 'Inherited' });
+                                }
+
+                                if (entitiesWithResults.includes(entityName)) {
+                                    return Promise.resolve(createEntityCollectionMock(entityName, entities));
+                                }
+
+                                return Promise.resolve(createEntityCollectionMock(entityName));
+                            },
+                        };
+                    },
+                },
+
+                ruleConditionDataProviderService: {
+                    getRestrictedAssociations: () => {
+                    },
+                    getTranslatedConditionViolationList: () => {
+                        return 'text';
+                    },
+                    isRuleRestricted: () => {
+                        return true;
+                    },
+                    getRestrictedRuleTooltipConfig: () => ({ message: 'tooltipConfig', disabled: true }),
+                },
             },
         },
     });
@@ -254,7 +246,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const validNames = ['Foo', 'Bar', 'Baz', 'Inherited'];
 
         // expect the correct names of the products
-        productAssignments.wrappers.forEach((assignment, index) => {
+        productAssignments.forEach((assignment, index) => {
             expect(assignment.text()).toBe(validNames[index]);
         });
     });

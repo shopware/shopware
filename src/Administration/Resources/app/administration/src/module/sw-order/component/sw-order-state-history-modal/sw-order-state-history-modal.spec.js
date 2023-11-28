@@ -1,12 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderStateHistoryModalComponent from 'src/module/sw-order/component/sw-order-state-history-modal';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/grid/sw-pagination';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 function getCollection(entity, collection) {
@@ -109,67 +105,65 @@ orderProp.deliveries.first = () => ({
     },
 });
 
-Shopware.Component.register('sw-order-state-history-modal', swOrderStateHistoryModalComponent);
-
 describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     let SwOrderStateHistoryModal;
 
     async function createWrapper(options = {}) {
-        return shallowMount(SwOrderStateHistoryModal, {
-            stubs: {
-                'sw-modal': {
-                    template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
+        return mount(SwOrderStateHistoryModal, {
+            global: {
+                stubs: {
+                    'sw-modal': {
+                        template: '<div><slot></slot><slot name="modal-footer"></slot></div>',
+                    },
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                    'sw-data-grid-skeleton': true,
+                    'sw-pagination': await wrapTestComponent('sw-pagination', { sync: true }),
+                    'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                    'sw-icon': true,
+                    'sw-time-ago': true,
+                    'sw-label': {
+                        template: '<div class="sw-label"><slot></slot></div>',
+                    },
                 },
-                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-data-grid-skeleton': true,
-                'sw-pagination': await Shopware.Component.build('sw-pagination'),
-                'sw-button': await Shopware.Component.build('sw-button'),
-                'sw-icon': true,
-                'sw-time-ago': true,
-                'sw-label': {
-                    template: '<div class="sw-label"><slot></slot></div>',
+                provide: {
+                    stateStyleDataProviderService: {
+                        getStyle: () => {
+                            return {
+                                variant: '',
+                            };
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                if (options.error) {
+                                    // eslint-disable-next-line prefer-promise-reject-errors
+                                    return Promise.reject({
+                                        response: {
+                                            data: {
+                                                errors: [
+                                                    {
+                                                        code: 'This is an error code',
+                                                        detail: 'This is an detailed error message',
+                                                    },
+                                                ],
+                                            },
+                                        },
+                                    });
+                                }
+
+                                return Promise.resolve(getCollection('state_machine_history', stateHistoryFixture));
+                            },
+                        }),
+                    },
                 },
             },
-
             data() {
                 return {
                     ...options,
                 };
             },
-
-            provide: {
-                stateStyleDataProviderService: {
-                    getStyle: () => {
-                        return {
-                            variant: '',
-                        };
-                    },
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            if (options.error) {
-                                // eslint-disable-next-line prefer-promise-reject-errors
-                                return Promise.reject({
-                                    response: {
-                                        data: {
-                                            errors: [
-                                                {
-                                                    code: 'This is an error code',
-                                                    detail: 'This is an detailed error message',
-                                                },
-                                            ],
-                                        },
-                                    },
-                                });
-                            }
-
-                            return Promise.resolve(getCollection('state_machine_history', stateHistoryFixture));
-                        },
-                    }),
-                },
-            },
-            propsData: {
+            props: {
                 isLoading: false,
                 order: orderProp,
             },
@@ -177,7 +171,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     }
 
     beforeAll(async () => {
-        SwOrderStateHistoryModal = await Shopware.Component.build('sw-order-state-history-modal');
+        SwOrderStateHistoryModal = await wrapTestComponent('sw-order-state-history-modal', { sync: true });
     });
 
     it('should be a Vue.js component', async () => {

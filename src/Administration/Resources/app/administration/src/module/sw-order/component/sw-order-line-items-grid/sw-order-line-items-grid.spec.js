@@ -1,14 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swOrderLineItemsGrid from 'src/module/sw-order/component/sw-order-line-items-grid';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-line-items-grid', swOrderLineItemsGrid);
-
 const mockItems = [
     {
         id: '1',
@@ -133,26 +127,9 @@ const mockMultipleTaxesItem = {
 
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 
-async function createWrapper({ privileges = [] }) {
-    const localVue = createLocalVue();
-
-    localVue.directive('tooltip', {
-        bind(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-        inserted(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-        update(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-    });
-
-    localVue.filter('currency', (currency) => currency);
-
-    return shallowMount(await Shopware.Component.build('sw-order-line-items-grid'), {
-        localVue,
-        propsData: {
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-order-line-items-grid', { sync: true }), {
+        props: {
             order: {
                 price: {
                     taxStatus: '',
@@ -173,125 +150,120 @@ async function createWrapper({ privileges = [] }) {
             },
             isLoading: false,
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
-                            isNew: () => true,
-                            id: Shopware.Utils.createId(),
-                        };
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                isNew: () => true,
+                                id: Shopware.Utils.createId(),
+                            };
+                        },
+                        delete: deleteEndpoint,
+                    }),
+                },
+                orderService: {
+                    addProductToOrder: () => Promise.resolve({}),
+                    addCustomLineItemToOrder: () => Promise.resolve({}),
+                    addCreditItemToOrder: () => Promise.resolve({}),
+                },
+                feature: {
+                    isActive: () => true,
+                },
+            },
+            stubs: {
+                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-button': await await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button-group': {
+                    template: '<div class="sw-button-group"><slot></slot></div>',
+                },
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-context-menu-divider': true,
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
+                },
+                'sw-card-filter': true,
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid-settings': true,
+                'sw-icon': await await wrapTestComponent('sw-icon', { sync: true }),
+                'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info', { sync: true }),
+                'sw-switch-field': true,
+                'router-link': {
+                    template: '<a class="router-link" href="#"><slot></slot></a>',
+                    props: ['to'],
+                },
+                'sw-number-field': {
+                    template: '<input class="sw-number-field" type="number" v-model="value" />',
+                    props: {
+                        value: 0,
                     },
-                    delete: deleteEndpoint,
-                }),
+                },
+                'sw-order-product-select': {
+                    template: '<input class="sw-order-product-select" v-model="value" />',
+                    props: {
+                        value: 0,
+                    },
+                },
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal">
+                        <slot></slot>
+                        <slot name="modal-footer"></slot>
+                        </div>
+                    `,
+                },
             },
-            orderService: {
-                addProductToOrder: () => Promise.resolve({}),
-                addCustomLineItemToOrder: () => Promise.resolve({}),
-                addCreditItemToOrder: () => Promise.resolve({}),
-            },
-            acl: {
-                can: (key) => {
-                    if (!key) return true;
+            mocks: {
+                $tc: (t, count, value) => {
+                    if (t === 'sw-order.detailBase.taxDetail') {
+                        return `${value.taxRate}%: ${value.tax}`;
+                    }
 
-                    return privileges.includes(key);
+                    return t;
                 },
             },
-            feature: {
-                isActive: () => true,
+            directives: {
+                tooltip: {
+                    bind(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
+                    },
+                    inserted(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
+                    },
+                    update(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
+                    },
+                },
             },
         },
-        stubs: {
-            'sw-container': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-group': {
-                template: '<div class="sw-button-group"><slot></slot></div>',
-            },
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-context-menu-divider': true,
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
-            },
-            'sw-card-filter': true,
-            'sw-checkbox-field': {
-                template: '<input class="sw-checkbox-field" type="checkbox" :checked="value" @change="$emit(\'change\', $event.target.value)" />',
-                props: ['value'],
-            },
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-data-grid-settings': true,
-            'sw-icon': true,
-            'sw-product-variant-info': true,
-            'sw-switch-field': true,
-            'router-link': true,
-            'sw-number-field': {
-                template: '<input class="sw-number-field" type="number" v-model="value" />',
-                props: {
-                    value: 0,
-                },
-            },
-            'sw-order-product-select': {
-                template: '<input class="sw-order-product-select" v-model="value" />',
-                props: {
-                    value: 0,
-                },
-            },
-            'sw-modal': {
-                template: `
-                    <div class="sw-modal">
-                      <slot></slot>
-                      <slot name="modal-footer"></slot>
-                    </div>
-                `,
-            },
-        },
-        mocks: {
-            $tc: (t, count, value) => {
-                if (t === 'sw-order.detailBase.taxDetail') {
-                    return `${value.taxRate}%: ${value.tax}`;
-                }
 
-                return t;
-            },
-        },
     });
 }
 
 describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
-    beforeAll(() => {
-        Shopware.Service().register('cartStoreService', () => {
-            return {
-                getLineItemTypes: () => {
-                    return Object.freeze({
-                        PRODUCT: 'product',
-                        CREDIT: 'credit',
-                        CUSTOM: 'custom',
-                        PROMOTION: 'promotion',
-                    });
-                },
-            };
-        });
-    });
-
     it('the create discounts button should be disabled', async () => {
-        const wrapper = await createWrapper({
-            privileges: ['orders.create_discounts'],
-        });
+        global.activeAclRoles = ['orders.create_discounts'];
+        const wrapper = await createWrapper();
 
         const button = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
         expect(button.attributes()).not.toHaveProperty('disabled');
     });
 
     it('the create discounts button should not be disabled', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         const button = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
         expect(button.attributes()).toHaveProperty('disabled');
     });
 
     it('only product item should have redirect link', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -304,26 +276,27 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const productLabel = productItem.find('.sw-data-grid__cell--label');
         const showProductButton1 = productItem.find('.sw-context-menu-item');
 
-        expect(productLabel.find('router-link-stub').exists()).toBeTruthy();
+        expect(productLabel.find('.router-link').exists()).toBeTruthy();
         expect(showProductButton1.attributes().disabled).toBeUndefined();
 
         const customItem = wrapper.find('.sw-data-grid__row--1');
         const customLabel = customItem.find('.sw-data-grid__cell--label');
         const showProductButton2 = customItem.find('.sw-context-menu-item');
 
-        expect(customLabel.find('router-link-stub').exists()).toBeFalsy();
+        expect(customLabel.find('.router-link').exists()).toBeFalsy();
         expect(showProductButton2.attributes().disabled).toBeTruthy();
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
         const creditLabel = creditItem.find('.sw-data-grid__cell--label');
         const showProductButton3 = creditItem.find('.sw-context-menu-item');
 
-        expect(creditLabel.find('router-link-stub').exists()).toBeFalsy();
+        expect(creditLabel.find('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -339,7 +312,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show tooltip if item has multiple taxes', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -355,7 +329,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show tooltip message correctly with item detail', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -371,7 +346,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show items correctly when search by search term', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -386,12 +362,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const firstRow = wrapper.find('.sw-data-grid__row--0');
         const productLabel = firstRow.find('.sw-data-grid__cell--label');
-
         expect(productLabel.text()).toBe('Product item');
     });
 
     it('should automatically convert negative value of credit item price when user enter positive value', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -411,7 +387,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should have vat column and price label is not tax free when tax status is tax free', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -427,7 +404,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -445,7 +423,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
     // eslint-disable-next-line max-len
     it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -467,7 +446,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show total price title based on tax status correctly', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         let header;
         let columnTotal;
@@ -510,12 +490,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new empty line item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(0);
@@ -534,12 +510,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new product line item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
@@ -558,12 +530,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new custom line item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid__create-custom-item');
         await buttonAddCustomItem.trigger('click');
@@ -579,13 +547,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new credit line item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-                'orders.create_discounts',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor', 'orders.create_discounts'];
+        const wrapper = await createWrapper();
 
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
         await buttonAddCreditItem.trigger('click');
@@ -601,12 +564,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to cancel inline edit', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
@@ -625,12 +584,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete single item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -652,12 +607,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty single item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
@@ -665,7 +616,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);
 
-        const firstRow = itemRows.at(0);
+        const firstRow = itemRows[0];
+
         await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]')
             .trigger('click');
 
@@ -674,12 +626,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete multiple items', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -689,8 +637,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             },
         });
 
-        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
+        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all input');
         await selectAllCheckBox.setChecked(true);
+        await selectAllCheckBox.trigger('change');
 
         const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
         await deleteAllButton.trigger('click');
@@ -700,12 +649,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty items', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
         await buttonAddItem.trigger('click');
@@ -715,8 +660,9 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(2);
 
-        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all');
+        const selectAllCheckBox = wrapper.find('.sw-data-grid__select-all input');
         await selectAllCheckBox.setChecked(true);
+        await selectAllCheckBox.trigger('change');
 
         const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
         await deleteAllButton.trigger('click');
@@ -726,12 +672,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to edit single item', async () => {
-        const wrapper = await createWrapper({
-            privileges: [
-                'order.viewer',
-                'order.editor',
-            ],
-        });
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -754,7 +696,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should open and close modal', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -781,7 +724,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should open modal and delete entry', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
@@ -807,7 +751,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show product number column', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {
@@ -823,7 +768,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should show items correctly when search by product number', async () => {
-        const wrapper = await createWrapper({});
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
 
         await wrapper.setProps({
             order: {

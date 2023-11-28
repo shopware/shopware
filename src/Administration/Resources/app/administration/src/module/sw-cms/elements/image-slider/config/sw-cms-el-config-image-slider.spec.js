@@ -2,71 +2,66 @@
  * @package buyers-experience
  */
 /* eslint-disable max-len */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigImageSlider from 'src/module/sw-cms/elements/image-slider/config';
-import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import swMediaListSelectionV2 from 'src/app/asyncComponent/media/sw-media-list-selection-v2';
-
-Shopware.Component.register('sw-cms-el-config-image-slider', swCmsElConfigImageSlider);
-Shopware.Component.register('sw-cms-mapping-field', swCmsMappingField);
-Shopware.Component.register('sw-media-list-selection-v2', swMediaListSelectionV2);
 
 async function createWrapper(activeTab = 'content') {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-image-slider'), {
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+    return mount(await wrapTestComponent('sw-cms-el-config-image-slider', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'image-slider': {} };
+                    },
                 },
-                getCmsElementRegistry: () => {
-                    return { 'image-slider': {} };
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(),
+                        };
+                    },
+                },
+                mediaService: {},
+            },
+            stubs: {
+                'sw-tabs': {
+                    props: ['defaultItem'],
+                    data() {
+                        return { active: activeTab };
+                    },
+                    template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                },
+                'sw-tabs-item': true,
+                'sw-select-field': {
+                    template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
+                    props: ['value', 'options'],
+                },
+                'sw-container': true,
+                'sw-field': true,
+                'sw-text-field': true,
+                'sw-number-field': true,
+                'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
+                'sw-media-list-selection-v2': await wrapTestComponent('sw-media-list-selection-v2'),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-help-text': true,
+                'sw-field-error': true,
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
+                'sw-media-list-selection-item-v2': {
+                    template: '<div class="sw-media-item">{{item.id}}</div>',
+                    props: ['item'],
                 },
             },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(),
-                    };
-                },
-            },
-            mediaService: {},
         },
-        stubs: {
-            'sw-tabs': {
-                props: ['defaultItem'],
-                data() {
-                    return { active: activeTab };
-                },
-                template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
-            },
-            'sw-tabs-item': true,
-            'sw-select-field': {
-                template: '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                props: ['value', 'options'],
-            },
-            'sw-container': true,
-            'sw-field': true,
-            'sw-text-field': true,
-            'sw-number-field': true,
-            'sw-cms-mapping-field': await Shopware.Component.build('sw-cms-mapping-field'),
-            'sw-media-list-selection-v2': await Shopware.Component.build('sw-media-list-selection-v2'),
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-help-text': true,
-            'sw-field-error': true,
-            'sw-upload-listener': true,
-            'sw-media-upload-v2': true,
-            'sw-media-list-selection-item-v2': {
-                template: '<div class="sw-media-item">{{item.id}}</div>',
-                props: ['item'],
-            },
-        },
-        propsData: {
+        props: {
             element: {
                 config: {
                     sliderItems: {
@@ -196,6 +191,8 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
     it('should be not disable delay element and speed element when auto slide switch is truthy', async () => {
         const wrapper = await createWrapper('settings');
+        await flushPromises();
+
         const delaySlide = wrapper.find('.sw-cms-el-config-image-slider__setting-delay-slide');
         const speedSlide = wrapper.find('.sw-cms-el-config-image-slider__setting-speed-slide');
         const autoSlideOption = wrapper.find('.sw-cms-el-config-image-slider__setting-auto-slide input');
@@ -209,8 +206,9 @@ describe('src/module/sw-cms/elements/image-slider/config', () => {
 
     it('should sort the item list on drag and drop', async () => {
         const wrapper = await createWrapper('content');
+        await flushPromises();
 
-        const mediaListSelectionV2Vm = wrapper.find('.sw-media-list-selection-v2').vm;
+        const mediaListSelectionV2Vm = wrapper.findComponent('.sw-media-list-selection-v2').vm;
         mediaListSelectionV2Vm.$emit('item-sort', mediaListSelectionV2Vm.mediaItems[1], mediaListSelectionV2Vm.mediaItems[2], true);
         await wrapper.vm.$nextTick();
 

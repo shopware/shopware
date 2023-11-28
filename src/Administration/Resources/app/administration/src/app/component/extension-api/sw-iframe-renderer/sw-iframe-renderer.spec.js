@@ -3,9 +3,8 @@
  */
 
 import Vue from 'vue';
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import { location } from '@shopware-ag/admin-extension-sdk';
-import 'src/app/component/extension-api/sw-iframe-renderer';
 
 let $routeMock = {
     query: {},
@@ -17,29 +16,31 @@ let $routerMock = {
 async function createWrapper({
     propsData = {},
 } = {}) {
-    return shallowMount(await Shopware.Component.build('sw-iframe-renderer'), {
-        stubs: {
-            'my-replacement-component': {
-                template: '<h1 id="my-replacement-component">Replacement component</h1>',
-            },
-        },
-        provide: {
-            extensionSdkService: {
-                signIframeSrc(url) {
-                    return Promise.resolve({
-                        uri: `https://${url}.com/?shop-id=__SHOP_ID&shop-signature=__SIGNED__`,
-                    });
-                },
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-iframe-renderer', { sync: true }), {
+        props: {
             src: 'https://example.com',
             locationId: 'foo',
             ...propsData,
         },
-        mocks: {
-            $route: $routeMock,
-            $router: $routerMock,
+        global: {
+            stubs: {
+                'my-replacement-component': {
+                    template: '<h1 id="my-replacement-component">Replacement component</h1>',
+                },
+            },
+            provide: {
+                extensionSdkService: {
+                    signIframeSrc(url) {
+                        return Promise.resolve({
+                            uri: `https://${url}.com/?shop-id=__SHOP_ID&shop-signature=__SIGNED__`,
+                        });
+                    },
+                },
+            },
+            mocks: {
+                $route: $routeMock,
+                $router: $routerMock,
+            },
         },
     });
 }

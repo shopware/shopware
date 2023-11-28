@@ -1,15 +1,7 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swSettingsIndex from 'src/module/sw-settings/page/sw-settings-index';
-import swSettingsItem from 'src/module/sw-settings/component/sw-settings-item';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
-
-Shopware.Component.register('sw-settings-index', swSettingsIndex);
-Shopware.Component.register('sw-settings-item', swSettingsItem);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(
     privileges = [
@@ -115,42 +107,46 @@ async function createWrapper(
         Shopware.State.commit('settingsItems/addItem', settingsItem);
     });
 
-    return shallowMount(await Shopware.Component.build('sw-settings-index'), {
-        mocks: {
-            $tc: (path) => {
-                if (typeof path !== 'string') {
-                    return `${path}`;
-                }
-                return path;
+    return mount(await wrapTestComponent('sw-settings-index', {
+        sync: true,
+    }), {
+        global: {
+            mocks: {
+                $tc: (path) => {
+                    if (typeof path !== 'string') {
+                        return `${path}`;
+                    }
+                    return path;
+                },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: '<div><slot name="content"></slot></div>',
+            stubs: {
+                'sw-page': {
+                    template: '<div><slot name="content"></slot></div>',
+                },
+                'sw-card-view': {
+                    template: '<div class="sw-card-view"><slot></slot></div>',
+                },
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-settings-item': await wrapTestComponent('sw-settings-item'),
+                'router-link': {
+                    template: '<a><slot></slot></a>',
+                },
+                'sw-icon': {
+                    template: '<span></span>',
+                },
+                'sw-extension-component-section': true,
             },
-            'sw-card-view': {
-                template: '<div class="sw-card-view"><slot></slot></div>',
-            },
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>',
-            },
-            'sw-settings-item': await Shopware.Component.build('sw-settings-item'),
-            'router-link': {
-                template: '<a><slot></slot></a>',
-            },
-            'sw-icon': {
-                template: '<span></span>',
-            },
-            'sw-extension-component-section': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) return true;
+            provide: {
+                acl: {
+                    can: (key) => {
+                        if (!key) return true;
 
-                    return privileges.includes(key);
+                        return privileges.includes(key);
+                    },
                 },
             },
         },
@@ -198,6 +194,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
     it('should render settings items in alphabetical order', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
         settingsGroups.forEach(([settingsGroup, settingsItems]) => {
@@ -208,7 +205,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
 
             // check, that settings items were rendered in alphabetical order
-            settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
+            settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
                 expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
             });
         });
@@ -227,6 +224,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
         const wrapper = await createWrapper();
+        await flushPromises();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
         settingsGroups.forEach(([settingsGroup, settingsItems]) => {
@@ -235,7 +233,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
 
             expect(settingsItemsWrappers).toHaveLength(settingsItems.length);
 
-            settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
+            settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
                 expect(settingsItemsWrapper.attributes().id).toEqual(settingsItems[index].id);
             });
         });
@@ -317,6 +315,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
 
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
@@ -324,7 +323,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
             const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
             const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
 
-            settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
+            settingsItemsWrappers.forEach((settingsItemsWrapper, index) => {
                 const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
 
                 if (settingsItems[index].backgroundEnabled === false) {

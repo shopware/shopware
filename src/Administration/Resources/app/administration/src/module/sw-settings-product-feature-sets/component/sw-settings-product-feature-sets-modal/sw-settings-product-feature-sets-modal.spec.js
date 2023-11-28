@@ -1,20 +1,9 @@
-/**
- * @package inventory
- */
-import { shallowMount } from '@vue/test-utils';
-
-import swSettingsProductFeatureSetsModal from 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-simple-search-field';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/form/sw-radio-field';
+import { mount } from '@vue/test-utils_v3';
 
 // Turn off known errors
 import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
 global.allowedErrors = [unknownOptionError];
-
-Shopware.Component.register('sw-settings-product-feature-sets-modal', swSettingsProductFeatureSetsModal);
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     const classes = {
@@ -42,43 +31,70 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         productInformationListNameHeader: 'sw-settings-product-feature-sets.modal.labelName',
     };
 
-    function getPageConfig(config) {
+    function returnPageConfigDataObject(config) {
         return {
-            data() {
-                return {
-                    showPageOne: false,
-                    showCustomField: false,
-                    showPropertyGroups: false,
-                    showProductInfo: false,
-                    ...config,
-                };
-            },
+            showPageOne: false,
+            showCustomField: false,
+            showPropertyGroups: false,
+            showProductInfo: false,
+            ...config,
         };
     }
 
     async function createWrapper(additionalOptions = {}) {
-        return shallowMount(await Shopware.Component.build('sw-settings-product-feature-sets-modal'), {
-            stubs: {
-                'sw-modal': true,
-                'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
-                'sw-base-field': true,
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-text-field': true,
-                'sw-data-grid-skeleton': true,
-                i18n: true,
+        return mount(await wrapTestComponent('sw-settings-product-feature-sets-modal', {
+            sync: true,
+        }), {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-modal': {
+                        template: `
+                            <div class="sw-modal">
+                                <slot name="modal-header"></slot>
+                                <slot />
+                                <slot name="modal-footer"></slot>
+                            </div>
+                        `,
+                    },
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field', {
+                        sync: true,
+                    }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-data-grid-skeleton': true,
+                    i18n: true,
+                },
+                data() {
+                    return {
+                        showPageOne: true,
+                        showCustomField: false,
+                        showPropertyGroups: false,
+                        showProductInfo: false,
+                    };
+                },
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {
+                        },
+                        stopEventListener: () => {
+                        },
+                    },
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.reject(),
+                        }),
+                        search: () => {
+                        },
+                    },
+                },
+                ...additionalOptions,
             },
-            data() {
-                return {
-                    showPageOne: true,
-                    showCustomField: false,
-                    showPropertyGroups: false,
-                    showProductInfo: false,
-                };
-            },
-            propsData: {
+            props: {
                 productFeatureSet: {
                     id: null,
                     name: null,
@@ -88,22 +104,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                     ],
                 },
             },
-            provide: {
-                shortcutService: {
-                    startEventListener: () => {
-                    },
-                    stopEventListener: () => {
-                    },
-                },
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.reject(),
-                    }),
-                    search: () => {
-                    },
-                },
-            },
-            ...additionalOptions,
         });
     }
 
@@ -121,10 +121,11 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the options container', async () => {
-        const wrapper = await createWrapper(getPageConfig({ showPageOne: true }));
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showPageOne: true }));
+        await flushPromises();
 
-        const root = wrapper.get(`.${classes.componentRoot}`);
-        const optionsContainer = root.get(`.${classes.optionsContainer}`);
+        const optionsContainer = wrapper.findComponent('.sw-settings-product-feature-sets-modal__options');
 
         expect(optionsContainer.props().options).toHaveLength(4);
 
@@ -137,7 +138,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the custom field list', async () => {
-        const wrapper = await createWrapper(getPageConfig({ showCustomField: true }));
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
 
         const root = wrapper.get(`.${classes.componentRoot}`);
 
@@ -158,7 +161,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the property group list', async () => {
-        const wrapper = await createWrapper(getPageConfig({ showPropertyGroups: true }));
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showPropertyGroups: true }));
+        await flushPromises();
 
         const root = wrapper.get(`.${classes.componentRoot}`);
 
@@ -178,7 +183,9 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('contains the product information list', async () => {
-        const wrapper = await createWrapper(getPageConfig({ showCustomField: true }));
+        const wrapper = await createWrapper();
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
 
         const root = wrapper.get(`.${classes.componentRoot}`);
 

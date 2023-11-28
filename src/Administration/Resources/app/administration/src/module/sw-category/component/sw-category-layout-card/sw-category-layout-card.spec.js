@@ -1,43 +1,44 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryLayoutCard from 'src/module/sw-category/component/sw-category-layout-card';
-
-Shopware.Component.register('sw-category-layout-card', swCategoryLayoutCard);
+import { mount } from '@vue/test-utils_v3';
 
 const categoryId = 'some-category-id';
 const cmsPageId = 'some-cms-page-id';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-category-layout-card'), {
-        stubs: {
-            'sw-button': {
-                template: '<button @click="$emit(`click`)"></button>',
-                props: ['disabled'],
+    return mount(await wrapTestComponent('sw-category-layout-card', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-button': {
+                    template: '<button @click="$emit(`click`)"></button>',
+                    props: ['disabled'],
+                },
+                'sw-cms-list-item': {
+                    template: '<div class="sw-cms-list-item"></div>',
+                    props: ['disabled'],
+                },
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-icon': true,
             },
-            'sw-cms-list-item': {
-                template: '<div class="sw-cms-list-item"></div>',
-                props: ['disabled'],
+            mocks: {
+                $route: {
+                    params: {},
+                },
             },
-            'sw-card': true,
-            'sw-icon': true,
-        },
-        mocks: {
-            $route: {
-                params: {},
-            },
-        },
-        provide: {
-            cmsPageTypeService: {
-                getType(type) {
-                    return {
-                        title: type,
-                    };
+            provide: {
+                cmsPageTypeService: {
+                    getType(type) {
+                        return {
+                            title: type,
+                        };
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             category: {
                 id: categoryId,
                 cmsPageId,
@@ -51,18 +52,12 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled cms list item', async () => {
         global.activeAclRoles = ['category.editor'];
 
         const wrapper = await createWrapper();
 
-        const cmsListItem = wrapper.find('.sw-cms-list-item');
+        const cmsListItem = wrapper.getComponent('.sw-cms-list-item');
 
         expect(cmsListItem.props('disabled')).toBe(false);
     });
@@ -70,7 +65,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     it('should have an disabled cms list item', async () => {
         const wrapper = await createWrapper();
 
-        const cmsListItem = wrapper.find('.sw-cms-list-item');
+        const cmsListItem = wrapper.getComponent('.sw-cms-list-item');
 
         expect(cmsListItem.props('disabled')).toBe(true);
     });
@@ -80,7 +75,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const wrapper = await createWrapper();
 
-        const changeLayoutButton = wrapper.find('.sw-category-detail-layout__change-layout-action');
+        const changeLayoutButton = wrapper.getComponent('.sw-category-detail-layout__change-layout-action');
 
         expect(changeLayoutButton.props('disabled')).toBe(false);
     });
@@ -88,7 +83,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     it('should have an disabled button for changing the layout', async () => {
         const wrapper = await createWrapper();
 
-        const changeLayoutButton = wrapper.find('.sw-category-detail-layout__change-layout-action');
+        const changeLayoutButton = wrapper.getComponent('.sw-category-detail-layout__change-layout-action');
 
         expect(changeLayoutButton.props('disabled')).toBe(true);
     });
@@ -98,7 +93,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
 
         const wrapper = await createWrapper();
 
-        const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
+        const pageBuilderButton = wrapper.getComponent('.sw-category-detail-layout__open-in-pagebuilder');
 
         expect(pageBuilderButton.props('disabled')).toBe(false);
     });
@@ -106,7 +101,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
     it('should have an disabled button for open the page builder', async () => {
         const wrapper = await createWrapper();
 
-        const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
+        const pageBuilderButton = wrapper.getComponent('.sw-category-detail-layout__open-in-pagebuilder');
 
         expect(pageBuilderButton.props('disabled')).toBe(true);
     });
@@ -123,7 +118,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         });
 
         await flushPromises();
-        const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
+        const resetLayoutButton = wrapper.getComponent('.sw-category-detail-layout__layout-reset');
 
         expect(resetLayoutButton.props('disabled')).toBe(false);
     });
@@ -138,7 +133,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         });
 
         await flushPromises();
-        const resetLayoutButton = wrapper.find('.sw-category-detail-layout__layout-reset');
+        const resetLayoutButton = wrapper.getComponent('.sw-category-detail-layout__layout-reset');
 
         expect(resetLayoutButton.props('disabled')).toBe(true);
     });

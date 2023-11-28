@@ -13,7 +13,7 @@ const project = new Project({
 // load all the source files from the "src" directory
 project.addSourceFilesAtPaths([
     "src/**/*{.js,.ts}",
-    "!src/**/*{.spec.js,.spec.vue3.js,.d.ts,.types.ts}",
+    "!src/**/*{.spec.js,.spec.vue2.js,.d.ts,.types.ts}",
     "!src/meta/**/*",
 ]);
 

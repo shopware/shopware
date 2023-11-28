@@ -1,71 +1,70 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsRuleList from 'src/module/sw-settings-rule/page/sw-settings-rule-list';
-import 'src/app/component/context-menu/sw-context-menu';
-import 'src/app/component/context-menu/sw-context-menu-item';
+import { mount } from '@vue/test-utils_v3';
 import FilterService from 'src/app/service/filter.service';
 
-Shopware.Component.register('sw-settings-rule-list', swSettingsRuleList);
-
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-settings-rule-list'), {
-        stubs: {
-            'sw-page': {
-                template: `
+    return mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: `
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
     </div>`,
-            },
-            'sw-button': true,
-            'sw-empty-state': true,
-            'sw-loader': true,
-            'sw-entity-listing': {
-                template: `
+                },
+                'sw-button': true,
+                'sw-empty-state': true,
+                'sw-loader': true,
+                'sw-entity-listing': {
+                    template: `
     <div class="sw-entity-listing">
         <slot name="more-actions"></slot>
     </div>
     `,
+                },
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
             },
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([
-
-                    ]),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                    }),
+                },
+                filterFactory: {
+                    create: (name, filters) => filters,
+                },
+                filterService: new FilterService({
+                    userConfigRepository: {
+                        search: () => Promise.resolve({ length: 0 }),
+                        create: () => ({}),
+                    },
                 }),
-            },
-            filterFactory: {
-                create: (name, filters) => filters,
-            },
-            filterService: new FilterService({ userConfigRepository: {
-                search: () => Promise.resolve({ length: 0 }),
-                create: () => ({}),
-            } }),
-            ruleConditionDataProviderService: {
-                getConditions: () => {
-                    return [{ type: 'foo', label: 'bar' }];
+                ruleConditionDataProviderService: {
+                    getConditions: () => {
+                        return [{ type: 'foo', label: 'bar' }];
+                    },
+                    getGroups: () => {
+                        return [{ id: 'foo', name: 'bar' }];
+                    },
+                    getByGroup: () => {
+                        return [{ type: 'foo' }];
+                    },
                 },
-                getGroups: () => {
-                    return [{ id: 'foo', name: 'bar' }];
-                },
-                getByGroup: () => {
-                    return [{ type: 'foo' }];
-                },
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
+                searchRankingService: {},
             },
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: {
-                query: 'foo',
+            mocks: {
+                $route: {
+                    query: 'foo',
+                },
             },
         },
     });
@@ -81,20 +80,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         };
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have disabled fields', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const buttonAddRule = wrapper.find('sw-button-stub');
-        const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
+        const buttonAddRule = wrapper.get('sw-button-stub');
+        const entityListing = wrapper.get('.sw-entity-listing');
+        const contextMenuItemDuplicate = wrapper.get('.sw-context-menu-item');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
@@ -107,7 +99,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const wrapper = await createWrapper([
             'rule.creator',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
@@ -124,7 +116,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const wrapper = await createWrapper([
             'rule.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
@@ -141,7 +133,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const wrapper = await createWrapper([
             'rule.deleter',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
@@ -159,7 +151,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         wrapper.vm.onDuplicate = jest.fn();
         wrapper.vm.onDuplicate.mockReturnValueOnce('hi');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
         await contextMenuItemDuplicate.trigger('click');

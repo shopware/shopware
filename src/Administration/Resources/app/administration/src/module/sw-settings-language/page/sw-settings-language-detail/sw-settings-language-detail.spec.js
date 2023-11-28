@@ -1,77 +1,73 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import swSettingsLanguageDetail from 'src/module/sw-settings-language/page/sw-settings-language-detail';
-
-Shopware.Component.register('sw-settings-language-detail', swSettingsLanguageDetail);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(privileges = [], languageId = null) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-language-detail'), {
-        localVue,
-        mocks: {
-            $tc(translationKey) {
-                return translationKey;
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-language-detail', {
+        sync: true,
+    }), {
+        props: {
             languageId,
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve(
-                            {
-                                aggregations: {
-                                    usedLocales: {
-                                        buckets: [],
-                                    },
-                                },
-                            },
-                        );
-                    },
-
-                    create: () => {
-                        return Promise.resolve({
-                            isNew: () => true,
-                        });
-                    },
-
-                    get: (id) => {
-                        return Promise.resolve({
-                            id,
-                            isNew: () => false,
-                            parentId: '1234',
-                            translationCodeId: '5678',
-                        });
-                    },
-
-                    save: () => {
-                        return Promise.resolve();
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $tc(translationKey) {
+                    return translationKey;
                 },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve(
+                                {
+                                    aggregations: {
+                                        usedLocales: {
+                                            buckets: [],
+                                        },
+                                    },
+                                },
+                            );
+                        },
+
+                        create: () => {
+                            return Promise.resolve({
+                                isNew: () => true,
+                            });
+                        },
+
+                        get: (id) => {
+                            return Promise.resolve({
+                                id,
+                                isNew: () => false,
+                                parentId: '1234',
+                                translationCodeId: '5678',
+                            });
+                        },
+
+                        save: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -84,19 +80,20 @@ async function createWrapper(privileges = [], languageId = null) {
                         <slot></slot>
                     </div>
                 `,
+                },
+                'sw-card-view': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-language-switch': true,
+                'sw-language-info': true,
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-text-field': true,
+                'sw-entity-single-select': true,
+                'sw-skeleton': true,
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                'sw-inheritance-switch': true,
             },
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-language-switch': true,
-            'sw-language-info': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-text-field': true,
-            'sw-entity-single-select': true,
-            'sw-skeleton': true,
-            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-inheritance-switch': true,
         },
     });
 }
@@ -107,15 +104,6 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should return metaInfo', async () => {
-        const wrapper = await createWrapper();
-        wrapper.vm.$options.$createTitle = () => 'Title';
-
-        const metaInfo = wrapper.vm.$options.metaInfo();
-
-        expect(metaInfo.title).toBe('Title');
     });
 
     it('should return identifier', async () => {
@@ -152,7 +140,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         const wrapper = await createWrapper([
             'language.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find(
             '.sw-settings-language-detail__save-action',
@@ -179,7 +167,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
 
     it('should not be able to save the language', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find(
             '.sw-settings-language-detail__save-action',

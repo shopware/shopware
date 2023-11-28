@@ -1,10 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderPromotionField from 'src/module/sw-order/component/sw-order-promotion-field';
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
 const orderFixture = {
     id: '2720b2fa-2ddc-479b-8c93-864fc8978f77',
     versionId: '305d71dc-7e9d-4ce2-a563-ecf91edd9cb3',
@@ -81,7 +79,7 @@ const createStateMapper = (customOrder = {}) => {
     });
 };
 
-const createWrapper = async (custom) => {
+const createWrapper = async () => {
     const notificationMixin = {
         methods: {
             createNotificationError() {},
@@ -90,11 +88,11 @@ const createWrapper = async (custom) => {
         },
     };
 
-    return shallowMount(await Shopware.Component.build('sw-order-promotion-field'), {
-        ...{
-            propsData: {
-                isLoading: false,
-            },
+    return mount(await wrapTestComponent('sw-order-promotion-field', { sync: true }), {
+        props: {
+            isLoading: false,
+        },
+        global: {
             stubs: {
                 'sw-order-promotion-tag-field': true,
                 'sw-switch-field': true,
@@ -140,35 +138,24 @@ const createWrapper = async (custom) => {
                         return Promise.resolve(successResponseForNotification);
                     },
                 },
-                acl: {
-                    can: () => {
-                        return true;
-                    },
-                },
             },
-            computed: {
-                hasOrderUnsavedChanges() {
-                    return false;
-                },
-            },
-            mixins: [
-                notificationMixin,
-            ],
         },
-        ...custom,
+        mixins: [
+            notificationMixin,
+        ],
     });
 };
 
-Shopware.Component.register('sw-order-promotion-field', swOrderPromotionField);
-
 describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should filter manual Promotions', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
 
@@ -176,6 +163,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should filter automatic Promotions', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
 
@@ -184,9 +172,12 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should disable automatic promotion on toggle with saved changes', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
-
+        await wrapper.setData({
+            hasOrderUnsavedChanges: false,
+        });
         wrapper.vm.disabledAutoPromotions = true;
 
         await flushPromises();
@@ -198,20 +189,18 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should skip disable automatic promotion on toggle with unsaved changes', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
-        const wrapper = await createWrapper({
-            computed: {
-                hasOrderUnsavedChanges() {
-                    return true;
-                },
-            },
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            hasOrderUnsavedChanges: true,
         });
-
         wrapper.vm.disabledAutoPromotions = true;
 
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
         expect(wrapper.vm.disabledAutoPromotions).toBeTruthy();
 
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.disabledAutoPromotions).toBeFalsy();
@@ -224,13 +213,11 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should skip adding promotion code with unsaved changes', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
-        const wrapper = await createWrapper({
-            computed: {
-                hasOrderUnsavedChanges() {
-                    return true;
-                },
-            },
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            hasOrderUnsavedChanges: true,
         });
 
         wrapper.vm.onSubmitCode('Redeem675');
@@ -243,9 +230,12 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should adding promotion code with saved changes', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
-
+        await wrapper.setData({
+            hasOrderUnsavedChanges: false,
+        });
         wrapper.vm.onSubmitCode('Redeem675');
         await flushPromises();
 
@@ -255,16 +245,13 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should skip remove promotion code with unsaved changes', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
 
-        const wrapper = await createWrapper({
-            computed: {
-                hasOrderUnsavedChanges() {
-                    return true;
-                },
-            },
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            hasOrderUnsavedChanges: true,
         });
-
         wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
         await flushPromises();
 
@@ -274,10 +261,13 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should remove promotion code with saved changes', async () => {
+        global.activeAclRoles = [];
         createStateMapper();
 
         const wrapper = await createWrapper();
-
+        await wrapper.setData({
+            hasOrderUnsavedChanges: false,
+        });
         wrapper.vm.onRemoveExistingCode({ code: 'Redeem3456' });
         await flushPromises();
 

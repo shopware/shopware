@@ -1,37 +1,35 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swMediaPreviewV2 from 'src/app/asyncComponent/media/sw-media-preview-v2';
-import 'src/app/component/base/sw-icon';
-
-Shopware.Component.register('sw-media-preview-v2', swMediaPreviewV2);
+/**
+ * @package content
+ */
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     const createWrapper = async () => {
-        const localVue = createLocalVue();
-
-        return shallowMount(await Shopware.Component.build('sw-media-preview-v2'), {
-            localVue,
-            stubs: {
-                'sw-icon': true,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve();
-                        },
-                        get: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                    }),
-                },
-            },
-            propsData: {
+        return mount(await wrapTestComponent('sw-media-preview-v2', { sync: true }), {
+            props: {
                 source: {
                     fileName: 'example',
                     fileExtension: 'jpg',
+                },
+            },
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                },
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return Promise.resolve();
+                            },
+                            get: () => {
+                                return Promise.resolve();
+                            },
+                            search: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
                 },
             },
         });

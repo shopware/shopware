@@ -1,21 +1,20 @@
 /**
  * @package buyers-experience
  */
-import { mount } from '@vue/test-utils';
-import swMediaMediaItem from 'src/app/asyncComponent/media/sw-media-media-item';
-
-Shopware.Component.register('sw-media-media-item', swMediaMediaItem);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(mediaServiceFunctions = {}) {
-    return mount(await Shopware.Component.build('sw-media-media-item'), {
-        provide: {
-            mediaService: {
-                renameMedia: () => Promise.resolve(),
-                ...mediaServiceFunctions,
+    return mount(await wrapTestComponent('sw-media-media-item', { sync: true }), {
+        global: {
+            provide: {
+                mediaService: {
+                    renameMedia: () => Promise.resolve(),
+                    ...mediaServiceFunctions,
+                },
             },
-        },
-        stubs: {
-            'sw-media-base-item': true,
+            stubs: {
+                'sw-media-base-item': true,
+            },
         },
     });
 }

@@ -1,49 +1,44 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swSettingsCustomerGroupList from 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-list';
+import { mount } from '@vue/test-utils_v3';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/base/sw-empty-state';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
-Shopware.Component.register('sw-settings-customer-group-list', swSettingsCustomerGroupList);
-
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-customer-group-list'), {
-        localVue,
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await wrapTestComponent('sw-settings-customer-group-list', {
+        sync: true,
+    }), {
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content"></slot>
                         <slot></slot>
                     </div>`,
-            },
-            'sw-card-view': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-card': {
-                template: '<div><slot name="grid"></slot></div>',
-            },
-            'sw-context-menu-item': true,
-            'sw-button': true,
-            'sw-entity-listing': {
-                props: ['items', 'allowEdit', 'allowDelete', 'detailRoute'],
-                template: `
+                },
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-card': {
+                    template: '<div><slot name="grid"></slot></div>',
+                },
+                'sw-context-menu-item': true,
+                'sw-button': true,
+                'sw-entity-listing': {
+                    props: ['items', 'allowEdit', 'allowDelete', 'detailRoute'],
+                    template: `
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
@@ -59,39 +54,40 @@ async function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>`,
+                },
+                'sw-empty-state': true,
+                'router-link': true,
             },
-            'sw-empty-state': true,
-            'router-link': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '1',
-                                name: 'Net price customer group',
-                                displayGross: false,
-                            },
-                        ]);
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    id: '1',
+                                    name: 'Net price customer group',
+                                    displayGross: false,
+                                },
+                            ]);
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
-            },
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
-                },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
                 },
             },
         },

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-date-range';
 import 'src/app/component/rule/sw-condition-base';
@@ -6,30 +6,32 @@ import 'src/app/component/rule/sw-condition-base';
 async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
-    return shallowMount(await Shopware.Component.build('sw-condition-date-range'), {
-        stubs: {
-            'sw-single-select': true,
-            'sw-condition-base': true,
-            'sw-condition-type-select': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-field-error': true,
-            'sw-datepicker': true,
-        },
-        provide: {
-            conditionDataProviderService: new ConditionDataProviderService(),
-            availableTypes: {},
-            availableGroups: [],
-            childAssociationField: {},
-            validationService: {},
-            insertNodeIntoTree: () => ({}),
-            removeNodeFromTree: () => ({}),
-            createCondition: () => ({}),
-            conditionScopes: [],
-            unwrapAllLineItemsCondition: () => ({}),
-        },
+    return mount(await wrapTestComponent('sw-condition-date-range', { sync: true }), {
         propsData: {
             condition,
+        },
+        global: {
+            stubs: {
+                'sw-single-select': true,
+                'sw-condition-base': true,
+                'sw-condition-type-select': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-field-error': true,
+                'sw-datepicker': true,
+            },
+            provide: {
+                conditionDataProviderService: new ConditionDataProviderService(),
+                availableTypes: {},
+                availableGroups: [],
+                childAssociationField: {},
+                validationService: {},
+                insertNodeIntoTree: () => ({}),
+                removeNodeFromTree: () => ({}),
+                createCondition: () => ({}),
+                conditionScopes: [],
+                unwrapAllLineItemsCondition: () => ({}),
+            },
         },
     });
 }

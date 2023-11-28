@@ -1,37 +1,28 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-
-import swExtensionPermissionDetailsModal from 'src/module/sw-extension/component/sw-extension-permissions-details-modal';
-import 'src/app/component/base/sw-button';
-
-Shopware.Component.register('sw-extension-permissions-details-modal', swExtensionPermissionDetailsModal);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper({ permissions, modalTitle, selectedEntity }) {
-    const localVue = createLocalVue();
-    localVue.filter('asset', v => v);
-
-    return shallowMount(await Shopware.Component.build('sw-extension-permissions-details-modal'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-extension-permissions-details-modal', { sync: true }), {
+        global: {
+            mocks: {
+                $tc: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
+                $te: () => true,
+            },
+            stubs: {
+                'sw-modal': {
+                    props: ['title'],
+                    // eslint-disable-next-line max-len
+                    template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
+                },
+                'sw-icon': {
+                    props: ['name', 'color'],
+                    template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
+                },
+            },
+        },
+        props: {
             permissions,
             modalTitle,
             selectedEntity,
-        },
-        mocks: {
-            $tc: (...args) => (args.length === 1 ? args[0] : JSON.stringify(...args)),
-            $te: () => true,
-        },
-        stubs: {
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-modal': {
-                props: ['title'],
-                // eslint-disable-next-line max-len
-                template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
-            },
-            'sw-extension-permissions-details-modal': true,
-            'sw-icon': {
-                props: ['name', 'color'],
-                template: '<div class="icon">name:{{ name }} color:{{ color }}</div>',
-            },
         },
     });
 }
@@ -99,7 +90,7 @@ describe('sw-extension-permissions-details-modal', () => {
         expect(entityLabels.at(2).text()).toBe('entityCategories.promotion.entities.promotion');
 
         const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation')
-            .wrappers.map(td => td.find('.icon').text());
+            .map((td) => td.find('.icon').text());
 
         expect(allIcons).toStrictEqual([
             'name:regular-checkmark-xs color:#37D046',
@@ -116,7 +107,6 @@ describe('sw-extension-permissions-details-modal', () => {
             'name:regular-times-s color:#DE294C',
         ]);
     });
-
 
     it('should display the permissions for all product permissions', async () => {
         const wrapper = await createWrapper({
@@ -162,7 +152,8 @@ describe('sw-extension-permissions-details-modal', () => {
             .toBe('entityCategories.promotion.entities.promotion_individual_code');
 
         const allIcons = wrapper.findAll('.sw-extension-permissions-details-modal__operation')
-            .wrappers.map(td => td.find('.icon').text());
+            .map(td => td.find('.icon').text());
+
         expect(allIcons).toStrictEqual([
             'name:regular-checkmark-xs color:#37D046',
             'name:regular-checkmark-xs color:#37D046',

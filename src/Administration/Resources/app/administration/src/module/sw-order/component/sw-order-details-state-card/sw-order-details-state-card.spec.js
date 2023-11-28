@@ -1,14 +1,11 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderDetailsStateCard from 'src/module/sw-order/component/sw-order-details-state-card';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
 jest.useFakeTimers().setSystemTime(new Date(170363865609544));
-
-Shopware.Component.register('sw-order-details-state-card', swOrderDetailsStateCard);
 
 const orderMock = {
     orderNumber: 10000,
@@ -57,74 +54,77 @@ orderMock.deliveries.first = () => ({
 });
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-details-state-card'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-details-state-card', { sync: true }), {
+        props: {
             order: orderMock,
             isLoading: false,
             entity: orderMock.transactions.last(),
         },
-        provide: {
-            orderStateMachineService: {},
-            stateStyleDataProviderService: {
-                getStyle: () => {
-                    return {
-                        placeholder: {
-                            icon: 'small-arrow-small-down',
-                            iconStyle: 'sw-order-state__bg-neutral-icon',
-                            iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
-                            selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
-                            variant: 'neutral',
-                            colorCode: '#94a6b8',
-                        },
-                    };
+        global: {
+            provide: {
+                orderStateMachineService: {},
+                stateStyleDataProviderService: {
+                    getStyle: () => {
+                        return {
+                            placeholder: {
+                                icon: 'small-arrow-small-down',
+                                iconStyle: 'sw-order-state__bg-neutral-icon',
+                                iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
+                                selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
+                                variant: 'neutral',
+                                colorCode: '#94a6b8',
+                            },
+                        };
+                    },
                 },
-            },
-            stateMachineService: {
-                getState: () => { return { data: { transitions: [] } }; },
-            },
-            repositoryFactory: {
-                create: (entity) => {
-                    return {
-                        search: () => {
-                            if (entity === 'state_machine_history') {
-                                return Promise.resolve({
-                                    first: () => {
-                                        return {
-                                            user: {
-                                                firstName: 'John',
-                                                lastName: 'Doe',
-                                            },
-                                            createdAt: new Date(),
-                                        };
-                                    },
-                                });
-                            }
+                stateMachineService: {
+                    getState: () => { return { data: { transitions: [] } }; },
+                },
+                repositoryFactory: {
+                    create: (entity) => {
+                        return {
+                            search: () => {
+                                if (entity === 'state_machine_history') {
+                                    return Promise.resolve({
+                                        first: () => {
+                                            return {
+                                                user: {
+                                                    firstName: 'John',
+                                                    lastName: 'Doe',
+                                                },
+                                                createdAt: new Date(),
+                                            };
+                                        },
+                                    });
+                                }
 
-                            return Promise.resolve(new EntityCollection(
-                                '',
-                                '',
-                                Shopware.Context.api,
-                                null,
-                                [],
-                                0,
-                            ));
-                        },
-                    };
+                                return Promise.resolve(new EntityCollection(
+                                    '',
+                                    '',
+                                    Shopware.Context.api,
+                                    null,
+                                    [],
+                                    0,
+                                ));
+                            },
+                        };
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-order-state-select-v2': true,
-            'sw-external-link': { template: '<a href="#"></a>' },
-            'sw-order-state-change-modal': true,
-            'sw-container': true,
-            'sw-card': true,
-            'sw-time-ago': {
-                template: '<div class="sw-time-ago"></div>',
-                props: ['date'],
+            stubs: {
+                'sw-order-state-select-v2': true,
+                'sw-external-link': { template: '<a href="#"></a>' },
+                'sw-order-state-change-modal': true,
+                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-time-ago': {
+                    template: '<div class="sw-time-ago"></div>',
+                    props: ['date'],
+                },
+                i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' },
             },
-            i18n: { template: '<span><slot name="time"></slot><slot name="author"></slot></span>' },
         },
+
     });
 }
 
@@ -153,6 +153,6 @@ describe('src/module/sw-order/component/sw-order-details-state-card', () => {
         const summary = wrapper.get('.sw-order-detail-state-card__state-history-text');
 
         expect(summary.text()).toBe('John Doe');
-        expect(summary.get('.sw-time-ago').props('date')).toEqual(new Date(170363865609544));
+        expect(summary.findComponent('.sw-time-ago').props('date')).toEqual(new Date(170363865609544));
     });
 });

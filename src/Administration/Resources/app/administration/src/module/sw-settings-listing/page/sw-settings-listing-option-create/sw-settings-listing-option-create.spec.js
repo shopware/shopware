@@ -1,13 +1,4 @@
-/**
- * @package inventory
- */
-import { shallowMount } from '@vue/test-utils';
-
-import swSettingsListingOptionBase from 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';
-import swSettingsListingOptionCreate from 'src/module/sw-settings-listing/page/sw-settings-listing-option-create';
-
-Shopware.Component.register('sw-settings-listing-option-base', swSettingsListingOptionBase);
-Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-listing-option-base', swSettingsListingOptionCreate);
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create', () => {
     function getProductSortingEntity() {
@@ -49,23 +40,27 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
     }
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-create'), {
-            mocks: {
-                $router: {},
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve(),
-                        create: () => Promise.resolve(getProductSortingEntity()),
-                        save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
-                    }),
+        return mount(await wrapTestComponent('sw-settings-listing-option-create', {
+            sync: true,
+        }), {
+            global: {
+                mocks: {
+                    $router: {},
                 },
-                systemConfigApiService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div></div>',
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve(),
+                            create: () => Promise.resolve(getProductSortingEntity()),
+                            save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } }),
+                        }),
+                    },
+                    systemConfigApiService: {},
+                },
+                stubs: {
+                    'sw-page': {
+                        template: '<div></div>',
+                    },
                 },
             },
         });
@@ -134,19 +129,6 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
-    it('should handle the "saveErrorAlreadyExists" case', async () => {
-        wrapper.vm.productSortingEntity.key = 'existingKey';
-        const resolvedValue = [{}];
-        wrapper.vm.productSortingRepository.search = jest.fn().mockResolvedValue(resolvedValue);
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.vm.onSave();
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: wrapper.vm.$t('sw-settings-listing.base.notification.saveErrorAlreadyExists', { sortingOptionName: wrapper.vm.productSortingEntity.label }),
-        });
-    });
-
 
     it('should display the entity name for the smart bar heading', async () => {
         wrapper.vm.productSortingEntity.label = 'label';

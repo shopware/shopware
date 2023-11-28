@@ -1,10 +1,7 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swCustomFieldSetDetailBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
-
-Shopware.Component.register('sw-custom-field-set-detail-base', swCustomFieldSetDetailBase);
+import { mount } from '@vue/test-utils_v3';
 
 function getFieldTypes() {
     return {
@@ -19,44 +16,45 @@ function getFieldTypes() {
 }
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-custom-field-set-detail-base'), {
-        localVue,
-        mocks: {
-            $i18n: {
-                fallbackLocale: 'en-GB',
-            },
-        },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                },
-            },
-            customFieldDataProviderService: {
-                getTypes: () => getFieldTypes(),
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-custom-field-set-detail-base', {
+        sync: true,
+    }), {
+        props: {
             set: {
                 _isNew: true,
             },
         },
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-custom-field-type-checkbox': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
-            'sw-button': true,
-            'sw-multi-select': true,
-            'sw-loader': true,
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $i18n: {
+                    fallbackLocale: 'en-GB',
+                },
+            },
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                customFieldDataProviderService: {
+                    getTypes: () => getFieldTypes(),
+                },
+            },
+            stubs: {
+                'sw-card': true,
+                'sw-container': true,
+                'sw-custom-field-type-checkbox': true,
+                'sw-number-field': true,
+                'sw-text-field': true,
+                'sw-button': true,
+                'sw-multi-select': true,
+                'sw-loader': true,
+            },
         },
     });
 }
@@ -71,6 +69,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
         const wrapper = await createWrapper([
             'custom_field.editor',
         ]);
+        await flushPromises();
 
         const technicalNameField = wrapper.find('.sw-settings-custom-field-set-detail-base__technical-name');
         const positionField = wrapper.find('.sw-settings-custom-field-set-detail-base__base-postion');

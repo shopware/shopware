@@ -1,34 +1,31 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsTaxRuleModal from 'src/module/sw-settings-tax/component/sw-settings-tax-rule-modal';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/base/sw-button';
-
-Shopware.Component.register('sw-settings-tax-rule-modal', swSettingsTaxRuleModal);
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-settings-tax-rule-modal'), {
-        localVue,
-        stubs: {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-icon': true,
-            'sw-container': true,
-            'sw-entity-single-select': true,
-            'sw-number-field': true,
-            'sw-datepicker': true,
-        },
-        provide: {
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
+    return mount(await wrapTestComponent('sw-settings-tax-rule-modal', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-modal': await wrapTestComponent('sw-modal'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-icon': true,
+                'sw-container': true,
+                'sw-entity-single-select': true,
+                'sw-number-field': true,
+                'sw-datepicker': true,
+            },
+            provide: {
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
+                },
             },
         },
-        propsData: {
+        props: {
             tax: {
                 id: '55a0817ba3314dd2a1ba4d94fe74a72b',
                 name: 'Standard rate',
@@ -52,10 +49,6 @@ describe('sw-settings-tax-rule-modal', () => {
         wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -75,6 +68,7 @@ describe('sw-settings-tax-rule-modal', () => {
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {
+        await flushPromises();
         const taxRateField = wrapper.find(
             'sw-number-field-stub[label="sw-settings-tax.taxRuleCard.labelTaxRate"]',
         );

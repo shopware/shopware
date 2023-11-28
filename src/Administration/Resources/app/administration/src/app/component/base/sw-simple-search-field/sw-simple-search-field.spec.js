@@ -2,35 +2,27 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
+import { mount } from '@vue/test-utils_v3';
 
-import('src/app/component/base/sw-simple-search-field');
-
-async function createWrapper(additionalOptions = {}) {
-    return shallowMount(await Shopware.Component.build('sw-simple-search-field'), {
-        stubs: {
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-icon': true,
-            'icons-small-search': true,
-        },
-        provide: {
-            validationService: {},
-        },
-        propsData: {
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-simple-search-field', { sync: true }), {
+        props: {
             value: 'search term',
         },
-        ...additionalOptions,
+        global: {
+            stubs: {
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-icon': true,
+                'icons-small-search': true,
+            },
+            provide: {
+                validationService: {},
+            },
+        },
     });
 }
 
@@ -39,6 +31,7 @@ describe('components/base/sw-simple-search-field', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('should be a Vue.js component', async () => {

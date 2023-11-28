@@ -1,15 +1,12 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderProductSelect from 'src/module/sw-order/component/sw-order-product-select';
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
-Shopware.Component.register('sw-order-product-select', swOrderProductSelect);
-
 const createWrapper = async () => {
-    return shallowMount(await Shopware.Component.build('sw-order-product-select'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-product-select', { sync: true }), {
+        props: {
             taxStatus: 'net',
             item: {
                 priceDefinition: {
@@ -31,10 +28,13 @@ const createWrapper = async () => {
             },
             salesChannelId: '1',
         },
-        stubs: {
-            'sw-text-field': true,
-            'sw-entity-single-select': true,
+        global: {
+            stubs: {
+                'sw-text-field': true,
+                'sw-entity-single-select': true,
+            },
         },
+
     });
 };
 

@@ -1,29 +1,26 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-operator-select';
+import { shallowMount } from '@vue/test-utils_v3';
 
 async function createWrapper(customProps = {}) {
-    return shallowMount(await Shopware.Component.build('sw-condition-operator-select'), {
-        stubs: {
-            'sw-single-select': true,
-        },
-        propsData: {
+    return shallowMount(await wrapTestComponent('sw-condition-operator-select', { sync: true }), {
+        props: {
             condition: {},
             operators: [],
             ...customProps,
+        },
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-single-select': true,
+            },
         },
     });
 }
 
 describe('src/app/component/rule/sw-condition-operator-select', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have enabled fields', async () => {
         const wrapper = await createWrapper();
 
-        const singleSelect = wrapper.find('sw-single-select-stub');
+        const singleSelect = wrapper.get('sw-single-select-stub');
 
         expect(singleSelect.attributes().disabled).toBeUndefined();
     });
@@ -33,7 +30,7 @@ describe('src/app/component/rule/sw-condition-operator-select', () => {
             disabled: true,
         });
 
-        const singleSelect = wrapper.find('sw-single-select-stub');
+        const singleSelect = wrapper.get('sw-single-select-stub');
 
         expect(singleSelect.attributes().disabled).toBe('true');
     });

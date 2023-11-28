@@ -1,72 +1,88 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryDetailBase from 'src/module/sw-category/view/sw-category-detail-base';
+import { mount } from '@vue/test-utils_v3';
 
-Shopware.Component.register('sw-category-detail-base', swCategoryDetailBase);
+const categoryMock = {
+    media: [],
+    name: 'Computer parts',
+    footerSalesChannels: [],
+    navigationSalesChannels: [],
+    serviceSalesChannels: [],
+    productAssignmentType: 'product',
+    isNew: () => false,
+};
 
-describe('module/sw-category/view/sw-category-detail-base.spec', () => {
-    let wrapper;
+async function createWrapper() {
+    if (Shopware.State.get('swCategoryDetail')) {
+        Shopware.State.unregisterModule('swCategoryDetail');
+    }
 
-    const categoryMock = {
-        media: [],
-        name: 'Computer parts',
-        footerSalesChannels: [],
-        navigationSalesChannels: [],
-        serviceSalesChannels: [],
-        productAssignmentType: 'product',
-        isNew: () => false,
-    };
+    Shopware.State.registerModule('swCategoryDetail', {
+        namespaced: true,
+        state: {
+            category: categoryMock,
+        },
+    });
 
-    beforeEach(async () => {
-        if (Shopware.State.get('swCategoryDetail')) {
-            Shopware.State.unregisterModule('swCategoryDetail');
-        }
-
-        Shopware.State.registerModule('swCategoryDetail', {
-            namespaced: true,
-            state: {
-                category: categoryMock,
-            },
-        });
-
-        wrapper = shallowMount(await Shopware.Component.build('sw-category-detail-base'), {
+    return mount(await wrapTestComponent('sw-category-detail-base', { sync: true }), {
+        global: {
             stubs: {
-                'sw-card': true,
-                'sw-container': true,
-                'sw-text-field': true,
-                'sw-switch-field': true,
-                'sw-single-select': true,
-                'sw-entity-tag-select': true,
-                'sw-category-detail-menu': true,
-                'sw-category-detail-products': true,
-                'sw-entity-single-select': true,
-                'sw-category-seo-form': true,
-                'sw-alert': {
-                    template: '<div class="sw-alert"><slot></slot></div>',
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': {
+                    template: '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
+                    props: ['value', 'disabled'],
+                },
+                'sw-switch-field': {
+                    template: '<input class="sw-field sw-switch-field" type="checkbox" :value="value" @change="$emit(\'update:value\', $event.target.checked)" />',
+                    props: ['value', 'disabled'],
+                },
+                'sw-single-select': {
+                    template: '<input type="select" class="sw-single-select"></input>',
+                    props: ['disabled'],
+                },
+                'sw-entity-tag-select': {
+                    template: '<input type="select" class="sw-entity-tag-select"></input>',
+                    props: ['disabled'],
+                },
+                'sw-category-detail-menu': {
+                    template: '<div class="sw-category-detail-menu"></div>',
                 },
             },
             mocks: {
                 placeholder: () => {},
             },
-            propsData: {
-                isLoading: false,
-                manualAssignedProductsCount: 0,
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(null),
-                        };
-                    },
-                },
-            },
+        },
+        props: {
+            isLoading: false,
+            manualAssignedProductsCount: 0,
+        },
+    });
+}
+
+describe('module/sw-category/view/sw-category-detail-base.spec', () => {
+    it('should disable all interactive elements', async () => {
+        global.activeAclRoles = [];
+
+        const wrapper = await createWrapper();
+
+        wrapper.findAllComponents('input').forEach(element => {
+            expect(element.props('disabled')).toBe(true);
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+    it('should enable all interactive elements', async () => {
+        global.activeAclRoles = ['category.editor'];
+
+        const wrapper = await createWrapper();
+
+        wrapper.findAllComponents('input').forEach(element => {
+            expect(element.props('disabled')).toBe(false);
+        });
     });
 });

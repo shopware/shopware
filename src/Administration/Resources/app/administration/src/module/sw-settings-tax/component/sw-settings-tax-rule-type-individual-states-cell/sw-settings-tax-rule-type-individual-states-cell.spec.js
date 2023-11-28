@@ -1,45 +1,41 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import swSettingsTaxRuleTypeIndividualStatesCell from 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states-cell';
-
-Shopware.Component.register('sw-settings-tax-rule-type-individual-states-cell', swSettingsTaxRuleTypeIndividualStatesCell);
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 async function createWrapper(taxRule) {
     taxRule.type = { typeName: 'Individual States' };
 
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return mount(await Shopware.Component.build('sw-settings-tax-rule-type-individual-states-cell'), {
-        localVue,
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-tax-rule-type-individual-states-cell', {
+        sync: true,
+    }), {
+        props: {
             taxRule,
         },
 
-        provide: {
-            repositoryFactory: {
-                create: (entityName) => {
-                    if (entityName !== 'country_state') {
-                        throw new Error('expected entity name to be country_state');
-                    }
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: (entityName) => {
+                        if (entityName !== 'country_state') {
+                            throw new Error('expected entity name to be country_state');
+                        }
 
-                    return {
-                        entityName: 'country_state',
-                        route: '/country_state',
-                        search: (criteria) => {
-                            const states = criteria.ids.map((id) => {
-                                return {
-                                    id,
-                                    name: `state ${id}`,
-                                };
-                            });
+                        return {
+                            entityName: 'country_state',
+                            route: '/country_state',
+                            search: (criteria) => {
+                                const states = criteria.ids.map((id) => {
+                                    return {
+                                        id,
+                                        name: `state ${id}`,
+                                    };
+                                });
 
-                            return Promise.resolve(states);
-                        },
-                    };
+                                return Promise.resolve(states);
+                            },
+                        };
+                    },
                 },
             },
         },
@@ -68,8 +64,6 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
 
         expect(individualStates).toBeInstanceOf(Array);
         expect(individualStates).toHaveLength(0);
-
-        wrapper.destroy();
     });
 
     it('fetches country states at creation', async () => {
@@ -90,8 +84,6 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             `state ${states[0]}`,
             `state ${states[1]}`,
         ]));
-
-        wrapper.destroy();
     });
 
     it('watches for changes in its props', async () => {
@@ -115,7 +107,5 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
         expect(wrapper.vm.individualStates).toEqual(expect.arrayContaining([
             `state ${stateId}`,
         ]));
-
-        wrapper.destroy();
     });
 });

@@ -1,31 +1,20 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionCardBase from 'src/module/sw-extension/component/sw-extension-card-base';
-
-Shopware.Component.register('sw-extension-card-base', swExtensionCardBase);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(propsData = {}, provide = {}) {
-    return shallowMount(await Shopware.Component.build('sw-extension-card-base'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-extension-card-base', { sync: true }), {
+        global: {
+            provide: {
+                shopwareExtensionService: {
+                    getOpenLink: () => null,
+                },
+                extensionStoreActionService: {},
+                cacheApiService: {},
+                ...provide,
+            },
+        },
+        props: {
             extension: { installedAt: null },
             ...propsData,
-        },
-        stubs: {
-            'sw-meteor-card': true,
-            'sw-switch-field': true,
-            'sw-context-button': true,
-            'sw-context-menu': true,
-            'sw-context-menu-item': true,
-            'sw-loader': true,
-            'sw-extension-permissions-modal': true,
-            'sw-extension-icon': true,
-        },
-        provide: {
-            shopwareExtensionService: {
-                getOpenLink: () => null,
-            },
-            extensionStoreActionService: {},
-            cacheApiService: {},
-            ...provide,
         },
     });
 }
@@ -135,7 +124,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
         await wrapper.vm.$nextTick();
 
-        const state = wrapper.findAll('sw-context-menu-item-stub');
+        const state = wrapper.findAll('sw-context-menu-item');
         expect(state).toHaveLength(1);
     });
 
@@ -187,6 +176,6 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         });
 
         await wrapper.vm.updateExtension(false);
-        expect(wrapper.get('sw-extension-permissions-modal-stub').exists()).toBe(true);
+        expect(wrapper.get('sw-extension-permissions-modal').exists()).toBe(true);
     });
 });

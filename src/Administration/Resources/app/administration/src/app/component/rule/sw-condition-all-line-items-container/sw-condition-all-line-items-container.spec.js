@@ -1,65 +1,66 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-all-line-items-container';
-import 'src/app/component/rule/sw-condition-base';
-import 'src/app/component/rule/condition-type/sw-condition-goods-price';
+import { mount } from '@vue/test-utils_v3';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const createCondition = jest.fn();
 const insertNodeIntoTree = jest.fn();
 const removeNodeFromTree = jest.fn();
 
 async function createWrapper(customProps = {}) {
-    return shallowMount(await Shopware.Component.build('sw-condition-all-line-items-container'), {
-        stubs: {
-            'sw-condition-tree-node': true,
-            'sw-condition-base': await Shopware.Component.build('sw-condition-base'),
-            'sw-condition-goods-price': await Shopware.Component.build('sw-condition-goods-price'),
-        },
-        provide: {
-            conditionDataProviderService: {
-                getPlaceholderData: () => {},
-                getByType: () => {
-                    return {
-                        component: 'sw-condition-goods-price',
-                    };
+    return mount(
+        await wrapTestComponent('sw-condition-all-line-items-container', { sync: true }),
+        {
+            props: {
+                parentCondition: {
+                    id: 'foo',
                 },
-            },
-            createCondition,
-            insertNodeTree: {},
-            insertNodeIntoTree,
-            removeNodeFromTree,
-            childAssociationField: 'children',
-        },
-        propsData: {
-            parentCondition: {
-                id: 'foo',
-            },
-            condition: {
-                type: 'allLineItemsContainer',
-                children: {
-                    first() {
-                        return {
+                condition: {
+                    type: 'allLineItemsContainer',
+                    children: new EntityCollection(
+                        '',
+                        'rule_condition',
+                        Shopware.Context.api,
+                        null,
+                        [{
+                            id: 'rule-condition-id',
                             type: 'cartLineItemUnitPrice',
                             value: {
                                 amount: 12,
                                 operator: '<',
                             },
-                        };
+                        }],
+                    ),
+                },
+                level: 0,
+                ...customProps,
+            },
+            global: {
+                stubs: {
+                    'sw-condition-tree-node': true,
+                    'sw-condition-base': await wrapTestComponent('sw-condition-base'),
+                    'sw-condition-goods-price': await wrapTestComponent('sw-condition-goods-price'),
+                },
+                provide: {
+                    conditionDataProviderService: {
+                        getPlaceholderData: () => {
+                        },
+                        getByType: () => {
+                            return {
+                                component: 'sw-condition-goods-price',
+                            };
+                        },
                     },
-                    length: 1,
+                    createCondition,
+                    insertNodeTree: {},
+                    insertNodeIntoTree,
+                    removeNodeFromTree,
+                    childAssociationField: 'children',
                 },
             },
-            level: 0,
-            ...customProps,
         },
-    });
+    );
 }
 
 describe('src/app/component/rule/sw-condition-and-container', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have enabled condition tree', async () => {
         const wrapper = await createWrapper();
 
@@ -81,7 +82,13 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should removeNodeFromTree when children length becomes 0', async () => {
         const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
-        condition.children.length = 0;
+        condition.children = new EntityCollection(
+            '',
+            'rule_condition',
+            Shopware.Context.api,
+            null,
+            [],
+        );
         await wrapper.setProps({ condition });
 
         expect(removeNodeFromTree).toHaveBeenCalled();
@@ -90,15 +97,20 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
     it('should call injections when children type changes to none line item type', async () => {
         const wrapper = await createWrapper();
         const condition = { ...wrapper.props().condition };
-        condition.children.first = () => {
-            return {
+        condition.children = new EntityCollection(
+            '',
+            'rule_condition',
+            Shopware.Context.api,
+            null,
+            [{
                 type: 'cartGoodsPrice',
                 value: {
                     amount: 7,
                     operator: '=',
                 },
-            };
-        };
+            }],
+        );
+
         await wrapper.setProps({ condition });
 
         expect(removeNodeFromTree).toHaveBeenCalled();

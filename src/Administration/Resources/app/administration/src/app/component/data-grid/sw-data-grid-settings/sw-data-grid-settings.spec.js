@@ -2,34 +2,14 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/data-grid/sw-data-grid-settings';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/context-menu/sw-context-menu';
-import 'src/app/component/form/field-base/sw-base-field';
+import { mount } from '@vue/test-utils_v3';
 
 describe('components/data-grid/sw-data-grid-settings', () => {
     let wrapper;
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
 
     beforeEach(async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-data-grid-settings'), {
-            localVue,
-            stubs: {
-                'sw-context-button': true,
-                'sw-switch-field': true,
-                'sw-checkbox-field': true,
-                'sw-button': true,
-                'sw-icon': true,
-                'sw-context-menu-divider': true,
-                'sw-button-group': true,
-            },
-            propsData: {
+        wrapper = mount(await wrapTestComponent('sw-data-grid-settings', { sync: true }), {
+            props: {
                 columns: [
                     { property: 'name', label: 'Name' },
                     { property: 'company', label: 'Company' },
@@ -39,11 +19,19 @@ describe('components/data-grid/sw-data-grid-settings', () => {
                 enablePreviews: true,
                 disabled: false,
             },
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-context-button': true,
+                    'sw-switch-field': true,
+                    'sw-checkbox-field': true,
+                    'sw-button': true,
+                    'sw-icon': true,
+                    'sw-context-menu-divider': true,
+                    'sw-button-group': true,
+                },
+            },
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

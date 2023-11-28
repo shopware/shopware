@@ -1,38 +1,43 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swSettingsAddress from 'src/module/sw-settings-address/page/sw-settings-address';
-
-Shopware.Component.register('sw-settings-address', swSettingsAddress);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-settings-address'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    searchIds: () => Promise.resolve(
-                        {
-                            data: [1],
-                            total: 1,
-                        },
-                    ),
-                }),
+    return mount(await wrapTestComponent('sw-settings-address', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        searchIds: () => Promise.resolve(
+                            {
+                                data: [1],
+                                total: 1,
+                            },
+                        ),
+                    }),
+                },
             },
-        },
-        mocks: {
-            $route: { query: '' },
-            $router: { resolve: () => ({ href: 'the_link' }) },
-        },
-        stubs: {
-            'sw-page': true,
-            'sw-icon': true,
-            'sw-search-bar': true,
-            'sw-card-view': true,
-            'sw-button-process': true,
-            'sw-system-config': true,
-            'sw-alert': true,
-            'sw-skeleton': true,
+            mocks: {
+                $route: { query: '' },
+                $router: { resolve: () => ({ href: 'the_link' }) },
+            },
+            stubs: {
+                'sw-page': {
+                    template: `
+    <div>
+        <slot name="smart-bar-actions"></slot>
+        <slot name="content"></slot>
+    </div>`,
+                },
+                'sw-icon': true,
+                'sw-search-bar': true,
+                'sw-card-view': true,
+                'sw-button-process': true,
+                'sw-system-config': true,
+                'sw-alert': true,
+                'sw-skeleton': true,
+            },
         },
     });
 }
@@ -69,6 +74,7 @@ describe('src/module/sw-settings-address/page/sw-settings-address', () => {
         await wrapper.setData({
             isLoading: true,
         });
+        await flushPromises();
 
         expect(wrapper.vm.isLoading).toBe(true);
         expect(

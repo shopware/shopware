@@ -1,66 +1,57 @@
-/**
- * @package buyers-experience
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swPromotionV2Conditions from 'src/module/sw-promotion-v2/view/sw-promotion-v2-conditions';
+import { mount } from '@vue/test-utils_v3';
 
-Shopware.Component.register('sw-promotion-v2-conditions', swPromotionV2Conditions);
-
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-conditions'), {
-        localVue,
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>',
-            },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-text-field': {
-                template: '<div class="sw-text-field"></div>',
-            },
-            'sw-number-field': {
-                template: '<div class="sw-number-field"></div>',
-            },
-            'sw-entity-multi-select': {
-                template: '<div class="sw-entity-multi-select"></div>',
-            },
-            'sw-promotion-v2-sales-channel-select': {
-                template: '<div class="sw-promotion-v2-sales-channel-select"></div>',
-            },
-            'sw-promotion-v2-rule-select': {
-                template: '<div class="sw-promotion-v2-rule-select"></div>',
-            },
-            'sw-switch-field': {
-                template: '<div class="sw-switch-field"></div>',
-            },
-            'sw-promotion-v2-cart-condition-form': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-promotion-v2-conditions', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
                 },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': {
+                    template: '<input type="text" class="sw-field sw-text-field"></div>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-number-field': {
+                    template: '<input type="number" class="sw-field sw-number-field"></input>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-entity-multi-select': {
+                    template: '<input type="select" multiple="true" class="sw-field sw-entity-multi-select"></div>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-promotion-v2-sales-channel-select': {
+                    template: '<input type="select" class="sw-field sw-promotion-v2-sales-channel-select"></input>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-promotion-v2-rule-select': {
+                    template: '<input type="select" class="sw-field sw-promotion-v2-rule-select"></input>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-switch-field': {
+                    template: '<input type="checkbox" class="sw-field sw-switch-field"></div>',
+                    props: ['value', 'disabled'],
+                },
+                'sw-promotion-v2-cart-condition-form': true,
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
-                }),
-            },
-            ruleConditionDataProviderService: {
-                getAwarenessConfigurationByAssignmentName: () => {
-                    return {
-                        snippet: '',
-                    };
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                    }),
+                },
+                ruleConditionDataProviderService: {
+                    getAwarenessConfigurationByAssignmentName: () => {
+                        return {
+                            snippet: '',
+                        };
+                    },
                 },
             },
         },
-        propsData: {
+        props: {
             promotion: {
                 name: 'Test Promotion',
                 active: true,
@@ -110,51 +101,23 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-conditions', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable adding discounts when privileges not set', async () => {
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled,
-        ).toBeTruthy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled,
-        ).toBeTruthy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled,
-        ).toBeTruthy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled,
-        ).toBeTruthy();
+        global.activeAclRoles = [];
+
+        const wrapper = await createWrapper();
+
+        wrapper.findAllComponents('.sw-field').forEach((field) => {
+            expect(field.props('disabled')).toBe(true);
+        });
     });
 
     it('should enable adding discounts when privilege is set', async () => {
-        wrapper = await createWrapper([
-            'promotion.editor',
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
 
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__sales-channel-selection').attributes().disabled,
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rules-exclusion-selection').attributes().disabled,
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-customer').attributes().disabled,
-        ).toBeFalsy();
-        expect(
-            wrapper.find('.sw-promotion-v2-conditions__rule-select-order-conditions').attributes().disabled,
-        ).toBeFalsy();
+        const wrapper = await createWrapper();
+
+        wrapper.findAllComponents('.sw-field').forEach((field) => {
+            expect(field.props('disabled')).toBeFalsy();
+        });
     });
 });

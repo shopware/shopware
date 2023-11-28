@@ -1,11 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsDocumentDetail from 'src/module/sw-settings-document/page/sw-settings-document-detail';
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-settings-document-detail', swSettingsDocumentDetail);
 
 const documentBaseConfigRepositoryMock = {
     create: () => {
@@ -87,21 +84,39 @@ const repositoryMockFactory = (entity) => {
 };
 
 const createWrapper = async (customOptions, privileges = []) => {
-    const options = {
-        stubs: {
-            'sw-page': true,
-            'sw-entity-single-select': true,
-            'sw-text-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-card-view': true,
-            'sw-icon': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-form-field-renderer': true,
-            'sw-language-switch': true,
-            'sw-checkbox-field': {
-                template: `
+    return mount(await wrapTestComponent('sw-settings-document-detail', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-page': {
+                    template: `
+                    <div class="sw-page">
+                        <slot name="search-bar"></slot>
+                        <slot name="smart-bar-back"></slot>
+                        <slot name="smart-bar-header"></slot>
+                        <slot name="language-switch"></slot>
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="side-content"></slot>
+                        <slot name="content"></slot>
+                        <slot name="sidebar"></slot>
+                        <slot></slot>
+                    </div>
+                `,
+                },
+                'sw-entity-single-select': true,
+                'sw-text-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-card-view': true,
+                'sw-icon': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-form-field-renderer': true,
+                'sw-language-switch': true,
+                'sw-checkbox-field': {
+                    template: `
                     <div class="sw-field--checkbox">
                         <div class="sw-field--checkbox__content">
                             <div class="sw-field__checkbox">
@@ -110,31 +125,28 @@ const createWrapper = async (customOptions, privileges = []) => {
                         </div>
                     </div>
                 `,
+                },
+                'sw-entity-multi-id-select': true,
+                'sw-entity-multi-select': true,
+                'sw-select-base': true,
+                'sw-base-field': true,
+                'sw-field-error': true,
+                'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
+                'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] },
+                'sw-skeleton': true,
             },
-            'sw-entity-multi-id-select': true,
-            'sw-entity-multi-select': true,
-            'sw-select-base': true,
-            'sw-base-field': true,
-            'sw-field-error': true,
-            'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
-            'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] },
-            'sw-skeleton': true,
+            provide: {
+                repositoryFactory: {
+                    create: (entity) => repositoryMockFactory(entity),
+                },
+                acl: {
+                    can: key => (key ? privileges.includes(key) : true),
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
+            },
         },
-        provide: {
-            repositoryFactory: {
-                create: (entity) => repositoryMockFactory(entity),
-            },
-            acl: {
-                can: key => (key ? privileges.includes(key) : true),
-            },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
-            },
-        },
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-settings-document-detail'), {
-        ...options,
         ...customOptions,
     });
 };
@@ -152,7 +164,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     // eslint-disable-next-line max-len
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
         const wrapper = await createWrapper({
-            propsData: { documentConfigId: 'documentConfigWithSalesChannels' },
+            props: { documentConfigId: 'documentConfigWithSalesChannels' },
         });
 
         await flushPromises();
@@ -162,7 +174,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should create an entity collection with document config sales channels associations', async () => {
         const wrapper = await createWrapper({
-            propsData: { documentConfigId: 'documentConfigWithDocumentType' },
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
         });
 
         await flushPromises();
@@ -186,7 +198,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
     it('should create an entity collection with document config sales channels associations with ' +
         'actual sales channels associations inside', async () => {
         const wrapper = await createWrapper({
-            propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' },
+            props: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' },
         });
 
         await flushPromises();
@@ -206,7 +218,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should recreate sales channel options collection when type changes', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels',
             },
         });
@@ -234,7 +246,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should be able to edit', async () => {
         const wrapper = await createWrapper(
-            { propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
+            { props: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
             ['document.editor'],
         );
 
@@ -242,25 +254,24 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
         expect(wrapper.find('.sw-settings-document-detail__save-action')
             .attributes().disabled).toBeUndefined();
-        expect(wrapper.find('#sw-media-field').props().disabled).toBe(false);
-        expect(wrapper.findAll('.sw-field')
-            .wrappers.every(field => !field.props().disabled)).toBe(true);
-        expect(wrapper.find('#documentSalesChannel').props().disabled).toBe(false);
+        expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(false);
+        expect(wrapper.findAllComponents('.sw-field').every(field => !field.props().disabled)).toBe(true);
+        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(false);
     });
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper({
-            propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' },
+            props: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' },
         });
 
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-document-detail__save-action')
             .attributes().disabled).toBe('true');
-        expect(wrapper.find('#sw-media-field').props().disabled).toBe(true);
-        expect(wrapper.findAll('.sw-field')
-            .wrappers.every(field => field.props().disabled)).toBe(true);
-        expect(wrapper.find('#documentSalesChannel').props().disabled).toBe(true);
+        expect(wrapper.findComponent('#sw-media-field').props().disabled).toBe(true);
+        expect(wrapper.findAllComponents('.sw-field')
+            .every(field => field.props().disabled)).toBe(true);
+        expect(wrapper.findComponent('#documentSalesChannel').props().disabled).toBe(true);
     });
 
     it('should create an invoice document with countries note delivery', async () => {
@@ -383,7 +394,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
 
     it('should have assignment card at the top of the page', async () => {
         const wrapper = await createWrapper(
-            { propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
+            { props: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
             ['document.editor'],
         );
 

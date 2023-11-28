@@ -1,18 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
-import swOrderDocumentSettingsCreditNoteModal from 'src/module/sw-order/component/sw-order-document-settings-credit-note-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-group';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field';
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
-Shopware.Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsCreditNoteModal);
 
 const orderFixture = {
     id: 'order1',
@@ -100,43 +90,45 @@ const orderFixture = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-document-settings-credit-note-modal'), {
-        stubs: {
-            'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+    return mount(await wrapTestComponent('sw-order-document-settings-credit-note-modal', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal'),
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-datepicker': true,
+                'sw-checkbox-field': true,
+                'sw-switch-field': true,
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-group': await wrapTestComponent('sw-button-group'),
+                'sw-context-menu-item': true,
+                'sw-upload-listener': true,
+                'sw-textarea-field': true,
+                'sw-icon': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-loader': true,
+                'sw-description-list': {
+                    template: '<div class="sw-description-list"><slot></slot></div>',
+                },
             },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-text-field': true,
-            'sw-datepicker': true,
-            'sw-checkbox-field': true,
-            'sw-switch-field': true,
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-group': await Shopware.Component.build('sw-button-group'),
-            'sw-context-menu-item': true,
-            'sw-upload-listener': true,
-            'sw-textarea-field': true,
-            'sw-icon': true,
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-loader': true,
-            'sw-description-list': {
-                template: '<div class="sw-description-list"><slot></slot></div>',
+            provide: {
+                numberRangeService: {
+                    reserve: () => Promise.resolve({ number: 1337 }),
+                },
             },
         },
-        provide: {
-            numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1337 }),
-            },
-        },
-        propsData: {
+        props: {
             order: orderFixture,
             currentDocumentType: {},
             isLoadingDocument: false,
@@ -151,10 +143,6 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -333,12 +321,15 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         });
 
         await wrapper.setData({
-            currentDocumentType: {
-                technicalName: 'credit_note',
-            },
             documentNumberPreview: 'PREVIEW_NUM_001',
             documentConfig: {
                 documentNumber: 'PREVIEW_NUM_001',
+            },
+        });
+
+        await wrapper.setProps({
+            currentDocumentType: {
+                technicalName: 'credit_note',
             },
         });
 
@@ -382,11 +373,11 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     });
 
     it('should disable create button if there is no selected invoice', async () => {
-        const createButton = wrapper.find('.sw-order-document-settings-modal__create');
-        expect(createButton.attributes().disabled).toBe('disabled');
+        const createButton = wrapper.findComponent('.sw-order-document-settings-modal__create');
+        expect(createButton.props('disabled')).toBe(true);
 
-        const createContextMenu = wrapper.find('.sw-context-button');
-        expect(createContextMenu.attributes().disabled).toBe('disabled');
+        const createContextMenu = wrapper.findComponent('.sw-context-button');
+        expect(createContextMenu.attributes('disabled')).toBe('true');
     });
 
     it('should enable create button if there is at least one selected invoice', async () => {

@@ -1,17 +1,7 @@
-import Vuex from 'vuex';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import orderStore from 'src/module/sw-order/state/order.store';
-import swOrderCreateOptions from 'src/module/sw-order/component/sw-order-create-options';
-import swOrderCustomerAddressSelect from 'src/module/sw-order/component/sw-order-customer-address-select';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-select-result-list';
 
 const addresses = [
     {
@@ -104,16 +94,9 @@ const contextResponse = {
     },
 };
 
-Shopware.Component.register('sw-order-create-options', swOrderCreateOptions);
-Shopware.Component.register('sw-order-customer-address-select', swOrderCustomerAddressSelect);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-order-create-options'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-create-options', { sync: true }), {
+        props: {
             promotionCodes: [],
             disabledAutoPromotion: false,
             context: {
@@ -122,77 +105,79 @@ async function createWrapper() {
                 shippingAddressId: '2',
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(addresses),
-                    };
-                },
-            },
-        },
-        stubs: {
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-popover': {
-                template: '<div class="sw-popover"><slot></slot></div>',
-            },
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-order-customer-address-select': await Shopware.Component.build('sw-order-customer-address-select'),
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-text-field': true,
-            'sw-entity-single-select': {
-                props: ['value'],
-                template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
-            },
-            'sw-multi-tag-select': {
-                props: ['value', 'validate'],
-                template: `
-                    <div class="sw-multi-tag-select">
-                        <ul>
-                            <li v-for="item in value">{{ item }}</li>
-                        </ul>
-                        <input @input="updateTags">
-                    </div>
-                `,
-                methods: {
-                    updateTags(event) {
-                        if (!this.validate(event.target.value)) {
-                            return;
-                        }
-
-                        this.$emit('change', [...this.value, event.target.value]);
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(addresses),
+                        };
                     },
                 },
             },
-            'sw-highlight-text': true,
-            'sw-loader': true,
-            'sw-icon': true,
-            'sw-field-error': true,
-            'sw-number-field': {
-                template: `
-                    <div class="sw-number-field">
-                        <input type="number" :value="value" @input="$emit('change', Number($event.target.value))" />
-                        <slot name="suffix"></slot>
-                    </div>
-                `,
-                props: {
-                    value: 0,
+            stubs: {
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
                 },
-            },
-            'sw-select-result': {
-                props: ['item', 'index'],
-                template: `<li class="sw-select-result" @click.stop="onClickResult">
-                                <slot></slot>
-                           </li>`,
-                methods: {
-                    onClickResult() {
-                        this.$parent.$parent.$emit('item-select', this.item);
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
+                'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),
+                'sw-select-base': await wrapTestComponent('sw-select-base', { sync: true }),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', { sync: true }),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field', { sync: true }),
+                'sw-text-field': true,
+                'sw-entity-single-select': {
+                    props: ['value'],
+                    template: '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
+                },
+                'sw-multi-tag-select': {
+                    props: ['value', 'validate'],
+                    template: `
+                        <div class="sw-multi-tag-select">
+                            <ul>
+                                <li v-for="item in value">{{ item }}</li>
+                            </ul>
+                            <input @input="updateTags">
+                        </div>
+                    `,
+                    methods: {
+                        updateTags(event) {
+                            if (!this.validate(event.target.value)) {
+                                return;
+                            }
+
+                            this.$emit('change', [...this.value, event.target.value]);
+                        },
+                    },
+                },
+                'sw-highlight-text': true,
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-number-field': {
+                    template: `
+                        <div class="sw-number-field">
+                            <input type="number" :value="value" @input="$emit('change', Number($event.target.value))" />
+                            <slot name="suffix"></slot>
+                        </div>
+                    `,
+                    props: {
+                        value: 0,
+                    },
+                },
+                'sw-select-result': {
+                    props: ['item', 'index'],
+                    template: `<li class="sw-select-result" @click.stop="onClickResult">
+                                    <slot></slot>
+                            </li>`,
+                    methods: {
+                        onClickResult() {
+                            this.$parent.$parent.$emit('item-select', this.item);
+                        },
                     },
                 },
             },
@@ -236,7 +221,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         // Click to open result list
         await billingAddressSelect.trigger('click');
 
-        expect(wrapper.find('li[selected="selected"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
+        expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
         expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
     });
 
@@ -257,8 +242,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         expect(shippingSelectionText.text())
             .toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
-        expect(wrapper.find('.sw-order-create-options__shipping-address')
-            .attributes('disabled')).toBeTruthy();
+        expect(wrapper.findComponent('.sw-order-create-options__shipping-address').vm.disabled).toBe(true);
     });
 
     it('should disable shipping address when toggle on same as billing address switch', async () => {
@@ -270,8 +254,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         await switchSameAddress.setChecked(true);
 
-        expect(wrapper.find('.sw-order-create-options__shipping-address')
-            .attributes('disabled')).toBeTruthy();
+        expect(wrapper.findComponent('.sw-order-create-options__shipping-address').vm.disabled).toBe(true);
     });
 
     it('should enable shipping address when toggle on same as billing address switch', async () => {
@@ -332,8 +315,8 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         let shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
         expect(shippingCostField.text()).toBe('€');
 
-        const currencyInput = wrapper.find('.sw-order-create-options__currency-select');
-        await currencyInput.trigger('input');
+        const currencyInput = wrapper.findComponent('.sw-order-create-options__currency-select');
+        await currencyInput.vm.$emit('update:value', 'USD');
         await flushPromises();
 
         shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost');
@@ -343,9 +326,8 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     it('should emit shipping-cost-change event when edit shipping cost field', async () => {
         const wrapper = await createWrapper();
 
-        const shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost input');
-        await shippingCostField.setValue(100);
-        await shippingCostField.trigger('input');
+        const shippingCostField = wrapper.findComponent('.sw-order-create-options__shipping-cost');
+        await shippingCostField.vm.$emit('update:value', 100);
 
         expect(wrapper.emitted('shipping-cost-change')).toBeTruthy();
         expect(wrapper.emitted('shipping-cost-change')[0][0]).toBe(100);
@@ -354,9 +336,8 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
     it('should emit promotions-change event when adding a promotion code', async () => {
         const wrapper = await createWrapper();
 
-        const promotionField = wrapper.find('.sw-order-create-options__promotion-code input');
-        await promotionField.setValue('DISCOUNT');
-        await promotionField.trigger('input');
+        const promotionField = wrapper.findComponent('.sw-order-create-options__promotion-code');
+        await promotionField.vm.$emit('update:value', ['DISCOUNT']);
 
         expect(wrapper.emitted('promotions-change')).toBeTruthy();
         expect(wrapper.emitted('promotions-change')[0][0]).toEqual(['DISCOUNT']);
@@ -403,8 +384,8 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
             },
         }));
 
-        const shippingMethodSelect = wrapper.find('.sw-order-create-options__shipping-method');
-        await shippingMethodSelect.trigger('input');
+        const shippingMethodSelect = wrapper.findComponent('.sw-order-create-options__shipping-method');
+        await shippingMethodSelect.vm.$emit('update:value', 100);
         await flushPromises();
 
         expect(shippingCostField.element.value).toBe('100');

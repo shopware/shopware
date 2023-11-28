@@ -1,33 +1,8 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-type-select';
-import 'src/app/component/form/select/base/sw-grouped-single-select';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(customProps = {}, customOptions = {}) {
-    return shallowMount(await Shopware.Component.build('sw-condition-type-select'), {
-        stubs: {
-            'sw-grouped-single-select': await Shopware.Component.build('sw-grouped-single-select'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-icon': true,
-        },
-        provide: {
-            removeNodeFromTree: () => {
-            },
-            conditionDataProviderService: {},
-            restrictedConditions: {},
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-condition-type-select', { sync: true }), {
+        props: {
             condition: {
                 promotionAssociation: [
                     {
@@ -38,17 +13,28 @@ async function createWrapper(customProps = {}, customOptions = {}) {
             availableTypes: [],
             ...customProps,
         },
-        ...customOptions,
+        global: {
+            stubs: {
+                'sw-grouped-single-select': await wrapTestComponent('sw-grouped-single-select'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-icon': true,
+            },
+            provide: {
+                removeNodeFromTree: () => {
+                },
+                conditionDataProviderService: {},
+                restrictedConditions: {},
+            },
+            ...customOptions,
+        },
     });
 }
 
 describe('src/app/component/rule/sw-condition-type-select', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have enabled fields', async () => {
         const wrapper = await createWrapper();
 
@@ -65,7 +51,7 @@ describe('src/app/component/rule/sw-condition-type-select', () => {
 
         const singleSelect = wrapper.find('.sw-condition-type-select');
 
-        expect(singleSelect.attributes().disabled).toBe('disabled');
+        expect(singleSelect.attributes().disabled).toBe('true');
     });
 
     it('should have the right tooltip according to the restriction', async () => {

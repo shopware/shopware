@@ -1,7 +1,5 @@
-/**
- * @package buyers-experience
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
+
 import swPromotionV2Discounts from 'src/module/sw-promotion-v2/view/sw-promotion-v2-discounts';
 import swPromotionV2WizardDiscountSelection from 'src/module/sw-promotion-v2/component/discount/sw-promotion-v2-wizard-discount-selection';
 import 'src/app/component/wizard/sw-wizard';
@@ -11,62 +9,50 @@ import 'src/app/component/base/sw-empty-state';
 Shopware.Component.register('sw-promotion-v2-discounts', swPromotionV2Discounts);
 Shopware.Component.extend('sw-promotion-v2-wizard-discount-selection', 'sw-wizard-page', swPromotionV2WizardDiscountSelection);
 
-const { Component } = Shopware;
-let stubs = {};
-
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    stubs = {
-        'sw-card': {
-            template: '<div class="sw-card"><slot></slot></div>',
-        },
-        'sw-empty-state': await Component.build('sw-empty-state'),
-        'sw-modal': {
-            template: '<div class="sw-modal"><slot></slot></div>',
-        },
-        'sw-wizard': await Component.build('sw-wizard'),
-        'sw-wizard-page': await Component.build('sw-wizard-page'),
-        'sw-wizard-dot-navigation': true,
-        'sw-promotion-v2-wizard-description': {
-            template: '<div class="sw-promotion-v2-wizard-description"><slot></slot></div>',
-        },
-        'sw-promotion-v2-wizard-discount-selection': await Component.build('sw-promotion-v2-wizard-discount-selection'),
-        'sw-promotion-v2-settings-discount-type': true,
-        'sw-button': true,
-        'sw-button-process': true,
-        'sw-icon': true,
-        'sw-radio-field': true,
-    };
-    localVue.filter('asset', ((key) => {
-        return key;
-    }));
-
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-discounts'), {
-        localVue,
-        stubs,
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+async function createWrapper() {
+    return mount(await Shopware.Component.build('sw-promotion-v2-discounts'), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                    }),
+                },
+                shortcutService: {
+                    stopEventListener: () => {},
+                    startEventListener: () => {},
                 },
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
-                }),
+            mocks: {
+                $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
+                $sanitize: key => key,
             },
-            shortcutService: {
-                stopEventListener: () => {},
-                startEventListener: () => {},
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot></div>',
+                },
+                'sw-wizard': await Shopware.Component.build('sw-wizard'),
+                'sw-wizard-page': await Shopware.Component.build('sw-wizard-page'),
+                'sw-wizard-dot-navigation': true,
+                'sw-promotion-v2-wizard-description': {
+                    template: '<div class="sw-promotion-v2-wizard-description"><slot></slot></div>',
+                },
+                'sw-promotion-v2-wizard-discount-selection': await Shopware.Component.build('sw-promotion-v2-wizard-discount-selection'),
+                'sw-promotion-v2-settings-discount-type': true,
+                'sw-button': {
+                    template: '<button class="sw-button"><slot></slot></button>',
+                    props: ['disabled'],
+                },
+                'sw-button-process': true,
+                'sw-icon': true,
+                'sw-radio-field': true,
             },
         },
-        mocks: {
-            $route: { meta: { $module: { icon: 'default-symbol-content', description: 'Foo bar' } } },
-            $sanitize: key => key,
-        },
-        propsData: {
+        props: {
             promotion: {
                 name: 'Test Promotion',
                 active: true,
@@ -113,12 +99,9 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should open and close the wizard', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -137,22 +120,18 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-discounts', () =>
     });
 
     it('should disable adding discounts when privileges not set', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = await createWrapper();
 
-        const element = wrapper.find('sw-button-stub');
-
-        expect(element.exists()).toBeTruthy();
-        expect(element.attributes().disabled).toBeTruthy();
+        expect(wrapper.getComponent('.sw-button').props('disabled')).toBe(true);
     });
 
     it('should enable adding discounts when privilege is set', async () => {
-        const wrapper = await createWrapper([
-            'promotion.editor',
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
 
-        const element = wrapper.find('sw-button-stub');
+        const wrapper = await createWrapper();
 
-        expect(element.exists()).toBeTruthy();
-        expect(element.attributes().disabled).toBeFalsy();
+        expect(wrapper.getComponent('.sw-button').props('disabled')).toBe(false);
     });
 });

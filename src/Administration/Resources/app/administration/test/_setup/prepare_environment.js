@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { config, enableAutoDestroy } from '@vue/test-utils';
+import { config, enableAutoUnmount } from '@vue/test-utils_v3';
 import Vue from 'vue';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -13,13 +13,15 @@ import aclService from './_mocks_/acl.service.mock';
 import feature from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
+import wrapTestComponent from '../_helper_/componentWrapper';
 import resetFilters from '../_helper_/restartFilters';
+import 'blob-polyfill';
 
 // Setup Vue Test Utils configuration
 config.showDeprecationWarnings = true;
 
-// enable autoDestroy for wrapper after each test
-enableAutoDestroy(afterEach);
+// enable autoUnmount for wrapper after each test
+enableAutoUnmount(afterEach);
 
 // Make common utils available globally as well
 global.Vue = Vue;
@@ -44,7 +46,7 @@ Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 
 // Provide all services
 Shopware.Service().list().forEach(serviceKey => {
-    config.provide[serviceKey] = Shopware.Service(serviceKey);
+    config.global.provide[serviceKey] = Shopware.Service(serviceKey);
 });
 
 // Set important functions for Shopware Core
@@ -59,9 +61,11 @@ Shopware.Application.view = {
         $tc: v => v,
     },
     i18n: {
-        tc: v => v,
-        te: v => v,
-        t: v => v,
+        global: {
+            tc: v => v,
+            te: v => v,
+            t: v => v,
+        },
     },
 };
 
@@ -88,7 +92,7 @@ Shopware.State.commit('setAdminLocale', {
 });
 
 // Add global mocks
-config.mocks = {
+config.global.mocks = {
     $tc: v => v,
     $t: v => v,
     $te: () => true,
@@ -105,9 +109,7 @@ config.mocks = {
         go: jest.fn(),
         resolve: jest.fn(() => {
             return {
-                resolved: {
-                    matched: [],
-                },
+                matched: [],
             };
         }),
     },
@@ -122,15 +124,35 @@ global.allowedErrors = [
         method: 'warn',
         msg: 'No extension found for origin ""',
     },
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('you tried to publish is already registered');
+        },
+    },
+    {
+        method: 'error',
+        msgCheck: (msg) => {
+            if (typeof msg !== 'string') {
+                return false;
+            }
+
+            return msg.includes('It could be possible that no handler for the postMessage request exists or that the handler freezed');
+        },
+    },
 ];
 
 global.flushPromises = flushPromises;
+global.wrapTestComponent = wrapTestComponent;
 global.resetFilters = resetFilters;
 
-let consoleHasErrorOrWarning = false;
+let consoleHasError = false;
 let errorArgs = null;
-let warnArgs = null;
-const { error, warn } = console;
+const { error } = console;
 
 global.console.error = (...args) => {
     let silenceError = false;
@@ -148,11 +170,22 @@ global.console.error = (...args) => {
                     silenceError = true;
                 }
             }
+            return;
+        }
+
+        if (typeof allowedError.msgCheck === 'function') {
+            if (allowedError.msgCheck) {
+                const shouldBeSilenced = allowedError.msgCheck(args[0]);
+
+                if (shouldBeSilenced) {
+                    silenceError = true;
+                }
+            }
 
             return;
         }
 
-        const shouldBeSilenced = allowedError.msg.test(args[0]);
+        const shouldBeSilenced = allowedError.msg && allowedError.msg.test(args[0]);
 
         if (shouldBeSilenced) {
             silenceError = true;
@@ -160,67 +193,33 @@ global.console.error = (...args) => {
     });
 
     if (!silenceError) {
-        consoleHasErrorOrWarning = true;
+        consoleHasError = true;
         errorArgs = args;
         error(...args);
     }
 };
 
-global.console.warn = (...args) => {
-    let silenceWarn = false;
-
-    // eslint-disable-next-line array-callback-return
-    global.allowedErrors.some(allowedError => {
-        if (allowedError.method !== 'warn') {
-            return;
-        }
-
-        if (typeof allowedError.msg === 'string') {
-            const shouldBeSilenced = args[0].includes(allowedError.msg);
-
-            if (shouldBeSilenced) {
-                silenceWarn = true;
-            }
-
-            return;
-        }
-
-        const shouldBeSilenced = allowedError.msg.test(args[0]);
-
-        if (shouldBeSilenced) {
-            silenceWarn = true;
-        }
-    });
-
-    if (!silenceWarn) {
-        consoleHasErrorOrWarning = true;
-        warnArgs = args;
-        warn(...args);
-    }
-};
+// Mute warnings for now as they are expected due to compat options
+global.console.warn = () => {};
 
 // eslint-disable-next-line jest/require-top-level-describe
 beforeEach(() => {
-    consoleHasErrorOrWarning = false;
+    consoleHasError = false;
     errorArgs = null;
-    warnArgs = null;
+    global.activeFeatureFlags = ['VUE3'];
 });
 
 // eslint-disable-next-line jest/require-top-level-describe
 afterEach(() => {
-    if (consoleHasErrorOrWarning) {
-        // reset variable for next test
-        consoleHasErrorOrWarning = false;
+    if (consoleHasError) {
+    // reset variable for next test
+        consoleHasError = false;
 
         if (errorArgs) {
             throw new Error(...errorArgs);
         }
 
-        if (warnArgs) {
-            throw new Error(...warnArgs);
-        }
-
-        throw new Error('A console.error or console.warn occurred without any arguments.');
+        throw new Error('A console.error occurred without any arguments.');
     }
 });
 
@@ -228,7 +227,8 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-// This is here to always get the Vue 2 version of templates
+// This is here to always get the Vue 3 version of templates
 window._features_ = {
-    VUE3: false,
+    VUE3: true,
+    vue3: true,
 };

@@ -1,37 +1,33 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionFileUpload from 'src/module/sw-extension/component/sw-extension-file-upload';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
+import { mount } from '@vue/test-utils_v3';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
 const userConfigSaveSpy = jest.fn(() => Promise.resolve({}));
 
-Shopware.Component.register('sw-extension-file-upload', swExtensionFileUpload);
-
 async function createWrapper(userConfig = {}) {
-    return shallowMount(await Shopware.Component.build('sw-extension-file-upload'), {
-        stubs: {
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-icon': true,
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-modal': {
-                props: ['title'],
-                // eslint-disable-next-line max-len
-                template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
+    const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-icon': true,
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-field-error': true,
+                'sw-modal': {
+                    props: ['title'],
+                    // eslint-disable-next-line max-len
+                    template: '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
+                },
+                'sw-loader': true,
             },
-            'sw-loader': true,
-        },
-        provide: {
-            extensionStoreActionService: {
-                upload: uploadSpy,
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {};
+            provide: {
+                extensionStoreActionService: {
+                    upload: uploadSpy,
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {};
+                    },
                 },
             },
         },
@@ -46,6 +42,17 @@ async function createWrapper(userConfig = {}) {
                 save: userConfigSaveSpy,
             }),
         },
+        attachTo: document.body,
+    });
+
+    await flushPromises();
+
+    return wrapper;
+}
+
+function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/zip') {
+    return new File([new ArrayBuffer(size)], name, {
+        type: type,
     });
 }
 
@@ -53,9 +60,6 @@ async function createWrapper(userConfig = {}) {
  * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     beforeAll(() => {
         Shopware.Service().register('shopwareExtensionService', () => {
             return {
@@ -65,40 +69,32 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
-        uploadSpy.mockClear();
-        updateExtensionDataSpy.mockClear();
         Shopware.State.get('notification').notifications = {};
         Shopware.State.get('notification').growlNotifications = {};
     });
 
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show warning modal and then call the file input form', async () => {
+        const wrapper = await createWrapper();
+
         // spy for file input click
-        const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
+        const fileInput = wrapper.get('.sw-extension-file-upload__file-input');
         jest.spyOn(fileInput.element, 'click');
 
-        let warningModal = wrapper.find('.sw-extension-file-upload-confirm-modal');
-        expect(warningModal.exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-file-upload-confirm-modal').exists()).toBe(false);
 
         // click on upload
-        const uploadButton = wrapper.find('.sw-extension-file-upload__button');
+        const uploadButton = wrapper.get('.sw-extension-file-upload__button');
         await uploadButton.trigger('click');
 
-        warningModal = wrapper.find('.sw-extension-file-upload-confirm-modal');
-        expect(warningModal.isVisible()).toBe(true);
+        await wrapper.vm.$nextTick();
+        await flushPromises();
+
+        const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
 
         // fileInput has not been clicked before
         expect(fileInput.element.click).not.toHaveBeenCalled();
 
-        const continueButton = warningModal.find('.sw-button--primary');
+        const continueButton = warningModal.get('.sw-button--primary');
         await continueButton.trigger('click');
 
         // expect that the input gets clicked
@@ -106,6 +102,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     it('should not show warning modal if its hidden by user config', async () => {
+        const wrapper = await createWrapper();
+
         // spy for file input click
         const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
         jest.spyOn(fileInput.element, 'click');
@@ -133,8 +131,10 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     it('should update user config on file upload', async () => {
+        const wrapper = await createWrapper();
+
         // spy for file input click
-        const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
+        const fileInput = wrapper.get('.sw-extension-file-upload__file-input');
         jest.spyOn(fileInput.element, 'click');
 
         wrapper.vm.pluginUploadUserConfig = {
@@ -146,13 +146,12 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         };
 
         // click on upload
-        const uploadButton = wrapper.find('.sw-extension-file-upload__button');
+        const uploadButton = wrapper.get('.sw-extension-file-upload__button');
         await uploadButton.trigger('click');
 
-        const warningModal = wrapper.find('.sw-extension-file-upload-confirm-modal');
-        expect(warningModal.isVisible()).toBe(true);
+        const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
 
-        const hideCheckbox = warningModal.find('input[type=\'checkbox\']');
+        const hideCheckbox = warningModal.get('input[type=\'checkbox\']');
         await hideCheckbox.setChecked();
 
         await wrapper.vm.handleUpload([createFile()]);
@@ -168,6 +167,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     it('should upload the correct file when user selects a file', async () => {
+        const wrapper = await createWrapper();
+
         // upload a file
         const fileInput = wrapper.find('.sw-extension-file-upload__file-input');
         const mockFile = createFile();
@@ -190,6 +191,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     it('should throw an error if the upload goes wrong', async () => {
+        const wrapper = await createWrapper();
+
         // no growl message was thrown
         expect(Object.keys(Shopware.State.get('notification').growlNotifications)).toHaveLength(0);
 
@@ -229,9 +232,3 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         });
     });
 });
-
-function createFile(size = 44320, name = 'test-plugin.zip', type = 'application/zip') {
-    return new File([new ArrayBuffer(size)], name, {
-        type: type,
-    });
-}

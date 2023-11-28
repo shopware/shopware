@@ -1,20 +1,4 @@
-/**
- * @package inventory
- */
-import { shallowMount } from '@vue/test-utils';
-import swSettingsListing from 'src/module/sw-settings-listing/page/sw-settings-listing';
-
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/grid/sw-pagination';
-import 'src/app/component/utils/sw-inherit-wrapper';
-
-Shopware.Component.register('sw-settings-listing', swSettingsListing);
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     const notificationMixinMock = {
@@ -333,152 +317,156 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     }
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing'), {
-            provide: {
-                repositoryFactory: {
-                    create: (name) => {
-                        if (name === 'product_sorting') {
-                            return {
-                                search: () => Promise.resolve(getProductSortingEntities()),
-                                saveAll: () => Promise.resolve(),
-                                delete: () => Promise.resolve(),
-                            };
-                        }
-                        if (name === 'system_config') {
-                            return {
-                                search: () => Promise.resolve(getProductSortingEntities()),
-                                delete: () => Promise.resolve(),
-                            };
-                        }
-                        return { search: () => Promise.resolve(getProductSortingEntities()) };
-                    },
-                },
-                systemConfigApiService: {
-                    batchSave: () => {},
-                },
-            },
-            mixins: [
-                notificationMixinMock,
-            ],
-            stubs: {
-                'sw-page': {
-                    template: '<div><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
-                },
-                'sw-system-config': {
-                    data() {
-                        return {
-                            singleConfig: [true, true],
-                            actualConfigData: {
-                                null: {
-                                    'core.listing.defaultSorting': 'name-asc',
-                                },
-                            },
-                            currentSalesChannelId: null,
-                        };
-                    },
-                    computed: {
-                        isNotDefaultSalesChannel() {
-                            return this.currentSalesChannelId !== null;
-                        },
-                    },
-                    methods: {
-                        saveAll() {
-
-                        },
-                        onSalesChannelChanged(salesChannelId) {
-                            this.currentSalesChannelId = salesChannelId;
-                            if (!this.actualConfigData[salesChannelId]) {
-                                this.$set(this.actualConfigData, this.currentSalesChannelId, {});
+        return mount(await wrapTestComponent('sw-settings-listing', {
+            sync: true,
+        }), {
+            global: {
+                renderStubDefaultSlot: true,
+                provide: {
+                    repositoryFactory: {
+                        create: (name) => {
+                            if (name === 'product_sorting') {
+                                return {
+                                    search: () => Promise.resolve(getProductSortingEntities()),
+                                    saveAll: () => Promise.resolve(),
+                                    delete: () => Promise.resolve(),
+                                };
                             }
+                            if (name === 'system_config') {
+                                return {
+                                    search: () => Promise.resolve(getProductSortingEntities()),
+                                    delete: () => Promise.resolve(),
+                                };
+                            }
+                            return { search: () => Promise.resolve(getProductSortingEntities()) };
                         },
                     },
-                    template: `
-                        <div class="sw-system-config">
-                            <div v-for="(config, index) in singleConfig">
-                                <slot name="afterElements" v-bind="{ config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"></slot>
+                    systemConfigApiService: {
+                        batchSave: () => {},
+                    },
+                },
+                mixins: [
+                    notificationMixinMock,
+                ],
+                stubs: {
+                    'sw-page': {
+                        template: '<div><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
+                    },
+                    'sw-system-config': {
+                        data() {
+                            return {
+                                singleConfig: [true, true],
+                                actualConfigData: {
+                                    null: {
+                                        'core.listing.defaultSorting': 'name-asc',
+                                    },
+                                },
+                                currentSalesChannelId: null,
+                            };
+                        },
+                        computed: {
+                            isNotDefaultSalesChannel() {
+                                return this.currentSalesChannelId !== null;
+                            },
+                        },
+                        methods: {
+                            saveAll() {
+
+                            },
+                            onSalesChannelChanged(salesChannelId) {
+                                this.currentSalesChannelId = salesChannelId;
+                                if (!this.actualConfigData[salesChannelId]) {
+                                    this.$set(this.actualConfigData, this.currentSalesChannelId, {});
+                                }
+                            },
+                        },
+                        template: `
+                            <div class="sw-system-config">
+                                <div v-for="(config, index) in singleConfig">
+                                    <slot name="afterElements" v-bind="{ config: actualConfigData[currentSalesChannelId], index, isNotDefaultSalesChannel, inheritance: actualConfigData.null }"></slot>
+                                </div>
                             </div>
-                        </div>
-                    `,
-                },
-                'sw-sales-channel-switch': true,
-                'sw-card-view': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-card': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-context-button': true,
-                'sw-button-process': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-context-menu-item': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-                },
-                'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-                'sw-empty-state': true,
-                'sw-icon': true,
-                'sw-pagination': await Shopware.Component.build('sw-pagination'),
-                'sw-single-select': await Shopware.Component.build('sw-single-select'),
-                'sw-select-base': await Shopware.Component.build('sw-select-base'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-highlight-text': true,
-                'sw-field-error': true,
-                'sw-settings-listing-default-sales-channel': {
-                    methods: {
-                        saveSalesChannelVisibilityConfig() {
-                            Promise.resolve();
-                        },
+                        `,
                     },
-                    template: `
+                    'sw-sales-channel-switch': true,
+                    'sw-card-view': {
+                        template: '<div class=""><slot></slot></div>',
+                    },
+                    'sw-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-context-button': true,
+                    'sw-button-process': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-context-menu-item': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
+                    'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                    'sw-empty-state': true,
+                    'sw-icon': true,
+                    'sw-pagination': await wrapTestComponent('sw-pagination'),
+                    'sw-single-select': await wrapTestComponent('sw-single-select'),
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-settings-listing-default-sales-channel': {
+                        methods: {
+                            saveSalesChannelVisibilityConfig() {
+                                Promise.resolve();
+                            },
+                        },
+                        template: `
                         <div class="sw-settings-listing-default-sales-channel">
                         </div>
                     `,
-                },
-                'router-link': true,
-                'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-inheritance-switch': {
-                    props: {
-                        isInherited: {
-                            type: Boolean,
-                            required: true,
-                            default: false,
-                        },
                     },
-                    template: `
-                        <div
-                            class="sw-inheritance-switch"
-                            :class="{
-                                'sw-inheritance-switch--is-inherited': isInherited,
-                                'sw-inheritance-switch--is-not-inherited': !isInherited,
-                            }"
-                        >
-                            <button
-                                v-if="isInherited"
-                                @click="$emit('inheritance-remove')"
-                            />
-                            <button
-                                v-else
-                                @click="$emit('inheritance-restore')"
-                            />
-                        </div>
-                    `,
+                    'router-link': true,
+                    'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                    'sw-inheritance-switch': {
+                        props: {
+                            isInherited: {
+                                type: Boolean,
+                                required: true,
+                                default: false,
+                            },
+                        },
+                        template: `
+                            <div
+                                class="sw-inheritance-switch"
+                                :class="{
+                                    'sw-inheritance-switch--is-inherited': isInherited,
+                                    'sw-inheritance-switch--is-not-inherited': !isInherited,
+                                }"
+                            >
+                                <button
+                                    v-if="isInherited"
+                                    @click="$emit('inheritance-remove')"
+                                />
+                                <button
+                                    v-else
+                                    @click="$emit('inheritance-restore')"
+                                />
+                            </div>
+                        `,
+                    },
+                    'sw-settings-listing-delete-modal': {
+                        template: `
+                            <div
+                                class="sw-settings-listing-delete-modal">
+                                <button variant="danger" @click="$emit('delete')"/>
+                            </div>
+                        `,
+                    },
+                    'sw-skeleton': true,
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-popover': {
+                        template: `
+                            <div class="sw-popover"><slot></slot></div>
+                        `,
+                    },
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
                 },
-                'sw-settings-listing-delete-modal': {
-                    template: `
-                        <div class="sw-settings-listing-delete-modal">
-                            <button @click="$emit('delete')"/>
-                        </div>
-                    `,
-                },
-                'sw-skeleton': true,
-                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-                'sw-popover': {
-                    template: `
-                        <div class="sw-popover"><slot></slot></div>
-                    `,
-                },
-                'sw-select-result': await Shopware.Component.build('sw-select-result'),
             },
         });
     }
@@ -488,6 +476,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
         // sets the default sorting option
         wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };
+
+        await flushPromises();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -502,7 +492,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
     it('should paginate', async () => {
         const pageButtons = wrapper.findAll('.sw-pagination .sw-pagination__list-button');
-        const nextPageButton = pageButtons.wrappers[1];
+        const nextPageButton = pageButtons[1];
 
         expect(wrapper.vm.sortingOptionsGridPage).toBe(1);
 
@@ -584,12 +574,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     });
 
     it('should show a success notification on save when the default sorting in "all sales channels" is filled', async () => {
-        const defaultSortingSelect = wrapper.find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select');
-
         await wrapper.find('.sw-settings-listing__save-action').trigger('click');
         await flushPromises();
 
-        expect(defaultSortingSelect.attributes('error')).toBeUndefined();
+        expect(wrapper.findAll('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select.has--error')).toHaveLength(0);
     });
 
     it('should restore inheritance when the selected default sorting was deleted', async () => {

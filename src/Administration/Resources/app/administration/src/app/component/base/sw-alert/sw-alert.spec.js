@@ -2,17 +2,16 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-alert';
+import { mount } from '@vue/test-utils_v3';
 
 describe('components/base/sw-alert', () => {
     let wrapper;
 
-    afterEach(() => { if (wrapper) wrapper.destroy(); });
-
     it('should be a Vue.js component', async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
-            stubs: ['sw-icon'],
+        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+            global: {
+                stubs: ['sw-icon'],
+            },
         });
         expect(wrapper.vm).toBeTruthy();
     });
@@ -21,9 +20,11 @@ describe('components/base/sw-alert', () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';
 
-        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
-            stubs: ['sw-icon'],
-            propsData: {
+        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+            global: {
+                stubs: ['sw-icon'],
+            },
+            props: {
                 title,
             },
             slots: {
@@ -31,18 +32,21 @@ describe('components/base/sw-alert', () => {
             },
         });
 
-        expect(wrapper.element).toMatchSnapshot();
+        expect(wrapper.get('.sw-alert__title').text()).toBe(title);
+        expect(wrapper.get('.sw-alert__message').html()).toContain(message);
     });
 
     it('should use custom icon', async () => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
-            stubs: ['sw-icon'],
-            propsData: {
+        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+            global: {
+                stubs: ['sw-icon'],
+            },
+            props: {
                 icon: 'your-icon-here',
             },
         });
 
-        expect(wrapper.element).toMatchSnapshot();
+        expect(wrapper.get('sw-icon-stub').attributes('name')).toBe('your-icon-here');
     });
 
     it.each([
@@ -62,15 +66,17 @@ describe('components/base/sw-alert', () => {
         ['neutral', 'notification', true],
         ['neutral', 'system', false],
     ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
-        wrapper = shallowMount(await Shopware.Component.build('sw-alert'), {
-            stubs: ['sw-icon'],
-            propsData: {
+        wrapper = mount(await wrapTestComponent('sw-alert', { sync: true }), {
+            global: {
+                stubs: ['sw-icon'],
+            },
+            props: {
                 appearance: appearance,
                 variant: variant,
             },
         });
 
-        expect(wrapper.classes(`sw-alert--${variant}`)).toBe(applied);
+        expect(wrapper.get('.sw-alert').classes(`sw-alert--${variant}`)).toBe(applied);
     });
 });
 

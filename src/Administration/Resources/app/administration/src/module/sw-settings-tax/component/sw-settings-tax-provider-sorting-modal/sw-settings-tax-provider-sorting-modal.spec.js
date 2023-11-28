@@ -1,34 +1,32 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsTaxProviderSortingModal from 'src/module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal';
-
-Shopware.Component.register('sw-settings-tax-provider-sorting-modal', swSettingsTaxProviderSortingModal);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
+    return mount(await wrapTestComponent('sw-settings-tax-provider-sorting-modal', {
+        sync: true,
+    }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => Promise.resolve(),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-    return shallowMount(await Shopware.Component.build('sw-settings-tax-provider-sorting-modal'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => Promise.resolve(),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
+            stubs: {
+                'sw-modal': true,
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-sortable-list': true,
+            },
         },
-        stubs: {
-            'sw-modal': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-sortable-list': true,
-        },
-        propsData: {
+        props: {
             taxProviders: [],
         },
     });

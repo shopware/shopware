@@ -2,14 +2,8 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import 'src/app/component/entity/sw-category-tree-field';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/tree/sw-tree';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
 
 const categoryData = [{
     id: 'categoryId-0',
@@ -62,22 +56,24 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-category-tree-field'), {
-        stubs: {
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-label': true,
-            'sw-icon': true,
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-tree': await Shopware.Component.build('sw-tree'),
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-category-tree-field', { sync: true }), {
+        attachTo: document.body,
+        props: {
             placeholder: 'some-placeholder',
             categoriesCollection: createCategoryCollection(),
         },
-        attachTo: document.body,
+        global: {
+            stubs: {
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-label': true,
+                'sw-icon': true,
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-tree': await wrapTestComponent('sw-tree'),
+            },
+        },
     });
 }
 

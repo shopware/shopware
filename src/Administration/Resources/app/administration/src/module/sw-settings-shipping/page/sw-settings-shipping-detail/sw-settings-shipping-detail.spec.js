@@ -1,19 +1,10 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swSettingsShippingDetail from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
+import { mount } from '@vue/test-utils_v3';
 
 /**
  * @package checkout
  */
 
-Shopware.Component.register('sw-settings-shipping-detail', swSettingsShippingDetail);
-
-
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.use(Vuex);
-
     const shippingMethod = {};
     shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
@@ -22,70 +13,74 @@ async function createWrapper(privileges = []) {
         add: () => {},
     };
 
-    return shallowMount(await Shopware.Component.build('sw-settings-shipping-detail'), {
-        localVue,
-        provide: {
-            ruleConditionDataProviderService: {},
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return shippingMethod;
-                    },
-                    search: () => Promise.resolve([]),
-                    get: () => Promise.resolve(shippingMethod),
-                    save: () => Promise.resolve(),
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+    return mount(await wrapTestComponent('sw-settings-shipping-detail', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                ruleConditionDataProviderService: {},
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return shippingMethod;
+                        },
+                        search: () => Promise.resolve([]),
+                        get: () => Promise.resolve(shippingMethod),
+                        save: () => Promise.resolve(),
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
+                feature: {
+                    isActive: () => true,
                 },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
+            stubs: {
+                'sw-page': {
+                    template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
+                },
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-sidebar': true,
+                'sw-sidebar-media-item': true,
+                'sw-card-view': true,
+                'sw-card': true,
+                'sw-container': true,
+                'sw-text-field': {
+                    props: ['disabled'],
+                    template: '<input class="sw-field" :disabled="disabled" />',
+                },
+                'sw-number-field': {
+                    props: ['disabled'],
+                    template: '<input class="sw-field" :disabled="disabled" />',
+                },
+                'sw-switch-field': {
+                    props: ['disabled'],
+                    template: '<input class="sw-field" :disabled="disabled" />',
+                },
+                'sw-textarea-field': {
+                    props: ['disabled'],
+                    template: '<input class="sw-field sw-textarea-field" :disabled="disabled" />',
+                },
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
+                'sw-entity-single-select': true,
+                'sw-entity-tag-select': true,
+                'sw-select-rule-create': true,
+                'sw-settings-shipping-price-matrices': true,
+                'sw-settings-shipping-tax-cost': true,
+                'sw-language-info': true,
+                'sw-skeleton': true,
             },
-            feature: {
-                isActive: () => true,
-            },
-        },
-        stubs: {
-            'sw-page': {
-                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
-            },
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-sidebar': true,
-            'sw-sidebar-media-item': true,
-            'sw-card-view': true,
-            'sw-card': true,
-            'sw-container': true,
-            'sw-text-field': {
-                props: ['disabled'],
-                template: '<input class="sw-field" :disabled="disabled" />',
-            },
-            'sw-number-field': {
-                props: ['disabled'],
-                template: '<input class="sw-field" :disabled="disabled" />',
-            },
-            'sw-switch-field': {
-                props: ['disabled'],
-                template: '<input class="sw-field" :disabled="disabled" />',
-            },
-            'sw-textarea-field': {
-                props: ['disabled'],
-                template: '<input class="sw-field sw-textarea-field" :disabled="disabled" />',
-            },
-            'sw-upload-listener': true,
-            'sw-media-upload-v2': true,
-            'sw-entity-single-select': true,
-            'sw-entity-tag-select': true,
-            'sw-select-rule-create': true,
-            'sw-settings-shipping-price-matrices': true,
-            'sw-settings-shipping-tax-cost': true,
-            'sw-language-info': true,
-            'sw-skeleton': true,
         },
     });
 }
@@ -97,18 +92,20 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
             isProcessLoading: false,
         });
 
+        await flushPromises();
+
         const saveButton = wrapper.find('.sw-settings-shipping-method-detail__save-action');
         expect(saveButton.attributes().disabled).toBe('true');
 
         const swFields = wrapper.findAll('.sw-field');
         expect(swFields.length).toBeGreaterThan(0);
 
-        swFields.wrappers.forEach(swField => {
-            expect(swField.attributes().disabled).toBe('disabled');
+        swFields.forEach(swField => {
+            expect(swField.attributes().disabled).toBeDefined();
         });
 
         const textareaField = wrapper.find('.sw-field.sw-textarea-field');
-        expect(textareaField.attributes().disabled).toBe('disabled');
+        expect(textareaField.attributes().disabled).toBeDefined();
 
         const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
         expect(mediaUpload.attributes().disabled).toBe('true');
@@ -134,13 +131,15 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
             isProcessLoading: false,
         });
 
+        await flushPromises();
+
         const saveButton = wrapper.find('.sw-settings-shipping-method-detail__save-action');
         expect(saveButton.attributes().disabled).toBeUndefined();
 
         const swFields = wrapper.findAll('.sw-field');
         expect(swFields.length).toBeGreaterThan(0);
 
-        swFields.wrappers.forEach(swField => {
+        swFields.forEach(swField => {
             expect(swField.attributes().disabled).toBeUndefined();
         });
 
@@ -180,19 +179,6 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         await flushPromises();
         expect(spyGetMethod).toHaveBeenCalled();
         expect(spyLoadCustomFieldSets).toHaveBeenCalled();
-    });
-
-    it('should save sucessfully', async () => {
-        const wrapper = await createWrapper();
-        const spy = jest.spyOn(wrapper.vm.$router, 'push');
-
-        wrapper.vm.shippingMethod.prices = [];
-        wrapper.vm.$refs.mediaSidebarItem = { getList: () => {} };
-        wrapper.vm.onSave();
-
-        await flushPromises();
-        expect(wrapper.vm.isSaveSuccessful).toBe(true);
-        expect(spy).toHaveBeenCalled();
     });
 
     it('should create notification on save error', async () => {

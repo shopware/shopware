@@ -1,52 +1,54 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
-import Vue from 'vue';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import swCmsSlot from 'src/module/sw-cms/component/sw-cms-slot';
+import Vue from 'vue';
 
-Shopware.Component.register('sw-cms-slot', swCmsSlot);
-
-async function createWrapper(propsData = {}) {
-    return shallowMount(await Shopware.Component.build('sw-cms-slot'), {
-        propsData: {
+async function createWrapper(props = {}) {
+    return mount(await wrapTestComponent('sw-cms-slot', {
+        sync: true,
+    }), {
+        props: {
             element: {
                 type: 'example_cms_element_type',
             },
-            ...propsData,
+            ...props,
         },
-        stubs: {
-            'foo-bar': true,
-            'sw-icon': true,
-            'sw-skeleton-bar': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsServiceState: () => Vue.observable({
-                    elementRegistry: {
-                        product_list_block: null,
-                        landing_block: null,
-                        example_cms_element_type: {
-                            component: 'foo-bar',
-                            disabledConfigInfoTextKey: 'lorem',
-                            defaultConfig: {
-                                text: 'lorem',
+        global: {
+            stubs: {
+                'foo-bar': true,
+                'sw-icon': true,
+                'sw-modal': true,
+                'sw-skeleton-bar': true,
+            },
+            provide: {
+                cmsService: {
+                    getCmsServiceState: () => Vue.observable({
+                        elementRegistry: {
+                            product_list_block: null,
+                            landing_block: null,
+                            example_cms_element_type: {
+                                component: 'foo-bar',
+                                disabledConfigInfoTextKey: 'lorem',
+                                defaultConfig: {
+                                    text: 'lorem',
+                                },
                             },
                         },
+                    }),
+                    getCmsElementRegistry: () => {
+                        return {
+                            product_list_block: null,
+                            landing_block: null,
+                        };
                     },
-                }),
-                getCmsElementRegistry: () => {
-                    return {
-                        product_list_block: null,
-                        landing_block: null,
-                    };
+                    isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType),
                 },
-                isElementAllowedInPageType: (name, pageType) => name.startsWith(pageType),
-            },
-            cmsElementFavorites: {
-                isFavorite() {
-                    return false;
+                cmsElementFavorites: {
+                    isFavorite() {
+                        return false;
+                    },
                 },
             },
         },

@@ -2,12 +2,9 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import SwChart from 'src/app/asyncComponent/base/sw-chart';
+import { mount } from '@vue/test-utils_v3';
 import en from 'apexcharts/dist/locales/en.json';
 import nl from 'apexcharts/dist/locales/nl.json';
-
-Shopware.Component.register('sw-chart', SwChart);
 
 // mock data
 const chartOptions = {
@@ -26,17 +23,17 @@ const chartSeries = [
 
 // initial component setup
 const setup = async ({ type, series, options, fillEmptyValues, sort } = {}) => {
-    const propsData = {
-        type: type || 'line',
-        series: series || chartSeries,
-        options: options || chartOptions,
-        fillEmptyValues: fillEmptyValues,
-        sort: sort || false,
-    };
-
-    return shallowMount(await Shopware.Component.build('sw-chart'), {
-        stubs: ['apexchart'],
-        propsData,
+    return mount(await wrapTestComponent('sw-chart', { sync: true }), {
+        props: {
+            type: type || 'line',
+            series: series || chartSeries,
+            options: options || chartOptions,
+            fillEmptyValues: fillEmptyValues,
+            sort: sort || false,
+        },
+        global: {
+            stubs: ['apexchart'],
+        },
     });
 };
 

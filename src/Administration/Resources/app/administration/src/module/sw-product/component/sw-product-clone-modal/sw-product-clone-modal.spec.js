@@ -2,28 +2,27 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swProductCloneModal from 'src/module/sw-product/component/sw-product-clone-modal';
-
-Shopware.Component.register('sw-product-clone-modal', swProductCloneModal);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-product-clone-modal'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-clone-modal', { sync: true }), {
+        props: {
             product: {},
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    clone: jest.fn(() => Promise.resolve({
-                        id: '1a2b3c',
-                    })),
-                    save: () => Promise.resolve(),
-                    searchIds: () => Promise.resolve({ data: { length: 0 } }),
-                }),
-            },
-            numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1337 }),
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        clone: jest.fn(() => Promise.resolve({
+                            id: '1a2b3c',
+                        })),
+                        save: () => Promise.resolve(),
+                        searchIds: () => Promise.resolve({ data: { length: 0 } }),
+                    }),
+                },
+                numberRangeService: {
+                    reserve: () => Promise.resolve({ number: 1337 }),
+                },
             },
         },
     });
@@ -34,18 +33,18 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
     /** @type Wrapper */
     let wrapper;
 
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
+        await flushPromises();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should clone parent without mainVariantId', async () => {
         wrapper = await createWrapper();
-        await wrapper.setData({
+        await flushPromises();
+
+        await wrapper.setProps({
             product: {
                 name: 'shirt',
             },

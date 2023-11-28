@@ -1,13 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import swCmsVisibilityToggle from 'src/module/sw-cms/component/sw-cms-visibility-toggle';
-import swCmsSection from 'src/module/sw-cms/component/sw-cms-section';
-
-Shopware.Component.register('sw-cms-visibility-toggle', swCmsVisibilityToggle);
-Shopware.Component.register('sw-cms-section', swCmsSection);
 
 async function createWrapper() {
     if (typeof Shopware.State.get('cmsPageState') !== 'undefined') {
@@ -27,8 +22,10 @@ async function createWrapper() {
         },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-cms-section'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-section', {
+        sync: true,
+    }), {
+        props: {
             page: {},
             section: {
                 visibility: {
@@ -61,21 +58,23 @@ async function createWrapper() {
                 ],
             },
         },
-        stubs: {
-            'sw-icon': true,
-            'sw-cms-section-actions': true,
-            'sw-cms-block': true,
-            'sw-cms-block-foo-bar': true,
-            'sw-cms-stage-add-block': true,
-            'sw-cms-visibility-toggle': await Shopware.Component.build('sw-cms-visibility-toggle'),
-        },
-        provide: {
-            repositoryFactory: {},
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {
-                        'foo-bar': {},
-                    };
+        global: {
+            stubs: {
+                'sw-icon': true,
+                'sw-cms-section-actions': true,
+                'sw-cms-block': true,
+                'sw-cms-block-foo-bar': true,
+                'sw-cms-stage-add-block': true,
+                'sw-cms-visibility-toggle': await wrapTestComponent('sw-cms-visibility-toggle'),
+            },
+            provide: {
+                repositoryFactory: {},
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {
+                            'foo-bar': {},
+                        };
+                    },
                 },
             },
         },
@@ -101,7 +100,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
         expect(cmsStageAddBlocks).toHaveLength(4);
 
-        cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
+        cmsStageAddBlocks.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeTruthy();
         });
     });
@@ -121,7 +120,7 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         const cmsStageAddBlocks = wrapper.findAll('sw-cms-stage-add-block-stub');
         expect(cmsStageAddBlocks).toHaveLength(0);
 
-        cmsStageAddBlocks.wrappers.forEach(cmsStageAddBlock => {
+        cmsStageAddBlocks.forEach(cmsStageAddBlock => {
             expect(cmsStageAddBlock.exists()).toBeFalsy();
         });
     });
@@ -140,6 +139,8 @@ describe('module/sw-cms/component/sw-cms-section', () => {
             },
         });
 
+        await flushPromises();
+
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').exists()).toBeTruthy();
     });
 
@@ -156,6 +157,8 @@ describe('module/sw-cms/component/sw-cms-section', () => {
                 },
             },
         });
+
+        await flushPromises();
 
         expect(wrapper.find('.sw-cms-visibility-toggle-wrapper').classes()).not.toContain('is--expanded');
         await wrapper.find('.sw-cms-visibility-toggle__button').trigger('click');

@@ -14,8 +14,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
-use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,15 +26,21 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('storefront')]
-class NotFoundSubscriber implements EventSubscriberInterface
+class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
 {
     private const ALL_TAG = 'error-page';
     private const SYSTEM_CONFIG_KEY = 'core.basicInformation.http404Page';
+
+    /**
+     * Catch the errors only once in a request cycle, otherwise we get an endless loop
+     */
+    private bool $handled = false;
 
     /**
      * @internal
@@ -65,9 +71,11 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
     public function onError(ExceptionEvent $event): void
     {
-        if ($this->kernelDebug) {
+        if ($this->kernelDebug || $this->handled) {
             return;
         }
+
+        $this->handled = true;
 
         $request = $event->getRequest();
 
@@ -80,6 +88,11 @@ class NotFoundSubscriber implements EventSubscriberInterface
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)) {
             // When no sales-channel context is resolved, we need to resolve it now.
             $this->setSalesChannelContext($request);
+        }
+
+        // Set missing route scope, so the kernel.response event has it triggered by setResponse.
+        if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE)) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
         }
 
         $is404StatusCode = $event->getThrowable() instanceof HttpException && $event->getThrowable()->getStatusCode() === Response::HTTP_NOT_FOUND;
@@ -105,7 +118,7 @@ class NotFoundSubscriber implements EventSubscriberInterface
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 
-            if (!Feature::isActive('v6.6.0.0')) {
+            if ($response instanceof StorefrontResponse && !Feature::isActive('v6.6.0.0')) {
                 $response->setData([]);
                 $response->setContext(null);
             }
@@ -123,6 +136,11 @@ class NotFoundSubscriber implements EventSubscriberInterface
         }
 
         $this->cacheInvalidator->invalidate([self::ALL_TAG]);
+    }
+
+    public function reset(): void
+    {
+        $this->handled = false;
     }
 
     private static function buildName(string $salesChannelId, string $domainId, string $languageId): string
@@ -183,9 +201,8 @@ class NotFoundSubscriber implements EventSubscriberInterface
     {
         $errorRequest = $request->duplicate(null, null, [
             ...$request->attributes->all(),
-            '_controller' => [ErrorController::class, 'error'],
-            '_routeScope' => ['storefront'],
-            '_httpCache' => true,
+            '_controller' => '\Shopware\Storefront\Controller\ErrorController::error',
+            PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,
             'exception' => $e,
         ]);
 

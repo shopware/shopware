@@ -388,13 +388,16 @@
           "message": "\"{mediaName}\" erfolgreich verschoben."
         },
         "errorSingle": {
-          "message": "Fehler beim Verschieben von \"{mediaName}\"."
+          "message": "\"{mediaName}\" konnte nicht verschoben werden."
         },
         "successOverall": {
           "message": "Objekte erfolgreich verschoben."
         },
         "errorOverall": {
-          "message": "Fehler beim Verschieben."
+          "message": "Objekte konnten nicht verschoben werden."
+        },
+        "errorFetchNavigation": {
+          "message": "Ordner-Navigation konnte nicht geladen werden."
         }
       }
     },

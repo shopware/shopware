@@ -12,7 +12,6 @@ const missingTests = [
     'src/app/asyncComponent/media/sw-media-list-selection-item-v2/index.js',
     'src/app/asyncComponent/media/sw-media-modal-folder-dissolve/index.js',
     'src/app/asyncComponent/media/sw-media-modal-folder-settings/index.js',
-    'src/app/asyncComponent/media/sw-media-modal-move/index.js',
     'src/app/asyncComponent/media/sw-media-modal-replace/index.js',
     'src/app/asyncComponent/media/sw-media-replace/index.js',
     'src/app/asyncComponent/media/sw-media-url-form/index.js',

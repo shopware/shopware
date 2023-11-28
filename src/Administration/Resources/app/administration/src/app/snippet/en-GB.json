@@ -388,13 +388,16 @@
           "message": "Folder \"{mediaName}\" has been moved."
         },
         "errorSingle": {
-          "message": "Error moving \"{mediaName}\"."
+          "message": "Could not move \"{mediaName}\"."
         },
         "successOverall": {
           "message": "Media items have been moved."
         },
         "errorOverall": {
-          "message": "Error moving items."
+          "message": "Could not move items."
+        },
+        "errorFetchNavigation": {
+          "message": "Could not fetch folder navigation."
         }
       }
     },

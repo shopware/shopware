@@ -42,15 +42,15 @@ describe('Account: Handle addresses as customer', () => {
 
         // Set new address as shipping address
         cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
-            cy.contains('Set as default shipping').click();
+            cy.contains('Use as default shipping').click();
         });
 
         // Swap shipping and billing address
         cy.get('.address-list > :nth-child(2) > :nth-child(3)').within(() => {
-            cy.contains('Set as default shipping').click();
+            cy.contains('Use as default shipping').click();
         });
         cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
-            cy.contains('Set as default billing').click();
+            cy.contains('Use as default billing').click();
         });
 
         cy.get('.billing-address').contains('Sherman');
@@ -122,12 +122,12 @@ describe('Account: Handle addresses as customer', () => {
 
         // Swap shipping and billing address
         cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
-            cy.contains('Set as default shipping').click();
+            cy.contains('Use as default shipping').click();
         });
 
         // Swap shipping and billing address
         cy.get('.address-list > :nth-child(2) > :nth-child(2)').within(() => {
-            cy.contains('Set as default billing').click();
+            cy.contains('Use as default billing').click();
         });
 
         cy.get('.billing-address').contains('Company Testing - Department Testing');

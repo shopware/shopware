@@ -9,6 +9,10 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\RedisReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\HttpException;
@@ -54,6 +58,9 @@ class DomainExceptionRule implements Rule
      */
     private const REMAPPED_DOMAINS = [
         Kernel::class => FrameworkException::class,
+        VarnishReverseProxyGateway::class => ReverseProxyException::class,
+        FastlyReverseProxyGateway::class => ReverseProxyException::class,
+        RedisReverseProxyGateway::class => ReverseProxyException::class,
     ];
 
     public function __construct(

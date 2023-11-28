@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\DependencyInjection;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Storefront\DependencyInjection\ReverseProxyCompilerPass;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  *
- * @covers \Shopware\Storefront\DependencyInjection\ReverseProxyCompilerPass
+ * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass
  */
 class ReverseProxyCompilerPassTest extends TestCase
 {
@@ -61,7 +61,7 @@ class ReverseProxyCompilerPassTest extends TestCase
     public function testFastlyDisabled(): void
     {
         $container = self::getContainer();
-        $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
+        $container->setParameter('shopware.http_cache.reverse_proxy.fastly.enabled', false);
 
         $container->compile();
 
@@ -78,7 +78,7 @@ class ReverseProxyCompilerPassTest extends TestCase
     public function testReverseProxyDisabled(): void
     {
         $container = self::getContainer();
-        $container->setParameter('storefront.reverse_proxy.enabled', false);
+        $container->setParameter('shopware.http_cache.reverse_proxy.enabled', false);
 
         $container->compile();
 
@@ -92,8 +92,8 @@ class ReverseProxyCompilerPassTest extends TestCase
     public function testReverseProxyUseXKeyVarnish(): void
     {
         $container = self::getContainer();
-        $container->setParameter('storefront.reverse_proxy.fastly.enabled', false);
-        $container->setParameter('storefront.reverse_proxy.use_varnish_xkey', true);
+        $container->setParameter('shopware.http_cache.reverse_proxy.fastly.enabled', false);
+        $container->setParameter('shopware.http_cache.reverse_proxy.use_varnish_xkey', true);
 
         $container->compile();
 
@@ -106,9 +106,9 @@ class ReverseProxyCompilerPassTest extends TestCase
     {
         $container = new ContainerBuilder();
 
-        $container->setParameter('storefront.reverse_proxy.enabled', true);
-        $container->setParameter('storefront.reverse_proxy.fastly.enabled', true);
-        $container->setParameter('storefront.reverse_proxy.use_varnish_xkey', false);
+        $container->setParameter('shopware.http_cache.reverse_proxy.enabled', true);
+        $container->setParameter('shopware.http_cache.reverse_proxy.fastly.enabled', true);
+        $container->setParameter('shopware.http_cache.reverse_proxy.use_varnish_xkey', false);
 
         $container
             ->register('shopware.cache.reverse_proxy.redis', \stdClass::class)

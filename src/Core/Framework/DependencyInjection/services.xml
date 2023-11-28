@@ -654,12 +654,11 @@ base-uri 'self';
 
         <service id="http_kernel.cache" class="Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel" decorates="http_kernel">
             <argument type="service" id=".inner"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheStore" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore"/>
             <argument type="service" id="esi"/>
             <argument type="collection"/>
             <argument type="service" id="event_dispatcher"/>
             <argument>%shopware.http_cache.reverse_proxy.enabled%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\Http\CacheStore" public="true">

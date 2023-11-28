@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Cache;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -8,15 +8,14 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
-use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +31,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  *
- * @covers \Shopware\Storefront\Framework\Cache\CacheResponseSubscriber
+ * @covers \Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber
  */
 class CacheResponseSubscriberTest extends TestCase
 {
@@ -63,7 +62,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             false,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -97,7 +96,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -126,7 +125,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             false,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -155,7 +154,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -190,7 +189,7 @@ class CacheResponseSubscriberTest extends TestCase
             $service,
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -272,7 +271,7 @@ class CacheResponseSubscriberTest extends TestCase
             $cartService,
             100,
             true,
-            new MaintenanceModeResolver($requestStack, new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -356,7 +355,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             $reverseProxyEnabled,
             null,
             null
@@ -426,7 +425,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             1,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -448,7 +447,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -491,7 +490,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -525,7 +524,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -569,7 +568,7 @@ class CacheResponseSubscriberTest extends TestCase
             $cartService,
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null
@@ -605,7 +604,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createMock(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             '5',
             '6'
@@ -691,7 +690,7 @@ class CacheResponseSubscriberTest extends TestCase
             $this->createStub(CartService::class),
             100,
             true,
-            new MaintenanceModeResolver(new RequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())),
+            new MaintenanceModeResolver(new EventDispatcher()),
             false,
             null,
             null

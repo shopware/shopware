@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
+namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpKernel\CacheClearer\CacheClearerInterface;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-internal
+ * @internal
  */
 #[Package('core')]
 class ReverseProxyCacheClearer implements CacheClearerInterface

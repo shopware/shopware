@@ -1,22 +1,21 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
+namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-internal - Implementation class becomes internal
+ * @internal
  */
 #[Package('core')]
-class FastlyReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
+class FastlyReverseProxyGateway extends AbstractReverseProxyGateway
 {
     private const API_URL = 'https://api.fastly.com';
     private const MAX_TAG_INVALIDATION = 256;

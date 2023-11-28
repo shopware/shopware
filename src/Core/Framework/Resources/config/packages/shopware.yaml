@@ -478,7 +478,7 @@ shopware:
         invalidation:
             delay: 0
             delay_options:
-                storage: cache
+                storage: redis
             count: 150
             http_cache: ['logged-in', 'cart-filled']
             product_listing_route: []

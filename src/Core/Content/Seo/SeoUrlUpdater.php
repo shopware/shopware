@@ -40,7 +40,7 @@ class SeoUrlUpdater
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     public function update(string $routeName, array $ids): void
     {

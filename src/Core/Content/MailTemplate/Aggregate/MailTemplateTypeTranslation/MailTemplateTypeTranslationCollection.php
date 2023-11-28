@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class MailTemplateTypeTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMailTemplateIds(): array
     {
@@ -25,7 +25,7 @@ class MailTemplateTypeTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

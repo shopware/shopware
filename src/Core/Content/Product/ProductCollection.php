@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Tax\TaxCollection;
@@ -18,14 +17,11 @@ use Shopware\Core\System\Unit\UnitCollection;
 class ProductCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getParentIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getParentId());
-
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getParentId());
     }
 
     public function filterByParentId(string $id): self
@@ -34,14 +30,11 @@ class ProductCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getTaxIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getTaxId());
-
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getTaxId());
     }
 
     public function filterByTaxId(string $id): self
@@ -50,14 +43,11 @@ class ProductCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getManufacturerIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getManufacturerId());
-
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getManufacturerId());
     }
 
     public function filterByManufacturerId(string $id): self
@@ -66,14 +56,11 @@ class ProductCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getUnitIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (ProductEntity $product) => $product->getUnitId());
-
-        return $ids;
+        return $this->fmap(fn (ProductEntity $product) => $product->getUnitId());
     }
 
     public function filterByUnitId(string $id): self
@@ -103,7 +90,7 @@ class ProductCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPriceIds(): array
     {
@@ -120,17 +107,16 @@ class ProductCollection extends EntityCollection
 
     public function getPrices(): ProductPriceCollection
     {
-        $rules = [[]];
+        $priceArray = [[]];
 
-        foreach ($this->getIterator() as $element) {
-            /** @var ProductPriceCollection $prices */
+        foreach ($this->elements as $element) {
             $prices = $element->getPrices();
-
-            $rules[] = (array) $prices;
+            if ($prices) {
+                $priceArray[] = $prices->getElements();
+            }
         }
 
-        /** @var array<ProductPriceEntity> $productPriceEntities */
-        $productPriceEntities = array_merge(...$rules);
+        $productPriceEntities = array_merge(...$priceArray);
 
         return new ProductPriceCollection($productPriceEntities);
     }

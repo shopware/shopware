@@ -126,7 +126,7 @@ class LineItemCollection extends Collection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            \array_filter(array_map(static fn (LineItem $lineItem) => $lineItem->getPrice(), array_values($this->getElements())))
+            $this->fmap(static fn (LineItem $lineItem) => $lineItem->getPrice())
         );
     }
 

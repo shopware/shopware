@@ -210,9 +210,9 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param string[][]|string[] $downloadMediaIds
+     * @param list<string>|list<array<string, string>> $downloadMediaIds
      *
-     * @return array<string, mixed>
+     * @return array{downloads: list<array{id: string, mediaId: string, position: int}>, maxPurchase: 1, deliveryTimeId: string|null}
      */
     private function buildDownloads(array $downloadMediaIds, ?string $instantDeliveryId): array
     {
@@ -266,8 +266,8 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $manufacturer
-     * @param list<string> $tags
+     * @param array<string> $manufacturer
+     * @param array<string> $tags
      *
      * @return array<string, mixed>
      */
@@ -301,7 +301,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $rules
+     * @param array<string> $rules
      *
      * @return list<array<string, mixed>>
      */
@@ -345,7 +345,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
      * @return array<array{id: string}>
      */
@@ -383,7 +383,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return array<array{salesChannelId: string, visibility: ProductVisibilityDefinition::VISIBILITY_ALL}>
      */
     private function buildVisibilities(): array
     {
@@ -393,7 +393,7 @@ class ProductGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return list<string>|list<array<string, string>>
      */
     private function getMediaIds(string $entity = 'product'): array
     {
@@ -403,10 +403,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         $criteria->addFilter(new EqualsFilter('mediaFolder.defaultFolder.entity', $entity));
         $criteria->setLimit(500);
 
-        /** @var list<string> $ids */
-        $ids = $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
-
-        return $ids;
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds();
     }
 
     /**

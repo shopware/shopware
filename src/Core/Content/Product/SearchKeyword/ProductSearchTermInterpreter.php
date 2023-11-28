@@ -51,13 +51,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $matches = array_fill(0, \count($tokens), []);
         $matches = $this->groupTokenKeywords($matches, $tokenKeywords);
 
-        $combines = $this->permute($tokens);
-
-        foreach ($combines as $token) {
+        foreach ($this->permute($tokens) as $token) {
             $tokens[] = $token;
         }
 
-        /** @var list<string> $tokens */
         $tokens = array_keys(array_flip($tokens));
 
         $pattern = new SearchPattern(new SearchTerm($word));
@@ -81,7 +78,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     }
 
     /**
-     * @param list<string> $tokens
+     * @param array<string> $tokens
      *
      * @return list<string>
      */
@@ -101,7 +98,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     }
 
     /**
-     * @param list<string> $tokens
+     * @param array<string> $tokens
      *
      * @return array<string, array{normal: list<string>, reversed: list<string>}>
      */
@@ -170,8 +167,10 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     private function groupTokenKeywords(array $matches, array $keywordRows): array
     {
         foreach ($keywordRows as $keywordRow) {
-            /** @var string $keyword */
             $keyword = array_shift($keywordRow);
+            if (!$keyword) {
+                continue;
+            }
             foreach ($keywordRow as $indexColumn => $value) {
                 if ((bool) $value) {
                     $matches[$indexColumn][] = $keyword;
@@ -225,8 +224,8 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
     }
 
     /**
-     * @param list<string> $tokens
-     * @param list<string> $matches
+     * @param array<string> $tokens
+     * @param array<string> $matches
      *
      * @return array<string, float>
      */

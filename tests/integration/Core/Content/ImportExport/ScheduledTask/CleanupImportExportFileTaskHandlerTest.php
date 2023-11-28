@@ -1,18 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\ScheduledTask;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\ScheduledTask;
 
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileHandler;
 use Shopware\Core\Content\ImportExport\Message\DeleteFileMessage;
 use Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Test\ImportExport\AbstractImportExportTestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Tests\Integration\Core\Content\ImportExport\AbstractImportExportTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
@@ -37,6 +38,8 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
         $this->filesystem = $this->getContainer()->get('shopware.filesystem.private');
         $this->messageBus = $this->getContainer()->get('messenger.bus.shopware');
         $this->deleteFileHandler = $this->getContainer()->get(DeleteFileHandler::class);
+
+        parent::setUp();
     }
 
     public function testDeletesFilesAndLogs(): void
@@ -45,8 +48,10 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
         $progressB = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME);
         $logIdA = $progressA->getLogId();
         $logIdB = $progressB->getLogId();
-        $fileIdA = $this->getLogEntity($logIdA)->getFile()->getId();
-        $fileIdB = $this->getLogEntity($logIdB)->getFile()->getId();
+        $fileIdA = $this->getLogEntity($logIdA)->getFile()?->getId();
+        static::assertIsString($fileIdA);
+        $fileIdB = $this->getLogEntity($logIdB)->getFile()?->getId();
+        static::assertIsString($fileIdB);
 
         $this->fileRepository->update([
             [
@@ -55,7 +60,8 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
             ],
         ], Context::createDefaultContext());
 
-        $expiredFilePath = $this->getLogEntity($logIdB)->getFile()->getPath();
+        $expiredFilePath = $this->getLogEntity($logIdB)->getFile()?->getPath();
+        static::assertIsString($expiredFilePath);
 
         $handler = $this->getContainer()->get(CleanupImportExportFileTaskHandler::class);
 
@@ -70,6 +76,7 @@ class CleanupImportExportFileTaskHandlerTest extends AbstractImportExportTestCas
         // Actual file should get deleted from filesystem
         static::assertTrue($this->filesystem->fileExists($expiredFilePath));
 
+        static::assertInstanceOf(TraceableMessageBus::class, $this->messageBus);
         $messages = $this->messageBus->getDispatchedMessages();
         $deleteFileMessage = null;
         foreach ($messages as $message) {

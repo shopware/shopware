@@ -18,7 +18,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     protected $elements = [];
 
     /**
-     * @param array<TElement> $elements
+     * @param iterable<TElement> $elements
      */
     public function __construct(iterable $elements = [])
     {
@@ -181,7 +181,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function first()
     {
-        return array_values($this->elements)[0] ?? null;
+        return $this->elements[array_key_first($this->elements)] ?? null;
     }
 
     /**
@@ -211,7 +211,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function last()
     {
-        return array_values($this->elements)[\count($this->elements) - 1] ?? null;
+        return $this->elements[array_key_last($this->elements)] ?? null;
     }
 
     /**

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class SalesChannelTypeTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getSalesChannelTypeIds(): array
     {
@@ -25,7 +25,7 @@ class SalesChannelTypeTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

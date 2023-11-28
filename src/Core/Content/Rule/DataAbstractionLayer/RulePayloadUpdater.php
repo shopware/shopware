@@ -41,7 +41,7 @@ class RulePayloadUpdater implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
      * @return array<string, array{payload: string|null, invalid: bool}>
      */
@@ -65,7 +65,6 @@ class RulePayloadUpdater implements EventSubscriberInterface
         );
 
         $updated = [];
-        /** @var string $id */
         foreach ($rules as $id => $rule) {
             $invalid = false;
             $serialized = null;

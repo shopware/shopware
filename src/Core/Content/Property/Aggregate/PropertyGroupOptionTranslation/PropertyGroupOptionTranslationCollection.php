@@ -12,14 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 class PropertyGroupOptionTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPropertyGroupOptionIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getPropertyGroupOptionId());
-
-        return $ids;
+        return $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getPropertyGroupOptionId());
     }
 
     public function filterByPropertyGroupOptionId(string $id): self
@@ -28,14 +25,11 @@ class PropertyGroupOptionTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {
-        /** @var list<string> $ids */
-        $ids = $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getLanguageId());
-
-        return $ids;
+        return $this->fmap(fn (PropertyGroupOptionTranslationEntity $propertyGroupOptionTranslation) => $propertyGroupOptionTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self

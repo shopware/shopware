@@ -1,15 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
@@ -21,14 +22,16 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Test\ImportExport\MockRepository;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -48,7 +51,6 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 #[Package('services-settings')]
 abstract class AbstractImportExportTestCase extends TestCase
 {
-    use BasicTestDataBehaviour;
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
     use FilesystemBehaviour;
@@ -59,6 +61,9 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     final public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     protected EntityRepository $productRepository;
 
     protected TraceableEventDispatcher $listener;
@@ -166,9 +171,6 @@ abstract class AbstractImportExportTestCase extends TestCase
      */
     protected function createPromotion(array $promotionOverride = []): array
     {
-        /** @var EntityRepository $promotionRepository */
-        $promotionRepository = $this->getContainer()->get('promotion.repository');
-
         $promotion = array_merge([
             'id' => $promotionOverride['id'] ?? Uuid::randomHex(),
             'name' => 'Test case promotion',
@@ -176,7 +178,7 @@ abstract class AbstractImportExportTestCase extends TestCase
             'useIndividualCodes' => true,
         ], $promotionOverride);
 
-        $promotionRepository->upsert([$promotion], Context::createDefaultContext());
+        $this->getContainer()->get('promotion.repository')->upsert([$promotion], Context::createDefaultContext());
 
         return $promotion;
     }
@@ -188,16 +190,13 @@ abstract class AbstractImportExportTestCase extends TestCase
      */
     protected function createPromotionCode(string $promotionId, array $promotionCodeOverride = []): array
     {
-        /** @var EntityRepository $promotionCodeRepository */
-        $promotionCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');
-
         $promotionCode = array_merge([
             'id' => $promotionCodeOverride['id'] ?? Uuid::randomHex(),
             'promotionId' => $promotionId,
             'code' => 'TestCode',
         ], $promotionCodeOverride);
 
-        $promotionCodeRepository->upsert([$promotionCode], Context::createDefaultContext());
+        $this->getContainer()->get('promotion_individual_code.repository')->upsert([$promotionCode], Context::createDefaultContext());
 
         return $promotionCode;
     }
@@ -215,21 +214,19 @@ abstract class AbstractImportExportTestCase extends TestCase
 
     protected function getDefaultProfileId(string $entity): string
     {
-        /** @var EntityRepository $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('systemDefault', true));
         $criteria->addFilter(new EqualsFilter('sourceEntity', $entity));
 
-        /** @var string $id */
-        $id = $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $this->getContainer()->get('import_export_profile.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertNotNull($id);
 
         return $id;
     }
 
     protected function cloneDefaultProfile(string $entity): ImportExportProfileEntity
     {
-        /** @var EntityRepository $profileRepository */
+        /** @var EntityRepository<EntityCollection<ImportExportProfileEntity>> $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
         $systemDefaultProfileId = $this->getDefaultProfileId($entity);
@@ -237,18 +234,18 @@ abstract class AbstractImportExportTestCase extends TestCase
         $profileRepository->clone($systemDefaultProfileId, Context::createDefaultContext(), $newId);
 
         // get the cloned profile
-        return $profileRepository->search(new Criteria([$newId]), Context::createDefaultContext())->first();
+        $profile = $profileRepository->search(new Criteria([$newId]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($profile);
+
+        return $profile;
     }
 
     /**
-     * @param array<array<string, mixed>> $mappings
+     * @param list<array{key: string, mappedKey: string}>|array<Mapping> $mappings
      */
     protected function updateProfileMapping(string $profileId, array $mappings): void
     {
-        /** @var EntityRepository $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-
-        $profileRepository->update([
+        $this->getContainer()->get('import_export_profile.repository')->update([
             [
                 'id' => $profileId,
                 'mapping' => $mappings,
@@ -261,10 +258,7 @@ abstract class AbstractImportExportTestCase extends TestCase
      */
     protected function updateProfileUpdateBy(string $profileId, array $updateBy): void
     {
-        /** @var EntityRepository $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-
-        $profileRepository->update([
+        $this->getContainer()->get('import_export_profile.repository')->update([
             [
                 'id' => $profileId,
                 'updateBy' => $updateBy,
@@ -277,10 +271,7 @@ abstract class AbstractImportExportTestCase extends TestCase
      */
     protected function updateProfileConfig(string $profileId, array $config): void
     {
-        /** @var EntityRepository $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-
-        $profileRepository->update([
+        $this->getContainer()->get('import_export_profile.repository')->update([
             [
                 'id' => $profileId,
                 'config' => $config,
@@ -298,21 +289,16 @@ abstract class AbstractImportExportTestCase extends TestCase
         $catId2 = Uuid::randomHex();
         $taxId = Uuid::randomHex();
 
-        $manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
-        $manufacturerRepository->upsert([
+        $this->getContainer()->get('product_manufacturer.repository')->upsert([
             ['id' => $manufacturerId, 'name' => 'test'],
         ], Context::createDefaultContext());
 
-        /** @var EntityRepository $categoryRepository */
-        $categoryRepository = $this->getContainer()->get('category.repository');
-        $categoryRepository->upsert([
+        $this->getContainer()->get('category.repository')->upsert([
             ['id' => $catId1, 'name' => 'test'],
             ['id' => $catId2, 'name' => 'bar'],
         ], Context::createDefaultContext());
 
-        /** @var EntityRepository $taxRepository */
-        $taxRepository = $this->getContainer()->get('tax.repository');
-        $taxRepository->upsert([
+        $this->getContainer()->get('tax.repository')->upsert([
             ['id' => $taxId, 'name' => 'test', 'taxRate' => 15],
         ], Context::createDefaultContext());
 
@@ -327,8 +313,7 @@ abstract class AbstractImportExportTestCase extends TestCase
         $mediaId = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
-        $mediaRepository = $this->getContainer()->get('media.repository');
-        $mediaRepository->create(
+        $this->getContainer()->get('media.repository')->create(
             [
                 [
                     'id' => $mediaId,
@@ -519,10 +504,13 @@ abstract class AbstractImportExportTestCase extends TestCase
         $criteria->addAssociation('profile');
         $criteria->addAssociation('file');
 
-        return $this->getContainer()
-            ->get('import_export_log.repository')
-            ->search($criteria, Context::createDefaultContext())
-            ->first();
+        /** @var EntityRepository<ImportExportLogCollection> $importExportLogRepo */
+        $importExportLogRepo = $this->getContainer()->get('import_export_log.repository');
+
+        $log = $importExportLogRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($log);
+
+        return $log;
     }
 
     /**
@@ -539,8 +527,8 @@ abstract class AbstractImportExportTestCase extends TestCase
         $reader = new CsvReader();
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
 
-        /** @var ImportExportFileEntity $file */
         $file = $logEntity->getFile();
+        static::assertNotNull($file);
         $resource = $filesystem->readStream($file->getPath());
         $log = $reader->read($config, $resource, 0);
 

@@ -30,7 +30,7 @@ class DataBag extends ParameterBag
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return array<string, mixed>
      */
     public function all(?string $key = null): array
     {

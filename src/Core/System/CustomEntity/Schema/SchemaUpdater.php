@@ -27,13 +27,11 @@ class SchemaUpdater
      */
     public function applyCustomEntities(Schema $schema, array $customEntities): void
     {
-        /** @var array<string, list<CustomEntityField>> $tables */
         $tables = [];
 
         foreach ($customEntities as $customEntity) {
             $entityName = $customEntity['name'];
 
-            /** @var list<CustomEntityField> $fields */
             $fields = \json_decode($customEntity['fields'], true, 512, \JSON_THROW_ON_ERROR);
 
             if (!\str_starts_with($entityName, self::TABLE_PREFIX) && !\str_starts_with($entityName, self::SHORTHAND_TABLE_PREFIX)) {
@@ -121,7 +119,7 @@ class SchemaUpdater
     }
 
     /**
-     * @param list<CustomEntityField> $fields
+     * @param array<CustomEntityField> $fields
      */
     private function addColumns(Schema $schema, Table $table, array $fields): void
     {

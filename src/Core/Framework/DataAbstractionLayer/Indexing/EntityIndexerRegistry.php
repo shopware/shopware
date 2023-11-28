@@ -56,7 +56,7 @@ class EntityIndexerRegistry
             return;
         }
 
-        $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), true, $message->getSkip());
+        $next = $this->iterateIndexer($message->getIndexer(), $message->getOffset(), $message->getSkip());
 
         if (!$next) {
             return;
@@ -149,15 +149,17 @@ class EntityIndexerRegistry
         if (!$context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
             return;
         }
-        /** @var ArrayEntity $skip */
         $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
+        if (!$skip instanceof ArrayEntity) {
+            return;
+        }
 
         $message->addSkip(...$skip->get('skips'));
     }
 
     /**
      * @param list<string> $indexer
-     * @param list<string> $skip
+     * @param array<string> $skip
      */
     public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
@@ -224,10 +226,10 @@ class EntityIndexerRegistry
     }
 
     /**
+     * @param array<string>                $skip
      * @param array{offset: int|null}|null $offset
-     * @param list<string> $skip
      */
-    private function iterateIndexer(string $name, ?array $offset, bool $useQueue, array $skip): ?EntityIndexingMessage
+    private function iterateIndexer(string $name, ?array $offset, array $skip): ?EntityIndexingMessage
     {
         $indexer = $this->getIndexer($name);
 
@@ -243,7 +245,7 @@ class EntityIndexerRegistry
         $message->setIndexer($indexer->getName());
         $message->addSkip(...$skip);
 
-        $this->sendOrHandle($message, $useQueue);
+        $this->sendOrHandle($message, true);
 
         return $message;
     }

@@ -96,7 +96,7 @@ SQL;
 
     /**
      * @param array<string, mixed> $englishRow
-     * @param list<array<string, mixed>> $germanData
+     * @param array<array<string, mixed>> $germanData
      */
     private function checkIfInGermanData(array $englishRow, array $germanData): bool
     {

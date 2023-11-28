@@ -4,7 +4,6 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Search;
@@ -13,8 +12,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -55,11 +52,6 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
-    /**
-     * @param array<string, mixed> $result
-     *
-     * @return array{total:int, data:EntityCollection<Entity>}
-     */
     public function globalData(array $result, Context $context): array
     {
         $ids = array_column($result['hits'], 'id');
@@ -93,11 +85,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @param array<string> $ids
-     *
-     * @throws Exception
-     *
-     * @return array<int|string, array<string, mixed>>
+     * @return array<string, array{id:string, textBoosted:string, text:string}>
      */
     public function fetch(array $ids): array
     {
@@ -139,7 +127,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 $textBoosted = $textBoosted . ' ' . implode(' ', array_unique(array_merge(...$row['custom_search_keywords'])));
             }
 
-            $id = $row['id'];
+            $id = (string) $row['id'];
             unset($row['name'],  $row['product_number'], $row['custom_search_keywords']);
             $text = \implode(' ', array_filter(array_unique(array_values($row))));
             $mapped[$id] = ['id' => $id, 'textBoosted' => \strtolower($textBoosted), 'text' => \strtolower($text)];

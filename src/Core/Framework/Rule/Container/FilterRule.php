@@ -23,7 +23,7 @@ abstract class FilterRule extends Rule implements ContainerInterface
     }
 
     /**
-     * @param Rule[] $rules
+     * @param list<Rule> $rules
      */
     public function setRules(array $rules): void
     {
@@ -31,7 +31,7 @@ abstract class FilterRule extends Rule implements ContainerInterface
     }
 
     /**
-     * @return Rule[]
+     * @return list<Rule>
      */
     public function getRules(): array
     {

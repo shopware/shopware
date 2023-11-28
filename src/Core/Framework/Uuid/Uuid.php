@@ -39,13 +39,13 @@ class Uuid
         }
         $bytes = self::$generator->generate();
 
-        /** @var array<int> $unpackedTime */
         $unpackedTime = unpack('n*', substr($bytes, 6, 2));
+        \assert(\is_array($unpackedTime));
         $timeHi = (int) $unpackedTime[1];
         $timeHiAndVersion = pack('n*', BinaryUtils::applyVersion($timeHi, 7));
 
-        /** @var array<int> $unpackedClockSeq */
         $unpackedClockSeq = unpack('n*', substr($bytes, 8, 2));
+        \assert(\is_array($unpackedClockSeq));
         $clockSeqHi = (int) $unpackedClockSeq[1];
         $clockSeqHiAndReserved = pack('n*', BinaryUtils::applyVariant($clockSeqHi));
 
@@ -94,9 +94,9 @@ class Uuid
     }
 
     /**
-     * @param array<string> $uuids
+     * @param array<array-key, string> $uuids
      *
-     * @return array<non-empty-string>
+     * @return array<array-key, non-empty-string>
      */
     public static function fromHexToBytesList(array $uuids): array
     {

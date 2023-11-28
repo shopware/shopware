@@ -65,7 +65,7 @@ class RuleComparison
     }
 
     /**
-     * @param list<string|null>|null $itemValue
+     * @param array<string|null>|null $itemValue
      * @param list<string|null>|null $ruleValue
      */
     public static function uuids(?array $itemValue, ?array $ruleValue, string $operator): bool

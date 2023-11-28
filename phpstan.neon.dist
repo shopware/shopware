@@ -83,7 +83,6 @@ parameters:
             message: '#Service ".*" is private#'
             paths:
                 - src/**/*Test.php
-                - src/**/*TestCase.php
                 - tests/performance/**/*Bench.php
                 - tests/unit/**/*Test.php
                 - tests/integration/**/*Test.php
@@ -222,6 +221,7 @@ parameters:
             paths:
                 - src/Core/Framework/Plugin/Util/AssetService.php
                 - src/Core/Content/Media/File/FileSaver.php
+                - src/Core/Content/ImportExport/ImportExport.php
 
         - # Will be fixed with NEXT-26122
             message: '#Doing instanceof PHPStan\\Type\\.* is error-prone and deprecated. Use Type::.*\(\) instead#'

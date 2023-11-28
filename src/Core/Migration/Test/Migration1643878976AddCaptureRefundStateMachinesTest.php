@@ -106,7 +106,7 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
     /**
      * @param array<string, string> $stateMachines
      *
-     * @return list<string>|null
+     * @return array<string>|null
      */
     private function getTranslations(array $stateMachines): ?array
     {
@@ -128,7 +128,7 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
     /**
      * @param array<string, string> $stateMachines
      *
-     * @return list<string>|null
+     * @return array<string>|null
      */
     private function getStates(array $stateMachines): ?array
     {
@@ -150,7 +150,7 @@ class Migration1643878976AddCaptureRefundStateMachinesTest extends TestCase
     /**
      * @param array<string, string> $stateMachines
      *
-     * @return list<string>|null
+     * @return array<string>|null
      */
     private function getTransitions(array $stateMachines): ?array
     {

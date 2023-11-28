@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
 /**
- * @decrecated tag:v6.6.0 - use PaymentException::unknownRefundHandler instead
+ * @deprecated tag:v6.6.0 - use PaymentException::unknownRefundHandler instead
  */
 class UnknownRefundHandlerException extends RefundProcessException
 {

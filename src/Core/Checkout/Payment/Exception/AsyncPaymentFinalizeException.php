@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 /**
- * @decrecated tag:v6.6.0 - use PaymentException::asyncFinalizeInterrupted instead
+ * @deprecated tag:v6.6.0 - use PaymentException::asyncFinalizeInterrupted instead
  */
 class AsyncPaymentFinalizeException extends PaymentProcessException
 {

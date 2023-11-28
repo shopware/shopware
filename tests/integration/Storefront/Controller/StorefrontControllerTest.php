@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
-use Shopware\Core\Checkout\Cart\Address\Error\ProfileSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -177,9 +176,8 @@ class StorefrontControllerTest extends TestCase
 
     /**
      * @return array{
-     *     0: ProfileSalutationMissingError,
-     *     1: BillingAddressSalutationMissingError,
-     *     2: ShippingAddressSalutationMissingError
+     *     0: BillingAddressSalutationMissingError,
+     *     1: ShippingAddressSalutationMissingError
      * }
      */
     private static function getErrors(): array
@@ -198,7 +196,6 @@ class StorefrontControllerTest extends TestCase
         $address->setCity('');
 
         return [
-            new ProfileSalutationMissingError($customer),
             new BillingAddressSalutationMissingError($address),
             new ShippingAddressSalutationMissingError($address),
         ];

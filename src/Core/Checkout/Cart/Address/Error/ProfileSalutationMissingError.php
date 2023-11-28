@@ -4,10 +4,11 @@ namespace Shopware\Core\Checkout\Cart\Address\Error;
 
 use Shopware\Core\Checkout\Cart\Error\ErrorRoute;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @decrecated tag:v6.6.0 - Will be removed
+ * @deprecated tag:v6.6.0 - Will be removed
  */
 #[Package('checkout')]
 class ProfileSalutationMissingError extends SalutationMissingError
@@ -32,11 +33,15 @@ class ProfileSalutationMissingError extends SalutationMissingError
 
     public function getId(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'The class "ProfileSalutationMissingError" is deprecated and will be removed.');
+
         return self::KEY;
     }
 
     public function getRoute(): ?ErrorRoute
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'The class "ProfileSalutationMissingError" is deprecated and will be removed.');
+
         return new ErrorRoute('frontend.account.profile.page');
     }
 }

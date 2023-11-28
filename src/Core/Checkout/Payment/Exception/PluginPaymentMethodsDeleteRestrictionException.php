@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
 /**
- * @decrecated tag:v6.6.0 - use PaymentException::pluginPaymentMethodDeleteRestriction instead
+ * @deprecated tag:v6.6.0 - use PaymentException::pluginPaymentMethodDeleteRestriction instead
  */
 class PluginPaymentMethodsDeleteRestrictionException extends PaymentException
 {

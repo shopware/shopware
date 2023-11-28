@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 /**
- * @decrecated tag:v6.6.0 - use PaymentException::unknownRefund instead
+ * @deprecated tag:v6.6.0 - use PaymentException::unknownRefund instead
  */
 class UnknownRefundException extends RefundProcessException
 {

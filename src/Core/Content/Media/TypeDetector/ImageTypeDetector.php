@@ -134,42 +134,45 @@ class ImageTypeDetector implements TypeDetectorInterface
     }
 
     /**
-     * an animated avif has an animation type set in the header
+     * An animated avif has an animation type set in the header
      * non-animated or single-frame files would have the ftypavif header
      *
-     * we check if the file contains an avis container definition (animated container definition)
+     * We check if the file contains an avis container definition (animated container definition)
      * non-animated or single-frame files do not have this
      */
     private function isAvifAnimated(string $filename): bool
     {
-        $fh = fopen($filename, 'rb');
-        if ($fh === false) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                throw new StreamNotReadableException('AVIF file not readable');
-            }
+        $fh = @fopen($filename, 'rb');
 
+        if ($fh === false) {
             throw MediaException::cannotOpenSourceStreamToRead($filename);
         }
-        fread($fh, 4);
-        if (fread($fh, 8) !== 'ftypavis') {
+
+        $header = (string) fread($fh, 12);
+
+        if (substr($header, 4, 8) !== 'ftypavis') {
             fclose($fh);
 
             return false;
         }
+
         while (!feof($fh)) {
             $containerDefinition = fread($fh, 4);
+
             if ($containerDefinition === 'avis') {
                 fclose($fh);
 
                 return true;
             }
-            // the avis container definition must exist before the meta container definition to be valid so we already return false here
+
+            // the avis container definition must exist before the meta container definition to be valid, so we already return false here
             if ($containerDefinition === 'meta') {
                 fclose($fh);
 
                 return false;
             }
         }
+
         fclose($fh);
 
         return false;

@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\TypeDetector;
+namespace Shopware\Tests\Integration\Core\Content\Media\TypeDetector;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector;
@@ -204,6 +205,28 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
 
         unlink($publicPath);
+    }
+
+    /**
+     * @group needsWebserver
+     */
+    public function testDetectAvifThrowsExceptionOnUnreadableFile(): void
+    {
+        $path = 'invalid.avif';
+        $mediaFile = new MediaFile(
+            $path,
+            'image/avif',
+            'avif',
+            1024
+        );
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(MediaException::cannotOpenSourceStreamToRead($path)->getMessage());
+
+        $this->getImageTypeDetector()->detect(
+            $mediaFile,
+            null
+        );
     }
 
     public function testDetectSvg(): void

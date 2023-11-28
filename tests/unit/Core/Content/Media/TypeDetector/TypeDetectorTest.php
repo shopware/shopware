@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\TypeDetector;
+namespace Shopware\Tests\Unit\Core\Content\Media\TypeDetector;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -9,16 +9,20 @@ use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
+use Shopware\Core\Content\Media\TypeDetector\AudioTypeDetector;
+use Shopware\Core\Content\Media\TypeDetector\DefaultTypeDetector;
+use Shopware\Core\Content\Media\TypeDetector\DocumentTypeDetector;
+use Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\Media\TypeDetector\TypeDetector
  */
 class TypeDetectorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
     public function testDetectGif(): void
     {
         $type = $this->getTypeDetector()->detect(
@@ -203,7 +207,13 @@ class TypeDetectorTest extends TestCase
 
     private function getTypeDetector(): TypeDetector
     {
-        return $this->getContainer()->get(TypeDetector::class);
+        return new TypeDetector([
+            new AudioTypeDetector(),
+            new VideoTypeDetector(),
+            new ImageTypeDetector(),
+            new DocumentTypeDetector(),
+            new DefaultTypeDetector(),
+        ]);
     }
 
     private function createMediaFile(string $filePath): MediaFile

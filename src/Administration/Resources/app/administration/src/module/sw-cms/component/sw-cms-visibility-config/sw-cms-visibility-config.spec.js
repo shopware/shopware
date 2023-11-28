@@ -1,18 +1,13 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swCmsVisibilityConfig from 'src/module/sw-cms/component/sw-cms-visibility-config';
-import 'src/app/component/base/sw-icon';
+import { mount } from '@vue/test-utils_v3';
 
 /**
  * @package buyers-experience
  */
 
-Shopware.Component.register('sw-cms-visibility-config', swCmsVisibilityConfig);
-
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-visibility-config'), {
-        localVue,
+    return mount(await wrapTestComponent('sw-cms-visibility-config', {
+        sync: true,
+    }), {
         propsData: {
             visibility: {
                 mobile: true,
@@ -24,7 +19,7 @@ async function createWrapper() {
             cmsService: {},
         },
         stubs: {
-            'sw-icon': await Shopware.Component.build('sw-icon'),
+            'sw-icon': await wrapTestComponent('sw-icon'),
             'icons-regular-tablet': true,
             'icons-regular-mobile': true,
             'icons-regular-desktop': true,
@@ -44,14 +39,15 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
 
     it('should be visible in all devices', async () => {
         const wrapper = await createWrapper();
-        const mobileIcon = wrapper.findAll('.sw-icon').at(0);
-        expect(mobileIcon.classes()).toContain('icon--regular-mobile');
 
-        const tabletIcon = wrapper.findAll('.sw-icon').at(1);
-        expect(tabletIcon.classes()).toContain('icon--regular-tablet');
+        const mobileIcon = wrapper.findAll('sw-icon')[0];
+        expect(mobileIcon.attributes('name')).toContain('regular-mobile');
 
-        const desktopIcon = wrapper.findAll('.sw-icon').at(2);
-        expect(desktopIcon.classes()).toContain('icon--regular-desktop');
+        const tabletIcon = wrapper.findAll('sw-icon')[1];
+        expect(tabletIcon.attributes('name')).toContain('regular-tablet');
+
+        const desktopIcon = wrapper.findAll('sw-icon')[2];
+        expect(desktopIcon.attributes('name')).toContain('regular-desktop');
     });
 
     it('should be invisible in all devices', async () => {
@@ -64,14 +60,14 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
             },
         });
 
-        const mobileIcon = wrapper.findAll('.sw-icon').at(0);
-        expect(mobileIcon.classes()).toContain('icon--regular-mobile-slash');
+        const mobileIcon = wrapper.findAll('sw-icon')[0];
+        expect(mobileIcon.attributes('name')).toContain('regular-mobile-slash');
 
-        const tabletIcon = wrapper.findAll('.sw-icon').at(1);
-        expect(tabletIcon.classes()).toContain('icon--regular-tablet-slash');
+        const tabletIcon = wrapper.findAll('sw-icon')[1];
+        expect(tabletIcon.attributes('name')).toContain('regular-tablet-slash');
 
-        const desktopIcon = wrapper.findAll('.sw-icon').at(2);
-        expect(desktopIcon.classes()).toContain('icon--regular-desktop-slash');
+        const desktopIcon = wrapper.findAll('sw-icon')[2];
+        expect(desktopIcon.attributes('name')).toContain('regular-desktop-slash');
     });
 
     it('should emit an event when the visibility changes', async () => {

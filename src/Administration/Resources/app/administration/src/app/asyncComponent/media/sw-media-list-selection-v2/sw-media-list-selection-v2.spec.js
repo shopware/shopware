@@ -1,12 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import SwMediaListSelectionV2 from 'src/app/asyncComponent/media/sw-media-list-selection-v2';
-import swMediaListSelectionItemV2 from 'src/app/asyncComponent/media/sw-media-list-selection-item-v2';
-
-Shopware.Component.register('sw-media-list-selection-v2', SwMediaListSelectionV2);
-Shopware.Component.register('sw-media-list-selection-item-v2', swMediaListSelectionItemV2);
+import { mount } from '@vue/test-utils_v3';
 
 const entityMediaItems = [
     {
@@ -27,23 +22,24 @@ const entityMediaItems = [
     },
 ];
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-media-list-selection-v2'), {
-
-        provide: {
-            mediaService: {},
-        },
-        stubs: {
-            'sw-upload-listener': true,
-            'sw-media-upload-v2': true,
-            'sw-media-list-selection-item-v2': await Shopware.Component.build('sw-media-list-selection-item-v2'),
-            'sw-icon': true,
-            'sw-media-preview-v2': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-media-list-selection-v2', { sync: true }), {
+        props: {
             entity: {},
             entityMediaItems: entityMediaItems,
+        },
+        global: {
+            provide: {
+                mediaService: {},
+            },
+            stubs: {
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
+                'sw-media-list-selection-item-v2': await wrapTestComponent('sw-media-list-selection-item-v2'),
+                'sw-icon': true,
+                'sw-media-preview-v2': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+            },
         },
     });
 }
@@ -51,12 +47,15 @@ async function createWrapper() {
 describe('components/media/sw-media-list-selection-v2', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should set the position property for each item by index in computed', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const mediaItems = wrapper.vm.mediaItems;
 
         mediaItems.forEach((item, index) => {
@@ -66,6 +65,7 @@ describe('components/media/sw-media-list-selection-v2', () => {
 
     it('should emit item-sort event when drag and drop item valid', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.vm.onMediaItemDragSort({ id: 2, position: 1 }, { id: 1, position: 2 }, true);
         await wrapper.vm.$nextTick();
@@ -76,6 +76,7 @@ describe('components/media/sw-media-list-selection-v2', () => {
 
     it('should not emit item-sort event when drag and drop item valid', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.vm.onMediaItemDragSort();
         await wrapper.vm.$nextTick();

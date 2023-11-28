@@ -13,29 +13,15 @@ Jest (Administration):
       - composer run admin:generate-entity-schema-types
     script:
       - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
+      - npm --prefix $ADMIN_PATH run unit-setup
       - npm --prefix $ADMIN_PATH run unit -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
       - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
     artifacts:
-        reports:
-            coverage_report:
-                coverage_format: cobertura
-                path: build/artifacts/jest/cobertura-coverage.xml
-
-Jest Vue 3 (Administration):
-    extends: .base-with-node
-    stage: unit
-    needs: []
-    services: []
-    before_script:
-      - !reference [ .scripts, init, composer ]
-      - !reference [ .scripts, init, npm, admin ]
-      - composer run admin:generate-entity-schema-types
-    script:
-      - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
-      - npm --prefix $ADMIN_PATH run unit-setup
-      - npm --prefix $ADMIN_PATH run unit:vue3 -- --silent --maxWorkers=25% | grep -A 5 -E '^(All files|Fail|    )'
-      - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
+      reports:
+        coverage_report:
+          coverage_format: cobertura
+          path: build/artifacts/jest/cobertura-coverage.xml
 
 Jest (Storefront):
     extends: .base-with-node

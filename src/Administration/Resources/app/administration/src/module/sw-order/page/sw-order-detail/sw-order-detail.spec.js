@@ -1,91 +1,81 @@
-import { shallowMount } from '@vue/test-utils';
-import swOrderDetail from 'src/module/sw-order/page/sw-order-detail';
+import { mount } from '@vue/test-utils_v3';
 import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-process';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
-Shopware.Component.register('sw-order-detail', swOrderDetail);
-
-async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-order-detail'), {
-        mocks: {
-            $route: {
-                params: {
-                    id: 'order123',
-                },
-                meta: {
-                    $module: {
-                        routes: {
-                            detail: {
-                                children: [
-                                    {
-                                        name: 'sw.order.detail.general',
-                                    },
-                                    {
-                                        name: 'sw.order.detail.details',
-                                    },
-                                    {
-                                        name: 'sw.order.detail.document',
-                                    },
-                                ],
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
+        global: {
+            mocks: {
+                $route: {
+                    params: {
+                        id: 'order123',
+                    },
+                    meta: {
+                        $module: {
+                            routes: {
+                                detail: {
+                                    children: [
+                                        {
+                                            name: 'sw.order.detail.general',
+                                        },
+                                        {
+                                            name: 'sw.order.detail.details',
+                                        },
+                                        {
+                                            name: 'sw.order.detail.document',
+                                        },
+                                    ],
+                                },
                             },
                         },
                     },
                 },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
-                    <div class="sw-page">
-                        <slot name="smart-bar-header"></slot>
-                        <slot name="smart-bar-actions"></slot>
-                        <slot name="content"></slot>
-                    </div>`,
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-label': true,
-            'sw-skeleton': true,
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-card-view': {
-                template: `
-                    <div class="sw-card-view">
-                        <slot></slot>
-                    </div>`,
-            },
-            'sw-alert': true,
-            'sw-loader': true,
-            'router-view': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'sw-icon': true,
-        },
-        propsData: {
-            orderId: Shopware.Utils.createId(),
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+            stubs: {
+                'sw-page': {
+                    template: `
+                        <div class="sw-page">
+                            <slot name="smart-bar-header"></slot>
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content"></slot>
+                        </div>`,
                 },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-label': true,
+                'sw-skeleton': true,
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-card-view': {
+                    template: `
+                        <div class="sw-card-view">
+                            <slot></slot>
+                        </div>`,
+                },
+                'sw-alert': true,
+                'sw-loader': true,
+                'router-view': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+                'sw-icon': true,
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([]),
-                    hasChanges: () => false,
-                    deleteVersion: () => Promise.resolve([]),
-                    createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
-                    get: () => Promise.resolve({}),
-                    save: () => Promise.resolve({}),
-                }),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                        hasChanges: () => false,
+                        deleteVersion: () => Promise.resolve([]),
+                        createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
+                        get: () => Promise.resolve({}),
+                        save: () => Promise.resolve({}),
+                    }),
+                },
+                orderService: {},
             },
-            orderService: {},
+        },
+        props: {
+            orderId: Shopware.Utils.createId(),
         },
     });
 }
@@ -103,10 +93,6 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         // versionId needed
         await wrapper.vm.createdComponent();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

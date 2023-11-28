@@ -1,19 +1,18 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigCrossSelling from 'src/module/sw-cms/elements/cross-selling/config';
-
-Shopware.Component.register('sw-cms-el-config-cross-selling', swCmsElConfigCrossSelling);
 
 async function createWrapper(customCmsElementConfig) {
     const productMock = {
         name: 'Small Silk Heart Worms',
     };
 
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-cross-selling'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-config-cross-selling', {
+        sync: true,
+    }), {
+        props: {
             element: {
                 config: {
                     title: {
@@ -37,33 +36,36 @@ async function createWrapper(customCmsElementConfig) {
                 },
             };
         },
-        stubs: {
-            'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
-            },
-            'sw-tabs-item': true,
-            'sw-container': true,
-            'sw-field': true,
-            'sw-modal': true,
-            'sw-entity-single-select': true,
-            'sw-alert': true,
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
                 },
-                getCmsElementRegistry: () => {
-                    return {};
-                },
+                'sw-tabs-item': true,
+                'sw-container': true,
+                'sw-field': true,
+                'sw-modal': true,
+                'sw-entity-single-select': true,
+                'sw-alert': true,
+                'sw-icon': true,
             },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: () => Promise.resolve(productMock),
-                        search: () => Promise.resolve(productMock),
-                    };
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return {};
+                    },
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(productMock),
+                            search: () => Promise.resolve(productMock),
+                        };
+                    },
                 },
             },
         },

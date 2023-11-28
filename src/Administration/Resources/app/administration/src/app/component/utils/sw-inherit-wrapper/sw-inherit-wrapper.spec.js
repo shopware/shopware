@@ -2,27 +2,17 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/utils/sw-inherit-wrapper';
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(options = {}) {
-    return shallowMount(await Shopware.Component.build('sw-inherit-wrapper'), {
+    return mount(await wrapTestComponent('sw-inherit-wrapper', { sync: true }), {
         ...options,
     });
 }
 
 describe('src/app/component/utils/sw-inherit-wrapper', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-    });
-
     it('should be a Vue.JS component', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 value: 1,
                 inheritedValue: 2,
@@ -33,7 +23,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
     });
 
     it('should not inherit on different values', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 value: 1,
                 inheritedValue: 2,
@@ -46,7 +36,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
     });
 
     it('should inherit on same values', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 value: null,
                 inheritedValue: 1,
@@ -59,7 +49,7 @@ describe('src/app/component/utils/sw-inherit-wrapper', () => {
     });
 
     it('should have error classes', async () => {
-        wrapper = await createWrapper({
+        const wrapper = await createWrapper({
             propsData: {
                 value: 1,
                 inheritedValue: 2,

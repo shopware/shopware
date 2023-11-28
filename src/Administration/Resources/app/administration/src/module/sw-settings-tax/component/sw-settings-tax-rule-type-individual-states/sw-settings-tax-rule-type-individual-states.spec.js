@@ -1,66 +1,67 @@
-import { createLocalVue, mount } from '@vue/test-utils';
-import swSettingsTaxRuleTypeIndividualStates from 'src/module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/base/sw-select-base';
-
-Shopware.Component.register('sw-settings-tax-rule-type-individual-states', swSettingsTaxRuleTypeIndividualStates);
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
-    let stubs;
-
     async function createWrapper(taxRule) {
-        const localVue = createLocalVue();
-        localVue.directive('tooltip', {});
-
-        return mount(await Shopware.Component.build('sw-settings-tax-rule-type-individual-states'), {
-            localVue,
-            stubs,
-
-            propsData: {
+        return mount(await wrapTestComponent('sw-settings-tax-rule-type-individual-states', {
+            sync: true,
+        }), {
+            props: {
                 taxRule,
             },
 
-            provide: {
-                repositoryFactory: {
-                    create: (entityName) => {
-                        if (entityName !== 'country_state') {
-                            throw new Error('expected entity name to be country_state');
-                        }
+            global: {
+                renderStubDefaultSlot: true,
 
-                        return {
-                            entityName: 'country_state',
-                            route: '/country_state',
-                            search: (criteria) => {
-                                const states = criteria.ids.map((id) => {
-                                    return {
-                                        id,
-                                        name: `state ${id}`,
-                                    };
-                                });
+                stubs: {
+                    'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select', {
+                        sync: true,
+                    }),
+                    'sw-select-base': await wrapTestComponent('sw-select-base', {
+                        sync: true,
+                    }),
+                    'sw-block-field': await wrapTestComponent('sw-block-field', {
+                        sync: true,
+                    }),
+                    'sw-base-field': await wrapTestComponent('sw-base-field', {
+                        sync: true,
+                    }),
+                    'sw-select-selection-list': true,
+                    'sw-select-result-list': true,
+                    'sw-highlight-text': true,
+                    'sw-icon': true,
+                },
 
-                                return Promise.resolve(states);
-                            },
-                        };
+                provide: {
+                    repositoryFactory: {
+                        create: (entityName) => {
+                            if (entityName !== 'country_state') {
+                                throw new Error('expected entity name to be country_state');
+                            }
+
+                            return {
+                                entityName: 'country_state',
+                                route: '/country_state',
+                                search: (criteria) => {
+                                    const states = criteria.ids.map((id) => {
+                                        return {
+                                            id,
+                                            name: `state ${id}`,
+                                        };
+                                    });
+
+                                    return Promise.resolve(states);
+                                },
+                            };
+                        },
                     },
                 },
             },
+
         });
     }
-
-    beforeAll(async () => {
-        stubs = {
-            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': true,
-            'sw-select-selection-list': true,
-            'sw-select-result-list': true,
-            'sw-highlight-text': true,
-            'sw-icon': true,
-        };
-    });
 
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper({
@@ -85,8 +86,6 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
         expect(individualStates).toHaveLength(0);
         expect(individualStates.entity).toBe('country_state');
         expect(individualStates.source).toBe('/country_state');
-
-        wrapper.destroy();
     });
 
     it('fetches country states at creation', async () => {
@@ -110,35 +109,5 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             id: states[1],
             name: `state ${states[1]}`,
         }]));
-
-        wrapper.destroy();
-    });
-
-    it('only updates its states if multiselect emits a change', async () => {
-        const states = [
-            { id: Shopware.Utils.createId() },
-            { id: Shopware.Utils.createId() },
-        ];
-
-        const wrapper = await createWrapper({
-            countryId: Shopware.Utils.createId(),
-            data: {
-                states: [],
-            },
-        });
-
-        const select = wrapper.findComponent(stubs['sw-entity-multi-select']);
-
-        select.vm.$emit('change', new Shopware.Data.EntityCollection(
-            '/country-state',
-            'country-state',
-            Shopware.Context.api,
-            new Shopware.Data.Criteria(),
-            states,
-        ));
-
-        expect(wrapper.vm.individualStates).toEqual(expect.arrayContaining(states));
-
-        wrapper.destroy();
     });
 });

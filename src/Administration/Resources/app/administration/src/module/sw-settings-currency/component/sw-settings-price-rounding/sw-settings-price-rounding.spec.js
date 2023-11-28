@@ -1,20 +1,18 @@
-/**
- * @package buyers-experience
- */
 /* eslint-disable max-len */
-import { shallowMount } from '@vue/test-utils';
-import swSettingsPriceRounding from 'src/module/sw-settings-currency/component/sw-settings-price-rounding';
-
-Shopware.Component.register('sw-settings-price-rounding', swSettingsPriceRounding);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-settings-price-rounding'), {
-        stubs: {
-            'sw-container': true,
-            'sw-switch-field': true,
-            'sw-number-field': true,
-            'sw-single-select': true,
-            'sw-alert': true,
+    return mount(await wrapTestComponent('sw-settings-price-rounding', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-container': true,
+                'sw-switch-field': true,
+                'sw-number-field': true,
+                'sw-single-select': true,
+                'sw-alert': true,
+            },
         },
     });
 }

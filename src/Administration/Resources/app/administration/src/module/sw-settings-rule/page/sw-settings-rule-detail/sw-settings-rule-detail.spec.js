@@ -1,17 +1,14 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import { kebabCase } from 'lodash';
-import swSettingsRuleDetail from 'src/module/sw-settings-rule/page/sw-settings-rule-detail';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-process';
 
 const { EntityCollection } = Shopware.Data;
 
-Shopware.Component.register('sw-settings-rule-detail', swSettingsRuleDetail);
-
 function createRuleMock(isNew) {
     return {
+        id: 'uuid1',
         name: 'Test rule',
         isNew: () => isNew,
+        getEntityName: () => 'rule',
         conditions: {
             entity: 'rule',
             source: 'foo/rule',
@@ -32,79 +29,83 @@ function getCollection(repository) {
     );
 }
 
-async function createWrapper(isNewRule = false, computed = {}, provide = {}) {
-    return shallowMount(await Shopware.Component.build('sw-settings-rule-detail'), {
-        stubs: {
-            'sw-page': {
-                template: `
+async function createWrapper(isNewRule = false, provide = {}) {
+    return mount(await wrapTestComponent('sw-settings-rule-detail', { sync: true }), {
+        props: {
+            ruleId: isNewRule ? null : 'uuid1',
+        },
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-page': {
+                    template: `
     <div>
         <slot name="smart-bar-actions"></slot>
         <slot name="content"></slot>
     </div>`,
-            },
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-card': true,
-            'sw-card-view': true,
-            'sw-container': true,
-            'sw-field': true,
-            'sw-multi-select': true,
-            'sw-condition-tree': true,
-            'sw-tabs': true,
-            'sw-tabs-item': true,
-            'router-view': true,
-            'sw-skeleton': true,
-            'sw-context-menu-item': true,
-            'sw-context-button': true,
-            'sw-button-group': true,
-            'sw-icon': true,
-            'sw-loader': true,
-            'sw-discard-changes-modal': {
-                template: `
+                },
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-card': true,
+                'sw-card-view': true,
+                'sw-container': true,
+                'sw-field': true,
+                'sw-multi-select': true,
+                'sw-condition-tree': true,
+                'sw-tabs': true,
+                'sw-tabs-item': true,
+                'router-view': {
+                    template: '<div><slot v-bind="{ Component: \'router-test-view\'}"></slot></div>',
+                },
+                'router-test-view': true,
+                'sw-skeleton': true,
+                'sw-context-menu-item': true,
+                'sw-context-button': true,
+                'sw-button-group': true,
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-discard-changes-modal': {
+                    template: `
     <div>
         Iam here
     </div>`,
-            },
-        },
-        propsData: {
-            ruleId: isNewRule ? null : 'uuid1',
-        },
-        provide: {
-            ruleConditionDataProviderService: {
-                getModuleTypes: () => [],
-                addScriptConditions: () => {},
-            },
-            ruleConditionsConfigApiService: {
-                load: () => Promise.resolve(),
-            },
-            repositoryFactory: {
-                create: (repository) => {
-                    return {
-                        create: () => {
-                            return createRuleMock(true);
-                        },
-                        get: () => Promise.resolve(createRuleMock(false)),
-                        search: () => Promise.resolve(getCollection(repository)),
-                        hasChanges: (rule, hasChanges) => { return hasChanges ?? false; },
-                        save: () => Promise.resolve(),
-                    };
                 },
             },
-            feature: {
-                isActive: () => true,
-            },
-            ...provide,
-        },
-        mocks: {
-            $route: {
-                meta: {
+            provide: {
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {
+                    },
                 },
-                params: {
-                    id: '',
+                ruleConditionsConfigApiService: {
+                    load: () => Promise.resolve(),
+                },
+                repositoryFactory: {
+                    create: (repository) => {
+                        return {
+                            create: () => {
+                                return createRuleMock(true);
+                            },
+                            get: () => Promise.resolve(createRuleMock(false)),
+                            search: () => Promise.resolve(getCollection(repository)),
+                            hasChanges: (rule, hasChanges) => {
+                                return hasChanges ?? false;
+                            },
+                            save: () => Promise.resolve(),
+                        };
+                    },
+                },
+                ...provide,
+            },
+            mocks: {
+                $route: {
+                    meta: {},
+                    params: {
+                        id: isNewRule ? null : 'uuid1',
+                    },
                 },
             },
         },
-        computed,
     });
 }
 
@@ -113,19 +114,17 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-
         await flushPromises();
 
-        const buttonSave = wrapper.get('.sw-settings-rule-detail__save-action');
+        const buttonSave = wrapper.getComponent('.sw-settings-rule-detail__save-action');
 
-        expect(buttonSave.attributes().disabled).toBe('disabled');
+        expect(buttonSave.attributes('disabled')).toBe('');
     });
 
     it('should have enabled fields', async () => {
         global.activeAclRoles = ['rule.editor'];
 
         const wrapper = await createWrapper();
-
         await flushPromises();
 
         const buttonSave = wrapper.get('.sw-settings-rule-detail__save-action');
@@ -240,17 +239,14 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
     it('should return tab has error for assignment tab', async () => {
         global.activeAclRoles = [];
 
-        const wrapper = await createWrapper(
-            false,
-            {
-                ruleNameError() {
-                    return {
-                        detail: 'error',
-                    };
-                },
+        Shopware.State.commit('error/addApiError', {
+            expression: 'rule.uuid1.name',
+            error: {
+                message: 'Error detail',
             },
-        );
+        });
 
+        const wrapper = await createWrapper(false);
         await flushPromises();
 
         expect(wrapper.vm.tabHasError({
@@ -265,7 +261,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         const wrapper = await createWrapper(
             false,
-            {},
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],
@@ -306,7 +301,6 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
 
         const wrapper = await createWrapper(
             false,
-            {},
             {
                 ruleConditionDataProviderService: {
                     getModuleTypes: () => [],

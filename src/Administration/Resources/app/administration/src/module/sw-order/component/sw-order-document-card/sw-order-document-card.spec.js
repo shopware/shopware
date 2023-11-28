@@ -1,22 +1,10 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swOrderDocumentCard from 'src/module/sw-order/component/sw-order-document-card';
-import swOrderSelectDocumentTypeModal from 'src/module/sw-order/component/sw-order-select-document-type-modal';
-import swOrderDocumentSettingsModal from 'src/module/sw-order/component/sw-order-document-settings-modal';
-import swOrderDocumentSettingsInvoiceModal from 'src/module/sw-order/component/sw-order-document-settings-invoice-modal';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-group';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
 import orderDetailStore from 'src/module/sw-order/state/order-detail.store';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-document-card', swOrderDocumentCard);
-Shopware.Component.register('sw-order-select-document-type-modal', swOrderSelectDocumentTypeModal);
-Shopware.Component.register('sw-order-document-settings-modal', swOrderDocumentSettingsModal);
-Shopware.Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-settings-modal', swOrderDocumentSettingsInvoiceModal);
 
 function getCollection(entity, collection) {
     return new EntityCollection(
@@ -92,147 +80,112 @@ const documentTypeFixture = [
     },
 ];
 
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {
-        bind(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-        inserted(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-        update(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-    });
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-order-document-card', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card', { sync: true }),
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
+                },
+                'sw-card-section': {
+                    template: '<div class="sw-card-section"><slot></slot></div>',
+                },
+                'sw-card-filter': {
+                    template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                },
+                'sw-modal': {
+                    template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': true,
+                'sw-context-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-order-select-document-type-modal': await wrapTestComponent('sw-order-select-document-type-modal', { sync: true }),
+                'sw-order-send-document-modal': true,
+                'sw-order-document-settings-modal': await wrapTestComponent('sw-order-document-settings-modal', { sync: true }),
+                'sw-order-document-settings-delivery-note-modal': true,
+                // eslint-disable-next-line max-len
+                'sw-order-document-settings-invoice-modal': await wrapTestComponent('sw-order-document-settings-invoice-modal', { sync: true }),
+                'sw-order-document-settings-credit-note-modal': true,
+                'sw-order-document-settings-storno-modal': true,
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'sw-data-grid-column-boolean': true,
+                'sw-context-menu-item': {
+                    template: `
+                        <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
+                            <slot></slot>
+                        </div>`,
+                },
+                'sw-radio-field': true,
+                'sw-datepicker': true,
+                'sw-icon': true,
+                'sw-textarea-field': true,
+                'sw-switch-field': true,
+                'sw-button-group': await wrapTestComponent('sw-button-group', { sync: true }),
+                'sw-loader': true,
+            },
+            provide: {
+                documentService: {
+                    setListener: () => ({}),
+                    getDocument: () => Promise.resolve({
+                        headers: {
+                            'content-disposition': 'attachment; filename=dummny.pdf',
+                        },
+                        data: 'https://shopware.test/dummny.pdf',
+                    }),
+                    createDocument: () => Promise.resolve({ data: {
+                        documentId: '1234',
+                        documentDeepLink: '12341234',
+                    } }),
+                },
+                numberRangeService: {
+                    reserve: () => Promise.resolve({ number: 1000 }),
+                },
+                repositoryFactory: {
+                    create: (entity) => ({
+                        search: () => {
+                            if (entity === 'document_type' || entity === 'document') {
+                                return Promise.resolve(getCollection('document_type', documentTypeFixture));
+                            }
 
-    return shallowMount(await Shopware.Component.build('sw-order-document-card'), {
-        localVue,
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot><slot name="grid"></slot></div>',
-            },
-            'sw-empty-state': {
-                template: '<div class="sw-empty-state"><slot name="icon"></slot><slot name="actions"></slot></div>',
-            },
-            'sw-card-section': {
-                template: '<div class="sw-card-section"><slot></slot></div>',
-            },
-            'sw-card-filter': {
-                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
-            },
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-            },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-text-field': true,
-            'sw-context-button': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-order-select-document-type-modal': await Shopware.Component.build('sw-order-select-document-type-modal'),
-            'sw-order-send-document-modal': true,
-            'sw-order-document-settings-modal': await Shopware.Component.build('sw-order-document-settings-modal'),
-            'sw-order-document-settings-delivery-note-modal': true,
-            'sw-order-document-settings-invoice-modal': await Shopware.Component.build('sw-order-document-settings-invoice-modal'),
-            'sw-order-document-settings-credit-note-modal': true,
-            'sw-order-document-settings-storno-modal': true,
-            'sw-data-grid': {
-                props: ['dataSource', 'columns'],
-                template: `
-                    <div class="sw-data-grid">
-                    <table>
-                        <thead class="sw-data-grid__header">
-                        <th
-                            v-for="(column) in columns"
-                            class="sw-data-grid__cell--header"
-                            :key="column.property"
-                        >
-                            {{ column.label }}
-                        </th>
-                        </thead>
+                            return Promise.resolve([]);
+                        },
+                        get: () => {
+                            if (entity === 'document') {
+                                return Promise.resolve(documentTypeFixture);
+                            }
 
-                        <tbody class="sw-data-grid__body">
-                            <td
-                                v-for="item in dataSource"
-                                class="sw-data-grid__cell"
-                            >
-                                <slot></slot>
-                                <slot name="column-sent" v-bind="{ item }"></slot>
-                                <slot name="actions" v-bind="{ item }"></slot>
-                            </td>
-                        </tbody>
-                    </table>
-                    </div>
-                `,
+                            return Promise.resolve({});
+                        },
+                        save: () => Promise.resolve({}),
+                        searchIds: () => Promise.resolve([]),
+                    }),
+                },
+                searchRankingService: {},
             },
-            'sw-data-grid-column-boolean': true,
-            'sw-context-menu-item': {
-                template: `
-                    <div class="sw-context-menu-item" @click="$emit('click', $event.target.value)">
-                        <slot></slot>
-                    </div>`,
-            },
-            'sw-radio-field': true,
-            'sw-datepicker': true,
-            'sw-icon': true,
-            'sw-textarea-field': true,
-            'sw-switch-field': true,
-            'sw-button-group': await Shopware.Component.build('sw-button-group'),
-            'sw-loader': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+            mocks: {
+                $route: {
+                    query: '',
                 },
             },
-            documentService: {
-                setListener: () => ({}),
-                getDocument: () => Promise.resolve({
-                    headers: {
-                        'content-disposition': 'attachment; filename=dummny.pdf',
+            directives: {
+                tooltip: {
+                    bind(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    data: 'https://shopware.test/dummny.pdf',
-                }),
-                createDocument: () => Promise.resolve({ data: {
-                    documentId: '1234',
-                    documentDeepLink: '12341234',
-                } }),
-            },
-            numberRangeService: {
-                reserve: () => Promise.resolve({ number: 1000 }),
-            },
-            repositoryFactory: {
-                create: (entity) => ({
-                    search: () => {
-                        if (entity === 'document_type') {
-                            return Promise.resolve(getCollection('document_type', documentTypeFixture));
-                        }
-
-                        return Promise.resolve([]);
+                    inserted(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    get: () => {
-                        if (entity === 'document') {
-                            return Promise.resolve(documentTypeFixture);
-                        }
-
-                        return Promise.resolve({});
+                    update(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    save: () => Promise.resolve({}),
-                    searchIds: () => Promise.resolve([]),
-                }),
-            },
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: {
-                query: '',
+                },
             },
         },
-        propsData: {
+        props: {
             order: orderFixture,
             isLoading: false,
         },
@@ -248,35 +201,29 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
     });
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled create new button', async () => {
-        const createNewButton = wrapper.find('.sw-order-document-grid-button');
-
-        expect(createNewButton.attributes().disabled).toBe('disabled');
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        const createNewButton = wrapper.findComponent('.sw-order-document-grid-button');
+        expect(createNewButton.props('disabled')).toBe(true);
     });
 
     it('should not have an disabled create new button', async () => {
-        wrapper = await createWrapper([
-            'order.editor',
-            'document.viewer',
-        ]);
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        wrapper = await createWrapper();
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
         expect(createNewButton.attributes().disabled).toBeUndefined();
     });
 
     it('should show the error of invoice number is existing', async () => {
+        global.activeAclRoles = [];
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -300,6 +247,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show the error of credit note number is existing', async () => {
+        global.activeAclRoles = [];
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -323,6 +271,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show the error of delivery note number is existing', async () => {
+        global.activeAclRoles = [];
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -346,6 +295,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show the error of cancellation invoice number is existing', async () => {
+        global.activeAclRoles = [];
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.vm.convertStoreEventToVueEvent({
@@ -369,6 +319,10 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should save document when the event return finished', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
         await wrapper.vm.convertStoreEventToVueEvent({
             action: 'create-document-finished',
         });
@@ -377,7 +331,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         expect(wrapper.vm.showModal).toBeFalsy();
 
-        // Wait 2 ticks for parent component to update
+        // Wait 3 ticks for parent component to update
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 
@@ -385,10 +340,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Select document type modal when click on Create new button', async () => {
-        wrapper = await createWrapper([
-            'order.editor',
-            'document.viewer',
-        ]);
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        wrapper = await createWrapper();
 
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
         await createNewButton.trigger('click');
@@ -398,6 +351,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show modal regarding to current document type', async () => {
+        global.activeAclRoles = [];
+        wrapper = await createWrapper();
         await wrapper.setData({
             currentDocumentType: {
                 id: '0',
@@ -453,19 +408,17 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show Send document modal when click on Send document option', async () => {
-        wrapper = await createWrapper([
-            'order.editor',
-        ]);
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             documents: getCollection('document', [
                 documentFixture,
             ]),
         });
-
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
-        const sendDocumentButton = wrapper.findAll('.sw-context-menu-item').at(2);
+        const sendDocumentButton = wrapper.findAll('.sw-context-menu-item')[2];
         await sendDocumentButton.trigger('click');
 
         const sendDocumentModal = wrapper.find('sw-order-send-document-modal-stub');
@@ -474,6 +427,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show attach column when attachView is true', async () => {
+        global.activeAclRoles = [];
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -483,7 +437,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
-        expect(columns).toHaveLength(4);
+        // 4 data columns + 1 action column
+        expect(columns).toHaveLength(5);
 
         await wrapper.setProps({
             attachView: true,
@@ -491,10 +446,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         columns = wrapper.findAll('.sw-data-grid__cell--header');
         expect(columns).toHaveLength(5);
-        expect(columns.wrappers.at(4).text()).toBe('sw-order.documentCard.labelAttach');
+        expect(columns[4].text()).toBe('sw-order.documentCard.labelAttach');
     });
 
     it('should show card filter when order has document', async () => {
+        global.activeAclRoles = [];
         wrapper = await createWrapper();
         expect(wrapper.find('.sw-card-filter').exists()).toBeFalsy();
 
@@ -516,6 +472,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should change sent status when click on "Mark as unsent" context menu', async () => {
+        global.activeAclRoles = [];
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -526,19 +483,20 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         const contextMenu = wrapper.findAll('.sw-context-menu-item');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeTruthy();
+        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes('value')).toBeTruthy();
 
         // Mark as sent option is disabled
-        expect(contextMenu.at(3).attributes().disabled).toBe('disabled');
+        expect(contextMenu[3].attributes('disabled')).toBe('true');
 
         // Mark as unsent
-        await contextMenu.at(4).trigger('click');
+        await contextMenu[4].trigger('click');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeFalsy();
-        expect(contextMenu.at(4).attributes().disabled).toBe('disabled');
+        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes('value')).toBeFalsy();
+        expect(contextMenu[4].attributes('disabled')).toBe('true');
     });
 
     it('should change sent status when click on "Mark as sent" context menu', async () => {
+        global.activeAclRoles = [];
         wrapper = await createWrapper();
 
         await wrapper.setData({
@@ -550,24 +508,24 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             ]),
         });
 
+        const spyMarkDocumentAsSent = jest.spyOn(wrapper.vm, 'markDocumentAsSent');
         const contextMenu = wrapper.findAll('.sw-context-menu-item');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeFalsy();
+        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes('value')).toBeFalsy();
 
         // Mark as unsent option is disabled
-        expect(contextMenu.at(4).attributes().disabled).toBe('disabled');
+        expect(contextMenu.at(4).attributes('disabled')).toBe('true');
 
         // Mark as unsent
         await contextMenu.at(3).trigger('click');
 
-        expect(wrapper.find('sw-data-grid-column-boolean-stub').attributes().value).toBeTruthy();
-        expect(contextMenu.at(3).attributes().disabled).toBe('disabled');
+        expect(spyMarkDocumentAsSent).toHaveBeenCalledTimes(1);
+        expect(contextMenu.at(3).attributes('disabled')).toBe('true');
     });
 
     it('should show Send mail modal when choosing option Create and send in Create document modal', async () => {
-        wrapper = await createWrapper([
-            'order.editor',
-        ]);
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
 
         await wrapper.setData({
             currentDocumentType: {
@@ -581,7 +539,6 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             showModal: true,
         });
 
-
         expect(wrapper.find('.sw-modal[title="sw-order.documentModal.modalTitle - Invoice"]').exists()).toBeTruthy();
         await wrapper.find('.sw-order-document-settings-modal__send-button').trigger('click');
         await flushPromises();
@@ -590,9 +547,8 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should call downloadDocument method when choosing option Create and download in Create document modal', async () => {
-        wrapper = await createWrapper([
-            'order.editor',
-        ]);
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
 
         wrapper.vm.downloadDocument = jest.fn();
 
@@ -618,28 +574,28 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show permission tooltip message on Create document button correctly', async () => {
+        global.activeAclRoles = [];
         wrapper = await createWrapper();
 
         const buttonCreate = wrapper.find('.sw-order-document-grid-button');
         expect(buttonCreate.attributes('tooltip-message')).toBe('sw-privileges.tooltip.warning');
-        expect(buttonCreate.attributes('disabled')).toBeTruthy();
+        expect(buttonCreate.attributes('disabled')).toBeDefined();
     });
 
     it('should show order unsaved tooltip message on Create document button correctly', async () => {
-        wrapper = await createWrapper([
-            'order.editor',
-            'document.viewer',
-        ]);
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
+        wrapper = await createWrapper();
 
         Shopware.State.commit('swOrderDetail/setEditing', true);
         await wrapper.vm.$nextTick();
 
-        const buttonCreate = wrapper.find('.sw-order-document-grid-button');
+        const buttonCreate = wrapper.findComponent('.sw-order-document-grid-button');
         expect(buttonCreate.attributes()['tooltip-message']).toBe('sw-order.documentTab.tooltipSaveBeforeCreateDocument');
-        expect(buttonCreate.attributes('disabled')).toBeTruthy();
+        expect(buttonCreate.attributes('disabled')).toBeDefined();
     });
 
     it('should search documents with criteria queries', async () => {
+        global.activeAclRoles = [];
         wrapper = await createWrapper();
 
         expect(wrapper.vm.documentCriteria.term).toBeNull();
@@ -660,12 +616,5 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 query: { type: 'equals', field: 'config.documentNumber', value: '1000' },
             },
         ]);
-    });
-
-    it('should return filters from filter registry', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
 });

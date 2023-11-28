@@ -1,12 +1,7 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swCustomFieldList from 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
-import 'src/app/component/grid/sw-grid';
-import 'src/app/component/grid/sw-pagination';
-
-Shopware.Component.register('sw-custom-field-list', swCustomFieldList);
+import { mount } from '@vue/test-utils_v3';
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',
@@ -71,57 +66,62 @@ function mockCustomFieldRepository() {
 async function createWrapper(privileges = []) {
     customFields = mockCustomFieldData();
 
-    return shallowMount(await Shopware.Component.build('sw-custom-field-list'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-custom-field-list', {
+        sync: true,
+    }), {
+        props: {
             set: set,
         },
-        provide: {
-            repositoryFactory: {
-                create() {
-                    return mockCustomFieldRepository();
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create() {
+                        return mockCustomFieldRepository();
+                    },
                 },
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-button': true,
-            'sw-card': true,
-            'sw-empty-state': {
-                template: '<div></div>',
+            stubs: {
+                'sw-button': true,
+                'sw-card': true,
+                'sw-empty-state': {
+                    template: '<div></div>',
+                },
+                'sw-simple-search-field': {
+                    template: '<div></div>',
+                },
+                'sw-container': true,
+                'sw-grid': await wrapTestComponent('sw-grid'),
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                },
+                'sw-context-menu': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-grid-column': {
+                    template: '<div class="sw-grid-column"><slot></slot></div>',
+                },
+                'sw-grid-row': {
+                    template: '<div class="sw-grid-row"><slot></slot></div>',
+                },
+                'sw-checkbox-field': {
+                    template: '<div></div>',
+                },
+                'sw-pagination': await wrapTestComponent('sw-pagination'),
+                'sw-icon': true,
+                'sw-loader': true,
+                'sw-modal': true,
             },
-            'sw-simple-search-field': {
-                template: '<div></div>',
-            },
-            'sw-container': true,
-            'sw-grid': await Shopware.Component.build('sw-grid'),
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>',
-            },
-            'sw-context-menu': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-grid-column': {
-                template: '<div class="sw-grid-column"><slot></slot></div>',
-            },
-            'sw-grid-row': {
-                template: '<div class="sw-grid-row"><slot></slot></div>',
-            },
-            'sw-checkbox-field': {
-                template: '<div></div>',
-            },
-            'sw-pagination': await Shopware.Component.build('sw-pagination'),
-            'sw-icon': true,
-            'sw-loader': true,
-            'sw-modal': true,
         },
     });
 }
@@ -160,16 +160,17 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
                 customFieldPosition: 0,
             },
         };
+        await flushPromises();
 
         await wrapper.vm.onSaveCustomField(newCustomField);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Should have two pagination buttons after add
         const paginationButtons = wrapper.findAll('.sw-pagination__list-button');
         expect(paginationButtons).toHaveLength(2);
 
         // Should be in grid on correct position
-        const expectedRow = wrapper.findAll('.sw-grid .sw-grid__body .sw-grid-row').at(0);
+        const expectedRow = wrapper.findAll('.sw-grid .sw-grid__body .sw-grid-row')[0];
         expect(expectedRow.find('.sw-grid-column[data-index="label"]').text()).toBe('New');
     });
 
@@ -186,12 +187,16 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
             },
         };
 
+        await flushPromises();
+
         await wrapper.setData({
             deleteCustomField: deleteCustomField,
         });
 
+        await flushPromises();
+
         await wrapper.vm.onDeleteCustomField();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const rows = wrapper.findAll('.sw-grid .sw-grid__body .sw-grid-row');
         expect(rows).toHaveLength(9);
@@ -204,7 +209,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const customFieldPositionCells = wrapper.findAll('.sw-grid-column[data-index="position"]').wrappers;
+        const customFieldPositionCells = wrapper.findAll('.sw-grid-column[data-index="position"]');
         const [first, second, third, fourth] = customFieldPositionCells;
 
         expect(first.text()).toBe('1');

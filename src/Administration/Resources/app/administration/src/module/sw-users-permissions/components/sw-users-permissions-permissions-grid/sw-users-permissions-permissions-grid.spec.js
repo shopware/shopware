@@ -1,39 +1,42 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 import Vue from 'vue';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swUsersPermissionsPermissionsGrid from 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
-import 'src/app/component/form/sw-checkbox-field';
+import { mount } from '@vue/test-utils_v3';
 import PrivilegesService from 'src/app/service/privileges.service';
 
-Shopware.Component.register('sw-users-permissions-permissions-grid', swUsersPermissionsPermissionsGrid);
-
 async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const privilegesService = new PrivilegesService();
     privilegesMappings.forEach(mapping => {
         privilegesService.addPrivilegeMappingEntry(mapping);
     });
 
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-permissions-grid'), {
-        localVue,
-        stubs: {
-            'sw-card': true,
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-icon': true,
-            'sw-field-error': true,
-            'sw-base-field': true,
+    const wrapper = mount(await wrapTestComponent('sw-users-permissions-permissions-grid', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-card': true,
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', {
+                    sync: true,
+                }),
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-base-field': true,
+            },
+            provide: {
+                privileges: privilegesService,
+            },
         },
-        provide: {
-            privileges: privilegesService,
-        },
-        propsData: Vue.observable({
+        props: Vue.observable({
             role: { privileges: rolePrivileges },
         }),
     });
+
+    await flushPromises();
+
+    return wrapper;
 }
 
 describe('src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid', () => {
@@ -103,15 +106,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
             ],
         });
 
-        const entry = wrapper.find('[class*=sw-users-permissions-permissions-grid__entry_');
+        const entry = wrapper.find('div[class*=sw-users-permissions-permissions-grid__entry_');
         expect(entry.exists()).toBeTruthy();
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
 
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         expect(productRow.exists()).toBeTruthy();
@@ -145,10 +148,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
 
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         expect(productRow.exists()).toBeTruthy();
@@ -206,7 +209,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
             ],
         });
 
-        const entry = wrapper.find('[class*=sw-users-permissions-permissions-grid__entry_');
+        const entry = wrapper.find('div[class*=sw-users-permissions-permissions-grid__entry_');
         expect(entry.exists()).toBeFalsy();
     });
 
@@ -248,7 +251,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges).toHaveLength(1);
         expect(wrapper.vm.role.privileges[0]).toBe('product.viewer');
-        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productViewer.findComponent('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should have selected the viewer role directly', async () => {
@@ -285,8 +288,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer');
         const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor');
 
-        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
-        expect(productEditor.find('.sw-field--checkbox').props().value).toBe(false);
+        expect(productViewer.findComponent('.sw-field--checkbox').props().value).toBe(true);
+        expect(productEditor.findComponent('.sw-field--checkbox').props().value).toBe(false);
     });
 
     it('should select the creator role', async () => {
@@ -327,7 +330,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBeGreaterThan(0);
         expect(wrapper.vm.role.privileges).toContain('product.creator');
-        expect(productCreator.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productCreator.findComponent('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should select a role and all its dependencies in the same row', async () => {
@@ -377,9 +380,9 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(wrapper.vm.role.privileges).toContain('product.editor');
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
 
-        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
-        expect(productEditor.find('.sw-field--checkbox').props().value).toBe(true);
-        expect(productCreator.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productViewer.findComponent('.sw-field--checkbox').props().value).toBe(true);
+        expect(productEditor.findComponent('.sw-field--checkbox').props().value).toBe(true);
+        expect(productCreator.findComponent('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should have enabled checkboxes when selecting a role with its dependencies', async () => {
@@ -415,9 +418,9 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         expect(productCreator.props().value).toBe(false);
         expect(productEditor.props().value).toBe(false);
@@ -490,8 +493,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_category');
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryCreator = categoryRow.find('.sw-users-permissions-permissions-grid__role_creator');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(wrapper.vm.role.privileges).toHaveLength(0);
 
@@ -503,9 +506,9 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(wrapper.vm.role.privileges).toContain('product.editor');
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
 
-        expect(categoryCreator.find('.sw-field--checkbox').props().value).toBe(true);
-        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
-        expect(productEditor.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(categoryCreator.findComponent('.sw-field--checkbox').props().value).toBe(true);
+        expect(productViewer.findComponent('.sw-field--checkbox').props().value).toBe(true);
+        expect(productEditor.findComponent('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should select a role and add it to the role privileges prop', async () => {
@@ -662,10 +665,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
         expect(productViewer.props().value).toBe(false);
@@ -734,16 +737,16 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_category');
-        const categoryViewer = categoryRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const categoryEditor = categoryRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const categoryCreator = categoryRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const categoryDeleter = categoryRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const categoryViewer = categoryRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const categoryEditor = categoryRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryCreator = categoryRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const categoryDeleter = categoryRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
@@ -801,10 +804,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
@@ -855,12 +858,12 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+        const productAll = productRow.findComponent('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         expect(productAll.props().value).toBe(false);
 
@@ -895,11 +898,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productAll = productRow.findComponent('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         // prove that creator and deleter checkbox do not exist
         expect(productCreator.exists()).toBe(false);
@@ -950,10 +953,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
@@ -1015,10 +1018,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         await productViewer.find('input').setChecked();
 
@@ -1072,10 +1075,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         await productEditor.find('input').setChecked();
 
@@ -1129,10 +1132,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         await productCreator.find('input').setChecked();
 
@@ -1186,10 +1189,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         await productDeleter.find('input').setChecked();
 
@@ -1621,9 +1624,9 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueViewerCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
         const catalogueEditorCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(catalogueViewerCheckbox.props().ghostValue).toBe(false);
         expect(catalogueEditorCheckbox.props().ghostValue).toBe(false);
@@ -1745,7 +1748,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueAllCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_all .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_all .sw-field--checkbox');
 
         expect(catalogueAllCheckbox.props().ghostValue).toBe(false);
 
@@ -1865,14 +1868,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueEditorCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(false);
@@ -1996,15 +1999,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueViewerCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(false);
 
@@ -2124,14 +2127,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueEditorCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(false);
@@ -2248,14 +2251,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueEditorCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(false);
@@ -2378,14 +2381,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueEditorCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         await productEditorCheckbox.find('input').setChecked();
 
@@ -2507,14 +2510,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueEditorCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         await productEditorCheckbox.find('input').setChecked();
         await categoryEditorCheckbox.find('input').setChecked();
@@ -2637,18 +2640,18 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
         const catalogueViewerCheckbox = cataloguesRow
-            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
         const productViewerCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
         const productEditorCheckbox = productRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryEditorCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
         const categoryViewerCheckbox = categoryRow
-            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+            .findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         // check product.editor
         await productEditorCheckbox.find('input').setChecked();
@@ -2778,15 +2781,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
             ],
         });
 
-        const checkboxes = wrapper.findAll('.sw-field--checkbox');
+        const checkboxes = wrapper.findAllComponents('.sw-field--checkbox');
 
-        checkboxes.wrappers.forEach(checkbox => {
+        checkboxes.forEach(checkbox => {
             expect(checkbox.props().disabled).toBe(false);
         });
 
         await wrapper.setProps({ disabled: true });
 
-        checkboxes.wrappers.forEach(checkbox => {
+        checkboxes.forEach(checkbox => {
             expect(checkbox.props().disabled).toBe(true);
         });
     });
@@ -2822,7 +2825,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         // get product viewer checkbox
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         // assert that catalogue parent does not exist
         expect(catalogueViewer.exists()).toBe(false);
@@ -2885,7 +2888,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         // get product viewer checkbox
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         // get property viewer checkbox
         const propertyRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_property');
@@ -2957,11 +2960,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+        const productViewer = productRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productAll = productRow.findComponent('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         // check that product viewer box does not exist
         expect(productViewer.exists()).toBe(false);
@@ -2980,11 +2983,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productAll.props('value')).toBe(true);
 
         const headerRow = wrapper.find('.sw-users-permissions-permissions-grid__parent');
-        const headerViewer = headerRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
-        const headerEditor = headerRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
-        const headerCreator = headerRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
-        const headerDeleter = headerRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
-        const headerAll = headerRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
+        const headerViewer = headerRow.findComponent('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const headerEditor = headerRow.findComponent('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const headerCreator = headerRow.findComponent('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const headerDeleter = headerRow.findComponent('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const headerAll = headerRow.findComponent('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         // assert that viewer header checkbox as not value and no ghost value
         expect(headerViewer.props('ghostValue')).toBe(false);

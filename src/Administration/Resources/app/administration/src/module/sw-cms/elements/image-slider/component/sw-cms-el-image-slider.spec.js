@@ -1,11 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElImageSlider from 'src/module/sw-cms/elements/image-slider/component';
-
-Shopware.Component.register('sw-cms-el-image-slider', swCmsElImageSlider);
 
 const sliderItemsConfigMock = [
     {
@@ -44,25 +41,26 @@ const sliderItemsDataMock = [
 ];
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-cms-el-image-slider'), {
-        localVue,
-        sync: false,
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
-                },
-                getCmsElementRegistry: () => {
-                    return { 'image-slider': {} };
+    return mount(await wrapTestComponent('sw-cms-el-image-slider', {
+        sync: true,
+    }), {
+        global: {
+            sync: false,
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return { 'image-slider': {} };
+                    },
                 },
             },
+            stubs: {
+                'sw-icon': true,
+            },
         },
-        stubs: {
-            'sw-icon': true,
-        },
-        propsData: {
+        props: {
             element: {
                 config: {},
                 data: {},

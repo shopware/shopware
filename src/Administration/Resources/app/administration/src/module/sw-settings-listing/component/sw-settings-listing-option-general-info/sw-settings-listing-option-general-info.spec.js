@@ -1,46 +1,39 @@
-import { shallowMount } from '@vue/test-utils';
-import swSettingsListingOptionGeneralInfo from 'src/module/sw-settings-listing/component/sw-settings-listing-option-general-info';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-field-error';
-
-Shopware.Component.register('sw-settings-listing-option-general-info', swSettingsListingOptionGeneralInfo);
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-option-general-info', () => {
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-general-info'), {
-            provide: {
-                validationService: {},
-            },
-            directives: {
-                tooltip() {},
-            },
-            propsData: {
+        return mount(await wrapTestComponent('sw-settings-listing-option-general-info', {
+            sync: true,
+        }), {
+            props: {
                 sortingOption: {
                     label: 'Price descending',
                 },
                 isDefaultSorting: false,
             },
-            stubs: {
-                'sw-card': {
-                    template: '<div><slot></slot></div>',
+            global: {
+                provide: {
+                    validationService: {},
                 },
-                'sw-container': {
-                    template: '<div><slot></slot></div>',
+                directives: {
+                    tooltip() {},
                 },
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
+                stubs: {
+                    'sw-card': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-container': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-field': await wrapTestComponent('sw-field'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                    'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                },
             },
         });
     }
@@ -49,6 +42,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('is a Vue.js component', async () => {
@@ -81,6 +75,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         const switchField = wrapper.find('.sw-field--switch input');
         const isDisabled = switchField.attributes('disabled');
 
-        expect(isDisabled).toBe('disabled');
+        expect(isDisabled).toBeDefined();
     });
 });

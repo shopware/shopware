@@ -1,11 +1,4 @@
-/**
- * @package inventory
- */
-import { shallowMount } from '@vue/test-utils';
-
-import swSettingsListingOptionBase from 'src/module/sw-settings-listing/page/sw-settings-listing-option-base';
-
-Shopware.Component.register('sw-settings-listing-option-base', swSettingsListingOptionBase);
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', () => {
     function getProductSortingEntity() {
@@ -63,48 +56,53 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
     }
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-settings-listing-option-base'), {
-            mocks: {
-                $route: {
-                    params: {
-                        id: getProductSortingEntity().id,
+        return mount(await wrapTestComponent('sw-settings-listing-option-base', {
+            sync: true,
+        }), {
+            global: {
+                renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        params: {
+                            id: getProductSortingEntity().id,
+                        },
                     },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: repository => {
-                        if (repository === 'custom_field') {
+                provide: {
+                    repositoryFactory: {
+                        create: repository => {
+                            if (repository === 'custom_field') {
+                                return {
+                                    search: () => Promise.resolve(getCustomFields()),
+                                };
+                            }
+
                             return {
-                                search: () => Promise.resolve(getCustomFields()),
+                                get: () => Promise.resolve(getProductSortingEntity()),
+                                search: () => Promise.resolve(),
+                                save: entity => {
+                                    if (entity.fail) {
+                                        return Promise.reject();
+                                    }
+
+                                    return Promise.resolve();
+                                },
                             };
-                        }
-
-                        return {
-                            get: () => Promise.resolve(getProductSortingEntity()),
-                            search: () => Promise.resolve(),
-                            save: entity => {
-                                if (entity.fail) {
-                                    return Promise.reject();
-                                }
-
-                                return Promise.resolve();
-                            },
-                        };
+                        },
+                    },
+                    systemConfigApiService: {
+                        getValues: () => {
+                            return Promise.resolve(getDefaultSortingKey());
+                        },
                     },
                 },
-                systemConfigApiService: {
-                    getValues: () => {
-                        return Promise.resolve(getDefaultSortingKey());
-                    },
+                stubs: {
+                    'sw-page': true,
+                    'sw-button': true,
+                    'sw-language-switch': true,
+                    'sw-settings-listing-option-general-info': true,
+                    'sw-settings-listing-option-criteria-grid': true,
                 },
-            },
-            stubs: {
-                'sw-page': true,
-                'sw-button': true,
-                'sw-language-switch': true,
-                'sw-settings-listing-option-general-info': true,
-                'sw-settings-listing-option-criteria-grid': true,
             },
         });
     }

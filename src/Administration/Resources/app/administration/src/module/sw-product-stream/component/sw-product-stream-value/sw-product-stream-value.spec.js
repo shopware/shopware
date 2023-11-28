@@ -2,21 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swProductStreamValue from 'src/module/sw-product-stream/component/sw-product-stream-value';
-import 'src/app/component/rule/sw-condition-base';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/base/sw-icon';
-
-Shopware.Component.register('sw-product-stream-value', swProductStreamValue);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(
     privileges = [],
@@ -25,10 +11,6 @@ async function createWrapper(
     entity = '',
     render = false,
 ) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.directive('popover', {});
-
     let stubs = {
         'sw-container': {
             template: '<div class="sw-container"><slot></slot></div>',
@@ -44,49 +26,23 @@ async function createWrapper(
     if (render) {
         stubs = {
             ...stubs,
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-single-select': await wrapTestComponent('sw-single-select'),
+            'sw-select-base': await wrapTestComponent('sw-select-base'),
+            'sw-block-field': await wrapTestComponent('sw-block-field'),
+            'sw-base-field': await wrapTestComponent('sw-base-field'),
+            'sw-select-result': await wrapTestComponent('sw-select-result'),
+            'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+            'sw-popover': true,
+            'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+            'sw-field-error': await wrapTestComponent('sw-field-error'),
             'sw-icon': {
                 template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
             },
         };
     }
 
-    return shallowMount(await Shopware.Component.build('sw-product-stream-value'), {
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {},
-                }),
-            },
-            conditionDataProviderService: {
-                getOperatorSet: () => [],
-                allowedJsonAccessors: {
-                    'json.test': {
-                        value: 'json.test',
-                        type: 'string',
-                    },
-                },
-            },
-            acl: {
-                can: identifier => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                },
-            },
-            productCustomFields: {
-                test: 'customFields.test',
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-stream-value', { sync: true }), {
+        props: {
             definition: {
                 type: fieldType,
                 entity,
@@ -102,17 +58,43 @@ async function createWrapper(
                 type: conditionType,
             },
         },
-        stubs: stubs,
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                        },
+                    }),
+                },
+                conditionDataProviderService: {
+                    getOperatorSet: () => [],
+                    allowedJsonAccessors: {
+                        'json.test': {
+                            value: 'json.test',
+                            type: 'string',
+                        },
+                    },
+                },
+                acl: {
+                    can: identifier => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                productCustomFields: {
+                    test: 'customFields.test',
+                },
+            },
+            stubs,
+        },
     });
 }
 
 describe('src/module/sw-product-stream/component/sw-product-stream-value', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have disabled prop', async () => {
         const wrapper = await createWrapper();
         expect(wrapper.vm.disabled).toBe(false);
@@ -130,7 +112,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         const wrapper = await createWrapper(['product_stream.viewer'], fieldType, actualCondition, entity, false);
         await wrapper.setProps({ disabled: true });
 
-        const targetElement = wrapper.find(element);
+        const targetElement = wrapper.get(element);
 
         expect(targetElement.attributes('disabled')).toBe('true');
     });
@@ -139,9 +121,9 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         const wrapper = await createWrapper(['product_stream.viewer'], 'json_list', 'equals', '', true);
         await wrapper.setProps({ disabled: true, fieldName: 'states' });
 
-        const targetElement = wrapper.find('.sw-single-select');
+        const targetElement = wrapper.get('.sw-single-select');
 
-        expect(targetElement.attributes('disabled')).toBe('disabled');
+        expect(targetElement.attributes('disabled')).toBe('true');
     });
 
     it('should render if is a json field', async () => {
@@ -158,7 +140,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 },
             },
         });
-        const targetElement = wrapper.find('sw-single-select-stub');
+        const targetElement = wrapper.get('sw-single-select-stub');
 
         expect(targetElement.attributes('disabled')).toBe('true');
     });
@@ -170,7 +152,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
             fieldType: 'uuid',
         });
 
-        expect(wrapper.find('.sw-product-stream-value__placeholder').exists()).toBe(true);
+        expect(wrapper.get('.sw-product-stream-value__placeholder').exists()).toBe(true);
     });
 
     it('should return correct fieldDefinition', async () => {
@@ -184,38 +166,38 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 isJsonField: () => false,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fieldDefinition).toBe('customFields.test');
     });
 
     it('should fire event when trigger value for boolean type', async () => {
         const wrapper = await createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
-        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        const productStreamValueSwitch = wrapper.get('.sw-product-stream-value');
+        await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
+        await flushPromises();
 
-        await productStreamValueSwitch.find('.sw-select-option--1').trigger('click');
-        await wrapper.vm.$nextTick();
+        await productStreamValueSwitch.get('.sw-select-option--1').trigger('click');
+        await flushPromises();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
     });
 
     it('should fire event with type \`equals\` when trigger value for boolean type YES', async () => {
         const wrapper = await createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
-        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        const productStreamValueSwitch = wrapper.get('.sw-product-stream-value');
+        await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
 
         expect(productStreamValueYes.text()).toBe('global.default.yes');
         await productStreamValueYes.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('boolean-change')).toBeTruthy();
         expect(wrapper.emitted('boolean-change')[0][0].type).toBe('equals');
@@ -224,11 +206,11 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
 
     it('should fire event with type \`not\` when trigger value for boolean type No', async () => {
         const wrapper = await createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
-        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        const productStreamValueSwitch = wrapper.get('.sw-product-stream-value');
+        await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const productStreamValueNo = productStreamValueSwitch.findAll('.sw-select-result').at(1);
 
@@ -242,29 +224,29 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
 
     it('should fire events with correct types when trigger value for empty type changes', async () => {
         const wrapper = await createWrapper(['product_stream.viewer'], 'empty', 'equals', '', true);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
-        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        const productStreamValueSwitch = wrapper.get('.sw-product-stream-value');
+        await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         let productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
 
         expect(productStreamValueYes.text()).toBe('global.default.yes');
         await productStreamValueYes.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('empty-change')).toBeTruthy();
         expect(wrapper.emitted('empty-change')[0][0].type).toBe('notEquals');
 
-        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        await productStreamValueSwitch.get('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(1);
 
         expect(productStreamValueYes.text()).toBe('global.default.no');
         await productStreamValueYes.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('empty-change')[1][0].type).toBe('equals');
     });
@@ -280,7 +262,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 isJsonField: () => false,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fieldDefinition).toEqual({
             value: 'json.test',
@@ -324,7 +306,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
                 },
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fieldType).toBe('empty');
     });

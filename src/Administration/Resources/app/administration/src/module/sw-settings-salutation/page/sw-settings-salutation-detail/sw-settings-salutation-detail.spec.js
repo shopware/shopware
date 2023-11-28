@@ -1,91 +1,83 @@
-/**
- * @package buyers-experience
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSalutationDetail from 'src/module/sw-settings-salutation/page/sw-settings-salutation-detail';
-
-Shopware.Component.register('sw-settings-salutation-detail', swSettingsSalutationDetail);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-salutation-detail'), {
-        localVue,
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-salutation-detail', {
+        sync: true,
+    }), {
+        props: {
             salutationId: '1',
         },
 
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
-                            apiAlias: null,
-                            createdAt: '2020-08-25T10:23:24.051+00:00',
-                            displayName: 'Mr.',
-                            letterName: 'Dear Mr.',
-                            salutationKey: 'mr-edit',
-                            translated: {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return {
+                                apiAlias: null,
+                                createdAt: '2020-08-25T10:23:24.051+00:00',
                                 displayName: 'Mr.',
                                 letterName: 'Dear Mr.',
-                            },
-                            updatedAt: '2020-08-27T04:59:39.428+00:00',
-                            isNew: () => true,
-                        };
-                    },
-                    get: (id) => {
-                        const salutations = [
-                            {
-                                id: '1',
-                                type: 'salutation',
-                                attributes: {
-                                    apiAlias: null,
-                                    createdAt: '2020-08-25T10:23:24.051+00:00',
+                                salutationKey: 'mr-edit',
+                                translated: {
                                     displayName: 'Mr.',
                                     letterName: 'Dear Mr.',
-                                    salutationKey: 'mr-edit',
                                 },
-                                isNew: () => false,
-                            },
-                            {
-                                id: '2',
-                                type: 'salutation',
-                                attributes: {
-                                    apiAlias: null,
-                                    createdAt: '2020-08-25T10:23:24.051+00:00',
-                                    displayName: 'Mr.',
-                                    letterName: 'Dear Mr.',
-                                    salutationKey: 'mr-edit',
+                                updatedAt: '2020-08-27T04:59:39.428+00:00',
+                                isNew: () => true,
+                            };
+                        },
+                        get: (id) => {
+                            const salutations = [
+                                {
+                                    id: '1',
+                                    type: 'salutation',
+                                    attributes: {
+                                        apiAlias: null,
+                                        createdAt: '2020-08-25T10:23:24.051+00:00',
+                                        displayName: 'Mr.',
+                                        letterName: 'Dear Mr.',
+                                        salutationKey: 'mr-edit',
+                                    },
+                                    isNew: () => false,
                                 },
-                                isNew: () => false,
-                            },
-                        ];
+                                {
+                                    id: '2',
+                                    type: 'salutation',
+                                    attributes: {
+                                        apiAlias: null,
+                                        createdAt: '2020-08-25T10:23:24.051+00:00',
+                                        displayName: 'Mr.',
+                                        letterName: 'Dear Mr.',
+                                        salutationKey: 'mr-edit',
+                                    },
+                                    isNew: () => false,
+                                },
+                            ];
 
-                        return Promise.resolve(salutations.find((salutation) => {
-                            return salutation.id === id;
-                        }));
+                            return Promise.resolve(salutations.find((salutation) => {
+                                return salutation.id === id;
+                            }));
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
                     },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
                 },
             },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
-            },
-        },
 
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="search-bar"></slot>
                         <slot name="smart-bar-back"></slot>
@@ -98,31 +90,33 @@ async function createWrapper(privileges = []) {
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-card-view': {
-                template: `
+                },
+                'sw-card-view': {
+                    template: `
                     <div class="sw-card-view">
                         <slot></slot>
                     </div>
                 `,
-            },
-            'sw-card': {
-                template: `
+                },
+                'sw-card': {
+                    template: `
                     <div class="sw-card">
                         <slot></slot>
                     </div>
                 `,
+                },
+                'sw-search-bar': true,
+                'sw-icon': true,
+                'sw-language-switch': true,
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-context-menu-item': true,
+                'sw-language-info': true,
+                'sw-text-field': true,
+                'sw-skeleton': true,
             },
-            'sw-search-bar': true,
-            'sw-icon': true,
-            'sw-language-switch': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-context-menu-item': true,
-            'sw-language-info': true,
-            'sw-text-field': true,
-            'sw-skeleton': true,
         },
+
     });
 }
 

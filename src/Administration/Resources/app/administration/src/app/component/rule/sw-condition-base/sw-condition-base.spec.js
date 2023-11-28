@@ -1,37 +1,35 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/rule/sw-condition-base';
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(customProps = {}) {
-    return shallowMount(await Shopware.Component.build('sw-condition-base'), {
-        stubs: {
-            'sw-condition-type-select': true,
-            'sw-text-field': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-field-error': true,
-        },
-        provide: {
-            conditionDataProviderService: {
-                getPlaceholderData: () => {},
-                getComponentByCondition: () => {},
-            },
-            availableTypes: {},
-            availableGroups: [],
-            childAssociationField: {},
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-condition-base', { sync: true }), {
+        props: {
             condition: {},
             ...customProps,
+        },
+        global: {
+            stubs: {
+                'sw-condition-type-select': true,
+                'sw-text-field': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-field-error': true,
+            },
+            provide: {
+                conditionDataProviderService: {
+                    getPlaceholderData: () => {
+                    },
+                    getComponentByCondition: () => {
+                    },
+                },
+                availableTypes: {},
+                availableGroups: [],
+                childAssociationField: {},
+            },
         },
     });
 }
 
 describe('src/app/component/rule/sw-condition-base', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have enabled condition type select', async () => {
         const wrapper = await createWrapper();
 
@@ -72,7 +70,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
         const wrapper = await createWrapper();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-        contextMenuItems.wrappers.forEach(contextMenuItem => {
+        contextMenuItems.forEach(contextMenuItem => {
             expect(contextMenuItem.attributes().disabled).toBeUndefined();
         });
     });
@@ -83,7 +81,7 @@ describe('src/app/component/rule/sw-condition-base', () => {
         });
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
-        contextMenuItems.wrappers.forEach(contextMenuItem => {
+        contextMenuItems.forEach(contextMenuItem => {
             expect(contextMenuItem.attributes().disabled).toBe('true');
         });
     });

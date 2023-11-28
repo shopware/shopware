@@ -1,37 +1,30 @@
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swSettingsRuleAddAssignmentListing from 'src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing';
-import 'src/app/component/data-grid/sw-data-grid';
+import { shallowMount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-Shopware.Component.register('sw-settings-rule-add-assignment-listing', swSettingsRuleAddAssignmentListing);
 
 function createEntityCollectionMock(entityName, items = []) {
     return new EntityCollection('/route', entityName, {}, {}, items, items.length);
 }
 
 async function createWrapper(entityContext) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-rule-add-assignment-listing'), {
-        localVue,
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>',
-            },
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-pagination': true,
-            'sw-data-grid-skeleton': true,
-            'sw-checkbox-field': true,
-            'sw-icon': true,
-            'sw-button': true,
-        },
-        propsData: {
+    return shallowMount(await wrapTestComponent('sw-settings-rule-add-assignment-listing', { sync: true }), {
+        props: {
             ruleId: 'uuid1',
             entityContext: entityContext,
         },
-        provide: {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-pagination': true,
+                'sw-data-grid-skeleton': true,
+                'sw-checkbox-field': true,
+                'sw-icon': true,
+                'sw-button': true,
+            },
+            provide: {},
         },
     });
 }

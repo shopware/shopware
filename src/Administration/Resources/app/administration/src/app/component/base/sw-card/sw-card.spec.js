@@ -2,25 +2,23 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/context-menu/sw-context-button';
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(additionalOptions = {}) {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-card'), {
-        localVue,
-        stubs: {
-            'sw-context-button': await Shopware.Component.build('sw-context-button'),
-            'sw-loader': true,
-            'sw-icon': true,
-            'sw-popover': true,
-            'sw-context-menu': true,
-            'sw-ignore-class': true,
-            'sw-extension-component-section': true,
+    return mount(await wrapTestComponent('sw-card'), {
+        attachTo: document.body,
+        global: {
+            stubs: {
+                'sw-context-button': await wrapTestComponent('sw-context-button'),
+                'sw-loader': true,
+                'sw-icon': true,
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                'sw-ignore-class': true,
+                'sw-extension-component-section': true,
+            },
         },
-        propsData: {
+        props: {
             positionIdentifier: 'test',
         },
         ...additionalOptions,
@@ -82,29 +80,15 @@ describe('src/app/component/base/sw-card', () => {
             },
         };
         const wrapper = await createWrapper(options);
+        await flushPromises();
         const buttonUnscopedCard = wrapper.find('.sw-context-button__button');
 
         expect(wrapper.find('.sw-context-button__button').exists()).toBeTruthy();
         expect(wrapper.find('.unscoped-slot').exists()).toBe(false);
 
         await buttonUnscopedCard.trigger('click');
-        expect(wrapper.find('.unscoped-slot').exists()).toBeTruthy();
-    });
-
-    it('should correctly use the `context-action` slot using scoped slots', async () => {
-        const options = {
-            scopedSlots: {
-                'context-actions': '<div class="scoped-slot">Scoped</div>',
-            },
-        };
-        const wrapper = await createWrapper(options);
-        const buttonScopedCard = wrapper.find('.sw-context-button__button');
-
-        expect(wrapper.find('.sw-context-button__button').exists()).toBeTruthy();
-        expect(wrapper.find('.scoped-slot').exists()).toBe(false);
-
-        await buttonScopedCard.trigger('click');
-        expect(wrapper.find('.scoped-slot').exists()).toBeTruthy();
+        await flushPromises();
+        expect(document.body.querySelector('.unscoped-slot')).toBeInstanceOf(Element);
     });
 
     it('should have content padding', async () => {

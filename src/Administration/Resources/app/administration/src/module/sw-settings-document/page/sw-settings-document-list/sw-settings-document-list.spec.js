@@ -1,18 +1,16 @@
-import 'src/app/component/grid/sw-grid';
 import 'src/app/mixin/notification.mixin';
 import 'src/app/mixin/listing.mixin';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import { shallowMount } from '@vue/test-utils';
-import swSettingsDocumentList from 'src/module/sw-settings-document/page/sw-settings-document-list/';
+import { mount } from '@vue/test-utils_v3';
 
 /**
- * @package checkout
+ * @package customer-order
  */
 
-Shopware.Component.register('sw-settings-document-list', swSettingsDocumentList);
-
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-settings-document-list'), {
+    return mount(await wrapTestComponent('sw-settings-document-list', {
+        sync: true,
+    }), {
         data() {
             return {
                 items: [
@@ -34,43 +32,46 @@ async function createWrapper(privileges = []) {
                     }],
             };
         },
-        stubs: {
-            'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-page': {
+                    template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
+                },
+                'sw-card-view': {
+                    template: '<div><slot/></div> ',
+                },
+                'sw-card': {
+                    template: '<div><slot/><slot name="grid"/></div>',
+                },
+                'sw-grid': await wrapTestComponent('sw-grid'),
+                'sw-grid-row': true,
+                'sw-empty-state': true,
+                'sw-button': true,
+                'sw-loader': true,
+                'sw-grid-column': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': { template: '<div></div>', props: ['disabled'] },
+                'sw-label': true,
+                'sw-modal': true,
+                'sw-pagination': true,
+                'sw-icon ': true,
+                'sw-search-bar': true,
+                'router-link': true,
             },
-            'sw-card-view': {
-                template: '<div><slot/></div> ',
+            provide: {
+                stateStyleDataProviderService: {},
+                acl: {
+                    can: key => (key ? privileges.includes(key) : true),
+                },
+                repositoryFactory: {
+                    create: () => ({ search: () => Promise.resolve([]) }),
+                },
+                searchRankingService: {},
             },
-            'sw-card': {
-                template: '<div><slot/><slot name="grid"/></div>',
+            mocks: {
+                $route: { query: '' },
             },
-            'sw-grid': await Shopware.Component.build('sw-grid'),
-            'sw-grid-row': true,
-            'sw-empty-state': true,
-            'sw-button': true,
-            'sw-loader': true,
-            'sw-grid-column': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': { template: '<div></div>', props: ['disabled'] },
-            'sw-label': true,
-            'sw-modal': true,
-            'sw-pagination': true,
-            'sw-icon ': true,
-            'sw-search-bar': true,
-            'router-link': true,
-        },
-        provide: {
-            stateStyleDataProviderService: {},
-            acl: {
-                can: key => (key ? privileges.includes(key) : true),
-            },
-            repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve([]) }),
-            },
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: { query: '' },
         },
     });
 }
@@ -97,19 +98,19 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
         const wrapper = await createWrapper([
             'document.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const editButton = wrapper.find('.sw-document-list__edit-action');
-        expect(editButton.exists()).toBeTruthy();
+        const editButton = wrapper.findComponent('.sw-document-list__edit-action');
+        expect(editButton.exists()).toBeDefined();
         expect(editButton.props().disabled).toBe(false);
     });
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const editButton = wrapper.find('.sw-document-list__edit-action');
-        expect(editButton.exists()).toBeTruthy();
+        const editButton = wrapper.findComponent('.sw-document-list__edit-action');
+        expect(editButton.exists()).toBeDefined();
         expect(editButton.props().disabled).toBe(true);
     });
 
@@ -118,19 +119,19 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
         const wrapper = await createWrapper([
             'document.deleter',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const deleteButton = wrapper.find('.sw-document-list__delete-action');
-        expect(deleteButton.exists()).toBeTruthy();
+        const deleteButton = wrapper.findComponent('.sw-document-list__delete-action');
+        expect(deleteButton.exists()).toBeDefined();
         expect(deleteButton.props().disabled).toBe(false);
     });
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const deleteButton = wrapper.find('.sw-document-list__delete-action');
-        expect(deleteButton.exists()).toBeTruthy();
+        const deleteButton = wrapper.findComponent('.sw-document-list__delete-action');
+        expect(deleteButton.exists()).toBeDefined();
         expect(deleteButton.props().disabled).toBe(true);
     });
 });

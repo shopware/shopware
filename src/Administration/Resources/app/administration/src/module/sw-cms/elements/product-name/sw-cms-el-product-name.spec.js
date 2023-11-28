@@ -1,17 +1,14 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElText from 'src/module/sw-cms/elements/text/component';
-import swCmsElProductName from 'src/module/sw-cms/elements/product-name/component';
-
-Shopware.Component.register('sw-cms-el-text', swCmsElText);
-Shopware.Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', swCmsElProductName);
 
 async function createWrapper(propsOverride) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-product-name'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-product-name', {
+        sync: true,
+    }), {
+        props: {
             element: {
                 config: {
                     content: {
@@ -27,9 +24,6 @@ async function createWrapper(propsOverride) {
             defaultConfig: {},
             ...propsOverride,
         },
-        mocks: {
-            $sanitize: key => key,
-        },
         data() {
             return {
                 cmsPageState: {
@@ -39,13 +33,18 @@ async function createWrapper(propsOverride) {
                 },
             };
         },
-        provide: {
-            cmsService: {
-                getPropertyByMappingPath: () => {},
+        global: {
+            mocks: {
+                $sanitize: key => key,
             },
-        },
-        stubs: {
-            'sw-text-editor': true,
+            provide: {
+                cmsService: {
+                    getPropertyByMappingPath: () => {},
+                },
+            },
+            stubs: {
+                'sw-text-editor': true,
+            },
         },
     });
 }

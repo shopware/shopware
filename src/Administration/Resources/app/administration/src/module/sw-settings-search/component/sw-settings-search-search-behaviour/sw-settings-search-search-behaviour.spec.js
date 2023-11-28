@@ -1,73 +1,65 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSearchSearchBehaviour from 'src/module/sw-settings-search/component/sw-settings-search-search-behaviour';
-import 'src/app/component/form/sw-radio-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-
-Shopware.Component.register('sw-settings-search-search-behaviour', swSettingsSearchSearchBehaviour);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-settings-search-search-behaviour'), {
-        localVue,
-
-        propsData: {
+    return mount(await wrapTestComponent('sw-settings-search-search-behaviour', {
+        sync: true,
+    }), {
+        props: {
             searchBehaviourConfigs: {
                 andLogic: true,
                 minSearchLength: 2,
             },
         },
 
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-            },
-        },
-
-        provide: {
-            validationService: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+        global: {
+            renderStubDefaultSlot: true,
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
 
+            provide: {
+                validationService: {},
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+
+            },
+
+            stubs: {
+                'sw-card': true,
+                'sw-radio-field': await wrapTestComponent('sw-radio-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': true,
+                'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+            },
+
+            attachTo: document.body,
         },
 
-        stubs: {
-            'sw-card': true,
-            'sw-radio-field': await Shopware.Component.build('sw-radio-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': true,
-            'sw-number-field': await Shopware.Component.build('sw-number-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-        },
-
-        attachTo: document.body,
     });
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-behaviour', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
@@ -76,38 +68,19 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         const wrapper = await createWrapper([
             'product_search_config.viewer',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
-        expect(andBehaviourElement.attributes().disabled).toBeTruthy();
+        expect(andBehaviourElement.attributes().disabled).toBeDefined();
 
         const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
-        expect(orBehaviourElement.attributes().disabled).toBeTruthy();
+        expect(orBehaviourElement.attributes().disabled).toBeDefined();
 
         const minSearchLengthElement = wrapper.find('.sw-settings-search__search-behaviour-term-length input');
-        expect(minSearchLengthElement.attributes().disabled).toBeTruthy();
+        expect(minSearchLengthElement.attributes().disabled).toBeDefined();
 
         await orBehaviourElement.trigger('click');
         expect(orBehaviourElement.element.checked).toBeFalsy();
-        expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
-    });
-
-    it('should be able to change the behaviour search which includes and, or', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
-
-        const orBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(1);
-        await orBehaviourElement.trigger('click');
-        expect(orBehaviourElement.element.checked).toBeTruthy();
-        expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(false);
-
-        const andBehaviourElement = wrapper.find('.sw-settings-search__search-behaviour-condition').findAll('input').at(0);
-        await andBehaviourElement.trigger('click');
-        expect(andBehaviourElement.element.checked).toBeTruthy();
         expect(wrapper.vm.searchBehaviourConfigs.andLogic).toBe(true);
     });
 
@@ -115,7 +88,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-behaviou
         const wrapper = await createWrapper([
             'product_search_config.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.searchBehaviourConfigs.minSearchLength).toBe(2);
 

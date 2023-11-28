@@ -1,47 +1,27 @@
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/base/sw-button';
-import SwExtensionMyAppsErrorPage from 'src/module/sw-extension/component/sw-extension-app-module-error-page';
+import { mount } from '@vue/test-utils_v3';
 
-Shopware.Component.register('sw-extension-app-module-error-page', SwExtensionMyAppsErrorPage);
 const routerMock = {
     go: jest.fn(),
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-extension-app-module-error-page'), {
-        stubs: {
-            'sw-button': await Shopware.Component.build('sw-button'),
+    return mount(await wrapTestComponent('sw-extension-app-module-error-page', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+            },
+            mocks: {
+                $router: routerMock,
+            },
         },
-        mocks: {
-            $router: routerMock,
-        },
-        attachTo: document.body,
     });
 }
 
 describe('src/module/sw-extension/component/sw-extension-app-module-error-page', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('routes you back to the last page', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
 
-        const goBackButton = wrapper.get('button');
+        const goBackButton = wrapper.getComponent('.sw-button');
 
         expect(goBackButton.text()).toBe('sw-extension.sw-extension-app-module-error-page.error.lblBackButton');
 

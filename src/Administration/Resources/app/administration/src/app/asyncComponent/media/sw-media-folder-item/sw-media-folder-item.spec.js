@@ -1,10 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import SwMediaFolderItem from 'src/app/asyncComponent/media/sw-media-folder-item';
-
-Shopware.Component.register('sw-media-folder-item', SwMediaFolderItem);
+import { mount } from '@vue/test-utils_v3';
 
 const { Module } = Shopware;
 
@@ -35,84 +32,8 @@ const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 
 async function createWrapper(defaultFolderId, privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-media-folder-item'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
-                },
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => Promise.resolve({
-                        isNew: () => true,
-                    }),
-                    search: () => Promise.resolve({
-                        isNew: () => false,
-                    }),
-                    get: (folderId) => {
-                        switch (folderId) {
-                            case ID_PRODUCTS_FOLDER:
-                                return {
-                                    entity: 'product',
-                                    isNew: () => false,
-                                };
-                            case ID_CONTENT_FOLDER:
-                                return {
-                                    entity: 'cms_page',
-                                    isNew: () => false,
-                                };
-                            case ID_MAILTEMPLATE_FOLDER:
-                                return {
-                                    entity: 'mail_template',
-                                    isNew: () => false,
-                                };
-                            default:
-                                return null;
-                        }
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                },
-            },
-        },
-        stubs: {
-            'sw-media-base-item': {
-                props: {
-                    allowMultiSelect: {
-                        type: Boolean,
-                        required: false,
-                        default: true,
-                    },
-                },
-                // Hack with AllowMultiSelect is needed because the property
-                // can't be accessed in the test utils correctly
-                template: `
-                    <div class="sw-media-base-item">
-                        AllowMultiSelect: "{{ allowMultiSelect }}"
-                        <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
-                        <slot></slot>
-                    </div>`,
-            },
-            'sw-context-button': {
-                template: '<div class="sw-context-button"><slot></slot></div>',
-            },
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"><slot></slot></div>',
-            },
-            'sw-context-menu': {
-                template: '<div><slot></slot></div>',
-            },
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-media-folder-item', { sync: true }), {
+        props: {
             item: {
                 useParentConfiguration: false,
                 configurationId: 'a73ef286f6c748deacdbdfd5aab3cca7',
@@ -134,6 +55,84 @@ async function createWrapper(defaultFolderId, privileges = []) {
             showContextMenuButton: true,
             selected: false,
             isList: true,
+        },
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
+                },
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => Promise.resolve({
+                            isNew: () => true,
+                        }),
+                        search: () => Promise.resolve({
+                            isNew: () => false,
+                        }),
+                        get: (folderId) => {
+                            switch (folderId) {
+                                case ID_PRODUCTS_FOLDER:
+                                    return {
+                                        entity: 'product',
+                                        isNew: () => false,
+                                    };
+                                case ID_CONTENT_FOLDER:
+                                    return {
+                                        entity: 'cms_page',
+                                        isNew: () => false,
+                                    };
+                                case ID_MAILTEMPLATE_FOLDER:
+                                    return {
+                                        entity: 'mail_template',
+                                        isNew: () => false,
+                                    };
+                                default:
+                                    return null;
+                            }
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+            },
+            stubs: {
+                'sw-media-base-item': {
+                    props: {
+                        allowMultiSelect: {
+                            type: Boolean,
+                            required: false,
+                            default: true,
+                        },
+                    },
+                    // Hack with AllowMultiSelect is needed because the property
+                    // can't be accessed in the test utils correctly
+                    template: `
+                    <div class="sw-media-base-item">
+                        AllowMultiSelect: "{{ allowMultiSelect }}"
+                        <slot name="context-menu" v-bind="{ startInlineEdit: () => {}}"></slot>
+                        <slot></slot>
+                    </div>`,
+                },
+                'sw-context-button': {
+                    template: '<div class="sw-context-button"><slot></slot></div>',
+                },
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item"><slot></slot></div>',
+                },
+                'sw-context-menu': {
+                    template: '<div><slot></slot></div>',
+                },
+            },
         },
     });
 }

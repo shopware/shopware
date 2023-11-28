@@ -2,10 +2,8 @@
  * @package admin
  */
 
-import { config, mount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
+import { mount, config } from '@vue/test-utils_v3';
+import { createRouter, createWebHashHistory } from 'vue-router_v3';
 
 const componentWithTabs = {
     name: 'componentWithTabs',
@@ -23,30 +21,31 @@ const componentWithTabs = {
 
 async function mountSwTabs(routes) {
     // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
+    delete config.global.mocks.$router;
+    delete config.global.mocks.$route;
 
-    const localVue = createLocalVue();
-
-    localVue.use(VueRouter);
-
-    const router = new VueRouter({
+    const router = createRouter({
         routes,
+        history: createWebHashHistory(),
     });
 
     return mount(componentWithTabs, {
-        localVue,
-        router,
-        propsData: {
+        attachTo: document.body,
+        global: {
+            mocks: {
+                $router: router,
+            },
+            stubs: {
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+
+                'sw-icon': true,
+            },
+            plugins: [router],
+        },
+        props: {
             routes,
         },
-        stubs: {
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-
-            'sw-icon': true,
-        },
-        attachTo: document.body,
     });
 }
 
@@ -68,8 +67,7 @@ describe('sw-tabs', () => {
         await flushPromises();
 
         wrapper.vm.$router.push({ name: 'first.route' });
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         let activeTabs = wrapper.findAll('.sw-tabs-item--active');
         expect(activeTabs).toHaveLength(1);
@@ -78,16 +76,13 @@ describe('sw-tabs', () => {
         expect(activeTab.text()).toBe('first.route');
 
         wrapper.vm.$router.push({ name: 'second.route' });
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         activeTabs = wrapper.findAll('.sw-tabs-item--active');
         expect(activeTabs).toHaveLength(1);
 
         activeTab = activeTabs.at(0);
         expect(activeTab.text()).toBe('second.route');
-
-        wrapper.destroy();
     });
 
     it('sets active tabs with query parameters', async () => {
@@ -107,8 +102,6 @@ describe('sw-tabs', () => {
 
         const activeTab = wrapper.find('.sw-tabs-item--active');
         expect(activeTab.text()).toBe('first.route');
-
-        wrapper.destroy();
     });
 
     it('should have a slider with warning state', async () => {
@@ -127,8 +120,6 @@ describe('sw-tabs', () => {
 
         const slider = wrapper.find('.sw-tabs__slider');
         expect(slider.classes()).toContain('has--warning');
-
-        wrapper.destroy();
     });
 
     it('should have a slider with error state', async () => {
@@ -158,8 +149,6 @@ describe('sw-tabs', () => {
 
         slider = wrapper.find('.sw-tabs__slider');
         expect(slider.classes()).toContain('has--error');
-
-        wrapper.destroy();
     });
 
     it('should register the scrollEventHandler and mutationObserver at mounted', async () => {
@@ -174,8 +163,6 @@ describe('sw-tabs', () => {
         // can't test eventhandler in DOM so we need to access it directly
         expect(wrapper.vm.$children[0].scrollEventHandler).toBeDefined();
         expect(wrapper.vm.$children[0].tabContentMutationObserver).toBeDefined();
-
-        wrapper.destroy();
     });
 
     it('should call the requestAnimationFrame method on mutation change (directly at start)', async () => {
@@ -184,9 +171,9 @@ describe('sw-tabs', () => {
             path: '/route/first',
         }];
 
-        const wrapper = await mountSwTabs(routes);
+        await mountSwTabs(routes);
+        await flushPromises();
 
         expect(global.requestAnimationFrame).toHaveBeenCalled();
-        wrapper.destroy();
     });
 });

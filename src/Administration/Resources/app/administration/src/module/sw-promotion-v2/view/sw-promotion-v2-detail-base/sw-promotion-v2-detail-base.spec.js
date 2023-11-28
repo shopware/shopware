@@ -1,62 +1,55 @@
-/**
- * @package buyers-experience
- */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swPromotionV2DetailBase from 'src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base';
+import { mount } from '@vue/test-utils_v3';
 
-Shopware.Component.register('sw-promotion-v2-detail-base', swPromotionV2DetailBase);
-
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-promotion-v2-detail-base'), {
-        localVue,
-        stubs: {
-            'sw-card': {
-                template: '<div class="sw-card"><slot></slot></div>',
-            },
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-text-field': {
-                template: '<div class="sw-text-field"></div>',
-            },
-            'sw-number-field': {
-                template: '<div class="sw-number-field"></div>',
-            },
-            'sw-switch-field': {
-                template: '<div class="sw-switch-field"></div>',
-            },
-            'sw-select-field': {
-                template: '<div class="sw-select-field"></div>',
-            },
-            'sw-datepicker': {
-                template: '<div class="sw-datepicker"></div>',
-            },
-            'sw-button-process': true,
-        },
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) { return true; }
-
-                    return privileges.includes(key);
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-promotion-v2-detail-base', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-container': {
+                    template: '<div class="sw-container"><slot></slot></div>',
+                },
+                'sw-text-field': {
+                    template: '<div class="sw-field sw-text-field"></div>',
+                    props: ['disabled'],
+                },
+                'sw-number-field': {
+                    template: '<div class="sw-field sw-number-field"></div>',
+                    props: ['disabled'],
+                },
+                'sw-switch-field': {
+                    template: '<div class="sw-field sw-switch-field"></div>',
+                    props: ['disabled'],
+                },
+                'sw-select-field': {
+                    template: '<div class="sw-field sw-select-field"></div>',
+                    props: ['disabled'],
+                },
+                'sw-datepicker': {
+                    template: '<div class="sw-field sw-datepicker"></div>',
+                    props: ['disabled'],
+                },
+                'sw-button-process': {
+                    template: '<div class="sw-button-process"></div>',
+                    props: ['disabled'],
                 },
             },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([{ id: 'promotionId1' }]),
-                }),
-            },
-            promotionCodeApiService: {
-                generateCodeFixed: () => 'ABCDEF',
-            },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                    }),
+                },
+                promotionCodeApiService: {
+                    generateCodeFixed: () => 'ABCDEF',
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
             },
         },
-        propsData: {
+        props: {
             isCreateMode: false,
             promotion: {
                 name: 'Test Promotion',
@@ -104,67 +97,23 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion-v2/component/sw-promotion-v2-detail-base', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have disabled form fields', async () => {
-        const textFields = wrapper.findAll('.sw-text-field');
-        expect(textFields.wrappers.length).toBeGreaterThan(0);
-        textFields.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        global.activeAclRoles = [];
 
-        const numberFields = wrapper.findAll('.sw-number-field');
-        expect(numberFields.wrappers.length).toBeGreaterThan(0);
-        numberFields.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        const wrapper = await createWrapper();
 
-        const switchFields = wrapper.findAll('.sw-switch-field');
-        expect(switchFields.wrappers.length).toBeGreaterThan(0);
-        switchFields.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
-
-        const selectField = wrapper.findAll('.sw-select-field');
-        expect(selectField.wrappers.length).toBeGreaterThan(0);
-        selectField.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
-
-        const datepickerFields = wrapper.findAll('.sw-datepicker');
-        expect(datepickerFields.wrappers.length).toBeGreaterThan(0);
-        datepickerFields.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
+        wrapper.findAllComponents('.sw-field').forEach(el => {
+            expect(el.props('disabled')).toBe(true);
+        });
+        expect(wrapper.findComponent('.sw-button-process').props('disabled')).toBe(true);
     });
 
     it('should not have disabled form fields', async () => {
-        wrapper = await createWrapper([
-            'promotion.editor',
-        ]);
+        global.activeAclRoles = ['promotion.editor'];
 
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper();
 
-        const textFields = wrapper.findAll('.sw-text-field');
-        expect(textFields.wrappers.length).toBeGreaterThan(0);
-        textFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
-
-        const numberFields = wrapper.findAll('.sw-number-field');
-        expect(numberFields.wrappers.length).toBeGreaterThan(0);
-        numberFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
-
-        const switchFields = wrapper.findAll('.sw-switch-field');
-        expect(switchFields.wrappers.length).toBeGreaterThan(0);
-        switchFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
-
-        const selectFields = wrapper.findAll('.sw-select-field');
-        expect(selectFields.wrappers.length).toBeGreaterThan(0);
-        selectFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
-
-        const datepickerFields = wrapper.findAll('.sw-datepicker');
-        expect(datepickerFields.wrappers.length).toBeGreaterThan(0);
-        datepickerFields.wrappers.forEach(el => expect(el.attributes().disabled).toBeUndefined());
+        wrapper.findAllComponents('.sw-field').forEach(el => expect(el.props('disabled')).toBeFalsy());
+        expect(wrapper.findComponent('.sw-button-process').props('disabled')).toBe(false);
     });
 });

@@ -1,17 +1,7 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import swSettingsSnippetDetail from 'src/module/sw-settings-snippet/page/sw-settings-snippet-detail';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-
-Shopware.Component.register('sw-settings-snippet-detail', swSettingsSnippetDetail);
+import { mount } from '@vue/test-utils_v3';
 
 function getSnippetSets() {
     const data = [
@@ -83,81 +73,81 @@ function getSnippets() {
 }
 
 describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     async function createWrapper(privileges = []) {
-        return shallowMount(await Shopware.Component.build('sw-settings-snippet-detail'), {
-            localVue,
-            mocks: {
-                $route: {
-                    meta: {
-                        $module: {
-                            color: 'blue',
-                            icon: 'icon',
+        return mount(await wrapTestComponent('sw-settings-snippet-detail', {
+            sync: true,
+        }), {
+            global: {
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                color: 'blue',
+                                icon: 'icon',
+                            },
+                        },
+                        query: {
+                            page: 1,
+                            limit: 25,
+                            ids: [],
+                        },
+                        params: {
+                            key: 'account.addressCreateBtn',
                         },
                     },
-                    query: {
-                        page: 1,
-                        limit: 25,
-                        ids: [],
-                    },
-                    params: {
-                        key: 'account.addressCreateBtn',
-                    },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve(getSnippetSets()),
-                        create: () => Promise.resolve(),
-                    }),
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve(getSnippetSets()),
+                            create: () => Promise.resolve(),
+                        }),
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) {
+                                return true;
+                            }
 
-                        return privileges.includes(identifier);
+                            return privileges.includes(identifier);
+                        },
                     },
-                },
-                userService: {},
-                snippetSetService: {
-                    getAuthors: () => {
-                        return Promise.resolve();
+                    userService: {},
+                    snippetSetService: {
+                        getAuthors: () => {
+                            return Promise.resolve();
+                        },
+                        getCustomList: () => {
+                            return Promise.resolve(getSnippets());
+                        },
                     },
-                    getCustomList: () => {
-                        return Promise.resolve(getSnippets());
+                    snippetService: {
+                        save: () => Promise.resolve(),
+                        delete: () => Promise.resolve(),
+                        getFilter: () => Promise.resolve(),
                     },
+                    validationService: {},
                 },
-                snippetService: {
-                    save: () => Promise.resolve(),
-                    delete: () => Promise.resolve(),
-                    getFilter: () => Promise.resolve(),
+                stubs: {
+                    'sw-page': {
+                        template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
+                    },
+                    'sw-card': {
+                        template: '<div><slot></slot><slot name="grid"></slot></div>',
+                    },
+                    'sw-card-view': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-field': await wrapTestComponent('sw-field'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': await wrapTestComponent('sw-field-error'),
+                    'sw-button-process': true,
+                    'sw-button': true,
+                    'sw-skeleton': true,
                 },
-                validationService: {},
-            },
-            stubs: {
-                'sw-page': {
-                    template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
-                },
-                'sw-card': {
-                    template: '<div><slot></slot><slot name="grid"></slot></div>',
-                },
-                'sw-card-view': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
-                'sw-button-process': true,
-                'sw-button': true,
-                'sw-skeleton': true,
             },
         });
     }
@@ -173,7 +163,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
     });
 
     it.each([
-        ['disabled', 'snippet.viewer'],
+        ['', 'snippet.viewer'],
         [undefined, 'snippet.viewer, snippet.editor'],
         [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
         [undefined, 'snippet.viewer, snippet.editor, snippet.deleter'],
@@ -184,9 +174,12 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
 
-        await wrapper.setData({ isLoading: false });
+        await wrapper.setData({
+            isLoading: false,
+        });
+        await flushPromises();
 
-        const [firstInput, secondInput] = wrapper.findAll('input[name=sw-field--snippet-value]').wrappers;
+        const [firstInput, secondInput] = wrapper.findAll('input[label="sw-settings-snippet.detail.labelContent"]');
 
         expect(firstInput.attributes('disabled')).toBe(state);
         expect(secondInput.attributes('disabled')).toBe(state);

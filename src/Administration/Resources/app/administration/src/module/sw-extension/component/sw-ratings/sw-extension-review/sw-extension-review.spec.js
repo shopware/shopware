@@ -1,20 +1,19 @@
-import { shallowMount } from '@vue/test-utils';
-import swExtensionReview from 'src/module/sw-extension/component/sw-ratings/sw-extension-review';
-import swExtensionRatingStars from 'src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars';
-
-Shopware.Component.register('sw-extension-review', swExtensionReview);
-Shopware.Component.register('sw-extension-rating-stars', swExtensionRatingStars);
+import { mount } from '@vue/test-utils_v3';
 
 /**
  * @package services-settings
  */
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () => {
-    /** @type Wrapper */
-    let wrapper;
-
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-extension-review'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-extension-review', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-extension-rating-stars': await wrapTestComponent('sw-extension-rating-stars'),
+                    'sw-icon': true,
+                    'sw-extension-review-reply': true,
+                },
+            },
+            props: {
                 producerName: 'Bob Ross',
                 review: {
                     extensionId: null,
@@ -38,39 +37,25 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review', () 
                     extensions: [],
                 },
             },
-            stubs: {
-                'sw-extension-rating-stars': await Shopware.Component.build('sw-extension-rating-stars'),
-                'sw-icon': true,
-                'sw-extension-review-reply': true,
-            },
         });
     }
 
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should display the review title', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         const reviewTitle = wrapper.find('.sw-extension-review__headline').text();
 
         expect(reviewTitle).toBe('Can only recommend this plugin!');
     });
 
     it('should display the review text', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         const reviewText = wrapper.find('.sw-extension-review p').text();
 
         expect(reviewText).toBe('Bla bla blib blub bla');
     });
 
     it('should have the right amount of replies', async () => {
-        wrapper = await createWrapper();
+        const wrapper = await createWrapper();
         const amountOfReplies = wrapper.findAll('sw-extension-review-reply-stub').length;
 
         expect(amountOfReplies).toBe(1);

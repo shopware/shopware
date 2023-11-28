@@ -1,43 +1,54 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryDetail from 'src/module/sw-category/page/sw-category-detail';
-import 'src/app/component/sidebar/sw-sidebar-collapse';
-import 'src/app/component/base/sw-collapse';
-
-Shopware.Component.register('sw-category-detail', swCategoryDetail);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-category-detail'), {
-        stubs: {
-            'sw-page': {
-                template: `
-    <div>
-        <slot name="smart-bar-actions"></slot>
-        <slot name="side-content"></slot>
-    </div>`,
+    return mount(await wrapTestComponent('sw-category-detail', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: `
+                    <div>
+                        <slot name="smart-bar-actions"></slot>
+                        <slot></slot>
+                        <slot name="side-content"></slot>
+                    </div>`,
+                },
+                'sw-category-tree': {
+                    template: '<div class="sw-category-tree"></div>',
+                    props: ['allowEdit', 'allowCreate', 'allowDelete'],
+                },
+                'sw-button': true,
+                'sw-button-process': {
+                    template: '<div class="sw-button-process"><slot></slot></div>',
+                    props: ['disabled'],
+                },
+                'sw-sidebar-collapse': {
+                    template: `
+                    <div class="sw-sidebar-collapse">
+                        <slot name="header"></slot>
+                        <slot name="actions"></slot>
+                        <slot name="content"></slot>
+                    </div>`,
+                },
+                'sw-collapse': await wrapTestComponent('sw-collapse'),
+                'sw-landing-page-tree': true,
+                'sw-icon': true,
             },
-            'sw-category-tree': true,
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-sidebar-collapse': await Shopware.Component.build('sw-sidebar-collapse'),
-            'sw-collapse': await Shopware.Component.build('sw-collapse'),
-            'sw-landing-page-tree': true,
-            'sw-icon': true,
-        },
-        provide: {
-            cmsService: {
-                getEntityMappingTypes: () => {},
-            },
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve({
-                        get: () => ({ sections: [] }),
+            provide: {
+                cmsService: {
+                    getEntityMappingTypes: () => {},
+                },
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve({
+                            get: () => ({ sections: [] }),
+                        }),
                     }),
-                }),
+                },
+                seoUrlService: {},
             },
-            seoUrlService: {},
         },
     });
 }
@@ -64,43 +75,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should disable the save button', async () => {
-        const wrapper = await createWrapper();
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {} });
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        const saveButton = wrapper.find('.sw-category-detail__save-action');
-
-        expect(saveButton.attributes().disabled).toBe('true');
-    });
-
-    it('should enable the save button', async () => {
-        global.activeAclRoles = ['category.editor'];
-
-        const wrapper = await createWrapper();
-
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {
-            slotConfig: '',
-        } });
-
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        const saveButton = wrapper.find('.sw-category-detail__save-action');
-
-        expect(saveButton.attributes().disabled).toBeUndefined();
-    });
-
-    it('should not allow to edit', async () => {
+    it('should not allow to modify', async () => {
         const wrapper = await createWrapper();
 
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
@@ -113,9 +88,15 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             isLoading: false,
         });
 
-        const categoryTree = wrapper.find('sw-category-tree-stub');
+        const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
-        expect(categoryTree.attributes()['allow-edit']).toBeUndefined();
+        expect(saveButton.props('disabled')).toBe(true);
+
+        const categoryTree = wrapper.getComponent('.sw-category-tree');
+
+        expect(categoryTree.props('allowCreate')).toBe(false);
+        expect(categoryTree.props('allowEdit')).toBe(false);
+        expect(categoryTree.props('allowDelete')).toBe(false);
     });
 
     it('should allow to edit', async () => {
@@ -133,31 +114,19 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             isLoading: false,
         });
 
-        const categoryTree = wrapper.find('sw-category-tree-stub');
+        const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
-        expect(categoryTree.attributes()['allow-edit']).toBe('true');
-    });
+        expect(saveButton.props('disabled')).toBe(false);
 
-    it('should not allow to create', async () => {
-        const wrapper = await createWrapper();
+        const categoryTree = wrapper.getComponent('.sw-category-tree');
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-            },
-        });
-
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        const categoryTree = wrapper.find('sw-category-tree-stub');
-
-        expect(categoryTree.attributes()['allow-create']).toBeUndefined();
+        expect(categoryTree.props('allowCreate')).toBe(false);
+        expect(categoryTree.props('allowEdit')).toBe(true);
+        expect(categoryTree.props('allowDelete')).toBe(false);
     });
 
     it('should allow to create', async () => {
-        global.activeAclRoles = ['category.creator'];
+        global.activeAclRoles = ['category.creator', 'category.editor'];
 
         const wrapper = await createWrapper();
 
@@ -171,31 +140,19 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             isLoading: false,
         });
 
-        const categoryTree = wrapper.find('sw-category-tree-stub');
+        const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
-        expect(categoryTree.attributes()['allow-create']).toBe('true');
-    });
+        expect(saveButton.props('disabled')).toBe(false);
 
-    it('should not allow to delete', async () => {
-        const wrapper = await createWrapper();
+        const categoryTree = wrapper.getComponent('.sw-category-tree');
 
-        Shopware.State.commit('swCategoryDetail/setActiveCategory', {
-            category: {
-                slotConfig: '',
-            },
-        });
-
-        await wrapper.setData({
-            isLoading: false,
-        });
-
-        const categoryTree = wrapper.find('sw-category-tree-stub');
-
-        expect(categoryTree.attributes()['allow-delete']).toBeUndefined();
+        expect(categoryTree.props('allowCreate')).toBe(true);
+        expect(categoryTree.props('allowEdit')).toBe(true);
+        expect(categoryTree.props('allowDelete')).toBe(false);
     });
 
     it('should allow to delete', async () => {
-        global.activeAclRoles = ['category.deleter'];
+        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
 
         const wrapper = await createWrapper();
 
@@ -209,14 +166,14 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             isLoading: false,
         });
 
-        const categoryTree = wrapper.find('sw-category-tree-stub');
+        const saveButton = wrapper.getComponent('.sw-category-detail__save-action');
 
-        expect(categoryTree.attributes()['allow-delete']).toBe('true');
-    });
+        expect(saveButton.props('disabled')).toBe(false);
 
-    it('should return filters from filter registry', async () => {
-        const wrapper = await createWrapper();
+        const categoryTree = wrapper.getComponent('.sw-category-tree');
 
-        expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+        expect(categoryTree.props('allowCreate')).toBe(true);
+        expect(categoryTree.props('allowEdit')).toBe(true);
+        expect(categoryTree.props('allowDelete')).toBe(true);
     });
 });

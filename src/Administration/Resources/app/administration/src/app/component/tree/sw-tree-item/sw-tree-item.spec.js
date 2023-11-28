@@ -2,41 +2,11 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import 'src/app/component/tree/sw-tree-item';
+import { mount } from '@vue/test-utils_v3';
 
-async function createWrapper(customOptions = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {
-        bind(el, binding) {
-            el.setAttribute('data-tooltip-message', binding.value.message);
-            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-        },
-        inserted(el, binding) {
-            el.setAttribute('data-tooltip-message', binding.value.message);
-            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-        },
-        update(el, binding) {
-            el.setAttribute('data-tooltip-message', binding.value.message);
-            el.setAttribute('data-tooltip-disabled', binding.value.disabled);
-        },
-    });
-    localVue.directive('droppable', {});
-    localVue.directive('draggable', {});
-
-    return shallowMount(await Shopware.Component.build('sw-tree-item'), {
-        localVue,
-        stubs: {
-            'sw-icon': true,
-            'sw-field': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-checkbox-field': true,
-        },
-        provide: {
-            getItems: () => {},
-        },
-        propsData: {
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-tree-item', { sync: true }), {
+        props: {
             item: {
                 data: {
                     id: '1a2b3c',
@@ -44,32 +14,58 @@ async function createWrapper(customOptions = {}) {
                 children: [],
             },
         },
-        ...customOptions,
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-icon': true,
+                'sw-field': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-checkbox-field': true,
+            },
+            provide: {
+                getItems: () => {},
+            },
+            directives: {
+                droppable: {},
+                draggable: {},
+                tooltip: {
+                    bind(el, binding) {
+                        el.setAttribute('data-tooltip-message', binding.value.message);
+                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                    },
+                    inserted(el, binding) {
+                        el.setAttribute('data-tooltip-message', binding.value.message);
+                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                    },
+                    update(el, binding) {
+                        el.setAttribute('data-tooltip-message', binding.value.message);
+                        el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+                    },
+                },
+            },
+        },
     });
 }
 
 describe('src/app/component/tree/sw-tree-item', () => {
-    let wrapper;
-
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        if (wrapper) wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an enabled context menu', async () => {
-        const contextButton = wrapper.find('.sw-tree-item__context_button');
+        const wrapper = await createWrapper();
+
+        const contextButton = wrapper.get('.sw-tree-item__context_button');
 
         expect(contextButton.attributes().disabled).toBeUndefined();
     });
 
     it('should have an disabled context menu', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             disableContextMenu: true,
         });
@@ -80,12 +76,16 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should contain the default context menu tooltip text when context menu is disabled', async () => {
+        const wrapper = await createWrapper();
+
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.attributes()['data-tooltip-message']).toBe('sw-tree.general.actions.actionsDisabledInLanguage');
     });
 
     it('should contain the custom context menu tooltip text when context menu is disabled', async () => {
+        const wrapper = await createWrapper();
+
         const customTooltipMessage = 'You do not have the rights to edit the tree item.';
 
         await wrapper.setProps({
@@ -97,6 +97,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should be able to create new categories', async () => {
+        const wrapper = await createWrapper();
+
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.find('.sw-tree-item__before-action').attributes().disabled).toBeUndefined();
@@ -106,6 +108,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should not be able to create new categories with position', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             allowCreateWithoutPosition: true,
         });
@@ -119,6 +123,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should be unable to create new categories', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             allowNewCategories: false,
         });
@@ -131,12 +137,16 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should be able to delete categories', async () => {
+        const wrapper = await createWrapper();
+
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.find('.sw-context-menu__group-button-delete').attributes().disabled).toBeUndefined();
     });
 
     it('should be unable to delete categories', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             allowDeleteCategories: false,
         });
@@ -146,6 +156,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should not show href attribute', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             allowDeleteCategories: false,
             onChangeRoute: () => {},
@@ -156,6 +168,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should show href attribute', async () => {
+        const wrapper = await createWrapper();
+
         await wrapper.setProps({
             allowDeleteCategories: false,
             onChangeRoute: () => {},
@@ -170,6 +184,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should be able to duplicate items', async () => {
+        const wrapper = await createWrapper();
+
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         await wrapper.setProps({
@@ -180,6 +196,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
     });
 
     it('should be unable to duplicate items', async () => {
+        const wrapper = await createWrapper();
+
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.find('.sw-context-menu__duplicate-action').exists()).toBeFalsy();

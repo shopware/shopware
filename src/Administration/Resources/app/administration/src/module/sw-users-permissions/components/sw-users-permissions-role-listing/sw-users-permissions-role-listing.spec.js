@@ -1,48 +1,50 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swUsersPermissionsRoleListing from 'src/module/sw-users-permissions/components/sw-users-permissions-role-listing';
-
-Shopware.Component.register('sw-users-permissions-role-listing', swUsersPermissionsRoleListing);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-users-permissions-role-listing'), {
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve([]),
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+    return mount(await wrapTestComponent('sw-users-permissions-role-listing', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                    }),
                 },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+                searchRankingService: {},
             },
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: { query: '' },
-        },
-        stubs: {
-            'sw-card': true,
-            'sw-container': true,
-            'sw-simple-search-field': true,
-            'sw-button': true,
-            'sw-empty-state': true,
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+            mocks: {
+                $route: { query: '' },
+            },
+            stubs: {
+                'sw-card': true,
+                'sw-container': true,
+                'sw-simple-search-field': true,
+                'sw-button': true,
+                'sw-empty-state': true,
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
 <div>
     <template v-for="item in dataSource">
         <slot name="actions" v-bind="{ item }"></slot>
     </template>
 </div>
 `,
+                },
+                'sw-context-menu-item': true,
             },
-            'sw-context-menu-item': true,
         },
     });
 }
@@ -52,10 +54,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        await wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

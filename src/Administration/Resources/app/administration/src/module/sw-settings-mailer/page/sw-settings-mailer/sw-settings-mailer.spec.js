@@ -1,34 +1,36 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
-import swSettingsMailer from 'src/module/sw-settings-mailer/page/sw-settings-mailer';
-
-Shopware.Component.register('sw-settings-mailer', swSettingsMailer);
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     const CreateSettingsMailer = async function CreateSettingsMailer(emailAgent = null) {
-        return shallowMount(await Shopware.Component.build('sw-settings-mailer'), {
-            stubs: {
-                'sw-page': {
-                    template: '<div />',
+        return mount(await wrapTestComponent('sw-settings-mailer', {
+            sync: true,
+        }), {
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-page': {
+                        template: '<div />',
+                    },
                 },
-            },
-            provide: {
-                systemConfigApiService: {
-                    getValues: () => Promise.resolve({
-                        'core.mailerSettings.emailAgent': emailAgent,
-                        'core.mailerSettings.host': null,
-                        'core.mailerSettings.port': null,
-                        'core.mailerSettings.username': null,
-                        'core.mailerSettings.password': null,
-                        'core.mailerSettings.encryption': 'null',
-                        'core.mailerSettings.authenticationMethod': 'null',
-                        'core.mailerSettings.senderAddress': null,
-                        'core.mailerSettings.deliveryAddress': null,
-                        'core.mailerSettings.disableDelivery': false,
-                    }),
-                    saveValues: () => Promise.resolve(),
+                provide: {
+                    systemConfigApiService: {
+                        getValues: () => Promise.resolve({
+                            'core.mailerSettings.emailAgent': emailAgent,
+                            'core.mailerSettings.host': null,
+                            'core.mailerSettings.port': null,
+                            'core.mailerSettings.username': null,
+                            'core.mailerSettings.password': null,
+                            'core.mailerSettings.encryption': 'null',
+                            'core.mailerSettings.authenticationMethod': 'null',
+                            'core.mailerSettings.senderAddress': null,
+                            'core.mailerSettings.deliveryAddress': null,
+                            'core.mailerSettings.disableDelivery': false,
+                        }),
+                        saveValues: () => Promise.resolve(),
+                    },
                 },
             },
         });
@@ -51,6 +53,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
 
     it('should assign the loaded mailerSettings', async () => {
         const settingsMailer = await new CreateSettingsMailer();
+        await flushPromises();
 
         const expectedMailerSettings = {
             'core.mailerSettings.emailAgent': 'local',
@@ -68,7 +71,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
         settingsMailer.vm.systemConfigApiService.getValues = () => Promise.resolve(expectedMailerSettings);
 
         await settingsMailer.vm.createdComponent();
-        expect(settingsMailer.vm.mailerSettings).toBe(expectedMailerSettings);
+        expect(settingsMailer.vm.mailerSettings).toEqual(expectedMailerSettings);
     });
 
     it('should call the saveValues function', async () => {

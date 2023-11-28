@@ -4,6 +4,7 @@
 
 import LoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
 import { CookieStorage } from 'cookie-storage';
 

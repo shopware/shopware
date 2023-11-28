@@ -1,13 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
-import swCmsElConfigImage from 'src/module/sw-cms/elements/image/config';
-import swCmsElConfigManufacturerLogo from 'src/module/sw-cms/elements/manufacturer-logo/config';
-
-Shopware.Component.register('sw-cms-el-config-image', swCmsElConfigImage);
-Shopware.Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image', swCmsElConfigManufacturerLogo);
 
 const defaultProps = {
     element: {
@@ -53,18 +48,11 @@ const defaultProps = {
 };
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-manufacturer-logo'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-el-config-manufacturer-logo', {
+        sync: true,
+    }), {
+        props: {
             ...defaultProps,
-        },
-        stubs: {
-            'sw-dynamic-url-field': true,
-            'sw-cms-mapping-field': true,
-            'sw-media-upload-v2': true,
-            'sw-upload-listener': true,
-            'sw-text-field': true,
-            'sw-select-field': true,
-            'sw-switch-field': true,
         },
         data() {
             return {
@@ -75,17 +63,28 @@ async function createWrapper() {
                 },
             };
         },
-        provide: {
-            repositoryFactory: {
-                create: () => {},
+        global: {
+            stubs: {
+                'sw-dynamic-url-field': true,
+                'sw-cms-mapping-field': true,
+                'sw-media-upload-v2': true,
+                'sw-upload-listener': true,
+                'sw-text-field': true,
+                'sw-select-field': true,
+                'sw-switch-field': true,
             },
-            cmsService: {
-                getCmsElementRegistry: () => {
-                    return {};
+            provide: {
+                repositoryFactory: {
+                    create: () => {},
                 },
+                cmsService: {
+                    getCmsElementRegistry: () => {
+                        return {};
+                    },
 
-                getPropertyByMappingPath: () => {
-                    return {};
+                    getPropertyByMappingPath: () => {
+                        return {};
+                    },
                 },
             },
         },

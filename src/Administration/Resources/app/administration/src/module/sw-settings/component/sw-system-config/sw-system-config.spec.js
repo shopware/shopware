@@ -1,230 +1,187 @@
 /**
- * @package services-settings
+ * @package system-settings
  */
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { kebabCase } from 'lodash';
 import uuid from 'src/../test/_helper_/uuid';
-import 'src/app/component/form/sw-custom-field-set-renderer';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/form/sw-form-field-renderer';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-label';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-number-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/base/sw-inheritance-switch';
-import 'src/app/component/base/sw-icon';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/base/sw-multi-select';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/base/sw-highlight-text';
-import SwMediaField from 'src/app/asyncComponent/media/sw-media-field';
-import SwMediaMediaItem from 'src/app/asyncComponent/media/sw-media-media-item';
-import SwMediaBaseItem from 'src/app/asyncComponent/media/sw-media-base-item';
-import SwMediaPreviewV2 from 'src/app/asyncComponent/media/sw-media-preview-v2';
 import 'src/app/filter/media-name.filter';
-import swSystemConfig from 'src/module/sw-settings/component/sw-system-config';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/structure/sw-sales-channel-switch';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/sw-textarea-field';
-import 'src/app/component/form/sw-url-field';
-import 'src/app/component/form/sw-password-field';
 import 'src/app/filter/unicode-uri';
-
-Shopware.Component.register('sw-media-field', SwMediaField);
-Shopware.Component.register('sw-media-media-item', SwMediaMediaItem);
-Shopware.Component.register('sw-media-base-item', SwMediaBaseItem);
-Shopware.Component.register('sw-media-preview-v2', SwMediaPreviewV2);
-Shopware.Component.register('sw-system-config', swSystemConfig);
 
 /** @type Wrapper */
 let wrapper;
 
 async function createWrapper(defaultValues = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-    localVue.directive('popover', {});
-    localVue.filter('mediaName', Shopware.Filter.getByName('mediaName'));
-    localVue.filter('unicodeUri', Shopware.Filter.getByName('unicodeUri'));
-
-    return shallowMount(await Shopware.Component.build('sw-system-config'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-system-config'), {
+        props: {
             salesChannelSwitchable: true,
             domain: 'ConfigRenderer.config',
         },
-        stubs: {
-            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-ignore-class': true,
-            'sw-sales-channel-switch': await Shopware.Component.build('sw-sales-channel-switch'),
-            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-label': await Shopware.Component.build('sw-label'),
-            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
-            'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-password-field': await Shopware.Component.build('sw-password-field'),
-            'sw-textarea-field': await Shopware.Component.build('sw-textarea-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-number-field': await Shopware.Component.build('sw-number-field'),
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-icon': {
-                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
+        global: {
+            directives: {
+                tooltip: {},
+                popover: {},
             },
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
-            'sw-entity-multi-select': await Shopware.Component.build('sw-entity-multi-select'),
-            'sw-entity-multi-id-select': await Shopware.Component.build('sw-entity-multi-id-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-media-field': await Shopware.Component.build('sw-media-field'),
-            'sw-url-field': await Shopware.Component.build('sw-url-field'),
-            'sw-media-media-item': await Shopware.Component.build('sw-media-media-item'),
-            'sw-media-base-item': await Shopware.Component.build('sw-media-base-item'),
-            'sw-media-preview-v2': await Shopware.Component.build('sw-media-preview-v2'),
-            'sw-colorpicker': await Shopware.Component.build('sw-text-field'),
-            'sw-upload-listener': true,
-            'sw-simple-search-field': true,
-            'sw-loader': true,
-            'sw-datepicker': await Shopware.Component.build('sw-text-field'),
-            'sw-text-editor': await Shopware.Component.build('sw-text-field'),
-            'sw-extension-component-section': true,
-            'sw-ai-copilot-badge': true,
-        },
-        provide: {
-            systemConfigApiService: {
-                getConfig: () => Promise.resolve(createConfig()),
-                getValues: (domain, salesChannelId) => {
-                    if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
-                        return Promise.resolve(defaultValues[domain][salesChannelId]);
-                    }
-
-                    return Promise.resolve({});
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-ignore-class': true,
+                'sw-sales-channel-switch': await wrapTestComponent('sw-sales-channel-switch'),
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-label': await wrapTestComponent('sw-label'),
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
+                'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch'),
+                'sw-field': await wrapTestComponent('sw-field'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-password-field': await wrapTestComponent('sw-password-field'),
+                'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-icon': {
+                    template: '<div class="sw-icon" @click="$emit(\'click\')"></div>',
                 },
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
+                'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                'sw-entity-multi-id-select': await wrapTestComponent('sw-entity-multi-id-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-media-field': await wrapTestComponent('sw-media-field'),
+                'sw-url-field': await wrapTestComponent('sw-url-field'),
+                'sw-media-media-item': await wrapTestComponent('sw-media-media-item'),
+                'sw-media-base-item': await wrapTestComponent('sw-media-base-item'),
+                'sw-media-preview-v2': await wrapTestComponent('sw-media-preview-v2'),
+                'sw-colorpicker': await wrapTestComponent('sw-text-field'),
+                'sw-upload-listener': true,
+                'sw-simple-search-field': true,
+                'sw-loader': true,
+                'sw-datepicker': await wrapTestComponent('sw-text-field'),
+                'sw-text-editor': await wrapTestComponent('sw-text-field'),
+                'sw-extension-component-section': true,
+                'sw-ai-copilot-badge': true,
             },
-            repositoryFactory: {
-                create: (entity) => ({
-                    search: (criteria) => {
-                        if (entity === 'sales_channel') {
-                            return Promise.resolve(createEntityCollection([
-                                {
-                                    name: 'Storefront',
-                                    translated: { name: 'Storefront' },
-                                    id: uuid.get('storefront'),
-                                },
-                                {
-                                    name: 'Headless',
-                                    translated: { name: 'Headless' },
-                                    id: uuid.get('headless'),
-                                },
-                            ]));
-                        }
-
-                        if (entity === 'product') {
-                            return Promise.resolve([
-                                {
-                                    id: uuid.get('pullover'),
-                                    name: 'Pullover',
-                                },
-                                {
-                                    id: uuid.get('shirt'),
-                                    name: 'Shirt',
-                                },
-                            ].filter(product => {
-                                if (criteria.ids.length <= 0) {
-                                    return true;
-                                }
-
-                                return criteria.ids.includes(product.id);
-                            }));
-                        }
-                        if (entity === 'media') {
-                            return Promise.resolve([
-                                {
-                                    hasFile: true,
-                                    fileName: 'good-image',
-                                    fileExtension: 'jpg',
-                                    id: uuid.get('good-image'),
-                                },
-                                {
-                                    hasFile: true,
-                                    fileName: 'funny-image',
-                                    fileExtension: 'jpg',
-                                    id: uuid.get('funny-image'),
-                                },
-                            ]);
-                        }
-
-                        return Promise.resolve([]);
-                    },
-                    get: (id) => {
-                        if (entity === 'product') {
-                            if (id === uuid.get('pullover')) {
-                                return Promise.resolve({
-                                    id: uuid.get('pullover'),
-                                    name: 'Pullover',
-                                });
-                            }
-
-                            if (id === uuid.get('shirt')) {
-                                return Promise.resolve({
-                                    id: uuid.get('shirt'),
-                                    name: 'Shirt',
-                                });
-                            }
-                        }
-
-                        if (entity === 'media') {
-                            if (id === uuid.get('funny-image')) {
-                                return Promise.resolve({
-                                    hasFile: true,
-                                    fileName: 'funny-image',
-                                    fileExtension: 'jpg',
-                                    id: uuid.get('funny-image'),
-                                });
-                            }
-
-                            if (id === uuid.get('good-image')) {
-                                return Promise.resolve({
-                                    hasFile: true,
-                                    fileName: 'good-image',
-                                    fileExtension: 'jpg',
-                                    id: uuid.get('good-image'),
-                                });
-                            }
+            provide: {
+                systemConfigApiService: {
+                    getConfig: () => Promise.resolve(createConfig()),
+                    getValues: (domain, salesChannelId) => {
+                        if (defaultValues[domain] && defaultValues[domain][salesChannelId]) {
+                            return Promise.resolve(defaultValues[domain][salesChannelId]);
                         }
 
                         return Promise.resolve({});
                     },
-                }),
+                },
+                repositoryFactory: {
+                    create: (entity) => ({
+                        search: (criteria) => {
+                            if (entity === 'sales_channel') {
+                                return Promise.resolve(createEntityCollection([
+                                    {
+                                        name: 'Storefront',
+                                        translated: { name: 'Storefront' },
+                                        id: uuid.get('storefront'),
+                                    },
+                                    {
+                                        name: 'Headless',
+                                        translated: { name: 'Headless' },
+                                        id: uuid.get('headless'),
+                                    },
+                                ]));
+                            }
+
+                            if (entity === 'product') {
+                                return Promise.resolve([
+                                    {
+                                        id: uuid.get('pullover'),
+                                        name: 'Pullover',
+                                    },
+                                    {
+                                        id: uuid.get('shirt'),
+                                        name: 'Shirt',
+                                    },
+                                ].filter(product => {
+                                    if (criteria.ids.length <= 0) {
+                                        return true;
+                                    }
+
+                                    return criteria.ids.includes(product.id);
+                                }));
+                            }
+                            if (entity === 'media') {
+                                return Promise.resolve([
+                                    {
+                                        hasFile: true,
+                                        fileName: 'good-image',
+                                        fileExtension: 'jpg',
+                                        id: uuid.get('good-image'),
+                                    },
+                                    {
+                                        hasFile: true,
+                                        fileName: 'funny-image',
+                                        fileExtension: 'jpg',
+                                        id: uuid.get('funny-image'),
+                                    },
+                                ]);
+                            }
+
+                            return Promise.resolve([]);
+                        },
+                        get: (id) => {
+                            if (entity === 'product') {
+                                if (id === uuid.get('pullover')) {
+                                    return Promise.resolve({
+                                        id: uuid.get('pullover'),
+                                        name: 'Pullover',
+                                    });
+                                }
+
+                                if (id === uuid.get('shirt')) {
+                                    return Promise.resolve({
+                                        id: uuid.get('shirt'),
+                                        name: 'Shirt',
+                                    });
+                                }
+                            }
+
+                            if (entity === 'media') {
+                                if (id === uuid.get('funny-image')) {
+                                    return Promise.resolve({
+                                        hasFile: true,
+                                        fileName: 'funny-image',
+                                        fileExtension: 'jpg',
+                                        id: uuid.get('funny-image'),
+                                    });
+                                }
+
+                                if (id === uuid.get('good-image')) {
+                                    return Promise.resolve({
+                                        hasFile: true,
+                                        fileName: 'good-image',
+                                        fileExtension: 'jpg',
+                                        id: uuid.get('good-image'),
+                                    });
+                                }
+                            }
+
+                            return Promise.resolve({});
+                        },
+                    }),
+                },
+                validationService: {},
+                mediaService: {},
             },
-            validationService: {},
-            mediaService: {},
         },
     });
 }
@@ -300,6 +257,7 @@ function createConfig() {
                             // change input value
                             await field.find('input').setValue(afterValue);
                             await field.find('input').trigger('blur');
+                            await flushPromises();
                         },
                     },
                 },
@@ -547,6 +505,7 @@ function createConfig() {
                         changeValueFunction: async (field, afterValue) => {
                             // open select field
                             await field.find('.sw-select__selection').trigger('click');
+                            await flushPromises();
 
                             // find after value
                             const optionChoice = field.find(`.sw-select-option--${afterValue}`);
@@ -599,6 +558,7 @@ function createConfig() {
                         changeValueFunction: async (field) => {
                             // open select field
                             await field.find('.sw-select__selection').trigger('click');
+                            await flushPromises();
 
                             // find third value
                             const optionChoice = field.find('.sw-select-option--2');
@@ -632,7 +592,7 @@ function createConfig() {
                         changeValueFunction: async (field) => {
                             // open select field
                             await field.find('.sw-select__selection').trigger('click');
-                            await wrapper.vm.$nextTick();
+                            await flushPromises();
 
                             // find second value
                             const optionChoice = field.find('.sw-select-option--1');
@@ -656,9 +616,14 @@ function createConfig() {
                         defaultValueDom: 'funny-image.jpg',
                         domValueCheck: async (field, domValue) => {
                             await wrapper.vm.$forceUpdate();
+                            await flushPromises();
 
                             if (domValue.length > 0) {
-                                expect(field.find('.sw-media-base-item__name').text()).toBe(domValue);
+                                // TODO: this is not working
+                                expect(
+                                    field.find('.sw-media-base-item__name')
+                                        .text(),
+                                ).toBe(domValue);
                             } else {
                                 expect(field.find('.sw-media-base-item__name').exists()).toBe(false);
                             }
@@ -669,8 +634,11 @@ function createConfig() {
                         childValueDom: 'good-image.jpg',
                         changeValueFunction: async (field) => {
                             await field.find('.sw-media-field__toggle-button').trigger('click');
-                            await wrapper.vm.$nextTick();
-                            await field.find('.sw-media-field__suggestion-list-entry:first-child .sw-media-base-item').trigger('click');
+                            await flushPromises();
+
+                            await field
+                                .find('.sw-media-field__suggestion-list-entry:first-child .sw-media-base-item')
+                                .trigger('click');
                         },
                     },
                 },
@@ -711,7 +679,7 @@ function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
-describe('src/app/component/form/sw-custom-field-set-renderer', () => {
+describe('src/module/sw-settings/component/sw-system-config/sw-system-config', () => {
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
@@ -719,26 +687,28 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
     it('should show a select field for the sales channels', async () => {
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
-        const selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
+        const selectionText = wrapper.find('#salesChannelSelect .sw-entity-single-select__selection-text');
 
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
     });
 
     it('should change the sales channel', async () => {
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
+        let salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
         let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
 
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
 
         // open salesChannel switch field
-        await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
+        await salesChannelSwitch.find('.sw-select__selection')
+            .trigger('click');
+        await flushPromises();
+
+        salesChannelSwitch = wrapper.find('.sw-field[label="sw-settings.system-config.labelSalesChannelSelect"]');
 
         // select headless sales channel
         const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');
@@ -826,7 +796,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
             // open salesChannel switch field
             await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             // select headless sales channel
             const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');
@@ -841,16 +811,17 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             // check if value in dom shows the inherit value
             let field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);
             await _test.domValueCheck(field, domValue);
-
-            // check if value in actualConfigData is right (null or undefined)
-            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
-
-            // check if inheritance switch is visible
             let inheritanceSwitch = field.find('.sw-inheritance-switch');
-            expect(inheritanceSwitch.isVisible()).toBe(true);
 
             // check if switch show inheritance
             expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-inherited');
+
+            // check if inheritance switch is visible
+            inheritanceSwitch = field.find('.sw-inheritance-switch');
+            expect(inheritanceSwitch.isVisible()).toBe(true);
+
+            // check if value in actualConfigData is right (null or undefined)
+            expect(wrapper.vm.actualConfigData[uuid.get('headless')][name]).toBeUndefined();
 
             // remove inheritance
             await inheritanceSwitch.find('.sw-icon').trigger('click');
@@ -893,7 +864,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
             // open salesChannel switch field
             await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             // select headless sales channel
             const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');
@@ -958,7 +929,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
 
             // open salesChannel switch field
             await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             // select headless sales channel
             const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');

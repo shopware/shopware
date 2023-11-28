@@ -1,16 +1,10 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsPaymentOverview from 'src/module/sw-settings-payment/page/sw-settings-payment-overview';
-import Vuex from 'vuex';
+import { mount } from '@vue/test-utils_v3';
 
 /**
  * @package checkout
  */
-Shopware.Component.register('sw-settings-payment-overview', swSettingsPaymentOverview);
 
 async function createWrapper(methods = [], cards = [], privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
     if (typeof Shopware.State.get('paymentOverviewCardState') !== 'undefined') {
         Shopware.State.unregisterModule('paymentOverviewCardState');
     }
@@ -20,46 +14,50 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
         state: { cards },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-settings-payment-overview'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve(methods);
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+    return mount(await wrapTestComponent('sw-settings-payment-overview', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve(methods);
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
+                },
+                'sw-button': true,
+                'sw-button-process': true,
+                'sw-card': true,
+                'sw-card-view': true,
+                'sw-context-menu-item': true,
+                'sw-internal-link': true,
+                'sw-alert': true,
+                'sw-payment-card': true,
+                'sw-empty-state': true,
+                'sw-extension-component-section': true,
+                'router-link': true,
             },
-            'sw-button': true,
-            'sw-button-process': true,
-            'sw-card': true,
-            'sw-card-view': true,
-            'sw-context-menu-item': true,
-            'sw-internal-link': true,
-            'sw-alert': true,
-            'sw-payment-card': true,
-            'sw-empty-state': true,
-            'sw-extension-component-section': true,
-            'router-link': true,
         },
     });
 }

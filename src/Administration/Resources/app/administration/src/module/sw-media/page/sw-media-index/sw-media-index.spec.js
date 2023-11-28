@@ -1,48 +1,48 @@
 /**
- * @package buyers-experience
+ * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import swMediaIndex from 'src/module/sw-media/page/sw-media-index';
-
-Shopware.Component.register('sw-media-index', swMediaIndex);
+import { mount } from '@vue/test-utils_v3';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-media-index'), {
-        stubs: {
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-icon': true,
-            'sw-button': true,
-            'sw-page': {
-                template: '<div><slot name="smart-bar-actions"></slot></div>',
+    return mount(await wrapTestComponent('sw-media-index', { sync: true }), {
+        global: {
+            renderStubDefaultSlot: true,
+            stubs: {
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-icon': true,
+                'sw-button': true,
+                'sw-page': {
+                    template: '<div><slot name="smart-bar-actions"></slot></div>',
+                },
+                'sw-search-bar': true,
+                'sw-media-sidebar': true,
+                'sw-upload-listener': true,
+                'sw-language-switch': true,
+                'router-link': true,
+                'sw-media-upload-v2': true,
             },
-            'sw-search-bar': true,
-            'sw-media-sidebar': true,
-            'sw-upload-listener': true,
-            'sw-language-switch': true,
-            'router-link': true,
-            'sw-media-upload-v2': true,
-        },
-        mocks: {
-            $route: {
-                query: '',
+            mocks: {
+                $route: {
+                    query: '',
+                },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return Promise.resolve();
-                    },
-                    get: () => {
-                        return Promise.resolve();
-                    },
-                    search: () => {
-                        return Promise.resolve();
-                    },
-                }),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                        get: () => {
+                            return Promise.resolve();
+                        },
+                        search: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                mediaService: {},
             },
-            mediaService: {},
         },
     });
 }

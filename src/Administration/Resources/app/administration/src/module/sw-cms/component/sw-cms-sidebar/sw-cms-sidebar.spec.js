@@ -1,14 +1,8 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
-import swCmsSidebar from 'src/module/sw-cms/component/sw-cms-sidebar';
-import 'src/app/component/sidebar/sw-sidebar-collapse';
-import 'src/app/component/sidebar/sw-sidebar';
-import 'src/app/component/base/sw-collapse';
-
-Shopware.Component.register('sw-cms-sidebar', swCmsSidebar);
 
 const { EntityCollection, Entity } = Shopware.Data;
 
@@ -28,21 +22,6 @@ function getBlockCollection(blocks) {
 }
 
 async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) {
-    const localVue = createLocalVue();
-    localVue.directive('draggable', {});
-    localVue.directive('droppable', {});
-    localVue.directive('tooltip', {
-        bind(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-        inserted(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-        update(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-        },
-    });
-
     localStorage.clear();
 
     if (Shopware.State.get('cmsPageState')) {
@@ -77,9 +56,10 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
         },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-cms-sidebar'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-sidebar', {
+        sync: true,
+    }), {
+        props: {
             page: {
                 sections: [
                     new Entity('1111', 'section', {
@@ -124,99 +104,115 @@ async function createWrapper({ cmsBlockRegistry } = { cmsBlockRegistry: null }) 
                 type: 'product_list',
             },
         },
-        stubs: {
-            'sw-button': {
-                template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-            },
-            'sw-sidebar': true,
-            'sw-sidebar-item': {
-                template: '<div class="sw-sidebar-item"><slot #default /></div>',
-                props: ['disabled'],
-            },
-            'sw-sidebar-collapse': {
-                template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
-            },
-            'sw-text-field': true,
-            'sw-select-field': true,
-            'sw-cms-block-config': true,
-            'sw-cms-block-layout-config': true,
-            'sw-cms-section-config': true,
-            'sw-context-button': true,
-            'sw-context-menu-item': true,
-            'sw-cms-sidebar-nav-element': true,
-            'sw-entity-single-select': true,
-            'sw-modal': true,
-            'sw-checkbox-field': true,
-            'sw-icon': true,
-            'sw-cms-visibility-config': {
-                template: '<div class="sw-cms-visibility-config"></div>',
-                props: ['visibility'],
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        const mockCollection = [];
-                        mockCollection.add = function add(e) { this.push(e); };
-                        return {
-                            id: null,
-                            slots: mockCollection,
-                        };
+        global: {
+            renderStubDefaultSlot: true,
+            directives: {
+                tooltip: {
+                    beforeMount(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
                     },
-                    save: () => {},
-                }),
-            },
-            cmsBlockFavorites: {
-                isFavorite() {
-                    return false;
+                    mounted(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
+                    },
+                    updated(el, binding) {
+                        el.setAttribute('tooltip-message', binding.value.message);
+                    },
                 },
             },
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return cmsBlockRegistry ?? {
-                        image: {
-                            name: 'image',
-                            label: 'sw-cms.blocks.image.image.label',
-                            category: 'image',
-                            component: 'sw-cms-block-image',
-                            previewComponent: 'sw-cms-preview-image',
-                            defaultConfig: {
-                                marginBottom: '20px',
-                                marginTop: '20px',
-                                marginLeft: '20px',
-                                marginRight: '20px',
-                                sizingMode: 'boxed',
-                            },
-                            slots: {
-                                image: {
-                                    type: 'image',
-                                    default: {
-                                        config: {
-                                            displayMode: { source: 'static', value: 'standard' },
-                                        },
-                                        data: {
-                                            media: { value: 'preview_mountain_large.jpg', source: 'default' },
+            stubs: {
+                'sw-button': {
+                    template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+                },
+                'sw-sidebar': true,
+                'sw-sidebar-item': {
+                    template: '<div class="sw-sidebar-item"><slot #default /></div>',
+                    props: ['disabled'],
+                },
+                'sw-sidebar-collapse': {
+                    template: '<div class="sw-sidebar-collapse"><slot name="header" /><slot name="content" /></div>',
+                },
+                'sw-text-field': true,
+                'sw-select-field': true,
+                'sw-cms-block-config': true,
+                'sw-cms-block-layout-config': true,
+                'sw-cms-section-config': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-cms-sidebar-nav-element': true,
+                'sw-entity-single-select': true,
+                'sw-modal': true,
+                'sw-checkbox-field': true,
+                'sw-icon': true,
+                'sw-cms-visibility-config': {
+                    template: '<div class="sw-cms-visibility-config"></div>',
+                    props: ['visibility'],
+                },
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            const mockCollection = [];
+                            mockCollection.add = function add(e) { this.push(e); };
+                            return {
+                                id: null,
+                                slots: mockCollection,
+                            };
+                        },
+                        save: () => {},
+                    }),
+                },
+                cmsBlockFavorites: {
+                    isFavorite() {
+                        return false;
+                    },
+                },
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return cmsBlockRegistry ?? {
+                            image: {
+                                name: 'image',
+                                label: 'sw-cms.blocks.image.image.label',
+                                category: 'image',
+                                component: 'sw-cms-block-image',
+                                previewComponent: 'sw-cms-preview-image',
+                                defaultConfig: {
+                                    marginBottom: '20px',
+                                    marginTop: '20px',
+                                    marginLeft: '20px',
+                                    marginRight: '20px',
+                                    sizingMode: 'boxed',
+                                },
+                                slots: {
+                                    image: {
+                                        type: 'image',
+                                        default: {
+                                            config: {
+                                                displayMode: { source: 'static', value: 'standard' },
+                                            },
+                                            data: {
+                                                media: { value: 'preview_mountain_large.jpg', source: 'default' },
+                                            },
                                         },
                                     },
                                 },
                             },
-                        },
-                    };
+                        };
+                    },
+                    isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType),
                 },
-                isBlockAllowedInPageType: (name, pageType) => name.startsWith(pageType),
-            },
-            cmsPageTypeService: {
-                getTypes: () => {
-                    return [{
-                        name: 'page',
-                    }, {
-                        name: 'landingpage',
-                    }, {
-                        name: 'product_list',
-                    }, {
-                        name: 'product_detail',
-                    }];
+                cmsPageTypeService: {
+                    getTypes: () => {
+                        return [{
+                            name: 'page',
+                        }, {
+                            name: 'landingpage',
+                        }, {
+                            name: 'product_list',
+                        }, {
+                            name: 'product_detail',
+                        }];
+                    },
                 },
             },
         },
@@ -240,10 +236,12 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             disabled: true,
         });
 
-        const sidebarItems = wrapper.findAll('.sw-sidebar-item');
+        await flushPromises();
+
+        const sidebarItems = wrapper.findAllComponents('.sw-sidebar-item');
         expect(sidebarItems).toHaveLength(5);
 
-        sidebarItems.wrappers.forEach(sidebarItem => {
+        sidebarItems.forEach(sidebarItem => {
             expect(sidebarItem.props('disabled')).toBe(true);
         });
     });
@@ -251,10 +249,10 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('enable all sidebar items', async () => {
         const wrapper = await createWrapper();
 
-        const sidebarItems = wrapper.findAll('.sw-sidebar-item');
+        const sidebarItems = wrapper.findAllComponents('.sw-sidebar-item');
         expect(sidebarItems).toHaveLength(5);
 
-        sidebarItems.wrappers.forEach(sidebarItem => {
+        sidebarItems.forEach(sidebarItem => {
             expect(sidebarItem.props('disabled')).toBe(false);
         });
     });
@@ -377,7 +375,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should fire event to open layout assignment modal', async () => {
         const wrapper = await createWrapper();
 
-        wrapper.find('.sw-cms-sidebar__layout-assignment-open').vm.$emit('click');
+        wrapper.findComponent('.sw-cms-sidebar__layout-assignment-open')
+            .vm
+            .$emit('click');
 
         await wrapper.vm.$nextTick();
 
@@ -396,7 +396,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         await flushPromises();
 
-        const layoutTypeSelect = wrapper.get('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
+        const layoutTypeSelect = wrapper.findComponent('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
 
         expect(layoutTypeSelect.attributes()['tooltip-message'])
             .toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
@@ -414,11 +414,13 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
             },
         });
 
+        await flushPromises();
+
         const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageTypeSelection"]');
         const productPageOption = wrapper.find('option[value="product_detail"]');
 
-        expect(layoutTypeSelect.attributes().disabled).toBeFalsy();
-        expect(productPageOption.attributes().disabled).toBeTruthy();
+        expect(layoutTypeSelect.attributes().disabled).toBeUndefined();
+        expect(productPageOption.attributes().disabled).toBeDefined();
     });
 
     it('should emit open-layout-set-as-default when clicking on set as default', async () => {
@@ -426,7 +428,9 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
 
         const wrapper = await createWrapper();
 
-        wrapper.find('.sw-cms-sidebar__layout-set-as-default-open').vm.$emit('click');
+        wrapper.findComponent('.sw-cms-sidebar__layout-set-as-default-open')
+            .vm
+            .$emit('click');
 
         expect(wrapper.emitted('open-layout-set-as-default')).toStrictEqual([[]]);
     });
@@ -465,8 +469,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should allow editing of the visibility setting of blocks', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-cms-sidebar__visibility-config-block').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
-        wrapper.get('.sw-cms-sidebar__visibility-config-block').vm.$emit('visibility-change', 'desktop', false);
+        expect(wrapper.findComponent('.sw-cms-sidebar__visibility-config-block').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        wrapper.findComponent('.sw-cms-sidebar__visibility-config-block').vm.$emit('visibility-change', 'desktop', false);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.selectedBlock.visibility).toStrictEqual({
@@ -479,8 +483,8 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
     it('should allow editing of the visibility setting of sections', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-cms-sidebar__visibility-config-section').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
-        wrapper.get('.sw-cms-sidebar__visibility-config-section').vm.$emit('visibility-change', 'desktop', false);
+        expect(wrapper.findComponent('.sw-cms-sidebar__visibility-config-section').props('visibility')).toStrictEqual({ desktop: true, mobile: true, tablet: true });
+        wrapper.findComponent('.sw-cms-sidebar__visibility-config-section').vm.$emit('visibility-change', 'desktop', false);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.selectedSection.visibility).toStrictEqual({

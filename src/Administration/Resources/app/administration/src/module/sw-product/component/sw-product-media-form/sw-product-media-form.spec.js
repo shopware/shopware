@@ -2,62 +2,49 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
-import swProductMediaForm from 'src/module/sw-product/component/sw-product-media-form';
-import 'src/app/component/base/sw-product-image';
-import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/context-menu/sw-context-menu';
-import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/utils/sw-popover';
-
+import { mount } from '@vue/test-utils_v3';
+import { createStore } from 'vuex_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-Shopware.Component.register('sw-product-media-form', swProductMediaForm);
-
-async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    localVue.directive('draggable', {});
-    localVue.directive('droppable', {});
-    localVue.directive('popover', {});
-
-    return shallowMount(await Shopware.Component.build('sw-product-media-form'), {
-        localVue,
-        mocks: {
-            $store: new Vuex.Store({
-                modules: {
-                    swProductDetail: {
-                        namespaced: true,
-                        getters: {
-                            isLoading: () => false,
-                        },
-                    },
-                },
-            }),
-        },
-        provide: {
-            repositoryFactory: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
+async function createWrapper() {
+    const store = createStore({
+        modules: {
+            swProductDetail: {
+                namespaced: true,
+                getters: {
+                    isLoading: () => false,
                 },
             },
-
         },
-        stubs: {
-            'sw-upload-listener': true,
-            'sw-product-image': await Shopware.Component.build('sw-product-image'),
-            'sw-media-upload-v2': true,
-            'sw-media-preview-v2': true,
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-icon': true,
-            'sw-label': true,
-            'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-            'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-            'sw-context-button': await Shopware.Component.build('sw-context-button'),
+    });
+
+    return mount(await wrapTestComponent('sw-product-media-form', { sync: true }), {
+        attachTo: document.body,
+        global: {
+            plugins: [store],
+            directives: {
+                draggable: {},
+                droppable: {},
+                popover: {},
+            },
+            mocks: {
+                $store: store,
+            },
+            provide: {
+                repositoryFactory: {},
+            },
+            stubs: {
+                'sw-upload-listener': true,
+                'sw-product-image': await wrapTestComponent('sw-product-image'),
+                'sw-media-upload-v2': true,
+                'sw-media-preview-v2': true,
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-icon': true,
+                'sw-label': true,
+                'sw-context-menu': await wrapTestComponent('sw-context-menu'),
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
+                'sw-context-button': await wrapTestComponent('sw-context-button'),
+            },
         },
     });
 }
@@ -118,29 +105,33 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should be a Vue.JS component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show the sw-media-upload-v2 component', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeTruthy();
     });
 
     it('should not show the sw-media-upload-v2 component', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeFalsy();
     });
 
     it('should only show 1 cover', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
 
         let coverCount = 0;
         wrapper.vm.mediaItems.forEach(mediaItem => {
@@ -153,7 +144,9 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should emit an event when onOpenMedia() function is called', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         wrapper.vm.onOpenMedia();
 
@@ -162,14 +155,18 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should can show cover when `showCoverLabel` is true', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.vm.$nextTick();
         expect(wrapper.find('.is--cover').exists()).toBeTruthy();
     });
 
     it('should not show cover when `showCoverLabel` is false', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         await wrapper.setData({
             showCoverLabel: false,
@@ -179,7 +176,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.find('.is--cover').exists()).toBeFalsy();
 
         await wrapper.find('.sw-product-media-form__previews').find('.sw-product-image__context-button').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
         expect(buttons).toHaveLength(1);
@@ -187,19 +184,22 @@ describe('module/sw-product/component/sw-product-media-form', () => {
     });
 
     it('should move media to first position when it is marked as cover', async () => {
+        global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        await flushPromises();
 
         let productMediaItems = wrapper.findAll('.sw-product-image');
 
-        expect(productMediaItems.wrappers[0].classes()).toContain('is--cover');
-        expect(productMediaItems.wrappers[0].find('sw-media-preview-v2-stub')
+        expect(productMediaItems[0].classes()).toContain('is--cover');
+        expect(productMediaItems[0].find('sw-media-preview-v2-stub')
             .attributes('source')).toEqual(media[0].mediaId);
-        expect(productMediaItems.wrappers[1].classes()).not.toContain('is--cover');
-        expect(productMediaItems.wrappers[1].find('sw-media-preview-v2-stub')
+        expect(productMediaItems[1].classes()).not.toContain('is--cover');
+        expect(productMediaItems[1].find('sw-media-preview-v2-stub')
             .attributes('source')).toEqual(media[1].mediaId);
 
-        const contextButton = productMediaItems.wrappers[1].find('.sw-product-image__context-button');
+        const contextButton = productMediaItems[1].find('.sw-product-image__context-button');
         await contextButton.trigger('click');
+        await flushPromises();
 
         const buttonCover = contextButton.find('.sw-product-image__button-cover');
         expect(buttonCover.exists()).toBeTruthy();
@@ -208,12 +208,12 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         await buttonCover.trigger('click');
 
         productMediaItems = wrapper.findAll('.sw-product-image');
-        expect(productMediaItems.wrappers[0].classes()).toContain('is--cover');
-        expect(productMediaItems.wrappers[0].find('sw-media-preview-v2-stub')
+        expect(productMediaItems[0].classes()).toContain('is--cover');
+        expect(productMediaItems[0].find('sw-media-preview-v2-stub')
             .attributes('source')).toEqual(media[1].mediaId);
 
-        expect(productMediaItems.wrappers[1].classes()).not.toContain('is--cover');
-        expect(productMediaItems.wrappers[1].find('sw-media-preview-v2-stub')
+        expect(productMediaItems[1].classes()).not.toContain('is--cover');
+        expect(productMediaItems[1].find('sw-media-preview-v2-stub')
             .attributes('source')).toEqual(media[0].mediaId);
     });
 });

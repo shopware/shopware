@@ -1,104 +1,100 @@
 /**
- * @package buyers-experience
+ * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import swSettingsSearchSearchIndex from 'src/module/sw-settings-search/component/sw-settings-search-search-index';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-process';
+import { mount } from '@vue/test-utils_v3';
 import 'src/app/mixin/notification.mixin';
 
-Shopware.Component.register('sw-settings-search-search-index', swSettingsSearchSearchIndex);
-
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
+    return mount(await wrapTestComponent('sw-settings-search-search-index', {
+        sync: true,
+    }), {
+        global: {
+            renderStubDefaultSlot: true,
+            provide: {
+                repositoryFactory: {
+                    create: (name) => {
+                        if (name === 'product') {
+                            return {
+                                search: () => Promise.resolve([]),
+                            };
+                        }
 
-    return shallowMount(await Shopware.Component.build('sw-settings-search-search-index'), {
-        localVue,
+                        if (name === 'product_search_keyword') {
+                            return {
+                                search: () => Promise.resolve([{
+                                    versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                    languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+                                    productId: 'ced577ea267e4eaab52da40b2cf8c570',
+                                    productVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
+                                    keyword: 'a0254ce850054780bfb4a5b26d6c99cf',
+                                    ranking: 1000,
+                                    createdAt: '2021-02-15T12:47:08.464+00:00',
+                                    updatedAt: null,
+                                    apiAlias: null,
+                                    id: 'ffce0992117444529bf702c30f14ae3b',
+                                }]),
+                            };
+                        }
 
-        provide: {
-            repositoryFactory: {
-                create: (name) => {
-                    if (name === 'product') {
-                        return {
-                            search: () => Promise.resolve([]),
-                        };
-                    }
-
-                    if (name === 'product_search_keyword') {
-                        return {
-                            search: () => Promise.resolve([{
-                                versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                                productId: 'ced577ea267e4eaab52da40b2cf8c570',
-                                productVersionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-                                keyword: 'a0254ce850054780bfb4a5b26d6c99cf',
-                                ranking: 1000,
-                                createdAt: '2021-02-15T12:47:08.464+00:00',
-                                updatedAt: null,
-                                apiAlias: null,
-                                id: 'ffce0992117444529bf702c30f14ae3b',
-                            }]),
-                        };
-                    }
-
-                    return null;
+                        return null;
+                    },
                 },
-            },
-            productIndexService: {
-                index: jest.fn((offset) => {
-                    if (offset === 0) {
-                        return Promise.resolve({
-                            finish: false,
-                            offset: {
-                                offset: 51,
-                            },
-                        });
-                    }
+                productIndexService: {
+                    index: jest.fn((offset) => {
+                        if (offset === 0) {
+                            return Promise.resolve({
+                                finish: false,
+                                offset: {
+                                    offset: 51,
+                                },
+                            });
+                        }
 
-                    if (offset === 51) {
-                        return Promise.resolve({
-                            finish: false,
-                            offset: {
-                                offset: 60,
-                            },
-                        });
-                    }
+                        if (offset === 51) {
+                            return Promise.resolve({
+                                finish: false,
+                                offset: {
+                                    offset: 60,
+                                },
+                            });
+                        }
 
-                    if (offset === 60) {
-                        return Promise.resolve({
-                            data: {
-                                finish: true,
-                            },
-                        });
-                    }
+                        if (offset === 60) {
+                            return Promise.resolve({
+                                data: {
+                                    finish: true,
+                                },
+                            });
+                        }
 
-                    return Promise.resolve({});
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+                        return Promise.resolve({});
+                    }),
                 },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
+
+                        return privileges.includes(identifier);
+                    },
+                },
+
             },
 
-        },
-
-        stubs: {
-            'sw-card': true,
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-progress-bar': {
-                template: '<div class="sw-progress-bar"><slot></slot></div>',
+            stubs: {
+                'sw-card': true,
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-progress-bar': {
+                    template: '<div class="sw-progress-bar"><slot></slot></div>',
+                },
+                'sw-alert': {
+                    template: '<div class="sw-alert"><slot></slot></div>',
+                },
+                'sw-icon': true,
+                'sw-loader': true,
             },
-            'sw-alert': {
-                template: '<div class="sw-alert"><slot></slot></div>',
-            },
-            'sw-icon': true,
-            'sw-loader': true,
         },
     });
 }
@@ -118,7 +114,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         await wrapper.vm.$nextTick();
 
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
-        expect(rebuildButton.attributes().disabled).toBeTruthy();
+        expect(rebuildButton.attributes().disabled).toBeDefined();
     });
 
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {

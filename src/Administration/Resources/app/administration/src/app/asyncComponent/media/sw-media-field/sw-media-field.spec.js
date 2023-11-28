@@ -1,52 +1,52 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import SwMediaField from 'src/app/asyncComponent/media/sw-media-field';
-
-Shopware.Component.register('sw-media-field', SwMediaField);
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/app/component/media/sw-media-field', () => {
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-media-field'), {
-            stubs: {
-                'sw-media-media-item': true,
-                'sw-button': true,
-                'sw-popover': {
-                    template: `
+        return mount(await wrapTestComponent('sw-media-field', { sync: true }), {
+            props: {
+                fileAccept: '*/*',
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-media-media-item': true,
+                    'sw-button': true,
+                    'sw-popover': {
+                        template: `
                          <div>
                             <slot />
                         </div>
                     `,
+                    },
+                    'sw-upload-listener': true,
+                    'sw-media-upload-v2': true,
+                    'sw-simple-search-field': true,
+                    'sw-loader': true,
+                    'sw-icon': true,
                 },
-                'sw-upload-listener': true,
-                'sw-media-upload-v2': true,
-                'sw-simple-search-field': true,
-                'sw-loader': true,
-                'sw-icon': true,
-            },
-            mocks: {
-                $route: {
-                    query: '',
+                mocks: {
+                    $route: {
+                        query: '',
+                    },
                 },
-            },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        create: () => {
-                            return Promise.resolve();
-                        },
-                        get: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                    }),
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            create: () => {
+                                return Promise.resolve();
+                            },
+                            get: () => {
+                                return Promise.resolve();
+                            },
+                            search: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
                 },
-            },
-            propsData: {
-                fileAccept: '*/*',
             },
         });
     }

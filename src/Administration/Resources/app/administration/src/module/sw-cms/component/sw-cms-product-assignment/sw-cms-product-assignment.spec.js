@@ -1,43 +1,39 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
-
-import 'src/app/component/entity/sw-many-to-many-assignment-card';
-
-Shopware.Component.extend(
-    'sw-cms-product-assignment',
-    'sw-many-to-many-assignment-card',
-    () => import('src/module/sw-cms/component/sw-cms-product-assignment'),
-);
+import { mount } from '@vue/test-utils_v3';
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
 }
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-cms-product-assignment'), {
-        stubs: {
-            'sw-select-base': {
-                template: '<div class="sw-select-base"></div>',
-                props: ['disabled'],
+    return mount(await wrapTestComponent('sw-cms-product-assignment', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-select-base': {
+                    template: '<div class="sw-select-base"></div>',
+                    props: ['disabled'],
+                },
+                'sw-data-grid': {
+                    template: '<div><slot name="actions"></slot></div>',
+                    props: ['disabled'],
+                },
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item"></div>',
+                    props: ['disabled'],
+                },
+                'sw-card': {
+                    template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
+                },
             },
-            'sw-data-grid': {
-                template: '<div><slot name="actions"></slot></div>',
-                props: ['disabled'],
-            },
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item"></div>',
-                props: ['disabled'],
-            },
-            'sw-card': {
-                template: '<div class="sw-card"><slot /><slot name="grid"></slot></div>',
+            provide: {
+                repositoryFactory: {},
             },
         },
-        provide: {
-            repositoryFactory: {},
-        },
-        propsData: {
+        props: {
             columns: [],
             entityCollection: createEntityCollection(),
             localMode: true,
@@ -55,7 +51,7 @@ describe('module/sw-cms/component/sw-cms-product-assignment', () => {
     it('should have an enabled sw-select-base', async () => {
         const wrapper = await createWrapper();
 
-        const selectBase = wrapper.find('.sw-select-base');
+        const selectBase = wrapper.findComponent('.sw-select-base');
 
         expect(selectBase.props('disabled')).toBe(false);
     });
@@ -65,7 +61,7 @@ describe('module/sw-cms/component/sw-cms-product-assignment', () => {
 
         await wrapper.setProps({ disabled: true });
 
-        const selectBase = wrapper.find('.sw-select-base');
+        const selectBase = wrapper.findComponent('.sw-select-base');
 
         expect(selectBase.props('disabled')).toBe(true);
     });
@@ -81,7 +77,7 @@ describe('module/sw-cms/component/sw-cms-product-assignment', () => {
     it('should have an enabled context menu item', async () => {
         const wrapper = await createWrapper();
 
-        const selectBase = wrapper.find('.sw-context-menu-item');
+        const selectBase = wrapper.findComponent('.sw-context-menu-item');
 
         expect(selectBase.props('disabled')).toBe(false);
     });
@@ -91,7 +87,7 @@ describe('module/sw-cms/component/sw-cms-product-assignment', () => {
 
         await wrapper.setProps({ disabled: true });
 
-        const selectBase = wrapper.find('.sw-context-menu-item');
+        const selectBase = wrapper.findComponent('.sw-context-menu-item');
 
         expect(selectBase.props('disabled')).toBe(true);
     });

@@ -1,44 +1,68 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import swCmsPageForm from 'src/module/sw-cms/component/sw-cms-page-form';
+import { mount } from '@vue/test-utils_v3';
 
-Shopware.Component.register('sw-cms-page-form', swCmsPageForm);
+let resizeObserverList = [];
+
+global.ResizeObserver = class ResizeObserver {
+    constructor(callback) {
+        this.observerCallback = callback;
+        this.observerList = [];
+
+        resizeObserverList.push(this);
+    }
+
+    observe(el) {
+        this.observerList.push(el);
+    }
+
+    unobserve() {
+        // do nothing
+    }
+
+    disconnect() {
+        // do nothing
+    }
+
+    _execute() {
+        this.observerCallback(this.observerList);
+    }
+};
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('responsive', {});
-
-    return shallowMount(await Shopware.Component.build('sw-cms-page-form'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-cms-page-form', {
+        sync: true,
+    }), {
+        props: {
             page: createPageProp(),
         },
-        stubs: {
-            'sw-icon': {
-                template: '<div></div>',
-            },
-            'sw-card': {
-                template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
-                props: ['title'],
-            },
-            'sw-cms-el-config-text': {
-                template: '<div class="config-element">Config element</div>',
-            },
-            'sw-extension-component-section': true,
-        },
-        provide: {
-            cmsService: {
-                getCmsBlockRegistry: () => {
-                    return {};
+        global: {
+            stubs: {
+                'sw-icon': {
+                    template: '<div></div>',
                 },
-                getCmsElementRegistry: () => {
-                    return {
-                        text: {
-                            configComponent: 'sw-cms-el-config-text',
-                        },
-                    };
+                'sw-card': {
+                    template: '<div class="sw-card"><slot /><slot name="header-right"></slot></div>',
+                    props: ['title'],
+                },
+                'sw-cms-el-config-text': {
+                    template: '<div class="config-element">Config element</div>',
+                },
+                'sw-extension-component-section': true,
+            },
+            provide: {
+                cmsService: {
+                    getCmsBlockRegistry: () => {
+                        return {};
+                    },
+                    getCmsElementRegistry: () => {
+                        return {
+                            text: {
+                                configComponent: 'sw-cms-el-config-text',
+                            },
+                        };
+                    },
                 },
             },
         },
@@ -68,6 +92,10 @@ function createPageProp() {
 }
 
 describe('module/sw-cms/component/sw-cms-page-form', () => {
+    beforeEach(() => {
+        resizeObserverList = [];
+    });
+
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper();
 
@@ -99,7 +127,7 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('display the block name', async () => {
         const wrapper = await createWrapper();
-        const blockNameText = wrapper.find('.sw-cms-page-form__block-card').props('title');
+        const blockNameText = wrapper.findComponent('.sw-cms-page-form__block-card').props('title');
 
         expect(blockNameText).toBe('BLOCK NAME');
     });

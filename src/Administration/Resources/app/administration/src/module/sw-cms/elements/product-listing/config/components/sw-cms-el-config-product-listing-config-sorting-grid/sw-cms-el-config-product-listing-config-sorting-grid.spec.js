@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import swCmsElConfigProductListingConfigSortingGrid from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Vue from 'vue';
@@ -6,14 +6,15 @@ import Vue from 'vue';
 Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', swCmsElConfigProductListingConfigSortingGrid);
 
 async function createWrapper(productSortings = []) {
-    return shallowMount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
-        provide: {
-            validationService: {},
-        },
-        stubs: {
-            'sw-data-grid': {
-                props: ['dataSource'],
-                template: `
+    return mount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
+        global: {
+            provide: {
+                validationService: {},
+            },
+            stubs: {
+                'sw-data-grid': {
+                    props: ['dataSource'],
+                    template: `
 <div>
   <template v-for="item in dataSource">
       <slot name="actions" v-bind="{ item: item }"></slot>
@@ -24,20 +25,21 @@ async function createWrapper(productSortings = []) {
       </slot>
   </template>
 </div>`,
-            },
-            'sw-context-menu-item': {
-                template: '<div @click="$emit(\'click\')"></div>',
-            },
-            'sw-number-field': {
-                template: `
+                },
+                'sw-context-menu-item': {
+                    template: '<div @click="$emit(\'click\')"></div>',
+                },
+                'sw-number-field': {
+                    template: `
                     <input type="number" :value="value" @input="$emit('input', Number($event.target.value))" />
                 `,
-                props: {
-                    value: 0,
+                    props: {
+                        value: 0,
+                    },
                 },
             },
         },
-        propsData: Vue.observable({
+        props: Vue.observable({
             productSortings: productSortings,
             defaultSorting: {},
         }),
@@ -78,7 +80,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
         const wrapper = await createWrapper(productSortings);
 
-        const itemBar = wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_bar');
+        let itemBar = wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_bar');
 
         expect(itemBar.exists()).toBeTruthy();
 
@@ -92,6 +94,9 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
         await wrapper.vm.$nextTick();
         await wrapper.vm.$forceUpdate();
+        await flushPromises();
+
+        itemBar = wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_bar');
 
         expect(itemBar.exists()).toBeFalsy();
     });

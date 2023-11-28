@@ -1,10 +1,7 @@
 /**
  * @package content
  */
-import { shallowMount } from '@vue/test-utils';
-import swCategoryEntryPointCard from 'src/module/sw-category/component/sw-category-entry-point-card';
-
-Shopware.Component.register('sw-category-entry-point-card', swCategoryEntryPointCard);
+import { mount } from '@vue/test-utils_v3';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
@@ -20,18 +17,24 @@ async function createWrapper(category = {}) {
         ...category,
     };
 
-
-    return shallowMount(await Shopware.Component.build('sw-category-entry-point-card'), {
-        stubs: {
-            'sw-card': true,
-            'sw-cms-list-item': true,
-            'sw-icon': true,
-            'sw-single-select': true,
-            'sw-category-sales-channel-multi-select': true,
-            'router-link': true,
-            'sw-button': true,
+    return mount(await wrapTestComponent('sw-category-entry-point-card', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
+                },
+                'sw-cms-list-item': true,
+                'sw-icon': true,
+                'sw-single-select': {
+                    template: '<div class="sw-single-select"></div>',
+                    props: ['disabled'],
+                },
+                'sw-category-sales-channel-multi-select': true,
+                'router-link': true,
+                'sw-button': true,
+            },
         },
-        propsData: {
+        props: {
             category: mergedCategory,
         },
     });
@@ -42,19 +45,12 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
-
     it('should have an disabled navigation selection', async () => {
         const wrapper = await createWrapper();
 
-        const selection = wrapper.find('.sw-category-entry-point-card__entry-point-selection');
+        const selection = wrapper.getComponent('.sw-category-entry-point-card__entry-point-selection');
 
-        expect(selection.attributes().disabled).toBe('true');
+        expect(selection.props('disabled')).toBe(true);
     });
 
     it('should have an enabled navigation selection', async () => {
@@ -62,9 +58,9 @@ describe('src/module/sw-category/component/sw-category-entry-point-card', () => 
 
         const wrapper = await createWrapper();
 
-        const selection = wrapper.find('.sw-category-entry-point-card__entry-point-selection');
+        const selection = wrapper.getComponent('.sw-category-entry-point-card__entry-point-selection');
 
-        expect(selection.attributes().disabled).toBeUndefined();
+        expect(selection.props('disabled')).toBe(false);
     });
 
     it('should have no initial entry point', async () => {

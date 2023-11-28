@@ -1,9 +1,6 @@
-import { shallowMount } from '@vue/test-utils';
-import swCategoryView from 'src/module/sw-category/component/sw-category-view';
+import { mount } from '@vue/test-utils_v3';
 
 const categoryIdMock = 'CATEGORY_MOCK_ID';
-
-Shopware.Component.register('sw-category-view', swCategoryView);
 
 async function createWrapper(categoryType) {
     if (Shopware.State.get('swCategoryDetail')) {
@@ -31,40 +28,42 @@ async function createWrapper(categoryType) {
         },
     });
 
-    return shallowMount(await Shopware.Component.build('sw-category-view'), {
-        stubs: {
-            'sw-card-view': {
-                template: '<div class="sw-card-view"><slot /></div>',
+    return mount(await wrapTestComponent('sw-category-view', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card-view': {
+                    template: '<div class="sw-card-view"><slot /></div>',
+                },
+                'sw-language-info': {
+                    template: '<div class="sw-language-info"></div>',
+                    props: ['entityDescription'],
+                },
+                'sw-alert': {
+                    template: '<div class="sw-alert"><slot /></div>',
+                    props: ['variant'],
+                },
+                'sw-tabs': {
+                    template: '<div class="sw-tabs"><slot /></div>',
+                },
+                'sw-tabs-item': {
+                    template: '<div class="sw-tabs-item"><slot /></div>',
+                    props: ['route', 'title'],
+                },
+                'router-view': {
+                    template: '<div class="router-view"></div>',
+                    props: ['isLoading'],
+                },
             },
-            'sw-language-info': {
-                template: '<div class="sw-language-info"></div>',
-                props: ['entityDescription'],
+            mocks: {
+                placeholder: (entity, field, fallbackSnippet) => {
+                    return {
+                        entity, field, fallbackSnippet,
+                    };
+                },
             },
-            'sw-alert': {
-                template: '<div class="sw-alert"><slot /></div>',
-                props: ['variant'],
-            },
-            'sw-tabs': {
-                template: '<div class="sw-tabs"><slot /></div>',
-            },
-            'sw-tabs-item': {
-                template: '<div class="sw-tabs-item"><slot /></div>',
-                props: ['route', 'title'],
-            },
-            'router-view': {
-                template: '<div class="router-view"></div>',
-                props: ['isLoading'],
-            },
+            provide: {},
         },
-        mocks: {
-            placeholder: (entity, field, fallbackSnippet) => {
-                return {
-                    entity, field, fallbackSnippet,
-                };
-            },
-        },
-        provide: {},
-        propsData: {
+        props: {
             isLoading: false,
             type: categoryType,
         },
@@ -75,8 +74,8 @@ describe('src/module/sw-category/component/sw-category-view', () => {
     it('should display static snippets and position-identifiers', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.get('.sw-category-view').attributes('position-identifier')).toBe('sw-category-view');
-        expect(wrapper.get('.sw-language-info').props('entityDescription')).toStrictEqual({
+        expect(wrapper.getComponent('.sw-category-view').attributes('position-identifier')).toBe('sw-category-view');
+        expect(wrapper.getComponent('.sw-language-info').props('entityDescription')).toStrictEqual({
             entity: {
                 id: 'CATEGORY_MOCK_ID',
                 isColumn: true,
@@ -85,12 +84,11 @@ describe('src/module/sw-category/component/sw-category-view', () => {
             field: 'name',
         });
 
-        expect(wrapper.get('.sw-alert').props('variant')).toBe('info');
+        expect(wrapper.getComponent('.sw-alert').props('variant')).toBe('info');
         expect(wrapper.get('.swag-category-view__column-info-header').text()).toBe('sw-category.view.columnInfoHeader');
         expect(wrapper.get('.swag-category-view__column-info-content').text()).toBe('sw-category.view.columnInfo');
 
         expect(wrapper.get('.sw-customer-detail-page__tabs').attributes('position-identifier')).toBe('sw-category-view');
-        expect(wrapper.get('.router-view').props()).toStrictEqual({ isLoading: false });
     });
 
     function checkGeneralTab(generalTab) {
@@ -136,76 +134,76 @@ describe('src/module/sw-category/component/sw-category-view', () => {
     it('should display the tabs for the `page` category type', async () => {
         const wrapper = await createWrapper('page');
 
-        const generalTab = wrapper.get('.sw-category-detail__tab-base');
+        const generalTab = wrapper.getComponent('.sw-category-detail__tab-base');
         checkGeneralTab(generalTab);
 
-        const productTab = wrapper.get('.sw-category-detail__tab-products');
+        const productTab = wrapper.getComponent('.sw-category-detail__tab-products');
         checkProductTab(productTab);
 
-        const customEntityTab = wrapper.get('.sw-category-detail__tab-custom-entity');
+        const customEntityTab = wrapper.getComponent('.sw-category-detail__tab-custom-entity');
         expect(customEntityTab.isVisible()).toBe(false);
 
-        const cmsTab = wrapper.get('.sw-category-detail__tab-cms');
+        const cmsTab = wrapper.getComponent('.sw-category-detail__tab-cms');
         checkCmsTab(cmsTab);
 
-        const seoTab = wrapper.get('.sw-category-detail__tab-seo');
+        const seoTab = wrapper.getComponent('.sw-category-detail__tab-seo');
         checkSeoTab(seoTab);
     });
 
     it('should display the tabs for the `folder` category type', async () => {
         const wrapper = await createWrapper('folder');
 
-        const generalTab = wrapper.get('.sw-category-detail__tab-base');
+        const generalTab = wrapper.getComponent('.sw-category-detail__tab-base');
         checkGeneralTab(generalTab);
 
-        const productTab = wrapper.get('.sw-category-detail__tab-products');
+        const productTab = wrapper.getComponent('.sw-category-detail__tab-products');
         expect(productTab.isVisible()).toBe(false);
 
-        const customEntityTab = wrapper.get('.sw-category-detail__tab-custom-entity');
+        const customEntityTab = wrapper.getComponent('.sw-category-detail__tab-custom-entity');
         expect(customEntityTab.isVisible()).toBe(false);
 
-        const cmsTab = wrapper.get('.sw-category-detail__tab-cms');
+        const cmsTab = wrapper.getComponent('.sw-category-detail__tab-cms');
         expect(cmsTab.isVisible()).toBe(false);
 
-        const seoTab = wrapper.get('.sw-category-detail__tab-seo');
+        const seoTab = wrapper.getComponent('.sw-category-detail__tab-seo');
         expect(seoTab.isVisible()).toBe(false);
     });
 
     it('should display the tabs for the `link` category type', async () => {
         const wrapper = await createWrapper('link');
 
-        const generalTab = wrapper.get('.sw-category-detail__tab-base');
+        const generalTab = wrapper.getComponent('.sw-category-detail__tab-base');
         checkGeneralTab(generalTab);
 
-        const productTab = wrapper.get('.sw-category-detail__tab-products');
+        const productTab = wrapper.getComponent('.sw-category-detail__tab-products');
         expect(productTab.isVisible()).toBe(false);
 
-        const customEntityTab = wrapper.get('.sw-category-detail__tab-custom-entity');
+        const customEntityTab = wrapper.getComponent('.sw-category-detail__tab-custom-entity');
         expect(customEntityTab.isVisible()).toBe(false);
 
-        const cmsTab = wrapper.get('.sw-category-detail__tab-cms');
+        const cmsTab = wrapper.getComponent('.sw-category-detail__tab-cms');
         expect(cmsTab.isVisible()).toBe(false);
 
-        const seoTab = wrapper.get('.sw-category-detail__tab-seo');
+        const seoTab = wrapper.getComponent('.sw-category-detail__tab-seo');
         expect(seoTab.isVisible()).toBe(false);
     });
 
     it('should display the tabs for the `custom_entity` category type', async () => {
         const wrapper = await createWrapper('custom_entity');
 
-        const generalTab = wrapper.get('.sw-category-detail__tab-base');
+        const generalTab = wrapper.getComponent('.sw-category-detail__tab-base');
         checkGeneralTab(generalTab);
 
-        const productTab = wrapper.get('.sw-category-detail__tab-products');
+        const productTab = wrapper.getComponent('.sw-category-detail__tab-products');
         expect(productTab.isVisible()).toBe(false);
 
-        const customEntityTab = wrapper.get('.sw-category-detail__tab-custom-entity');
+        const customEntityTab = wrapper.getComponent('.sw-category-detail__tab-custom-entity');
         checkCustomEntityTab(customEntityTab);
 
-        const cmsTab = wrapper.get('.sw-category-detail__tab-cms');
+        const cmsTab = wrapper.getComponent('.sw-category-detail__tab-cms');
         checkCmsTab(cmsTab);
 
-        const seoTab = wrapper.get('.sw-category-detail__tab-seo');
+        const seoTab = wrapper.getComponent('.sw-category-detail__tab-seo');
         checkSeoTab(seoTab);
     });
 });

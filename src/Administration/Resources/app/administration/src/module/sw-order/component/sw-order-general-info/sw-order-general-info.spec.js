@@ -1,12 +1,9 @@
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import swOrderGeneralInfo from 'src/module/sw-order/component/sw-order-general-info';
 
 /**
- * @package checkout
+ * @package customer-order
  */
-
-Shopware.Component.register('sw-order-general-info', swOrderGeneralInfo);
 
 const deleteFn = jest.fn(() => Promise.resolve());
 const assignFn = jest.fn(() => Promise.resolve());
@@ -98,52 +95,55 @@ orderMock.deliveries.last = () => ({
 });
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-order-general-info'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-order-general-info', { sync: true }), {
+        props: {
             order: orderMock,
             isLoading: false,
         },
-        provide: {
-            orderStateMachineService: {},
-            stateStyleDataProviderService: {
-                getStyle: () => {
-                    return {
-                        placeholder: {
-                            icon: 'small-arrow-small-down',
-                            iconStyle: 'sw-order-state__bg-neutral-icon',
-                            iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
-                            selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
-                            variant: 'neutral',
-                            colorCode: '#94a6b8',
-                        },
-                    };
+        global: {
+            provide: {
+                orderStateMachineService: {},
+                stateStyleDataProviderService: {
+                    getStyle: () => {
+                        return {
+                            placeholder: {
+                                icon: 'small-arrow-small-down',
+                                iconStyle: 'sw-order-state__bg-neutral-icon',
+                                iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
+                                selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
+                                variant: 'neutral',
+                                colorCode: '#94a6b8',
+                            },
+                        };
+                    },
+                },
+                stateMachineService: {
+                    getState: () => { return { data: { } }; },
+                },
+                feature: {
+                    isActive: () => true,
+                },
+                repositoryFactory: {
+                    create() {
+                        return {
+                            search: () => Promise.resolve(new EntityCollection(
+                                '',
+                                '',
+                                Shopware.Context.api,
+                                null,
+                            )),
+                            delete: deleteFn,
+                            assign: assignFn,
+                        };
+                    },
                 },
             },
-            stateMachineService: {
-                getState: () => { return { data: { } }; },
-            },
-            feature: {
-                isActive: () => true,
-            },
-            repositoryFactory: {
-                create() {
-                    return {
-                        search: () => Promise.resolve(new EntityCollection(
-                            '',
-                            '',
-                            Shopware.Context.api,
-                            null,
-                        )),
-                        delete: deleteFn,
-                        assign: assignFn,
-                    };
-                },
+            stubs: {
+                'sw-order-state-select-v2': true,
+                'sw-entity-tag-select': true,
             },
         },
-        stubs: {
-            'sw-order-state-select-v2': true,
-            'sw-entity-tag-select': true,
-        },
+
     });
 }
 
@@ -170,10 +170,6 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
         await flushPromises();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -186,7 +182,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     it('should not mutate the original of the order\'s tags when removing tag', async () => {
-        const tagsStub = wrapper.find('sw-entity-tag-select-stub');
+        const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
 
         expect(tagsStub.exists()).toBeTruthy();
 
@@ -201,7 +197,7 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
     });
 
     it('should not mutate the original of the order\'s tags when adding tag', async () => {
-        const tagsStub = wrapper.find('sw-entity-tag-select-stub');
+        const tagsStub = wrapper.findComponent('sw-entity-tag-select-stub');
 
         expect(tagsStub.exists()).toBeTruthy();
 

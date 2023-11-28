@@ -1,13 +1,8 @@
 /**
- * @package buyers-experience
+ * @package content
  */
-import { shallowMount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v3';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
-import swMediaQuickinfo from 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
-import swMediaCollapse from 'src/module/sw-media/component/sw-media-collapse';
-
-Shopware.Component.register('sw-media-quickinfo', swMediaQuickinfo);
-Shopware.Component.register('sw-media-collapse', swMediaCollapse);
 
 const itemMock = (options = {}) => {
     return {
@@ -27,56 +22,58 @@ const itemMock = (options = {}) => {
 };
 
 async function createWrapper(mediaServiceFunctions = {}) {
-    return shallowMount(await Shopware.Component.build('sw-media-quickinfo'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
+        props: {
+            item: itemMock(),
+            editable: true,
+        },
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve();
-                    },
-                }),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                mediaService: {
+                    renameMedia: () => Promise.resolve(),
+                    ...mediaServiceFunctions,
+                },
+                customFieldDataProviderService: {
+                    getCustomFieldSets: () => Promise.resolve([]),
+                },
             },
-            mediaService: {
-                renameMedia: () => Promise.resolve(),
-                ...mediaServiceFunctions,
-            },
-            customFieldDataProviderService: {
-                getCustomFieldSets: () => Promise.resolve([]),
-            },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
-            },
-            'sw-alert': true,
-            'sw-icon': true,
-            'sw-media-collapse': {
-                template: `
+                },
+                'sw-alert': true,
+                'sw-icon': true,
+                'sw-media-collapse': {
+                    template: `
                     <div class="sw-media-quickinfo">
                         <slot name="content"></slot>
                     </div>`,
+                },
+                'sw-media-quickinfo-metadata-item': true,
+                'sw-media-preview-v2': true,
+                'sw-media-tag': true,
+                'sw-custom-field-set-renderer': true,
             },
-            'sw-media-quickinfo-metadata-item': true,
-            'sw-media-preview-v2': true,
-            'sw-media-tag': true,
-            'sw-custom-field-set-renderer': true,
-        },
-        propsData: {
-            item: itemMock(),
-            editable: true,
         },
     });
 }

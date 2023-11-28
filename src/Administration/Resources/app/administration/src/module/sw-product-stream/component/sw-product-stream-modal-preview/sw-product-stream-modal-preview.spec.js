@@ -2,10 +2,7 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
-import swProductStreamModalPreview from 'src/module/sw-product-stream/component/sw-product-stream-modal-preview';
-
-Shopware.Component.register('sw-product-stream-modal-preview', swProductStreamModalPreview);
+import { mount } from '@vue/test-utils_v3';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -19,19 +16,8 @@ responses.addResponse({
 });
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-product-stream-modal-preview'), {
-        stubs: {
-            'sw-modal': true,
-            'sw-label': true,
-            'sw-simple-search-field': true,
-            'sw-container': true,
-            'sw-entity-single-select': true,
-            'sw-empty-state': true,
-        },
-        provide: {
-            productStreamPreviewService: {},
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-product-stream-modal-preview', { sync: true }), {
+        props: {
             filters: [
                 {
                     productStreamId: '7a1abc58b4a641a1a0f723962b302a91',
@@ -101,16 +87,23 @@ async function createWrapper() {
                 },
             ],
         },
+        global: {
+            stubs: {
+                'sw-modal': true,
+                'sw-label': true,
+                'sw-simple-search-field': true,
+                'sw-container': true,
+                'sw-entity-single-select': true,
+                'sw-empty-state': true,
+            },
+            provide: {
+                productStreamPreviewService: {},
+            },
+        },
     });
 }
 
 describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should map filters for search', async () => {
         const wrapper = await createWrapper();
 

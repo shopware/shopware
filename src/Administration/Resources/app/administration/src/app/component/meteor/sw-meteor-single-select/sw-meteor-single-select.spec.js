@@ -2,22 +2,12 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/meteor/sw-meteor-single-select';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/base/sw-simple-search-field';
+import { mount } from '@vue/test-utils_v3';
 
 describe('src/app/component/meteor/sw-meteor-single-select', () => {
     async function createWrapper(customConfig = {}) {
-        return shallowMount(await Shopware.Component.build('sw-meteor-single-select'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-meteor-single-select', { sync: true }), {
+            props: {
                 value: null,
                 options: [
                     {
@@ -61,22 +51,25 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                     }],
                 label: 'Rating',
             },
-            stubs: {
-                'sw-icon': true,
-                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-                'sw-popover': true,
-                'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': true,
-                'sw-select-result': await Shopware.Component.build('sw-select-result'),
-                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            },
-            provide: {
-                validationService: {},
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-icon': true,
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-popover': true,
+                    'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                    'sw-field': await wrapTestComponent('sw-field'),
+                    'sw-text-field': await wrapTestComponent('sw-text-field'),
+                    'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': true,
+                    'sw-select-result': await wrapTestComponent('sw-select-result'),
+                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                },
+                provide: {
+                    validationService: {},
+                },
             },
             ...customConfig,
         });
@@ -106,10 +99,11 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
         let resultList = wrapper.find('.sw-select-result-list');
         expect(resultList.exists()).toBe(false);
 
-        const preview = wrapper.find('.sw-meteor-single-select__preview');
+        const preview = wrapper.get('.sw-meteor-single-select__preview');
         await preview.trigger('click');
+        await flushPromises();
 
-        resultList = wrapper.find('.sw-select-result-list');
+        resultList = wrapper.get('.sw-select-result-list');
         expect(resultList.exists()).toBe(true);
     });
 
@@ -119,10 +113,11 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
         let searchField = wrapper.find('.sw-simple-search-field');
         expect(searchField.exists()).toBe(false);
 
-        const preview = wrapper.find('.sw-meteor-single-select__preview');
+        const preview = wrapper.get('.sw-meteor-single-select__preview');
         await preview.trigger('click');
+        await flushPromises();
 
-        searchField = wrapper.find('.sw-simple-search-field');
+        searchField = wrapper.get('.sw-simple-search-field');
         expect(searchField.exists()).toBe(true);
     });
 
@@ -151,8 +146,9 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
     it('should show all options in list', async () => {
         const wrapper = await createWrapper();
 
-        const preview = wrapper.find('.sw-meteor-single-select__preview');
+        const preview = wrapper.get('.sw-meteor-single-select__preview');
         await preview.trigger('click');
+        await flushPromises();
 
         const results = wrapper.findAll('.sw-select-result');
 
@@ -167,15 +163,16 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
     it('should emit changed value when clicked on option', async () => {
         const wrapper = await createWrapper();
 
-        const preview = wrapper.find('.sw-meteor-single-select__preview');
+        const preview = wrapper.get('.sw-meteor-single-select__preview');
         await preview.trigger('click');
+        await flushPromises();
 
-        const results = wrapper.findAll('.sw-select-result');
+        const results = wrapper.findAllComponents('.sw-select-result');
 
         expect(results.at(3).text()).toBe('Min 3 stars');
         await results.at(3).trigger('click');
 
-        expect(wrapper.emitted('change')[0]).toEqual(['3']);
+        expect(wrapper.emitted('update:value')[0]).toEqual(['3']);
     });
 
     it('should change the label when value prop changed', async () => {
@@ -196,10 +193,11 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
         jest.useFakeTimers();
         const wrapper = await createWrapper();
 
-        const preview = wrapper.find('.sw-meteor-single-select__preview');
+        const preview = wrapper.get('.sw-meteor-single-select__preview');
         await preview.trigger('click');
+        await flushPromises();
 
-        const searchFieldInput = wrapper.find('.sw-simple-search-field input');
+        const searchFieldInput = wrapper.get('.sw-simple-search-field input');
         await searchFieldInput.setValue('stars');
 
         jest.advanceTimersByTime(1000);
@@ -208,7 +206,7 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
         expect(searchFieldInput.element.value).toBe('stars');
 
         const results = wrapper.findAll('.sw-select-result');
-        expect(results.wrappers).toHaveLength(4);
+        expect(results).toHaveLength(4);
         expect(results.at(0).text()).toBe('Min 5 stars');
         expect(results.at(1).text()).toBe('Min 4 stars');
         expect(results.at(2).text()).toBe('Min 3 stars');

@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
     name: 'sitemap:generate',
     description: 'Generates sitemap files',
 )]
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapGenerateCommand extends Command
 {
     /**

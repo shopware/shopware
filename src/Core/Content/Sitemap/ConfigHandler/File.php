@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Sitemap\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class File implements ConfigHandlerInterface
 {
     /**

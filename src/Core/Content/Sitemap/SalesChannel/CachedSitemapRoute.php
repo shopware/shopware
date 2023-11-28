@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class CachedSitemapRoute extends AbstractSitemapRoute
 {
     final public const ALL_TAG = 'sitemap-route';

@@ -1,5 +1,5 @@
 /**
- * @package sales-channel
+ * @package services-settings
  */
 
 import { shallowMount, createLocalVue } from '@vue/test-utils';

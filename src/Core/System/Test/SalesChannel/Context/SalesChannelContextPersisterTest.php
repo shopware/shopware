@@ -25,7 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('core')]
 class SalesChannelContextPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;

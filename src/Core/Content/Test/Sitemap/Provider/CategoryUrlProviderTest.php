@@ -23,7 +23,7 @@ use Symfony\Component\Routing\RouterInterface;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class CategoryUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;

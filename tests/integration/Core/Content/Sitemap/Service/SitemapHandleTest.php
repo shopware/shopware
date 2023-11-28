@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapHandleTest extends TestCase
 {
     use KernelTestBehaviour;

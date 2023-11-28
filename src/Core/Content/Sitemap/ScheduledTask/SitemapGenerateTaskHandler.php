@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @internal
  */
 #[AsMessageHandler(handles: SitemapGenerateTask::class)]
-#[Package('sales-channel')]
+#[Package('services-settings')]
 final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**

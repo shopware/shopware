@@ -2,7 +2,7 @@ import template from './sw-theme-modal.html.twig';
 import './sw-theme-modal.scss';
 
 /**
- * @package sales-channel
+ * @package buyers-experience
  */
 
 const { Component, Mixin } = Shopware;

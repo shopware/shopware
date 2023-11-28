@@ -39,7 +39,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('core')]
 class SalesChannelContextRestorerTest extends TestCase
 {
     use IntegrationTestBehaviour;

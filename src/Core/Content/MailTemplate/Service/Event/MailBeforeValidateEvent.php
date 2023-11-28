@@ -19,7 +19,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - TemplateDataAware and DataAware are deprecated and will be removed in v6.6.0
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAware, DataAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.before.send';

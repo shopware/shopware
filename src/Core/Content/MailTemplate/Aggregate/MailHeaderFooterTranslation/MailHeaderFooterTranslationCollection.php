@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailHeaderFooterTranslationEntity>
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailHeaderFooterTranslationCollection extends EntityCollection
 {
     /**

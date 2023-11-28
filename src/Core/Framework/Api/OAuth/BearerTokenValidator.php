@@ -34,6 +34,7 @@ class BearerTokenValidator implements AuthorizationValidatorInterface
 
         $header = $request->getHeader('authorization');
 
+        /** @var non-empty-string $jwt */
         $jwt = trim(preg_replace('/^(?:\s+)?Bearer\s/', '', $header[0]) ?? '');
 
         /** @var UnencryptedToken $token */

@@ -43,6 +43,8 @@ class AppJWTGenerateRoute
         );
 
         $expiration = new \DateTimeImmutable('+10 minutes');
+
+        /** @var non-empty-string $shopId */
         $shopId = $this->shopIdProvider->getShopId();
         $builder = $configuration
             ->builder()
@@ -52,27 +54,27 @@ class AppJWTGenerateRoute
             ->expiresAt($expiration);
 
         if (\in_array('sales_channel:read', $privileges, true)) {
-            $builder->withClaim('salesChannelId', $context->getSalesChannel()->getId());
+            $builder = $builder->withClaim('salesChannelId', $context->getSalesChannel()->getId());
         }
 
         if (\in_array('customer:read', $privileges, true)) {
-            $builder->withClaim('customerId', $context->getCustomer()->getId());
+            $builder = $builder->withClaim('customerId', $context->getCustomer()->getId());
         }
 
         if (\in_array('currency:read', $privileges, true)) {
-            $builder->withClaim('currencyId', $context->getCurrency()->getId());
+            $builder = $builder->withClaim('currencyId', $context->getCurrency()->getId());
         }
 
         if (\in_array('language:read', $privileges, true)) {
-            $builder->withClaim('languageId', $context->getLanguageId());
+            $builder = $builder->withClaim('languageId', $context->getLanguageId());
         }
 
         if (\in_array('payment_method:read', $privileges, true)) {
-            $builder->withClaim('paymentMethodId', $context->getPaymentMethod()->getId());
+            $builder = $builder->withClaim('paymentMethodId', $context->getPaymentMethod()->getId());
         }
 
         if (\in_array('shipping_method:read', $privileges, true)) {
-            $builder->withClaim('shippingMethodId', $context->getShippingMethod()->getId());
+            $builder = $builder->withClaim('shippingMethodId', $context->getShippingMethod()->getId());
         }
 
         return new JsonResponse([

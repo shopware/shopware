@@ -31,7 +31,7 @@ abstract class AbstractAdminIndexer
     abstract public function getIterator(): IterableQuery;
 
     /**
-     * @param array<string>|array<int, array<string>> $ids
+     * @param array<string> $ids
      *
      * @return array<string, array<string, string>>
      */

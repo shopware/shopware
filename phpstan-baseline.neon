@@ -2491,11 +2491,6 @@ parameters:
 			path: src/Core/Content/Rule/Aggregate/RuleCondition/RuleConditionEntity.php
 
 		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RuleAreaUpdater\\:\\:update\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/DataAbstractionLayer/RuleAreaUpdater.php
-
-		-
 			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RuleAreaUpdater\\:\\:update\\(\\) expects list\\<string\\>, non\\-empty\\-array given\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/DataAbstractionLayer/RuleIndexer.php
@@ -2509,11 +2504,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$conditions of method Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RulePayloadSubscriber\\:\\:enrichConditions\\(\\) expects list\\<Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\>, array\\<Shopware\\\\Core\\\\Framework\\\\Rule\\\\Rule\\> given\\.$#"
 			count: 1
 			path: src/Core/Content/Rule/DataAbstractionLayer/RulePayloadSubscriber.php
-
-		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Content\\\\Rule\\\\DataAbstractionLayer\\\\RulePayloadUpdater\\:\\:update\\(\\) expects list\\<string\\>, array given\\.$#"
-			count: 1
-			path: src/Core/Content/Rule/DataAbstractionLayer/RulePayloadUpdater.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Rule\\\\Event\\\\RuleIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -7332,25 +7322,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Util/Random.php
 
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromBytesToHexList\\(\\) has parameter \\$bytesList with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Uuid/Uuid.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromBytesToHexList\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Uuid/Uuid.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytesList\\(\\) has parameter \\$uuids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Uuid/Uuid.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Uuid\\\\Uuid\\:\\:fromHexToBytesList\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Uuid/Uuid.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:getListDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"

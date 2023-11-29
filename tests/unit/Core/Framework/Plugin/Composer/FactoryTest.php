@@ -16,17 +16,15 @@ class FactoryTest extends TestCase
     public function testCreateComposer(): void
     {
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
-        static::assertInstanceOf(Composer::class, $composer);
 
         static::assertSame('shopware/platform', $composer->getPackage()->getName());
-        static::assertSame('6.5.9999999.9999999-dev', $composer->getPackage()->getVersion());
+        static::assertSame('6.6.9999999.9999999-dev', $composer->getPackage()->getVersion());
     }
 
     public function testCreateComposerWithVersion(): void
     {
         $_SERVER['COMPOSER_ROOT_VERSION'] = '6.4.9999999.9999999-dev';
         $composer = Factory::createComposer(__DIR__ . '/../_fixtures/core');
-        static::assertInstanceOf(Composer::class, $composer);
 
         static::assertSame('shopware/platform', $composer->getPackage()->getName());
         static::assertSame('6.4.9999999.9999999-dev', $composer->getPackage()->getVersion());

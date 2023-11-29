@@ -35,7 +35,7 @@ class Kernel extends HttpKernel
     /**
      * @var string Fallback version if nothing is provided via kernel constructor
      */
-    final public const SHOPWARE_FALLBACK_VERSION = '6.5.9999999.9999999-dev';
+    final public const SHOPWARE_FALLBACK_VERSION = '6.6.9999999.9999999-dev';
 
     /**
      * @var Connection|null

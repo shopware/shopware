@@ -258,7 +258,6 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
             'salesChannel.shippingMethod.taxType',
             'salesChannel.shippingMethod.deliveryTime.id',
             'salesChannel.shippingMethod.translations.DEFAULT.name',
-            'salesChannel.shippingMethod.availabilityRule.id',
             'salesChannel.country.id',
             'salesChannel.country.translations.DEFAULT.name',
             'salesChannel.country.translations.DEFAULT.addressFormat',

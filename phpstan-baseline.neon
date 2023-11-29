@@ -9194,10 +9194,7 @@ parameters:
 			count: 1
 			path: tests/unit/Core/Framework/Log/PackageTest.php
 
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Composer\\\\\\\\Composer' and Composer\\\\Composer will always evaluate to true\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Plugin/Composer/FactoryTest.php
+
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Event\\\\\\\\PluginLifecycleEvent' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Event\\\\PluginPostDeactivationFailedEvent will always evaluate to true\\.$#"

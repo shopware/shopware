@@ -2,10 +2,9 @@
 import type { ExtensionStoreActionService, ExtensionType } from '../../module/sw-extension/service/extension-store-action.service';
 
 /**
+ * @private
  * @package merchant-services
- * @deprecated tag:v6.6.0 - Will be private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class ExtensionHelperService {
     private readonly extensionStoreActionService: ExtensionStoreActionService;
 

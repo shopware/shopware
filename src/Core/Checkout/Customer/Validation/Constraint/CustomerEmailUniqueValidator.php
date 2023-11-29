@@ -8,11 +8,6 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
-/**
- * @Annotation
- *
- * @Target({"PROPERTY", "METHOD", "ANNOTATION"})
- */
 #[Package('checkout')]
 class CustomerEmailUniqueValidator extends ConstraintValidator
 {

@@ -5,6 +5,8 @@ use Rector\Config\RectorConfig;
 use Rector\Core\ValueObject\Visibility;
 use Rector\Visibility\Rector\ClassMethod\ChangeMethodVisibilityRector;
 use Rector\Visibility\ValueObject\ChangeMethodVisibility;
+use Rector\Php80\Rector\Class_\AnnotationToAttributeRector;
+use Rector\Php80\ValueObject\AnnotationToAttribute;
 use Shopware\Core\DevOps\StaticAnalyze\Rector\ClassPackageRector;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -30,6 +32,11 @@ return static function (RectorConfig $rectorConfig): void {
         '**/node_modules/*',
         '**/Resources/*',
     ]);
+
+    $rectorConfig->ruleWithConfiguration(AnnotationToAttributeRector::class, [
+            new AnnotationToAttribute('Shopware\Commercial\Test\Annotation\ActiveFeatureToggles'),
+        ]
+    );
 
 //    $rectorConfig->rule(ClassPackageRector::class);
 //    $rectorConfig->ruleWithConfiguration(

@@ -264,14 +264,9 @@ PHP Full:
             -   MYSQL_IMAGE: mysql:8
                 CI_IMAGE_TAG:
                   - "latest"
-                  # - "php8.3"
+                  - "php8.3"
                 FEATURE_ALL: [ "false", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-            # TODO: remove after final release and add version to array above
-            -   CI_IMAGE_TAG: "php8.3"
-                MYSQL_IMAGE: mysql:8
-                MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
-                FAKE_PHP_VERSION: "8.2.99"
             -   MYSQL_IMAGE: mariadb:10.11
             -   MYSQL_IMAGE: mariadb:10.11
                 PREFER_LOWEST: 'prefer lowest'

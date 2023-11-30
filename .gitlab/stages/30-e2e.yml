@@ -173,7 +173,7 @@ Changed E2E:
     - echo -e "\e[0Ksection_end:`date +%s`:install_sw\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):install_language_pack[collapsed=true]\r\e[0Ke2e install language pack"
     - rm -rf custom/plugins/SwagLanguagePack || true
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
+    - git clone -b 'next-31992/prepare-6-6-build' https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
     - npm --prefix custom/plugins/SwagLanguagePack/src/Resources/app/administration ci
     - bin/console plugin:refresh
     - bin/console plugin:install --activate SwagLanguagePack

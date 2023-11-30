@@ -22,6 +22,34 @@
         >
             {{ $tc('sw-product.mediaForm.coverSubline') }}
         </sw-label>
+
+        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_product_image_preview_spatial_labels %}
+        <sw-label
+            v-if="isSpatial"
+            class="sw-product-image__spatial-label"
+            variant="neutral-reversed"
+            size="medium"
+            appearance="pill"
+        >
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+            <label
+                v-if="isArReady"
+                class="sw-label__ar-ready"
+            >
+                {{ $tc('sw-product.mediaForm.arSubline') }}
+            </label>
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+            <label
+                v-else
+                class="sw-label__spatial"
+            >
+                {{ $tc('sw-product.mediaForm.spatialSubline') }}
+            </label>
+        </sw-label>
+        {% endblock %}
+
         {% endblock %}
         <sw-context-button class="sw-product-image__context-button">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -29,7 +57,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item
-                v-if="showCoverLabel && !isCover"
+                v-if="showCoverLabel && !isCover && !isSpatial"
                 class="sw-product-image__button-cover"
                 @click="$emit('sw-product-image-cover')"
             >

@@ -151,6 +151,7 @@
             <tag name="kernel.event_listener" event="Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook" method="invalidateConfigKey" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent" method="invalidateSitemap" priority="2000" />
             <tag name="kernel.event_listener" event="product_search_config.written" method="invalidateSearch" priority="2002" />
+            <tag name="kernel.event_listener" event="Shopware\Core\Content\Media\Event\MediaIndexerEvent" method="invalidateMedia" priority="2000" />
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>

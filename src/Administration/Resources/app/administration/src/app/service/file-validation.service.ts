@@ -95,7 +95,7 @@ export default function fileValidationService(): FileValidationService {
         const types = Object.assign(extensionByType, mimeOverride);
 
         return fileExtensions.some((extension) => {
-            const currentFileExtension = file.name.split('.')[1];
+            const currentFileExtension = file.name.split('.').at(-1);
 
             if (!currentFileExtension) {
                 return false;
@@ -123,10 +123,18 @@ export default function fileValidationService(): FileValidationService {
         }
 
         const fileTypes = mimeAccept.replace(/\s/g, '').split(',');
+        const currentFileType = file.type.split('/');
 
         return fileTypes.some((fileType) => {
             const fileAcceptType = fileType.split('/');
-            const currentFileType = file.type.split('/');
+
+            if (
+                mimeAccept === 'model/gltf-binary' &&
+                file.name.split('.').at(-1) === 'glb' &&
+                file.type === ''
+            ) {
+                return true;
+            }
 
             if (
                 fileAcceptType[0] !== currentFileType[0] &&

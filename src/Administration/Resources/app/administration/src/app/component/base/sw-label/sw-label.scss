@@ -151,7 +151,11 @@ $sw-label-pill-border-radius: 50px;
         @include sw-label-variant($color-gray-50, $color-darkgray-200, $color-gray-300, $color-gray-100);
     }
 
+    &.sw-label--neutral-reversed:not(&--appearance-badged) {
+        @include sw-label-variant($color-darkgray-100, $color-gray-50,  $color-gray-100, $color-darkgray-100);
+    }
+
     &.sw-label--primary:not(&--appearance-badged) {
-        @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-100);
+        @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-700, $color-shopware-brand-500);
     }
 }

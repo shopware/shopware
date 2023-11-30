@@ -103,6 +103,7 @@ $sw-media-base-item-preview-background: $color-white;
         border: 1px solid $sw-media-base-item-color-border;
         border-radius: $sw-media-base-item-border-radius;
         background-color: $sw-media-base-item-preview-background;
+        container: previewcontainer / inline-size;
 
         &::after {
             content: "";
@@ -148,6 +149,29 @@ $sw-media-base-item-preview-background: $color-white;
         animation-name: sw-media-loader-rotation;
         animation-duration: 1s;
         animation-iteration-count: infinite;
+    }
+
+    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    .sw-media-base-item__labels {
+        display: flex;
+        position: absolute;
+        bottom: 0;
+        left: 6px;
+        gap: 5px;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        .sw-media-base-item__labels-text {
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+
+    // @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+    @container previewcontainer (max-width: 60px) {
+        .sw-media-base-item__labels {
+            display: none;
+        }
     }
 
     @keyframes sw-media-loader-rotation {

@@ -43,7 +43,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            (string) mime_content_type($fileName),
+            FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $bytesWritten,
             hash_file('md5', $fileName) ?: null
@@ -76,7 +76,7 @@ class FileFetcher
 
         return new MediaFile(
             $fileName,
-            (string) mime_content_type($fileName),
+            FileInfoHelper::getMimeType($fileName, $extension),
             $extension,
             $writtenBytes,
             hash_file('md5', $fileName) ?: null

@@ -93,7 +93,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return list<mixed>
+     * @return array<array-key, mixed>
      */
     public function map(\Closure $closure): array
     {
@@ -182,6 +182,20 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     public function first()
     {
         return array_values($this->elements)[0] ?? null;
+    }
+
+    /**
+     * @return TElement|null
+     */
+    public function firstWhere(\Closure $closure)
+    {
+        foreach ($this->elements as $element) {
+            if ($closure($element)) {
+                return $element;
+            }
+        }
+
+        return null;
     }
 
     /**

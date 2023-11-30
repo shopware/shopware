@@ -50,6 +50,8 @@ export default {
             'vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'icons-multicolor-file-thumbnail-xls',
             'vnd.ms-powerpoint': 'icons-multicolor-file-thumbnail-ppt',
             'vnd.openxmlformats-officedocument.presentationml.presentation': 'icons-multicolor-file-thumbnail-ppt',
+            glb: 'icons-multicolor-file-thumbnail-glb',
+            'octet-stream': 'icons-multicolor-file-thumbnail-glb',
         },
         video: {
             'x-msvideo': 'icons-multicolor-file-thumbnail-avi',
@@ -64,6 +66,9 @@ export default {
             gif: 'icons-multicolor-file-thumbnail-gif',
             jpeg: 'icons-multicolor-file-thumbnail-jpg',
             'svg+xml': 'icons-multicolor-file-thumbnail-svg',
+        },
+        model: {
+            'gltf-binary': 'icons-multicolor-file-thumbnail-glb',
         },
     },
 

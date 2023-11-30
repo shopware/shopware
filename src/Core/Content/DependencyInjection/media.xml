@@ -234,6 +234,10 @@
             <tag name="shopware.media_type.detector" priority="10"/>
         </service>
 
+        <service id="Shopware\Core\Content\Media\TypeDetector\SpatialObjectTypeDetector">
+            <tag name="shopware.media_type.detector" priority="10"/>
+        </service>
+
         <service id="Shopware\Core\Content\Media\TypeDetector\TypeDetector">
             <argument type="tagged" tag="shopware.media_type.detector"/>
         </service>

@@ -22,6 +22,7 @@
             :item="firstEntity"
             :editable="editable"
             v-on="$listeners"
+            @update:item="onFirstItemUpdated"
         />
 
         <sw-media-folder-info

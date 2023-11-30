@@ -41,7 +41,7 @@
             >
             <img
                 v-else
-                class="sw-media-preview-v2__item"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
                 :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
@@ -59,7 +59,7 @@
             {% block sw_media_preview_v2_file_type_video %}
             <img
                 v-if="mediaIsPrivate"
-                class="sw-media-preview-v2__item"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
                 :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >
@@ -100,7 +100,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_media_preview_v2_file_type_audio %}
             <img
-                class="sw-media-preview-v2__item"
+                class="sw-media-preview-v2__item sw-media-preview-v2__placeholder"
                 :src="assetFilter(placeholderIconPath)"
                 :alt="mimeType"
             >

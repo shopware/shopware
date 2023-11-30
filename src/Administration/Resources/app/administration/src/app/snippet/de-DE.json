@@ -294,6 +294,9 @@
         },
         "fileNameTooLong": {
           "message": "Der angegebene Dateiname ist zu lang. Die Maximallänge beträgt {length} Zeichen."
+        },
+        "settingsSuccess": {
+          "message": "Einstellungen erfolgreich gespeichert."
         }
       },
       "labelUploading": "Wird hochgeladen ..."

@@ -20,10 +20,12 @@
         "download": "Download",
         "move": "Verschieben",
         "replace": "Ersetzen",
-        "settings": "Einstellungen"
+        "settings": "Einstellungen",
+        "ar": "AR-Ansicht aktivieren"
       },
       "sections": {
         "actions": "Aktionen",
+        "configuration": "Konfiguration",
         "preview": "Vorschau",
         "metadata": "Metadaten",
         "usage": "Wird verwendet in",

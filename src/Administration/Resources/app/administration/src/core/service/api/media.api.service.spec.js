@@ -52,4 +52,13 @@ describe('storeService', () => {
 
         expect(callback).toHaveBeenCalledWith(event);
     });
+
+    it('uploadMediaById with glb-file extension and detected Content-Type is empty will set Content-Type to `model/gltf-binary`', () => {
+        const mediaApiService = getMediaApiService();
+        const httpClientPostSpy = jest.spyOn(mediaApiService.httpClient, 'post');
+
+        mediaApiService.uploadMediaById('test', '', {}, 'glb', 'test');
+
+        expect(httpClientPostSpy.mock.calls[0][2].headers['Content-Type']).toBe('model/gltf-binary');
+    });
 });

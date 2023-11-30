@@ -294,6 +294,9 @@
         },
         "fileNameTooLong": {
           "message": "Provided file name is too long. The maximum length is {length} characters."
+        },
+        "settingsSuccess": {
+          "message": "Settings have been saved."
         }
       },
       "labelUploading": "Uploading..."

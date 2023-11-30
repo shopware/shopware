@@ -287,7 +287,9 @@
       "errorHeadline": "Fehler",
       "errorNoImage": "\"{file}\" ist kein Bild.",
       "errorMediaItemDuplicated": "Medium \"{fileName}\" bereits verwendet.",
-      "coverSubline": "Cover"
+      "coverSubline": "Cover",
+      "spatialSubline": "3D",
+      "arSubline": "AR"
     },
     "advancedPrices": {
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",

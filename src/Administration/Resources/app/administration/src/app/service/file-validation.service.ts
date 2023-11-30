@@ -159,3 +159,5 @@ export default function fileValidationService(): FileValidationService {
         checkByType,
     };
 }
+
+export type { FileValidationService };

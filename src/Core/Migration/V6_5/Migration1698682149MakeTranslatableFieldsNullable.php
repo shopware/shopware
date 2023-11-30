@@ -69,11 +69,14 @@ class Migration1698682149MakeTranslatableFieldsNullable extends MigrationStep
     {
         foreach ($this->toUpdate as $table => $columns) {
             foreach ($columns as $column) {
+                $type = $this->getFieldType($connection, $table, $column);
+
                 $connection->executeStatement(
                     sprintf(
-                        'ALTER TABLE `%s` MODIFY `%s` VARCHAR(255) DEFAULT NULL;',
+                        'ALTER TABLE `%s` MODIFY `%s` %s DEFAULT NULL;',
                         $table,
-                        $column
+                        $column,
+                        $type
                     )
                 );
             }
@@ -82,6 +85,13 @@ class Migration1698682149MakeTranslatableFieldsNullable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
+    }
+
+    private function getFieldType(Connection $connection, string $table, string $column): string
+    {
+        /** @var array{Type: string} $row */
+        $row = $connection->fetchAssociative('SHOW COLUMNS FROM ' . $table . ' WHERE Field = ?', [$column]);
+
+        return $row['Type'];
     }
 }

@@ -106,3 +106,29 @@ deploy to cloud staging:
     variables:
         VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
         CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.4.x-dev;swag/saas-rufus:dev-trunk'
+
+Publish SBP platform release:
+  extends: .base-no-setup
+  stage: deploy
+  needs: [ "Prepare SBP platform release" ]
+  environment:
+    name: 'SBP - Production'
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: manual
+  before_script: []
+  script:
+    - .gitlab/bin/sbp_release.sh publish "$CI_COMMIT_TAG"
+
+Publish SBP staging platform release:
+  extends: .base-no-setup
+  stage: deploy
+  needs: [ "Prepare SBP staging platform release" ]
+  environment:
+    name: 'SBP - Staging'
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: manual
+  before_script: []
+  script:
+    - .gitlab/bin/sbp_release.sh publish "$CI_COMMIT_TAG"

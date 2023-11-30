@@ -87,6 +87,7 @@ import type SwFormFieldMixin from './app/mixin/form-field.mixin';
 import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-changes.mixin';
 import type PrivilegesService from './app/service/privileges.service';
 import type { UsageDataModuleState } from './app/state/usage-data.store';
+import type { FileValidationService } from './app/service/file-validation.service';
 
 // trick to make it an "external module" to support global type extension
 
@@ -212,6 +213,7 @@ declare global {
         usageDataService: UsageDataApiService,
         configService: ConfigApiService,
         importExport: ImportExportService,
+        fileValidationService: FileValidationService,
     }
 
     interface MixinContainer {

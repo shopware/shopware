@@ -1,6 +1,6 @@
 ---
 title: Improve file validation service
-issue: NEXT-00000
+issue: NEXT-32034
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

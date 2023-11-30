@@ -169,4 +169,5 @@ export default function fileValidationService(): FileValidationService {
     };
 }
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type { FileValidationService };

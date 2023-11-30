@@ -10,7 +10,7 @@ const { Context } = Shopware;
 
 /**
  * @private
- * @package merchant-services
+ * @package buyers-experience
  */
 export default {
     template,

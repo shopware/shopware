@@ -18,7 +18,7 @@ import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-sear
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
 /**
- * @package merchant-services
+ * @package buyers-experience
  */
 export default class GoogleAnalyticsPlugin extends Plugin
 {

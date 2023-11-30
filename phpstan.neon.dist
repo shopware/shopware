@@ -282,9 +282,6 @@ parameters:
           path: src/Core/Framework/Validation/HappyPathValidator.php
           count: 2
 
-        # Needs a global rename to Symfony\\Component\\Routing\\Attribute\\Route -> should be a separate MR/commit
-        - message: '#Attribute class Symfony\\Component\\Routing\\Annotation\\Route does not have a constructor and must be instantiated without any parameters\.#'
-
 services:
     -   # register the class so we can decorate it, but don't tag it as a rule, so only our decorator is used by phpstan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

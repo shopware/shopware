@@ -188,7 +188,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $this->queryHelper->resolveAccessor($fieldName, $definition, $table, $query, $context, $aggregation);
         }
 
-        $query->resetQueryPart('orderBy');
+        $query->resetQueryPart('groupBy');
 
         $this->extendQuery($aggregation, $query, $definition, $context);
 

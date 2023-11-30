@@ -10,7 +10,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class GatewayClient
 {
     public function __construct(

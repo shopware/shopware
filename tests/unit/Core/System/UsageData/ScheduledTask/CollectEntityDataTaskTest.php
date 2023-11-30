@@ -11,7 +11,7 @@ use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTask;
  *
  * @covers \Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTask
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class CollectEntityDataTaskTest extends TestCase
 {
     public function testItHandlesCorrectTask(): void

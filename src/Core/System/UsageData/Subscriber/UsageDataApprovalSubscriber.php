@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class UsageDataApprovalSubscriber implements EventSubscriberInterface
 {
     public function __construct(

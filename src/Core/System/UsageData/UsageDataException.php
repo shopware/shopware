@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class UsageDataException extends HttpException
 {
     public const MISSING_USER_IN_CONTEXT_SOURCE = 'SYSTEM__USAGE_DATA_MISSING_USER_IN_CONTEXT_SOURCE';

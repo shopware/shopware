@@ -31,7 +31,7 @@ use Symfony\Component\Clock\MockClock;
  *
  * @covers \Shopware\Core\System\UsageData\Consent\ConsentService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ConsentServiceTest extends TestCase
 {
     public function testIsApprovalGivenReturnsConfigValue(): void

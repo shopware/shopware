@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\Subscriber\EntityDeleteSubscriber
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDeleteSubscriberTest extends TestCase
 {
     private UsageDataAllowListService $usageDataAllowListServiceMock;

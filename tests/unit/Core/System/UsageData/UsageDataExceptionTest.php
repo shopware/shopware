@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\UsageData\UsageDataException
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class UsageDataExceptionTest extends TestCase
 {
     public function testMissingUserInContextSource(): void

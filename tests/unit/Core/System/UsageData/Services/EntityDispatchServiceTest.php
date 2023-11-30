@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\Services\EntityDispatchService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDispatchServiceTest extends TestCase
 {
     private DefinitionInstanceRegistry $registry;

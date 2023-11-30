@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 #[AsMessageHandler(handles: CollectEntityDataTask::class)]
 final class CollectEntityDataTaskHandler extends ScheduledTaskHandler
 {

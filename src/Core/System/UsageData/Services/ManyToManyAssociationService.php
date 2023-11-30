@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ManyToManyAssociationService
 {
     public function __construct(

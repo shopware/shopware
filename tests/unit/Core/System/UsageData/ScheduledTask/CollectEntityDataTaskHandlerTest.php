@@ -14,7 +14,7 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository
  *
  * @covers \Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class CollectEntityDataTaskHandlerTest extends TestCase
 {
     public function testItStartsCollectingData(): void

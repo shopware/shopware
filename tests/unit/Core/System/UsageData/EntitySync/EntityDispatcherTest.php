@@ -25,7 +25,7 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\EntityDispatcher
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDispatcherTest extends TestCase
 {
     private readonly ClockInterface $clock;

@@ -15,7 +15,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ConsentServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

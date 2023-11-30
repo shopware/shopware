@@ -2,7 +2,7 @@ import template from './sw-usage-data-consent-banner.html.twig';
 import './sw-usage-data-consent-banner.scss';
 
 /**
- * @package merchant-services
+ * @package data-services
  *
  * @private
  */

@@ -12,7 +12,7 @@ use Shopware\Core\System\UsageData\EntitySync\Operation;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class IterateEntityMessageTest extends TestCase
 {
     public function testGetters(): void

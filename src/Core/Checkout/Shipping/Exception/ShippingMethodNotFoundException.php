@@ -3,11 +3,12 @@
 namespace Shopware\Core\Checkout\Shipping\Exception;
 
 use Shopware\Core\Checkout\Shipping\ShippingException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @decrecated tag:v6.6.0 - use ShippingException::shippingMethodNotFound instead
+ * @deprecated tag:v6.6.0 - use ShippingException::shippingMethodNotFound instead
  */
 #[Package('checkout')]
 class ShippingMethodNotFoundException extends ShippingException
@@ -25,11 +26,15 @@ class ShippingMethodNotFoundException extends ShippingException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'The class "ShippingMethodNotFoundException" is deprecated and will be removed. Use "ShippingException::shippingMethodNotFound" instead.');
+
         return ShippingException::SHIPPING_METHOD_NOT_FOUND;
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow('v6.6.0.0', 'The class "ShippingMethodNotFoundException" is deprecated and will be removed. Use "ShippingException::shippingMethodNotFound" instead.');
+
         return Response::HTTP_BAD_REQUEST;
     }
 }

@@ -7,7 +7,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  *
- * @decrecated tag:v6.6.0 - Will be removed. Use \Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService instead
+ * @deprecated tag:v6.6.0 - Will be removed. Use \Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService instead
  */
 class StaticSystemConfigService extends SystemConfigService
 {

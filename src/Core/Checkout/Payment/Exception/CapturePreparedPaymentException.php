@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 /**
- * @decrecated tag:v6.6.0 - use PaymentException::capturePreparedException instead
+ * @deprecated tag:v6.6.0 - use PaymentException::capturePreparedException instead
  */
 class CapturePreparedPaymentException extends PaymentProcessException
 {

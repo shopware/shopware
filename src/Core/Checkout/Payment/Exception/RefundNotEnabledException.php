@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
 /**
- * @decrecated tag:v6.6.0 - Will be removed without replacement
+ * @deprecated tag:v6.6.0 - Will be removed without replacement
  */
 class RefundNotEnabledException extends RefundProcessException
 {

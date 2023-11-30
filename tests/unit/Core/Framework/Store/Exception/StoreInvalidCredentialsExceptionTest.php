@@ -3,16 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException
  */
+#[Package('services-settings')]
 class StoreInvalidCredentialsExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

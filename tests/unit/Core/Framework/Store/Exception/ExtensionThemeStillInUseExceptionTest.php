@@ -3,18 +3,18 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException
  */
 #[DisabledFeatures(['v6.6.0.0'])]
+#[Package('services-settings')]
 class ExtensionThemeStillInUseExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

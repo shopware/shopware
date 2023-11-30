@@ -1,6 +1,6 @@
 /**
  * @private
- * @package merchant-services
+ * @package services-settings
  */
 export default {
     namespaced: true,

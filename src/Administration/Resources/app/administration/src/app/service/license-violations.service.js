@@ -2,7 +2,7 @@ const { Application } = Shopware;
 
 /**
  * @private
- * @package merchant-services
+ * @package services-settings
  */
 export default function createLicenseViolationsService(storeService) {
     /** {VueInstance|null} applicationRoot  */

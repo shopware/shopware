@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\Framework\Store\StoreException
  */
-#[Package('merchant-services')]
+#[Package('services-settings')]
 class StoreExceptionTest extends TestCase
 {
     public function testCannotDeleteManaged(): void

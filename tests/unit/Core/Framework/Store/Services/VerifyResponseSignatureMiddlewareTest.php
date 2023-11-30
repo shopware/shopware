@@ -5,17 +5,17 @@ namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreSignatureValidationException;
 use Shopware\Core\Framework\Store\Services\OpenSSLVerifier;
 use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware
  */
+#[Package('services-settings')]
 class VerifyResponseSignatureMiddlewareTest extends TestCase
 {
     public function testReturnsResponseWithRewoundBody(): void

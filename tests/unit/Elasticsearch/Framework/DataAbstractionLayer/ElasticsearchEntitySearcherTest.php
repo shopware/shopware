@@ -6,7 +6,6 @@ use OpenSearch\Client;
 use OpenSearch\Common\Exceptions\NoNodesAvailableException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -125,7 +124,7 @@ class ElasticsearchEntitySearcherTest extends TestCase
             $client,
             $this->createMock(EntitySearcherInterface::class),
             $helper,
-            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), $this->createMock(AbstractKeyValueStorage::class)),
+            new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)),
             $this->createMock(AbstractElasticsearchSearchHydrator::class),
             new EventDispatcher(),
         );

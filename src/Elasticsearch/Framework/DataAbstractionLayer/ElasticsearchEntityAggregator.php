@@ -49,7 +49,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 
         try {
             $result = $this->client->search([
-                'index' => $this->helper->getIndexName($definition, $this->helper->enabledMultilingualIndex() ? null : $context->getLanguageId()),
+                'index' => $this->helper->getIndexName($definition),
                 'body' => $searchArray,
             ]);
         } catch (\Throwable $e) {

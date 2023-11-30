@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\BuilderInterface;
 use OpenSearchDSL\Query\Compound\BoolQuery;
-use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\FullText\MultiMatchQuery;
 use OpenSearchDSL\Query\Joining\NestedQuery;
 use PHPUnit\Framework\TestCase;
@@ -24,9 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractToke
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -46,7 +43,6 @@ class ProductSearchQueryBuilderTest extends TestCase
             $this->getDefinition(),
             $this->createMock(TokenFilter::class),
             new Tokenizer(2),
-            $this->createMock(ElasticsearchHelper::class)
         );
 
         static::expectException(DecorationPatternException::class);
@@ -70,16 +66,12 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $helper = new EntityDefinitionQueryHelper();
 
-        $elasticsearchQueryHelper = $this->createMock(ElasticsearchHelper::class);
-        $elasticsearchQueryHelper->method('enabledMultilingualIndex')->willReturn(Feature::isActive('ES_MULTILINGUAL_INDEX'));
-
         $builder = new ProductSearchQueryBuilder(
             $connection,
             $helper,
             $this->getDefinition(),
             $tokenFilter,
             new Tokenizer(2),
-            $elasticsearchQueryHelper
         );
 
         $criteria = new Criteria();
@@ -95,149 +87,77 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $nameQueries = array_map(fn (BuilderInterface $query) => $query->toArray(), array_values($tokenQueries[0]->getQueries(BoolQuery::SHOULD)));
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertCount(6, $nameQueries);
+        static::assertCount(6, $nameQueries);
 
-            $expectedQueries = [
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
-                        ],
-                        'type' => 'best_fields',
-                        'fuzziness' => 0,
-                        'boost' => 2500,
+        $expectedQueries = [
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
                     ],
+                    'type' => 'best_fields',
+                    'fuzziness' => 0,
+                    'boost' => 2500,
                 ],
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
-                        ],
-                        'type' => 'phrase_prefix',
-                        'slop' => 5,
-                        'boost' => 500,
+            ],
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
                     ],
+                    'type' => 'phrase_prefix',
+                    'slop' => 5,
+                    'boost' => 500,
                 ],
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
-                        ],
-                        'type' => 'best_fields',
-                        'fuzziness' => 'auto',
-                        'boost' => 1500,
+            ],
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
                     ],
+                    'type' => 'best_fields',
+                    'fuzziness' => 'auto',
+                    'boost' => 1500,
                 ],
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.ngram',
-                        ],
-                        'type' => 'phrase',
-                        'boost' => 500,
+            ],
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.ngram',
                     ],
+                    'type' => 'phrase',
+                    'boost' => 500,
                 ],
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'description.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
-                        ],
-                        'type' => 'best_fields',
-                        'fuzziness' => 0,
-                        'boost' => 2500,
+            ],
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'description.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
                     ],
+                    'type' => 'best_fields',
+                    'fuzziness' => 0,
+                    'boost' => 2500,
                 ],
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'description.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
-                        ],
-                        'type' => 'phrase_prefix',
-                        'slop' => 5,
-                        'boost' => 500,
+            ],
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'description.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
                     ],
+                    'type' => 'phrase_prefix',
+                    'slop' => 5,
+                    'boost' => 500,
                 ],
-            ];
+            ],
+        ];
 
-            static::assertSame($expectedQueries, $nameQueries);
-        } else {
-            static::assertCount(8, $nameQueries);
-
-            $expectedQueries = [
-                ['match' => [
-                    'name.search' => [
-                        'query' => 'foo',
-                        'boost' => 2500,
-                    ],
-                ],
-                ],
-                [
-                    'match_phrase_prefix' => [
-                        'name.search' => [
-                            'query' => 'foo',
-                            'boost' => 500,
-                            'slop' => 5,
-                        ],
-                    ],
-                ],
-                [
-                    'wildcard' => [
-                        'name.search' => [
-                            'value' => '*foo*',
-                        ],
-                    ],
-                ],
-                [
-                    'match' => [
-                        'name.search' => [
-                            'query' => 'foo',
-                            'fuzziness' => 'auto',
-                            'boost' => 1500,
-                        ],
-                    ],
-                ],
-                [
-                    'match' => [
-                        'name.ngram' => [
-                            'query' => 'foo',
-                        ],
-                    ],
-                ],
-                [
-                    'match' => [
-                        'description.search' => [
-                            'query' => 'foo',
-                            'boost' => 2500,
-                        ],
-                    ],
-                ],
-                [
-                    'match_phrase_prefix' => [
-                        'description.search' => [
-                            'query' => 'foo',
-                            'boost' => 500,
-                            'slop' => 5,
-                        ],
-                    ],
-                ],
-                [
-                    'wildcard' => [
-                        'description.search' => [
-                            'value' => '*foo*',
-                        ],
-                    ],
-                ],
-            ];
-
-            static::assertSame($expectedQueries, $nameQueries);
-        }
+        static::assertSame($expectedQueries, $nameQueries);
     }
 
     public function testNestedQueries(): void
@@ -254,16 +174,12 @@ class ProductSearchQueryBuilderTest extends TestCase
             ->method('filter')
             ->willReturnArgument(0);
 
-        $elasticsearchQueryHelper = $this->createMock(ElasticsearchHelper::class);
-        $elasticsearchQueryHelper->method('enabledMultilingualIndex')->willReturn(Feature::isActive('ES_MULTILINGUAL_INDEX'));
-
         $builder = new ProductSearchQueryBuilder(
             $connection,
             new EntityDefinitionQueryHelper(),
             $this->getDefinition(),
             $tokenFilter,
-            new Tokenizer(2),
-            $elasticsearchQueryHelper
+            new Tokenizer(2)
         );
 
         $criteria = new Criteria();
@@ -285,38 +201,22 @@ class ProductSearchQueryBuilderTest extends TestCase
 
         $query = $first->getQuery();
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            static::assertInstanceOf(MultiMatchQuery::class, $query);
+        static::assertInstanceOf(MultiMatchQuery::class, $query);
 
-            static::assertSame(
-                [
-                    'multi_match' => [
-                        'query' => 'foo',
-                        'fields' => [
-                            'categories.name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
-                        ],
-                        'type' => 'best_fields',
-                        'fuzziness' => 0,
-                        'boost' => 2500,
+        static::assertSame(
+            [
+                'multi_match' => [
+                    'query' => 'foo',
+                    'fields' => [
+                        'categories.name.2fbb5fe2e29a4d70aa5854ce7ce3e20b.search',
                     ],
+                    'type' => 'best_fields',
+                    'fuzziness' => 0,
+                    'boost' => 2500,
                 ],
-                $query->toArray()
-            );
-        } else {
-            static::assertInstanceOf(MatchQuery::class, $query);
-
-            static::assertSame(
-                [
-                    'match' => [
-                        'categories.name.search' => [
-                            'query' => 'foo',
-                            'boost' => 2500,
-                        ],
-                    ],
-                ],
-                $query->toArray()
-            );
-        }
+            ],
+            $query->toArray()
+        );
     }
 
     public function testOrSearch(): void
@@ -339,8 +239,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             new EntityDefinitionQueryHelper(),
             $this->getDefinition(),
             $tokenFilter,
-            new Tokenizer(2),
-            $this->createMock(ElasticsearchHelper::class)
+            new Tokenizer(2)
         );
 
         $criteria = new Criteria();

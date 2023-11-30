@@ -6,12 +6,10 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
-use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -53,7 +51,6 @@ class CreateAliasTaskHandlerTest extends TestCase
             $elasticsearchHelper,
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $handler->run();
@@ -77,7 +74,6 @@ class CreateAliasTaskHandlerTest extends TestCase
             $this->createMock(ElasticsearchHelper::class),
             [],
             new EventDispatcher(),
-            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $handler->run();
@@ -144,9 +140,6 @@ class CreateAliasTaskHandlerTest extends TestCase
             $called = true;
         });
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->expects(static::once())->method('set')->with(ElasticsearchIndexer::ENABLE_MULTILINGUAL_INDEX_KEY, 1);
-
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $client,
@@ -154,7 +147,6 @@ class CreateAliasTaskHandlerTest extends TestCase
             $this->createMock(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
             $eventDispatcher,
-            $storage
         );
 
         $handler->run();
@@ -228,7 +220,6 @@ class CreateAliasTaskHandlerTest extends TestCase
             $this->createMock(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
             new EventDispatcher(),
-            $this->createMock(AbstractKeyValueStorage::class)
         );
 
         $handler->run();

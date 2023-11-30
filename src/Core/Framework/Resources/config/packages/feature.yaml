@@ -17,10 +17,6 @@ shopware:
         default: false
         major: true
         description: "Enables new media path behavior, which calls new services to generate media urls"
-      - name: ES_MULTILINGUAL_INDEX
-        default: false
-        major: true
-        description: "Change Elasticsearch mapping data to support multi languages in one index"
       - name: STOCK_HANDLING
         default: false
         major: false

@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 /**
  * @phpstan-type SearchConfig array{and_logic: string, field: string, tokenize: int, ranking: int}
@@ -41,8 +40,7 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
         private readonly EntityDefinitionQueryHelper $helper,
         private readonly EntityDefinition $productDefinition,
         private readonly AbstractTokenFilter $tokenFilter,
-        private readonly TokenizerInterface $tokenizer,
-        private readonly ElasticsearchHelper $elasticsearchHelper
+        private readonly TokenizerInterface $tokenizer
     ) {
     }
 
@@ -61,57 +59,18 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
             $tokenBool = new BoolQuery();
 
             foreach ($searchConfig as $item) {
-                if ($this->elasticsearchHelper->enabledMultilingualIndex()) {
-                    $config = new SearchFieldConfig((string) $item['field'], (int) $item['ranking'], (bool) $item['tokenize']);
-                    $field = $this->helper->getField($config->getField(), $this->productDefinition, $this->productDefinition->getEntityName(), false);
-                    $association = $this->helper->getAssociationPath($config->getField(), $this->productDefinition);
-                    $root = $association ? explode('.', $association)[0] : null;
+                $config = new SearchFieldConfig((string) $item['field'], (int) $item['ranking'], (bool) $item['tokenize']);
+                $field = $this->helper->getField($config->getField(), $this->productDefinition, $this->productDefinition->getEntityName(), false);
+                $association = $this->helper->getAssociationPath($config->getField(), $this->productDefinition);
+                $root = $association ? explode('.', $association)[0] : null;
 
-                    if ($field instanceof TranslatedField) {
-                        $this->buildTranslatedFieldTokenQueries($tokenBool, $token, $config, $context, $root);
-
-                        continue;
-                    }
-
-                    $this->buildTokenQuery($tokenBool, $token, $config, $root);
+                if ($field instanceof TranslatedField) {
+                    $this->buildTranslatedFieldTokenQueries($tokenBool, $token, $config, $context, $root);
 
                     continue;
                 }
 
-                $ranking = $item['ranking'];
-
-                if (!str_contains($item['field'], 'customFields')) {
-                    $searchField = $item['field'] . '.search';
-                    $ngramField = $item['field'] . '.ngram';
-                } else {
-                    $searchField = $item['field'];
-                    $ngramField = $item['field'];
-                }
-
-                $queries = [];
-
-                $queries[] = new MatchQuery($searchField, $token, ['boost' => 5 * $ranking]);
-                $queries[] = new MatchPhrasePrefixQuery($searchField, $token, ['boost' => $ranking, 'slop' => 5]);
-                $queries[] = new WildcardQuery($searchField, '*' . $token . '*');
-
-                if ($item['tokenize']) {
-                    $queries[] = new MatchQuery($searchField, $token, ['fuzziness' => 'auto', 'boost' => 3 * $ranking]);
-                    $queries[] = new MatchQuery($ngramField, $token);
-                }
-
-                if (str_contains($item['field'], '.') && !str_contains($item['field'], 'customFields')) {
-                    $nested = strtok($item['field'], '.');
-
-                    foreach ($queries as $query) {
-                        $tokenBool->add(new NestedQuery($nested, $query), BoolQuery::SHOULD);
-                    }
-
-                    continue;
-                }
-
-                foreach ($queries as $query) {
-                    $tokenBool->add($query, BoolQuery::SHOULD);
-                }
+                $this->buildTokenQuery($tokenBool, $token, $config, $root);
             }
 
             $bool->add($tokenBool, $isAndSearch ? BoolQuery::MUST : BoolQuery::SHOULD);

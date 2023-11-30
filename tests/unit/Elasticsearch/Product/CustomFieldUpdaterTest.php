@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
@@ -151,37 +150,35 @@ class CustomFieldUpdaterTest extends TestCase
             ],
         ];
 
-        if (Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            $elasticsearchHelper->expects(static::once())->method('enabledMultilingualIndex')->willReturn(true);
-            $deLang = Uuid::randomHex();
-            $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
-                Defaults::LANGUAGE_SYSTEM,
-                $deLang,
-            ]);
+        $deLang = Uuid::randomHex();
+        $connection->expects(static::once())->method('fetchFirstColumn')->willReturn([
+            Defaults::LANGUAGE_SYSTEM,
+            $deLang,
+        ]);
 
-            $customFields = [
-                'properties' => [
-                    $deLang => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [
-                            'test' => [
-                                'type' => 'text',
-                            ],
-                        ],
-                    ],
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [
-                            'test' => [
-                                'type' => 'text',
-                            ],
+        $customFields = [
+            'properties' => [
+                $deLang => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'test' => [
+                            'type' => 'text',
                         ],
                     ],
                 ],
-            ];
-        }
+                Defaults::LANGUAGE_SYSTEM => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'test' => [
+                            'type' => 'text',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
         $indices
             ->expects(static::once())
             ->method('putMapping')

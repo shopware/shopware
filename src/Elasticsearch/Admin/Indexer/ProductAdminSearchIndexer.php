@@ -78,7 +78,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $lastPart = end($splitTerms);
 
         // If the end of the search term is not a symbol, apply the prefix search query
-        if (preg_match('/^[a-zA-Z0-9]+$/', $lastPart)) {
+        if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {
             $term = $term . '*';
         }
 

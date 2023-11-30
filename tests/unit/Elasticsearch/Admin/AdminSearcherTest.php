@@ -13,6 +13,7 @@ use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
 use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
+use Shopware\Elasticsearch\ElasticsearchException;
 
 /**
  * @package system-settings
@@ -211,5 +212,17 @@ class AdminSearcherTest extends TestCase
         static::assertEquals(1, $data['product']['total']);
         static::assertEquals('product-listing', $data['product']['indexer']);
         static::assertEquals('sw-admin-product-listing', $data['product']['index']);
+    }
+
+    public function testSearchWithUndefinedIndexer(): void
+    {
+        $this->registry->method('getIndexer')->willThrowException(ElasticsearchException::indexingError(['Indexer for name test not found']));
+
+        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin');
+        $searcher = new AdminSearcher($this->client, $this->registry, $searchHelper);
+
+        $data = $searcher->search('elasticsearch', ['test'], Context::createDefaultContext());
+
+        static::assertEmpty($data);
     }
 }

@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.7.3
+*  [NEXT-32042 - Correct address_format column type](./changelog/release-6-5-7-3/2023-11-30-correct-address_format-column-type.md)
+
 ## 6.5.7.2
 *  [NEXT-29013 - Add missing feature inject](./changelog/release-6-5-7-2/2023-11-16-add-missing-feature-inject.md)
 

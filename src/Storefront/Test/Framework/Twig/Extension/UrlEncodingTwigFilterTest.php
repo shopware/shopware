@@ -87,11 +87,6 @@ class UrlEncodingTwigFilterTest extends TestCase
         static::assertNull($filter->encodeMediaUrl($media));
     }
 
-    /**
-     * NEXT-21735
-     *
-     * @group quarantined
-     */
     public function testItEncodesTheUrl(): void
     {
         $filter = new UrlEncodingTwigFilter();

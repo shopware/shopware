@@ -112,7 +112,7 @@ rufus trunk:
     - !reference [ .rule_exclude_on_deployment_branch ]
     - !reference [ .rule_exclude_on_protected_tag ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "6.5.x"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
       allow_failure: true
   variables:
@@ -131,7 +131,7 @@ commercial trunk:
     - !reference [ .rule_exclude_on_deployment_branch ]
     - !reference [ .rule_exclude_on_protected_tag ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "6.5.x"'
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
     - when: manual
       allow_failure: true
   variables:

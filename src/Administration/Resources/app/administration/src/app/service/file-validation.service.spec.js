@@ -63,6 +63,18 @@ describe('src/app/service/file-helper.service.ts', () => {
                 checkByExtension({ ...fileMock, name: 'test' }, fileAcceptString),
             ).toBe(false);
         });
+
+        it('should return true when filename contains dots', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: 'test.dummy.pdf' }, fileAcceptString),
+            ).toBe(true);
+        });
+
+        it('should return false when filename is empty', () => {
+            expect(
+                checkByExtension({ ...fileMock, name: '' }, fileAcceptString),
+            ).toBe(false);
+        });
     });
 
     describe('by type', () => {

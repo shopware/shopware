@@ -95,7 +95,7 @@ export default function fileValidationService(): FileValidationService {
         const types = Object.assign(extensionByType, mimeOverride);
 
         return fileExtensions.some((extension) => {
-            const currentFileExtension = file.name.split('.')[1];
+            const currentFileExtension = file.name.split('.').at(-1);
 
             if (!currentFileExtension) {
                 return false;

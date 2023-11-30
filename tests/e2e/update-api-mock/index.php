@@ -12,7 +12,7 @@ if (str_starts_with($uri, '/swplatform/autoupdate')) {
 if (str_starts_with($uri, '/v1/release/update')) {
     header('Content-Type: application/json');
     echo json_encode([
-        'version' => '6.5.0.0',
+        'version' => '6.6.0.0',
         'release_date' => false,
         'security_update' => false,
         'uri' => 'http://localhost:8060/update.zip',

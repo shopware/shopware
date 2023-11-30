@@ -140,7 +140,11 @@ Changed E2E:
     - >
       if [[ "$PLATFORM_VERSION" = "null" ]]; then
         LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
-        PLATFORM_VERSION="${LATEST_TAG#"v"}"
+        if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
+            PLATFORM_VERSION='6.6.99.99'
+        else
+            PLATFORM_VERSION="${LATEST_TAG#"v"}"
+        fi
         composer config version "$PLATFORM_VERSION"
         composer update
       fi

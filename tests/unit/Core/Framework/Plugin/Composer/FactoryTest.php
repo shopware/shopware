@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
-use Composer\Composer;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 

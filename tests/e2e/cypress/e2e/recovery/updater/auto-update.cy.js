@@ -79,7 +79,7 @@ describe('Minimal auto update', () => {
 
         cy.get('.sw-login__login-action').click();
 
-        cy.get('.sw-version__info').contains('6.5.');
+        cy.get('.sw-version__info').contains('6.6.');
 
         // visit updater and expect 404
         cy.visit('/shopware-installer.phar.php', {failOnStatusCode: false});

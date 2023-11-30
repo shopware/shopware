@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
@@ -25,6 +27,22 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
  */
 class CacheInvalidationSubscriberTest extends TestCase
 {
+    /**
+     * @var CacheInvalidator&MockObject
+     */
+    private CacheInvalidator $cacheInvalidator;
+
+    /**
+     * @var Connection&MockObject
+     */
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $this->connection = $this->createMock(Connection::class);
+    }
+
     public function testConsidersKeyOfCachedBaseContextFactoryForInvalidatingContext(): void
     {
         $salesChannelId = Uuid::randomHex();
@@ -134,6 +152,64 @@ class CacheInvalidationSubscriberTest extends TestCase
         );
 
         $subscriber->invalidateConfigKey(new SystemConfigChangedHook(['test' => '1'], []));
+    }
+
+    public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
+    {
+        $productId = '123';
+        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+
+        $subscriber = new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            false,
+            false
+        );
+        $this->connection->method('fetchAllAssociative')
+            ->willReturn([['product_id' => $productId, 'version_id' => null]]);
+
+        $this->cacheInvalidator->expects(static::once())
+            ->method('invalidate')
+            ->with(
+                [
+                    'product-detail-route-' . $productId,
+                ],
+                false
+            );
+
+        $subscriber->invalidateMedia($event);
+    }
+
+    public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
+    {
+        $productId = '123';
+        $variants = ['456', '789'];
+        $event = new MediaIndexerEvent([Uuid::randomHex()], Context::createDefaultContext(), []);
+
+        $subscriber = new CacheInvalidationSubscriber(
+            $this->cacheInvalidator,
+            $this->connection,
+            false,
+            false
+        );
+        $this->connection->method('fetchAllAssociative')
+            ->willReturn([
+                ['product_id' => $productId, 'variant_id' => $variants[0]],
+                ['product_id' => $productId, 'variant_id' => $variants[1]],
+            ]);
+
+        $this->cacheInvalidator->expects(static::once())
+            ->method('invalidate')
+            ->with(
+                [
+                    'product-detail-route-' . $productId,
+                    'product-detail-route-' . $variants[0],
+                    'product-detail-route-' . $variants[1],
+                ],
+                false
+            );
+
+        $subscriber->invalidateMedia($event);
     }
 
     public static function provideTracingConfigExamples(): \Generator

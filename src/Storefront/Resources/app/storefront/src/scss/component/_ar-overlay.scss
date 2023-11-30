@@ -1,0 +1,116 @@
+// @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+.spatial-ar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(.5, 0, 0, 0.5);
+    display: none;
+    z-index: 1100;
+
+    .spatial-ar-exit-button {
+        position: absolute;
+        top: 25px;
+        right: 20px;
+        width: 36px;
+        height: 36px;
+        color: $white;
+        font-size: 20px;
+        cursor: pointer;
+        display: none;
+        z-index: 1101;
+        background-color: $black;
+        border: 1px solid $white;
+
+        svg {
+            color: $white;
+        }
+    }
+
+    .spatial-ar-placement-hint {
+        display: none;
+        background-color: black;
+    }
+
+    .spatial-ar-movement-hint {
+        display: none;
+        background-color: rgba(0, 0, 0, 0.45);
+
+        svg {
+            color: $white;
+        }
+
+        .ar-anim-container {
+            position: relative;
+            margin-bottom: 90px;
+            margin-left: -200px;
+
+            .icon-ar-icon-surface {
+                position: absolute;
+                width: 200px;
+                height: auto;
+            }
+            .icon-ar-icon-phone {
+                position:absolute;
+                bottom: -75px;
+                left: 2px;
+                width: 30px;
+                height: auto;
+                animation-duration: 4s;
+                animation-iteration-count: infinite;
+                animation-name: move-around;
+            }
+
+            @keyframes move-around {
+                0% {
+                    bottom: -75px;
+                    left: 2px;
+                }
+                25% {
+                    bottom: -100px;
+                    left: 80px;
+                }
+                50% {
+                    bottom: -75px;
+                    left: 165px;
+                }
+                75% {
+                    bottom: -100px;
+                    left: 80px;
+                }
+                100% {
+                    bottom: -75px;
+                    left: 2px;
+                }
+            }
+        }
+    }
+
+
+    .progress {
+        bottom: 80px;
+        height: 4px;
+        $progress-bar-transition: width .2s ease;
+    }
+
+    &.is--visible {
+        display: block;
+    }
+
+    &.is--session-running {
+        .spatial-ar-exit-button {
+            display: block;
+        }
+
+        &:not(.is--tracking):not(.is--placement-hint):not(.is--loading) .spatial-ar-movement-hint {
+            display: block;
+        }
+    }
+
+    &.is--placement-hint, &.is--loading {
+        .spatial-ar-placement-hint {
+            display: block;
+        }
+    }
+}

@@ -746,11 +746,6 @@ parameters:
 			path: src/Core/Checkout/Shipping/Aggregate/ShippingMethodTranslation/ShippingMethodTranslationCollection.php
 
 		-
-			message: "#^Parameter \\#2 \\$entity of method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotCollection\\:\\:set\\(\\) expects Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity, Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/Aggregate/CmsBlock/CmsBlockCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/Aggregate/CmsSlot/CmsSlotEntity.php
@@ -2061,11 +2056,6 @@ parameters:
 			path: src/Core/Content/Media/Event/MediaIndexerEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaCollection\\:\\:getUserIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaCollection.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaService.php
@@ -2174,16 +2164,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductManufacturerTranslation\\\\ProductManufacturerTranslationCollection\\:\\:getProductManufacturerIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductManufacturerTranslation/ProductManufacturerTranslationCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaCollection\\:\\:getMediaIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaCollection\\:\\:getProductIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Aggregate/ProductMedia/ProductMediaCollection.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewEntity\\:\\:\\$status \\(bool\\) does not accept bool\\|null\\.$#"
@@ -5699,11 +5679,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\StoreLicenseViolationStruct\\:\\:getActions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Struct/StoreLicenseViolationStruct.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:map\\(\\) should return list\\<mixed\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/Framework/Struct/Collection.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Serializer\\\\StructDecoder\\:\\:format\\(\\) has no return type specified\\.$#"

@@ -23,12 +23,12 @@ Component.register('sw-label', {
             type: String,
             required: false,
             default: '',
-            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'primary'],
+            validValues: ['info', 'danger', 'success', 'warning', 'neutral', 'neutral-reversed', 'primary'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return ['info', 'danger', 'success', 'warning', 'neutral', 'primary'].includes(value);
+                return ['info', 'danger', 'success', 'warning', 'neutral', 'neutral-reversed', 'primary'].includes(value);
             },
         },
         size: {

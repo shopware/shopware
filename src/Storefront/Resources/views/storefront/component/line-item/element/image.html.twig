@@ -1,6 +1,6 @@
 {% block component_line_item_image %}
     {% set thumbnail %}
-        {% if lineItem.cover.url %}
+        {% if lineItem.cover.url and lineItem.cover.isSpatialObject() == false %}
             {% block component_line_item_image_thumbnails %}
                 {% sw_thumbnails 'line-item-img-thumbnails' with {
                     media: lineItem.cover,

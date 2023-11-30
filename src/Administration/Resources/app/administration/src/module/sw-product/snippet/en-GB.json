@@ -287,7 +287,9 @@
       "errorHeadline": "Error",
       "errorNoImage": "\"{file}\" is not an image.",
       "errorMediaItemDuplicated": "Media item \"{fileName}\" is already assigned.",
-      "coverSubline": "Cover"
+      "coverSubline": "Cover",
+      "spatialSubline": "3D",
+      "arSubline": "AR"
     },
     "advancedPrices": {
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",

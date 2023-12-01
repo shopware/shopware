@@ -140,7 +140,11 @@ Changed E2E:
     - >
       if [[ "$PLATFORM_VERSION" = "null" ]]; then
         LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
-        PLATFORM_VERSION="${LATEST_TAG#"v"}"
+        if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
+            PLATFORM_VERSION='6.6.99.99'
+        else
+            PLATFORM_VERSION="${LATEST_TAG#"v"}"
+        fi
         composer config version "$PLATFORM_VERSION"
         composer update
       fi
@@ -169,7 +173,7 @@ Changed E2E:
     - echo -e "\e[0Ksection_end:`date +%s`:install_sw\r\e[0K"
     - echo -e "\e[0Ksection_start:$(date +%s):install_language_pack[collapsed=true]\r\e[0Ke2e install language pack"
     - rm -rf custom/plugins/SwagLanguagePack || true
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
+    - git clone -b 'next-31992/prepare-6-6-build' https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/services/swaglanguagepack.git custom/plugins/SwagLanguagePack
     - npm --prefix custom/plugins/SwagLanguagePack/src/Resources/app/administration ci
     - bin/console plugin:refresh
     - bin/console plugin:install --activate SwagLanguagePack
@@ -182,49 +186,50 @@ Changed E2E:
         export CYPRESS_INTERRUPT_ON_ERROR="true"
       fi
 
-E2E install NL scenarios:
-  extends:
-    - .e2e-base
-  variables:
-    APP_DEBUG: 0
-    E2E_PROJECT: recovery
-    CYPRESS_dbHost: database
-    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
-    CYPRESS_dbName: root
-    CYPRESS_locale: nl-NL
-    FEATURE_ALL: 'false'
-    ALLOW_FAILURE: 'false'
-    CYPRESS_grepTags: '-quarantined'
-  stage: E2E
-  script:
-    - *e2e-install-nl-base
-    - composer run e2e:cypress -- run
-      --browser chrome
-      --spec "cypress/e2e/scenarios/**/*.cy.js"
-      --headless
-
-E2E Changed install NL scenarios:
-  extends:
-    - E2E install NL scenarios
-  stage: E2E
-  rules:
-    - !reference [ .rules, skip ]
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
-      changes:
-        - 'tests/e2e/cypress/e2e/scenarios/**/*.cy.js'
-  script:
-    - *e2e-install-nl-base
-    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/scenarios")'
-    - 'echo "Changed files: $CHANGED_FILES"'
-    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
-    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
-    - 'echo "Test spec: $TEST_SPEC"'
-    - composer run e2e:cypress-repeat -- run
-      -n 10
-      --config retries=0
-      --browser chrome
-      --spec "$TEST_SPEC"
-      --headless
+# enable when we have a new language pack version
+#E2E install NL scenarios:
+#  extends:
+#    - .e2e-base
+#  variables:
+#    APP_DEBUG: 0
+#    E2E_PROJECT: recovery
+#    CYPRESS_dbHost: database
+#    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+#    CYPRESS_dbName: root
+#    CYPRESS_locale: nl-NL
+#    FEATURE_ALL: 'false'
+#    ALLOW_FAILURE: 'false'
+#    CYPRESS_grepTags: '-quarantined'
+#  stage: E2E
+#  script:
+#    - *e2e-install-nl-base
+#    - composer run e2e:cypress -- run
+#      --browser chrome
+#      --spec "cypress/e2e/scenarios/**/*.cy.js"
+#      --headless
+#
+#E2E Changed install NL scenarios:
+#  extends:
+#    - E2E install NL scenarios
+#  stage: E2E
+#  rules:
+#    - !reference [ .rules, skip ]
+#    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+#      changes:
+#        - 'tests/e2e/cypress/e2e/scenarios/**/*.cy.js'
+#  script:
+#    - *e2e-install-nl-base
+#    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/scenarios")'
+#    - 'echo "Changed files: $CHANGED_FILES"'
+#    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
+#    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
+#    - 'echo "Test spec: $TEST_SPEC"'
+#    - composer run e2e:cypress-repeat -- run
+#      -n 10
+#      --config retries=0
+#      --browser chrome
+#      --spec "$TEST_SPEC"
+#      --headless
 
 .e2e-update-base:
   image: shopware/development:8.2-composer-2

@@ -242,7 +242,7 @@ describe('Product: Visual tests', () => {
         cy.visit('/');
         cy.contains('Original product').click();
 
-        cy.get('.product-detail').should('be.visible');
+        cy.get('.product-detail-name').should('be.visible');
 
         cy.get('.product-detail-name').contains('Original product');
 

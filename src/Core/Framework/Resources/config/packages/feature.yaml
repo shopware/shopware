@@ -5,7 +5,7 @@ shopware:
         default: true
         major: true
       - name: v6.6.0.0
-        default: false
+        default: true
         major: true
       - name: v6.7.0.0
         default: false

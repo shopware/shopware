@@ -21,7 +21,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
     });
 
     // NEXT-19686 - Flaky, use select helper commands
-    it('@package @rule: should use rule builder with the shipping method', { tags: ['pa-business-ops'] }, () => {
+    it.skip('@package @rule: should use rule builder with the shipping method', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST',

@@ -22,10 +22,7 @@
     "@Plugins"
   ],
   "script": [
-    "app/storefront/dist/js/vendor-node.js",
-    "app/storefront/dist/js/vendor-shared.js",
-    "app/storefront/dist/js/runtime.js",
-    "app/storefront/dist/storefront/js/storefront.js",
+    "app/storefront/dist/storefront/storefront.js",
     "@Plugins"
   ],
   "asset": [

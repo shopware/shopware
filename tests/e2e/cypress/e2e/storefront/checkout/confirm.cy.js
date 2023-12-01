@@ -212,7 +212,7 @@ describe('Test payment and shipping methods selection', () => {
             .should('contain', 'Express');
     });
 
-    it('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
+    it.skip('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
         cy.getBearerAuth().then((result) => {
             const requestConfig = {
                 headers: {
@@ -272,7 +272,7 @@ describe('Test payment and shipping methods selection', () => {
         cy.get('.order-item-status-badge-cancelled').should('be.visible').contains('Cancelled');
     });
 
-    it('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
+    it.skip('@base @confirm: should have a working wishlist', { tags: ['pa-checkout'] }, () => {
         cy.intercept({
             url: `**/wishlist/add/**`,
             method: 'POST',

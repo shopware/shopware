@@ -18,6 +18,8 @@
 
 .rule_deployment_branch:
   if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^saas\/\d{4}\/\d{2}$/ || $CI_COMMIT_BRANCH =~ /^saas\/\d{4}\/\d{2}$/'
+  variables:
+    COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}'
   when: on_success
 
 .rule_exclude_on_deployment_branch:
@@ -27,6 +29,17 @@
 .rule_exclude_on_protected_tag:
   if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
   when: never
+
+.rule_branch_commercial_match_rufus_source:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/ && $CI_MERGE_REQUEST_LABELS =~ /.*branch::rufus::match.*/'
+  variables:
+    COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
+  when: on_success
+
+.rule_branch_commercial_match_rufus_trunk:
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/ && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "6.5.x"'
+  variables:
+    COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
 
 .downstream-job:
   stage: downstream
@@ -44,6 +57,7 @@ rufus source branch:
   extends: .downstream-job
   rules:
     - !reference [ .rules, skip ]
+    - !reference [ .rule_branch_commercial_match_rufus_source ]
     - !reference [ .rule_branch_rufus_match ]
   variables:
     PLATFORM_BRANCH: '${CI_COMMIT_BRANCH}${CI_COMMIT_TAG}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
@@ -111,6 +125,7 @@ rufus trunk:
     - !reference [ .rule_exclude_on_branch_rufus_match ]
     - !reference [ .rule_exclude_on_deployment_branch ]
     - !reference [ .rule_exclude_on_protected_tag ]
+    - !reference [ .rule_branch_commercial_match_rufus_trunk ]
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "6.5.x"'
     - when: manual

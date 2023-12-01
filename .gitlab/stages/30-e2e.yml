@@ -186,49 +186,50 @@ Changed E2E:
         export CYPRESS_INTERRUPT_ON_ERROR="true"
       fi
 
-E2E install NL scenarios:
-  extends:
-    - .e2e-base
-  variables:
-    APP_DEBUG: 0
-    E2E_PROJECT: recovery
-    CYPRESS_dbHost: database
-    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
-    CYPRESS_dbName: root
-    CYPRESS_locale: nl-NL
-    FEATURE_ALL: 'false'
-    ALLOW_FAILURE: 'false'
-    CYPRESS_grepTags: '-quarantined'
-  stage: E2E
-  script:
-    - *e2e-install-nl-base
-    - composer run e2e:cypress -- run
-      --browser chrome
-      --spec "cypress/e2e/scenarios/**/*.cy.js"
-      --headless
-
-E2E Changed install NL scenarios:
-  extends:
-    - E2E install NL scenarios
-  stage: E2E
-  rules:
-    - !reference [ .rules, skip ]
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
-      changes:
-        - 'tests/e2e/cypress/e2e/scenarios/**/*.cy.js'
-  script:
-    - *e2e-install-nl-base
-    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/scenarios")'
-    - 'echo "Changed files: $CHANGED_FILES"'
-    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
-    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
-    - 'echo "Test spec: $TEST_SPEC"'
-    - composer run e2e:cypress-repeat -- run
-      -n 10
-      --config retries=0
-      --browser chrome
-      --spec "$TEST_SPEC"
-      --headless
+# enable when we have a new language pack version
+#E2E install NL scenarios:
+#  extends:
+#    - .e2e-base
+#  variables:
+#    APP_DEBUG: 0
+#    E2E_PROJECT: recovery
+#    CYPRESS_dbHost: database
+#    CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+#    CYPRESS_dbName: root
+#    CYPRESS_locale: nl-NL
+#    FEATURE_ALL: 'false'
+#    ALLOW_FAILURE: 'false'
+#    CYPRESS_grepTags: '-quarantined'
+#  stage: E2E
+#  script:
+#    - *e2e-install-nl-base
+#    - composer run e2e:cypress -- run
+#      --browser chrome
+#      --spec "cypress/e2e/scenarios/**/*.cy.js"
+#      --headless
+#
+#E2E Changed install NL scenarios:
+#  extends:
+#    - E2E install NL scenarios
+#  stage: E2E
+#  rules:
+#    - !reference [ .rules, skip ]
+#    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+#      changes:
+#        - 'tests/e2e/cypress/e2e/scenarios/**/*.cy.js'
+#  script:
+#    - *e2e-install-nl-base
+#    - 'CHANGED_FILES=$(git diff --diff-filter=ACMRT --name-only ${CI_MERGE_REQUEST_DIFF_BASE_SHA} | grep -E "^tests/e2e/cypress/e2e/scenarios")'
+#    - 'echo "Changed files: $CHANGED_FILES"'
+#    # remove prefix tests/e2e/, replace newlines with commas and trim trailing comma
+#    - 'TEST_SPEC=$(echo "${CHANGED_FILES}" | sed "s|^tests/e2e/||g" | tr "\\n" "," | sed "s/,*$//g")'
+#    - 'echo "Test spec: $TEST_SPEC"'
+#    - composer run e2e:cypress-repeat -- run
+#      -n 10
+#      --config retries=0
+#      --browser chrome
+#      --spec "$TEST_SPEC"
+#      --headless
 
 .e2e-update-base:
   image: shopware/development:8.2-composer-2

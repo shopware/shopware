@@ -73,7 +73,6 @@ Component Library:
 Prepare commercial release:
   extends: .base-no-setup
   stage: lint
-  image: alpine:latest
   needs: []
   environment:
     name: 'Gitlab - Commercial'
@@ -85,7 +84,6 @@ Prepare commercial release:
   rules:
       - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
   before_script:
-    - apk add composer git bash
     - git config --global user.email $GIT_EMAIL
     - git config --global user.name $GIT_USER
     # fetch saas branches
@@ -96,3 +94,27 @@ Prepare commercial release:
     - '.gitlab/bin/commercial_release.bash "$CI_COMMIT_TAG" "$COMMERCIAL_REMOTE_URL"'
     - git -C commercial log -n 2
     - git -C commercial diff @^..
+
+Prepare SBP platform release:
+  extends: .base-no-setup
+  stage: lint
+  needs: []
+  environment:
+    name: 'SBP - Production'
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  before_script: []
+  script:
+    - .gitlab/bin/sbp_release.sh create "$CI_COMMIT_TAG"
+
+Prepare SBP staging platform release:
+  extends: .base-no-setup
+  stage: lint
+  needs: []
+  environment:
+    name: 'SBP - Staging'
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  before_script: []
+  script:
+    - .gitlab/bin/sbp_release.sh create "$CI_COMMIT_TAG"

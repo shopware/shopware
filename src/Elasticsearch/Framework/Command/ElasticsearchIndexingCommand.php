@@ -61,9 +61,8 @@ class ElasticsearchIndexingCommand extends Command
         $progressBar = new ProgressBar($output);
         $progressBar->start();
 
-        $entities = $input->getOption('only') ? explode(',', $input->getOption('only')) : [];
         $offset = null;
-        while ($message = $this->indexer->iterate($offset, $entities)) {
+        while ($message = $this->indexer->iterate($offset)) {
             $offset = $message->getOffset();
 
             $step = \count($message->getData()->getIds());

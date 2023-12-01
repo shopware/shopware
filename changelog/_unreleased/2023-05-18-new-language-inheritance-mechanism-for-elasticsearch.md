@@ -1,7 +1,6 @@
 ---
 title: New language inheritance mechanism for elasticsearch
 issue: NEXT-25613
-flag: ES_MULTILINGUAL_INDEX
 ---
 # Core 
 * Added a new feature flag `ES_MULTILINGUAL_INDEX` in `Core/Framework/Resources/config/packages/feature.yaml`

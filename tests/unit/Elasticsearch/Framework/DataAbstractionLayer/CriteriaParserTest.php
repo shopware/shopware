@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
@@ -31,9 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldService;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -57,8 +54,7 @@ class CriteriaParserTest extends TestCase
         /** @var CompositeAggregation $esAgg */
         $esAgg = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
-            $this->createMock(CustomFieldService::class),
-            $this->createMock(AbstractKeyValueStorage::class)
+            $this->createMock(CustomFieldService::class)
         ))->parseAggregation($aggs, $definition, Context::createDefaultContext());
 
         static::assertInstanceOf(CompositeAggregation::class, $esAgg);
@@ -100,13 +96,9 @@ class CriteriaParserTest extends TestCase
 
         $definition = $this->getDefinition();
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
-            $storage
         );
 
         $esAgg = $parser->parseAggregation($aggs, $definition, Context::createDefaultContext());
@@ -127,17 +119,11 @@ class CriteriaParserTest extends TestCase
      */
     public function testParseFilter(Filter $filter, array $expectedEsFilter): void
     {
-        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
-
         $definition = $this->getDefinition();
-
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
 
         $parser = new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
-            $storage
         );
 
         $context = new Context(
@@ -155,10 +141,7 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
-        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), $storage);
+        $parser = new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class));
 
         static::expectException(ElasticsearchException::class);
         static::expectExceptionMessage(sprintf('Provided filter of class %s is not supported', CustomFilter::class));
@@ -171,10 +154,8 @@ class CriteriaParserTest extends TestCase
     public function testBuildAccessor(string $field, Context $context, string $expectedAccessor): void
     {
         $definition = $this->getDefinition();
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
 
-        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class), $storage))->buildAccessor($definition, $field, $context);
+        $accessor = (new CriteriaParser(new EntityDefinitionQueryHelper(), $this->createMock(CustomFieldService::class)))->buildAccessor($definition, $field, $context);
 
         static::assertSame($expectedAccessor, $accessor);
     }
@@ -572,8 +553,6 @@ class CriteriaParserTest extends TestCase
      */
     public function testTranslatedFieldSorting(FieldSorting $sorting, array $expectedQuery, bool $scriptSorting = true, ?Field $customField = null): void
     {
-        Feature::skipTestIfInActive('ES_MULTILINGUAL_INDEX', $this);
-
         $definition = $this->getDefinition();
 
         $customFieldService = $this->createMock(CustomFieldService::class);
@@ -582,13 +561,9 @@ class CriteriaParserTest extends TestCase
             $customFieldService->expects(static::once())->method('getCustomField')->willReturn($customField);
         }
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
         $fieldSort = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $customFieldService,
-            $storage
         ))->parseSorting($sorting, $definition, Context::createDefaultContext());
 
         if ($scriptSorting) {
@@ -912,13 +887,9 @@ class CriteriaParserTest extends TestCase
         $context = Context::createDefaultContext();
         $definition = $this->getDefinition();
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
         $sortedFilter = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
-            $storage
         ))->parseFilter($filter, $definition, '', $context);
 
         $sortedFilterArray = $sortedFilter->toArray();
@@ -1115,13 +1086,9 @@ class CriteriaParserTest extends TestCase
     ): void {
         $definition = $this->getDefinition();
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
         $sorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
-            $storage
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $sorting->getParameter('script');
@@ -1129,17 +1096,6 @@ class CriteriaParserTest extends TestCase
         static::assertIsArray($script);
         static::assertArrayHasKey('source', $script);
         static::assertNotEmpty($script['source']);
-    }
-
-    /**
-     * @dataProvider providerOldFeatureVersion
-     *
-     * @param array<mixed> $expectedQuery
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testCheapestPriceOldFeatureSorting(FieldSorting $sorting, array $expectedQuery, Context $context): void
-    {
-        $this->executeCheapestPriceTest($sorting, $expectedQuery, $context);
     }
 
     /**
@@ -1281,13 +1237,9 @@ class CriteriaParserTest extends TestCase
     {
         $definition = $this->getDefinition();
 
-        $storage = $this->createMock(AbstractKeyValueStorage::class);
-        $storage->method('get')->willReturn(true);
-
         $parsedSorting = (new CriteriaParser(
             new EntityDefinitionQueryHelper(),
             $this->createMock(CustomFieldService::class),
-            $storage
         ))->parseSorting($sorting, $definition, $context);
 
         $script = $parsedSorting->getParameter('script');

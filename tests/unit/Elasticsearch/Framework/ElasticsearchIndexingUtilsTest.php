@@ -7,10 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
-use Shopware\Elasticsearch\Product\Event\ElasticsearchProductCustomFieldsMappingEvent;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -26,13 +24,6 @@ class ElasticsearchIndexingUtilsTest extends TestCase
         $dispatcher = new EventDispatcher();
 
         $customFieldsMappingEventDispatched = 0;
-        $productCustomFieldsMappingEventDispatched = 0;
-
-        if (!Feature::isActive('v6.6.0.0')) {
-            $dispatcher->addListener(ElasticsearchProductCustomFieldsMappingEvent::class, function (ElasticsearchProductCustomFieldsMappingEvent $event) use (&$productCustomFieldsMappingEventDispatched): void {
-                $productCustomFieldsMappingEventDispatched = $productCustomFieldsMappingEventDispatched + 1;
-            });
-        }
 
         $dispatcher->addListener(ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event) use (&$customFieldsMappingEventDispatched): void {
             $customFieldsMappingEventDispatched = $customFieldsMappingEventDispatched + 1;

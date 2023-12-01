@@ -5,7 +5,6 @@ namespace Shopware\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\AbstractTokenFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,7 +23,6 @@ class StopwordTokenFilter extends AbstractTokenFilter
      * @internal
      */
     public function __construct(
-        private readonly AbstractTokenFilter $tokenFiler,
         private readonly Connection $connection
     ) {
     }
@@ -39,10 +37,6 @@ class StopwordTokenFilter extends AbstractTokenFilter
      */
     public function filter(array $tokens, Context $context): array
     {
-        if (!Feature::isActive('ES_MULTILINGUAL_INDEX')) {
-            return $this->tokenFiler->filter($tokens, $context);
-        }
-
         if (empty($tokens)) {
             return $tokens;
         }

@@ -31,11 +31,10 @@ class CacheInvalidator
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      */
     public function invalidate(array $tags, bool $force = false): void
     {
-        /** @var list<string> $tags */
         $tags = array_filter(array_unique($tags));
 
         if (empty($tags)) {
@@ -72,7 +71,7 @@ class CacheInvalidator
     }
 
     /**
-     * @param list<string> $keys
+     * @param array<string> $keys
      */
     private function purge(array $keys): void
     {

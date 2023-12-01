@@ -79,7 +79,7 @@ class EntityDefinitionQueryHelper
     }
 
     /**
-     * @return list<Field>
+     * @return array<Field>
      */
     public static function getFieldsOfAccessor(EntityDefinition $definition, string $accessor, bool $resolveTranslated = true): array
     {
@@ -106,8 +106,8 @@ class EntityDefinitionQueryHelper
             }
 
             if ($field instanceof TranslatedField && $resolveTranslated) {
-                /** @var EntityDefinition $source */
                 $source = $source->getTranslationDefinition();
+                \assert($source instanceof EntityDefinition);
                 $fields = $source->getFields();
                 $accessorFields[] = $fields->get($part);
 
@@ -315,7 +315,6 @@ class EntityDefinitionQueryHelper
                 throw new \RuntimeException('Missing `VersionField` in `' . $definition->getClass() . '`');
             }
 
-            /** @var FkField $versionIdField */
             $versionIdField = array_shift($versionIdField);
 
             $query->andWhere(self::escape($table) . '.' . self::escape($versionIdField->getStorageName()) . ' = :version');
@@ -426,7 +425,6 @@ class EntityDefinitionQueryHelper
 
         $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
 
-        /** @var TranslatedField $field */
         foreach ($fields as $field) {
             if (!$field instanceof StorageAware) {
                 continue;
@@ -537,7 +535,6 @@ class EntityDefinitionQueryHelper
     public function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
         $primaryKeys = $criteria->getIds();
-
         $primaryKeys = array_values($primaryKeys);
 
         if (empty($primaryKeys)) {
@@ -549,8 +546,8 @@ class EntityDefinitionQueryHelper
             if ($primaryKeyField instanceof IdField || $primaryKeyField instanceof FkField) {
                 $primaryKeys = array_map(function ($id) {
                     if (\is_array($id)) {
-                        /** @var string $shiftedId */
                         $shiftedId = array_shift($id);
+                        \assert(\is_string($shiftedId));
 
                         return Uuid::fromHexToBytes($shiftedId);
                     }

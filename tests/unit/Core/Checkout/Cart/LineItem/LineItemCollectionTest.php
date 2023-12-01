@@ -347,8 +347,8 @@ class LineItemCollectionTest extends TestCase
 
         static::assertEquals(
             new PriceCollection([
-                new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'A' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'B' => new CalculatedPrice(300, 300, new CalculatedTaxCollection(), new TaxRuleCollection()),
             ]),
             $lineItems->getPrices()
         );

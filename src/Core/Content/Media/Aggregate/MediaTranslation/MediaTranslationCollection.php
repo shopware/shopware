@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 class MediaTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getMediaIds(): array
     {
@@ -25,7 +25,7 @@ class MediaTranslationCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {

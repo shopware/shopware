@@ -176,4 +176,28 @@ class FeatureTest extends TestCase
 
         restore_error_handler();
     }
+
+    /**
+     * @dataProvider deprecatedMethodMessageProvider
+     */
+    public function testDeprecatedMethodMessage(string $expectedMessage, string $className, string $methodName): void
+    {
+        $message = Feature::deprecatedMethodMessage($className, $methodName, 'v6.7.0.0');
+        static::assertSame($expectedMessage, $message);
+    }
+
+    public static function deprecatedMethodMessageProvider(): \Generator
+    {
+        yield 'message with class and method string' => [
+            'Method "Shopware\Tests\Unit\Core\Framework\FeatureTest::deprecatedMethodMessageProvider()" is deprecated and will be removed in v6.7.0.0.',
+            __CLASS__,
+            'deprecatedMethodMessageProvider',
+        ];
+
+        yield 'message with class and method magic constant' => [
+            'Method "Shopware\Tests\Unit\Core\Framework\FeatureTest::deprecatedMethodMessageProvider()" is deprecated and will be removed in v6.7.0.0.',
+            __CLASS__,
+            __METHOD__,
+        ];
+    }
 }

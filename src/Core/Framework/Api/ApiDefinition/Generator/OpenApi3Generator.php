@@ -127,7 +127,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            if (preg_match('/_translation$/', $definition->getEntityName())) {
+            if (str_ends_with($definition->getEntityName(), '_translation')) {
                 continue;
             }
 

@@ -115,8 +115,8 @@ class TreeUpdater
         $escaped = EntityDefinitionQueryHelper::escape($definition->getEntityName());
         $query->update($escaped);
 
-        /** @var TreePathField $pathField */
         foreach ($definition->getFields()->filterInstance(TreePathField::class) as $pathField) {
+            \assert($pathField instanceof TreePathField);
             $path = 'null';
 
             if (\array_key_exists('parent', $entity)) {
@@ -126,8 +126,8 @@ class TreeUpdater
             $query->set($pathField->getStorageName(), $path);
         }
 
-        /** @var TreeLevelField $field */
         foreach ($definition->getFields()->filterInstance(TreeLevelField::class) as $field) {
+            \assert($field instanceof TreeLevelField);
             $level = 1;
 
             if (\array_key_exists('parent', $entity)) {
@@ -200,7 +200,7 @@ class TreeUpdater
             $fields[] = 'parent_version_id';
         }
 
-        $fields = $definition->getFields()
+        return $definition->getFields()
             ->filterInstance(TreePathField::class)
             ->reduce(function (array $fields, TreePathField $field) {
                 if (!\in_array($field->getPathField(), $fields, true)) {
@@ -209,8 +209,6 @@ class TreeUpdater
 
                 return $fields;
             }, $fields);
-
-        return $fields;
     }
 
     private function makeQueryVersionAware(EntityDefinition $definition, string $versionId, QueryBuilder $query): void
@@ -292,11 +290,11 @@ class TreeUpdater
             return;
         }
 
-        /** @var TreePathField $pathField */
         $pathField = $definition->getFields()->filterInstance(TreePathField::class)->first();
+        \assert($pathField instanceof TreePathField);
 
-        /** @var TreeLevelField $levelField */
         $levelField = $definition->getFields()->filterInstance(TreeLevelField::class)->first();
+        \assert($levelField instanceof TreeLevelField);
 
         foreach ($updateIds as $updateId) {
             $entity = $this->updatePath($updateId, $bag);

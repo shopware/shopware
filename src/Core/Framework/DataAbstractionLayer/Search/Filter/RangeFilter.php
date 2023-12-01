@@ -30,7 +30,7 @@ class RangeFilter extends SingleFieldFilter
      *      RangeFilter::GT => 5.99
      * ])
      *
-     * @param array<string, float|int|string> $parameters
+     * @param array<RangeFilter::*, float|int|string> $parameters
      */
     public function __construct(
         protected string $field,
@@ -58,7 +58,7 @@ class RangeFilter extends SingleFieldFilter
     }
 
     /**
-     * @return array<string, float|int|string>
+     * @return array<RangeFilter::*, float|int|string>
      */
     public function getParameters(): array
     {

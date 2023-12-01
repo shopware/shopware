@@ -24,21 +24,20 @@ class DefinitionInstanceRegistry
     protected $repositoryMap;
 
     /**
-     * @var array<string, string>
+     * @var array<string, string|class-string<EntityDefinition>>
      */
     protected $definitions;
 
     /**
-     * @var array<class-string<Entity>, EntityDefinition>
+     * @var array<class-string<Entity>, EntityDefinition>|null
      */
     protected $entityClassMapping;
 
     /**
      * @internal
      *
-     * @param array<string, string> $definitionMap array of $entityName => $definitionServiceId,
-     *                             eg. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
-     * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, eg. 'product' => 'product.repository'
+     * @param array<string, class-string<EntityDefinition>> $definitionMap array of $entityName => $definitionServiceId, e.g. 'product' => '\Shopware\Core\Content\Product\ProductDefinition'
+     * @param array<string, string> $repositoryMap array of $entityName => $repositoryServiceId, e.g. 'product' => 'product.repository'
      */
     public function __construct(
         ContainerInterface $container,
@@ -57,8 +56,8 @@ class DefinitionInstanceRegistry
     {
         $entityRepositoryClass = $this->getEntityRepositoryClassByEntityName($entityName);
 
-        /** @var EntityRepository $entityRepository */
         $entityRepository = $this->container->get($entityRepositoryClass);
+        \assert($entityRepository instanceof EntityRepository);
 
         return $entityRepository;
     }
@@ -67,8 +66,8 @@ class DefinitionInstanceRegistry
     {
         if ($this->container->has($class)) {
             $definition = $this->container->get($class);
+            \assert($definition instanceof EntityDefinition);
 
-            /** @var EntityDefinition $definition */
             return $definition;
         }
 
@@ -114,29 +113,37 @@ class DefinitionInstanceRegistry
         return array_map(fn (string $name): EntityDefinition => $this->get($name), $this->definitions);
     }
 
+    /**
+     * @param class-string<FieldSerializerInterface> $serializerClass
+     */
     public function getSerializer(string $serializerClass): FieldSerializerInterface
     {
-        /** @var FieldSerializerInterface $fieldSerializer */
         $fieldSerializer = $this->container->get($serializerClass);
+        \assert($fieldSerializer instanceof FieldSerializerInterface);
 
         return $fieldSerializer;
     }
 
     /**
+     * @param class-string<AbstractFieldResolver> $resolverClass
+     *
      * @return AbstractFieldResolver
      */
     public function getResolver(string $resolverClass)
     {
-        /** @var AbstractFieldResolver $fieldResolver */
         $fieldResolver = $this->container->get($resolverClass);
+        \assert($fieldResolver instanceof AbstractFieldResolver);
 
         return $fieldResolver;
     }
 
+    /**
+     * @param class-string<FieldAccessorBuilderInterface> $accessorBuilderClass
+     */
     public function getAccessorBuilder(string $accessorBuilderClass): FieldAccessorBuilderInterface
     {
-        /** @var FieldAccessorBuilderInterface $fieldAccessorBuilder */
         $fieldAccessorBuilder = $this->container->get($accessorBuilderClass);
+        \assert($fieldAccessorBuilder instanceof FieldAccessorBuilderInterface);
 
         return $fieldAccessorBuilder;
     }
@@ -183,10 +190,9 @@ class DefinitionInstanceRegistry
         $this->entityClassMapping = [];
 
         foreach ($this->definitions as $element) {
-            /** @var EntityDefinition $definition */
             $definition = $this->container->get($element);
 
-            if (!$definition) {
+            if (!$definition instanceof EntityDefinition) {
                 continue;
             }
 
@@ -203,6 +209,8 @@ class DefinitionInstanceRegistry
 
     /**
      * @throws DefinitionNotFoundException
+     *
+     * @return string|class-string<EntityDefinition>
      */
     private function getDefinitionClassByEntityName(string $entityName): string
     {

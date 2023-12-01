@@ -17,7 +17,7 @@ class KeyMappingPipe extends AbstractPipe
     private MappingCollection $mapping;
 
     /**
-     * @param iterable<string|MappingArray|Mapping|MappingCollection> $mapping
+     * @param iterable<string|MappingArray|Mapping>|MappingCollection $mapping
      */
     public function __construct(
         iterable $mapping = [],

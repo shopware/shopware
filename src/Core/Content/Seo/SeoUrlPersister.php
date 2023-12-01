@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -31,8 +32,8 @@ class SeoUrlPersister
     }
 
     /**
-     * @param list<string> $foreignKeys
-     * @param iterable<array<mixed>|Entity> $seoUrls
+     * @param array<string> $foreignKeys
+     * @param iterable<array<string, mixed>|SeoUrlEntity> $seoUrls
      */
     public function updateSeoUrls(Context $context, string $routeName, array $foreignKeys, iterable $seoUrls, SalesChannelEntity $salesChannel): void
     {
@@ -49,7 +50,7 @@ class SeoUrlPersister
         $salesChannelId = $salesChannel->getId();
         $updates = [];
         foreach ($seoUrls as $seoUrl) {
-            if ($seoUrl instanceof \JsonSerializable) {
+            if ($seoUrl instanceof SeoUrlEntity) {
                 $seoUrl = $seoUrl->jsonSerialize();
             }
             $updates[] = $seoUrl;
@@ -75,7 +76,7 @@ class SeoUrlPersister
 
             if ($existing) {
                 // entity has override or does not change
-                /** @var array{isModified: bool, seoPathInfo: string, salesChannelId: string} $seoUrl */
+                /** @phpstan-ignore-next-line PHPStan could not recognize the array generated from the jsonSerialize method of the SeoUrlEntity */
                 if ($this->skipUpdate($existing, $seoUrl)) {
                     continue;
                 }
@@ -120,7 +121,7 @@ class SeoUrlPersister
 
     /**
      * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $existing
-     * @param array{isModified: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
+     * @param array{isModified?: bool, seoPathInfo: string, salesChannelId: string} $seoUrl
      */
     private function skipUpdate(array $existing, array $seoUrl): bool
     {
@@ -133,7 +134,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param list<string> $foreignKeys
+     * @param array<string> $foreignKeys
      *
      * @return array<string, mixed>
      */
@@ -206,7 +207,7 @@ class SeoUrlPersister
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     private function markAsDeleted(bool $deleted, array $ids, ?string $salesChannelId): void
     {

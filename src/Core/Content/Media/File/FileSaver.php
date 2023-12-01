@@ -37,7 +37,8 @@ class FileSaver
     /**
      * @internal
      *
-     * @param list<string> $allowedExtensions
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param array<string> $allowedExtensions
      * @param list<string> $privateAllowedExtensions
      */
     public function __construct(
@@ -170,7 +171,7 @@ class FileSaver
 
         try {
             $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($updateData): void {
-                // also triggers the indexing, so that the thumbnails_ro is recalculate
+                // also triggers the indexing, so that the thumbnails_ro is recalculated
                 $this->mediaRepository->update([$updateData], $context);
             });
         } catch (\Exception) {
@@ -272,8 +273,8 @@ class FileSaver
 
         $this->eventDispatcher->dispatch(new UpdateMediaPathEvent([$media->getId()]));
 
-        /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $context)->getEntities()->get($media->getId());
+        \assert($media !== null);
 
         return $media;
     }
@@ -307,9 +308,9 @@ class FileSaver
     {
         $criteria = new Criteria([$mediaId]);
         $criteria->addAssociation('mediaFolder');
-        /** @var MediaEntity|null $currentMedia */
         $currentMedia = $this->mediaRepository
             ->search($criteria, $context)
+            ->getEntities()
             ->get($mediaId);
 
         if ($currentMedia === null) {
@@ -397,10 +398,7 @@ class FileSaver
             ]
         ));
 
-        /** @var MediaCollection $mediaCollection */
-        $mediaCollection = $this->mediaRepository->search($criteria, $context)->getEntities();
-
-        return $mediaCollection;
+        return $this->mediaRepository->search($criteria, $context)->getEntities();
     }
 
     /**

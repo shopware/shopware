@@ -82,7 +82,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
      * @return array<string, array<string, string>>
      */
@@ -144,7 +144,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
     /**
      * @param list<string> $names
      *
-     * @return list<string>
+     * @return array<string>
      */
     private function getTypeIds(Connection $connection, array $names): array
     {

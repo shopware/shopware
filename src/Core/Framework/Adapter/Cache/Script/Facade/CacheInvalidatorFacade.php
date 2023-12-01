@@ -23,7 +23,7 @@ class CacheInvalidatorFacade
     /**
      * `invalidate()` allows you to invalidate all cache entries with the given tag.
      *
-     * @param array $tags The tags for which all cache entries should be invalidated as array.
+     * @param array<string> $tags The tags for which all cache entries should be invalidated as array.
      *
      * @example cache-invalidation/simple-script.twig Invalidate a hard coded tag.
      * @example cache-invalidation/filter-by-entity.twig Build tags based on written entities and invalidate those tags.

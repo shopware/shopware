@@ -49,11 +49,8 @@ class OrderLineItemCollection extends EntityCollection
     {
         return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
             $payload = $lineItem->getPayload() ?? [];
-            if (\array_key_exists($property, $payload)) {
-                return $payload[$property];
-            }
 
-            return null;
+            return $payload[$property] ?? null;
         });
     }
 
@@ -98,7 +95,7 @@ class OrderLineItemCollection extends EntityCollection
     public function getPrices(): PriceCollection
     {
         return new PriceCollection(
-            array_filter(array_map(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getPrice(), array_values($this->getElements())))
+            $this->fmap(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getPrice())
         );
     }
 

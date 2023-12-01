@@ -20,7 +20,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
      * @deprecated tag:v6.6.0 - parameter $offset will be natively typed to type `?array`
      *
      * @param array{offset: int|null}|null $offset
-     * @param list<string> $skip
+     * @param array<string> $skip
      */
     public function __construct(
         string $indexer,
@@ -63,7 +63,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getSkip(): array
     {

@@ -33,16 +33,14 @@ abstract class AbstractAdminIndexer
     /**
      * @param array<string> $ids
      *
-     * @return array<string, array<string, string>>
+     * @return array<string, array{id:string, text:string}>
      */
     abstract public function fetch(array $ids): array;
 
     /**
      * @param array<string, mixed> $result
      *
-     * @return array{total:int, data:EntityCollection<Entity>}
-     *
-     * Return EntityCollection<Entity> and their total by ids in the result parameter
+     * @return array{total:int, data:EntityCollection<Entity>} returns EntityCollection<Entity> and their total by ids in the result parameter
      */
     abstract public function globalData(array $result, Context $context): array;
 

@@ -1,11 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Api;
+namespace Shopware\Tests\Integration\Core\Content\ImportExport\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -23,21 +25,15 @@ class ImportExportActionControllerTest extends TestCase
     use AdminFunctionalTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepository<EntityCollection<ImportExportProfileEntity>>
      */
-    private $repository;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private EntityRepository $repository;
 
     private Context $context;
 
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('import_export_profile.repository');
-        $this->connection = $this->getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -105,8 +101,10 @@ class ImportExportActionControllerTest extends TestCase
 
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-            $response = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
+            $content = $response->getContent();
+            static::assertIsString($content);
+            $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+            static::assertSame('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
             static::assertStringContainsString('product:read', $response['errors'][0]['detail']);
             static::assertStringContainsString('tax:read', $response['errors'][0]['detail']);
             static::assertStringContainsString('product_category:read', $response['errors'][0]['detail']);
@@ -149,13 +147,17 @@ class ImportExportActionControllerTest extends TestCase
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+            $content = $response->getContent();
+            static::assertIsString($content);
+            $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
             static::assertSame(ImportExportLogEntity::ACTIVITY_DRYRUN, $content['log']['activity']);
         }
     }
 
     /**
      * @dataProvider mappingFromProvider
+     *
+     * @param list<array{key: string, mappedKey: string}> $expectedMapping
      */
     public function testMappingFromTemplate(string $sourceEntity, string $fileContent, array $expectedMapping, ?int $expectedErrorCode = null, ?string $expectedErrorMessage = null): void
     {
@@ -179,7 +181,9 @@ class ImportExportActionControllerTest extends TestCase
         );
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+        static::assertIsString($content);
+        $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         if ($expectedErrorCode !== null) {
             static::assertSame($expectedErrorCode, $response->getStatusCode());
@@ -198,7 +202,7 @@ class ImportExportActionControllerTest extends TestCase
         static::assertSame($expectedMapping, $result);
     }
 
-    public static function mappingFromProvider(): iterable
+    public static function mappingFromProvider(): \Generator
     {
         yield 'Product entity with mapped keys' => [
             'sourceEntity' => 'product',
@@ -251,6 +255,8 @@ class ImportExportActionControllerTest extends TestCase
 
     /**
      * Prepare a defined number of test data.
+     *
+     * @return array<string, array<string, mixed>>
      */
     protected function prepareImportExportActionControllerTestData(int $num = 1): array
     {
@@ -308,6 +314,9 @@ class ImportExportActionControllerTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return list<string>
+     */
     protected function getValidMimeTypes(): array
     {
         return ['text/csv'];

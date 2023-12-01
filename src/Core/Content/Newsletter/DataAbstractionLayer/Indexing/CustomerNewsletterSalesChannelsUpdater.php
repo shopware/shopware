@@ -151,13 +151,11 @@ SQL;
                 continue;
             }
 
-            /** @var non-empty-string[] $salesChannelIds */
-            $salesChannelIds = array_keys(
-                json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR)
-            );
+            $newsletterIds = array_keys(json_decode((string) $customer['newsletter_sales_channel_ids'], true, 512, \JSON_THROW_ON_ERROR));
+            $newsletterIds = array_map('\strval', $newsletterIds);
 
             $parameters[] = [
-                'newsletter_ids' => $salesChannelIds,
+                'newsletter_ids' => $newsletterIds,
                 'email' => $customer['email'],
                 'first_name' => $customer['first_name'],
                 'last_name' => $customer['last_name'],

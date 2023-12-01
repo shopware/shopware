@@ -30,7 +30,7 @@ class ShippingMethodCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getPriceIds(): array
     {

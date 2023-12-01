@@ -27,7 +27,7 @@ class TestAppServer
     }
 
     /**
-     * @param array<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function __invoke(RequestInterface $request, array $options): PromiseInterface
     {
@@ -68,10 +68,10 @@ class TestAppServer
     private function buildAppResponse(RequestInterface $request): string
     {
         $shopUrl = $this->getQueryParameter($request, 'shop-url');
-        $appname = $this->getAppname($request);
+        $appName = $this->getAppname($request);
         $shopId = $this->getQueryParameter($request, 'shop-id');
 
-        $proof = \hash_hmac('sha256', $shopId . $shopUrl . $appname, self::TEST_SETUP_SECRET);
+        $proof = \hash_hmac('sha256', $shopId . $shopUrl . $appName, self::TEST_SETUP_SECRET);
 
         return (string) \json_encode(['proof' => $proof, 'secret' => self::APP_SECRET, 'confirmation_url' => self::CONFIRMATION_URL], \JSON_THROW_ON_ERROR);
     }

@@ -332,7 +332,9 @@ PHP unit per area:
     extends: PHP unit coverage
     stage: unit
     rules:
+      - !reference [.rules, skip]
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      - !reference [.rules, run]
     script:
       - composer dump-autoload -o
       - bin/console coverage:classes-per-area -g -q
@@ -349,7 +351,7 @@ PHP unit per area:
     coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
     parallel:
       matrix:
-        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "merchant-services", "services-settings", "sales-channel", "storefront", "system-settings", "unknown"]
+        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "data-services", "services-settings", "sales-channel", "storefront", "system-settings", "unknown"]
     artifacts:
       when: always
       paths:
@@ -359,7 +361,9 @@ Jest Coverage per Area (Storefront):
   extends: Jest (Storefront)
   stage: unit
   rules:
+    - !reference [.rules, skip]
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - !reference [.rules, run]
   variables:
     ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
   script:
@@ -372,7 +376,7 @@ Jest Coverage per Area (Storefront):
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "checkout", "content", "inventory", "merchant-services", "storefront", "unknown" ]
+      - PRODUCT_AREA: [ "checkout", "content", "inventory", "buyers-experience", "storefront", "unknown" ]
   artifacts:
     when: always
     paths:
@@ -382,17 +386,20 @@ Jest Coverage per Area (Administration):
   extends: Jest (Administration)
   stage: unit
   rules:
+    - !reference [.rules, skip]
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - !reference [.rules, run]
   script:
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
     - JS_FILES=$(bin/console coverage:js-files-per-area -a $PRODUCT_AREA -s "$ADMIN_PATH/src" -r -p 'src')
+    - npm --prefix "$ADMIN_PATH" run unit-setup
     - npm --prefix "$ADMIN_PATH" run unit -- --silent --maxWorkers=5% --collectCoverageFrom=${JS_FILES} --coverageThreshold={} --coverageDirectory=${CI_PROJECT_DIR}/coverage/js/Administration/$PRODUCT_AREA
     - echo -e "\e[0Ksection_end:`date +%s`:jest\r\e[0K"
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "customer-order", "inventory", "merchant-services", "sales-channel", "system-settings", "unknown" ]
+      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings","sales-channel", "system-settings", "unknown" ]
   artifacts:
     when: always
     paths:
@@ -402,7 +409,9 @@ Coverage per Area summary:
   extends: .base-no-setup
   stage: unit
   rules:
+    - !reference [.rules, skip]
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - !reference [.rules, run]
   dependencies: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
   needs: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
   before_script:

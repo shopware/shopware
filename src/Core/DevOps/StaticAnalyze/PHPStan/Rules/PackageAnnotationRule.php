@@ -96,6 +96,9 @@ class PackageAnnotationRule implements Rule
         'administration' => [
             '/Shopware\\\\Administration\\\\/',
         ],
+        'data-services' => [
+            '/Shopware\\\\Core\\\\System\\\\UsageData\\\\/',
+        ],
     ];
 
     public function getNodeType(): string

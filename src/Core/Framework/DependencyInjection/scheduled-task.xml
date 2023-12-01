@@ -34,10 +34,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Compatibility\ScheduledTaskCompatibilitySubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner">
             <argument type="tagged" tag="messenger.message_handler"/>
             <argument type="service" id="scheduled_task.repository"/>

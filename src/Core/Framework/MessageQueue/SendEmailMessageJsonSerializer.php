@@ -40,7 +40,7 @@ class SendEmailMessageJsonSerializer implements NormalizerInterface, Denormalize
         /** @var string $value */
         $value = $data[__CLASS__];
 
-        // @deprecated tag:v6.6.0 - Remove this workaround
+        // Todo: Remove this workaround
         if (str_starts_with($value, 'O:')) {
             return unserialize(stripslashes($value));
         }

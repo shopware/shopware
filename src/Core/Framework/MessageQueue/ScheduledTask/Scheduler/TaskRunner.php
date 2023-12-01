@@ -13,6 +13,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
@@ -54,18 +55,24 @@ class TaskRunner
                 continue;
             }
 
-            $handledMessages = $handler::getHandledMessages();
+            $reflection = new \ReflectionClass($handler);
+            $asMessage = $reflection->getAttributes(AsMessageHandler::class);
 
-            if ($handledMessages instanceof \Traversable) {
-                $handledMessages = iterator_to_array($handledMessages);
-            }
-
-            if (!\in_array($className, $handledMessages, true)) {
+            if ($asMessage === []) {
                 continue;
             }
 
-            // calls the __invoke() method of the abstract ScheduledTaskHandler
-            $handler($task);
+            foreach ($asMessage as $attribute) {
+                /** @var AsMessageHandler $messageAttribute */
+                $messageAttribute = $attribute->newInstance();
+
+                if ($messageAttribute->handles === $className) {
+                    // calls the __invoke() method of the abstract ScheduledTaskHandler
+                    $handler($task);
+
+                    return;
+                }
+            }
         }
     }
 

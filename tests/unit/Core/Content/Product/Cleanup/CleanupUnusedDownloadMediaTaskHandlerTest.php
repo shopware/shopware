@@ -6,7 +6,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
-use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
@@ -29,11 +28,6 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->purger
         );
-    }
-
-    public function testGetHandledMessages(): void
-    {
-        static::assertEquals([CleanupUnusedDownloadMediaTask::class], $this->handler->getHandledMessages());
     }
 
     public function testRun(): void

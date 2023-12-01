@@ -33,7 +33,7 @@ class AppException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__APP_MISSING_REQUEST_PARAMETER';
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
+     * @internal will be removed once store extensions are installed over composer
      */
     public static function cannotDeleteManaged(string $pluginName): self
     {

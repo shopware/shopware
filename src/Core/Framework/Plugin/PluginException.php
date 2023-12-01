@@ -18,7 +18,7 @@ class PluginException extends HttpException
     public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-exception
+     * @internal will be removed once store extensions are installed over composer
      */
     public static function cannotDeleteManaged(string $pluginName): self
     {

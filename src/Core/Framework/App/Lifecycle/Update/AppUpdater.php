@@ -8,10 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\AbstractStoreAppLifecycleService;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
 
 /**
@@ -62,8 +62,11 @@ class AppUpdater extends AbstractAppUpdater
 
             try {
                 $this->appLifecycle->updateExtension($app->getName(), false, $context);
-            } catch (ExtensionUpdateRequiresConsentAffirmationException) {
-                // nth
+            } catch (StoreException $e) {
+                // Ignore updates that require consent
+                if ($e->getErrorCode() !== StoreException::EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION) {
+                    throw $e;
+                }
             }
         }
     }

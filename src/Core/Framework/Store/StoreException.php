@@ -2,13 +2,8 @@
 
 namespace Shopware\Core\Framework\Store;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Store\Exception\ExtensionInstallException;
-use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
-use Shopware\Core\Framework\Store\Exception\ExtensionThemeStillInUseException;
-use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -32,10 +27,6 @@ class StoreException extends HttpException
 
     public static function extensionThemeStillInUse(string $extensionId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new ExtensionThemeStillInUseException($extensionId);
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::EXTENSION_THEME_STILL_IN_USE,
@@ -46,10 +37,6 @@ class StoreException extends HttpException
 
     public static function extensionInstallException(string $message): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new ExtensionInstallException($message);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::EXTENSION_INSTALL,
@@ -62,10 +49,6 @@ class StoreException extends HttpException
      */
     public static function extensionUpdateRequiresConsentAffirmationException(string $appName, array $deltas): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return ExtensionUpdateRequiresConsentAffirmationException::fromDelta($appName, $deltas);
-        }
-
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION,
@@ -76,10 +59,6 @@ class StoreException extends HttpException
 
     public static function extensionNotFoundFromId(string $id): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return ExtensionNotFoundException::fromId($id);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::EXTENSION_NOT_FOUND,
@@ -90,10 +69,6 @@ class StoreException extends HttpException
 
     public static function extensionNotFoundFromTechnicalName(string $technicalName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return ExtensionNotFoundException::fromTechnicalName($technicalName);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::EXTENSION_NOT_FOUND,

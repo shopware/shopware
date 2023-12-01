@@ -136,8 +136,7 @@ shopware:
             #         url: 'redis://localhost'
 
     api:
-        # @deprecated tag:v6.6.0 - The new default will be 100
-        max_limit: null
+        max_limit: 500
         api_browser:
             auth_required: true
         store:
@@ -346,8 +345,6 @@ shopware:
         exclude_exception:
             - League\OAuth2\Server\Exception\OAuthServerException
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-            # deprecated tag:v6.6.0 - Exception will be removed
-            - Shopware\Core\Content\Media\Exception\DuplicatedMediaFileNameException
             - Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException
         exclude_events:
             - user.recovery.request

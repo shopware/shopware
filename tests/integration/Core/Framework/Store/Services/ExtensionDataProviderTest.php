@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Store\StoreException;
@@ -76,35 +74,15 @@ class ExtensionDataProviderTest extends TestCase
         static::assertEquals($installedApp, $app);
     }
 
-    public function testGetAppEntityFromTechnicalNameThrowsWithoutMajorFlag(): void
+    public function testGetAppEntityFromTechnicalNameThrows(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->expectException(ExtensionNotFoundException::class);
-        $this->extensionDataProvider->getAppEntityFromTechnicalName(Uuid::randomHex(), $this->context);
-    }
-
-    public function testGetAppEntityFromTechnicalNameThrowsWithMajorFlag(): void
-    {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $this->expectException(StoreException::class);
         $this->expectExceptionMessage('Could not find extension with technical name "testName"');
         $this->extensionDataProvider->getAppEntityFromTechnicalName('testName', $this->context);
     }
 
-    public function testGetAppEntityFromIdThrowsWithoutMajorFlag(): void
+    public function testGetAppEntityFromIdThrows(): void
     {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $this->expectException(ExtensionNotFoundException::class);
-        $this->extensionDataProvider->getAppEntityFromId(Uuid::randomHex(), $this->context);
-    }
-
-    public function testGetAppEntityFromIdThrowsWithMajorFlag(): void
-    {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $id = Uuid::randomHex();
 
         $this->expectException(StoreException::class);

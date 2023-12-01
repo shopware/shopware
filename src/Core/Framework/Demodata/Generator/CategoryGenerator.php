@@ -72,7 +72,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @param list<string> $pageIds
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
      * @return array<string, mixed>
      */
@@ -102,7 +102,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
      * @return array<string, mixed>
      */
@@ -125,7 +125,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getIds(string $table): array
     {
@@ -170,8 +170,8 @@ class CategoryGenerator implements DemodataGeneratorInterface
         $criteria->addFilter(new EqualsFilter('category.parentId', null));
         $criteria->addSorting(new FieldSorting('category.createdAt', FieldSorting::ASCENDING));
 
-        /** @var string $categoryId */
         $categoryId = $this->categoryRepository->searchIds($criteria, $context)->firstId();
+        \assert(\is_string($categoryId));
 
         return $categoryId;
     }
@@ -193,7 +193,7 @@ class CategoryGenerator implements DemodataGeneratorInterface
 
     /**
      * @param list<string> $pageIds
-     * @param list<string> $tags
+     * @param array<string> $tags
      *
      * @return list<array<string, mixed>>
      */

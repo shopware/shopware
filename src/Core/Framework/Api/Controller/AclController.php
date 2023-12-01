@@ -73,15 +73,15 @@ class AclController extends AbstractController
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getFromRoutes(): array
     {
         $permissions = [];
 
         foreach ($this->router->getRouteCollection()->all() as $route) {
-            /** @var array<string>|null $acl */
-            if ($acl = $route->getDefault(PlatformRequest::ATTRIBUTE_ACL)) {
+            $acl = $route->getDefault(PlatformRequest::ATTRIBUTE_ACL);
+            if ($acl) {
                 $permissions[] = $acl;
             }
         }

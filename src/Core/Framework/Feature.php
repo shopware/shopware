@@ -204,10 +204,14 @@ class Feature
 
     public static function deprecatedMethodMessage(string $class, string $method, string $majorVersion, ?string $replacement = null): string
     {
+        $fullQualifiedMethodName = sprintf('%s::%s', $class, $method);
+        if (str_contains($method, '::')) {
+            $fullQualifiedMethodName = $method;
+        }
+
         $message = \sprintf(
-            'Method "%s::%s()" is deprecated and will be removed in %s.',
-            $class,
-            $method,
+            'Method "%s()" is deprecated and will be removed in %s.',
+            $fullQualifiedMethodName,
             $majorVersion
         );
 

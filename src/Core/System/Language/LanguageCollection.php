@@ -13,7 +13,7 @@ use Shopware\Core\System\Locale\LocaleCollection;
 class LanguageCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getParentIds(): array
     {
@@ -26,7 +26,7 @@ class LanguageCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLocaleIds(): array
     {

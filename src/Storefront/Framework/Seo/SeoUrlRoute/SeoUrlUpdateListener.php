@@ -94,9 +94,9 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
-     * @return list<string>
+     * @return array<string>
      */
     private function getCategoryChildren(array $ids): array
     {
@@ -123,7 +123,6 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
             return [];
         }
 
-        /** @var list<string> $ids */
         $ids = Uuid::fromBytesToHexList($children);
 
         return $ids;

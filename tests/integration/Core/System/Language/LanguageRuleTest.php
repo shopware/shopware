@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Language;
+namespace Shopware\Tests\Integration\Core\System\Language;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -79,6 +79,7 @@ class LanguageRuleTest extends TestCase
     public function testValidateWithInvalidLanguageIdsUuid(): void
     {
         try {
+            /** @phpstan-ignore-next-line Intentionally insert invalid languageIds */
             $this->createCondition(['operator' => Rule::OPERATOR_EQ, 'languageIds' => ['INVALID-UUID', true, 3]]);
             static::fail('Exception was not thrown');
         } catch (WriteException $stackException) {
@@ -200,6 +201,9 @@ class LanguageRuleTest extends TestCase
         }
     }
 
+    /**
+     * @return array<string, array{0: string, 1: bool, 2: string}>
+     */
     public static function getMatchValues(): array
     {
         return [
@@ -220,13 +224,16 @@ class LanguageRuleTest extends TestCase
             $rule->match($scope);
             static::fail('Exception was not thrown');
         } catch (UnsupportedValueException $exception) {
-            static::assertEquals(
+            static::assertSame(
                 sprintf('Unsupported value of type %s in %s', \gettype($value), LanguageRule::class),
                 $exception->getMessage()
             );
         }
     }
 
+    /**
+     * @param array{operator: string, languageIds: list<string>}|null $value
+     */
     private function createCondition(?array $value = null, ?string $id = null, ?string $ruleId = null): void
     {
         $this->conditionRepository->create([

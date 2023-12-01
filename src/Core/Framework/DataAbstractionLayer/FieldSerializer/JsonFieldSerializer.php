@@ -143,7 +143,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
             if ($kvPair === null) {
                 // The writer updates the whole field, so there is no possibility to update
                 // "some" fields. To enable a merge, we have to respect the $existence state
-                // for correct constraint validation. In addition the writer has to be rewritten
+                // for correct constraint validation. In addition, the writer has to be rewritten
                 // in order to handle merges.
                 if (!$nestedField->is(Required::class)) {
                     continue;

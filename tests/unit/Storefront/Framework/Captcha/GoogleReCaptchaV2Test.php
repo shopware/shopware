@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Captcha;
+namespace Shopware\Tests\Unit\Storefront\Framework\Captcha;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -10,40 +10,31 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2
  */
 class GoogleReCaptchaV2Test extends TestCase
 {
-    use KernelTestBehaviour;
-
     private const IS_VALID = true;
     private const IS_INVALID = false;
-
-    private GoogleReCaptchaV2 $captcha;
 
     private SystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
-        $this->captcha = $this->getContainer()->get(GoogleReCaptchaV2::class);
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = new StaticSystemConfigService();
     }
 
     protected function tearDown(): void
     {
         $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', []);
-    }
-
-    public function testExtendsAbstractCaptcha(): void
-    {
-        static::assertInstanceOf(AbstractCaptcha::class, $this->captcha);
     }
 
     /**
@@ -62,8 +53,10 @@ class GoogleReCaptchaV2Test extends TestCase
         ]);
 
         $activeCaptchaConfig = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2');
+        static::assertIsArray($activeCaptchaConfig);
+        $captcha = $this->getCaptcha();
 
-        static::assertEquals($this->captcha->supports($request, $activeCaptchaConfig[$this->captcha->getName()]), $isSupported);
+        static::assertSame($captcha->supports($request, $activeCaptchaConfig[$captcha->getName()]), $isSupported);
     }
 
     /**
@@ -71,10 +64,6 @@ class GoogleReCaptchaV2Test extends TestCase
      */
     public function testIsValid(Request $request, MockHandler $mockHandler, bool $shouldBeValid, ?string $secretKey): void
     {
-        $handlerStack = HandlerStack::create($mockHandler);
-
-        $client = new Client(['handler' => $handlerStack]);
-
         $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', [
             GoogleReCaptchaV2::CAPTCHA_NAME => [
                 'name' => GoogleReCaptchaV2::CAPTCHA_NAME,
@@ -86,11 +75,15 @@ class GoogleReCaptchaV2Test extends TestCase
         ]);
 
         $activeCaptchaConfig = $this->systemConfigService->get('core.basicInformation.activeCaptchasV2');
-        $captcha = new GoogleReCaptchaV2($client);
+        static::assertIsArray($activeCaptchaConfig);
+        $captcha = $this->getCaptcha($mockHandler);
 
-        static::assertEquals($captcha->isValid($request, $activeCaptchaConfig[$captcha->getName()]), $shouldBeValid);
+        static::assertSame($captcha->isValid($request, $activeCaptchaConfig[$captcha->getName()]), $shouldBeValid);
     }
 
+    /**
+     * @return array<string, array{0: Request, 1: MockHandler, 2: bool, 3: string|null}>
+     */
     public static function requestDataIsValidProvider(): array
     {
         return [
@@ -149,7 +142,7 @@ class GoogleReCaptchaV2Test extends TestCase
                     GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], json_encode(['success' => false])),
+                    new Response(200, [], json_encode(['success' => false], \JSON_THROW_ON_ERROR)),
                 ]),
                 self::IS_INVALID,
                 'secret123',
@@ -169,7 +162,7 @@ class GoogleReCaptchaV2Test extends TestCase
                     GoogleReCaptchaV2::CAPTCHA_REQUEST_PARAMETER => 'something',
                 ]),
                 new MockHandler([
-                    new Response(200, [], json_encode(['success' => true])),
+                    new Response(200, [], json_encode(['success' => true], \JSON_THROW_ON_ERROR)),
                 ]),
                 self::IS_VALID,
                 'secret123',
@@ -177,6 +170,9 @@ class GoogleReCaptchaV2Test extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, array{0: string, 1: bool, 2: bool}>
+     */
     public static function requestDataSupportProvider(): array
     {
         return [
@@ -187,8 +183,20 @@ class GoogleReCaptchaV2Test extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private static function getRequest(array $data = []): Request
     {
-        return new Request([], $data, [], [], [], [], []);
+        return new Request(request: $data);
+    }
+
+    private function getCaptcha(?MockHandler $mockHandler = null): GoogleReCaptchaV2
+    {
+        return new GoogleReCaptchaV2(
+            new Client([
+                'handler' => HandlerStack::create($mockHandler ?? new MockHandler()),
+            ])
+        );
     }
 }

@@ -91,19 +91,19 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
 
     public function beforeDelete(EntityDeleteEvent $event): void
     {
-        /** @var list<string> $affected */
+        /** @var array<string> $affected */
         $affected = array_values($event->getIds(MediaThumbnailDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleThumbnailDeletion($event, $affected, $event->getContext());
         }
 
-        /** @var list<string> $affected */
+        /** @var array<string> $affected */
         $affected = array_values($event->getIds(MediaFolderDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleFolderDeletion($affected, $event->getContext());
         }
 
-        /** @var list<string> $affected */
+        /** @var array<string> $affected */
         $affected = array_values($event->getIds(MediaDefinition::ENTITY_NAME));
         if (!empty($affected)) {
             $this->handleMediaDeletion($affected, $event->getContext());
@@ -111,7 +111,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $affected
+     * @param array<string> $affected
      */
     private function handleMediaDeletion(array $affected, Context $context): void
     {
@@ -148,7 +148,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $affected
+     * @param array<string> $affected
      */
     private function handleFolderDeletion(array $affected, Context $context): void
     {
@@ -172,9 +172,9 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      *
-     * @return list<string>
+     * @return array<string>
      */
     private function fetchChildrenIds(array $ids): array
     {
@@ -196,7 +196,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $affected
+     * @param array<string> $affected
      */
     private function handleThumbnailDeletion(EntityDeleteEvent $event, array $affected, Context $context): void
     {
@@ -227,7 +227,7 @@ class MediaDeletionSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<string> $ids
+     * @param array<string> $ids
      */
     private function getThumbnails(array $ids, Context $context): MediaThumbnailCollection
     {

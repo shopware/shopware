@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Captcha;
+namespace Shopware\Tests\Integration\Storefront\Framework\Captcha;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -22,12 +21,7 @@ class HoneypotCaptchaTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->captcha = $this->getContainer()->get(HoneypotCaptcha::class);
-    }
-
-    public function testExtendsAbstractCaptcha(): void
-    {
-        static::assertInstanceOf(AbstractCaptcha::class, $this->captcha);
+        $this->captcha = self::getContainer()->get(HoneypotCaptcha::class);
     }
 
     /**
@@ -42,6 +36,9 @@ class HoneypotCaptchaTest extends TestCase
         }
     }
 
+    /**
+     * @return list<array{0: Request, 1: bool}>
+     */
     public static function requestDataProvider(): array
     {
         return [
@@ -70,8 +67,11 @@ class HoneypotCaptchaTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private static function getRequest(array $data = []): Request
     {
-        return new Request([], $data, [], [], [], [], []);
+        return new Request(request: $data);
     }
 }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Language\SalesChannel;
+namespace Shopware\Tests\Integration\Core\System\Language\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -64,7 +64,7 @@ class LanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
 
         $ids = array_column($response['elements'], 'id');
         $names = array_column($response['elements'], 'name');
@@ -91,7 +91,7 @@ class LanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
 
         static::assertSame(2, $response['total']);
         static::assertArrayHasKey('name', $response['elements'][0]);
@@ -111,7 +111,7 @@ class LanguageRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
 
         static::assertSame(2, $response['total']);
         static::assertArrayHasKey('locale', $response['elements'][0]);
@@ -153,5 +153,16 @@ class LanguageRouteTest extends TestCase
 
         $this->getContainer()->get('language.repository')
             ->create($data, Context::createDefaultContext());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getResponse(): array
+    {
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

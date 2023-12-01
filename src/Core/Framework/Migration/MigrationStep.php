@@ -97,7 +97,6 @@ abstract class MigrationStep
         try {
             $connection->beginTransaction();
 
-            /** @var array<string, mixed> $role */
             foreach ($roles as $role) {
                 $currentPrivileges = \json_decode((string) $role['privileges'], true, 512, \JSON_THROW_ON_ERROR);
                 $newPrivileges = $this->fixRolePrivileges($privileges, $currentPrivileges);

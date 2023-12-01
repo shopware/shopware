@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-type SuffixFilterType array{type: 'suffix', field: string, value: mixed}
  * @phpstan-type RangeFilterType array{type: 'range'|'until'|'since', field: string, value?: mixed, parameters: array<string, mixed>}
  * @phpstan-type EqualsAnyFilterType array{type: 'equalsAny', field: string, value: mixed}
+ * @phpstan-type Query array{type: string, field?: string, value?: mixed, parameters?: array{operator: RangeFilter::*}, queries?: list<array{type: string, field?: string, value?: mixed}>}
  */
 #[Package('core')]
 class QueryStringParser
@@ -236,9 +237,9 @@ class QueryStringParser
     }
 
     /**
-     * @param array<string, mixed> $queries
+     * @param list<Query> $queries
      *
-     * @return array<Filter>
+     * @return list<Filter>
      */
     private static function parseQueries(EntityDefinition $definition, string $path, SearchRequestException $exception, array $queries): array
     {
@@ -256,7 +257,7 @@ class QueryStringParser
     }
 
     /**
-     * @param array<string, mixed> $query
+     * @param Query $query
      */
     private static function getFilterByRelativeTime(string $fieldName, array $query, string $path): MultiFilter
     {
@@ -280,7 +281,7 @@ class QueryStringParser
             $dateInterval->invert = 1;
         }
         $thresholdDate = $now->add($dateInterval);
-        $operator = (string) $query['parameters']['operator'];
+        $operator = $query['parameters']['operator'];
 
         // if we're matching for time until, date must be in the future
         // if we're matching for time since, date must be in the past
@@ -313,6 +314,11 @@ class QueryStringParser
         return new MultiFilter(MultiFilter::CONNECTION_AND, [$primaryFilter, $secondaryFilter]);
     }
 
+    /**
+     * @param RangeFilter::* $operator
+     *
+     * @return RangeFilter::*
+     */
     private static function negateOperator(string $operator): string
     {
         return match ($operator) {

@@ -58,7 +58,7 @@ class MappingCollection extends Collection
     }
 
     /**
-     * @param iterable<string|MappingArray|Mapping|MappingCollection> $data
+     * @param iterable<string|MappingArray|Mapping>|MappingCollection $data
      */
     public static function fromIterable(iterable $data): self
     {

@@ -44,16 +44,13 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getIds(): array
     {
-        $ids = $this->fmap(static function (Entity $entity) {
+        return $this->fmap(static function (Entity $entity) {
             return $entity->getUniqueIdentifier();
         });
-
-        /** @var list<string> $ids */
-        return $ids;
     }
 
     /**
@@ -99,7 +96,6 @@ class EntityCollection extends Collection
      */
     public function merge(self $collection): void
     {
-        /** @var TElement $entity */
         foreach ($collection as $entity) {
             if ($this->has($entity->getUniqueIdentifier())) {
                 continue;
@@ -138,7 +134,7 @@ class EntityCollection extends Collection
     }
 
     /**
-     * @param array<array<string>|string> $ids
+     * @param array<array-key, array<string>|string> $ids
      */
     public function sortByIdArray(array $ids): void
     {
@@ -198,7 +194,6 @@ class EntityCollection extends Collection
             $values[$element->getUniqueIdentifier()] = $element->getCustomFieldsValues(...$fields);
         }
 
-        /** @var array<string, mixed> $values */
         return $values;
     }
 
@@ -230,7 +225,6 @@ class EntityCollection extends Collection
             $values[$element->getUniqueIdentifier()] = $element->getCustomFieldsValue($field);
         }
 
-        /** @var array<string, mixed> $values */
         return $values;
     }
 

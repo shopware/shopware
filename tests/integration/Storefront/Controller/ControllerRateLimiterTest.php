@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -37,11 +37,11 @@ use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\FormController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Shopware\Tests\Integration\Core\Checkout\Customer\Rule\OrderFixture;
 use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestTrait;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -142,7 +142,7 @@ class ControllerRateLimiterTest extends TestCase
         $flashBag = $session->getFlashBag();
 
         static::assertNotEmpty($flash = $flashBag->get('info'));
-        static::assertEquals($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 10]), $flash[0]);
+        static::assertSame($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 10]), $flash[0]);
     }
 
     public function testAuthControllerGuestLoginShowsRateLimit(): void
@@ -169,7 +169,6 @@ class ControllerRateLimiterTest extends TestCase
 
         $this->getContainer()->get('request_stack')->push($request);
 
-        /** @var StorefrontResponse $response */
         $response = $controller->guestLoginPage($request, $this->salesChannelContext);
 
         $contentReturn = $response->getContent();
@@ -236,7 +235,7 @@ class ControllerRateLimiterTest extends TestCase
 
         static::assertCount(1, $content);
         static::assertArrayHasKey('type', $content[0]);
-        static::assertEquals('info', $content[0]['type']);
+        static::assertSame('info', $content[0]['type']);
 
         $contentReturn = $content[0]['alert'];
         $crawler = new Crawler();
@@ -287,8 +286,8 @@ class ControllerRateLimiterTest extends TestCase
                 ])
             );
 
-            /** @var RedirectResponse $response */
             $response = $this->browser->getResponse();
+            static::assertInstanceOf(RedirectResponse::class, $response);
 
             $waitTime = $i >= 10 ? $this->queryFromString($response->getTargetUrl(), 'waitTime') : 0;
 
@@ -297,10 +296,7 @@ class ControllerRateLimiterTest extends TestCase
                 $response->getTargetUrl()
             );
 
-            /** @var StorefrontResponse $targetResponse */
-            $targetResponse = $this->browser->getResponse();
-
-            $contentReturn = $targetResponse->getContent();
+            $contentReturn = $this->browser->getResponse()->getContent();
             $crawler = new Crawler();
             $crawler->addHtmlContent((string) $contentReturn);
 
@@ -353,10 +349,10 @@ class ControllerRateLimiterTest extends TestCase
         $orderData[0]['addresses'][0]['zipcode'] = '12345';
         $orderData[0]['salesChannelId'] = $this->ids->get('sales-channel');
 
-        $orderRepsitory = $this->getContainer()->get('order.repository');
-        $orderRepsitory->create($orderData, $this->context);
+        $orderRepository = $this->getContainer()->get('order.repository');
+        $orderRepository->create($orderData, $this->context);
 
-        $order = $orderRepsitory->search(new Criteria([$orderId]), $this->context)->first();
+        $order = $orderRepository->search(new Criteria([$orderId]), $this->context)->first();
 
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);

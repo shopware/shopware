@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogCollection;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
@@ -57,12 +58,12 @@ class ImportExportProfileEntity extends Entity
     protected $type;
 
     /**
-     * @var array|null
+     * @var list<array{key: string, mappedKey: string}>|array<Mapping>|null
      */
     protected $mapping;
 
     /**
-     * @var array|null
+     * @var array<string, mixed>|null
      */
     protected $updateBy;
 
@@ -72,7 +73,7 @@ class ImportExportProfileEntity extends Entity
     protected $importExportLogs;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $config;
 
@@ -151,21 +152,33 @@ class ImportExportProfileEntity extends Entity
         $this->enclosure = $enclosure;
     }
 
+    /**
+     * @return list<array{key: string, mappedKey: string}>|array<Mapping>|null
+     */
     public function getMapping(): ?array
     {
         return $this->mapping;
     }
 
+    /**
+     * @param list<array{key: string, mappedKey: string}>|array<Mapping> $mapping
+     */
     public function setMapping(array $mapping): void
     {
         $this->mapping = $mapping;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getUpdateBy(): ?array
     {
         return $this->updateBy;
     }
 
+    /**
+     * @param array<string, mixed>|null $updateBy
+     */
     public function setUpdateBy(?array $updateBy): void
     {
         $this->updateBy = $updateBy;
@@ -181,11 +194,17 @@ class ImportExportProfileEntity extends Entity
         $this->importExportLogs = $importExportLogs;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;

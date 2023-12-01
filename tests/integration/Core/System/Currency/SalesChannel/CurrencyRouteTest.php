@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\Currency\SalesChannel;
+namespace Shopware\Tests\Integration\Core\System\Currency\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -50,7 +50,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
 
         static::assertCount(2, $response);
         static::assertContains($this->ids->get('currency'), array_column($response, 'id'));
@@ -70,7 +70,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
 
         static::assertCount(2, $response);
         static::assertArrayNotHasKey('id', $response[0]);
@@ -88,7 +88,7 @@ class CurrencyRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->getResponse();
 
         static::assertCount(1, $response);
     }
@@ -122,5 +122,16 @@ class CurrencyRouteTest extends TestCase
 
         $this->getContainer()->get('currency.repository')
             ->create($data, Context::createDefaultContext());
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function getResponse(): array
+    {
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        return json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
     }
 }

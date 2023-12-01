@@ -138,7 +138,6 @@
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateSalutationRoute" priority="2016" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateInitialStateIdLoader" priority="2017" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent" method="invalidateCountryStateRoute" priority="2018" />
-            <tag name="kernel.event_listener" event="Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent" method="invalidateSeoUrls" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Content\Rule\Event\RuleIndexerEvent" method="invalidateRules" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent" method="invalidateRules" priority="2000" />
             <tag name="kernel.event_listener" event="Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent" method="invalidateConfig" priority="2001" />

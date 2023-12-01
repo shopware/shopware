@@ -7,7 +7,6 @@ use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\PlatformRequest;
@@ -184,18 +183,6 @@ class Translator extends AbstractTranslator
         if ($this->translator instanceof WarmableInterface) {
             $this->translator->warmUp($cacheDir);
         }
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed, use `reset` instead
-     */
-    public function resetInMemoryCache(): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use reset() instead')
-        );
-        $this->reset();
     }
 
     public function reset(): void

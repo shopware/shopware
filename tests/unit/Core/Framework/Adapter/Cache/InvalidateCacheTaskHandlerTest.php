@@ -23,7 +23,7 @@ class InvalidateCacheTaskHandlerTest extends TestCase
     public function testRunWithoutDelay(): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects(static::once())->method('invalidateExpired')->with(null);
+        $cacheInvalidator->expects(static::once())->method('invalidateExpired');
 
         $handler = new InvalidateCacheTaskHandler($this->createMock(EntityRepository::class), $cacheInvalidator, 0);
         $handler->run();
@@ -43,7 +43,6 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects(static::once())
             ->method('invalidateExpired')
-            ->with(null)
             ->willThrowException(new \Exception());
 
         $handler = new InvalidateCacheTaskHandler($this->createMock(EntityRepository::class), $cacheInvalidator, 0);

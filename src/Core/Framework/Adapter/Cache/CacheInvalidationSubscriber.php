@@ -33,7 +33,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
-use Shopware\Core\Content\Seo\Event\SeoUrlUpdateEvent;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
 use Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute;
 use Shopware\Core\Defaults;
@@ -157,13 +156,6 @@ class CacheInvalidationSubscriber
         $logs = [...$this->getChangedShippingMethods($event), ...$this->getChangedShippingAssignments($event)];
 
         $this->cacheInvalidator->invalidate($logs);
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without a replacement - reason:remove-subscriber
-     */
-    public function invalidateSeoUrls(SeoUrlUpdateEvent $event): void
-    {
     }
 
     public function invalidateRules(): void

@@ -15,7 +15,7 @@ use Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber;
  *
  * @covers \Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class UsageDataApprovalSubscriberTest extends TestCase
 {
     public function testItSubscribesToSystemConfigChanged(): void

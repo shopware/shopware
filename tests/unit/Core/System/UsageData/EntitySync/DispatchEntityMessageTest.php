@@ -12,7 +12,7 @@ use Shopware\Core\System\UsageData\EntitySync\Operation;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessage
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntityMessageTest extends TestCase
 {
     public function testGetters(): void

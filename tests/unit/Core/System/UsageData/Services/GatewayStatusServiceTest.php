@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @covers \Shopware\Core\System\UsageData\Services\GatewayStatusService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class GatewayStatusServiceTest extends TestCase
 {
     public function testGatewayAllowsPush(): void

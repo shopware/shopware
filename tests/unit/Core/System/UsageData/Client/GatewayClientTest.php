@@ -14,7 +14,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
  *
  * @covers \Shopware\Core\System\UsageData\Client\GatewayClient
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class GatewayClientTest extends TestCase
 {
     public function testGatewayAllowsPush(): void

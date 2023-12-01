@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
  *
  * @param EntityRepository<UserConfigCollection> $userConfigRepository
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 #[Route(defaults: ['_routeScope' => ['api']])]
 class ConsentController extends AbstractController
 {

@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class IterateEntityMessageHandlerTest extends TestCase
 {
     public function testDispatchesNoMessageToFetchDeletedOrUpdatedEntitiesOnInitialRun(): void

@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\DispatchEntitiesQueryBuilder
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntitiesQueryBuilderTest extends TestCase
 {
     use KernelTestBehaviour;

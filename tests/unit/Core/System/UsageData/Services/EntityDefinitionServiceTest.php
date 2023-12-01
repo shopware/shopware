@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\Services\EntityDefinitionService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDefinitionServiceTest extends TestCase
 {
     /**

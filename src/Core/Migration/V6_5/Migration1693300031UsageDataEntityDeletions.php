@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class Migration1693300031UsageDataEntityDeletions extends MigrationStep
 {
     public function getCreationTimestamp(): int

@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\Services\ManyToManyAssociationService
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ManyToManyAssociationServiceTest extends TestCase
 {
     public function testGetMappingIdsForAssociationFields(): void

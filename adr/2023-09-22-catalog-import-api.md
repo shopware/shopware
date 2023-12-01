@@ -157,7 +157,7 @@ The payload is a simple array of entities with an array of ID's to delete.
 
 #### Examples
 
-* [Un-assign a media from a product](./assets/catalog-import/examples.md#un-assign-a-media-from-a-product)
+* [Un-assign a media from a product](../adr/assets/catalog-import/examples.md#un-assign-a-media-from-a-product)
 
 This endpoint is used to remove entity associations. 
 

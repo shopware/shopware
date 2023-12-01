@@ -4691,16 +4691,6 @@ parameters:
 			path: src/Core/Framework/Event/FlowLogEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\IncrementerGatewayCompilerPass\\:\\:resolveTypeDefinition\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/IncrementerGatewayCompilerPass.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$services has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/IncrementerGatewayCompilerPass.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php
@@ -6149,11 +6139,6 @@ parameters:
 			message: "#^Unsafe call to private method Shopware\\\\Core\\\\Framework\\\\Test\\\\Filesystem\\\\Adapter\\\\MemoryAdapterFactory\\:\\:addAdapter\\(\\) through static\\:\\:\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Filesystem/Adapter/MemoryAdapterFactory.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with bool will always evaluate to true\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/Increment/IncrementerGatewayCompilerPassTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:addDefaultLocale\\(\\) has parameter \\$lang with no value type specified in iterable type array\\.$#"

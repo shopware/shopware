@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Increment\ArrayIncrementer;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -48,14 +47,14 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $entityCompilerPass->process($container);
 
         // user_activity pool is registered
-        static::assertNotNull($container->hasDefinition('shopware.increment.user_activity.gateway.mysql'));
+        static::assertTrue($container->hasDefinition('shopware.increment.user_activity.gateway.mysql'));
         $definition = $container->getDefinition('shopware.increment.user_activity.gateway.mysql');
         static::assertEquals(MySQLIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // message_queue pool is registered
-        static::assertNotNull($container->hasDefinition('shopware.increment.message_queue.redis_adapter'));
-        static::assertNotNull($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
+        static::assertTrue($container->hasDefinition('shopware.increment.message_queue.redis_adapter'));
+        static::assertTrue($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
         static::assertEquals(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
@@ -73,11 +72,6 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'custom_type']]);
 
         $customGateway = new class() extends AbstractIncrementer {
-            public function getDecorated(): AbstractIncrementer
-            {
-                throw new DecorationPatternException(static::class);
-            }
-
             public function decrement(string $cluster, string $key): void
             {
             }
@@ -110,7 +104,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $entityCompilerPass->process($container);
 
         // custom_pool pool is registered
-        static::assertNotNull($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
+        static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
         static::assertEquals($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
@@ -136,7 +130,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $entityCompilerPass->process($container);
 
         // custom_pool pool is registered
-        static::assertNotNull($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
+        static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
         static::assertEquals($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));

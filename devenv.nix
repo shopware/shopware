@@ -100,6 +100,7 @@ in {
     ];
     settings = {
       mysqld = {
+        group_concat_max_len = 320000;
         log_bin_trust_function_creators = 1;
         sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION";
       };
@@ -107,6 +108,8 @@ in {
   };
 
   services.redis.enable = lib.mkDefault true;
+  # WSL2 fix locale
+  services.redis.extraConfig = "locale-collate C";
   services.adminer.enable = lib.mkDefault true;
   services.adminer.listen = lib.mkDefault "127.0.0.1:9080";
   services.mailpit.enable = lib.mkDefault true;

@@ -150,51 +150,6 @@
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_settings_cache_content_clear_and_warm_up_cache_row %}
-                <sw-card-section divider="bottom">
-                    <sw-container
-                        align="center"
-                        columns="1fr auto"
-                        gap="20px"
-                    >
-                        <div>
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_clear_and_warm_up_cache_row_heading %}
-                            <p class="sw-settings-cache__card-section-heading">
-                                {{ $tc('sw-settings-cache.section.clearAndWarmUpHeadline') }}
-                            </p>
-                            {% endblock %}
-
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_settings_cache_content_clear_and_warm_up_cache_row_text %}
-                            <p>{{ $tc('sw-settings-cache.section.clearAndWarmUpText') }}</p>
-                            {% endblock %}
-                        </div>
-
-                        {# @deprecated tag:v6.6.0 - Will be removed #}
-                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                        {% block sw_settings_cache_content_clear_and_warm_up_cache_row_button %}
-
-                        <sw-button-process
-                            variant="ghost"
-                            :is-loading="processes.clearAndWarmUpCache"
-                            :process-success="processSuccess.clearAndWarmUpCache"
-                            {% if VUE3 %}
-                            @update:process-success="resetButtons"
-                            {% else %}
-                            @process-finish="resetButtons"
-                            {% endif %}
-                            @click="clearAndWarmUpCache"
-                        >
-                            {{ $tc('sw-settings-cache.section.clearAndWarmUpButton') }}
-                        </sw-button-process>
-                        {% endblock %}
-                    </sw-container>
-                </sw-card-section>
-                {% endblock %}
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_cache_content_indexes_row %}
                 <sw-card-section>
                     <sw-container

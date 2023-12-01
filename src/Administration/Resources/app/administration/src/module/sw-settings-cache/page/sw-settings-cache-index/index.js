@@ -26,14 +26,10 @@ export default {
             cacheInfo: null,
             processes: {
                 normalClearCache: false,
-                // @deprecated tag:v6.6.0 - Will be removed
-                clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
             processSuccess: {
                 normalClearCache: false,
-                // @deprecated tag:v6.6.0 - Will be removed
-                clearAndWarmUpCache: false,
                 updateIndexes: false,
             },
             skip: [],
@@ -142,7 +138,6 @@ export default {
         resetButtons() {
             this.processSuccess = {
                 normalClearCache: false,
-                clearAndWarmUpCache: false,
                 updateIndexes: false,
             };
         },
@@ -175,29 +170,6 @@ export default {
                 });
             }).finally(() => {
                 this.processes.normalClearCache = false;
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        clearAndWarmUpCache() {
-            this.processes.clearAndWarmUpCache = true;
-            this.cacheApiService.clearAndWarmup().then(() => {
-                this.decreaseWorkerPoll();
-                setTimeout(() => {
-                    this.cacheApiService.cleanupOldCaches();
-                }, 30000);
-
-                this.createNotificationInfo({
-                    message: this.$tc('sw-settings-cache.notifications.clearCacheAndWarmup.started'),
-                });
-
-                this.processSuccess.clearAndWarmUpCache = true;
-            }).catch(() => {
-                this.processSuccess.clearAndWarmUpCache = false;
-            }).finally(() => {
-                this.processes.clearAndWarmUpCache = false;
             });
         },
 

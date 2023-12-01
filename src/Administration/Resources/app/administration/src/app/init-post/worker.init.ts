@@ -182,18 +182,6 @@ function registerThumbnailMiddleware(factory: typeof WorkerNotificationFactory) 
         },
     });
 
-    factory.register('WarmupIndexingMessage', {
-        name: 'Shopware\\Storefront\\Framework\\Cache\\CacheWarmer\\WarmUpMessage',
-        fn: function middleware(next, { entry, $root, notification }) {
-            messageQueueNotification('warmupMessage', ids, next, entry, $root, notification, {
-                title: 'global.default.success',
-                message: 'global.notification-center.worker-listener.warmupIndexing.message',
-                success: 'global.notification-center.worker-listener.warmupIndexing.messageSuccess',
-                foregroundSuccessMessage: 'sw-settings-cache.notifications.clearCacheAndWarmup.success',
-            }, 10);
-        },
-    });
-
     factory.register('EsIndexingMessage', {
         name: 'Shopware\\Elasticsearch\\Framework\\Indexing\\IndexingMessage',
         fn: function middleware(next, { entry, $root, notification }) {

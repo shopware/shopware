@@ -216,7 +216,6 @@
         "api_acl_privileges_route_get": "Read ACL route privileges",
         "api_action_cache_info": "Read cache info",
         "api_action_cache_index": "Trigger indexer",
-        "api_action_cache_delete_and_warmup": "Delete and warm up cache",
         "api_action_cache_delete": "Delete cache",
         "api_action_cache_cleanup": "Clean up cache",
         "api_action_container-cache_delete": "Delete container cache",

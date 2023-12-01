@@ -5,10 +5,8 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,40 +60,6 @@ class CacheControllerTest extends TestCase
 
         static::assertFalse($this->cache->getItem('foo')->isHit());
         static::assertFalse($this->cache->getItem('bar')->isHit());
-    }
-
-    public function testWarmupCacheEndpoint(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        if (!$this->getContainer()->has(CacheWarmer::class)) {
-            static::markTestSkipped('CacheWarmer test needs storefront bundle to be installed');
-        }
-
-        $this->cache = $this->getContainer()->get('cache.object');
-
-        $item = $this->cache->getItem('foo');
-        $item->set('bar');
-        $item->tag(['foo-tag']);
-        $this->cache->save($item);
-
-        $item = $this->cache->getItem('bar');
-        $item->set('foo');
-        $item->tag(['bar-tag']);
-        $this->cache->save($item);
-
-        static::assertTrue($this->cache->getItem('foo')->isHit());
-        static::assertTrue($this->cache->getItem('bar')->isHit());
-
-        $this->getBrowser()->request('DELETE', '/api/_action/cache_warmup');
-
-        /** @var JsonResponse $response */
-        $response = $this->getBrowser()->getResponse();
-
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
-
-        static::assertTrue($this->cache->getItem('foo')->isHit());
-        static::assertTrue($this->cache->getItem('bar')->isHit());
     }
 
     public function testCacheInfoEndpoint(): void

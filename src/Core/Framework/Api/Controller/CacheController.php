@@ -4,11 +4,8 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
@@ -27,7 +24,6 @@ class CacheController extends AbstractController
     public function __construct(
         private readonly CacheClearer $cacheClearer,
         private readonly AdapterInterface $adapter,
-        private readonly ?CacheWarmer $cacheWarmer,
         private readonly EntityIndexerRegistry $indexerRegistry
     ) {
     }
@@ -54,22 +50,6 @@ class CacheController extends AbstractController
         }
 
         $this->indexerRegistry->sendIndexingMessage([], $mapped);
-
-        return new Response('', Response::HTTP_NO_CONTENT);
-    }
-
-    #[Route(path: '/api/_action/cache_warmup', name: 'api.action.cache.delete_and_warmup', methods: ['DELETE'], defaults: ['_acl' => ['system:clear:cache']])]
-    public function clearCacheAndScheduleWarmUp(): Response
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            Feature::deprecatedClassMessage(self::class, 'v6.6.0.0')
-        );
-        if ($this->cacheWarmer === null) {
-            throw new \RuntimeException('Storefront is not installed');
-        }
-
-        $this->cacheWarmer->warmUp(Random::getAlphanumericString(32));
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

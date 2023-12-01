@@ -28,7 +28,7 @@
                                    title="{{ name }}"
                                    class="product-image-link is-{{ displayMode }}">
                                     {% block component_product_box_image_link_inner %}
-                                        {% if cover.url %}
+                                        {% if cover.url and cover.isSpatialObject() == false %}
                                             {% set attributes = {
                                                 'class': 'product-image is-'~displayMode,
                                                 'alt': (cover.translated.alt ?: name),

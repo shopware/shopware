@@ -57,7 +57,6 @@
                     class="sw-media-sidebar__quickaction quickaction--download"
                 >
                     <sw-external-link
-                        class="sw-media-sidebar__quickaction"
                         :href="item.url"
                         download
                     >
@@ -142,6 +141,33 @@
                 {% endblock %}
             </ul>
             {% endblock %}
+        </template>
+    </sw-media-collapse>
+    {% endblock %}
+
+    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+    {% block sw_media_quickinfo_spatial_configuration %}
+    <sw-media-collapse
+        v-if="isSpatial"
+        :title="$tc('sw-media.sidebar.sections.configuration')"
+        :expand-on-loading="true"
+    >
+        <template #content>
+            <sw-switch-field
+                {% if VUE3 %}
+                v-model:value="arReady"
+                {% else %}
+                v-model="arReady"
+                {% endif %}
+                :disabled="!editable"
+                :label="$tc('sw-media.sidebar.actions.ar')"
+                class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
+                {% if VUE3 %}
+                @update:value="toggleAR"
+                {% else %}
+                @change="toggleAR"
+                {% endif %}
+            />
         </template>
     </sw-media-collapse>
     {% endblock %}

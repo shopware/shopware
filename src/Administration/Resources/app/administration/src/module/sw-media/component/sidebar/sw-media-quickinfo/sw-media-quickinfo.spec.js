@@ -4,13 +4,14 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 import swMediaQuickinfo from 'src/module/sw-media/component/sidebar/sw-media-quickinfo';
-import swMediaCollapse from 'src/module/sw-media/component/sw-media-collapse';
+import 'src/app/component/form/sw-switch-field';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/field-base/sw-base-field';
 
 Shopware.Component.register('sw-media-quickinfo', swMediaQuickinfo);
-Shopware.Component.register('sw-media-collapse', swMediaCollapse);
 
 const itemMock = (options = {}) => {
-    return {
+    const itemOptions = {
         getEntityName: () => { return 'media'; },
         id: '4a12jd3kki9yyy765gkn5hdb',
         fileName: 'demo.jpg',
@@ -24,9 +25,11 @@ const itemMock = (options = {}) => {
         shippingMethods: [],
         ...options,
     };
+
+    return Object.assign(itemOptions, options);
 };
 
-async function createWrapper(mediaServiceFunctions = {}) {
+async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
     return shallowMount(await Shopware.Component.build('sw-media-quickinfo'), {
         mocks: {
             $route: {
@@ -42,6 +45,10 @@ async function createWrapper(mediaServiceFunctions = {}) {
                     search: () => {
                         return Promise.resolve();
                     },
+                    get: () => {
+                        return Promise.resolve();
+                    },
+                    ...mediaRepositoryProvideFunctions,
                 }),
             },
             mediaService: {
@@ -73,17 +80,62 @@ async function createWrapper(mediaServiceFunctions = {}) {
             'sw-media-preview-v2': true,
             'sw-media-tag': true,
             'sw-custom-field-set-renderer': true,
+            'sw-field-error': true,
+            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
         },
         propsData: {
-            item: itemMock(),
+            item: itemMock(itemMockOptions),
             editable: true,
         },
     });
 }
 
+/**
+ * @returns {[[object,boolean, boolean]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady'
+ */
+function provide2DMockOptions() {
+    return [
+        [
+            {},
+            false,
+            false,
+        ],
+    ];
+}
+
+/**
+ * @returns {[[object,boolean, boolean]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady'
+ */
+function provide3DMockOptions() {
+    return [
+        [
+            {
+                fileName: 'smth.glb',
+                fileExtension: 'glb',
+            },
+            true,
+            false,
+        ],
+        [
+            {
+                fileName: 'smth.glb',
+                url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
+            },
+            true,
+            true,
+        ],
+    ];
+}
+
 describe('module/sw-media/components/sw-media-quickinfo', () => {
     beforeEach(() => {
         global.activeAclRoles = [];
+    });
+
+    afterEach(async () => {
+        await flushPromises();
     });
 
     it('should be a Vue.JS component', async () => {
@@ -142,6 +194,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         global.activeAclRoles = ['media.editor'];
 
         const wrapper = await createWrapper(
+            {},
             {
                 // eslint-disable-next-line prefer-promise-reject-errors
                 renameMedia: () => Promise.reject(
@@ -164,77 +217,70 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(wrapper.vm.fileNameError).toStrictEqual(error);
     });
 
-    it('should throw error if new file name is too long', async () => {
+    it.each([...provide2DMockOptions(), ...provide3DMockOptions()])('should display ar-ready toggle if item is a 3D file', async (mockOptions, isSpatial) => {
         global.activeAclRoles = ['media.editor'];
-        const error = {
-            status: 400,
-            code: 'CONTENT__MEDIA_FILE_NAME_IS_TOO_LONG',
-            meta: {
-                parameters: {
-                    length: 255,
+
+        const wrapper = await createWrapper(mockOptions);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
+    });
+
+    it.each(provide3DMockOptions())('should trigger update:item event when toggle is changed', async (mockOptions, isSpatial) => {
+        global.activeAclRoles = ['media.editor'];
+        const mediaSaveMock = jest.fn();
+        const mediaRepositoryFunctions = {
+            save: mediaSaveMock,
+        };
+
+        const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
+        await wrapper.vm.$nextTick();
+
+        const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
+        expect(arToggle.exists()).toBe(isSpatial);
+
+        const arToggleInput = wrapper.find('input[name="sw-field--arReady"]');
+        expect(arToggleInput.exists()).toBe(isSpatial);
+
+        await arToggleInput.setChecked();
+        expect(arToggleInput.element.checked).toBe(true);
+
+        await arToggle.trigger('update');
+        expect(wrapper.emitted('update:item')).toBeTruthy();
+        expect(wrapper.emitted('update:item')[0][0]).toEqual(
+            expect.objectContaining({
+                config: {
+                    spatial: {
+                        arReady: true,
+                        updatedAt: expect.any(Number),
+                    },
+                },
+            }),
+        );
+    });
+
+    it.each(provide3DMockOptions())('should check if object is AR ready when created and update ar toggle accordingly', async (mockOptions, isSpatial, isArReady) => {
+        global.activeAclRoles = ['media.editor'];
+        const mediaRepositoryGetMock = jest.fn().mockResolvedValue({
+            config: {
+                spatial: {
+                    arReady: isArReady,
                 },
             },
+        });
+        const mediaRepositoryFunctions = {
+            get: mediaRepositoryGetMock,
         };
 
-        const wrapper = await createWrapper(
-            {
-                // eslint-disable-next-line prefer-promise-reject-errors
-                renameMedia: () => Promise.reject(
-                    {
-                        response: {
-                            data: {
-                                errors: [
-                                    error,
-                                ],
-                            },
-                        },
-                    },
-                ),
-            },
-        );
-
-        wrapper.vm.createNotificationError = jest.fn();
-
+        const wrapper = await createWrapper(mockOptions, {}, mediaRepositoryFunctions);
         await wrapper.vm.$nextTick();
-        await wrapper.vm.onChangeFileName('new file name');
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'global.sw-media-media-item.notification.fileNameTooLong.message',
-        });
-    });
+        const arToggle = wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle');
+        expect(arToggle.exists()).toBe(true);
 
-    it('should throw general renaming error as fallback', async () => {
-        global.activeAclRoles = ['media.editor'];
-        const error = {
-            status: 400,
-            code: 'CONTENT__MEDIA_FILE_FOO_BAR',
-        };
+        const arToggleInput = wrapper.find('input[name="sw-field--arReady"]');
+        expect(arToggleInput.exists()).toBe(true);
 
-        const wrapper = await createWrapper(
-            {
-                // eslint-disable-next-line prefer-promise-reject-errors
-                renameMedia: () => Promise.reject(
-                    {
-                        response: {
-                            data: {
-                                errors: [
-                                    error,
-                                ],
-                            },
-                        },
-                    },
-                ),
-            },
-        );
-
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.onChangeFileName('new file name');
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'global.sw-media-media-item.notification.renamingError.message',
-        });
+        expect(arToggleInput.element.checked).toBe(isArReady);
     });
 });
-

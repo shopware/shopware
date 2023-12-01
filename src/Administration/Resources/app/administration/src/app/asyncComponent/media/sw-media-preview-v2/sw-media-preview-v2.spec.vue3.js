@@ -126,6 +126,7 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
             'image/gif': 'icons-multicolor-file-thumbnail-gif',
             'image/jpeg': 'icons-multicolor-file-thumbnail-jpg',
             'image/svg+xml': 'icons-multicolor-file-thumbnail-svg',
+            'model/gltf-binary': 'icons-multicolor-file-thumbnail-glb',
             unknown: 'icons-multicolor-file-thumbnail-normal',
         };
 

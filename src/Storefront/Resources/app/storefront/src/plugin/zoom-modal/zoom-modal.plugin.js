@@ -21,6 +21,7 @@ export default class ZoomModalPlugin extends Plugin {
          * selector to trigger the image zoom modal
          */
         triggerSelector: 'img',
+        triggerSelectorCanvas: 'canvas',
 
         /**
          * product id to load the images via ajax
@@ -70,7 +71,10 @@ export default class ZoomModalPlugin extends Plugin {
 
     init() {
         this._triggers = this.el.querySelectorAll(this.options.triggerSelector);
+        this._triggersCanvas = this.el.querySelectorAll(this.options.triggerSelectorCanvas);
         this._clickInterrupted = false;
+        this._pixelsMoved = 0;
+        this._mouseDown = false;
         this._registerEvents();
     }
 
@@ -81,14 +85,37 @@ export default class ZoomModalPlugin extends Plugin {
     _registerEvents() {
         const eventType = (DeviceDetection.isTouchDevice()) ? 'touchend' : 'click';
 
+        // Events for normal elements (images)
+
         Iterator.iterate(this._triggers, element => {
             element.removeEventListener(eventType, this._onClick.bind(this));
             element.addEventListener(eventType, this._onClick.bind(this));
         });
-
         Iterator.iterate(this._triggers, element => {
             element.removeEventListener('touchmove', this._onTouchMove.bind(this));
             element.addEventListener('touchmove', this._onTouchMove.bind(this));
+        });
+
+        // Events for canvas elements (product box)
+
+        Iterator.iterate(this._triggersCanvas, element => {
+            element.removeEventListener('mousedown', this._onMouseDown.bind(this));
+            element.addEventListener('mousedown', this._onMouseDown.bind(this));
+        });
+
+        Iterator.iterate(this._triggersCanvas, element => {
+            element.removeEventListener('mouseup', this._onMouseUp.bind(this));
+            element.addEventListener('mouseup', this._onMouseUp.bind(this));
+        });
+
+        Iterator.iterate(this._triggersCanvas, element => {
+            element.removeEventListener(eventType, this._onClick.bind(this));
+            element.addEventListener(eventType, this._onClick.bind(this));
+        });
+
+        Iterator.iterate(this._triggersCanvas, element => {
+            element.removeEventListener('pointermove', this._onPointerMove.bind(this));
+            element.addEventListener('pointermove', this._onPointerMove.bind(this));
         });
     }
 
@@ -97,10 +124,13 @@ export default class ZoomModalPlugin extends Plugin {
      * @private
      */
     _onClick(event) {
-        if (this._clickInterrupted === true) {
+        if (this._clickInterrupted === true || this._pixelsMoved > 10) {
             this._clickInterrupted = false;
+            this._pixelsMoved = 0;
             return;
         }
+
+        this._pixelsMoved = 0;
 
         ZoomModalPlugin._stopEvent(event);
         this._openModal();
@@ -113,6 +143,35 @@ export default class ZoomModalPlugin extends Plugin {
      */
     _onTouchMove() {
         this._clickInterrupted = true;
+    }
+
+    /**
+     * @private
+     */
+    _onPointerMove(event) {
+        if (event.pointerType == 'mouse') {
+            if (this._mouseDown) {
+                this._pixelsMoved += 2;
+            }
+        }
+        else {
+            this._pixelsMoved += 1;
+        }
+    }
+
+    /**
+     * @private
+     */
+    _onMouseDown() {
+        this._mouseDown = true;
+        this._clickInterrupted = false;
+    }
+
+    /**
+     * @private
+     */
+    _onMouseUp() {
+        this._mouseDown = false;
     }
 
     /**

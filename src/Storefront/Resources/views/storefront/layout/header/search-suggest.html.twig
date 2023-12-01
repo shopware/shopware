@@ -15,7 +15,7 @@
                                         <div class="row align-items-center g-0">
                                             {% block layout_search_suggest_result_image %}
                                                 <div class="col-auto search-suggest-product-image-container">
-                                                    {% if product.cover.media.url %}
+                                                    {% if product.cover.media.url and product.cover.media.isSpatialObject() == false %}
                                                         {% sw_thumbnails 'search-suggest-product-image-thumbnails' with {
                                                             media: product.cover.media,
                                                             sizes: {

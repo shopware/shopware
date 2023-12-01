@@ -30,6 +30,8 @@ class AnnotationTagTest extends TestCase
         'Core/DevOps/StaticAnalyze',
         'recovery/vendor',
         'storefront/vendor',
+        // no need to check external js added as assets
+        'storefront/dist/assets/js',
         // we cannot remove the method, because old migrations could still use it
         'Migration/MigrationStep.php',
         // example plugin

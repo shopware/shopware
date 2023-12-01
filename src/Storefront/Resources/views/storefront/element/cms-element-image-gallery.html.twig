@@ -60,66 +60,78 @@
                 <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
-                {% set gallerySliderOptions = {
-                    slider: {
-                        navPosition: 'bottom',
-                        speed: 500,
-                        gutter: gutter ? gutter : 0,
-                        controls: navigationArrows ? true : false,
-                        autoHeight: false,
-                        startIndex: startIndexThumbnails ? startIndexThumbnails : null
-                    },
+            {% set gallerySliderOptions = {
+                slider: {
+                    navPosition: 'bottom',
+                    speed: 500,
+                    gutter: gutter ? gutter : 0,
+                    controls: navigationArrows ? true : false,
+                    autoHeight: false,
+                    startIndex: startIndexThumbnails ? startIndexThumbnails : null
+                },
+                thumbnailSlider: {
+                    items: (galleryPosition == "underneath") ? 6 : 5,
+                    slideBy: (galleryPosition == "underneath") ? 5 : 4,
+                    controls: true,
+                    startIndex: startIndexThumbnails ? startIndexThumbnails : null,
+                    responsive: {
+                        xs: {
+                            enabled: false,
+                            controls: false
+                        },
+                        sm: {
+                            enabled: false,
+                            controls: false
+                        }
+                    }
+                }
+            } %}
+
+            {% if galleryPosition == "left" %}
+                {% set gallerySliderOptions = gallerySliderOptions|replace_recursive({
                     thumbnailSlider: {
-                        items: (galleryPosition == "underneath") ? 6 : 5,
-                        slideBy: (galleryPosition == "underneath") ? 5 : 4,
-                        controls: true,
-                        startIndex: startIndexThumbnails ? startIndexThumbnails : null,
                         responsive: {
-                            xs: {
-                                enabled: false,
-                                controls: false
+                            md: {
+                                axis: 'vertical'
                             },
-                            sm: {
-                                enabled: false,
-                                controls: false
+                            lg: {
+                                axis: 'vertical'
+                            },
+                            xl: {
+                                axis: 'vertical'
+                            },
+                            xxl: {
+                                axis: 'vertical'
                             }
                         }
                     }
+                }) %}
+            {% endif %}
+
+            {% if page.product.media.hasSpatialObjects() %}
+                {% set galleryZoomSliderOptions = {
+                    slider: {
+                        loop: false,
+                        rewind: true,
+                        swipeAngle: 5
+                    },
                 } %}
 
-                {% if galleryPosition == "left" %}
-                    {% set gallerySliderOptions = gallerySliderOptions|replace_recursive({
-                        thumbnailSlider: {
-                            responsive: {
-                                md: {
-                                    axis: 'vertical'
-                                },
-                                lg: {
-                                    axis: 'vertical'
-                                },
-                                xl: {
-                                    axis: 'vertical'
-                                },
-                                xxl: {
-                                    axis: 'vertical'
-                                }
-                            }
-                        }
-                    }) %}
-                {% endif %}
+                {% set gallerySliderOptions = gallerySliderOptions|replace_recursive(galleryZoomSliderOptions) %}
+            {% endif %}
 
-                {% block element_image_gallery_inner %}
+            {% block element_image_gallery_inner %}
                     <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% else %} is-loading{% endif %} js-gallery-zoom-modal-container"
-                            {% if zoom %}
-                                data-magnifier="true"
-                            {% endif %}
-                            {% if magnifierOptions|length > 0 %}
-                                data-magnifier-options='{{ magnifierOptions|json_encode|raw }}'
-                            {% endif %}
-                            {% if imageCount > 1 %}
-                                data-gallery-slider="true"
-                                data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'
-                            {% endif %}>
+                        {% if zoom %}
+                            data-magnifier="true"
+                        {% endif %}
+                        {% if magnifierOptions|length > 0 %}
+                            data-magnifier-options='{{ magnifierOptions|json_encode|raw }}'
+                        {% endif %}
+                        {% if imageCount > 1 %}
+                            data-gallery-slider="true"
+                            data-gallery-slider-options='{{ gallerySliderOptions|json_encode }}'
+                        {% endif %}>
 
                         {% block element_image_gallery_inner_col %}
                             <div class="gallery-slider-col{% if galleryPosition == "left" %} col order-1 order-md-2{% elseif galleryPosition == "underneath" %} col-12 order-1{% endif %}"
@@ -136,7 +148,9 @@
                                                             {% for image in mediaItems %}
                                                                 {% block element_image_gallery_inner_item %}
                                                                     <div class="gallery-slider-item-container">
-                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"{% if minHeight and (displayMode == "cover" or displayMode == "contain") %} style="min-height: {{ minHeight }}"{% endif %}>
+                                                                        <div class="gallery-slider-item is-{{ displayMode }} js-magnifier-container"
+                                                                            {% if minHeight and (displayMode == "cover" or displayMode == "contain") %} style="min-height: {{ minHeight }}"{% endif %}
+                                                                            {% if (displayMode == "standard" and image.isSpatialObject()) %} style="min-height: 240px"{% endif %}>
                                                                             {% set attributes = {
                                                                                 'class': 'img-fluid gallery-slider-image magnifier-image js-magnifier-image',
                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
@@ -152,9 +166,45 @@
                                                                                 {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
                                                                             {% endif %}
 
-                                                                            {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                                                media: image
-                                                                            } %}
+                                                                            {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                            {% block element_image_gallery_inner_item_spatial %}
+                                                                                {% if image.isSpatialObject() %}
+                                                                                    <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
+                                                                                    <div class="spatial-canvas-spinner position-absolute top-50 start-50 bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
+                                                                                        <div class="spinner-border" role="status">
+                                                                                            <span class="visually-hidden">Loading...</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                                        <canvas
+                                                                                            data-spatial-gallery-slider-viewer
+                                                                                            data-spatial-model-url="{{ image.url }}"
+                                                                                            data-product-slider-position="{{ loop.index0 }}"
+                                                                                        ></canvas>
+                                                                                        <span
+                                                                                            class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
+                                                                                            data-spatial-movement-note
+                                                                                            data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
+                                                                                        >
+                                                                                            {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
+                                                                                        </span>
+                                                                                        {% if image.config.spatial.arReady %}
+                                                                                            <div class="ar-button button"
+                                                                                                 data-spatial-ar-viewer
+                                                                                                 data-spatial-model-url="{{ image.url }}">
+                                                                                                {% sw_icon 'augmented' style {
+                                                                                                    'size': 'fluid'
+                                                                                                } %}
+                                                                                            </div>
+                                                                                            {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
+                                                                                        {% endif %}
+                                                                                    </div>
+                                                                                {% else %}
+                                                                                    {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                                                        media: image
+                                                                                    } %}
+                                                                                {% endif %}
+                                                                            {% endblock %}
                                                                         </div>
                                                                     </div>
                                                                 {% endblock %}
@@ -209,9 +259,47 @@
                                                             {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
                                                         {% endif %}
 
-                                                        {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                            media: mediaItems|first,
-                                                        } %}
+                                                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                        {% block element_image_gallery_inner_single_spatial %}
+                                                            {% for image in mediaItems %}
+                                                                {% if image.isSpatialObject() %}
+                                                                    <span class="badge bg-secondary m-3 position-absolute top-0 end-0 d-md-none">3D</span>
+                                                                    <div class="spatial-canvas-spinner position-absolute top-50 start-50 bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
+                                                                        <div class="spinner-border" role="status">
+                                                                            <span class="visually-hidden">Loading...</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                        <canvas
+                                                                                data-spatial-gallery-slider-viewer
+                                                                                data-spatial-model-url="{{ image.url }}"
+                                                                                data-product-slider-position="{{ loop.index0 }}"
+                                                                        ></canvas>
+                                                                        <span
+                                                                                class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
+                                                                                data-spatial-movement-note
+                                                                                data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
+                                                                        >
+                                                                        {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
+                                                                        </span>
+                                                                        {% if image.config.spatial.arReady %}
+                                                                            <div class="ar-button button"
+                                                                                 data-spatial-ar-viewer
+                                                                                 data-spatial-model-url="{{ image.url }}">
+                                                                                {% sw_icon 'augmented' style {
+                                                                                    'size': 'fluid'
+                                                                                } %}
+                                                                            </div>
+                                                                            {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
+                                                                        {% endif %}
+                                                                    </div>
+                                                                {% else %}
+                                                                    {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                                        media: mediaItems|first,
+                                                                    } %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endblock %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {
                                                             'size': 'fluid'
@@ -267,12 +355,22 @@
                                                                             {% set attributes = attributes|merge({ 'itemprop': 'image' }) %}
                                                                         {% endif %}
 
-                                                                        {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
-                                                                            media: image,
-                                                                            sizes: {
-                                                                                'default': '200px'
-                                                                            }
-                                                                        } %}
+                                                                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                        {% block element_image_gallery_inner_thumbnails_item_inner_spatial %}
+                                                                            {% if image.isSpatialObject() %}
+                                                                                {% sw_icon 'placeholder' style {
+                                                                                    'size': 'fluid'
+                                                                                } %}
+                                                                                <span class="badge bg-secondary m-1 position-absolute bottom-0 end-0">3D</span>
+                                                                            {% else %}
+                                                                                {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
+                                                                                    media: image,
+                                                                                    sizes: {
+                                                                                        'default': '200px'
+                                                                                    }
+                                                                                } %}
+                                                                            {% endif %}
+                                                                        {% endblock %}
                                                                     </div>
                                                                 {% endblock %}
                                                             </div>
@@ -315,6 +413,7 @@
                                 <div class="zoom-modal-wrapper">
                                     {% block element_image_gallery_inner_zoom_modal %}
                                         <div class="modal is-fullscreen zoom-modal js-zoom-modal{% if imageCount is same as(1) %} no-thumbnails{% endif %}"
+                                             data-bs-backdrop="false"
                                              data-image-zoom-modal="true"
                                              tabindex="-1"
                                              role="dialog">
@@ -322,7 +421,7 @@
                                                 <div class="modal-dialog"
                                                      role="document">
                                                     {% block element_image_gallery_inner_zoom_modal_content %}
-                                                        <div class="modal-content"{% if imageCount > 1 %} data-modal-gallery-slider="true"{% endif %}>
+                                                        <div class="modal-content"{% if imageCount > 1 %} data-modal-gallery-slider="true" data-gallery-slider-options='{{ galleryZoomSliderOptions|json_encode }}' {% endif %}>
                                                             {% block element_image_gallery_inner_zoom_modal_close_button %}
                                                                 <button type="button"
                                                                         class="btn-close close"
@@ -378,19 +477,70 @@
                                                                                                 <div class="image-zoom-container"
                                                                                                      data-image-zoom="true">
                                                                                                     {% block element_image_gallery_inner_zoom_modal_slider_item_image %}
-                                                                                                        {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
-                                                                                                            media: image,
-                                                                                                            attributes: {
-                                                                                                                'class': 'gallery-slider-image js-image-zoom-element js-load-img',
-                                                                                                                'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                                                'title': (image.translated.title ?: fallbackImageTitle)
-                                                                                                            },
-                                                                                                            load: false,
-                                                                                                            loadOriginalImage: true,
-                                                                                                            autoColumnSizes: false
-                                                                                                        } %}
+                                                                                                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                                        {% block element_image_gallery_inner_zoom_modal_slider_item_image_spatial %}
+                                                                                                            {% if image.isSpatialObject() %}
+                                                                                                                {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                                                                                    media: image,
+                                                                                                                    attributes: {
+                                                                                                                        'class': 'd-none gallery-slider-image js-image-zoom-element js-load-img',
+                                                                                                                        'alt': (image.translated.alt ?: fallbackImageTitle),
+                                                                                                                        'title': (image.translated.title ?: fallbackImageTitle)
+                                                                                                                    },
+                                                                                                                    load: false,
+                                                                                                                    loadOriginalImage: true,
+                                                                                                                    autoColumnSizes: false
+                                                                                                                } %}
+                                                                                                            {% else %}
+                                                                                                                {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
+                                                                                                                    media: image,
+                                                                                                                    attributes: {
+                                                                                                                        'class': 'gallery-slider-image js-image-zoom-element js-load-img',
+                                                                                                                        'alt': (image.translated.alt ?: fallbackImageTitle),
+                                                                                                                        'title': (image.translated.title ?: fallbackImageTitle)
+                                                                                                                    },
+                                                                                                                    load: false,
+                                                                                                                    loadOriginalImage: true,
+                                                                                                                    autoColumnSizes: false
+                                                                                                                } %}
+                                                                                                            {% endif %}
+                                                                                                        {% endblock %}
                                                                                                     {% endblock %}
                                                                                                 </div>
+                                                                                                {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                                {% block element_image_gallery_inner_zoom_modal_slider_item_zoom_container_spatial %}
+                                                                                                    {% if image.isSpatialObject() %}
+                                                                                                        <div class="spatial-canvas-spinner position-absolute top-50 start-50 translate-middle bg-white flex justify-content-center align-items-center" style="--bs-bg-opacity: .8;">
+                                                                                                            <div class="spinner-border" role="status">
+                                                                                                                <span class="visually-hidden">Loading...</span>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <div class="gallery-slider-spatial-canvas-wrapper position-absolute start-0 end-0 top-0 bottom-0">
+                                                                                                            <canvas
+                                                                                                                    data-spatial-zoom-gallery-slider-viewer
+                                                                                                                    data-spatial-model-url="{{ image.url }}"
+                                                                                                                    data-zoom-product-slider-position="{{ loop.index0 }}"
+                                                                                                            ></canvas>
+                                                                                                            <span
+                                                                                                                    class="spatial-canvas-note spatial-slider-movement-note position-absolute start-50 text-center badge mx-0 py-1 px-3 translate-middle-x"
+                                                                                                                    data-spatial-movement-note
+                                                                                                                    data-spatial-movement-note-touch-text="{{ 'component.cms.imageGallery.touchMove'|trans|striptags }}"
+                                                                                                            >
+                                                                                                            {{ 'component.cms.imageGallery.clickMove'|trans|striptags }}
+                                                                                                        </span>
+                                                                                                            {% if image.config.spatial.arReady %}
+                                                                                                                <div class="ar-button button mb-2"
+                                                                                                                     data-spatial-ar-viewer
+                                                                                                                     data-spatial-model-url="{{ image.url }}">
+                                                                                                                    {% sw_icon 'augmented' style {
+                                                                                                                        'size': 'fluid'
+                                                                                                                    } %}
+                                                                                                                </div>
+                                                                                                                {% sw_include '@Storefront/storefront/utilities/ar-overlay.html.twig' %}
+                                                                                                            {% endif %}
+                                                                                                        </div>
+                                                                                                    {% endif %}
+                                                                                                {% endblock %}
                                                                                             {% endblock %}
                                                                                         </div>
                                                                                     {% endblock %}
@@ -453,18 +603,29 @@
                                                                                             <div class="gallery-slider-thumbnails-item">
                                                                                                 {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner %}
                                                                                                     <div class="gallery-slider-thumbnails-item-inner">
-                                                                                                        {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
-                                                                                                            media: image,
-                                                                                                            sizes: {
-                                                                                                                'default': '200px'
-                                                                                                            },
-                                                                                                            attributes: {
-                                                                                                                'class': 'gallery-slider-thumbnails-image js-load-img',
-                                                                                                                'alt': (image.translated.alt ?: fallbackImageTitle),
-                                                                                                                'title': (image.translated.title ?: fallbackImageTitle)
-                                                                                                            },
-                                                                                                            load: false
-                                                                                                        } %}
+                                                                                                        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+                                                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails_item_inner_spatial %}
+                                                                                                            {% if image.isSpatialObject() %}
+                                                                                                                {% sw_icon 'placeholder' style {
+                                                                                                                    'size': 'fluid',
+                                                                                                                    'class': ''
+                                                                                                                } %}
+                                                                                                                <span class="badge bg-secondary m-1 position-absolute bottom-0 end-0">3D</span>
+                                                                                                            {% else %}
+                                                                                                                {% sw_thumbnails 'gallery-slider-thumbnails-image-thumbnails' with {
+                                                                                                                    media: image,
+                                                                                                                    sizes: {
+                                                                                                                        'default': '200px'
+                                                                                                                    },
+                                                                                                                    attributes: {
+                                                                                                                        'class': 'gallery-slider-thumbnails-image js-load-img',
+                                                                                                                        'alt': (image.translated.alt ?: fallbackImageTitle),
+                                                                                                                        'title': (image.translated.title ?: fallbackImageTitle)
+                                                                                                                    },
+                                                                                                                    load: false
+                                                                                                                } %}
+                                                                                                            {% endif %}
+                                                                                                        {% endblock %}
                                                                                                     </div>
                                                                                                 {% endblock %}
                                                                                             </div>
@@ -493,4 +654,11 @@
             {% endif %}
         {% endblock %}
     </div>
+
+    {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+    {% block element_image_gallery_qr_code_modal %}
+        {% if page.product.media.hasSpatialObjects() %}
+            {% sw_include '@Storefront/storefront/utilities/qr-code-modal.html.twig' %}
+        {% endif %}
+    {% endblock %}
 {% endblock %}

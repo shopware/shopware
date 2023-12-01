@@ -218,6 +218,21 @@ class CollectionTest extends TestCase
         static::assertEquals('a', $collection->getAt(0));
         static::assertEquals('b', $collection->getAt(1));
     }
+
+    public function testFirstWhereWithEmptyCollectionWillReturnNull(): void
+    {
+        $collection = new TestCollection();
+        static::assertNull($collection->firstWhere(fn ($element) => $element === 'a'));
+    }
+
+    public function testFirstWhereWithMatchingElementWillReturnFirstElement(): void
+    {
+        $collection = new TestCollection();
+        $collection->add('a1');
+        $collection->add('a2');
+        $collection->add('a3');
+        static::assertEquals('a1', $collection->firstWhere(fn ($element) => str_starts_with($element, 'a')));
+    }
 }
 
 /**

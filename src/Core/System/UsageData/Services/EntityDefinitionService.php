@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class EntityDefinitionService
 {
     public const PUID_FIELDS = [

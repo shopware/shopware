@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 enum ConsentState: string
 {
     case REQUESTED = 'requested';

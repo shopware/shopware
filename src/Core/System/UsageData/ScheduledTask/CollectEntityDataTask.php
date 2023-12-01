@@ -8,7 +8,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class CollectEntityDataTask extends ScheduledTask
 {
     public static function getTaskName(): string

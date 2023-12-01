@@ -8,7 +8,7 @@ use Shopware\Core\System\UsageData\UsageDataException;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ConsentAlreadyRevokedException extends UsageDataException
 {
 }

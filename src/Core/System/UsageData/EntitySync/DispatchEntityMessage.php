@@ -10,7 +10,7 @@ use Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface;
  *
  * @phpstan-type PrimaryKeyList array<int, array<string, string>>
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntityMessage implements LowPriorityMessageInterface
 {
     /**

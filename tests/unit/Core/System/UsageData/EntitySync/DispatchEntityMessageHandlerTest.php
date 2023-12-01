@@ -48,7 +48,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *
  * @covers \Shopware\Core\System\UsageData\EntitySync\DispatchEntityMessageHandler
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntityMessageHandlerTest extends TestCase
 {
     public function testIgnoresMessageIfEntityDefinitionIsNotFound(): void

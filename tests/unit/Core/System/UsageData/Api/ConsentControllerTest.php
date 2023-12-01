@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  *
  * @covers \Shopware\Core\System\UsageData\Api\ConsentController
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ConsentControllerTest extends TestCase
 {
     public function testGetConsentReturnsStateFromDetector(): void

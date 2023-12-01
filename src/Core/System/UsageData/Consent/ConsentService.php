@@ -16,7 +16,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class ConsentService
 {
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';

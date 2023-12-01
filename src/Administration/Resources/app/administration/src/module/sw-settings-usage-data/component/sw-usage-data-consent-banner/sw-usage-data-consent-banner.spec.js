@@ -14,6 +14,9 @@ const usageDataService = {
     hideBanner: () => jest.fn(),
 };
 
+/**
+ * @package data-services
+ */
 async function createWrapper(canBeHidden = false, isPrivileged = true) {
     return shallowMount(await Shopware.Component.build('sw-usage-data-consent-banner'), {
         propsData: {

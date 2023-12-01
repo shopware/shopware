@@ -21,7 +21,7 @@ use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 /**
  * @internal
  */
-#[Package('merchant-services')]
+#[Package('data-services')]
 class DispatchEntitiesQueryBuilder
 {
     public const PUID_FIELD_NAME = 'puid';

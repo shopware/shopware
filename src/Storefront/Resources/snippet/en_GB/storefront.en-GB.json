@@ -585,6 +585,14 @@
     "reviewAvgRateElements": "stars",
     "reviewNotPublicYetAlert": "Your review has not been approved yet"
   },
+  "spatial": {
+    "scanQrCode": "Scan QR-Code",
+    "pointToQrCode": "Point the mobile device at the QR code to display the item in \"Augmented Reality\"-mode",
+    "arSupportInFollowingDevices": "The \"Augmented Reality\" experience is supported on the following devices:",
+    "arSupportDevices": "iOS11+, Android 8.0+ with ARCore 1.9 support",
+    "moveTheDeviceToStart": "Move the device to start",
+    "tapToPlaceTheObject": "Tap to place the object"
+  },
   "wishlist": {
     "cartTitle": "Your wishlist",
     "headline": "Your wishlist",
@@ -680,6 +688,8 @@
         "acceptButtonLabel": "Accept"
       },
       "imageGallery": {
+        "touchMove": "Touch and drag",
+        "clickMove": "Click and move",
         "sliderDotLabel": "Show image %index% of %total%"
       },
       "defaultMedia": {

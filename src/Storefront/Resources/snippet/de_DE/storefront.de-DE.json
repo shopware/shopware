@@ -586,6 +586,14 @@
     "reviewAvgRateElements": "Sternen",
     "reviewNotPublicYetAlert": "Ihre Bewertung wurde noch nicht freigeschaltet"
   },
+  "spatial": {
+    "scanQrCode": "QR-Code scannen",
+    "pointToQrCode": "Richten Sie das mobile Gerät auf den QR-Code, um den Artikel im \"Erweiterte Realität\"-Modus anzuzeigen",
+    "arSupportInFollowingDevices": "Das \"Erweiterte Realität\"-Erlebnis wird von den folgenden Geräten unterstützt:",
+    "arSupportDevices": "iOS11+, Android 8.0+ mit ARCore 1.9 Unterstützung",
+    "moveTheDeviceToStart": "Bewegen Sie das Gerät zum Start",
+    "tapToPlaceTheObject": "Tippen Sie, um das Objekt zu platzieren"
+  },
   "wishlist": {
     "cartTitle": "Ihr Merkzettel",
     "headline": "Ihr Merkzettel",
@@ -681,6 +689,8 @@
         "acceptButtonLabel": "Akzeptieren"
       },
       "imageGallery": {
+        "touchMove": "Drücken und drehen",
+        "clickMove": "Klicken und drehen",
         "sliderDotLabel": "Zeige Bild %index% von %total%"
       },
       "defaultMedia": {

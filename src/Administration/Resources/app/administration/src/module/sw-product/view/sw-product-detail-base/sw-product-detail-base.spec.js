@@ -6,8 +6,10 @@ import { shallowMount } from '@vue/test-utils';
 import swProductDetailBase from 'src/module/sw-product/view/sw-product-detail-base';
 import swProductBasicForm from 'src/module/sw-product/component/sw-product-basic-form';
 import 'src/app/component/utils/sw-inherit-wrapper';
+import 'src/app/component/base/sw-inheritance-switch';
 import 'src/app/component/form/sw-field';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const { Utils } = Shopware;
 
@@ -44,9 +46,10 @@ async function createWrapper() {
             'sw-product-feature-set-form': true,
             'sw-product-settings-form': true,
             'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
+            'sw-inheritance-switch': await Shopware.Component.build('sw-inheritance-switch'),
             'sw-empty-state': true,
             'sw-card': {
-                template: '<div><slot></slot><slot name="grid"></slot></div>',
+                template: '<div><slot></slot><slot name="title"></slot><slot name="grid"></slot></div>',
             },
             'sw-context-menu-item': true,
             'sw-media-modal-v2': true,
@@ -57,7 +60,7 @@ async function createWrapper() {
             'sw-product-media-form': true,
             'sw-entity-single-select': true,
             'sw-help-text': true,
-            'sw-icon': true,
+            'sw-icon': { template: '<div class="sw-icon" @click="$emit(\'click\')"></div>' },
             'sw-text-field': true,
             'sw-select-field': true,
             'router-link': true,
@@ -85,6 +88,7 @@ async function createWrapper() {
                     searchIds: () => Promise.resolve({
                         data: [],
                     }),
+                    create: () => ({ id: 'id' }),
                 }),
             },
         },
@@ -112,9 +116,11 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                     }],
                 },
                 product: {
+                    id: 'productId',
                     getEntityName: () => 'product',
                     isNew: () => false,
-                    media: [],
+                    media: new EntityCollection('', '', {}, {}, []),
+                    coverId: null,
                     reviews: [{
                         id: '1a2b3c',
                         entity: 'review',
@@ -259,7 +265,6 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should get media default folder id when component got created', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
         wrapper.vm.getMediaDefaultFolderId = jest.fn(() => {
             return Promise.resolve('SOME-ID');
@@ -271,82 +276,112 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         wrapper.vm.getMediaDefaultFolderId.mockRestore();
     });
 
-    it('should turn on media modal', async () => {
+    it('should able to open media modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            showMediaModal: true,
-        });
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
 
         const mediaModal = wrapper.find('sw-media-modal-v2-stub');
 
-        expect(mediaModal.exists()).toBeTruthy();
+        expect(mediaModal.exists()).toBe(true);
         expect(mediaModal.attributes('entity-context')).toBe('product');
     });
 
-    it('should turn off media modal', async () => {
+    it('should able to close media modal', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
-        await wrapper.setData({
-            showMediaModal: false,
-        });
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
 
         const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+        await mediaModal.vm.$emit('modal-close');
 
-        expect(mediaModal.exists()).toBeFalsy();
+        expect(mediaModal.exists()).toBe(false);
+    });
+
+    it('should not be able to add a null media', async () => {
+        const wrapper = await createWrapper();
+
+        const spyOnAddMedia = jest.spyOn(wrapper.vm, 'addMedia');
+
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+        await mediaModal.vm.$emit('media-modal-selection-change', null);
+
+        expect(spyOnAddMedia).not.toHaveBeenCalled();
     });
 
     it('should be able to add a new media', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
-        wrapper.vm.addMedia = jest.fn(() => Promise.resolve());
+        const media = { id: 'id', fileName: 'fileName', fileSize: 101, url: 'http://image.jpg' };
 
-        const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
-        await wrapper.vm.onAddMedia([media]);
-        await wrapper.setData({
-            product: {
-                media: [
-                    media,
-                ],
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+        await mediaModal.vm.$emit('media-modal-selection-change', [media]);
+
+        expect(wrapper.vm.product.media).toEqual(expect.arrayContaining([{
+            id: 'id',
+            media: {
+                id: 'id',
+                url: 'http://image.jpg',
             },
-        });
-
-        expect(wrapper.vm.addMedia).toHaveBeenCalledWith(media);
-        expect(wrapper.vm.product.media).toEqual(expect.arrayContaining([media]));
-
-        wrapper.vm.addMedia.mockRestore();
+            mediaId: 'id',
+            position: 0,
+        }]));
     });
 
     it('should not be able to add a new media', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
 
-        const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
-
-        wrapper.vm.addMedia = jest.fn(() => Promise.reject(media));
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.vm.onAddMedia([media]);
+        const media = { id: 'id', fileName: 'fileName', fileSize: 101, url: 'http://image.jpg' };
 
-        expect(wrapper.vm.addMedia).toHaveBeenCalledWith(media);
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+            media: new EntityCollection('', '', {}, {}, [
+                {
+                    id: 'id',
+                    media: {
+                        id: 'id',
+                        url: 'http://image.jpg',
+                    },
+                    mediaId: 'id',
+                    position: 0,
+                },
+            ]),
+        });
+
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+        await mediaModal.vm.$emit('media-modal-selection-change', [media]);
+
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-product.mediaForm.errorMediaItemDuplicated',
         });
 
-        wrapper.vm.addMedia.mockRestore();
         wrapper.vm.createNotificationError.mockRestore();
     });
 
-    it('should set media as cover', async () => {
+    it('should set media as cover when product media is empty and media is not glb file', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const media = { id: 'id', fileName: 'fileName', fileSize: 101 };
 
-        await wrapper.vm.setMediaAsCover(media);
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+        await mediaModal.vm.$emit('media-modal-selection-change', [media]);
 
         expect(wrapper.vm.product.coverId).toBe(media.id);
     });
@@ -480,5 +515,99 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         const infoCardElement = wrapper.find('.sw-product-detail-base__visibility-structure');
         expect(infoCardElement.attributes().style).toBe('display: none;');
+    });
+
+    it('should not set media cover when adding new glb file', async () => {
+        const wrapper = await createWrapper();
+
+        const productMediaFrom = wrapper.find('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const media = {
+            id: '3dFileId',
+            fileName: '3DFile',
+            fileSize: 101,
+            url: 'htt://example.com/3dfile.glb',
+        };
+
+        const mediaModal = wrapper.find('sw-media-modal-v2-stub');
+        await mediaModal.vm.$emit('media-modal-selection-change', [media]);
+
+        expect(wrapper.vm.product.coverId).toBeNull();
+    });
+
+    it('should able to toggle off media inheritance', async () => {
+        const wrapper = await createWrapper();
+        const media = {
+            id: 'id',
+            media: {
+                id: 'id',
+                url: 'http://image.jpg',
+            },
+            mediaId: 'id',
+            position: 0,
+        };
+
+        await Shopware.State.commit('swProductDetail/setParentProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.parentProduct'),
+            media: new EntityCollection('', '', {}, {}, [media]),
+        });
+
+        expect(wrapper.vm.product.media).toHaveLength(0);
+
+        const inheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-inherited .sw-icon');
+        expect(inheritanceSwitch.exists()).toBe(true);
+
+        await inheritanceSwitch.trigger('click');
+
+        expect(wrapper.vm.product.media.first()).toEqual({
+            id: media.id,
+            position: media.position,
+            mediaId: media.mediaId,
+            productId: 'productId',
+        });
+    });
+
+    it('should able to toggle on media inheritance', async () => {
+        const wrapper = await createWrapper();
+
+        const media = {
+            id: 'id',
+            media: {
+                id: 'id',
+                url: 'http://image.jpg',
+            },
+            mediaId: 'id',
+            position: 0,
+        };
+
+        await Shopware.State.commit('swProductDetail/setParentProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.parentProduct'),
+            media: new EntityCollection('', '', {}, {}, [media]),
+        });
+
+        const media1 = {
+            ...media,
+            id: 'id1',
+            media: {
+                id: 'id1',
+                url: 'http://image1.jpg',
+            },
+            mediaId: 'id1',
+        };
+
+        await Shopware.State.commit('swProductDetail/setProduct', {
+            ...Utils.get(wrapper, 'vm.$store.state.swProductDetail.product'),
+            media: new EntityCollection('', '', {}, {}, [media1]),
+        });
+
+        expect(wrapper.vm.product.media.first()).toEqual(media1);
+
+        const notInheritanceSwitch = wrapper.find('.sw-inheritance-switch--is-not-inherited .sw-icon');
+        expect(notInheritanceSwitch.exists()).toBe(true);
+
+        await notInheritanceSwitch.trigger('click');
+
+        expect(wrapper.vm.product.media).toHaveLength(0);
     });
 });

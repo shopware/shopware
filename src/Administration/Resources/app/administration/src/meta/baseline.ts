@@ -6,7 +6,6 @@
 const missingTests = [
     'src/app/adapter/view/sw-vue-devtools.ts',
     'src/app/asyncComponent/media/sw-media-add-thumbnail-form/index.js',
-    'src/app/asyncComponent/media/sw-media-base-item/index.js',
     'src/app/asyncComponent/media/sw-media-entity-mapper/index.js',
     'src/app/asyncComponent/media/sw-media-folder-content/index.js',
     'src/app/asyncComponent/media/sw-media-list-selection-item-v2/index.js',
@@ -29,7 +28,6 @@ const missingTests = [
     'src/app/component/base/sw-highlight-text/index.js',
     'src/app/component/base/sw-inheritance-switch/index.js',
     'src/app/component/base/sw-price-preview/index.js',
-    'src/app/component/base/sw-product-image/index.js',
     'src/app/component/base/sw-radio-panel/index.js',
     'src/app/component/base/sw-sorting-select/index.js',
     'src/app/component/base/sw-user-card/index.js',
@@ -517,7 +515,6 @@ const missingTests = [
     'src/module/sw-manufacturer/index.js',
     'src/module/sw-media/component/sidebar/sw-media-quickinfo-metadata-item/index.js',
     'src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/index.js',
-    'src/module/sw-media/component/sidebar/sw-media-sidebar/index.js',
     'src/module/sw-media/component/sidebar/sw-media-tag/index.js',
     'src/module/sw-media/component/sw-media-breadcrumbs/index.js',
     'src/module/sw-media/component/sw-media-collapse/index.js',

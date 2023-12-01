@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Aggregate\ProductMedia;
 
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaType\SpatialObjectType;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -13,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class ProductMediaCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<array-key, string>
      */
     public function getProductIds(): array
     {
@@ -26,7 +27,7 @@ class ProductMediaCollection extends EntityCollection
     }
 
     /**
-     * @return list<string>
+     * @return array<array-key, string>
      */
     public function getMediaIds(): array
     {
@@ -48,6 +49,11 @@ class ProductMediaCollection extends EntityCollection
     public function getApiAlias(): string
     {
         return 'product_media_collection';
+    }
+
+    public function hasSpatialObjects(): bool
+    {
+        return $this->firstWhere(fn (ProductMediaEntity $productMedia) => $productMedia->getMedia()?->getMediaType() instanceof SpatialObjectType) !== null;
     }
 
     protected function getExpectedClass(): string

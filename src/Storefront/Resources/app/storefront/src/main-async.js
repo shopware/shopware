@@ -94,6 +94,23 @@ PluginManager.register('BasicCaptcha', () => import('src/plugin/captcha/basic-ca
 PluginManager.register('QuantitySelector', () => import('src/plugin/quantity-selector/quantity-selector.plugin'), '[data-quantity-selector]');
 PluginManager.register('AjaxModal', () => import('src/plugin/ajax-modal/ajax-modal.plugin'), '[data-ajax-modal][data-url]');
 
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialGallerySliderViewerPlugin', () => import('src/plugin/spatial/spatial-gallery-slider-viewer.plugin'), '[data-spatial-gallery-slider-viewer]');
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialZoomGallerySliderViewerPlugin', () => import('src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin'), '[data-spatial-zoom-gallery-slider-viewer]');
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialArViewerPlugin', () => import('src/plugin/spatial/spatial-ar-viewer-plugin'), '[data-spatial-ar-viewer]');
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('PageQrcodeGeneratorPlugin', () => import('src/plugin/qrcode/page-qrcode-generator'), '[data-page-qrcode-generator]');
+
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', () => import('src/plugin/cookie/cookie-permission.plugin'), '[data-cookie-permission]');
     PluginManager.register('CookieConfiguration', () => import('src/plugin/cookie/cookie-configuration.plugin'), '[data-cookie-permission]');

@@ -91,6 +91,11 @@ import FadingPlugin from 'src/plugin/fading/fading.plugin';
 import BasicCaptchaPlugin from 'src/plugin/captcha/basic-captcha.plugin';
 import AjaxModalPlugin from 'src/plugin/ajax-modal/ajax-modal.plugin';
 import QuantitySelectorPlugin from 'src/plugin/quantity-selector/quantity-selector.plugin';
+import SpatialGallerySliderViewerPlugin from 'src/plugin/spatial/spatial-gallery-slider-viewer.plugin';
+import SpatialZoomGallerySliderViewerPlugin from 'src/plugin/spatial/spatial-zoom-gallery-slider-viewer.plugin';
+import SpatialArViewerPlugin from 'src/plugin/spatial/spatial-ar-viewer-plugin';
+import PageQrcodeGeneratorPlugin from 'src/plugin/qrcode/page-qrcode-generator';
+
 
 window.eventEmitter = new NativeEventEmitter();
 window.bootstrap = bootstrap;
@@ -216,6 +221,23 @@ PluginManager.register('QuantitySelector', QuantitySelectorPlugin, '[data-quanti
 /** @deprecated tag:v6.6.0 - Using selector [data-bs-toggle="modal"][data-url] to open AjaxModal is deprecated. Use selector [data-ajax-modal][data-url] instead. */
 PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-bs-toggle="modal"][data-url]');
 PluginManager.register('AjaxModal', AjaxModalPlugin, '[data-ajax-modal][data-url]');
+
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialGallerySliderViewer', SpatialGallerySliderViewerPlugin, '[data-spatial-gallery-slider-viewer]');
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialZoomGallerySliderViewer', SpatialZoomGallerySliderViewerPlugin, '[data-spatial-zoom-gallery-slider-viewer]');
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('SpatialArViewer', SpatialArViewerPlugin, '[data-spatial-ar-viewer]');
+/**
+ * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
+ */
+PluginManager.register('PageQrcodeGenerator', PageQrcodeGeneratorPlugin, '[data-page-qrcode-generator]');
 
 if (window.useDefaultCookieConsent) {
     PluginManager.register('CookiePermission', CookiePermissionPlugin, '[data-cookie-permission]');

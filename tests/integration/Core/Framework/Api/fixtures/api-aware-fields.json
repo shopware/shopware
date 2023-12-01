@@ -547,6 +547,7 @@
     "media.createdAt",
     "media.updatedAt",
     "media.translated",
+    "media.config",
     "media_default_folder.createdAt",
     "media_default_folder.updatedAt",
     "media_thumbnail.id",

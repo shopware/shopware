@@ -23,6 +23,10 @@ export class Actor {
 
         await test.step(stepTitle, async () => {
             await pageObject.goTo();
+
+            await this.page.addStyleTag({
+                path: 'resources/customAdmin.css',
+            });
         });
     }
 

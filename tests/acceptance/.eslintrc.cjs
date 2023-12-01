@@ -10,14 +10,10 @@ module.exports = {
     plugins: ["@typescript-eslint"],
     root: true,
     rules: {
-        quotes: [
-            "error",
-            "single",
-            {
-                allowTemplateLiterals: true,
-            },
-        ],
+        quotes: ["error", "single", { allowTemplateLiterals: true }],
         "no-console": ["error", { allow: ["warn", "error"] }],
         "comma-dangle": ["error", "always-multiline"],
+        "no-unused-vars": "warn",
+        "playwright/expect-expect": "off",
     },
 };

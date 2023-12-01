@@ -28,6 +28,12 @@ Component.register('sw-checkbox-field', {
     ],
 
     props: {
+        id: {
+            type: String,
+            required: false,
+            default: utils.createId(),
+        },
+
         disabled: {
             type: Boolean,
             required: false,
@@ -92,7 +98,6 @@ Component.register('sw-checkbox-field', {
     data() {
         return {
             currentValue: this.value,
-            id: utils.createId(),
         };
     },
 

@@ -17,9 +17,14 @@ test('Journey: Registered shop customer buys a product. @journey @checkout', asy
     SubmitOrder,
 }) => {
     test.info().annotations.push({
-        type: 'Description',
-        description:
-            'This scenario tests a full shop customer journey from selecting a product, adding it to the cart and performing a checkout.',
+        type: 'Acceptance Criteria',
+        description: 'Shop customer should be able to login.',
+    }, {
+        type: 'Acceptance Criteria',
+        description: 'Shop customer should be able to add a product to the cart.',
+    }, {
+        type: 'Acceptance Criteria',
+        description: 'Shop customer should be able to perform a checkout.',
     });
 
     await shopCustomer.attemptsTo(Login());

@@ -6,6 +6,7 @@ export interface SetupFixtures {
     adminPage: Page;
     storefrontPage: Page;
     shopCustomer: Actor;
+    shopAdmin: Actor;
 }
 
 export const test = base.extend<SetupFixtures, WorkerFixtures>({
@@ -55,6 +56,10 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
             timeout: 10000,
         });
 
+        await page.addStyleTag({
+            path: 'resources/customAdmin.css',
+        });
+
         // Run the test
         await use(page);
 
@@ -86,5 +91,11 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
         const shopCustomer = new Actor('Shop customer', storefrontPage);
 
         await use(shopCustomer);
+    },
+
+    shopAdmin: async ({ adminPage }, use) => {
+        const shopAdmin = new Actor('Shop administrator', adminPage);
+
+        await use(shopAdmin);
     },
 });

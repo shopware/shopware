@@ -153,7 +153,7 @@
                         data-index="name"
                         :title="item.translated.name"
                     >
-                        {{ item.translated.name }}
+                        <label :for="`sw-field--${item.id}`">{{ item.translated.name }}</label>
                     </sw-grid-column>
                     {% endblock %}
                 </template>

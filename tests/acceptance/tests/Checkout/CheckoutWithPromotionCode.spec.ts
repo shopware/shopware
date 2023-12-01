@@ -1,13 +1,12 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
 
-test('Registered shop customer uses a promotion code during checkout. @checkout @priority1', async ({
+test('Registered shop customer should be able to use promotion code during checkout. @checkout', async ({
     shopCustomer,
     adminApiContext,
     defaultStorefront,
     checkoutCartPage,
     checkoutConfirmPage,
     checkoutFinishPage,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cartWithProductData,
     promotionWithCodeData,
     Login,

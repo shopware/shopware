@@ -33,7 +33,7 @@ get_latest_succeeded_pipeline_info() {
     fi
 
     curl -sSf -X GET -H "Private-Token: ${CI_GITLAB_API_TOKEN}" -H "Content-Type: text/plain" \
-        "${CI_API_V4_URL}/projects/${project_path}/pipelines?ref=${branch}&scope=finished&status=success&order_by=updated_at&sort=desc&per_page=1"
+        "${CI_API_V4_URL}/projects/${project_path}/pipelines?ref=${branch}&source=schedule&scope=finished&status=success&order_by=updated_at&sort=desc&per_page=1"
 }
 
 get_latest_succeeded_pipeline_sha() {

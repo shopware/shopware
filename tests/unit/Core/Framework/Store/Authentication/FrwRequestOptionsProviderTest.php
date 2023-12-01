@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
@@ -16,12 +17,11 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 /**
- * @package merchant-services
- *
  * @internal
  *
  * @covers \Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider
  */
+#[Package('services-settings')]
 class FrwRequestOptionsProviderTest extends TestCase
 {
     public function testGetAuthenticationHeaderReturnsFrwToken(): void

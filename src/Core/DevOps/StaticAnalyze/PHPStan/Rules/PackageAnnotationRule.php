@@ -72,7 +72,7 @@ class PackageAnnotationRule implements Rule
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Newsletter\\\\/',
             '/Shopware\\\\Storefront\\\\Pagelet\\\\Wishlist\\\\/',
         ],
-        'merchant-services' => [
+        'services-settings' => [
             '/Shopware\\\\Core\\\\Framework\\\\Store\\\\/',
         ],
         'storefront' => [

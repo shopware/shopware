@@ -1,7 +1,7 @@
 import type { DiscountCampaign } from 'src/module/sw-extension/service/extension-store-action.service';
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -44,7 +44,7 @@ export default class ShopwareDiscountCampaignService {
 }
 
 /**
- * @package merchant-services
+ * @package services-settings
  * @deprecated tag:v6.6.0 - Will be private
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

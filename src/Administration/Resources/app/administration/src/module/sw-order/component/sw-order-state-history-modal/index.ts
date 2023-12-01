@@ -91,7 +91,7 @@ export default Component.wrapComponentConfig({
 
             criteria.addFilter(
                 Criteria.equalsAny(
-                    'state_machine_history.entityId.id',
+                    'state_machine_history.referencedId',
                     entityIds,
                 ),
             );

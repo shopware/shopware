@@ -46,7 +46,7 @@ The ADRs are markdown files inside the platform repository, located in the "adr"
    *  One developer must be a member of the core development team
    *  One developer must be a member of a team, other than the team of the creator
 * One product owner or higher role has to approve an ADR
-** This part of the decision is superseded by [2021-11-05 - Adjust ADR approval rules for the new org structure](2021-11-05-adjust-ADR-approval-rules.md), but the rest of this ADR is untouched.**
+** This part of the decision is superseded by [2021-11-05 - Adjust ADR approval rules for the new org structure](2021-11-05-adjust-adr-approval-rules.md), but the rest of this ADR is untouched.**
 
 **Should counter decisions also be documented?**   
 Not specific, but if there is more than one possible solution, all options should be outlined.

@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Plugin\Util;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin;
@@ -57,14 +56,6 @@ class AssetService
             $bundle->getName(),
             $force
         );
-    }
-
-    /**
-     * @decrecated tag:v6.6.0 - Will be removed without replacement
-     */
-    public function copyRecoveryAssets(): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0'));
     }
 
     public function copyAssetsFromApp(string $appName, string $appPath, bool $force = false): void

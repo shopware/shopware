@@ -4886,36 +4886,6 @@ parameters:
 			path: src/Core/Framework/Plugin/BundleConfigGeneratorInterface.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseItem\\(\\) has parameter \\$line with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseTitle\\(\\) has parameter \\$line with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:getChangelogFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:getLocaleFromChangelogFile\\(\\) has parameter \\$file with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:parseChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Command\\\\Lifecycle\\\\AbstractPluginLifecycleCommand\\:\\:parsePluginArgument\\(\\) has parameter \\$arguments with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Command/Lifecycle/AbstractPluginLifecycleCommand.php

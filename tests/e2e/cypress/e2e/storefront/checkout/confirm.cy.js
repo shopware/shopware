@@ -212,7 +212,7 @@ describe('Test payment and shipping methods selection', () => {
             .should('contain', 'Express');
     });
 
-    it.skip('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
+    it('@base @confirm @package: should cancel the order', { tags: ['pa-checkout'] }, () => {
         cy.getBearerAuth().then((result) => {
             const requestConfig = {
                 headers: {

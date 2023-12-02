@@ -8095,11 +8095,6 @@ parameters:
 			path: src/Storefront/Framework/Twig/TokenParser/ThumbnailTokenParser.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Account\\\\Overview\\\\AccountOverviewPageLoader\\:\\:loadNewestOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Account/Overview/AccountOverviewPageLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Address\\\\AddressEditorModalStruct\\:\\:getMessages\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Page/Address/AddressEditorModalStruct.php

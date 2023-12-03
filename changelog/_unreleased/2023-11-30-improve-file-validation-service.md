@@ -9,3 +9,4 @@ author_github: @lacknere
 * Changed function `checkByExtension` in `src/app/service/file-validation.service.ts` to use last part of filename as extension.
 * Added missing mime types to `extensionByType` map in `src/app/service/file-validation.service.ts`.
 * Added `src/app/service/file-validation.service.ts` service provider.
+* Changed `sw-media-upload-v2` component to use file validation service via injection.

@@ -32,8 +32,8 @@ class PathStrategyFactoryTest extends TestCase
             new FilenamePathStrategy(),
         ], $this->createMock(BCStrategy::class));
 
-        static::assertInstanceOf(FilenamePathStrategy::class, $registry->factory('file_name'));
-        static::assertInstanceOf(PhysicalFilenamePathStrategy::class, $registry->factory('physical_file_name'));
+        static::assertInstanceOf(FilenamePathStrategy::class, $registry->factory('filename'));
+        static::assertInstanceOf(PhysicalFilenamePathStrategy::class, $registry->factory('physical_filename'));
         static::assertInstanceOf(PlainPathStrategy::class, $registry->factory('plain'));
         static::assertInstanceOf(IdPathStrategy::class, $registry->factory('id'));
 

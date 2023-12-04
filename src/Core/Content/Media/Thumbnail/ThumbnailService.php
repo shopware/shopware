@@ -454,6 +454,14 @@ class ThumbnailService
                 imagewebp($thumbnail, null, $quality);
 
                 break;
+            case 'image/avif':
+                if (!\function_exists('imageavif')) {
+                    throw MediaException::thumbnailCouldNotBeSaved($url);
+                }
+
+                imageavif($thumbnail, null, $quality);
+
+                break;
         }
         $imageFile = ob_get_contents();
         ob_end_clean();

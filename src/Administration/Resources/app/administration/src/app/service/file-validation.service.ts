@@ -25,6 +25,7 @@ export default function fileValidationService(): FileValidationService {
         'image/jpeg': ['jpg', 'jpeg'],
         'image/png': ['png'],
         'image/webp': ['webp'],
+        'image/avif': ['avif'],
         'image/gif': ['gif'],
         'image/svg+xml': ['svg'],
         'image/bmp': ['bmp'],

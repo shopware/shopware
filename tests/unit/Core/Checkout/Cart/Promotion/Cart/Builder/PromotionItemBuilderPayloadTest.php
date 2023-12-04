@@ -41,6 +41,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
     {
         $this->promotion = new PromotionEntity();
         $this->promotion->setId('PR-1');
+        $this->promotion->setPriority(1);
         $this->promotion->setUseCodes(false);
         $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);
@@ -79,6 +80,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $expected = [
             'promotionId' => 'PR-1',
+            'priority' => 1,
             'discountId' => 'D5',
             'code' => 'my-Code-123',
             'discountType' => 'absolute',
@@ -131,6 +133,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $expected = [
             'promotionId' => 'PR-1',
+            'priority' => 1,
             'discountType' => 'percentage',
             'value' => '50',
             'maxValue' => '23',
@@ -182,6 +185,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $expected = [
             'promotionId' => 'PR-1',
+            'priority' => 1,
             'discountType' => 'percentage',
             'value' => '50',
             'maxValue' => (string) $maxValue,
@@ -275,6 +279,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $expected = [
             'promotionId' => 'PR-1',
+            'priority' => 1,
             'discountType' => 'percentage',
             'value' => '0',
             'maxValue' => '',

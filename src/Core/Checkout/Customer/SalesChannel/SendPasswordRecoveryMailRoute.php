@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -157,7 +156,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        /** @var ConstraintInterface[] $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */

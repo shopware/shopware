@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Composer\Semver\Constraint\ConstraintInterface;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
@@ -87,6 +86,9 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
     }
 
+    /**
+     * @param mixed[] $data
+     */
     private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
         $validations = $validation->getProperties();
@@ -95,13 +97,11 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             return;
         }
 
-        /** @var array $fieldValidations */
         $fieldValidations = $validations[$field];
 
         /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
-        /** @var ConstraintInterface $emailValidation */
         foreach ($fieldValidations as $emailValidation) {
             if ($emailValidation instanceof EqualTo) {
                 $equalityValidation = $emailValidation;

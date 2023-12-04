@@ -276,26 +276,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Event/WishlistMergedEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangeEmailRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$fieldValidations has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ChangeEmailRoute.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangePasswordRoute\\:\\:tryValidateEqualtoConstraint\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$fieldValidations has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
-
-		-
 			message: "#^Parameter \\#1 \\$object of class Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\CustomerResponse constructor expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/CustomerRoute.php
@@ -6801,26 +6781,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Util\\\\Random\\:\\:getRandomArrayElement\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Util/Random.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:getListDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataValidationDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:getProperties\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataValidationDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:getSubDefinitions\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataValidationDefinition.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidationDefinition\\:\\:\\$properties type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Validation/DataValidationDefinition.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Validation\\\\DataValidator\\:\\:getViolations\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"

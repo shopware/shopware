@@ -165,6 +165,28 @@ PHP lint:
         # ToDo: NEXT-31639 - activate again after first RC release
         # - composer run bc-check
 
+BC check MR:
+  extends: PHP lint
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == null'
+      when: never
+    - !reference [.rules, skip]
+    - !reference [.rules, run]
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*removes_deprecations.*/'
+      allow_failure: true
+      changes:
+          - composer.json
+          - 'changelog/**/*.md'
+          - 'src/**/snippet/**/*.json'
+          - '**/*.php'
+    - changes:
+          - composer.json
+          - 'changelog/**/*.md'
+          - 'src/**/snippet/**/*.json'
+          - '**/*.php'
+  script:
+        - composer run bc-check -- --from=origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+
 Twig lint (storefront):
   extends: .base-no-setup
   stage: lint

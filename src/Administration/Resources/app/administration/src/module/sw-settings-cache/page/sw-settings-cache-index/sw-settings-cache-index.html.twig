@@ -262,9 +262,9 @@
                             :is-loading="processes.updateIndexes"
                             :process-success="processSuccess.updateIndexes"
                             {% if VUE3 %}
-                                @update:process-success="resetButtons"
+                            @update:process-success="resetButtons"
                             {% else %}
-                                @process-finish="resetButtons"
+                            @process-finish="resetButtons"
                             {% endif %}
                             @click="updateIndexes"
                         >

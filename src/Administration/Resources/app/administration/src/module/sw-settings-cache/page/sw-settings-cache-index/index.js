@@ -178,7 +178,7 @@ export default {
             this.processes.updateIndexes = true;
 
             let skip = [];
-            let only = [];
+            const only = [];
 
             if (this.indexingMethod === 'skip') {
                 skip = this.indexerSelection;

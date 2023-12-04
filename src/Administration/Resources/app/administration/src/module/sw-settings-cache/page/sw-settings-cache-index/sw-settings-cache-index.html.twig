@@ -172,8 +172,8 @@
                         align="end"
                     >
                         <sw-select-field
-                            class="sw-settings-cache__skip-indexers-select"
                             v-model="indexingMethod"
+                            class="sw-settings-cache__skip-indexers-select"
                             :label="$tc('sw-settings-cache.section.indexingModeLabel')"
                             :disabled="processes.updateIndexes"
                         >
@@ -256,20 +256,20 @@
                         </sw-select-base>
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_cache_content_indexes_row_button %}
-                            <sw-button-process
-                                class="sw-button--large"
-                                variant="ghost"
-                                :is-loading="processes.updateIndexes"
-                                :process-success="processSuccess.updateIndexes"
-                                {% if VUE3 %}
-                                    @update:process-success="resetButtons"
-                                {% else %}
-                                    @process-finish="resetButtons"
-                                {% endif %}
-                                @click="updateIndexes"
-                            >
-                                Update
-                            </sw-button-process>
+                        <sw-button-process
+                            class="sw-button--large"
+                            variant="ghost"
+                            :is-loading="processes.updateIndexes"
+                            :process-success="processSuccess.updateIndexes"
+                            {% if VUE3 %}
+                                @update:process-success="resetButtons"
+                            {% else %}
+                                @process-finish="resetButtons"
+                            {% endif %}
+                            @click="updateIndexes"
+                        >
+                            Update
+                        </sw-button-process>
                         {% endblock %}
                     </sw-container>
                     {% endblock %}

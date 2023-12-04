@@ -666,4 +666,11 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
+
+    it('should not have media and configuratorSettings association when loading product list', async () => {
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.productCriteria.associations.some(association => association.association === 'media')).toBeFalsy();
+        expect(wrapper.vm.productCriteria.associations.some(association => association.association === 'configuratorSettings')).toBeFalsy();
+    });
 });

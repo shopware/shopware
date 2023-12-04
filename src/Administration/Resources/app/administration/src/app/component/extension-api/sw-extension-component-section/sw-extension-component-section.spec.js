@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import Vue from 'vue';
 
 describe('src/app/component/extension-api/sw-extension-component-section', () => {

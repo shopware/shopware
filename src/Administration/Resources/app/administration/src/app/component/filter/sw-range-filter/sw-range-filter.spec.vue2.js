@@ -1,6 +1,6 @@
 import 'src/app/component/filter/sw-range-filter';
 import 'src/app/component/filter/sw-base-filter';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 
 const { Criteria } = Shopware.Data;
 

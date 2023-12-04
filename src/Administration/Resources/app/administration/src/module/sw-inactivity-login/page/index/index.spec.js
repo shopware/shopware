@@ -1,5 +1,5 @@
 import { BroadcastChannel } from 'worker_threads';
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(routerPushImplementation = jest.fn(), loginByUsername = jest.fn()) {
     return mount(await wrapTestComponent('sw-inactivity-login', { sync: true }), {

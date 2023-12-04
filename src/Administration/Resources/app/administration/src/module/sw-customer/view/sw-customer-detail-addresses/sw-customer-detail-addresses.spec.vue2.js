@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerDetailAddresses from 'src/module/sw-customer/view/sw-customer-detail-addresses';
 
 /**

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-import { mount } from '@vue/test-utils_v3';
-import { createStore } from 'vuex_v3';
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 

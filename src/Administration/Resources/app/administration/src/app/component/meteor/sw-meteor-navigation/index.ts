@@ -1,4 +1,4 @@
-import type { RawLocation, Route } from 'vue-router';
+import type { RawLocation, Route } from 'vue-router_v2';
 import type { PropType } from 'vue';
 import template from './sw-meteor-navigation.html.twig';
 import './sw-meteor-navigation.scss';

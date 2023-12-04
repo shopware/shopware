@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 function createEntityCollectionMock(entityName, items = []) {

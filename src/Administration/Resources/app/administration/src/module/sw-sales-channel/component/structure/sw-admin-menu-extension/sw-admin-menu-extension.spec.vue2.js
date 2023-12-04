@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/structure/sw-admin-menu';
 import swAdminMenuExtension from 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
 import createMenuService from 'src/app/service/menu.service';

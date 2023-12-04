@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swSalesChannelDetailAnalytics from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics';
 
 Shopware.Component.register('sw-sales-channel-detail-analytics', swSalesChannelDetailAnalytics);

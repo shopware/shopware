@@ -1,7 +1,7 @@
 /**
  * @package buyers-experience
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import swCmsBlockConfig from './index';
 import 'src/app/component/form/sw-colorpicker';

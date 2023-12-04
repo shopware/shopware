@@ -1,27 +1,29 @@
-// @ts-nocheck
-
 /**
  * @package admin
  */
 import ViewAdapter from 'src/core/adapter/view.adapter';
 
 // Vue3 imports
-import { createI18n } from 'vue-i18n_v3';
-import type { FallbackLocale, I18n } from 'vue-i18n_v3';
-import type Router from 'vue-router_v3';
+import { createI18n } from 'vue-i18n';
+import type { FallbackLocale, I18n } from 'vue-i18n';
+import type { Router } from 'vue-router';
+import type { Store } from 'vuex';
 
 // Vue2 imports
-import VueRouter from 'vue-router';
-import VueI18n from 'vue-i18n';
+import VueRouterV2 from 'vue-router_v2';
+import VueI18nV2 from 'vue-i18n_v2';
 import VueMeta from 'vue-meta';
+import Vue2 from 'vue_v2';
+import type { AsyncComponent as AsyncComponentV2 } from 'vue_v2';
 
-import Vue, { createApp, defineAsyncComponent, h } from 'vue';
-import type { AsyncComponent, Component as VueComponent, PluginObject } from 'vue';
+import { createApp, defineAsyncComponent, h } from 'vue';
+import type { Component as VueComponent, App } from 'vue';
 import VuePlugins from 'src/app/plugin';
 import setupShopwareDevtools from 'src/app/adapter/view/sw-vue-devtools';
 import type ApplicationBootstrapper from 'src/core/application';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
-import type { Store } from 'vuex';
+import type { Store as StoreV2 } from 'vuex_v2';
+import type { ComponentPublicInstance } from '@vue/runtime-core';
 
 const { Component, State, Mixin } = Shopware;
 
@@ -29,16 +31,19 @@ const { Component, State, Mixin } = Shopware;
  * @deprecated tag:v6.6.0 - Will be private
  */
 export default class VueAdapter extends ViewAdapter {
-    private resolvedComponentConfigs: Map<string, ComponentConfig>;
+    private resolvedComponentConfigs: Map<string, Promise<ComponentConfig|boolean>>;
 
     private vueComponents: {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [componentName: string]: VueComponent<any, any, any, any> | AsyncComponent<any, any, any, any>
+        [componentName: string]: VueComponent<any, any, any, any> | AsyncComponentV2<any, any, any, any>
     };
 
-    private i18n?: I18n;
+    private i18n?: I18n | VueI18nV2;
 
-    public app;
+    /**
+     * TODO: remove undefined with Vue3
+     */
+    public app: App<Element>|undefined;
 
     private vue3 = false;
 
@@ -48,13 +53,11 @@ export default class VueAdapter extends ViewAdapter {
         this.i18n = undefined;
         this.resolvedComponentConfigs = new Map();
         this.vueComponents = {};
-        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.vue3 = !!window._features_?.vue3;
 
         if (this.vue3) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            this.app = createApp({ name: 'ShopwareAdministration', template: '<sw-admin />' }) as Vue;
+            this.app = createApp({ name: 'ShopwareAdministration', template: '<sw-admin />' });
         }
     }
 
@@ -63,38 +66,37 @@ export default class VueAdapter extends ViewAdapter {
      * Is used on startup process of the main application.
      */
     // @ts-expect-error
-    init(renderElement: string, router: Router, providers: { [key: string]: unknown }): Vue {
+    init(renderElement: string, router: Router|VueRouterV2, providers: { [key: string]: unknown }): Vue2|App<Element> {
         if (this.vue3) {
-            return this.initVue3(renderElement, router, providers);
+            return this.initVue3(renderElement, router as Router, providers);
         }
 
-        return this.initVue2(renderElement, router as VueRouter, providers);
+        return this.initVue2(renderElement, router as VueRouterV2, providers);
     }
 
-    // @ts-expect-error
-    initVue3(renderElement: string, router: Router, providers: { [key: string]: unknown }): Vue {
+    initVue3(renderElement: string, router: Router, providers: { [key: string]: unknown }): App<Element> {
         this.initPlugins();
         this.initDirectives();
         this.initFilters();
         this.initTitle();
 
-        const store = State._store;
-        const i18n = this.initLocales(store) as VueI18n;
+        const store = State._store as Store<VuexRootState>;
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        const i18n = this.initLocales(store) as I18n<{}, {}, {}, string, true>;
 
         // add router to View
-        this.router = router as VueRouter;
+        this.router = router;
         // add i18n to View
-        this.i18n = i18n as I18n;
+        this.i18n = i18n;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        if (!this.app) {
+            throw new Error('Vue app is not initialized yet');
+        }
+
         this.app.config.compilerOptions.whitespace = 'preserve';
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.app.config.performance = process.env.NODE_ENV !== 'production';
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.config.globalProperties.$t = i18n.global.t;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.config.globalProperties.$tc = i18n.global.tc;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.app.config.warnHandler = (
             msg: string,
             instance: unknown,
@@ -131,11 +133,8 @@ export default class VueAdapter extends ViewAdapter {
 
         this.root = this.app;
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.use(router);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.use(store);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         this.app.use(i18n);
 
         // Add global properties to root view instance
@@ -144,9 +143,11 @@ export default class VueAdapter extends ViewAdapter {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         this.app.$t = i18n.global.t;
 
-        /* eslint-disable max-len */
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-        this.app.config.globalProperties.$createTitle = function createTitle(this: Vue, identifier: string|null = null, ...additionalParams): string {
+        this.app.config.globalProperties.$createTitle = function createTitle(
+            this: ComponentPublicInstance,
+            identifier: string|null = null,
+            ...additionalParams
+        ): string {
             if (!this.$root) {
                 return '';
             }
@@ -157,8 +158,9 @@ export default class VueAdapter extends ViewAdapter {
                 return '';
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
-            const pageTitle = this.$root.$tc(this.$route.meta.$module.title);
+            // @ts-expect-error - $module is not typed correctly
+            const moduleTitle = this.$route.meta.$module?.title as string;
+            const pageTitle = this.$root.$tc(moduleTitle);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const params = [baseTitle, pageTitle, identifier, ...additionalParams].filter((item) => {
@@ -180,7 +182,7 @@ export default class VueAdapter extends ViewAdapter {
         return this.root;
     }
 
-    initVue2(renderElement: string, router: VueRouter, providers: { [key: string]: unknown }): Vue {
+    initVue2(renderElement: string, router: VueRouterV2, providers: { [key: string]: unknown }): Vue2 {
         this.initPlugins();
         this.initDirectives();
         this.initFilters();
@@ -196,11 +198,12 @@ export default class VueAdapter extends ViewAdapter {
         this.i18n = i18n;
 
         // Enable performance measurements in development mode
-        Vue.config.performance = process.env.NODE_ENV !== 'production';
+        Vue2.config.performance = process.env.NODE_ENV !== 'production';
 
-        this.root = new Vue({
+        this.root = new Vue2({
             el: renderElement,
             template: '<sw-admin />',
+            // @ts-expect-error - v2 router is not typed correctly
             router,
             store,
             i18n,
@@ -235,7 +238,7 @@ export default class VueAdapter extends ViewAdapter {
             setupShopwareDevtools(this.root);
         }
 
-        return this.root;
+        return this.root as Vue2;
     }
 
     /**
@@ -349,7 +352,7 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the component as a Vue component.
      * Includes the full rendered template with all overrides.
      */
-    createComponent(componentName: string): Promise<Vue> {
+    createComponent(componentName: string): Promise<Vue2> {
         return new Promise((resolve) => {
             // load sync components directly
             if (Component.isSyncComponent && Component.isSyncComponent(componentName)) {
@@ -359,25 +362,24 @@ export default class VueAdapter extends ViewAdapter {
                     return;
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 void resolvedComponent.then((component) => {
                     let vueComponent;
 
                     if (this.vue3) {
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                        this.app.component(componentName, component);
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
-                        vueComponent = this.app.component(componentName);
+                        if (typeof component !== 'boolean') {
+                            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                            this.app?.component(componentName, component);
+                            vueComponent = this.app?.component(componentName);
+                        }
                     } else {
                         // @ts-expect-error - resolved config does not match completely a standard vue component
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        vueComponent = Vue.component(componentName, component);
+                        vueComponent = Vue2.component(componentName, component);
                     }
 
-
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    // @ts-expect-error - resolved config does not match completely a standard vue component
                     this.vueComponents[componentName] = vueComponent;
-                    resolve(vueComponent as unknown as Vue);
+                    resolve(vueComponent as unknown as Vue2);
                 });
 
                 return;
@@ -387,8 +389,9 @@ export default class VueAdapter extends ViewAdapter {
             let vueComponent;
             if (this.vue3) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.app.component(componentName, defineAsyncComponent({
+                this.app?.component(componentName, defineAsyncComponent({
                     // the loader function
+                    // @ts-expect-error - resolved config does not match completely a standard vue component
                     loader: () => this.componentResolver(componentName),
                     // Delay before showing the loading component. Default: 200ms.
                     delay: 0,
@@ -404,15 +407,15 @@ export default class VueAdapter extends ViewAdapter {
                 }));
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
-                vueComponent = this.app.component(componentName);
+                vueComponent = this.app?.component(componentName);
             } else {
-                vueComponent = Vue.component(componentName, () => this.componentResolver(componentName));
+                vueComponent = Vue2.component(componentName, () => this.componentResolver(componentName));
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            // @ts-expect-error - resolved config does not match completely a standard vue component
             this.vueComponents[componentName] = vueComponent;
 
-            resolve(vueComponent as unknown as Vue);
+            resolve(vueComponent as unknown as Vue2);
         });
     }
 
@@ -420,7 +423,11 @@ export default class VueAdapter extends ViewAdapter {
         if (!this.resolvedComponentConfigs.has(componentName)) {
             this.resolvedComponentConfigs.set(componentName, new Promise((resolve) => {
                 void Component.build(componentName).then((componentConfig) => {
-                    this.resolveMixins(componentConfig);
+                    if (typeof componentConfig === 'boolean') {
+                        resolve(false);
+                    } else {
+                        this.resolveMixins(componentConfig);
+                    }
 
                     resolve(componentConfig);
                 });
@@ -442,7 +449,7 @@ export default class VueAdapter extends ViewAdapter {
         this.resolveMixins(componentConfig);
 
         // @ts-expect-error - resolved config does not match completely a standard vue component
-        const vueComponent = Vue.component(componentConfig.name, componentConfig);
+        const vueComponent = Vue2.component(componentConfig.name, componentConfig);
         this.vueComponents[componentName] = vueComponent;
 
         return vueComponent;
@@ -456,7 +463,7 @@ export default class VueAdapter extends ViewAdapter {
             return null;
         }
 
-        return this.vueComponents[componentName] as Vue;
+        return this.vueComponents[componentName] as Vue2;
     }
 
     /**
@@ -479,7 +486,11 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the adapter wrapper
      */
     getWrapper() {
-        return Vue;
+        if (this.vue3) {
+            return this.app;
+        }
+
+        return Vue2;
     }
 
     /**
@@ -492,15 +503,34 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Returns the Vue.set function
      */
-    setReactive(target: Vue, propertyName: string, value: unknown) {
-        return Vue.set(target, propertyName, value);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setReactive(target: any, propertyName: string, value: unknown) {
+        if (window._features_?.vue3) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            target[propertyName] = value;
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+            return target[propertyName];
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        return Vue2.set(target, propertyName, value);
     }
 
     /**
      * Returns the Vue.delete function
      */
-    deleteReactive(target: Vue, propertyName: string) {
-        return Vue.delete(target, propertyName);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    deleteReactive(target: any, propertyName: string) {
+        if (window._features_?.vue3) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            delete target[propertyName];
+
+            return;
+        }
+
+        // eslint-disable-next-line consistent-return, @typescript-eslint/no-unsafe-argument
+        return Vue2.delete(target, propertyName);
     }
 
     /**
@@ -518,7 +548,7 @@ export default class VueAdapter extends ViewAdapter {
 
         if (!this.vue3) {
             // Add the community plugins to the plugin list
-            plugins.push(VueRouter, VueI18n, VueMeta);
+            plugins.push(VueRouterV2, VueI18nV2, VueMeta);
 
             // Remove our meta info plugin because we use the vue-meta plugin with Vue 2
             plugins = plugins.filter((plugin) => {
@@ -534,10 +564,11 @@ export default class VueAdapter extends ViewAdapter {
             }
 
             if (this.vue3) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                this.app.use(plugin as PluginObject<unknown>);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument
+                this.app?.use(plugin);
             } else {
-                Vue.use(plugin as PluginObject<unknown>);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                Vue2.use(plugin);
             }
         });
 
@@ -553,7 +584,12 @@ export default class VueAdapter extends ViewAdapter {
         const registry = this.Application.getContainer('factory').directive.getDirectiveRegistry();
 
         registry.forEach((directive, name) => {
-            Vue.directive(name, directive);
+            if (window._features_?.vue3) {
+                this.app?.directive(name, directive);
+            } else {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+                Vue2.directive(name, directive as any);
+            }
         });
 
         return true;
@@ -568,7 +604,7 @@ export default class VueAdapter extends ViewAdapter {
         const registry = this.Application.getContainer('factory').filter.getRegistry();
 
         registry.forEach((factoryMethod, name) => {
-            Vue.filter(name, factoryMethod);
+            Vue2.filter(name, factoryMethod);
         });
 
         return true;
@@ -577,7 +613,7 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Initialises the standard locales.
      */
-    initLocales(store: Store<VuexRootState>) {
+    initLocales(store: Store<VuexRootState>|StoreV2<VuexRootState>) {
         const registry = this.localeFactory.getLocaleRegistry();
         const messages = {};
         const fallbackLocale = Shopware.Context.app.fallbackLocale as FallbackLocale;
@@ -600,15 +636,17 @@ export default class VueAdapter extends ViewAdapter {
         };
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        const i18n = window._features_?.vue3 ? createI18n(options) : new VueI18n(options);
+        const i18n = window._features_?.vue3 ? createI18n(options) : new VueI18nV2(options);
 
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
+                // @ts-expect-error - locale is set in the store
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 i18n.locale = state.session.currentLocale!;
             }
         });
 
+        // @ts-expect-error
         this.setLocaleFromUser(store);
 
         return i18n;
@@ -631,7 +669,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     initTitle() {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (Vue.prototype.hasOwnProperty('$createTitle')) {
+        if (Vue2.prototype.hasOwnProperty('$createTitle')) {
             return;
         }
 
@@ -640,18 +678,22 @@ export default class VueAdapter extends ViewAdapter {
          */
         // @ts-expect-error - additionalParams is not typed
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,max-len
-        Vue.prototype.$createTitle = function createTitle(this: Vue, identifier: string|null = null, ...additionalParams): string {
+        Vue2.prototype.$createTitle = function createTitle(this: Vue2, identifier: string|null = null, ...additionalParams): string {
             if (!this.$root) {
                 return '';
             }
 
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
             const baseTitle = this.$root.$tc('global.sw-admin-menu.textShopwareAdmin');
 
             if (!this.$route.meta || !this.$route.meta.$module) {
                 return '';
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+            // @ts-expect-error
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
             const pageTitle = this.$root.$tc(this.$route.meta.$module.title);
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -671,12 +713,17 @@ export default class VueAdapter extends ViewAdapter {
      */
     resolveMixins(componentConfig: ComponentConfig) {
         // If the mixin is a string, use our mixin registry
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (componentConfig.mixins?.length) {
+            // eslint-disable-next-line max-len
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
             componentConfig.mixins = componentConfig.mixins.map((mixin) => {
                 if (typeof mixin === 'string') {
+                    // @ts-expect-error
                     return Mixin.getByName(mixin);
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return mixin;
             });
         }

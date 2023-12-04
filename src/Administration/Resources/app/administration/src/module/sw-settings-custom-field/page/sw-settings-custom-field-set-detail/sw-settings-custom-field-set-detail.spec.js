@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 const set = {
     id: '9f359a2ab0824784a608fc2a443c5904',

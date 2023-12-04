@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/meteor/sw-meteor-card';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';

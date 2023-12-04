@@ -3,7 +3,7 @@
  */
 
 import Vue from 'vue';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 
 import 'src/app/directive/tooltip.directive';
 

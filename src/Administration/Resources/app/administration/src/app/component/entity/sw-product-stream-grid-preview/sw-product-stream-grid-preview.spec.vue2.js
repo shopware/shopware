@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/entity/sw-product-stream-grid-preview';
 import 'src/app/component/base/sw-empty-state';
 import 'src/app/component/form/sw-field';

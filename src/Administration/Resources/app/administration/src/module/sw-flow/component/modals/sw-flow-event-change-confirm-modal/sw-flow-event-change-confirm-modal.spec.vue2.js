@@ -1,7 +1,7 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swFlowEventChangeConfirmModal from 'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 import EntityCollection from 'src/core/data/entity-collection.data';

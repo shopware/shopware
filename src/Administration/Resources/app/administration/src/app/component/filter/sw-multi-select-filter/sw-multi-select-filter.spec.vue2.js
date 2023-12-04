@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/filter/sw-multi-select-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';

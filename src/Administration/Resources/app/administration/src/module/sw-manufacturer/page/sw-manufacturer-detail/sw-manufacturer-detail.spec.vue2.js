@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, mount } from '@vue/test-utils';
+import { createLocalVue, mount } from '@vue/test-utils_v2';
 import swManufacturerDetail from 'src/module/sw-manufacturer/page/sw-manufacturer-detail';
 
 Shopware.Component.register('sw-manufacturer-detail', swManufacturerDetail);

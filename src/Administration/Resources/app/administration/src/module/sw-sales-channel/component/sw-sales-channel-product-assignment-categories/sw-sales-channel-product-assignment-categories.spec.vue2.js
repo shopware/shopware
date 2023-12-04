@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-product-assignment-categories';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';

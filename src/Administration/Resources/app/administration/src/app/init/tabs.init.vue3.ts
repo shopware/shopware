@@ -4,7 +4,7 @@
 
 // eslint-disable-next-line import/no-named-default
 import type { TabItemEntry } from 'src/app/state/tabs.store';
-import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router_v3';
+import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private
@@ -14,7 +14,6 @@ export default function initializeTabs(): void {
         Shopware.State.commit('tabs/addTabItem', componentConfig);
 
         // if current route does not exist check if they exists after adding the route
-        // @ts-expect-error
         const router = Shopware.Application.view?.router as Router;
 
         const currentRoute = router.currentRoute.value;
@@ -33,7 +32,6 @@ export default function initializeTabs(): void {
     /* istanbul ignore next */
     void Shopware.Application.viewInitialized.then(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        // @ts-expect-error
         const router = Shopware.Application.view?.router as Router;
 
         const currentRoute = router.currentRoute.value;
@@ -119,6 +117,7 @@ function createRouteForTabItem(to: RouteLocationNormalized, router: Router, next
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                     parentPath: firstChild?.meta?.parentPath?.toString() ?? '',
                 },
+                // @ts-expect-error
                 isChildren: true,
                 props: {
                     'position-identifier': matchingTabItemConfig.componentSectionId,

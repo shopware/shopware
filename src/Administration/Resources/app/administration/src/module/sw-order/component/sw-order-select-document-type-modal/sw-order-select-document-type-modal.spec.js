@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swOrderSelectDocumentTypeModal from 'src/module/sw-order/component/sw-order-select-document-type-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-radio-field';

@@ -1,4 +1,4 @@
-import type { Route } from 'vue-router';
+import type { Route } from 'vue-router_v2';
 import type { Extension } from '../../service/extension-store-action.service';
 import template from './sw-extension-config.html.twig';
 import './sw-extension-config.scss';

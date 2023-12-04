@@ -3,7 +3,7 @@ import WorkerNotificationListener from 'src/core/worker/worker-notification-list
 import AdminNotificationWorker from 'src/core/worker/admin-notification-worker';
 import getRefreshTokenHelper from 'src/core/helper/refresh-token.helper';
 import type { ApiContext } from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
-import type Vue from 'vue';
+import type { App } from 'vue';
 import type { LoginService } from '../../core/service/login.service';
 import type { ContextState } from '../state/context.store';
 import type {
@@ -345,7 +345,7 @@ function messageQueueNotification(
     ids: { [key: string]: { notificationId: string, didSendForegroundMessage: boolean}},
     next: (name?: string, opts?: NotificationWorkerOptions) => unknown,
     entry: { size: number },
-    $root: Vue,
+    $root: App<Element>,
     notification: NotificationService,
     messages: { title: string, message: string, success: string, foregroundSuccessMessage?: string },
     multiplier = 1,
@@ -393,12 +393,12 @@ function messageQueueNotification(
 
         if (entry.size === 0) {
             config.title = $root.$tc(messages.title);
-            config.message = $root.$t(messages.success) as string;
+            config.message = $root.$t(messages.success);
             config.isLoading = false;
 
             if (messages.foregroundSuccessMessage && !didSendForegroundMessage) {
                 const foreground = { ...config };
-                foreground.message = $root.$t(messages.foregroundSuccessMessage) as string;
+                foreground.message = $root.$t(messages.foregroundSuccessMessage);
                 delete foreground.uuid;
                 delete foreground.isLoading;
                 foreground.growl = true;

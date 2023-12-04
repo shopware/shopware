@@ -48,11 +48,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        customEntityDataId(): string|null {
+        customEntityDataId(): string|string[] {
             return this.$route.params?.id;
         },
 
-        customEntityName(): string {
+        customEntityName(): string|string[] {
             return this.$route.params.entityName || '';
         },
 
@@ -61,7 +61,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return null;
             }
 
-            return this.customEntityDefinitionService.getDefinitionByName(this.customEntityName) ?? null;
+            return this.customEntityDefinitionService.getDefinitionByName(this.customEntityName as string) ?? null;
         },
 
         customEntityDataRepository(): Repository<'generic_custom_entity'> | null {
@@ -109,9 +109,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         initializeCustomEntity(): void {
             if (this.adminConfig !== null) {
+                // @ts-expect-error
                 // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-non-null-assertion
-                this.$route.meta!.$module.icon = this.adminConfig?.icon;
+                this.$route.meta.$module.icon = this.adminConfig?.icon;
             }
 
             // ToDo NEXT-22874 - Favicon handling
@@ -123,7 +124,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 if (!this.customEntityDataRepository) {
-                    throw new Error(`Custom entity repository for "${this.customEntityName}" not found`);
+                    throw new Error(`Custom entity repository for "${this.customEntityName as string}" not found`);
                 }
 
                 if (!this.customEntityDataId) {
@@ -133,7 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId);
+                this.customEntityData = await this.customEntityDataRepository.get(this.customEntityDataId as string);
             } catch (e) {
                 console.error(e);
 

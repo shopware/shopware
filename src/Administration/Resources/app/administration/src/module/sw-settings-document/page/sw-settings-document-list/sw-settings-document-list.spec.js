@@ -1,7 +1,7 @@
 import 'src/app/mixin/notification.mixin';
 import 'src/app/mixin/listing.mixin';
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package customer-order

@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 function getOptions() {
     const options = [
@@ -124,8 +124,8 @@ async function createWrapper() {
                 },
                 'sw-colorpicker': {
                     template: `
-                    <input class="sw-colorpicker-stub" 
-                        :value="value" type="color" 
+                    <input class="sw-colorpicker-stub"
+                        :value="value" type="color"
                         @input="$emit(\'update:value\', $event.target.value)"/>
                     `,
                     props: ['value'],
@@ -139,8 +139,8 @@ async function createWrapper() {
                 },
                 'sw-number-field': {
                     template: `
-                        <input class="sw-number-field-stub" 
-                            :value="value" type="number" 
+                        <input class="sw-number-field-stub"
+                            :value="value" type="number"
                             @input="$emit(\'update:value\', $event.target.value)"/>
                     `,
                     props: ['value'],
@@ -148,8 +148,8 @@ async function createWrapper() {
                 },
                 'sw-text-field': {
                     template: `
-                        <input class="sw-text-field-stub" 
-                            :value="value" type="text" 
+                        <input class="sw-text-field-stub"
+                            :value="value" type="text"
                             @input="$emit(\'update:value\', $event.target.value)"/>
                     `,
                     props: ['value'],

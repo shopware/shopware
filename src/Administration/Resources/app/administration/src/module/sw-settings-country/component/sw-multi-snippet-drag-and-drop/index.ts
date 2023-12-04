@@ -67,6 +67,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             type: Object,
             required: false,
             default(): DragConfig<DragItem> {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultConfig;
             },
         },
@@ -75,6 +77,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
             type: Object,
             required: false,
             default(): DragConfig<DragItem> {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultConfig;
             },
         },
@@ -135,11 +139,11 @@ Component.register('sw-multi-snippet-drag-and-drop', {
     },
 
     methods: {
-        onDragStart(config: DragConfig, element: string, dragElement: string): void {
+        onDragStart(config: DragConfig<DragItem>, element: HTMLElement, dragElement: HTMLElement): void {
             this.$emit('drag-start', { config, element, dragElement });
         },
 
-        onDragEnter(dragData: DragConfig, dropData: DragConfig) {
+        onDragEnter(dragData: DragItem, dropData: DragItem) {
             if (!dragData || !dropData) {
                 return;
             }
@@ -183,7 +187,6 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                 return true;
             }
 
-            // @ts-expect-error
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this.selectionDisablingMethod(selection);
         },

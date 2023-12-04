@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-context-button', { sync: true }), {

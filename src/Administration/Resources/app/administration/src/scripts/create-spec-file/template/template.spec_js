@@ -1,5 +1,5 @@
 import '<component-path>';
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 
 async function createWrapper(/* TODO: add or remove options = {} */) {
     // TODO: add or remove localVue

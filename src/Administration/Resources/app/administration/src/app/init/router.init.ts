@@ -3,10 +3,10 @@
  */
 
 // Vue3 imports
-import * as VueRouter3 from 'vue-router_v3';
+import * as VueRouter3 from 'vue-router';
 
 // Vue2 imports
-import VueRouter from 'vue-router';
+import VueRouter from 'vue-router_v2';
 
 import coreRoutes from 'src/app/route';
 

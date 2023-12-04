@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowMailSendModal from 'src/module/sw-flow/component/modals/sw-flow-mail-send-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -10,7 +10,7 @@ import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-mail-send-modal', swFlowMailSendModal);

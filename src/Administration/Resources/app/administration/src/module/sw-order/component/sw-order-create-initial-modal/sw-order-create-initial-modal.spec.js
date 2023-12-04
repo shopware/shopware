@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-order/mixin/cart-notification.mixin';
 import swOrderCreateInitialModal from 'src/module/sw-order/component/sw-order-create-initial-modal';
 import orderStore from 'src/module/sw-order/state/order.store';

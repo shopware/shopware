@@ -7,15 +7,9 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
-import type { Route } from 'vue-router';
-import type {
-    Component,
-    Dictionary,
-    NavigationGuard,
-    PathToRegexpOptions,
-    RedirectOption,
-    RoutePropsFunction,
-} from 'vue-router/types/router';
+import type { NavigationGuard, RedirectOption, Route } from 'vue-router_v2';
+import type { RoutePropsFunction, PathToRegexpOptions, Dictionary } from 'vue-router_v2/types/router';
+import type { App } from 'vue';
 import type { ComponentConfig } from './async-component.factory';
 import type { Snippets } from './locale.factory';
 
@@ -35,8 +29,8 @@ export type ModuleTypes = 'plugin' | 'core';
 interface SwRouteConfig {
     path: string;
     name?: string;
-    component?: string | Component;
-    components?: Dictionary<Component> | {
+    component?: string | App<Element>;
+    components?: Dictionary<App<Element>> | {
         default: string
     };
     redirect?: RedirectOption;
@@ -432,11 +426,11 @@ function createRouteComponentList(route: SwRouteConfig, moduleId: string, module
             return;
         }
 
-        // @ts-expect-error
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         componentList[componentKey] = component;
     });
 
+    // @ts-expect-error
     route.components = componentList;
 
     return route;

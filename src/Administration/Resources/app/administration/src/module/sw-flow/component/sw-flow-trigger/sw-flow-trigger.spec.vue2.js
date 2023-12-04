@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowTrigger from 'src/module/sw-flow/component/sw-flow-trigger';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -7,7 +7,7 @@ import 'src/app/component/tree/sw-tree';
 import 'src/app/component/tree/sw-tree-item';
 import 'src/app/component/utils/sw-vnode-renderer';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { ACTION } from 'src/module/sw-flow/constant/flow.constant';

@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomFieldSetDetailBase from 'src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';

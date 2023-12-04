@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerList from 'src/module/sw-customer/page/sw-customer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';

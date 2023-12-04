@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount, RouterLinkStub } from '@vue/test-utils_v3';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 
 describe('components/base/sw-button', () => {
     it('should be a Vue.js component', async () => {

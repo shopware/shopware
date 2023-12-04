@@ -2,7 +2,7 @@
  * @package system-settings
  */
 import Vue from 'vue';
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 
 async function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {

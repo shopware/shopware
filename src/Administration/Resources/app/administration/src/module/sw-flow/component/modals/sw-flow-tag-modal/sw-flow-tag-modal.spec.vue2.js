@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swFlowTagModal from 'src/module/sw-flow/component/modals/sw-flow-tag-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -10,7 +10,7 @@ import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-tag-modal', swFlowTagModal);

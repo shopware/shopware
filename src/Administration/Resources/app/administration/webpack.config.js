@@ -305,6 +305,11 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 },
             },
             {
+                test: /\.mjs$/,
+                include: /node_modules/,
+                type: "javascript/auto"
+            },
+            {
                 test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
                 exclude: [],
                 loader: 'url-loader',
@@ -624,12 +629,13 @@ const coreConfig = {
     },
 
     ...(() => {
-        const vueAlias = featureFlags.VUE3 ? '@vue/compat/dist/vue.esm-bundler.js' : 'vue/dist/vue.esm.js';
+        const vueAlias = featureFlags.VUE3 ? '@vue/compat/dist/vue.esm-bundler.js' : 'vue_v2/dist/vue.esm.js';
 
         return {
             resolve: {
                 alias: {
                     vue$: vueAlias,
+                    vue_v2: 'vue_v2/dist/vue.esm.js',
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },

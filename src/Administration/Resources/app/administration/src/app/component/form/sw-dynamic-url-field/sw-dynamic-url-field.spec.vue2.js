@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/form/sw-dynamic-url-field';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';

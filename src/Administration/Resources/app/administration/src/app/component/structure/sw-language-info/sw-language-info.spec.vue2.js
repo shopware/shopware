@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/structure/sw-language-info';
 
 describe('src/app/component/structure/sw-language-info', () => {

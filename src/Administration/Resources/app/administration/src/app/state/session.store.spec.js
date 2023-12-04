@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import SessionStore from 'src/app/state/session.store';
 
 describe('src/app/state/session.store.js', () => {

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-arrow-field';
 
 async function createWrapper(customOptions = {}) {

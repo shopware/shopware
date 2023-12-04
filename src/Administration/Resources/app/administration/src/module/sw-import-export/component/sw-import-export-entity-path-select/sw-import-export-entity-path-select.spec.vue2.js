@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';

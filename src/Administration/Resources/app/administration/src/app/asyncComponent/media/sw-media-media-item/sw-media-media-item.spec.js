@@ -1,7 +1,7 @@
 /**
  * @package buyers-experience
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(mediaServiceFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-media-item', { sync: true }), {

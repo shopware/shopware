@@ -1,9 +1,9 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowDetailFlow from 'src/module/sw-flow/view/detail/sw-flow-detail-flow';
 import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
 import swFlowTrigger from 'src/module/sw-flow/component/sw-flow-trigger';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 

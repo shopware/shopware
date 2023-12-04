@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(errors = {}, options = {}) {
     if (typeof Shopware.State.get('error') !== 'undefined') {

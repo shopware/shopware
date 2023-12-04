@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swFlowList from 'src/module/sw-flow/view/listing/sw-flow-list';
 import flowState from 'src/module/sw-flow/state/flow.state';
 

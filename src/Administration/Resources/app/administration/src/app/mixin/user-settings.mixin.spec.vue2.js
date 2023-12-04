@@ -1,5 +1,5 @@
 import 'src/app/mixin/user-settings.mixin';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 let createRepositoryFactoryMock;
 

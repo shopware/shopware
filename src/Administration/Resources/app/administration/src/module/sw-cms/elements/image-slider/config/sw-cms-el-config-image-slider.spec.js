@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 /* eslint-disable max-len */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 
 async function createWrapper(activeTab = 'content') {

@@ -1,5 +1,5 @@
 import 'src/app/component/structure/sw-admin';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import { BroadcastChannel } from 'worker_threads';
 
 async function createWrapper(isLoggedIn, forwardLogout = () => {}, route = 'sw.wofoo.index') {

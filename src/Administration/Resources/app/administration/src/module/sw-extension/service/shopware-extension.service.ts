@@ -1,4 +1,4 @@
-import type { RawLocation, Location } from 'vue-router';
+import type { RawLocation, Location } from 'vue-router_v2';
 import type { AppModulesService, AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 import type StoreApiService from 'src/core/service/api/store.api.service';
 import type { ShopwareDiscountCampaignService } from 'src/app/service/discount-campaign.service';

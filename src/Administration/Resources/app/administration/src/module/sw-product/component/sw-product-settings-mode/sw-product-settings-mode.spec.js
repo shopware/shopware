@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('module/sw-product/component/sw-product-settings-mode', () => {
     async function createWrapper() {

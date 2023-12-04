@@ -1,8 +1,8 @@
 /**
  * @package content
  */
-import { mount } from '@vue/test-utils_v3';
-import VueRouter from 'vue-router';
+import { mount } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import swCategoryTree from 'src/module/sw-category/component/sw-category-tree';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
@@ -11,11 +11,12 @@ Shopware.Component.register('sw-category-tree', swCategoryTree);
 async function createWrapper() {
     const routes = [{
         name: 'sw.category.detail',
-        path: 'category/detail/:id',
+        path: '/category/detail/:id',
     }];
 
-    const router = new VueRouter({
+    const router = createRouter({
         routes,
+        history: createWebHashHistory(),
     });
 
     return mount(await wrapTestComponent('sw-category-tree', { sync: true }), {
@@ -232,7 +233,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         });
 
         const itemUrl = wrapper.vm.getCategoryUrl({ id: '1a2b' });
-        expect(itemUrl).toBe('#category/detail/1a2b');
+        expect(itemUrl).toBe('#/category/detail/1a2b');
     });
 
     it('should get wrong category url', async () => {

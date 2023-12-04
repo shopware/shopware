@@ -4,14 +4,14 @@
 
 // Vue2 imports
 import Vue from 'vue';
-import Vuex from 'vuex';
-import type { Module, Store } from 'vuex';
+import Vuex from 'vuex_v2';
+import type { Module, Store } from 'vuex_v2';
 import VuexModules from 'src/app/state/index';
 import type { FullState } from 'src/core/factory/state.factory';
 
 // Vue3 imports
-import type { Store as StoreV3 } from 'vuex_v3';
-import { createStore } from 'vuex_v3';
+import type { Store as StoreV3 } from 'vuex';
+import { createStore } from 'vuex';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initState() {
@@ -36,6 +36,7 @@ function initVuexState(state: FullState, app = Vue) {
 
         app.use(store as StoreV3<VuexRootState>);
     } else {
+        // @ts-expect-error
         Vue.use(Vuex);
 
         store = new Vuex.Store<VuexRootState>({

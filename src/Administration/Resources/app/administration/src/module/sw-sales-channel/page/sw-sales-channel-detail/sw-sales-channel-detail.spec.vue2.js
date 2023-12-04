@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swSalesChannelDetail from 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
 
 Shopware.Component.register('sw-sales-channel-detail', swSalesChannelDetail);

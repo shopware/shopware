@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { mount, config } from '@vue/test-utils_v3';
-import { createRouter, createWebHashHistory } from 'vue-router_v3';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import Vue from 'vue';
 
 describe('src/module/sw-product/component/sw-product-feature-set-form', () => {

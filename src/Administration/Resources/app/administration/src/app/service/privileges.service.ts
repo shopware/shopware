@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { reactive } from 'vue3';
+import { reactive } from 'vue';
 
 const { warn, error } = Shopware.Utils.debug;
 const { object } = Shopware.Utils;

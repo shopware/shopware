@@ -133,6 +133,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showApiNotification(error: MappedError) {
+            // @ts-expect-error
             const docLink = this.$tc('sw-extension.errors.messageToTheShopwareDocumentation', 0, error.parameters);
 
             // Methods from mixins are not recognized

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(additionalPromotionData = {}) {
     return mount(await wrapTestComponent('sw-promotion-v2-individual-codes-behavior', { sync: true }), {

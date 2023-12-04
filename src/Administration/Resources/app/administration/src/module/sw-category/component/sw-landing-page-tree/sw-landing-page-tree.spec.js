@@ -1,18 +1,19 @@
 /**
  * @package content
  */
-import { mount } from '@vue/test-utils_v3';
-import VueRouter from 'vue-router';
+import { mount } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 async function createWrapper() {
     const routes = [{
         name: 'sw.category.landingPageDetail',
-        path: 'category/landingPage/:id',
+        path: '/category/landingPage/:id',
     }];
 
-    const router = new VueRouter({
+    const router = createRouter({
         routes,
+        history: createWebHashHistory(),
     });
 
     return mount(await wrapTestComponent('sw-landing-page-tree', { sync: true }), {
@@ -236,7 +237,7 @@ describe('src/module/sw-category/component/sw-landing-page-tree', () => {
         });
 
         const itemUrl = wrapper.vm.getLandingPageUrl({ id: '1a2b' });
-        expect(itemUrl).toBe('#category/landingPage/1a2b');
+        expect(itemUrl).toBe('#/category/landingPage/1a2b');
     });
 
     it('should get wrong landing page url', async () => {

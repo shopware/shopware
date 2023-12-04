@@ -3,7 +3,7 @@ import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 
 const { Criteria } = Shopware.Data;
 

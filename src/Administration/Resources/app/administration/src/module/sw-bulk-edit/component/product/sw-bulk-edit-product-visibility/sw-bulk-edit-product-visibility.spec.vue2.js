@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swBulkEditProductVisibility from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility';
 
 Shopware.Component.register('sw-bulk-edit-product-visibility', swBulkEditProductVisibility);

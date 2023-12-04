@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 import ExtensionErrorService from 'src/module/sw-extension/service/extension-error.service';
 import ShopwareExtensionService from 'src/module/sw-extension/service/shopware-extension.service';

@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swSalesChannelDetailProductComparison from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison';
 
 Shopware.Component.register('sw-sales-channel-detail-product-comparison', swSalesChannelDetailProductComparison);

@@ -8,7 +8,7 @@ type MappedError = {
 }
 
 class StoreError {
-    // eslint-disable-next-line no-useless-constructor
+    // eslint-disable-next-line no-useless-constructor, no-empty-function
     constructor(public readonly title: string, public readonly message: string) {}
 }
 

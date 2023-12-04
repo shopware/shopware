@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/base/sw-label';
 

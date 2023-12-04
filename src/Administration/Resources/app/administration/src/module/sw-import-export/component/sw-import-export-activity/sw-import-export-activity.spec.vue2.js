@@ -1,5 +1,5 @@
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/entity/sw-entity-listing';

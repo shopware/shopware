@@ -3,7 +3,7 @@
  */
 
 import Vue from 'vue';
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import { location } from '@shopware-ag/admin-extension-sdk';
 
 let $routeMock = {

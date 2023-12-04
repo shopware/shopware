@@ -3,7 +3,7 @@
  */
 
 // Vue 2 imports
-import { mapState, mapMutations, mapGetters, mapActions } from 'vuex';
+import { mapState, mapMutations, mapGetters, mapActions } from 'vuex_v2';
 
 // Vue 3 imports
 import {
@@ -11,7 +11,7 @@ import {
     mapMutations as mapMutationsV3,
     mapGetters as mapGettersV3,
     mapActions as mapActionsV3,
-} from 'vuex_v3';
+} from 'vuex';
 
 import * as mapErrors from 'src/app/service/map-errors.service';
 

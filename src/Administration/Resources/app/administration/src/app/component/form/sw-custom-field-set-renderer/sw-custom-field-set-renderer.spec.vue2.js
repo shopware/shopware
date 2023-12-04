@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import Vue from 'vue';
 import uuid from 'src/../test/_helper_/uuid';
 import 'src/app/component/form/sw-custom-field-set-renderer';

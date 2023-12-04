@@ -1,8 +1,8 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
+import Vuex from 'vuex_v2';
 import swProfileIndexSearchPreferences from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';

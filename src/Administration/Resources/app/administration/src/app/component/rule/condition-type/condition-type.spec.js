@@ -1,5 +1,5 @@
 /* global adminPath */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';

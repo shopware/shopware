@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 import 'src/app/component/entity/sw-bulk-edit-modal';
 import 'src/app/component/data-grid/sw-data-grid';

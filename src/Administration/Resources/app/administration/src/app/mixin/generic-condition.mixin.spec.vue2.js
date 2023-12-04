@@ -1,7 +1,7 @@
 /**
  * @package admin
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 // Mock Component
 Shopware.Component.register('sw-mock', {

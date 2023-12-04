@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swPrivilegeError from 'src/module/sw-privilege-error/page/sw-privilege-error';
 
 Shopware.Component.register('sw-privilege-error', swPrivilegeError);

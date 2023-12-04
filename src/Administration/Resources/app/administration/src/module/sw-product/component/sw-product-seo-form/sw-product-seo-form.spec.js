@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils_v3';
-import { createStore } from 'vuex_v3';
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 
 describe('module/sw-product/component/sw-product-seo-form', () => {
     async function createWrapper(productEntityOverride, parentProductOverride) {

@@ -1,6 +1,6 @@
 import './page/index';
 
-import type { Route } from 'vue-router';
+import type { Route } from 'vue-router_v2';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 

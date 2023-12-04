@@ -6,7 +6,7 @@ import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 const { Criteria } = Shopware.Data;
 

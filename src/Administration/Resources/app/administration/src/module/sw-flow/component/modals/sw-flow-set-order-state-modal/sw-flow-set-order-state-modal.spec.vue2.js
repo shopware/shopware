@@ -1,9 +1,9 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowSetOrderStateModal from 'src/module/sw-flow/component/modals/sw-flow-set-order-state-modal';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-set-order-state-modal', swFlowSetOrderStateModal);

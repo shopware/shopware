@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-entity-listing';

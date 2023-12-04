@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swFlowListFlowTemplates from 'src/module/sw-flow/view/listing/sw-flow-list-flow-templates';
 import 'src/app/component/utils/sw-internal-link';
 import 'src/app/component/entity/sw-entity-listing';

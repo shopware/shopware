@@ -2,7 +2,7 @@
  * @package services-settings
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swMailTemplateIndex from 'src/module/sw-mail-template/page/sw-mail-template-index';
 
 Shopware.Component.register('sw-mail-template-index', swMailTemplateIndex);

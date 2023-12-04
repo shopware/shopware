@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import utils from 'src/core/service/util.service';
 import 'src/app/component/form/select/entity/sw-entity-single-select';

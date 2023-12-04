@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swSalesChannelDetailDomains from 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-modal';

@@ -162,14 +162,15 @@ class Tooltip {
             }
 
             this._vue?.$destroy();
+            // @ts-expect-error
             this._vue = new Vue({
                 name: `sw-tooltip-${this._id || 'undefined'}`,
                 el: this._DOMElement!,
-                // @ts-expect-error
                 parent: this._vue?.$parent,
                 template: this._DOMElement?.outerHTML,
             });
 
+            // @ts-expect-error
             this._DOMElement = this._vue.$el as HTMLElement;
             this.registerEvents();
         }
@@ -239,13 +240,17 @@ class Tooltip {
             element.style.zIndex = this._zIndex.toFixed(0);
         }
 
+        // @ts-expect-error
         this._vue = new Vue({
             name: `sw-tooltip-${this._id || 'undefined'}`,
             el: element,
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             parent: node.context,
             template: element.outerHTML,
         });
 
+        // @ts-expect-error
         return this._vue.$el as HTMLElement;
     }
 
@@ -317,7 +322,8 @@ class Tooltip {
         if (this._disabled) {
             return;
         }
-        this._vue!.$destroy();
+        // @ts-expect-error
+        this._vue.$destroy();
         this._DOMElement!.remove();
         this._isShown = false;
     }
@@ -533,6 +539,7 @@ function createOrUpdateTooltip(el: HTMLElement, { value, modifiers }: {
  * *Note that the position variable has a higher priority as the modifier
  */
 Directive.register('tooltip', {
+    // @ts-expect-error
     bind: (el: HTMLElement, binding) => {
         createOrUpdateTooltip(el, binding);
     },
@@ -544,16 +551,20 @@ Directive.register('tooltip', {
         }
     },
 
+    // @ts-expect-error
     update: (el: HTMLElement, binding) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         createOrUpdateTooltip(el, binding);
     },
 
     /**
      * Initialize the tooltip once it has been inserted to the DOM.
      */
+    // @ts-expect-error
     inserted: (el: HTMLElement, binding, node) => {
         if (el.hasAttribute('tooltip-id')) {
             const tooltip = tooltipRegistry.get(el.getAttribute('tooltip-id')!);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             tooltip!.init(node);
         }
     },

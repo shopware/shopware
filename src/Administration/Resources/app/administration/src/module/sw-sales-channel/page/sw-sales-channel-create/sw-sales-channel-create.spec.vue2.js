@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swSalesChannelDetail from 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
 import swSalesChannelCreate from 'src/module/sw-sales-channel/page/sw-sales-channel-create';
 

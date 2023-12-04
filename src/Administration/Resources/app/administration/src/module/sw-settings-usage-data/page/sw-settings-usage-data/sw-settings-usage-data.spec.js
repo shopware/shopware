@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swSettingsUsageData from 'src/module/sw-settings-usage-data/page/sw-settings-usage-data';
 import swUsageDataConsentBanner from 'src/module/sw-settings-usage-data/component/sw-usage-data-consent-banner';
 

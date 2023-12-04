@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import utils from 'src/core/service/util.service';

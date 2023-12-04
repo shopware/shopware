@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import orderStore from 'src/module/sw-order/state/order.store';
 import 'src/module/sw-order/mixin/cart-notification.mixin';

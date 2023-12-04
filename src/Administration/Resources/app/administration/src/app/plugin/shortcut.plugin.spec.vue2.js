@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils_v2';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';

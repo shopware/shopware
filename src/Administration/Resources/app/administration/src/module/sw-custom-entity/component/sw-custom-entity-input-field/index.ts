@@ -48,6 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         currentValue: {
+            // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
             get(): string | number | unknown {
                 return this.value;
             },

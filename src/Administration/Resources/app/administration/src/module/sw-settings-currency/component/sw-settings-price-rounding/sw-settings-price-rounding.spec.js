@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-settings-price-rounding', {

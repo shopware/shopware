@@ -693,6 +693,7 @@ export default class RuleConditionService {
                 disabled: false,
                 message: app.$tc(
                     'sw-restricted-rules.restrictedAssignment.notEqualsViolationTooltip',
+                    // @ts-expect-error
                     undefined,
                     {
                         conditions: this.getTranslatedConditionViolationList(

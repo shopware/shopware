@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
 
 const sequenceFixture = {

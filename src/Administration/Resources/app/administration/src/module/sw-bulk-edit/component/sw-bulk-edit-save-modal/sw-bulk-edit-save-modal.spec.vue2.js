@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swBulkEditSaveModal from 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';

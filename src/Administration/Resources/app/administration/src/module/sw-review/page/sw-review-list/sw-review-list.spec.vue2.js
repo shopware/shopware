@@ -1,7 +1,7 @@
 /**
  * @package inventory
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swReviewList from 'src/module/sw-review/page/sw-review-list';
 
 Shopware.Component.register('sw-review-list', swReviewList);

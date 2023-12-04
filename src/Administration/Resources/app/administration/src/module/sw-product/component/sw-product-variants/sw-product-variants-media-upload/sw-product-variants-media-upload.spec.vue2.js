@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
 import swProductVariantsMediaUpload from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload';
 import 'src/app/component/context-menu/sw-context-menu-item';

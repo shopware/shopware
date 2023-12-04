@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swSalesChannelDetailBase from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-base';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 

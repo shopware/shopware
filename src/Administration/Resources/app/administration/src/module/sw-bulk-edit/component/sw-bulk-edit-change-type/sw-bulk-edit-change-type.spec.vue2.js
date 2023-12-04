@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swBulkEditChangeType from 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/field-base/sw-base-field';

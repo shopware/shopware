@@ -1,4 +1,4 @@
-import { shallowMount, config } from '@vue/test-utils';
+import { shallowMount, config } from '@vue/test-utils_v2';
 
 import swGenericCustomEntityDetail from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail';
 import 'src/app/component/base/sw-button-process';

@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {

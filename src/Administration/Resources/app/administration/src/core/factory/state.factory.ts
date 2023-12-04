@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { Store } from 'vuex';
+import type { Store as StoreV2 } from 'vuex_v2';
 
 class State {
     public _registerProperty(name: string, property: $TSFixMe): this {
@@ -42,17 +42,17 @@ class State {
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface FullState extends State {
-    _store: Store<VuexRootState>,
+    _store: StoreV2<VuexRootState>,
     list: () => (keyof VuexRootState)[],
     get: <NAME extends keyof VuexRootState>(name: NAME) => VuexRootState[NAME],
-    getters: Store<VuexRootState>['getters'],
-    commit: Store<VuexRootState>['commit'],
-    dispatch: Store<VuexRootState>['dispatch'],
-    watch: Store<VuexRootState>['watch'],
-    subscribe: Store<VuexRootState>['subscribe'],
-    subscribeAction: Store<VuexRootState>['subscribeAction'],
-    registerModule: Store<VuexRootState>['registerModule'],
-    unregisterModule: Store<VuexRootState>['unregisterModule'],
+    getters: StoreV2<VuexRootState>['getters'],
+    commit: StoreV2<VuexRootState>['commit'],
+    dispatch: StoreV2<VuexRootState>['dispatch'],
+    watch: StoreV2<VuexRootState>['watch'],
+    subscribe: StoreV2<VuexRootState>['subscribe'],
+    subscribeAction: StoreV2<VuexRootState>['subscribeAction'],
+    registerModule: StoreV2<VuexRootState>['registerModule'],
+    unregisterModule: StoreV2<VuexRootState>['unregisterModule'],
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

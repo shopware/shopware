@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/utils/sw-duplicated-media-v2';
 import 'src/app/component/form/sw-radio-field';

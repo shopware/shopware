@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 // eslint-disable-next-line max-len
 import swProductVariantsConfiguratorSelection from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection';
 import 'src/app/component/base/sw-property-search';

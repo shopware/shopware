@@ -2,8 +2,8 @@
  * @package buyers-experience
  */
 
-import { mount, createLocalVue, config } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { mount, createLocalVue, config } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-sales-channel/component/structure/sw-sales-channel-menu';
 import 'src/app/component/base/sw-icon';

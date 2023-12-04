@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swCmsVisibilityToggle from 'src/module/sw-cms/component/sw-cms-visibility-toggle';
 import 'src/app/component/base/sw-icon';
 

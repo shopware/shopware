@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
 describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => {

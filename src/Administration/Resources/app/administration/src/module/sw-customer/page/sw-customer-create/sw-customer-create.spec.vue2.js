@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerCreate from 'src/module/sw-customer/page/sw-customer-create';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-button-process';

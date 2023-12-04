@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v2';
 import 'src/app/component/form/select/base/sw-select-result/';
 
 describe('src/app/component/form/select/base/sw-select-result/', () => {

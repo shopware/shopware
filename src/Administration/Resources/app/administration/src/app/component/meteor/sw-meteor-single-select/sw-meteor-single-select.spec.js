@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('src/app/component/meteor/sw-meteor-single-select', () => {
     async function createWrapper(customConfig = {}) {

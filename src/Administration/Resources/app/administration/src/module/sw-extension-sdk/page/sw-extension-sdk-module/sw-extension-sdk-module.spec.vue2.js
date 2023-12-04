@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
 import 'src/app/component/base/sw-button';
 

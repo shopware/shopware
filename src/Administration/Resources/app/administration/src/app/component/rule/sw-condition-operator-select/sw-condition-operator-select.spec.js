@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils_v3';
+import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {
     return shallowMount(await wrapTestComponent('sw-condition-operator-select', { sync: true }), {

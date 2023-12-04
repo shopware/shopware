@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 import swGenericSocialMediaCard from 'src/module/sw-custom-entity/component/sw-generic-social-media-card';
 

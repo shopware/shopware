@@ -1,5 +1,5 @@
 import popover from 'src/app/directive/popover.directive';
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 
 const createWrapper = () => {
     const localVue = createLocalVue();

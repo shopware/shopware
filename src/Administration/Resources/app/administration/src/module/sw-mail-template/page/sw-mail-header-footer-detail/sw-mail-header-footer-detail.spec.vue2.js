@@ -2,7 +2,7 @@
  * @package services-settings
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swMailHeaderFooterDetail from 'src/module/sw-mail-template/page/sw-mail-header-footer-detail';
 
 Shopware.Component.register('sw-mail-header-footer-detail', swMailHeaderFooterDetail);

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 
 const responses = global.repositoryFactoryMock.responses;

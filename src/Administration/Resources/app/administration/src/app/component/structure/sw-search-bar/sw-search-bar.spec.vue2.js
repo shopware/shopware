@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';

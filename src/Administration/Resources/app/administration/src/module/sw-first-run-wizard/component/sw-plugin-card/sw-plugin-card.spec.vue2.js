@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
 import SwPluginCard from 'src/module/sw-first-run-wizard/component/sw-plugin-card';
 import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';

@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import { createLocalVue, mount } from '@vue/test-utils';
+import { createLocalVue, mount } from '@vue/test-utils_v2';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import swSalesChannelModal from 'src/module/sw-sales-channel/component/sw-sales-channel-modal/';
 import swSalesChannelModalGrid from 'src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/';

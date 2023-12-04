@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;

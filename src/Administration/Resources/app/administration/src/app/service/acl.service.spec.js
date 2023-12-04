@@ -9,7 +9,7 @@ describe('src/app/service/acl.service.ts', () => {
         Shopware.Application.view = {};
         Shopware.Application.view.root = {};
         Shopware.Application.view.root.$router = {};
-        Shopware.Application.view.root.$router.match = () => ({});
+        Shopware.Application.view.root.$router.resolve = () => ({});
     });
 
     it('should be an admin', async () => {
@@ -100,7 +100,7 @@ describe('src/app/service/acl.service.ts', () => {
     });
 
     it('should have access to the route when no privilege exists', async () => {
-        Shopware.Application.view.root.$router.match = () => ({});
+        Shopware.Application.view.root.$router.resolve = () => ({});
 
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
@@ -115,7 +115,7 @@ describe('src/app/service/acl.service.ts', () => {
     });
 
     it('should not have access to the route when privilege not matches', async () => {
-        Shopware.Application.view.root.$router.match = () => ({
+        Shopware.Application.view.root.$router.resolve = () => ({
             meta: {
                 privilege: 'category.viewer',
             },
@@ -134,7 +134,7 @@ describe('src/app/service/acl.service.ts', () => {
     });
 
     it('should have access to the route when privilege matches', async () => {
-        Shopware.Application.view.root.$router.match = () => ({
+        Shopware.Application.view.root.$router.resolve = () => ({
             meta: {
                 privilege: 'product.viewer',
             },

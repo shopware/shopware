@@ -1,8 +1,8 @@
 /**
  * @package system-settings
  */
-import { mount, config } from '@vue/test-utils_v3';
-import { createRouter, createWebHistory } from 'vue-router_v3';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {

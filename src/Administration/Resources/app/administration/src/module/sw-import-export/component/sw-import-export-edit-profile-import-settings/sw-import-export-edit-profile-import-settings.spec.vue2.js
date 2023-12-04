@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swImportExportEditProfileImportSettings from 'src/module/sw-import-export/component/sw-import-export-edit-profile-import-settings';
 import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';

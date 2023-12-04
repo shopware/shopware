@@ -1,4 +1,4 @@
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import usageDataStoreModule from './usage-data.store';
 
 describe('usage-data.store', () => {

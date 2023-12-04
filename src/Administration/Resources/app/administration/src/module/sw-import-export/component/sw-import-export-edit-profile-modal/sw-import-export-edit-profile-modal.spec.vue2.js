@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swImportExportEditProfileModal from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal';
 
 Shopware.Component.register('sw-import-export-edit-profile-modal', swImportExportEditProfileModal);

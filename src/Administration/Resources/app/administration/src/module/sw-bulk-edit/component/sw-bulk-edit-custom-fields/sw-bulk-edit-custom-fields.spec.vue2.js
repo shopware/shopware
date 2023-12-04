@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swBulkEditCustomFields from 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';

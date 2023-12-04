@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable prefer-promise-reject-errors */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swSalesChannelDetailProducts from 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
 import 'src/app/component/base/sw-card';
 

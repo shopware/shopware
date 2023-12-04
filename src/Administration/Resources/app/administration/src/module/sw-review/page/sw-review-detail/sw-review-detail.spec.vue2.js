@@ -1,7 +1,7 @@
 /**
  * @package inventory
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swReviewDetail from 'src/module/sw-review/page/sw-review-detail';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';

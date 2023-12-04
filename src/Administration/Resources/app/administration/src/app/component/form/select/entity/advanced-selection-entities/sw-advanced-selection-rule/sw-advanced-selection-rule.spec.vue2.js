@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/form/select/entity/sw-entity-advanced-selection-modal';
 import 'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule';
 import 'src/app/component/base/sw-modal';

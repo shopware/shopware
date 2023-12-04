@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swDashboardStatistics from 'src/module/sw-dashboard/component/sw-dashboard-statistics';
 import 'src/app/component/form/sw-select-field';
 import 'src/app/component/form/field-base/sw-block-field';

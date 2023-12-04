@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { config, shallowMount } from '@vue/test-utils';
+import { config, shallowMount } from '@vue/test-utils_v2';
 
 import 'src/module/sw-login/view/sw-login-recovery-info';
 import 'src/app/component/base/sw-alert';

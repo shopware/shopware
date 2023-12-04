@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-link-menu';
 
 const seoDomainPrefix = '124c71d524604ccbad6042edce3ac799';

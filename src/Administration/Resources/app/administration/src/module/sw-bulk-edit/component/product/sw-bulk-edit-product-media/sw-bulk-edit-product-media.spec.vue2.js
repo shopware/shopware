@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swBulkEditProductMedia from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media';
 
 Shopware.Component.register('sw-bulk-edit-product-media', swBulkEditProductMedia);

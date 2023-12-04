@@ -2,7 +2,7 @@
  * @package system-settings
  */
 /* eslint-disable max-len */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
 import { kebabCase } from 'lodash';
 import uuid from 'src/../test/_helper_/uuid';

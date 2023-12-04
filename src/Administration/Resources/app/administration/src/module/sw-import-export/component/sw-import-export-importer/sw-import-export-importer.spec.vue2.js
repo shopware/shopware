@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swImportExportImporter from 'src/module/sw-import-export/component/sw-import-export-importer';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';

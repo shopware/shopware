@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/form/select/base/sw-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';

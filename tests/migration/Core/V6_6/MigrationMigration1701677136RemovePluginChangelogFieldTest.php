@@ -21,13 +21,13 @@ class MigrationMigration1701677136RemovePluginChangelogFieldTest extends TestCas
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function testUpdateDestructiveRemovesColumn(): void
+    public function testUpdateRemovesColumn(): void
     {
         $this->addColumn();
 
         $migration = new Migration1701677136RemovePluginChangelogField();
-        $migration->updateDestructive($this->connection);
-        $migration->updateDestructive($this->connection);
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
         static::assertFalse($this->columnExists());
     }

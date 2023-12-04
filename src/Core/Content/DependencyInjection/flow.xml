@@ -256,14 +256,6 @@
             <tag name="flow.storer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContextTokenStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\EmailStorer">
-            <tag name="flow.storer"/>
-        </service>
-
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer">
             <tag name="flow.storer"/>
         </service>

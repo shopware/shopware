@@ -69,8 +69,7 @@ class BusinessEventCollector
 
         $aware = [];
         foreach ($interfaces as $interface) {
-            if (is_subclass_of($interface, FlowEventAware::class)
-                && $interface !== FlowEventAware::class) {
+            if ($interface !== FlowEventAware::class) {
                 $aware[] = lcfirst((new \ReflectionClass($interface))->getShortName());
                 $aware[] = $interface;
             }

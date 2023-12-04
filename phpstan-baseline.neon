@@ -8712,17 +8712,7 @@ parameters:
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContextTokenStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
 			path: tests/unit/Core/Content/Flow/Dispatching/Storer/DataStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/EmailStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"

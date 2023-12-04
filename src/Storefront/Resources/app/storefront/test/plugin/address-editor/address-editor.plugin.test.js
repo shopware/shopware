@@ -1,19 +1,5 @@
 import AddressEditorPlugin from 'src/plugin/address-editor/address-editor.plugin';
 import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
-import HttpClient from "src/service/http-client.service";
-
-jest.mock('src/plugin-system/plugin.manager', () => ({
-    __esModule: true,
-    default: {
-        getPluginInstances: () => {
-            return [];
-        },
-
-        getPluginInstanceFromElement: () => {
-            return {};
-        },
-    },
-}));
 
 /**
  * @package checkout
@@ -66,7 +52,7 @@ describe('AddressEditorPlugin test', () => {
         });
 
         document.body.insertAdjacentElement = jest.fn();
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePlugins = jest.fn(() => Promise.resolve());
 
         jest.useFakeTimers();
     });
@@ -105,7 +91,7 @@ describe('AddressEditorPlugin test', () => {
         );
     });
 
-    test('should not close modal if there is an invalid field', () => {
+    test('should not close modal if there is an invalid field', async () => {
         const addressEditorTemplate = `
             <div class="js-address-editor">
                 <button class="edit-address" data-toggle="collapse" data-target="#billing-address-create-edit">Edit address</button>
@@ -134,6 +120,9 @@ describe('AddressEditorPlugin test', () => {
             callback(addressEditorTemplate);
         });
 
+        // Click open button
+        element.dispatchEvent(new Event('click', { bubbles: true }));
+
         window.PluginManager.getPluginInstanceFromElement = (element, pluginName) => {
             if (pluginName === 'FormAjaxSubmit') {
                 formAjaxSubmit = new FormAjaxSubmitPlugin(element, {
@@ -147,10 +136,8 @@ describe('AddressEditorPlugin test', () => {
             return {};
         };
 
-        // Click open button
-        element.dispatchEvent(new Event('click', { bubbles: true }));
-
         jest.runAllTimers();
+        await new Promise(process.nextTick);
 
         expect(typeof formAjaxSubmit).toBe('object');
         expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);
@@ -161,7 +148,7 @@ describe('AddressEditorPlugin test', () => {
         expect(spyOnWindowLocationAssign).not.toHaveBeenCalled();
     });
 
-    test('should close modal if there is not invalid field', () => {
+    test('should close modal if there is not invalid field', async () => {
         const addressEditorTemplate = `
             <div class="js-address-editor">
                 <button class="edit-address" data-toggle="collapse" data-target="#billing-address-create-edit">Edit address</button>
@@ -190,6 +177,9 @@ describe('AddressEditorPlugin test', () => {
             callback(addressEditorTemplate);
         });
 
+        // Click open button
+        element.dispatchEvent(new Event('click', { bubbles: true }));
+
         window.PluginManager.getPluginInstanceFromElement = (element, pluginName) => {
             if (pluginName === 'FormAjaxSubmit') {
                 formAjaxSubmit = new FormAjaxSubmitPlugin(element, {
@@ -203,10 +193,8 @@ describe('AddressEditorPlugin test', () => {
             return {};
         };
 
-        // Click open button
-        element.dispatchEvent(new Event('click', { bubbles: true }));
-
         jest.runAllTimers();
+        await new Promise(process.nextTick);
 
         expect(typeof formAjaxSubmit).toBe('object');
         expect(formAjaxSubmit instanceof FormAjaxSubmitPlugin).toBe(true);

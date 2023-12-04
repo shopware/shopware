@@ -140,6 +140,42 @@ window.PluginManager.override(
 );
 ```
 
+### Async plugin initialization with `PluginManager.initializePlugins()`
+
+The method `PluginManager.initializePlugins()` is now async and will return a Promise because it also downloads all async JS-plugins before their initialization.
+If you need access to newly created JS-Plugin instances (for example after a dynamic DOM-update with new JS-Plugin selectors), you need to wait for the Promise to resolve.
+
+Before:
+```js
+/**
+ * Example scenario:
+ * 1. A dynamic DOM update via JavaScript (e.g. Ajax) adds selector "[data-form-ajax-submit]"
+ * 2. PluginManager.initializePlugins() intializes Plugin "FormAjaxSubmit" because a new selector is present.
+ * 3. You need access to the Plugin instance of "FormAjaxSubmit" directly after PluginManager.initializePlugins().
+ */
+window.PluginManager.initializePlugins();
+
+const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(someElement, 'FormAjaxSubmit');
+// ... does something with "FormAjaxSubmitInstance"
+```
+
+After:
+```js
+/**
+ * Example scenario:
+ * 1. A dynamic DOM update via JavaScript (e.g. Ajax) adds selector "[data-form-ajax-submit]"
+ * 2. PluginManager.initializePlugins() intializes Plugin "FormAjaxSubmit" because a new selector is present.
+ * 3. You need access to the Plugin instance of "FormAjaxSubmit" directly after PluginManager.initializePlugins().
+ */
+window.PluginManager.initializePlugins().then(() => {
+    const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(someElement, 'FormAjaxSubmit');
+    // ... does something with "FormAjaxSubmitInstance"
+});
+```
+
+If you don't need direct access to newly created JS-plugin instances via `getPluginInstanceFromElement()`, and you only want to "re-init" all JS-plugins, 
+you do not need to wait for the Promise of `initializePlugins()` because `initializePlugins()` already downloads and initializes the JS-plugins. 
+
 ### Avoid import from PluginManager
 
 Because the PluginManager is a singleton class which also assigns itself to the `window` object,

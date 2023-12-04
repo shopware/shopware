@@ -205,40 +205,42 @@ class PluginManagerSingleton {
 
     /**
      * Initializes all plugins which are currently registered.
+     *
+     * @return {Promise<void>}
      */
-    initializePlugins() {
+    async initializePlugins() {
         const initializationFailures = [];
 
-        (async () => {
-            /** @deprecated tag:v6.6.0 - All async plugins will be fetched via async import */
-            if (window.Feature.isActive('v6.6.0.0')) {
-                await this._fetchAsyncPlugins();
-            }
+        /** @deprecated tag:v6.6.0 - All async plugins will be fetched via async import */
+        if (window.Feature.isActive('v6.6.0.0')) {
+            await this._fetchAsyncPlugins();
+        }
 
-            for (const [pluginName] of Object.entries(this.getPluginList())) {
-                if (pluginName) {
-                    if (!this._registry.has(pluginName)) {
-                        throw new Error(`The plugin "${pluginName}" is not registered.`);
-                    }
+        for (const [pluginName] of Object.entries(this.getPluginList())) {
+            if (pluginName) {
+                if (!this._registry.has(pluginName)) {
+                    throw new Error(`The plugin "${pluginName}" is not registered.`);
+                }
 
-                    const plugin = this._registry.get(pluginName);
+                const plugin = this._registry.get(pluginName);
 
-                    if (plugin.has('registrations')) {
-                        for (const [, entry] of plugin.get('registrations')) {
-                            try {
-                                this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
-                            } catch (failure) {
-                                initializationFailures.push(failure);
-                            }
+                if (plugin.has('registrations')) {
+                    for (const [, entry] of plugin.get('registrations')) {
+                        try {
+                            this._initializePlugin(plugin.get('class'), entry.selector, entry.options, plugin.get('name'));
+                        } catch (failure) {
+                            initializationFailures.push(failure);
                         }
                     }
                 }
             }
+        }
 
-            initializationFailures.forEach((failure) => {
-                console.error(failure);
-            });
-        })();
+        initializationFailures.forEach((failure) => {
+            console.error(failure);
+        });
+
+        return Promise.resolve();
     }
 
     /**
@@ -584,9 +586,11 @@ export default class PluginManager {
 
     /**
      * Initializes all plugins which are currently registered.
+     *
+     * @return {Promise<void>}
      */
     static initializePlugins() {
-        PluginManagerInstance.initializePlugins();
+        return PluginManagerInstance.initializePlugins();
     }
 
     /**

@@ -108,9 +108,9 @@ export default class AddressEditorPlugin extends Plugin {
      * @private
      */
     _onOpen(pseudoModal) {
-        window.PluginManager.initializePlugins();
-
-        this._registerModalEvents(pseudoModal);
+        window.PluginManager.initializePlugins().then(() => {
+            this._registerModalEvents(pseudoModal);
+        });
 
         this.$emitter.publish('onOpen', { pseudoModal });
     }

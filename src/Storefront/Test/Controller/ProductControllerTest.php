@@ -23,7 +23,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -76,7 +75,6 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        static::assertInstanceOf(StorefrontResponse::class, $response);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
 

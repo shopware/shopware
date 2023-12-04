@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Framework\Routing\NotFound;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -14,7 +13,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -111,17 +109,12 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
         $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
-            /** @var StorefrontResponse $response */
+            /** @var Response $response */
             $response = $this->cacheTracer->trace($name, function () use ($event, $request) {
                 return $this->renderErrorPage($request, $event->getThrowable());
             });
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
-
-            if ($response instanceof StorefrontResponse && !Feature::isActive('v6.6.0.0')) {
-                $response->setData([]);
-                $response->setContext(null);
-            }
 
             return $response;
         });

@@ -10,7 +10,6 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -60,7 +59,7 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel
             ->expects(static::once())
             ->method('handle')
-            ->willReturn(new StorefrontResponse());
+            ->willReturn(new Response());
 
         $cacheTracer = $this->createMock(AbstractCacheTracer::class);
         $cacheTracer
@@ -103,7 +102,7 @@ class NotFoundSubscriberTest extends TestCase
         $httpKernel
             ->expects(static::once())
             ->method('handle')
-            ->willReturn(new StorefrontResponse());
+            ->willReturn(new Response());
 
         $cacheTracer = $this->createMock(AbstractCacheTracer::class);
         $cacheTracer

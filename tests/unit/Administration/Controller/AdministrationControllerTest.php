@@ -13,10 +13,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
@@ -48,11 +45,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testCheckCustomerEmailValidThrowErrorWithNullEmailParameter(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(RoutingException::class);
-        } else {
-            $this->expectException(MissingRequestParameterException::class);
-        }
+        $this->expectException(RoutingException::class);
 
         $this->createInstance();
         $request = new Request();
@@ -87,11 +80,7 @@ class AdministrationControllerTest extends TestCase
 
     public function testCheckCustomerEmailValidWithBoundSalesChannelIdInvalid(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(RoutingException::class);
-        } else {
-            $this->expectException(InvalidRequestParameterException::class);
-        }
+        $this->expectException(RoutingException::class);
 
         $this->createInstance(new CustomerCollection(), true);
         $request = new Request([], ['email' => 'random@email.com', 'boundSalesChannelId' => true]);

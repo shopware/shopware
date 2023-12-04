@@ -9,7 +9,6 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -124,15 +123,15 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
     private function restrictFilters(CmsSlotEntity $slot, Request $request): void
     {
-        // setup the default behavior
+        // set up the default behavior
         $defaults = ['manufacturer-filter', 'rating-filter', 'shipping-free-filter', 'price-filter', 'property-filter'];
 
-        $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, null);
+        $request->request->set('property-whitelist', null);
 
         $config = $slot->get('config');
 
         if (isset($config['propertyWhitelist']['value']) && (is_countable($config['propertyWhitelist']['value']) ? \count($config['propertyWhitelist']['value']) : 0) > 0) {
-            $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, $config['propertyWhitelist']['value']);
+            $request->request->set('property-whitelist', $config['propertyWhitelist']['value']);
         }
 
         if (!isset($config['filters']['value'])) {

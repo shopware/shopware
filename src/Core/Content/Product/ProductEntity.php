@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
@@ -383,20 +382,6 @@ class ProductEntity extends Entity implements \Stringable
      * @var string|null
      */
     protected $coverId;
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @var array<string>|null
-     */
-    protected $blacklistIds;
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @var array<string>|null
-     */
-    protected $whitelistIds;
 
     /**
      * @var ProductVisibilityCollection|null
@@ -1149,52 +1134,6 @@ class ProductEntity extends Entity implements \Stringable
     public function setCoverId(string $coverId): void
     {
         $this->coverId = $coverId;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @return array<string>|null
-     */
-    public function getBlacklistIds(): ?array
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        return $this->blacklistIds;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @param array<string>|null $blacklistIds
-     */
-    public function setBlacklistIds(?array $blacklistIds): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-        $this->blacklistIds = $blacklistIds;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @return array<string>|null
-     */
-    public function getWhitelistIds(): ?array
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-
-        return $this->whitelistIds;
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed without replacement
-     *
-     * @param array<string>|null $whitelistIds
-     */
-    public function setWhitelistIds(?array $whitelistIds): void
-    {
-        Feature::triggerDeprecationOrThrow('v6.6.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, '6.6.0'));
-        $this->whitelistIds = $whitelistIds;
     }
 
     public function getVisibilities(): ?ProductVisibilityCollection

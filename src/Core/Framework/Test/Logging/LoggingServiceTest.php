@@ -75,7 +75,7 @@ class LoggingServiceTest extends TestCase
         $service = new LoggingService('test', $logger);
 
         $service->logFlowEvent(
-            new FlowLogEvent(TestFlowBusinessEvent::EVENT_NAME, new MailErrorEvent($this->context, 400, new Exception()))
+            new FlowLogEvent(TestFlowBusinessEvent::EVENT_NAME, new MailErrorEvent($this->context, Level::Error, new Exception()))
         );
 
         $records = $handler->getRecords();

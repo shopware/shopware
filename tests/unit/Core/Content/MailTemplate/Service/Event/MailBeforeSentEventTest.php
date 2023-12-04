@@ -59,7 +59,7 @@ class MailBeforeSentEventTest extends TestCase
             CheckoutOrderPlacedEvent::EVENT_NAME
         );
 
-        static::assertSame(Level::Info->value, $event->getLogLevel());
+        static::assertSame(Level::Info, $event->getLogLevel());
         static::assertSame('mail.after.create.message', $event->getName());
         static::assertSame($context, $event->getContext());
         static::assertSame([

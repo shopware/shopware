@@ -208,7 +208,7 @@ class MailServiceTest extends TestCase
         static::assertNull($email);
         static::assertNotNull($beforeValidateEvent);
         static::assertInstanceOf(MailErrorEvent::class, $mailErrorEvent);
-        static::assertEquals(Level::Warning->value, $mailErrorEvent->getLogLevel());
+        static::assertEquals(Level::Warning, $mailErrorEvent->getLogLevel());
         static::assertNotNull($mailErrorEvent->getMessage());
 
         $message = 'Could not render Mail-Template with error message: cannot render';

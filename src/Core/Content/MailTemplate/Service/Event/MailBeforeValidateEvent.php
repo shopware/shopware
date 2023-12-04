@@ -123,11 +123,8 @@ class MailBeforeValidateEvent extends Event implements LogAware, TemplateDataAwa
         ];
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - Return type will change to @see \Monolog\Level
-     */
-    public function getLogLevel(): int
+    public function getLogLevel(): Level
     {
-        return Level::Info->value;
+        return Level::Info;
     }
 }

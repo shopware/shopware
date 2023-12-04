@@ -8,7 +8,6 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -257,7 +256,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         $request = $resolverContext->getRequest();
 
         foreach ($expectations as $field => $expected) {
-            if ($field === ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM) {
+            if ($field === 'property-whitelist') {
                 $value = $request->request->all($field);
             } else {
                 $value = $request->request->get($field, true);
@@ -283,7 +282,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -299,7 +298,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -315,7 +314,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -331,7 +330,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -347,7 +346,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -363,7 +362,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -379,7 +378,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -395,7 +394,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => true,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -411,7 +410,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
+                    'property-whitelist' => [],
                 ],
                 [
                     'filters' => [
@@ -427,7 +426,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => false,
                     'property-filter' => false,
-                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [$sizeId, $textileId],
+                    'property-whitelist' => [$sizeId, $textileId],
                 ],
                 [
                     'filters' => [

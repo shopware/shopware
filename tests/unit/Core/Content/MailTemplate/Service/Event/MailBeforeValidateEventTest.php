@@ -58,7 +58,7 @@ class MailBeforeValidateEventTest extends TestCase
             ]
         );
 
-        static::assertSame(Level::Info->value, $event->getLogLevel());
+        static::assertSame(Level::Info, $event->getLogLevel());
         static::assertSame('mail.before.send', $event->getName());
         static::assertSame($context, $event->getContext());
         static::assertSame([

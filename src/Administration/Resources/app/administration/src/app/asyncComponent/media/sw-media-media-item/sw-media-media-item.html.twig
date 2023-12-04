@@ -10,7 +10,7 @@
     {% block sw_media_media_item_preview %}
     <template #preview="{ item }">
         <sw-media-preview-v2
-            :source="item.id"
+            :source="item"
             :media-is-private="item.private"
             @media-preview-play="emitPlayEvent($event, item)"
         />

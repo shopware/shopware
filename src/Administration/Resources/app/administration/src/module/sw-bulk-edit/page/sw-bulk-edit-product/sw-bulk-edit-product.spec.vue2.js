@@ -1,9 +1,9 @@
 /**
  * @package system-settings
  */
-import { config, createLocalVue, mount } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import { config, createLocalVue, mount } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
+import Vuex from 'vuex_v2';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/utils/sw-loader';

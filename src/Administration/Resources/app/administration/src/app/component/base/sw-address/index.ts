@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { Route } from 'vue-router';
+import type { Route } from 'vue-router_v2';
 import type { Address } from 'src/core/service/api/custom-snippet.api.service';
 import template from './sw-address.html.twig';
 import './sw-address.scss';

@@ -3,7 +3,7 @@
  */
 
 import Vue from 'vue';
-import type { Module } from 'vuex';
+import type { Module } from 'vuex_v2';
 import type { uiComponentSectionRenderer } from '@shopware-ag/admin-extension-sdk/es/ui/componentSection';
 
 type ComponentSectionEntry = Omit<uiComponentSectionRenderer, 'responseType' | 'positionId'>

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerDetailOrder from 'src/module/sw-customer/view/sw-customer-detail-order';
 import EntityCollection from 'src/core/data/entity-collection.data';
 

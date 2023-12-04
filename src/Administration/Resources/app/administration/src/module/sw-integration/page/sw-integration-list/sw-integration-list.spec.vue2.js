@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swIntegrationList from 'src/module/sw-integration/page/sw-integration-list';
 import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(props) {
     return mount(await wrapTestComponent('sw-extension-privacy-policy-extensions-modal', { sync: true }), {

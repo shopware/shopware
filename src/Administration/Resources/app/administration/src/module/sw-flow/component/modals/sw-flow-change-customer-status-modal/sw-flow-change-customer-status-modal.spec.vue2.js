@@ -1,7 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowChangeCustomerStatusModal from 'src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 
 Shopware.Component.register('sw-flow-change-customer-status-modal', swFlowChangeCustomerStatusModal);
 

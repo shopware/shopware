@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swImportExportProgress from 'src/module/sw-import-export/component/sw-import-export-progress';
 
 Shopware.Component.register('sw-import-export-progress', swImportExportProgress);

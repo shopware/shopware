@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerAddressForm from 'src/module/sw-customer/component/sw-customer-address-form';
 import ShopwareError from 'src/core/data/ShopwareError';
 import 'src/app/component/form/sw-text-field';

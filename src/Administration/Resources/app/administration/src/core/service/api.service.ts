@@ -75,6 +75,7 @@ class ApiService {
      * Basic response handling.
      * Converts the JSON api data when the specific content type is set.
      */
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     static handleResponse<T>(response: AxiosResponse<T>): AxiosResponse<T>|T|unknown {
         if (response.data === null || response.data === undefined) {
             return response;
@@ -92,6 +93,7 @@ class ApiService {
     /**
      * Parses a JSON api data structure to a simplified object.
      */
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     static parseJsonApiData(data: string|unknown): Record<string, unknown>|null {
         // @ts-expect-error
         return parseJsonApi(data);

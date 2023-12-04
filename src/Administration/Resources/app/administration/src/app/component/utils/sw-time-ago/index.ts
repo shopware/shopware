@@ -13,7 +13,7 @@ const { Component } = Shopware;
  * <sw-time-ago date=""2021-08-25T11:08:48.940+00:00""></sw-time-ago>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-time-ago', () => Component.wrapComponentConfig({
+Component.register('sw-time-ago', {
     template,
 
     props: {
@@ -146,4 +146,4 @@ Component.register('sw-time-ago', () => Component.wrapComponentConfig({
             return this.dateFilter(this.dateObject.toString());
         },
     },
-}));
+});

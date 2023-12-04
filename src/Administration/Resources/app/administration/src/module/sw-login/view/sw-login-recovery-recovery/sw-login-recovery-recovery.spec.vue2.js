@@ -1,7 +1,7 @@
 /**
  * @package admin
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/module/sw-login/view/sw-login-recovery-recovery';
 
 async function createWrapper() {

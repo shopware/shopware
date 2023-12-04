@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swExtensionSelectRating from 'src/module/sw-extension/component/sw-ratings/sw-extension-select-rating';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-block-field';

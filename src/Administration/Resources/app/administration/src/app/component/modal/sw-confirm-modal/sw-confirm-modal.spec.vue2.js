@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/modal/sw-confirm-modal';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-modal';

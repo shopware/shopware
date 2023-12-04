@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swImportExportActivityResultModal from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
 
 Shopware.Component.register('sw-import-export-activity-result-modal', swImportExportActivityResultModal);

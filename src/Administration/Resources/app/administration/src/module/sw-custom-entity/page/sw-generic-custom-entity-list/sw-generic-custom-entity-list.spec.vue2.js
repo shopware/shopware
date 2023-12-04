@@ -1,4 +1,4 @@
-import { shallowMount, config } from '@vue/test-utils';
+import { shallowMount, config } from '@vue/test-utils_v2';
 import swGenericCustomEntityList from 'src/module/sw-custom-entity/page/sw-generic-custom-entity-list';
 
 Shopware.Component.register('sw-generic-custom-entity-list', swGenericCustomEntityList);

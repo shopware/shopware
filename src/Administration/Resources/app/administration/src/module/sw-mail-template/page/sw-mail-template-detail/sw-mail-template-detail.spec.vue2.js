@@ -2,7 +2,7 @@
  * @package services-settings
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swMailTemplateDetail from 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-icon';

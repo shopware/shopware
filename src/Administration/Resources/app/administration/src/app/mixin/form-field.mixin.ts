@@ -30,7 +30,8 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         /**
          * @deprecated tag:v6.6.0 - Will be removed
          */
-        boundExpression() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
+        boundExpression(): null|any {
             // @ts-expect-error - we check if model exists on vnode
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (this.$vnode?.data?.model && this.$vnode?.data?.model?.expression) {
@@ -43,7 +44,7 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
 
         formFieldName(): string|null {
             if (this.$attrs.name) {
-                return this.$attrs.name;
+                return this.$attrs.name as string;
             }
 
             // @ts-expect-error - name exists on main component

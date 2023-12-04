@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils_v3';
-import { createStore } from 'vuex_v3';
+import { mount } from '@vue/test-utils';
+import { createStore } from 'vuex';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 async function createWrapper() {

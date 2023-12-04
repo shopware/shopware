@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 async function createWrapper({ template = '' } = { template: '' }) {
     return shallowMount(

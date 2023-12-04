@@ -1,4 +1,4 @@
-import { shallowMount, config } from '@vue/test-utils_v3';
+import { shallowMount, config } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';

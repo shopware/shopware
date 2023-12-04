@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(privileges = [], customPropsData = {}) {
     return mount(await wrapTestComponent('sw-settings-country-general', {

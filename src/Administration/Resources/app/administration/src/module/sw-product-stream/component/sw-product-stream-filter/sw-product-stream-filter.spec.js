@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 
 async function createWrapper(privileges = []) {

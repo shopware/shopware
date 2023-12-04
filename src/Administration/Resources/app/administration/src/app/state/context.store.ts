@@ -3,7 +3,7 @@
  */
 
 import type { privileges } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
-import type { Module } from 'vuex';
+import type { Module } from 'vuex_v2';
 
 type ApiAuthToken = {
     access: string,

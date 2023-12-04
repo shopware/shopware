@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v2';
 
 import 'src/module/sw-login/view/sw-login-login';
 import 'src/app/component/form/sw-text-field';

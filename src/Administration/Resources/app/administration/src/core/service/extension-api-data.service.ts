@@ -2,16 +2,22 @@
  * @package admin
  */
 
-import type Vue from 'vue';
 import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
 import { get, debounce } from 'lodash';
 import { selectData } from '@shopware-ag/admin-extension-sdk/es/data/_internals/selectData';
 import MissingPrivilegesError from '@shopware-ag/admin-extension-sdk/es/privileges/missing-privileges-error';
 
-type publishOptions = {
+interface scopeInterface {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $set(target: object, key: string, value: any): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    $watch(path: string, callback: (value: any) => void, options: { deep: boolean, immediate: boolean }): () => void;
+    $once(event: string, callback: () => void): void;
+}
+interface publishOptions {
     id: string,
     path: string,
-    scope: Vue,
+    scope: scopeInterface
 }
 
 type dataset = {
@@ -141,7 +147,8 @@ export function publishData({ id, path, scope }: publishOptions): void {
                 }
 
                 scope.$set(
-                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment) as Vue,
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                    Shopware.Utils.object.get(scope, parsedPath.pathToLastSegment),
                     parsedPath.lastSegment,
                     transferObject[property],
                 );
@@ -178,7 +185,8 @@ export function publishData({ id, path, scope }: publishOptions): void {
                 return;
             }
 
-            scope.$set(Shopware.Utils.object.get(scope, newPath) as Vue, lastPath, value.data);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            scope.$set(Shopware.Utils.object.get(scope, newPath), lastPath, value.data);
 
             return;
         }

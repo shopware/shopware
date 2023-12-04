@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swFlowAffiliateAndCampaignCodeModal from 'src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -14,7 +14,7 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-container';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-affiliate-and-campaign-code-modal', swFlowAffiliateAndCampaignCodeModal);

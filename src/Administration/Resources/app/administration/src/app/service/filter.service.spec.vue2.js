@@ -5,7 +5,7 @@
 import FilterService from 'src/app/service/filter.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import VueRouter from 'vue-router';
+import VueRouter from 'vue-router_v2';
 
 describe('app/service/filter.service.js', () => {
     let filterService;

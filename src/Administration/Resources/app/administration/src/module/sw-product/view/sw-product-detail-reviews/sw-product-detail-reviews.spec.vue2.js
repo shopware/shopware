@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
+import Vuex from 'vuex_v2';
 import swProductDetailReviews from 'src/module/sw-product/view/sw-product-detail-reviews';
 
 Shopware.Component.register('sw-product-detail-reviews', swProductDetailReviews);

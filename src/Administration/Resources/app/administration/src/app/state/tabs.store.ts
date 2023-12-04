@@ -3,7 +3,7 @@
  */
 
 import Vue from 'vue';
-import type { Module } from 'vuex';
+import type { Module } from 'vuex_v2';
 import type { uiTabsAddTabItem } from '@shopware-ag/admin-extension-sdk/es/ui/tabs';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -25,7 +25,12 @@ const TabsStore: Module<TabsState, VuexRootState> = {
     mutations: {
         addTabItem(state, { label, componentSectionId, positionId }: uiTabsAddTabItem) {
             if (!state.tabItems[positionId]) {
-                Vue.set(state.tabItems, positionId, []);
+                if (window._features_?.vue3) {
+                    state.tabItems[positionId] = [];
+                } else {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                    Vue.set(state.tabItems, positionId, []);
+                }
             }
 
             state.tabItems[positionId].push({

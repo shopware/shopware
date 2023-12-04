@@ -1,7 +1,7 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swFirstRunWizardMailerSmtp from 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp';
 
 Shopware.Component.register('sw-first-run-wizard-mailer-smtp', swFirstRunWizardMailerSmtp);

@@ -1,8 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowSequenceSelector from 'src/module/sw-flow/component/sw-flow-sequence-selector';
 import 'src/app/component/base/sw-button';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-sequence-selector', swFlowSequenceSelector);

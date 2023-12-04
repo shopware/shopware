@@ -1,5 +1,4 @@
-import { reactive } from 'vue3';
-import Vue from 'vue';
+import Vue, { reactive } from 'vue';
 
 const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;

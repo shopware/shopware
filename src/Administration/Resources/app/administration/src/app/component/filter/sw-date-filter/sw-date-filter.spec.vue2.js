@@ -2,7 +2,7 @@ import 'src/app/component/filter/sw-date-filter';
 import 'src/app/component/filter/sw-base-filter';
 import 'src/app/component/filter/sw-range-filter';
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 const { Criteria } = Shopware.Data;
 

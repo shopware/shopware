@@ -1,7 +1,7 @@
 /**
  * @package buyers-experience
  */
-import { createLocalVue, mount } from '@vue/test-utils';
+import { createLocalVue, mount } from '@vue/test-utils_v2';
 import swNewsletterRecipientDetail from 'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail';
 
 import 'src/app/component/entity/sw-entity-listing';

@@ -2,8 +2,8 @@
  * @package admin
  */
 
-import { mount, config } from '@vue/test-utils_v3';
-import { createRouter, createWebHashHistory } from 'vue-router_v3';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const componentWithTabs = {
     name: 'componentWithTabs',

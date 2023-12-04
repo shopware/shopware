@@ -86,7 +86,9 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_card_content %}
-            <div class="sw-card__content" :class="{'no--padding': !contentPadding}">
+            <div
+                class="sw-card__content"
+                :class="{'no--padding': !contentPadding}">
                 <div
                     v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
                     class="sw-card__context-menu"

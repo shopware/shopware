@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router';
+import VueRouter from 'vue-router_v2';
 import initTabs from 'src/app/init/tabs.init';
 import { ui } from '@shopware-ag/admin-extension-sdk';
 

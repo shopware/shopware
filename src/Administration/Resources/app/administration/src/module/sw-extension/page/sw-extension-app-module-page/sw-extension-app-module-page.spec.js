@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 import testApps from '../../../../app/service/_mocks/testApps.json';
 

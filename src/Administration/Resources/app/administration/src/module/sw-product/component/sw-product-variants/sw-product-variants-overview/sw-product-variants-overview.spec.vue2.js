@@ -2,13 +2,13 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swProductVariantsOverview from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
 import 'src/app/component/data-grid/sw-data-grid';
 import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
 import swMediaCompactUploadV2 from 'src/app/asyncComponent/media/sw-media-compact-upload-v2';
 import 'src/app/component/form/sw-checkbox-field';
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 
 Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
 Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', () => swMediaCompactUploadV2);

@@ -4,8 +4,8 @@
 
 import { CookieStorage } from 'cookie-storage';
 import html2canvas from 'html2canvas';
-import type VueRouter from 'vue-router';
-import type { Router } from 'vue-router_v3';
+import type VueRouter from 'vue-router_v2';
+import type { Router } from 'vue-router';
 
 /** @private */
 export interface AuthObject {

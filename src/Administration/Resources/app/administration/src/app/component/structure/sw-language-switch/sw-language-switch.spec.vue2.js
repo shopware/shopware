@@ -2,8 +2,8 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import Vuex from 'vuex_v2';
 import 'src/app/component/structure/sw-language-switch';
 
 describe('src/app/component/structure/sw-language-switch', () => {

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/form/select/base/sw-multi-tag-select';
 import 'src/app/component/form/select/base/sw-multi-tag-ip-select';
 import 'src/app/component/form/select/base/sw-select-base';

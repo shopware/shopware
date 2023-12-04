@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swFlowIndex from 'src/module/sw-flow/page/sw-flow-index';
 
 Shopware.Component.register('sw-flow-index', swFlowIndex);

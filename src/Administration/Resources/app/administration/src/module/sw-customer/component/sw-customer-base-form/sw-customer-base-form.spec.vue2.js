@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerBaseForm from 'src/module/sw-customer/component/sw-customer-base-form';
 
 /**

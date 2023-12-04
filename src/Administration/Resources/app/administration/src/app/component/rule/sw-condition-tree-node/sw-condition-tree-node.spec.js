@@ -1,4 +1,4 @@
-import { mount, config } from '@vue/test-utils_v3';
+import { mount, config } from '@vue/test-utils';
 
 const subComponent = {
     props: ['condition', 'parentCondition', 'level', 'disabled'],

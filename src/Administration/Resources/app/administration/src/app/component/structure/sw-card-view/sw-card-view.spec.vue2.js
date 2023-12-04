@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/structure/sw-card-view';
 
 async function createWrapper() {

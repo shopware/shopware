@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/utils/sw-shortcut-overview-item';
 
 async function wrapperFactory({ propsData, privileges = [] }) {

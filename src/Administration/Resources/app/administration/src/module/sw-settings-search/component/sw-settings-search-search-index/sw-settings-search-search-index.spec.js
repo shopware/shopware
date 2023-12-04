@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/app/mixin/notification.mixin';
 
 async function createWrapper(privileges = []) {

@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import EntityCollection from 'src/core/data/entity-collection.data';
 

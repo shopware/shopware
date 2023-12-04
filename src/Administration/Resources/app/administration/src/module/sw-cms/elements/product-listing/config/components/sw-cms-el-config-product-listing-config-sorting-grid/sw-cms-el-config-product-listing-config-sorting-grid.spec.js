@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swCmsElConfigProductListingConfigSortingGrid from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Vue from 'vue';

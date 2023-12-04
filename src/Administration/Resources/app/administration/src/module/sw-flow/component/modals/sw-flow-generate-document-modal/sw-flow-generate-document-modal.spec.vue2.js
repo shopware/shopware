@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowGenerateDocumentModal from 'src/module/sw-flow/component/modals/sw-flow-generate-document-modal';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/select/base/sw-select-result';
@@ -10,7 +10,7 @@ import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/utils/sw-popover';
 import 'src/app/component/base/sw-highlight-text';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-generate-document-modal', swFlowGenerateDocumentModal);

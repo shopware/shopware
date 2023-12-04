@@ -5,8 +5,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { Route } from 'vue-router';
-import type VueRouter from 'vue-router';
+import type { Router } from 'vue-router';
+import type { Route as RouteV2 } from 'vue-router_v2';
+import type VueRouterV2 from 'vue-router_v2';
 // Import explicitly global types from admin-extension-sdk
 import '@shopware-ag/admin-extension-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -17,7 +18,6 @@ import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
 import type { ModuleTypes } from 'src/core/factory/module.factory';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
-import type { default as VueType } from 'vue';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
@@ -30,6 +30,10 @@ import type EntityDefinitionFactory from 'src/core/factory/entity-definition.fac
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type ApiServiceFactory from 'src/core/factory/api-service.factory';
+import type { App } from 'vue';
+import type { I18n } from 'vue-i18n';
+import type { Slots } from '@vue/runtime-core';
+import type { Store } from 'vuex';
 import type { ExtensionsState } from './app/state/extensions.store';
 import type { ComponentConfig } from './core/factory/async-component.factory';
 import type { TabsState } from './app/state/tabs.store';
@@ -222,7 +226,6 @@ declare global {
         placeholder: typeof PlaceholderMixin,
         listing: typeof ListingMixin,
         'cart-notification': typeof CartNotificationMixin,
-        // @ts-expect-error
         'sw-extension-error': typeof SwExtensionErrorMixin,
         'cms-element': typeof CmsElementMixin,
         'generic-condition': typeof GenericConditionMixin,
@@ -358,7 +361,7 @@ declare module 'bottlejs' { // Use the same module name as the import string
 /**
  * Extend the vue-router route information
  */
-declare module 'vue-router' {
+declare module 'vue-router_v2' {
     interface RouteConfig {
         name: string,
         coreRoute: boolean,
@@ -378,19 +381,51 @@ declare module 'vue-router' {
  * Extend this context of vue components with service container types (from inject)
  * and plugins
  */
-declare module 'vue/types/vue' {
+declare module 'vue_v2/types/vue' {
     interface Vue extends ServiceContainer {
         $createTitle: (identifier?: string|null) => string,
-        $router: VueRouter,
-        $route: Route,
+        $router: VueRouterV2,
+        $route: RouteV2,
     }
 }
 
-declare module 'vue/types/options' {
-    interface ComponentOptions<V extends VueType> {
+/**
+ * @deprecated - will be removed when Vue compat gets removed
+ */
+interface LegacyPublicProperties {
+    /* eslint-disable @typescript-eslint/ban-types */
+    $set(target: object, key: string, value: any): void;
+    $delete(target: object, key: string): void;
+    $mount(el?: string | Element): this;
+    $destroy(): void;
+    $scopedSlots: Slots;
+    $on(event: string | string[], fn: Function): this;
+    $once(event: string, fn: Function): this;
+    $off(event?: string | string[], fn?: Function): this;
+    $children: LegacyPublicProperties[];
+    $listeners: Record<string, Function | Function[]>;
+    /* eslint-enable @typescript-eslint/ban-types */
+}
+
+interface CustomProperties extends ServiceContainer, LegacyPublicProperties {
+    $createTitle: (identifier?: string | null) => string,
+    $router: Router,
+    $store: Store<VuexRootState>,
+    // $route: SwRouteLocationNormalizedLoaded,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    $tc: I18n<{}, {}, {}, string, true>['global']['tc'],
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    $t: I18n<{}, {}, {}, string, true>['global']['t'],
+}
+
+declare module 'vue' {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface ComponentCustomProperties extends CustomProperties {}
+
+    interface ComponentCustomOptions {
         shortcuts?: {
             [key: string]: string | {
-                active: boolean | ((this: V) => boolean),
+                active: boolean | ((this: App) => boolean),
                 method: string
             }
         },
@@ -403,9 +438,14 @@ declare module 'vue/types/options' {
         }
     }
 
-    interface PropOptions<T=any> {
-        validValues?: T[]
+    interface PropOptions {
+        validValues?: any[]
     }
+}
+
+declare module '@vue/runtime-core' {
+    // eslint-disable-next-line @typescript-eslint/no-shadow,@typescript-eslint/no-empty-interface
+    interface App extends CustomProperties {}
 }
 
 declare module 'axios' {

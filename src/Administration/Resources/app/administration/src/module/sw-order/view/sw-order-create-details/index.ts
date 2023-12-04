@@ -174,7 +174,7 @@ export default Component.wrapComponentConfig({
                 }
 
                 this.isLoading = true;
-                this.updateContext().finally(() => {
+                void this.updateContext().finally(() => {
                     this.isLoading = false;
                 });
             },
@@ -198,7 +198,7 @@ export default Component.wrapComponentConfig({
     methods: {
         createdComponent(): void {
             if (!this.customer) {
-                this.$nextTick(() => {
+                void this.$nextTick(() => {
                     void this.$router.push({ name: 'sw.order.create.initial' });
                 });
             }

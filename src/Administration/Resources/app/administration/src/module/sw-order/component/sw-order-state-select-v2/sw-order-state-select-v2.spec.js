@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swOrderStateSelectV2 from 'src/module/sw-order/component/sw-order-state-select-v2';
 
 Shopware.Component.register('sw-order-state-select-v2', swOrderStateSelectV2);

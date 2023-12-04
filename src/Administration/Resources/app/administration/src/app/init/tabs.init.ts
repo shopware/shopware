@@ -3,7 +3,7 @@
  */
 
 // eslint-disable-next-line import/no-named-default
-import type { Route, RouteConfig, default as Router, RawLocation } from 'vue-router';
+import type { Route, RouteConfig, default as Router, RawLocation } from 'vue-router_v2';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
 import initializeTabsVue3 from './tabs.init.vue3';
 
@@ -31,9 +31,14 @@ function initializeTabsVue2(): void {
         /* istanbul ignore next */
         if (
             router &&
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             currentRoute.matched.length <= 0
         ) {
+            // @ts-expect-error
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
     });
@@ -46,7 +51,10 @@ function initializeTabsVue2(): void {
         // @ts-expect-error
         const currentRoute = router.currentRoute;
 
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (router && currentRoute.matched.length <= 0) {
+            // @ts-expect-error
             createRouteForTabItem(router.currentRoute, router, () => undefined);
         }
 
@@ -58,6 +66,7 @@ function initializeTabsVue2(): void {
                 return;
             }
 
+            // @ts-expect-error
             const routeSuccess = createRouteForTabItem(to, router as Router, next);
 
             // only resolve route if it was created

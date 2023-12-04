@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 

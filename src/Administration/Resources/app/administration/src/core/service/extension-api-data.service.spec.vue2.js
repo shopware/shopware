@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v2';
 import { handleFactory, send } from '@shopware-ag/admin-extension-sdk/es/channel';
 import SerializerFactory from '@shopware-ag/admin-extension-sdk/es/_internals/serializer';
 import Entity from 'src/core/data/entity.data';

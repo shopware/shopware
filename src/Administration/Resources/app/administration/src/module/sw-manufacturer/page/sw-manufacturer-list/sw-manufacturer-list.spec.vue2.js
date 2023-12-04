@@ -2,7 +2,7 @@
  * @package inventory
  */
 
-import { mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils_v2';
 import swManufacturerList from 'src/module/sw-manufacturer/page/sw-manufacturer-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';

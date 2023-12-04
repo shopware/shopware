@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomerDetailBase from 'src/module/sw-customer/view/sw-customer-detail-base';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';

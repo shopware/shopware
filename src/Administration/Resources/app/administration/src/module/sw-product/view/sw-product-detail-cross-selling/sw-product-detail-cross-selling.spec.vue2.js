@@ -2,9 +2,9 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swProductDetailCrossSelling from 'src/module/sw-product/view/sw-product-detail-cross-selling';
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 
 Shopware.Component.register('sw-product-detail-cross-selling', swProductDetailCrossSelling);
 

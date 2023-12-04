@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/utils/sw-external-link';
 import swDashboardIndex from 'src/module/sw-dashboard/page/sw-dashboard-index';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';

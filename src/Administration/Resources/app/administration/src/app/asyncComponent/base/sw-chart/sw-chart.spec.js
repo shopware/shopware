@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import en from 'apexcharts/dist/locales/en.json';
 import nl from 'apexcharts/dist/locales/nl.json';
 

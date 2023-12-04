@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-date-range';
 import 'src/app/component/rule/sw-condition-base';

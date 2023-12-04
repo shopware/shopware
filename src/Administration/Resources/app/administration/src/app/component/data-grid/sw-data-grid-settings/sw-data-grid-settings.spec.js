@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('components/data-grid/sw-data-grid-settings', () => {
     let wrapper;

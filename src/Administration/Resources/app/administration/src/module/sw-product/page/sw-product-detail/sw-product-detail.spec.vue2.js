@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
+import Vuex from 'vuex_v2';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import swProductDetail from 'src/module/sw-product/page/sw-product-detail';
 import swProductSettingsMode from 'src/module/sw-product/component/sw-product-settings-mode';

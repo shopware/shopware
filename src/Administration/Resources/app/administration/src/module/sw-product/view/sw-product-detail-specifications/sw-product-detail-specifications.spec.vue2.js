@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
+import Vuex from 'vuex_v2';
 import swProductDetailSpecifications from 'src/module/sw-product/view/sw-product-detail-specifications';
 import swProductPackagingForm from 'src/module/sw-product/component/sw-product-packaging-form';
 import 'src/app/component/utils/sw-inherit-wrapper';

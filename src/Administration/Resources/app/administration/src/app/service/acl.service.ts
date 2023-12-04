@@ -39,7 +39,11 @@ export default class AclService {
 
         const router = Shopware.Application.view.root.$router;
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        const match = router.match(route) as { meta?: { privilege: string}};
+        const match = window._features_?.vue3
+            ? router.resolve(route) as { meta?: { privilege: string}}
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            : router.match(route) as { meta?: { privilege: string}};
 
         if (!match.meta) {
             return true;

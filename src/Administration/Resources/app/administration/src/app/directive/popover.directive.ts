@@ -1,6 +1,8 @@
 /* eslint-disable */
 
 import Vue, {VNode} from "vue";
+import { ComponentPublicInstance } from "vue";
+import { App } from "vue";
 
 const { Directive } = Shopware;
 
@@ -40,7 +42,52 @@ const defaultConfig: PopoverConfig = {
 
 const customStylingBlacklist = ['width', 'position', 'top', 'left', 'right', 'bottom'];
 
-Directive.register('popover', {
+Directive.register('popover', window._features_?.vue3 
+? {
+    mounted(element, binding, vnode) {
+        // We need a configuration
+        if (!binding.value) {
+            return false;
+        }
+
+        // Merge user config with default config
+        const config = { ...defaultConfig, ...binding.value };
+        if (!config.active) {
+            return false;
+        }
+
+        // Configurable target element
+        let targetElement = document.body;
+        if (config.targetSelector && config.targetSelector.length > 0) {
+            targetElement = element.closest(config.targetSelector);
+        }
+
+        targetElement.appendChild(element);
+        setElementPosition(element, binding.instance?.$el, config);
+
+        // Resize the width of the element
+        if (config.resizeWidth) {
+            element.style.width = `${binding.instance?.$el.clientWidth}px`;
+        }
+
+        // append to target element
+        calculateOutsideEdges(element, binding.instance!);
+
+        registerVirtualScrollingElement(element, binding.instance!, config);
+    },
+
+    unmounted(element, binding, vnode) {
+        // remove element from body
+        if (element.parentNode) {
+            element.parentNode.removeChild(element);
+        }
+
+        // @ts-expect-error - _uid exists on the context but is private
+        unregisterVirtualScrollingElement(vnode.context?._uid);
+    }
+}
+:{
+    // @ts-expect-error
     inserted(element, binding, vnode) {
         // We need a configuration
         if (!binding.value) {
@@ -73,13 +120,13 @@ Directive.register('popover', {
         registerVirtualScrollingElement(element, vnode.context, config);
     },
 
+    // @ts-expect-error
     unbind(element, binding, vnode) {
         // remove element from body
         if (element.parentNode) {
             element.parentNode.removeChild(element);
         }
 
-        // @ts-expect-error - _uid exists on the context but is private
         unregisterVirtualScrollingElement(vnode.context?._uid);
     }
 });
@@ -91,9 +138,13 @@ Directive.register('popover', {
  * v-placement
  */
 
-function calculateOutsideEdges(el: HTMLElement, vnode: VNode) {
+function calculateOutsideEdges(el: HTMLElement, vnode: VNode|ComponentPublicInstance) {
     // orientation element is needed for calculating the available space
-    const orientationElement = vnode?.context?.$parent?.$el ?? el;
+    const orientationElement = window._features_?.vue3
+    // @ts-expect-error
+    ? vnode.$parent?.$el ?? el
+    // @ts-expect-error
+    : vnode?.context?.$parent?.$el ?? el;
 
     // get position
     const boundingClientRect = orientationElement.getBoundingClientRect();
@@ -175,7 +226,7 @@ function virtualScrollingHandler() {
     });
 }
 
-function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: Vue|undefined, config: PopoverConfig) {
+function registerVirtualScrollingElement(modifiedElement: HTMLElement, vnodeContext: Vue|ComponentPublicInstance|undefined, config: PopoverConfig) {
     // @ts-expect-error - _uid exists on the context but is private
     const uid = vnodeContext?._uid;
 

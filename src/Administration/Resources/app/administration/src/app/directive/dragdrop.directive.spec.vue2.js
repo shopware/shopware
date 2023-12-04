@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import { resetCurrentDrag, getCurrentDragElement } from 'src/app/directive/dragdrop.directive';
 
 jest.useFakeTimers();

@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
     const createWrapper = async () => {

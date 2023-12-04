@@ -1,7 +1,7 @@
 /**
  * @package buyers-experience
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import swCmsElConfigText from 'src/module/sw-cms/elements/text/config';
 import swCmsMappingField from 'src/module/sw-cms/component/sw-cms-mapping-field';

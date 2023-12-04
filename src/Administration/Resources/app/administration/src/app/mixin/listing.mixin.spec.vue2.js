@@ -1,6 +1,6 @@
 import 'src/app/mixin/listing.mixin';
-import { shallowMount, createLocalVue, config } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { shallowMount, createLocalVue, config } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
 
 let getListMock = jest.fn(() => {});
 /* @type VueRouter */

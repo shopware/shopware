@@ -3,7 +3,7 @@
  */
 /* Is covered by E2E tests */
 /* istanbul ignore file */
-import type { Module } from 'vuex';
+import type { Module } from 'vuex_v2';
 import type { smartBarButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/mainModule';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

@@ -1,6 +1,6 @@
-import type { DirectiveBinding } from 'vue/types/options';
+import type { ObjectDirective } from 'vue';
 
-interface ResponsiveDirectiveBinding extends DirectiveBinding {
+interface ResponsiveDirectiveBinding extends ObjectDirective {
     value?: {
         [key: string]: ((elementSizeValues: DOMRectReadOnly) => boolean) | number;
     }
@@ -19,31 +19,60 @@ interface ResponsiveDirectiveBinding extends DirectiveBinding {
  *  - timeout: Sets the duration on how much the throttle should wait.
  */
 
-Shopware.Directive.register('responsive', {
-    inserted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
-        const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
+Shopware.Directive.register('responsive', window._features_?.vue3
+    ? {
+        mounted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
+            const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
 
-        const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {
-            entries.forEach(entry => {
-                const elementSizeValues = entry.contentRect;
+            const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {
+                entries.forEach(entry => {
+                    const elementSizeValues = entry.contentRect;
 
-                Object.entries(binding.value ?? {}).forEach(([breakpointClass, breakpointCallback]) => {
-                    if (typeof breakpointCallback !== 'function') {
-                        return;
-                    }
+                    Object.entries(binding.value ?? {}).forEach(([breakpointClass, breakpointCallback]) => {
+                        if (typeof breakpointCallback !== 'function') {
+                            return;
+                        }
 
-                    if (breakpointCallback(elementSizeValues)) {
-                        el.classList.add(breakpointClass);
-                        return;
-                    }
+                        if (breakpointCallback(elementSizeValues)) {
+                            el.classList.add(breakpointClass);
+                            return;
+                        }
 
-                    el.classList.remove(breakpointClass);
+                        el.classList.remove(breakpointClass);
+                    });
                 });
-            });
-        }, timeout);
+            }, timeout);
 
-        const observer = new ResizeObserver(handleResize);
-        observer.observe(el);
-    },
-});
+            const observer = new ResizeObserver(handleResize);
+            observer.observe(el);
+        },
+    }
+    : {
+        // @ts-expect-error
+        inserted(el: HTMLElement, binding: ResponsiveDirectiveBinding) {
+            const timeout = typeof binding.value?.timeout === 'number' ? binding.value.timeout : 200;
+
+            const handleResize: ResizeObserverCallback = Shopware.Utils.throttle((entries: ResizeObserverEntry[]) => {
+                entries.forEach(entry => {
+                    const elementSizeValues = entry.contentRect;
+
+                    Object.entries(binding.value ?? {}).forEach(([breakpointClass, breakpointCallback]) => {
+                        if (typeof breakpointCallback !== 'function') {
+                            return;
+                        }
+
+                        if (breakpointCallback(elementSizeValues)) {
+                            el.classList.add(breakpointClass);
+                            return;
+                        }
+
+                        el.classList.remove(breakpointClass);
+                    });
+                });
+            }, timeout);
+
+            const observer = new ResizeObserver(handleResize);
+            observer.observe(el);
+        },
+    });
 

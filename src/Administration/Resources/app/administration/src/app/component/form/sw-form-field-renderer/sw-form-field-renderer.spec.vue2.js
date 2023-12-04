@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import ShopwareError from 'src/core/data/ShopwareError';
 import 'src/app/component/form/sw-form-field-renderer';
 

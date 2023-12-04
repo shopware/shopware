@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swOrderState from 'src/module/sw-order/state/order.store';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';

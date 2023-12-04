@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import uuid from 'src/../test/_helper_/uuid';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/sw-snippet-field';

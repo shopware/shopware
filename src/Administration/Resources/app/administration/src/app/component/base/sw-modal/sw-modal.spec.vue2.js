@@ -3,7 +3,7 @@
  */
 
 import 'src/app/component/base/sw-modal';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 async function createWrapper(additionalSlots = null) {
     return shallowMount(await Shopware.Component.build('sw-modal'), {

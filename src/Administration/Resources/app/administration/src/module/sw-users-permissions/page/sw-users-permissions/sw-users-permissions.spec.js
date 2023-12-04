@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
     let wrapper;

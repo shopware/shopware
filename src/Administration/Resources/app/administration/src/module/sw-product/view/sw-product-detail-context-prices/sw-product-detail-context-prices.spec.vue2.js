@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { shallowMount, createLocalVue, config } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { shallowMount, createLocalVue, config } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import swProductDetailContextPrices from 'src/module/sw-product/view/sw-product-detail-context-prices';
 import 'src/app/component/base/sw-container';

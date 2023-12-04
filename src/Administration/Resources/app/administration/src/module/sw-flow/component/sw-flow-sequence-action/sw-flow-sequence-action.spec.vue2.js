@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowSequenceAction from 'src/module/sw-flow/component/sw-flow-sequence-action';
 import 'src/app/component/form/select/base/sw-single-select';
 import 'src/app/component/form/select/base/sw-grouped-single-select';
@@ -12,7 +12,7 @@ import FlowBuilderService from 'src/module/sw-flow/service/flow-builder.service'
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Service().register('shopwareDiscountCampaignService', () => {

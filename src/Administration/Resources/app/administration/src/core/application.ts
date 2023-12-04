@@ -1,5 +1,6 @@
 import type Bottle from 'bottlejs';
-import Vue from 'vue';
+import type { App } from 'vue';
+import Vue, { reactive } from 'vue';
 import type { ContextState } from '../app/state/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
@@ -323,12 +324,12 @@ class ApplicationBootstrapper {
     /**
      * Returns the root of the application e.g. a new Vue instance
      */
-    getApplicationRoot(): Vue | false {
+    getApplicationRoot(): App<Element> | false {
         if (!this.view?.root) {
             return false;
         }
 
-        return this.view.root;
+        return this.view.root as App<Element>;
     }
 
     setViewAdapter(viewAdapterInstance: VueAdapter): void {
@@ -743,17 +744,31 @@ class ApplicationBootstrapper {
             permissions = bundles[bundleName].permissions;
         }
 
-        const extension = {
+        const extension: {
+            active?: boolean,
+            integrationId?: string,
+            name: string,
+            baseUrl: string,
+            version?: string,
+            type?: 'app'|'plugin',
+            permissions?: Record<string, unknown>,
+        } = {
             active,
             integrationId,
             name: bundleName,
             baseUrl: iframeSrc,
             version: bundleVersion,
             type: bundleType,
+            permissions: undefined,
         };
 
         // To keep permissions reactive no matter if empty or not
-        Vue.set(extension, 'permissions', permissions ?? Vue.observable({}));
+        if (window._features_?.vue3) {
+            extension.permissions = permissions ?? reactive({});
+        } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            Vue.set(extension, 'permissions', permissions ?? Vue.observable({}));
+        }
 
         Shopware.State.commit('extensions/addExtension', extension);
     }

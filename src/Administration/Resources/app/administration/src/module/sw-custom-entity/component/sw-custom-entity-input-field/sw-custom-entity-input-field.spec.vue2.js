@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swCustomEntityInputField from 'src/module/sw-custom-entity/component/sw-custom-entity-input-field';
 
 Shopware.Component.register('sw-custom-entity-input-field', swCustomEntityInputField);

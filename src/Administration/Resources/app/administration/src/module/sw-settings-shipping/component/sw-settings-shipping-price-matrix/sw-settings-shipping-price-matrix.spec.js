@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail/state';
 
 Shopware.State.registerModule('swShippingDetail', state);

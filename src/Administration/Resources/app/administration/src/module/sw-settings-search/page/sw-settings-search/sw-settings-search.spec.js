@@ -1,8 +1,8 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
-import { createRouter, createWebHashHistory } from 'vue-router_v3';
+import { mount } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;

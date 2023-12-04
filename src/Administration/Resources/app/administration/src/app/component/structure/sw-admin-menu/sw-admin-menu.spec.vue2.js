@@ -2,8 +2,8 @@
  * @package admin
  */
 
-import { config, shallowMount, createLocalVue } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { config, shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/app/component/structure/sw-admin-menu-item';
 import createMenuService from 'src/app/service/menu.service';

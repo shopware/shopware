@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-wizard', () => {
     let wrapper;

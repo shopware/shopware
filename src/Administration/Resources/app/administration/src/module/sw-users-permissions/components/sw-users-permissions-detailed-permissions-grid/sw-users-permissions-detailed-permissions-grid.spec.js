@@ -6,7 +6,7 @@ import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
 import Vue from 'vue';
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 
 async function createWrapper(

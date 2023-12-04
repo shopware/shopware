@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('module/sw-users-permissions/components/sw-users-permissions-additional-permissions', () => {
     /**

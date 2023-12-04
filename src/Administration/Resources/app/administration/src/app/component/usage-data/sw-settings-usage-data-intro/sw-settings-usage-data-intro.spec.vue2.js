@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/usage-data/sw-settings-usage-data-intro';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/utils/sw-external-link';

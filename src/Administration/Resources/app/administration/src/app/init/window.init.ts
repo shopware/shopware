@@ -4,7 +4,7 @@
 
 /* Is covered by E2E tests */
 /* istanbul ignore file */
-import type VueRouter from 'vue-router';
+import type VueRouter from 'vue-router_v2';
 
 /**
  * @deprecated tag:v6.6.0 - Will be private

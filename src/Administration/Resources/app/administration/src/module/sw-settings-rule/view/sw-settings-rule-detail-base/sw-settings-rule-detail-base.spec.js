@@ -1,5 +1,5 @@
-import { reactive } from 'vue3';
-import { mount } from '@vue/test-utils_v3';
+import { reactive } from 'vue';
+import { mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 
 const swConditionTree = {

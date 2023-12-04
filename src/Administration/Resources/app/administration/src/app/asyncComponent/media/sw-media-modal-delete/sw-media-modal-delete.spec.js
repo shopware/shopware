@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('components/media/sw-media-modal-delete', () => {
     const itemDeleteMock = (options = {}) => {

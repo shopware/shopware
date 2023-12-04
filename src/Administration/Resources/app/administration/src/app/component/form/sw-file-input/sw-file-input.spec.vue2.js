@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import 'src/app/component/form/sw-file-input';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/context-menu/sw-context-menu-item';

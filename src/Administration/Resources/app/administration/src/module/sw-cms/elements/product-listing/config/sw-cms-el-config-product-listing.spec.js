@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 import Vue from 'vue';
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import EntityCollection from 'src/core/data/entity-collection.data';
 

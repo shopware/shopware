@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swBulkEditOrderDocuments from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
 
 Shopware.Component.register('sw-bulk-edit-order-documents', swBulkEditOrderDocuments);

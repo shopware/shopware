@@ -3,10 +3,10 @@
  */
 
 /* @private */
-import type { Dictionary } from 'vue-router/types/router';
-import type { RawLocation } from 'vue-router';
+import type { RawLocation } from 'vue-router_v2';
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
+import type { LocationQuery } from 'vue-router';
 
 /* @private */
 export {};
@@ -99,7 +99,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
             return;
         }
 
-        const actualQueryParameters: Dictionary<(string|null)[]|string|boolean> = this.$route.query;
+        const actualQueryParameters: LocationQuery = this.$route.query;
 
         // When no route information are provided
         if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
@@ -108,8 +108,10 @@ export default Shopware.Mixin.register('listing', defineComponent({
             // When we get the parameters on the route, true and false will be a string so we should convert to boolean
             Object.keys(actualQueryParameters).forEach((key) => {
                 if (actualQueryParameters[key] === 'true') {
+                    // @ts-expect-error
                     actualQueryParameters[key] = true;
                 } else if (actualQueryParameters[key] === 'false') {
+                    // @ts-expect-error
                     actualQueryParameters[key] = false;
                 }
             });

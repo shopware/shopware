@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swFlowRuleModal from 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';

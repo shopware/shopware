@@ -1,8 +1,8 @@
 /**
  * @package system-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
-import Vuex from 'vuex';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
+import Vuex from 'vuex_v2';
 import swBulkEditProductMediaForm from 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form';
 import swProductMediaForm from 'src/module/sw-product/component/sw-product-media-form';
 import 'src/app/component/base/sw-product-image';

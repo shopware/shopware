@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount, config } from '@vue/test-utils';
+import { shallowMount, config } from '@vue/test-utils_v2';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import Bottle from 'bottlejs';
@@ -10,7 +10,7 @@ import ApplicationBootstrapper from 'src/core/application';
 import LocaleFactory from 'src/core/factory/locale.factory';
 import DirectiveFactory from 'src/core/factory/directive.factory';
 import FilterFactory from 'src/core/factory/filter.factory';
-import VueRouter from 'vue-router';
+import VueRouter from 'vue-router_v2';
 import AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import ModuleFactory from 'src/core/factory/module.factory';
 import initializeRouter from 'src/app/init/router.init';

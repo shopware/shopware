@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/modal/sw-search-preferences-modal';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/base/sw-button';

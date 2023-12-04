@@ -1,4 +1,4 @@
-import { mount, config } from '@vue/test-utils_v3';
+import { mount, config } from '@vue/test-utils';
 
 async function createWrapper(customProps = {}) {
     return mount(await wrapTestComponent('sw-condition-and-container', { sync: true }), {

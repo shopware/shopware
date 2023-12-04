@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swModalVariantGeneration from 'src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/app/component/base/sw-modal';

@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swMailTemplateList from 'src/module/sw-mail-template/component/sw-mail-template-list';
 
 Shopware.Component.register('sw-mail-template-list', swMailTemplateList);

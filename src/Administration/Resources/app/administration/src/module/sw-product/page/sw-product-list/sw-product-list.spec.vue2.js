@@ -2,8 +2,8 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount, config } from '@vue/test-utils';
-import VueRouter from 'vue-router';
+import { createLocalVue, shallowMount, config } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
 import swProductList from 'src/module/sw-product/page/sw-product-list';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-settings';

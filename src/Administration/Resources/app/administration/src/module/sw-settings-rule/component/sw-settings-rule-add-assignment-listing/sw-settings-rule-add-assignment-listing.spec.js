@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { shallowMount } from '@vue/test-utils_v3';
+import { shallowMount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 function createEntityCollectionMock(entityName, items = []) {

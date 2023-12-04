@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swFlowSetEntityCustomFieldModal from 'src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/sw-form-field-renderer';
@@ -12,7 +12,7 @@ import 'src/app/component/utils/sw-popover';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-select-field';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-set-entity-custom-field-modal', swFlowSetEntityCustomFieldModal);

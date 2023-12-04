@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import ShopwareService from 'src/module/sw-extension/service/shopware-extension.service';
 
 async function createWrapper() {

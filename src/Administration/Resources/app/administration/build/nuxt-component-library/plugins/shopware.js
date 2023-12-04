@@ -1,6 +1,6 @@
 import Vue from 'vue'; // eslint-disable-line import/no-extraneous-dependencies
-import Vuex from 'vuex';
-import VueI18n from 'vue-i18n';
+import Vuex from 'vuex_v2';
+import VueI18n from 'vue-i18n_v2';
 import enGBMessages from 'src/app/snippet/en-GB.json';
 
 const Shopware = require('src/core/shopware').default;

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import type { Module } from 'vuex';
+import type { Module } from 'vuex_v2';
 import type { extension } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
 import type { extensions } from '@shopware-ag/admin-extension-sdk/es/channel';
 import { setExtensions } from '@shopware-ag/admin-extension-sdk/es/channel';

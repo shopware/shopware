@@ -1,4 +1,4 @@
-import type { Module } from 'vuex';
+import type { Module } from 'vuex_v2';
 import type { UserInfo } from 'src/core/service/api/store.api.service';
 import type { Extension } from '../service/extension-store-action.service';
 

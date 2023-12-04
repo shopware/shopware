@@ -1,4 +1,4 @@
-import { shallowMount, config } from '@vue/test-utils';
+import { shallowMount, config } from '@vue/test-utils_v2';
 
 import 'src/app/component/structure/sw-page';
 

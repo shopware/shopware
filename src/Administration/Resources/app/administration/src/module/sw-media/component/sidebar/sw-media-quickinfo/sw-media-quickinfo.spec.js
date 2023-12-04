@@ -1,7 +1,7 @@
 /**
  * @package content
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
 
 const itemMock = (options = {}) => {

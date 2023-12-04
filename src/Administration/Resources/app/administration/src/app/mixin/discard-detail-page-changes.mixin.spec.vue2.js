@@ -1,5 +1,5 @@
 import 'src/app/mixin/discard-detail-page-changes.mixin';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 
 async function createWrapper(...entityNames) {
     return shallowMount({

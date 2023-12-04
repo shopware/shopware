@@ -134,7 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
         loadPaymentMethods(): void {
             this.isLoading = true;
 
-            this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
+            void this.paymentMethodRepository.search(this.paymentMethodCriteria).then((items) => {
                 this.paymentMethods = items;
             }).finally(() => {
                 this.isLoading = false;
@@ -166,7 +166,7 @@ export default Shopware.Component.wrapComponentConfig({
             }).catch(() => {
                 // @ts-expect-error - can be undefined
                 this.showActivationErrorNotification(paymentMethodEntity.translated?.name ?? '', paymentMethodEntity.active);
-                this.$nextTick(() => {
+                void this.$nextTick(() => {
                     paymentMethodEntity.active = !paymentMethodEntity.active;
                 });
             });

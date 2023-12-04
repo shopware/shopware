@@ -1,7 +1,7 @@
 /**
  * @package buyers-experience
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 import swCmsElConfigProductListingConfigDeleteModal from 'src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal';
 
 Shopware.Component.register('sw-cms-el-config-product-listing-config-delete-modal', swCmsElConfigProductListingConfigDeleteModal);

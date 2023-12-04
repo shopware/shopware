@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import 'src/app/component/rule/condition-type/sw-condition-order-custom-field';
 import 'src/app/component/rule/sw-condition-operator-select';
 import 'src/app/component/form/select/entity/sw-entity-single-select';

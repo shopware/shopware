@@ -68,6 +68,8 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<DragConfig>,
             required: false,
             default(): DragConfig {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultConfig;
             },
         },
@@ -83,6 +85,8 @@ Component.register('sw-sortable-list', {
             type: Object as PropType<ScrollOnDragConf>,
             required: false,
             default(): ScrollOnDragConf {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return this.defaultScrollOnDragConf;
             },
         },
@@ -139,7 +143,7 @@ Component.register('sw-sortable-list', {
         },
 
         scrollableParent(): Element|null {
-            return this.findScrollableParent(this.$el);
+            return this.findScrollableParent(this.$el as Element|null);
         },
     },
 

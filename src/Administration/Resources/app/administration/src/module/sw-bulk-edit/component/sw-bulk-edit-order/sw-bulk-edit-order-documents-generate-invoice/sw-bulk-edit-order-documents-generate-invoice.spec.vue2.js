@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils_v2';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
 import swBulkEditOrderDocumentsGenerateInvoice from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
 

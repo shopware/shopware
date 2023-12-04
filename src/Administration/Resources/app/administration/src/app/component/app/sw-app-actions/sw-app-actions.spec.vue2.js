@@ -2,9 +2,9 @@
  * @package admin
  */
 
-import { config, createLocalVue, mount } from '@vue/test-utils';
-import VueRouter from 'vue-router';
-import Vuex from 'vuex';
+import { config, createLocalVue, mount } from '@vue/test-utils_v2';
+import VueRouter from 'vue-router_v2';
+import Vuex from 'vuex_v2';
 import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
 import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';

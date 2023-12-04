@@ -1,7 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swFlowChangeCustomerGroupModal from 'src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-change-customer-group-modal', swFlowChangeCustomerGroupModal);

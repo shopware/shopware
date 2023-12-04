@@ -1,8 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
 import swFlowGrantDownloadAccessModal from 'src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal';
 import 'src/app/component/form/select/base/sw-single-select';
 
-import Vuex from 'vuex';
+import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-grant-download-access-modal', swFlowGrantDownloadAccessModal);

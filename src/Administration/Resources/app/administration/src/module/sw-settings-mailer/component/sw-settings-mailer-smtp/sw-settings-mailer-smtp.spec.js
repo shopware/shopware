@@ -1,7 +1,7 @@
 /**
  * @package system-settings
  */
-import { mount } from '@vue/test-utils_v3';
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () => {
     const createWrapper = async (mailerSettings = {}) => {

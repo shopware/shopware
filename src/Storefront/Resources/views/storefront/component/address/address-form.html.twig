@@ -354,6 +354,14 @@
                             {% endfor %}
                         </select>
                     {% endblock %}
+
+                    {# @deprecated tag:v6.7.0 - will be renamed to component_address_form_country_error #}
+                    {% block component_address_form_country_violation_error %}
+                        {% if violationPath %}
+                            {% set violationLabel = 'address.countryLabel'|trans|sw_sanitize %}
+                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                        {% endif %}
+                    {% endblock %}
                 </div>
 
                 <div class="form-group col-md-6 d-none">
@@ -383,10 +391,13 @@
                         </select>
                     {% endblock %}
 
+                    {# @depecated tag:v6.7.0 - use component_address_form_country_state_error instead #}
                     {% block component_address_form_country_error %}
-                        {% if violationPath %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
-                        {% endif %}
+                        {% block component_address_form_country_state_error %}
+                            {% if violationPath %}
+                                {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                            {% endif %}
+                        {% endblock %}
                     {% endblock %}
                 </div>
             {% endblock %}

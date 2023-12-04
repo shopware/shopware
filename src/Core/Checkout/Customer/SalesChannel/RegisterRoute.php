@@ -328,13 +328,15 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         if ($accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS && $data->get('vatIds') !== null) {
-            if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
-                $definition->add('vatIds', new NotBlank());
-            }
+            if (isset($billingAddress['countryId'])) {
+                if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
+                    $definition->add('vatIds', new NotBlank());
+                }
 
-            $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
-                ['countryId' => $billingAddress['countryId']]
-            ));
+                $definition->add('vatIds', new Type('array'), new CustomerVatIdentification(
+                    ['countryId' => $billingAddress['countryId']]
+                ));
+            }
         }
 
         if ($this->systemConfigService->get('core.loginRegistration.requireDataProtectionCheckbox', $context->getSalesChannelId())) {
@@ -342,6 +344,7 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $violations = $this->validator->getViolations($data->all(), $definition);
+
         if (!$violations->count()) {
             return;
         }

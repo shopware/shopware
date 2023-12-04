@@ -67,6 +67,13 @@
                       content="{% block layout_head_meta_tags_image_meta %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
             {% endblock %}
 
+            {% block layout_head_meta_tags_theme %}
+                {% if theme_config('sw-background-color') %}
+                <meta name="theme-color"
+                      content="{{ theme_config('sw-background-color') }}">
+                {% endif %}
+            {% endblock %}
+
             {% block layout_head_meta_tags_hreflangs %}
                 {% for link in hrefLang %}
                     <link rel="alternate" hreflang="{{ link.locale }}" href="{{ link.url }}">

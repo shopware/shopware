@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  *
  * @group store-api
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

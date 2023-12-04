@@ -1,3 +1,7 @@
+/**
+ * @package services-settings
+ */
+
 import { shallowMount } from '@vue/test-utils';
 import swMailTemplateDetail from 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import 'src/app/component/base/sw-button';

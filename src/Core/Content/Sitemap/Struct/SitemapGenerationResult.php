@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Sitemap\Struct;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapGenerationResult extends Struct
 {
     public function __construct(

@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class SalesChannelDefinitionInstanceRegistryTest extends TestCase
 {
     use IntegrationTestBehaviour;

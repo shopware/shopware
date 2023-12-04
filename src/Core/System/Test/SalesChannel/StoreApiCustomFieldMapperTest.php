@@ -13,7 +13,7 @@ use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
  *
  * @covers \Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper
  */
-#[Package('sales-channel')]
+#[Package('buyers-experience')]
 class StoreApiCustomFieldMapperTest extends TestCase
 {
     public function testMapping(): void

@@ -6,7 +6,7 @@ use Shopware\Core\Content\Sitemap\Struct\SitemapCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapRouteResponse extends StoreApiResponse
 {
     /**

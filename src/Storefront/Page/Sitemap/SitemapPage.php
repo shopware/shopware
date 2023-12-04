@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page\Sitemap;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapPage extends Struct
 {
     /**

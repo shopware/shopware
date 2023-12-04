@@ -16,7 +16,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapExporter implements SitemapExporterInterface
 {
     /**

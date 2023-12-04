@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapMessage implements AsyncMessageInterface
 {
     /**

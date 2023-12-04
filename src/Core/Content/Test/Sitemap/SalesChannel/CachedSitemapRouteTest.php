@@ -33,7 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @group cache
  * @group store-api
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class CachedSitemapRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

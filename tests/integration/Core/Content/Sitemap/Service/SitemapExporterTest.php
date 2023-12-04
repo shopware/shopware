@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class SitemapExporterTest extends TestCase
 {
     use IntegrationTestBehaviour;

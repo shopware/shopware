@@ -6,7 +6,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailSendSubscriberConfig extends Struct
 {
     final public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;

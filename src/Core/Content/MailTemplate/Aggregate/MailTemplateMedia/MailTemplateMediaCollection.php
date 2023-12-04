@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @extends EntityCollection<MailTemplateMediaEntity>
  */
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailTemplateMediaCollection extends EntityCollection
 {
     /**

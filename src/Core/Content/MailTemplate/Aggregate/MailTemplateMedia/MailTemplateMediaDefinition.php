@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
-#[Package('sales-channel')]
+#[Package('services-settings')]
 class MailTemplateMediaDefinition extends MappingEntityDefinition
 {
     final public const ENTITY_NAME = 'mail_template_media';

@@ -15,7 +15,7 @@ class FilenamePathStrategy extends AbstractMediaPathStrategy
 {
     public function name(): string
     {
-        return 'file_name';
+        return 'filename';
     }
 
     protected function value(MediaLocationStruct|ThumbnailLocationStruct $location): ?string

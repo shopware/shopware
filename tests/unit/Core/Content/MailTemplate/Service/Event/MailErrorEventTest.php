@@ -53,7 +53,7 @@ class MailErrorEventTest extends TestCase
         );
 
         static::assertSame('Test', $event->getMessage());
-        static::assertSame(Level::Error->value, $event->getLogLevel());
+        static::assertSame(Level::Error, $event->getLogLevel());
         static::assertSame([
             'exception' => (string) $exception,
             'message' => 'Test',

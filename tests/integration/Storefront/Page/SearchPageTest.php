@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Page;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -57,7 +56,7 @@ class SearchPageTest extends TestCase
         $page = $this->getPageLoader()->load($request, $context);
 
         static::assertSame(
-            ProductListingFeaturesSubscriber::DEFAULT_SEARCH_SORT,
+            'score',
             $page->getListing()->getSorting()
         );
     }

@@ -306,17 +306,10 @@
             <tag name="shopware.listing.processor"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber">
-            <tag name="kernel.event_subscriber"/>
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\Processor\CompositeListingProcessor" />
-        </service>
-
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
                  class="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter"/>
         </service>
-
-        <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
             <argument type="service" id="Doctrine\DBAL\Connection" />

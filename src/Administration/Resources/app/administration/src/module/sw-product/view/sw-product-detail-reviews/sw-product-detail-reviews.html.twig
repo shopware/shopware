@@ -34,14 +34,6 @@
 
                     <sw-rating-stars v-model="item.points" />
 
-                    {# @deprecated tag:v6.6.0 - Block will removed because it will be replaced by `sw-rating-stars` component. Use upper block `sw_product_detail_reviews_data_stars_content` instead.  #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_reviews_data_stars_filled %}{% endblock %}
-
-                    {# @deprecated tag:v6.6.0 - Block will removed because it will be replaced by `sw-rating-stars` component. Use upper block `sw_product_detail_reviews_data_stars_content` instead.  #}
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_product_detail_reviews_data_stars_empty %}{% endblock %}
-
                     {% endblock %}
                 </template>
                 {% endblock %}

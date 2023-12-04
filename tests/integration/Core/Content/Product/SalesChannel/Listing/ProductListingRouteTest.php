@@ -5,7 +5,6 @@ namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Listing;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
@@ -198,7 +197,7 @@ class ProductListingRouteTest extends TestCase
                         ],
                     ],
                 ]),
-                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null]),
+                new Request([], ['property-filter' => false, 'property-whitelist' => null]),
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => null,
@@ -222,7 +221,7 @@ class ProductListingRouteTest extends TestCase
                         ],
                     ],
                 ]),
-                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => []]),
+                new Request([], ['property-filter' => false, 'property-whitelist' => null]),
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => null,
@@ -246,7 +245,7 @@ class ProductListingRouteTest extends TestCase
                         ],
                     ],
                 ]),
-                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [$ids->get('textile')]]),
+                new Request([], ['property-filter' => false, 'property-whitelist' => [$ids->get('textile')]]),
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => EntityResult::class,

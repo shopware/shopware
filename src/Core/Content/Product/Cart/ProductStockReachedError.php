@@ -9,38 +9,12 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('inventory')]
 class ProductStockReachedError extends Error
 {
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
-     */
-    protected $id;
-
-    /**
-     * @var string
-     *
-     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
-     */
-    protected $name;
-
-    /**
-     * @var int
-     *
-     * @deprecated tag:v6.6.0 - Will become private, be natively typed and moved to constructor property promotion
-     */
-    protected $quantity;
-
     public function __construct(
-        string $id,
-        string $name,
-        int $quantity,
-        /** @deprecated tag:v6.6.0 - Will become private */
-        protected bool $resolved = true
+        private readonly string $id,
+        private readonly string $name,
+        private readonly int $quantity,
+        private bool $resolved = true
     ) {
-        $this->id = $id;
-        $this->name = $name;
-        $this->quantity = $quantity;
-
         $this->message = sprintf(
             'The product %s is only available %d times',
             $name,

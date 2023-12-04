@@ -25,6 +25,7 @@
                             {% block component_address_form_company_name_input %}
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                       autocomplete="organization"
                                        id="{{ idPrefix ~ prefix }}company"
                                        placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                        name="{{ prefix }}[company]"

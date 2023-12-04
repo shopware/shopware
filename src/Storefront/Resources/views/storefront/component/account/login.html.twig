@@ -66,6 +66,7 @@
                                     {% block component_account_login_form_mail_input %}
                                         <input type="email"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
+                                               autocomplete="username webauthn"
                                                id="loginMail"
                                                placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
                                                name="username"
@@ -85,6 +86,7 @@
                                     {% block component_account_login_form_password_input %}
                                         <input type="password"
                                                class="form-control{% if loginError %} is-invalid{% endif %}"
+                                               autocomplete="current-password"
                                                id="loginPassword"
                                                placeholder="{{ "account.loginPasswordPlaceholder"|trans|striptags }}"
                                                name="password"

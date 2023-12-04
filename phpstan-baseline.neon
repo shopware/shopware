@@ -6563,11 +6563,6 @@ parameters:
 			path: src/Core/Framework/Test/ServiceDefinitionTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Api/ExtensionStoreDataControllerTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Api/StoreControllerTest.php
@@ -6611,16 +6606,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$elements of class Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginCollection constructor expects iterable\\<Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginEntity\\>, array\\<int, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\> given\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Store/Service/ExtensionLoaderTest.php
-
-		-
-			message: "#^Cannot call method getUri\\(\\) on Psr\\\\Http\\\\Message\\\\RequestInterface\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Store/Service/ExtensionStoreLicensesServiceTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Store/Service/ExtensionStoreLicensesServiceTest.php
 
 		-
 			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

@@ -45,7 +45,8 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
         $this->extensionLicensesService->cancelSubscription(1, $context);
 
-        $lastRequest = $this->getRequestHandler()->getLastRequest();
+        $lastRequest = $this->getStoreRequestHandler()->getLastRequest();
+        static::assertNotNull($lastRequest);
         static::assertEquals(
             '/swplatform/pluginlicenses/1/cancel',
             $lastRequest->getUri()->getPath()
@@ -63,7 +64,7 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     public function testCreateRating(): void
     {
-        $this->getRequestHandler()->append(new Response(200, [], null));
+        $this->getStoreRequestHandler()->append(new Response(200, [], null));
         $review = new ReviewStruct();
         $review->setExtensionId(5);
         $this->extensionLicensesService->rateLicensedExtension($review, $this->getContextWithStoreToken());
@@ -97,20 +98,20 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
     private function setLicensesRequest(string $licenseBody): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], $licenseBody));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], $licenseBody));
     }
 
     private function setCancelationResponses(): void
     {
-        $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $licenses = json_decode(file_get_contents(__DIR__ . '/../_fixtures/responses/licenses.json') ?: '', true, 512, \JSON_THROW_ON_ERROR);
         $licenses[0]['extension']['name'] = 'TestApp';
 
         $this->setLicensesRequest(json_encode($licenses, \JSON_THROW_ON_ERROR));
-        $this->getRequestHandler()->append(new Response(204));
+        $this->getStoreRequestHandler()->append(new Response(204));
 
         unset($licenses[0]);
-        $this->getRequestHandler()->append(
+        $this->getStoreRequestHandler()->append(
             new Response(
                 200,
                 [ExtensionDataProvider::HEADER_NAME_TOTAL_COUNT => '0'],

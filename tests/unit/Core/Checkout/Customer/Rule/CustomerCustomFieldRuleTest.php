@@ -214,6 +214,10 @@ class CustomerCustomFieldRuleTest extends TestCase
 
     /**
      * @dataProvider customFieldCheckoutScopeProvider
+     *
+     * @param array<int>|bool|string|null $customFieldValue
+     * @param array<int>|bool|string|null $customFieldValueInCustomer
+     * @param array<string, string> $config
      */
     public function testCustomFieldCheckoutScope(
         array|bool|string|null $customFieldValue,
@@ -228,7 +232,7 @@ class CustomerCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, bool|string|null>>
+     * @return array<string, array<int, array<int|string, int|string>|bool|string|null>>
      */
     public static function customFieldCheckoutScopeProvider(): array
     {
@@ -280,6 +284,10 @@ class CustomerCustomFieldRuleTest extends TestCase
         $this->customer->method('getCustomFields')->willReturn($customFields);
     }
 
+    /**
+     * @param array<int>|bool|string|null $customFieldValue
+     * @param array<string, string> $config
+     */
     private function setupRule(array|bool|string|null $customFieldValue, string $type, array $config = []): void
     {
         $this->rule->assign(

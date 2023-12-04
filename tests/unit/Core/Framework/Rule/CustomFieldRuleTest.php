@@ -41,6 +41,7 @@ class CustomFieldRuleTest extends TestCase
      *
      * @param array<string, mixed> $customFields
      * @param array<string>|bool|string|int|null $renderedFieldValue
+     * @param array<string, string> $config
      */
     public function testMatch(
         array $customFields,
@@ -53,7 +54,7 @@ class CustomFieldRuleTest extends TestCase
         $renderedField = [
             'type' => $type,
             'name' => self::CUSTOM_FIELD_NAME,
-            'config' => $config
+            'config' => $config,
         ];
 
         static::assertEquals(CustomFieldRule::match($renderedField, $renderedFieldValue, $operator, $customFields), $isMatching);
@@ -302,7 +303,7 @@ class CustomFieldRuleTest extends TestCase
                 'select',
                 '=',
                 true,
-                ['componentName' => 'sw-multi-select']
+                ['componentName' => 'sw-multi-select'],
             ],
             'custom field "[option_2, option_3]" value / rendered field multi select value "[option_1, option_2]"/ select type/ EQ operator / matching' => [
                 [self::CUSTOM_FIELD_NAME => ['option_2', 'option_3']],
@@ -310,15 +311,15 @@ class CustomFieldRuleTest extends TestCase
                 'select',
                 '=',
                 true,
-                ['componentName' => 'sw-multi-select']
+                ['componentName' => 'sw-multi-select'],
             ],
-            'custom field "[option_1, option_2]" value / rendered field multi select value "[option_3]"/ select type/ EQ operator / matching' => [
+            'custom field "[option_1, option_2]" value / rendered field multi select value "[option_3]"/ select type/ EQ operator / not matching' => [
                 [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
                 ['option_3'],
                 'select',
                 '=',
                 false,
-                ['componentName' => 'sw-multi-select']
+                ['componentName' => 'sw-multi-select'],
             ],
             'custom field "[option_1, option_2]" value / rendered field multi select value "[option_3, option_4]"/ select type/ EQ operator / not matching' => [
                 [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
@@ -326,7 +327,7 @@ class CustomFieldRuleTest extends TestCase
                 'select',
                 '=',
                 false,
-                ['componentName' => 'sw-multi-select']
+                ['componentName' => 'sw-multi-select'],
             ],
             'custom field "[option_1, option_2]" value / rendered field multi select value "[option_1]"/ select type/ NEQ operator / not matching' => [
                 [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
@@ -334,7 +335,7 @@ class CustomFieldRuleTest extends TestCase
                 'select',
                 '!=',
                 false,
-                ['componentName' => 'sw-multi-select']
+                ['componentName' => 'sw-multi-select'],
             ],
             'custom field "[option_1, option_2]" value / rendered field multi select value "[option_3]"/ select type/ NEQ operator / matching' => [
                 [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
@@ -342,7 +343,7 @@ class CustomFieldRuleTest extends TestCase
                 'select',
                 '!=',
                 true,
-                ['componentName' => 'sw-multi-select']
+                ['componentName' => 'sw-multi-select'],
             ],
             'custom field ["option_1", "option_2"] / rendered field multi select value null/ select type/ EQ operator / not matching' => [
                 [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
@@ -350,8 +351,40 @@ class CustomFieldRuleTest extends TestCase
                 'select',
                 '=',
                 false,
-                ['componentName' => 'sw-multi-select']
-            ]
+                ['componentName' => 'sw-multi-select'],
+            ],
+            'custom field "[option_2, option_3]" value / rendered field entity multi id select value "[option_1, option_2]"/ select type/ EQ operator / matching' => [
+                [self::CUSTOM_FIELD_NAME => ['option_2', 'option_3']],
+                ['option_1', 'option_2'],
+                'select',
+                '=',
+                true,
+                ['componentName' => 'sw-entity-multi-id-select'],
+            ],
+            'custom field "[option_1, option_2]" value / rendered field entity multi id select value "[option_3, option_4]"/ select type/ EQ operator / not matching' => [
+                [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
+                ['option_3', 'option_4'],
+                'select',
+                '=',
+                false,
+                ['componentName' => 'sw-entity-multi-id-select'],
+            ],
+            'custom field "[option_1, option_2]" value / rendered field entity multi id select value "[option_1]"/ select type/ NEQ operator / not matching' => [
+                [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
+                ['option_1'],
+                'select',
+                '!=',
+                false,
+                ['componentName' => 'sw-entity-multi-id-select'],
+            ],
+            'custom field "[option_1, option_2]" value / rendered field entity multi id select value "[option_3]"/ select type/ NEQ operator / matching' => [
+                [self::CUSTOM_FIELD_NAME => ['option_1', 'option_2']],
+                ['option_3'],
+                'select',
+                '!=',
+                true,
+                ['componentName' => 'sw-entity-multi-id-select'],
+            ],
         ];
     }
 }

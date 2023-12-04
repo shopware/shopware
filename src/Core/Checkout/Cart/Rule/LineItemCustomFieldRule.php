@@ -17,7 +17,7 @@ class LineItemCustomFieldRule extends Rule
     final public const RULE_NAME = 'cartLineItemCustomField';
 
     /**
-     * @var array<string>|string|int|float|bool|null
+     * @var array<string|int|bool|float>|string|int|float|bool|null
      */
     protected $renderedFieldValue;
 

@@ -140,7 +140,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     public function testMultiSelectCustomFieldInvalid(): void
     {
         $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
-        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => [3]]), $this->salesChannelContext);;
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => [3]]), $this->salesChannelContext);
         static::assertFalse($this->rule->match($scope));
     }
 
@@ -149,6 +149,7 @@ class LineItemCustomFieldRuleTest extends TestCase
      *
      * @param bool|string|null $customFieldValue
      * @param bool|string|null $customFieldValueInLineItem
+     * @param array<string, string> $config
      */
     public function testCustomFieldCartScope(
         $customFieldValue,
@@ -172,6 +173,7 @@ class LineItemCustomFieldRuleTest extends TestCase
      *
      * @param bool|string|null $customFieldValue
      * @param bool|string|null $customFieldValueInLineItem
+     * @param array<string, string> $config
      */
     public function testCustomFieldCartScopeNested(
         $customFieldValue,
@@ -193,7 +195,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @return array<string, array<bool|string|null>>
+     * @return array<string, array<int, array<int|string, int|string>|bool|string|null>>
      */
     public static function customFieldCartScopeProvider(): array
     {
@@ -209,7 +211,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array<string, bool|string|null> $customFields
+     * @param array<string, array<int>|bool|string|null> $customFields
      */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
@@ -217,9 +219,10 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @param array|bool|string|null $customFieldValue
+     * @param array<int>|bool|string|null $customFieldValue
+     * @param array<string, string> $config
      */
-    private function setupRule(mixed $customFieldValue, string $type, array $config = []): void
+    private function setupRule(array|bool|string|null $customFieldValue, string $type, array $config = []): void
     {
         $this->rule->assign(
             [

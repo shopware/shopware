@@ -102,7 +102,6 @@ final class DispatchEntityMessageHandler
 
     private function throwUnrecoverableMessageHandlingException(DispatchEntityMessage $message, string $errorMessage): void
     {
-        /** @phpstan-ignore-next-line */
         throw new UnrecoverableMessageHandlingException(sprintf(
             '%s. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
             $errorMessage,

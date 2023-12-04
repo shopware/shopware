@@ -149,14 +149,17 @@ class PromotionCalculatorTest extends TestCase
     public function testAutomaticExclusionsDontAddError(): void
     {
         $firstPromotionId = $this->getPromotionId(true, 1, false);
-        $discountItemToBeExcluded = $this->getDiscountItem($firstPromotionId);
-        $discountItemToBeExcluded->setPayloadValue('preventCombination', true);
+        $firstDiscountItem = $this->getDiscountItem($firstPromotionId);
+        $firstDiscountItem->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
+        $firstDiscountItem->setPayloadValue('preventCombination', true);
+        $firstDiscountItem->setPayloadValue('priority', 1);
 
         $secondPromotionId = $this->getPromotionId(true, 2, false);
-        $validDiscountItem = $this->getDiscountItem($secondPromotionId);
-        $validDiscountItem->setPayloadValue('preventCombination', true);
+        $secondDiscountItem = $this->getDiscountItem($secondPromotionId);
+        $secondDiscountItem->setPayloadValue('preventCombination', true);
+        $secondDiscountItem->setPayloadValue('priority', 2);
 
-        $discountItems = new LineItemCollection([$validDiscountItem, $discountItemToBeExcluded]);
+        $discountItems = new LineItemCollection([$firstDiscountItem, $secondDiscountItem]);
 
         $original = new Cart(Uuid::randomHex());
 
@@ -180,7 +183,27 @@ class PromotionCalculatorTest extends TestCase
         static::assertNotNull($promotionItem);
         static::assertNotNull($promotionItem->getPrice());
         static::assertSame(-10.0, $promotionItem->getPrice()->getTotalPrice());
-        static::assertSame($promotionItem->getReferencedId(), $validDiscountItem->getReferencedId());
+        static::assertSame($promotionItem->getReferencedId(), $secondDiscountItem->getReferencedId());
+
+        // Switch priorities and make sure that the other promotion is now in the cart
+        $firstDiscountItem->setPayloadValue('priority', 2);
+        $secondDiscountItem->setPayloadValue('priority', 1);
+
+        $toCalculate = new Cart(Uuid::randomHex());
+        $toCalculate->add($productLineItem);
+        $toCalculate->setPrice(new CartPrice(84.03, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+
+        $this->promotionCalculator->calculate($discountItems, $original, $toCalculate, $this->salesChannelContext, new CartBehavior());
+        static::assertCount(2, $toCalculate->getLineItems());
+
+        $promotionLineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+        static::assertCount(1, $promotionLineItems);
+
+        $promotionItem = $promotionLineItems->first();
+        static::assertNotNull($promotionItem);
+        static::assertNotNull($promotionItem->getPrice());
+        static::assertSame(-20.0, $promotionItem->getPrice()->getTotalPrice());
+        static::assertSame($promotionItem->getReferencedId(), $firstDiscountItem->getReferencedId());
 
         $cartErrors = $toCalculate->getErrors();
         foreach ($cartErrors as $cartError) {

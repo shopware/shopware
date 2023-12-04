@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
+use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
@@ -316,5 +317,10 @@ class CustomerException extends HttpException
             self::CUSTOMER_GUEST_AUTH_INVALID,
             'Guest account is not allowed to login'
         );
+    }
+
+    public static function passwordPoliciesUpdated(): PasswordPoliciesUpdatedException
+    {
+        return new PasswordPoliciesUpdatedException();
     }
 }

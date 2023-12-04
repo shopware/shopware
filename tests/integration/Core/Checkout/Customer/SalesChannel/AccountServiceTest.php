@@ -1,14 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Customer;
+namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -180,6 +182,60 @@ class AccountServiceTest extends TestCase
         $this->accountService->getCustomerByLogin($email, 'shopware', $context);
     }
 
+    public function testGetCustomerByLoginLegacyPasswordIsUpdatedToNewOne(): void
+    {
+        $idCustomer = Uuid::randomHex();
+        $email = 'johndoe@example.com';
+
+        $context = $this->createSalesChannelContext([
+            'domains' => [
+                [
+                    'url' => 'http://test.de',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getRandomId('snippet_set'),
+                ],
+            ],
+        ]);
+        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', md5('shopware'), 'Md5');
+
+        $customer = $this->accountService->getCustomerByLogin($email, 'shopware', $context);
+        static::assertEquals($email, $customer->getEmail());
+        static::assertEquals($context->getSalesChannel()->getId(), $customer->getSalesChannelId());
+
+        $customer = $this
+            ->getContainer()
+            ->get('customer.repository')
+            ->search(new Criteria([$idCustomer]), $context->getContext())
+            ->first();
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        static::assertNull($customer->getLegacyPassword());
+        static::assertNull($customer->getLegacyEncoder());
+        static::assertNotNull($customer->getPassword());
+    }
+
+    public function testCustomerFailsToLoginByLegacyPasswordWithOutdatedPasswordPolicy(): void
+    {
+        $idCustomer = Uuid::randomHex();
+        $email = 'johndoe@example.com';
+
+        $context = $this->createSalesChannelContext([
+            'domains' => [
+                [
+                    'url' => 'http://test.de',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getRandomId('snippet_set'),
+                ],
+            ],
+        ]);
+        $this->createCustomerOfSalesChannel($context->getSalesChannel()->getId(), $email, true, true, $idCustomer, '2022-10-21 10:00:00', md5('test'), 'Md5');
+
+        static::expectException(PasswordPoliciesUpdatedException::class);
+        static::expectExceptionMessage('Password policies updated.');
+        $this->accountService->getCustomerByLogin($email, 'test', $context);
+    }
+
     private function getCustomerFromToken(string $contextToken, string $salesChannelId): CustomerEntity
     {
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
@@ -200,6 +256,8 @@ class AccountServiceTest extends TestCase
         bool $active = true,
         ?string $customerId = null,
         ?string $createdAt = null,
+        ?string $password = TestDefaults::HASHED_PASSWORD,
+        ?string $legacyEncoder = null
     ): string {
         $customerId ??= Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -213,7 +271,9 @@ class AccountServiceTest extends TestCase
             'lastName' => 'Mustermann',
             'customerNumber' => '1337',
             'email' => $email,
-            'password' => TestDefaults::HASHED_PASSWORD,
+            'password' => $legacyEncoder ? null : $password,
+            'legacyEncoder' => $legacyEncoder,
+            'legacyPassword' => $legacyEncoder ? $password : null,
             'boundSalesChannelId' => $boundToSalesChannel ? $salesChannelId : null,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,

@@ -130,7 +130,7 @@ class ProductReviewLoader
 
         $customerReviews = $this->route
             ->load($productId, new Request(), $context, $criteria)
-            ->getResult();
+            ->getResult()->getEntities();
 
         return $customerReviews->first();
     }
@@ -144,8 +144,8 @@ class ProductReviewLoader
             $pointFilter = [];
             foreach ($points as $point) {
                 $pointFilter[] = new RangeFilter('points', [
-                    'gte' => $point - 0.5,
-                    'lt' => $point + 0.5,
+                    'gte' => (int) $point - 0.5,
+                    'lt' => (int) $point + 0.5,
                 ]);
             }
 

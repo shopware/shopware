@@ -1,7 +1,8 @@
 import { test as base } from '@playwright/test';
 import { expect } from '@fixtures/AcceptanceTest';
+import { FixtureTypes } from '@fixtures/FixtureTypes';
 
-export const CartWithProductData = base.extend({
+export const CartWithProductData = base.extend<FixtureTypes>({
     cartWithProductData: async ({ storeApiContext, defaultStorefront, productData }, use) => {
         // Login customer in store API context.
         await storeApiContext.login(defaultStorefront.customer);

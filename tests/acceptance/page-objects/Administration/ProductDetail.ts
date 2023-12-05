@@ -2,6 +2,21 @@ import type { Page, Locator } from '@playwright/test';
 import type { PageObject } from '@fixtures/PageObject';
 
 export class AdminProductDetailPage implements PageObject {
+
+    /**
+     * Save interactions
+     */
+    public readonly savePhysicalProductButton: Locator;
+    public readonly saveButtonLoadingSpinner: Locator;
+    public readonly saveButtonCheckMark: Locator;
+
+    /**
+     * Media Upload interactions
+     */
+    public readonly uploadMediaButton: Locator;
+    public readonly coverImage: Locator;
+    public readonly productImage: Locator;
+
     /**
      * Tabs
      */
@@ -30,7 +45,21 @@ export class AdminProductDetailPage implements PageObject {
     public readonly propertyOptionSizeMedium: Locator;
     public readonly propertyOptionSizeLarge: Locator;
 
-    constructor(public readonly page: Page, public readonly product) {
+    public readonly productData;
+
+
+    constructor(public readonly page: Page, productData) {
+
+        this.productData = productData;
+
+        this.savePhysicalProductButton = page.getByRole('button', { name: 'Save' });
+        this.saveButtonCheckMark = page.locator('.icon--regular-checkmark-xs')
+        this.saveButtonLoadingSpinner = page.locator('sw-loader');
+
+        this.uploadMediaButton = page.getByRole('button', { name: 'Upload file' });
+        this.coverImage = page.locator('.sw-product-media-form__cover-image');
+        this.productImage = page.locator('.sw-media-preview-v2__item');
+
         this.variantsTabLink = page.getByRole('link', { name: 'Variants' });
 
         this.generateVariantsButton = page.getByRole('button', { name: 'Generate variants' });
@@ -49,9 +78,15 @@ export class AdminProductDetailPage implements PageObject {
         this.propertyOptionSizeSmall = this.propertyOptionGrid.getByLabel('Small');
         this.propertyOptionSizeMedium = this.propertyOptionGrid.getByLabel('Medium');
         this.propertyOptionSizeLarge = this.propertyOptionGrid.getByLabel('Large');
+
     }
 
     async goTo() {
-        await this.page.goto(`#/sw/product/detail/${this.product.id}/base`);
+        await this.page.goto(`#/sw/product/detail/${this.productData.id}/base`);
     }
+
+    getProductId(){
+        return this.productData.id;
+    }
+
 }

@@ -26,6 +26,7 @@
   "dependencies": {
     "@shopware/api-client": "^0.0.0-canary-20230823113412",
     "@types/node": "^20.6.5",
+    "canvas": "^2.11.2",
     "uuid": "^9.0.0"
   }
 }

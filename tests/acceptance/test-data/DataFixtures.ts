@@ -8,15 +8,16 @@ import { components } from '@shopware/api-client/admin-api-types';
 export interface DataFixtures {
     productData: components['schemas']['Product'],
     promotionWithCodeData: components['schemas']['Promotion'],
+    cartWithProductData,
     propertiesData: {
         propertyGroupColor: components['schemas']['PropertyGroup']
         propertyGroupSize: components['schemas']['PropertyGroup']
-    }
+    },
 }
 
 export const test = mergeTests(
     ProductData,
-    PropertiesData,
     CartWithProductData,
-    PromotionWithCodeData
+    PromotionWithCodeData,
+    PropertiesData
 );

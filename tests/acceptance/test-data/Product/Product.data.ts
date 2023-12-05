@@ -27,6 +27,14 @@ export const ProductData = base.extend<FixtureTypes>({
                         net: 8.4,
                     },
                 ],
+                purchasePrices: [
+                    {
+                        currencyId: storeBaseConfig.eurCurrencyId,
+                        gross: 8,
+                        linked: false,
+                        net: 6.7,
+                    },
+                ],
             },
         });
 

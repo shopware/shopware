@@ -98,4 +98,5 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
 
         await use(shopAdmin);
     },
+
 });

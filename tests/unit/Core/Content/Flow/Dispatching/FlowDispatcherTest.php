@@ -13,6 +13,8 @@ use Shopware\Core\Content\Flow\Dispatching\FlowFactory;
 use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
+use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowLogEvent;
@@ -253,5 +255,63 @@ class FlowDispatcherTest extends TestCase
                 ],
             ],
         ]];
+    }
+
+    public function testThrowsOnExceptions(): void
+    {
+        $context = Context::createDefaultContext();
+        $order = new OrderEntity();
+        $event = new CheckoutOrderPlacedEvent(
+            $context,
+            $order,
+            Defaults::SALES_CHANNEL_TYPE_STOREFRONT
+        );
+
+        $this->dispatcher->method('dispatch')->willReturnOnConsecutiveCalls(
+            $event,
+            new FlowLogEvent(FlowLogEvent::NAME, $event),
+        );
+
+        $flow = new StorableFlow('state_enter.order.state.in_progress', $context, [], []);
+        $this->flowFactory->method('create')->willReturn($flow);
+
+        $flowLoader = $this->createMock(FlowLoader::class);
+        $flowLoader->method('load')->willReturn([
+            'state_enter.order.state.in_progress' => [
+                [
+                    'id' => 'flow-1',
+                    'name' => 'Order enters status in progress',
+                    'payload' => new Flow(Uuid::randomHex()),
+                ],
+                [
+                    'id' => 'flow-2',
+                    'name' => 'Some flows',
+                    'payload' => new Flow(Uuid::randomHex()),
+                ],
+            ],
+        ]);
+
+        $flowExecutor = $this->createMock(FlowExecutor::class);
+        $nthCall = 0;
+        $flowExecutor->method('execute')->willReturnCallback(function () use (&$nthCall): void {
+            ++$nthCall;
+
+            throw match ($nthCall) {
+                1 => new ExecuteSequenceException('flow-1', 'sequence-1', 'flow-1 failed'),
+                2 => new \Exception('flow-2 failed'),
+                default => new \LogicException('did not expect more than 2 calls'),
+            };
+        });
+
+        $this->container->method('get')->willReturnOnConsecutiveCalls($flowLoader, $flowExecutor);
+
+        $this->expectException(FlowException::class);
+        $this->expectExceptionMessage(
+            "Could not execute flows:\n"
+            . "Could not execute flow with error message: Flow name: \"Order enters status in progress\" Flow id: \"flow-1\" Sequence id: sequence-1 Error Message: flow-1 failed Error Code: \"0\"\n"
+            . 'Could not execute flow with error message: Flow name: "Some flows" Flow id: "flow-2" Error Message: flow-2 failed Error Code: "0"',
+        );
+
+        $this->flowDispatcher->dispatch($event);
     }
 }

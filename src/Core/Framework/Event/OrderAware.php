@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('business-ops')]
+#[IsFlowEventAware]
 interface OrderAware
 {
     public const ORDER = 'order';

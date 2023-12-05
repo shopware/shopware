@@ -83,10 +83,8 @@ class ExtensionLifecycleServiceTest extends TestCase
         static::assertFalse($testApp->isActive());
     }
 
-    public function testUninstallWithInvalidName(): void
+    public function testUninstallWithInvalidNameWithout(): void
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Could not find extension with technical name "notExisting"');
         $this->lifecycleService->uninstall('app', 'notExisting', false, $this->context);
     }
 

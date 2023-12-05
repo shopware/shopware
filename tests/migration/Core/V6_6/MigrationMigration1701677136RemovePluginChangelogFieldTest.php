@@ -21,13 +21,13 @@ class MigrationMigration1701677136RemovePluginChangelogFieldTest extends TestCas
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
-    public function testUpdateRemovesColumn(): void
+    public function testUpdateDestructiveRemovesColumn(): void
     {
         $this->addColumn();
 
         $migration = new Migration1701677136RemovePluginChangelogField();
-        $migration->update($this->connection);
-        $migration->update($this->connection);
+        $migration->updateDestructive($this->connection);
+        $migration->updateDestructive($this->connection);
 
         static::assertFalse($this->columnExists());
     }
@@ -35,14 +35,14 @@ class MigrationMigration1701677136RemovePluginChangelogFieldTest extends TestCas
     private function addColumn(): void
     {
         $this->connection->executeStatement(
-            'ALTER TABLE `plugin` ADD COLUMN `changelog` JSON NOT NULL'
+            'ALTER TABLE `plugin_translation` ADD COLUMN `changelog` JSON NOT NULL'
         );
     }
 
     private function columnExists(): bool
     {
         $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `plugin` WHERE `Field` LIKE "changelog"',
+            'SHOW COLUMNS FROM `plugin_translation` WHERE `Field` LIKE "changelog"',
         );
 
         return !empty($exists);

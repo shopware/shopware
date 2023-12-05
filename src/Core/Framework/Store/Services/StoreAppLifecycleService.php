@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\StoreException;
 
 /**
@@ -51,13 +52,9 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
     {
         try {
             $app = $this->getAppByName($technicalName, $context);
-        } catch (StoreException $e) {
-            if ($e->getErrorCode() === StoreException::EXTENSION_NOT_FOUND) {
-                // extension is not installed, so we can skip the uninstall process
-                return;
-            }
-
-            throw $e;
+        } catch (ExtensionNotFoundException) {
+            // extension is not installed, so we can skip the uninstall process
+            return;
         }
 
         $this->validateExtensionCanBeRemoved($technicalName, $app->getId(), $context);

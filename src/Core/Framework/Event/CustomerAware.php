@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('business-ops')]
+#[IsFlowEventAware]
 interface CustomerAware
 {
     public const CUSTOMER_ID = 'customerId';

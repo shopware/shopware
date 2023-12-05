@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Store;
 
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
+use Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('core')]
@@ -49,7 +51,7 @@ class StoreException extends HttpException
      */
     public static function extensionUpdateRequiresConsentAffirmationException(string $appName, array $deltas): self
     {
-        return new self(
+        return new ExtensionUpdateRequiresConsentAffirmationException(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION,
             'Updating app "{{ appName }}" requires a renewed consent affirmation.',
@@ -59,7 +61,7 @@ class StoreException extends HttpException
 
     public static function extensionNotFoundFromId(string $id): self
     {
-        return new self(
+        return new ExtensionNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::EXTENSION_NOT_FOUND,
             self::$couldNotFindMessage,
@@ -69,7 +71,7 @@ class StoreException extends HttpException
 
     public static function extensionNotFoundFromTechnicalName(string $technicalName): self
     {
-        return new self(
+        return new ExtensionNotFoundException(
             Response::HTTP_NOT_FOUND,
             self::EXTENSION_NOT_FOUND,
             self::$couldNotFindMessage,

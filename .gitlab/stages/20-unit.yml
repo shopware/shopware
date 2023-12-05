@@ -351,7 +351,7 @@ PHP unit per area:
     coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
     parallel:
       matrix:
-        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "data-services", "services-settings", "sales-channel", "storefront", "system-settings", "unknown"]
+        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "data-services", "services-settings", "storefront", "system-settings", "unknown"]
     artifacts:
       when: always
       paths:
@@ -399,7 +399,7 @@ Jest Coverage per Area (Administration):
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings","sales-channel", "system-settings", "unknown" ]
+      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
   artifacts:
     when: always
     paths:

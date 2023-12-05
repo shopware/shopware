@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -63,9 +62,6 @@ class StockStorageTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('STOCK_HANDLING', $this);
-
-        parent::setUp();
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->orderLineItemRepository = $this->getContainer()->get('order_line_item.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);

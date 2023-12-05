@@ -165,13 +165,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Stock\OrderStockSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
@@ -393,7 +386,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\Stock\StockStorage"/>
-            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater"/>

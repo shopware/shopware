@@ -37,7 +37,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -524,13 +523,8 @@ class RecalculationServiceTest extends TestCase
 
         static::assertIsArray($stocks);
 
-        if (Feature::isActive('STOCK_HANDLING')) {
-            static::assertEquals(4, $stocks['stock']);
-            static::assertEquals(4, $stocks['available_stock']);
-        } else {
-            static::assertEquals(5, $stocks['stock']);
-            static::assertEquals(4, $stocks['available_stock']);
-        }
+        static::assertEquals(4, $stocks['stock']);
+        static::assertEquals(4, $stocks['available_stock']);
     }
 
     public function testAddCustomLineItemToOrder(): void

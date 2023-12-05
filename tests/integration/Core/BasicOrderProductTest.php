@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Helper\MailEventListener;
@@ -54,10 +53,6 @@ class BasicOrderProductTest extends TestCase
 
         static::assertEquals(100, $item->getTotalPrice());
 
-        if (Feature::isActive('STOCK_HANDLING')) {
-            $this->assertStock($product->id, 99, 99);
-        } else {
-            $this->assertStock($product->id, 100, 99);
-        }
+        $this->assertStock($product->id, 99, 99);
     }
 }

@@ -83,11 +83,18 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        /**
+         * @deprecated - Shopware 6.7.0.0 method will not be async anymore and return `void`
+         */
         async createdComponent(): Promise<void> {
             if (!this.myExtensions.length) {
-                await this.shopwareExtensionService.updateExtensionData();
+                this.shopwareExtensionService.updateExtensionData().then(this.refreshExtension);
+            } else {
+                this.refreshExtension();
             }
+        },
 
+        refreshExtension(): void {
             this.extension = this.myExtensions.find((ext) => {
                 return ext.name === this.namespace;
             }) ?? null;

@@ -95,6 +95,13 @@ export default {
             deep: true,
         },
 
+        domain: {
+            immediate: true,
+            handler() {
+                this.createdComponent();
+            },
+        },
+
         isLoading(value) {
             this.$emit('loading-changed', value);
         },

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateCollection;
@@ -155,12 +154,8 @@ class StateMachineRegistry implements ResetInterface
                 'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
             ];
 
-            if (Feature::isActive('v6.6.0.0')) {
-                $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
-                $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
-            } else {
-                $stateMachineHistoryEntity['entityId'] = ['id' => $transition->getEntityId(), 'version_id' => $context->getVersionId()];
-            }
+            $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
+            $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
 
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
 

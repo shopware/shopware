@@ -21,7 +21,7 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
     });
 
     // NEXT-19686 - Flaky, use select helper commands
-    it.skip('@package @rule: should use rule builder with the shipping method', { tags: ['pa-business-ops'] }, () => {
+    it('@package @rule: should use rule builder with the shipping method', { tags: ['pa-business-ops'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/rule`,
             method: 'POST',
@@ -168,11 +168,23 @@ describe('Rule builder: Test with shipping method and advance pricing', () => {
         cy.contains('Express').should('exist');
         cy.contains('Shipping to Netherlands').should('not.exist');
 
-        // Verify again Shipping to Netherlands exist after changing the shipping address
+        // Verify again Shipping to the Netherlands exist after changing the shipping address
         cy.contains('Change shipping address').click();
+
+        // Verify address modal is shown
+        cy.get('.address-editor-modal.show').should('be.visible');
+
         cy.contains('Edit address').click();
+
+        // Verify address collapse is shown
+        cy.get('#shipping-address-create-edit').should('be.visible');
+
         cy.get('#shipping-addressAddressCountry').first().select('Netherlands');
         cy.contains('Save address').click();
+
+        // Verify address modal is closed again after saving the address
+        cy.get('.address-editor-modal.show').should('be.visible');
+
         cy.url().should('include', 'checkout/confirm');
         cy.contains('Standard').should('exist');
         cy.contains('Express').should('exist');

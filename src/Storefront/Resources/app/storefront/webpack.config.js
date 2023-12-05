@@ -466,7 +466,7 @@ const mergedCoreConfig = merge([
     coreConfig,
     {
         entry: {
-            storefront: `${path.resolve('src')}/main-async.js`,
+            storefront: `${path.resolve('src')}/main.js`,
         },
         plugins: [
             new WebpackBar({

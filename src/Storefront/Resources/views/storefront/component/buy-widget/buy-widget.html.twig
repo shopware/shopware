@@ -143,12 +143,7 @@
                                 <a
                                     data-bs-toggle="tab"
                                     class="product-detail-reviews-link"
-                                    {# @deprecated tag:v6.6.0 - Registering plugin on selector "data-offcanvas-tabs" is deprecated. Use "data-off-canvas-tabs" instead #}
-                                    {% if feature('v6.6.0.0') %}
-                                        data-off-canvas-tabs="true"
-                                    {% else %}
-                                        data-offcanvas-tabs="true"
-                                    {% endif %}
+                                    data-off-canvas-tabs="true"
                                     data-remote-click="true"
                                     {# ludtwig-ignore html-string-quotation #}
                                     data-remote-click-options='{{ remoteClickOptions|json_encode }}'

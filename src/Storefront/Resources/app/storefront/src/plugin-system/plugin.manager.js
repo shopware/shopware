@@ -211,10 +211,7 @@ class PluginManagerSingleton {
     async initializePlugins() {
         const initializationFailures = [];
 
-        /** @deprecated tag:v6.6.0 - All async plugins will be fetched via async import */
-        if (window.Feature.isActive('v6.6.0.0')) {
-            await this._fetchAsyncPlugins();
-        }
+        await this._fetchAsyncPlugins();
 
         for (const [pluginName] of Object.entries(this.getPluginList())) {
             if (pluginName) {

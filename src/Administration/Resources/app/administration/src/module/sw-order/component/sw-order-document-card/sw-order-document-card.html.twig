@@ -1,16 +1,12 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_order_document_card %}
 <sw-card
-    {% if VUE3 %}
     v-show="!isDataLoading"
-    {% endif %}
     position-identifier="sw-order-document-card"
     :title="$tc('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
     :is-loading="isDataLoading"
-    {% if VUE3 %}
     class="sw-order-detail-base__document-grid"
-    {% endif %}
 >
     <template #grid>
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -196,14 +192,9 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_card_grid_column_modal %}
-    {% if VUE3 %}
     <div v-if="showModal">
-    {% endif %}
         <component
             :is="documentModal"
-            {% if VUE2 %}
-            v-if="showModal"
-            {% endif %}
             :current-document-type="currentDocumentType"
             :order="order"
             :is-loading-document="isLoadingDocument"
@@ -214,20 +205,14 @@
             @document-create="onCreateDocument"
             @preview-show="onPreview"
         />
-    {% if VUE3 %}
     </div>
-    {% endif %}
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_card_grid_column_document_type_modal %}
     <sw-order-select-document-type-modal
         v-if="showSelectDocumentTypeModal"
-        {% if VUE3 %}
         v-model:value="currentDocumentType"
-        {% else %}
-        v-model="currentDocumentType"
-        {% endif %}
         :order="order"
         @modal-close="onCloseSelectDocumentTypeModal"
     />

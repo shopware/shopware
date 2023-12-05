@@ -56,13 +56,7 @@ export default {
             set(newValue) {
                 this.isDisplayingValue = newValue !== 'clear';
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', newValue);
-
-                    return;
-                }
-
-                this.$emit('change', newValue);
+                this.$emit('update:value', newValue);
             },
         },
 

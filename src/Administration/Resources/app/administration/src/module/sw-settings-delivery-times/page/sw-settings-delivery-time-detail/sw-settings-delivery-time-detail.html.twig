@@ -42,11 +42,7 @@
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-delivery-time.general.buttonSave') }}
@@ -82,11 +78,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_name_field %}
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="deliveryTime.name"
-                            {% else %}
-                            v-model="deliveryTime.name"
-                            {% endif %}
                             name="sw-field--deliveryTime-name"
                             :label="$tc('sw-settings-delivery-time.detail.labelName')"
                             :error="deliveryTimeNameError"
@@ -98,11 +90,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_settings_delivery_time_detail_unit_field %}
                         <sw-single-select
-                            {% if VUE3 %}
                             v-model:value="deliveryTime.unit"
-                            {% else %}
-                            v-model="deliveryTime.unit"
-                            {% endif %}
                             name="sw-field--deliveryTime-unit"
                             class="sw-delivery-time-detail__field-unit"
                             :options="deliveryTimeUnits"
@@ -124,11 +112,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_min_field %}
                             <sw-number-field
-                                {% if VUE3 %}
                                 v-model:value="deliveryTime.min"
-                                {% else %}
-                                v-model="deliveryTime.min"
-                                {% endif %}
                                 name="sw-field--deliveryTime-min"
                                 :label="$tc('sw-settings-delivery-time.detail.labelMin')"
                                 :error="deliveryTimeMinError || invalidMinError"
@@ -142,11 +126,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_delivery_time_detail_max_field %}
                             <sw-number-field
-                                {% if VUE3 %}
                                 v-model:value="deliveryTime.max"
-                                {% else %}
-                                v-model="deliveryTime.max"
-                                {% endif %}
                                 name="sw-field--deliveryTime-max"
                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                 :error="deliveryTimeMaxError"

@@ -62,11 +62,7 @@
                     :criteria="productCriteria"
                     :context="productSelectContext"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="onProductChange"
-                    {% else %}
-                    @change="onProductChange"
-                    {% endif %}
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -109,11 +105,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_buy_box_config_options %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.alignment.value"
-                    {% else %}
-                    v-model="element.config.alignment.value"
-                    {% endif %}
                     class="sw-cms-el-config-buy-box__alignment"
                     :label="$tc('sw-cms.elements.general.config.label.alignment')"
                     :placeholder="$tc('sw-cms.elements.general.config.label.alignment')"

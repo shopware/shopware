@@ -10,11 +10,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_name %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="propertyGroup.name"
-        {% else %}
-        v-model="propertyGroup.name"
-        {% endif %}
         name="sw-field--propertyGroup-name"
         required
         :error="propertyGroupNameError"
@@ -27,11 +23,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_detail_base_description %}
     <sw-textarea-field
-        {% if VUE3 %}
         v-model:value="propertyGroup.description"
-        {% else %}
-        v-model="propertyGroup.description"
-        {% endif %}
         name="sw-field--propertyGroup-description"
         :label="$tc('sw-property.detail.labelDescription')"
         :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"
@@ -48,11 +40,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_base_filterable %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="propertyGroup.filterable"
-            {% else %}
-            v-model="propertyGroup.filterable"
-            {% endif %}
             name="propertyGroupFilterable"
             class="sw-property-detail__filterable"
             :label="$tc('sw-property.detail.labelFilterable')"
@@ -63,11 +51,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_base_visible_on_detail %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="propertyGroup.visibleOnProductDetailPage"
-            {% else %}
-            v-model="propertyGroup.visibleOnProductDetailPage"
-            {% endif %}
             name="propertyGroupvisibleOnProductDetailPage"
             class="sw-property-detail__visible-on-detail"
             :label="$tc('sw-property.detail.labelvisibleOnProductDetailPage')"
@@ -86,11 +70,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_display_type %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="propertyGroup.displayType"
-            {% else %}
-            v-model="propertyGroup.displayType"
-            {% endif %}
             name="sw-field--propertyGroup-displayType"
             validation="required"
             required
@@ -110,11 +90,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_sorting_type %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="propertyGroup.sortingType"
-            {% else %}
-            v-model="propertyGroup.sortingType"
-            {% endif %}
             name="sw-field--propertyGroup-sortingType"
             validation="required"
             :disabled="!allowEdit"
@@ -134,11 +110,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_property_detail_position %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="propertyGroup.position"
-            {% else %}
-            v-model="propertyGroup.position"
-            {% endif %}
             name="sw-field--propertyGroup-position"
             pattern="[0-9]"
             :step="1"

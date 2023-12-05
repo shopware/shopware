@@ -66,7 +66,7 @@ function enableAdminWorker(
     config: ContextState['app']['config']['adminWorker'],
 ) {
     // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-member-access
-    const transports = (window._features_?.vue3 ? JSON.parse(JSON.stringify(config))?.transports || [] : config?.transports || []) as string[];
+    const transports = (JSON.parse(JSON.stringify(config))?.transports || []) as string[];
 
     const getMessage = () => {
         return {

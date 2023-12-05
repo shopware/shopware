@@ -7,8 +7,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
-import type { NavigationGuard, RedirectOption, Route } from 'vue-router_v2';
-import type { RoutePropsFunction, PathToRegexpOptions, Dictionary } from 'vue-router_v2/types/router';
+import type { NavigationGuard, RouteLocationNamedRaw, RouteRecordRedirectOption, RouterLinkProps } from 'vue-router';
 import type { App } from 'vue';
 import type { ComponentConfig } from './async-component.factory';
 import type { Snippets } from './locale.factory';
@@ -30,19 +29,18 @@ interface SwRouteConfig {
     path: string;
     name?: string;
     component?: string | App<Element>;
-    components?: Dictionary<App<Element>> | {
+    components?: Record<string, App<Element>> | {
         default: string
     };
-    redirect?: RedirectOption;
+    redirect?: RouteRecordRedirectOption;
     alias?: string | string[];
     children?: SwRouteConfig[] | Record<string, SwRouteConfig>;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta?: $TSFixMe;
     beforeEnter?: NavigationGuard;
     // eslint-disable-next-line @typescript-eslint/ban-types
-    props?: boolean | Object | RoutePropsFunction;
+    props?: boolean | Object | RouterLinkProps;
     caseSensitive?: boolean;
-    pathToRegexpOptions?: PathToRegexpOptions;
     coreRoute?: boolean;
     type?: ModuleTypes;
     flag?: string;
@@ -82,7 +80,7 @@ interface SettingsItem {
 export interface ModuleManifest {
     flag?: string,
     type: ModuleTypes,
-    routeMiddleware?: (next: () => void, currentRoute: Route) => void,
+    routeMiddleware?: (next: () => void, currentRoute: RouteLocationNamedRaw) => void,
     routes: {
         [key: string]: SwRouteConfig
     },

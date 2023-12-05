@@ -61,11 +61,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onChange(eventInput: string | number): void {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', eventInput);
-
-                return;
-            }
+            this.$emit('update:value', eventInput);
+            return;
 
             this.$emit('change', eventInput);
         },

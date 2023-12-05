@@ -63,7 +63,6 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_login_view %}
 
-            {% if VUE3 %}
             <router-view
                 v-slot="{Component}"
             >
@@ -81,20 +80,6 @@
                     />
                 </transition>
             </router-view>
-            {% else %}
-            <transition
-                name="fade"
-                mode="out-in"
-            >
-                <router-view
-                    :hash="hash"
-                    @is-loading="setLoading(true)"
-                    @is-not-loading="setLoading(false)"
-                    @login-error="loginError"
-                    @login-success="loginSuccess"
-                />
-            </transition>
-            {% endif %}
             {% endblock %}
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

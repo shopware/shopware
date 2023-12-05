@@ -4,14 +4,9 @@
 >
     <template
         v-for="modal in modals"
-        {% if VUE3 %}
         :key="modal.locationId"
-        {% endif %}
     >
         <sw-modal
-            {% if VUE2 %}
-            :key="modal.locationId"
-            {% endif %}
             :title="modal.title"
             :closable="modal.closable"
             :show-header="modal.showHeader"

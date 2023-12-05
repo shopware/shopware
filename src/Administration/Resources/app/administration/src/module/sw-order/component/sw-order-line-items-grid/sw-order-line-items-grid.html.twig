@@ -129,9 +129,7 @@
             {% block sw_order_line_items_grid_grid_columns_label_inline_edit %}
             <sw-order-product-select
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 name="sw-field--item-label"
-                {% endif %}
                 :sales-channel-id="salesChannelId"
                 :tax-status="taxStatus"
                 :item="item"
@@ -221,21 +219,13 @@
             {% block sw_order_line_items_grid_grid_columns_unit_price_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !itemCreatedFromProduct(item.id)"
-                {% if VUE3 %}
                 v-model:value="item.priceDefinition.price"
-                {% else %}
-                v-model="item.priceDefinition.price"
-                {% endif %}
                 name="sw-field--item-priceDefinition-price"
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
                 :digits="order.itemRounding.decimals"
-                {% if VUE3 %}
                 @update:value="checkItemPrice($event, item)"
-                {% else %}
-                @change="checkItemPrice($event, item)"
-                {% endif %}
             />
             {% endblock %}
 
@@ -269,21 +259,13 @@
             {% block sw_order_line_items_grid_grid_columns_quantity_inline_edit %}
             <sw-number-field
                 v-if="isInlineEdit && !isCreditItem(item.id)"
-                {% if VUE3 %}
                 v-model:value="item.quantity"
-                {% else %}
-                v-model="item.quantity"
-                {% endif %}
                 name="sw-field--item-quantity"
                 number-type="int"
                 :min="1"
                 size="small"
                 placeholder="0"
-                {% if VUE3 %}
                 @update:value="updateItemQuantity(item)"
-                {% else %}
-                @change="updateItemQuantity(item)"
-                {% endif %}
             />
             {% endblock %}
 
@@ -307,11 +289,7 @@
             <sw-number-field
                 v-if="isInlineEdit && showTaxRulesInlineEdit(item)"
                 key="order-line-item-tax-edit-default"
-                {% if VUE3 %}
                 v-model:value="item.priceDefinition.taxRules[0].taxRate"
-                {% else %}
-                v-model="item.priceDefinition.taxRules[0].taxRate"
-                {% endif %}
                 name="sw-field--item-priceDefinition-taxRules[0]-taxRate"
                 size="small"
                 placeholder="0"

@@ -6,8 +6,6 @@
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { Router } from 'vue-router';
-import type { Route as RouteV2 } from 'vue-router_v2';
-import type VueRouterV2 from 'vue-router_v2';
 // Import explicitly global types from admin-extension-sdk
 import '@shopware-ag/admin-extension-sdk';
 import type FeatureService from 'src/app/service/feature.service';
@@ -16,7 +14,6 @@ import type { ContextState } from 'src/app/state/context.store';
 import type { ExtensionComponentSectionsState } from 'src/app/state/extension-component-sections.store';
 import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from 'src/core/shopware';
-import type { ModuleTypes } from 'src/core/factory/module.factory';
 import type RepositoryFactory from 'src/core/data/repository-factory.data';
 import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service';
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
@@ -357,37 +354,6 @@ declare module 'bottlejs' { // Use the same module name as the import string
         factory: FactoryContainer,
         service: ServiceContainer,
         init: InitContainer,
-    }
-}
-
-/**
- * Extend the vue-router route information
- */
-declare module 'vue-router_v2' {
-    interface RouteConfig {
-        name: string,
-        coreRoute: boolean,
-        type: ModuleTypes,
-        flag: string,
-        isChildren: boolean,
-        routeKey: string,
-        children: RouteConfig[],
-        path: string,
-        meta: {
-            parentPath?: string,
-        }
-    }
-}
-
-/**
- * Extend this context of vue components with service container types (from inject)
- * and plugins
- */
-declare module 'vue_v2/types/vue' {
-    interface Vue extends ServiceContainer {
-        $createTitle: (identifier?: string|null) => string,
-        $router: VueRouterV2,
-        $route: RouteV2,
     }
 }
 

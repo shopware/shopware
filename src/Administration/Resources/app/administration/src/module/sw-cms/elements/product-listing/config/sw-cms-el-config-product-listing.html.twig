@@ -40,11 +40,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_layout_select %}
                 <sw-select-field
-                    {% if VUE3 %}
                     v-model:value="element.config.boxLayout.value"
-                    {% else %}
-                    v-model="element.config.boxLayout.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productBox.config.label.layoutType')"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -74,11 +70,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_show_sorting %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="element.config.showSorting.value"
-                    {% else %}
-                    v-model="element.config.showSorting.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelShowSorting')"
                 />
                 {% endblock %}
@@ -86,11 +78,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_product_listing_config_use_default_sorting %}
                 <sw-switch-field
-                    {% if VUE3 %}
                     v-model:value="element.config.useCustomSorting.value"
-                    {% else %}
-                    v-model="element.config.useCustomSorting.value"
-                    {% endif %}
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
                     :help-text="$tc('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
                     class="sw-cms-el-config-product-listing-custom-sortings"
@@ -190,11 +178,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="filterByManufacturer"
-                        {% else %}
-                        v-model="filterByManufacturer"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')"
                     />
                     {% endblock %}
@@ -202,11 +186,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_rating %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="filterByRating"
-                        {% else %}
-                        v-model="filterByRating"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByRating')"
                     />
                     {% endblock %}
@@ -214,11 +194,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_by_price %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="filterByPrice"
-                        {% else %}
-                        v-model="filterByPrice"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByPrice')"
                     />
                     {% endblock %}
@@ -226,11 +202,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="filterByFreeShipping"
-                        {% else %}
-                        v-model="filterByFreeShipping"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')"
                     />
                     {% endblock %}
@@ -251,11 +223,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="filterByProperties"
-                        {% else %}
-                        v-model="filterByProperties"
-                        {% endif %}
                         :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')"
                         :help-text="$tc('sw-cms.elements.productListing.config.filter.helpTextUseFilterByProperties')"
                     />
@@ -304,11 +272,7 @@
                                 <sw-switch-field
                                     :disabled="column.disabled"
                                     :value="item.active"
-                                    {% if VUE3 %}
                                     @update:value="propertyStatusChanged(item.id)"
-                                    {% else %}
-                                    @change="propertyStatusChanged(item.id)"
-                                    {% endif %}
                                 />
                             {% endblock %}
                             </template>

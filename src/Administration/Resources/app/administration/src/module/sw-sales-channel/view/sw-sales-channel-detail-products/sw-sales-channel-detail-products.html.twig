@@ -89,11 +89,7 @@
                                     }"
                                     :disabled="!isRecordSelectable(item)"
                                     :value="isSelected(item[itemIdentifierProperty])"
-                                    {% if VUE3 %}
                                     @update:value="selectItem($event, item)"
-                                    {% else %}
-                                    @change="selectItem($event, item)"
-                                    {% endif %}
                                 />
                                 {% endblock %}
                             </div>
@@ -197,9 +193,7 @@
     <sw-empty-state
         v-if="products.length <= 0 && !searchTerm && !isLoading"
         :show-description="false"
-        {% if VUE3 %}
         :absolute="false"
-        {% endif %}
         :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
     >
         <template #icon>

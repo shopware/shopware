@@ -10,11 +10,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_release_date_field %}
         <sw-inherit-wrapper
-            {% if VUE3 %}
             v-model:value="product.releaseDate"
-            {% else %}
-            v-model="product.releaseDate"
-            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.releaseDate"
         >
@@ -28,11 +24,7 @@
                     :label="$tc('sw-product.settingsForm.labelReleaseDate')"
                     :placeholder="$tc('sw-product.settingsForm.placeholderReleaseDate')"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @input="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>
@@ -42,11 +34,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_ean_field %}
         <sw-inherit-wrapper
-            {% if VUE3 %}
             v-model:value="product.ean"
-            {% else %}
-            v-model="product.ean"
-            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.ean"
         >
@@ -69,11 +57,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_settings_form_manufacturer_number_field %}
         <sw-inherit-wrapper
-            {% if VUE3 %}
             v-model:value="product.manufacturerNumber"
-            {% else %}
-            v-model="product.manufacturerNumber"
-            {% endif %}
             :has-parent="!!parentProduct.id"
             :inherited-value="parentProduct.manufacturerNumber"
         >
@@ -86,11 +70,7 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    {% if VUE3 %}
                     @update:value="props.updateCurrentValue"
-                    {% else %}
-                    @input="props.updateCurrentValue"
-                    {% endif %}
                 />
 
             </template>

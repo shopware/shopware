@@ -7,11 +7,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_rule_type_zip_code_range_from %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="taxRule.data.fromZipCode"
-        {% else %}
-        v-model="taxRule.data.fromZipCode"
-        {% endif %}
         :label="$tc('sw-settings-tax.taxRuleCard.labelToZipCode')"
     />
     {% endblock %}
@@ -19,11 +15,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_tax_rule_type_zip_code_range_to %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="taxRule.data.toZipCode"
-        {% else %}
-        v-model="taxRule.data.toZipCode"
-        {% endif %}
         :label="$tc('sw-settings-tax.taxRuleCard.labelFromZipCode')"
     />
     {% endblock %}

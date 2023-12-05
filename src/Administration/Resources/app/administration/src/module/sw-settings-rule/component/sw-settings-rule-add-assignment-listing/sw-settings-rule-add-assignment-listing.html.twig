@@ -36,11 +36,7 @@
                 <sw-checkbox-field
                     :disabled="!isRecordSelectable(item)"
                     :value="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
-                    {% if VUE3 %}
                     @update:value="selectItem($event, item)"
-                    {% else %}
-                    @change="selectItem($event, item)"
-                    {% endif %}
                 />
             </div>
             {% endblock %}

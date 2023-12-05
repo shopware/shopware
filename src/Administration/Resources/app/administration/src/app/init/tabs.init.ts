@@ -3,84 +3,64 @@
  */
 
 // eslint-disable-next-line import/no-named-default
-import type { Route, RouteConfig, default as Router, RawLocation } from 'vue-router_v2';
 import type { TabItemEntry } from 'src/app/state/tabs.store';
-import initializeTabsVue3 from './tabs.init.vue3';
+import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
 /**
  * @private
  */
 export default function initializeTabs(): void {
-    if (window._features_?.vue3) {
-        initializeTabsVue3();
-    } else {
-        initializeTabsVue2();
-    }
-}
-
-function initializeTabsVue2(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {
         Shopware.State.commit('tabs/addTabItem', componentConfig);
 
         // if current route does not exist check if they exists after adding the route
-        const router = Shopware.Application.view?.router;
+        const router = Shopware.Application.view?.router as Router;
 
-        // @ts-expect-error
-        const currentRoute = router.currentRoute;
+        const currentRoute = router.currentRoute.value;
 
         /* istanbul ignore next */
         if (
             router &&
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             currentRoute.fullPath.includes(componentConfig.componentSectionId) &&
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             currentRoute.matched.length <= 0
         ) {
-            // @ts-expect-error
-            createRouteForTabItem(router.currentRoute, router, () => undefined);
+            createRouteForTabItem(router.currentRoute.value, router, () => undefined);
+            void router.replace(router.currentRoute.value.fullPath);
         }
     });
 
     /* istanbul ignore next */
     void Shopware.Application.viewInitialized.then(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const router = Shopware.Application.view!.router;
+        const router = Shopware.Application.view?.router as Router;
 
-        // @ts-expect-error
-        const currentRoute = router.currentRoute;
+        const currentRoute = router.currentRoute.value;
 
-        // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (router && currentRoute.matched.length <= 0) {
-            // @ts-expect-error
-            createRouteForTabItem(router.currentRoute, router, () => undefined);
+            createRouteForTabItem(router.currentRoute.value, router, () => undefined);
         }
 
         /* istanbul ignore next */
-        // @ts-expect-error
         router.beforeEach((to, from, next) => {
             if (to.matched.length > 0) {
                 next();
                 return;
             }
 
-            // @ts-expect-error
-            const routeSuccess = createRouteForTabItem(to, router as Router, next);
+            const routeSuccess = createRouteForTabItem(to, router, next);
 
             // only resolve route if it was created
             if (routeSuccess) {
-                next((router as Router).resolve(to.fullPath).route as RawLocation);
+                next(router.resolve(to.fullPath).fullPath);
             } else {
-                next();
+                next(to.fullPath);
             }
         });
     });
 }
 
 /* istanbul ignore next */
-function createRouteForTabItem(to: Route, router: Router, next: () => void): boolean {
+function createRouteForTabItem(to: RouteLocationNormalized, router: Router, next: () => void): boolean {
     /**
      * Create new route for the url if it matches a tab extension
      */
@@ -105,7 +85,7 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): boo
     }
 
     const dynamicPath = getDynamicPath(to.fullPath, router);
-    const parentRoute = getParentRoute(dynamicPath, router as Router & { options?: { routes: RouteConfig[] } });
+    const parentRoute = getParentRoute(dynamicPath, router);
 
     if (parentRoute && parentRoute?.children === undefined) {
         parentRoute.children = [];
@@ -113,14 +93,21 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): boo
 
     if (parentRoute && parentRoute.children) {
         const firstChild = parentRoute.children[0];
-        const newRouteName = `${parentRoute.name ?? ''}.${matchingTabItemConfig.componentSectionId}`;
+        const parentRouteName: string = typeof parentRoute.name === 'string' ? parentRoute.name : '';
+        const newRouteName = `${parentRouteName}.${matchingTabItemConfig.componentSectionId}`;
 
-        const routeAlreadyExists = router.match({
-            name: newRouteName,
-        }).matched.some((route) => route.name === newRouteName);
+        let routeAlreadyExists = false;
+
+        try {
+            routeAlreadyExists = router.resolve({
+                name: newRouteName,
+            }).matched.some((route) => route.name === newRouteName);
+        } catch (e) {
+            // Do nothing when route does not exist
+        }
 
         if (!routeAlreadyExists) {
-            router.addRoute(parentRoute.name, {
+            const newRoute: RouteRecordRaw = {
                 path: dynamicPath,
                 // @ts-expect-error
                 component: Shopware.Application.view.getComponent('sw-extension-component-section'),
@@ -128,13 +115,16 @@ function createRouteForTabItem(to: Route, router: Router, next: () => void): boo
                 meta: {
                     // eslint-disable-next-line max-len
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                    parentPath: firstChild?.meta?.parentPath ?? '',
+                    parentPath: firstChild?.meta?.parentPath?.toString() ?? '',
                 },
+                // @ts-expect-error
                 isChildren: true,
                 props: {
                     'position-identifier': matchingTabItemConfig.componentSectionId,
                 },
-            });
+            };
+
+            router.addRoute(parentRoute.name?.toString() ?? '', newRoute);
         }
     }
 
@@ -149,10 +139,12 @@ function getDynamicPath(childPath: string, router: Router): string {
      * Before: "sw/product/detail/f6167bd4a9c1438c88c3bcc4949809e9/my-awesome-app-example-product-view"
      * After: "/sw/product/detail/:id/my-awesome-app-example-product-view"
      */
-    const resolvedParentRoute = router.resolve(childPath.split('/').slice(0, -1).join('/')).route;
+    const resolvedParentRoute = router.resolve(childPath.split('/').slice(0, -1).join('/'));
 
     return Object.entries(resolvedParentRoute.params).reduce<string>((acc, [paramKey, paramValue]) => {
-        return acc.replace(paramValue, `:${paramKey}?`);
+        const paramValueString = typeof paramValue === 'string' ? paramValue : paramValue.toString();
+
+        return acc.replace(paramValueString, `:${paramKey}?`);
     }, childPath);
 }
 
@@ -161,11 +153,11 @@ function getDynamicPath(childPath: string, router: Router): string {
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-non-null-assertion */
 function getParentRoute(
     dynamicPath: string,
-    router: Router & { options?: { routes: RouteConfig[] } },
-): RouteConfig|undefined {
+    router: Router,
+): RouteRecordRaw|undefined {
     const { routes } = router.options;
 
-    const match = router.match(dynamicPath);
+    const match = router.resolve(dynamicPath);
 
     // Get the matching object in the routes definition
     const routeForMatch = findMatchingRoute(routes, (route) => {
@@ -173,8 +165,8 @@ function getParentRoute(
     });
 
     // Get the parent route path
-    const routeForMatchResolved = router.match(routeForMatch?.path ?? '');
-    const parent = routeForMatchResolved.matched[routeForMatchResolved.matched.length - 1]?.parent;
+    const routeForMatchResolved = router.resolve(routeForMatch?.path ?? '');
+    const parent = routeForMatchResolved.matched[routeForMatchResolved.matched.length - 1];
     const matchingParentRoute = parent ?? match;
 
     // Get the matching object for the parent route in the routes definition
@@ -185,10 +177,10 @@ function getParentRoute(
 
 /* istanbul ignore next */
 function findMatchingRoute(
-    routes: RouteConfig[],
-    conditionCheck: (route: RouteConfig) => boolean,
-): RouteConfig|undefined {
-    const flattenRoutesDeep = (_routes: RouteConfig[]): RouteConfig[] => {
+    routes: readonly RouteRecordRaw[],
+    conditionCheck: (route: RouteRecordRaw) => boolean,
+): RouteRecordRaw|undefined {
+    const flattenRoutesDeep = (_routes: readonly RouteRecordRaw[]): readonly RouteRecordRaw[] => {
         return _routes.flatMap((route) => {
             const children = route.children ?? [];
             return [route, ...flattenRoutesDeep(children)];

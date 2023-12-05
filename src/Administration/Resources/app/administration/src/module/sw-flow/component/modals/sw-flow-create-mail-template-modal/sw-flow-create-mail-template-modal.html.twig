@@ -11,22 +11,15 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_create_mail_template_modal_type_selection %}
     <sw-entity-single-select
-        {% if VUE3 %}
         v-model:value="mailTemplate.mailTemplateTypeId"
-        {% else %}
-        v-model="mailTemplate.mailTemplateTypeId"
-        {% endif %}
+        name="sw-field--mailTemplate-mailTemplateTypeId"
         class="sw-flow-create-mail-template-modal__type"
         entity="mail_template_type"
         required
         :label="$tc('sw-flow.modals.mail.labelMailType')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderMailType')"
         :error="mailTemplateMailTemplateTypeIdError"
-        {% if VUE3 %}
         @update:value="onChangeType"
-        {% else %}
-        @change="onChangeType"
-        {% endif %}
     />
     {% endblock %}
 
@@ -39,11 +32,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_create_mail_template_modal_subject %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="mailTemplate.subject"
-            {% else %}
-            v-model="mailTemplate.subject"
-            {% endif %}
+            name="sw-field--mailTemplate-subject"
             class="sw-flow-create-mail-template-modal__subject"
             required
             :label="$tc('sw-flow.modals.mail.labelSubject')"
@@ -55,11 +45,8 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_flow_create_mail_template_modal_sender_name %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="mailTemplate.senderName"
-            {% else %}
-            v-model="mailTemplate.senderName"
-            {% endif %}
+            name="sw-field--mailTemplate-senderName"
             class="sw-flow-create-mail-template-modal__sender-name"
             :label="$tc('sw-flow.modals.mail.labelSenderName')"
             :placeholder="$tc('sw-flow.modals.mail.placeholderSenderName')"
@@ -71,11 +58,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_create_mail_template_modal_description %}
     <sw-textarea-field
-        {% if VUE3 %}
         v-model:value="mailTemplate.description"
-        {% else %}
-        v-model="mailTemplate.description"
-        {% endif %}
+        name="sw-field--mailTemplate-description"
         class="sw-flow-create-mail-template-modal__description"
         :label="$tc('sw-flow.modals.mail.labelDescription')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderDescription')"

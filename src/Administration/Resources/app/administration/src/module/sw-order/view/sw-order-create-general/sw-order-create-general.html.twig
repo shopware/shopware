@@ -71,21 +71,13 @@
 
                         <template
                             v-for="(delivery, index) in cartDeliveryDiscounts"
-                            {% if VUE3 %}
                             :key="index"
-                            {% endif %}
                         >
                             <dt
-                                {% if VUE2 %}
-                                :key="`dt-delivery-${index}`"
-                                {% endif %}
                             >
                                 {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                             </dt>
                             <dd
-                                {% if VUE2 %}
-                                :key="`dd-delivery-${index}`"
-                                {% endif %}
                             >
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName, currency.totalRounding.decimals) }}
                             </dd>
@@ -101,21 +93,13 @@
                         <template v-if="taxStatus !== 'tax-free'">
                             <template
                                 v-for="(calculatedTax, index) in filteredCalculatedTaxes"
-                                {% if VUE3 %}
                                 :key="index"
-                                {% endif %}
                             >
                                 <dt
-                                    {% if VUE2 %}
-                                    :key="`dt-${index}`"
-                                    {% endif %}
                                 >
                                     {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
                                 <dd
-                                    {% if VUE2 %}
-                                    :key="`dd-${index}`"
-                                    {% endif %}
                                 >
                                     {{ currencyFilter(calculatedTax.tax, currency.shortName, currency.totalRounding.decimals) }}
                                 </dd>

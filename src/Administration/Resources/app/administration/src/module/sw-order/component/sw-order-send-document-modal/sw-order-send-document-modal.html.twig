@@ -41,32 +41,20 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_mail_template_select %}
     <sw-entity-single-select
-        {% if VUE3 %}
         v-model:value="mailTemplateId"
-        {% else %}
-        v-model="mailTemplateId"
-        {% endif %}
         entity="mail_template"
         :criteria="mailTemplateCriteria"
         label-property="mailTemplateType.name"
         :label="$tc('sw-order.documentSendModal.labelMailTemplate')"
         required
-        {% if VUE3 %}
         @update:value="onMailTemplateChange"
-        {% else %}
-        @change="onMailTemplateChange"
-        {% endif %}
     />
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_customer_mail_select %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="recipient"
-        {% else %}
-        v-model="recipient"
-        {% endif %}
         :label="$tc('sw-order.documentSendModal.labelRecipient')"
         required
     />
@@ -75,11 +63,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_send_document_modal_subject %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="subject"
-        {% else %}
-        v-model="subject"
-        {% endif %}
         :label="$tc('sw-order.documentSendModal.labelSubject')"
         required
     />

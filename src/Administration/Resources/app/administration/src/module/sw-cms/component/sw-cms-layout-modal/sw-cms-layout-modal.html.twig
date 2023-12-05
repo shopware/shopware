@@ -104,20 +104,13 @@
                     <sw-checkbox-field
                         :value="cmsPage.id === selectedPageObject?.id"
                         class="sw-cms-layout-modal__content-checkbox"
-                        {% if VUE3 %}
                         @update:value="selectItem(cmsPage)"
-                        {% else %}
-                        @change="selectItem(cmsPage)"
-                        {% endif %}
                     />
                     {% endblock %}
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_layout_modal_content_listing_item_inner %}
                     <sw-cms-list-item
-                        {% if VUE2 %}
-                        :key="cmsPage.id"
-                        {% endif %}
                         :page="cmsPage"
                         :is-default="[defaultProductId, defaultCategoryId].includes(cmsPage.id)"
                         @item-click="selectItem(cmsPage)"

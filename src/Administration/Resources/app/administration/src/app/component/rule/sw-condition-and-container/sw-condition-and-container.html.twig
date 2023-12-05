@@ -8,24 +8,16 @@
     {% block sw_condition_and_container_children %}
     <template
         v-for="(child, index) in condition[childAssociationField]"
-        {% if VUE3 %}
         :key="index"
-        {% endif %}
     >
         <div
             v-if="index > 0"
-            {% if VUE2 %}
-            :key="index"
-            {% endif %}
             class="condition-content__spacer--and"
         >
             {{ $tc('global.sw-condition.condition.and') }}
         </div>
 
         <sw-condition-tree-node
-            {% if VUE2 %}
-            :key="`sw-condition-container__or-child--${index}`"
-            {% endif %}
             :parent-condition="condition"
             :condition="child"
             :disabled="disabled"

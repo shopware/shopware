@@ -46,18 +46,10 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_chart_card_header_range_select %}
             <sw-select-field
-                {% if VUE3 %}
                 v-model:value="selectedRange"
-                {% else %}
-                v-model="selectedRange"
-                {% endif %}
                 name="sw-field--selectedRange"
                 size="small"
-                {% if VUE3 %}
                 @update:value="dispatchRangeUpdate"
-                {% else %}
-                @change="dispatchRangeUpdate"
-                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_chart_card_header_range_select_options %}

@@ -16,11 +16,7 @@
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
             {% block sw_settings_country_general_content_field_name %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="country.name"
-                {% else %}
-                v-model="country.name"
-                {% endif %}
                 name="sw-field--country-name"
                 required
                 :disabled="!acl.can('country.editor')"
@@ -33,11 +29,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_position %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="country.position"
-                {% else %}
-                v-model="country.position"
-                {% endif %}
                 name="sw-field--country-position"
                 number-type="int"
                 :disabled="!acl.can('country.editor')"
@@ -49,11 +41,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_iso %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="country.iso"
-                {% else %}
-                v-model="country.iso"
-                {% endif %}
                 name="sw-field--country-iso"
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelIso')"
@@ -64,11 +52,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_iso3 %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="country.iso3"
-                {% else %}
-                v-model="country.iso3"
-                {% endif %}
                 name="sw-field--country-iso3"
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelIso3')"
@@ -91,11 +75,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_active %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.active"
-                {% else %}
-                v-model="country.active"
-                {% endif %}
                 name="sw-field--country-active"
                 class="sw-settings-country-general__option-items"
                 bordered
@@ -107,11 +87,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_shipping_available %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.shippingAvailable"
-                {% else %}
-                v-model="country.shippingAvailable"
-                {% endif %}
                 name="sw-field--country-shippingAvailable"
                 class="sw-settings-country-general__option-items"
                 bordered
@@ -123,11 +99,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_tax_free %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.customerTax.enabled"
-                {% else %}
-                v-model="country.customerTax.enabled"
-                {% endif %}
                 name="sw-field--country-customerTax-enabled"
                 class="sw-settings-country-general__option-items switch-field-customer-tax-free"
                 bordered
@@ -146,11 +118,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_general_content_field_tax_free_from_customer_value %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="country.customerTax.amount"
-                    {% else %}
-                    v-model="country.customerTax.amount"
-                    {% endif %}
                     name="sw-field--country-customerTax-amount"
                     class="sw-settings-country-general__input-amount customer-tax-amount"
                     :min="0"
@@ -160,11 +128,7 @@
                 >
                     <template #suffix>
                         <sw-entity-single-select
-                            {% if VUE3 %}
                             v-model:value="country.customerTax.currencyId"
-                            {% else %}
-                            v-model="country.customerTax.currencyId"
-                            {% endif %}
                             name="sw-field--country-customerTax-currencyId"
                             class="sw-settings-country-general__customer-select-currency sw-settings-country-general__select"
                             entity="currency"
@@ -204,11 +168,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_tax_free_companies %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.companyTax.enabled"
-                {% else %}
-                v-model="country.companyTax.enabled"
-                {% endif %}
                 name="sw-field--country-companyTax-enabled"
                 class="sw-settings-country-general__option-items switch-field-company-tax-free"
                 bordered
@@ -228,11 +188,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_general_content_field_tax_free_from_companies_value %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="country.companyTax.amount"
-                    {% else %}
-                    v-model="country.companyTax.amount"
-                    {% endif %}
                     name="sw-field--country-companyTax-amount"
                     class="sw-settings-country-general__input-amount"
                     :min="0"
@@ -242,11 +198,7 @@
                 >
                     <template #suffix>
                         <sw-entity-single-select
-                            {% if VUE3 %}
                             v-model:value="country.companyTax.currencyId"
-                            {% else %}
-                            v-model="country.companyTax.currencyId"
-                            {% endif %}
                             name="sw-field--country-companyTax-currencyId"
                             class="sw-settings-country-general__company-select-currency sw-settings-country-general__select"
                             entity="currency"
@@ -301,11 +253,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_check_vat_id_format %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.checkVatIdPattern"
-                {% else %}
-                v-model="country.checkVatIdPattern"
-                {% endif %}
                 name="sw-field--country-checkVatIdPattern"
                 class="sw-settings-country-general__field-check-vatid-format sw-settings-country-general__option-items"
                 bordered
@@ -318,11 +266,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_country_general_content_field_vat_id_required %}
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="country.vatIdRequired"
-                {% else %}
-                v-model="country.vatIdRequired"
-                {% endif %}
                 name="sw-field--country-vatIdRequired"
                 class="sw-settings-country-general__vat-id-required sw-settings-country-general__option-items"
                 bordered

@@ -297,13 +297,7 @@ Component.register('sw-entity-multi-select', {
         },
 
         emitChanges(newCollection) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:entityCollection', newCollection);
-
-                return;
-            }
-
-            this.$emit('change', newCollection);
+            this.$emit('update:entityCollection', newCollection);
         },
 
         addItem(item) {

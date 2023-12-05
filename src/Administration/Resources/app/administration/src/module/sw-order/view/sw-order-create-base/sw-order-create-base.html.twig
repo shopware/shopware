@@ -123,11 +123,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_switch_promotions %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="disabledAutoPromotionVisibility"
-                                {% else %}
-                                v-model="disabledAutoPromotionVisibility"
-                                {% endif %}
                                 class="sw-order-create-summary__switch-promotions"
                                 :label="$tc('sw-order.promotionModal.labelTitle')"
                             />
@@ -135,11 +131,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_order_create_base_line_items_voucher_field %}
                             <sw-order-promotion-tag-field
-                                {% if VUE3 %}
                                 v-model:value="promotionCodeTags"
-                                {% else %}
-                                v-model="promotionCodeTags"
-                                {% endif %}
                                 :disabled="!hasLineItem"
                                 :currency="currency"
                                 :label="$tc('sw-order.createBase.labelAddPromotion')"
@@ -185,21 +177,13 @@
                             <template
                                 v-for="(delivery, index) in cartDeliveryDiscounts"
                                 v-if="cartDeliveryDiscounts"
-                                {% if VUE3 %}
                                 :key="index"
-                                {% endif %}
                             >
                                 <dt
-                                    {% if VUE2 %}
-                                    :key="`dt-${index}`"
-                                    {% endif %}
                                 >
                                     {{ $tc('sw-order.createBase.discountLabelShippingCosts') }}
                                 </dt>
                                 <dd
-                                    {% if VUE2 %}
-                                    :key="`dd-${index}`"
-                                    {% endif %}
                                 >
                                     {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName) }}
                                 </dd>
@@ -219,21 +203,13 @@
                             <template v-if="taxStatus !== 'tax-free'">
                                 <template
                                     v-for="(calculatedTax, index) in filteredCalculatedTaxes"
-                                    {% if VUE3 %}
                                     :key="index"
-                                    {% endif %}
                                 >
                                     <dt
-                                        {% if VUE2 %}
-                                        :key="`dt-${index}`"
-                                        {% endif %}
                                     >
                                         {{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                     </dt>
                                     <dd
-                                        {% if VUE2 %}
-                                        :key="`dd-${index}`"
-                                        {% endif %}
                                     >
                                         {{ currencyFilter(calculatedTax.tax, currency.shortName) }}
                                     </dd>

@@ -31,11 +31,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="onSaveFinish"
-            {% else %}
-            @process-finish="onSaveFinish"
-            {% endif %}
             @click="saveMailerSettings"
         >
             {{ $tc('sw-settings-mailer.general.buttonSave') }}
@@ -92,11 +88,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_mailer_agent_options %}
                     <sw-select-field
-                        {% if VUE3 %}
                         v-model:value="mailerSettings['core.mailerSettings.emailAgent']"
-                        {% else %}
-                        v-model="mailerSettings['core.mailerSettings.emailAgent']"
-                        {% endif %}
                     >
                         <option value="local">
                             {{ $tc('sw-settings-mailer.mailer-configuration.local-agent') }}
@@ -111,11 +103,7 @@
 
                     <sw-radio-field
                         v-if="mailerSettings['core.mailerSettings.emailAgent'] === 'local'"
-                        {% if VUE3 %}
                         v-model:value="mailerSettings['core.mailerSettings.sendMailOptions']"
-                        {% else %}
-                        v-model="mailerSettings['core.mailerSettings.sendMailOptions']"
-                        {% endif %}
                         :options="emailSendmailOptions"
                     />
                     {% endblock %}
@@ -124,11 +112,7 @@
                 <p v-html="$tc('sw-settings-mailer.helpText')"></p>
                 <sw-switch-field
                     v-if="!isSmtpMode"
-                    {% if VUE3 %}
                     v-model:value="mailerSettings['core.mailerSettings.disableDelivery']"
-                    {% else %}
-                    v-model="mailerSettings['core.mailerSettings.disableDelivery']"
-                    {% endif %}
                     size="small"
                     :label="$tc('sw-settings-mailer.card-smtp.disable-delivery')"
                 />

@@ -3,10 +3,9 @@
  */
 
 /* @private */
-import type { RawLocation } from 'vue-router_v2';
 import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
-import type { LocationQuery } from 'vue-router';
+import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 
 /* @private */
 export {};
@@ -90,9 +89,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
     },
 
     created() {
-        if (this.feature.isActive('VUE3')) {
-            this.previousRouteName = this.$route.name as string;
-        }
+        this.previousRouteName = this.$route.name as string;
 
         if (this.disableRouteParams) {
             this.getList();
@@ -125,7 +122,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
     watch: {
         // Watch for changes in query parameters and update listing
         '$route'(newRoute, oldRoute) {
-            if (this.disableRouteParams || (this.feature.isActive('VUE3') && this.previousRouteName !== newRoute.name)) {
+            if (this.disableRouteParams || (this.previousRouteName !== newRoute.name)) {
                 return;
             }
 
@@ -214,9 +211,9 @@ export default Shopware.Mixin.register('listing', defineComponent({
 
             // If query is empty then replace route, otherwise push
             if (Shopware.Utils.types.isEmpty(routeQuery)) {
-                void this.$router.replace(route as unknown as RawLocation);
+                void this.$router.replace(route as unknown as RouteLocationNamedRaw);
             } else {
-                void this.$router.push(route as unknown as RawLocation);
+                void this.$router.push(route as unknown as RouteLocationNamedRaw);
             }
         },
 

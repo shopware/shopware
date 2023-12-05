@@ -2,7 +2,9 @@
  * @package admin
  */
 
-import VueRouter from 'vue-router_v2';
+// @ts-nocheck - this file is just still here for the Vue2 test conversion as a reference
+// eslint-disable-next-line import/no-unresolved
+// import VueRouter from 'vue-router_v2';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createRouter() {

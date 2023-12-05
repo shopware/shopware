@@ -110,12 +110,7 @@ export default {
         },
 
         onSelectionChange(selection) {
-            if (this.feature.isActive('VUE3')) {
-                this.currentSelection = Object.values(selection);
-                return;
-            }
-
-            this.currentSelection = Object.values(this.$refs.individualCodesGrid.selection);
+            this.currentSelection = Object.values(selection);
         },
 
         onCodeSelectionChange(selection) {

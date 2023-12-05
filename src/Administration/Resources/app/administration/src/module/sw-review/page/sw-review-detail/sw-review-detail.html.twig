@@ -31,11 +31,7 @@
             variant="primary"
             :disabled="isLoading || !acl.can('review.editor')"
             :process-success="isSaveSuccessful"
-            {% if VUE3 %}
             @update:process-success="onSaveFinish"
-            {% else %}
-            @process-finish="onSaveFinish"
-            {% endif %}
             @click="onSave"
         >
             {{ $tc('global.default.save') }}
@@ -266,11 +262,7 @@
                         {% block sw_review_detail_description_list_language %}
                         <sw-entity-single-select
                             id="language"
-                            {% if VUE3 %}
                             v-model:value="review.languageId"
-                            {% else %}
-                            v-model="review.languageId"
-                            {% endif %}
                             name="sw-field--review-languageId"
                             entity="language"
                             class="sw-review__language-select"
@@ -285,11 +277,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_review_detail_description_list_status %}
                         <sw-switch-field
-                            {% if VUE3 %}
                             v-model:value="review.status"
-                            {% else %}
-                            v-model="review.status"
-                            {% endif %}
                             name="sw-field--review-status"
                             class="status-switch"
                             :disabled="!acl.can('review.editor')"
@@ -310,11 +298,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_review_detail_basic_info_card_comment %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="review.comment"
-                        {% else %}
-                        v-model="review.comment"
-                        {% endif %}
                         name="sw-field--review-comment"
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor')"

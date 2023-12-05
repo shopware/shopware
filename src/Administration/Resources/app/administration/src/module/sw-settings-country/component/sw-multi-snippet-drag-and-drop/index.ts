@@ -166,15 +166,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
                     },
                 );
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', this.linePosition, newValue);
-                } else {
-                    this.$emit(
-                        'change',
-                        this.linePosition,
-                        newValue,
-                    );
-                }
+                this.$emit('update:value', this.linePosition, newValue);
 
                 return;
             }
@@ -192,14 +184,8 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         },
 
         onClickDismiss(index: number) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.linePosition, this.value.filter((_, key) => key !== index));
-
-                return;
-            }
-
             this.$emit(
-                'change',
+                'update:value',
                 this.linePosition,
                 this.value.filter((_, key) => key !== index),
             );
@@ -214,13 +200,7 @@ Component.register('sw-multi-snippet-drag-and-drop', {
         },
 
         onDelete() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.linePosition);
-
-                return;
-            }
-
-            this.$emit('change', this.linePosition);
+            this.$emit('update:value', this.linePosition);
         },
 
         openModal() {

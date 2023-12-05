@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import type { Module } from 'vuex_v2';
+import type { Module } from 'vuex';
 import type { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>

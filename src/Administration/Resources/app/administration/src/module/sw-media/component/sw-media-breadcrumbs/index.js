@@ -90,13 +90,7 @@ export default {
         },
 
         onBreadcrumbsItemClicked(id) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:currentFolderId', id);
-
-                return;
-            }
-
-            this.$emit('media-folder-change', id);
+            this.$emit('update:currentFolderId', id);
         },
     },
 };

@@ -31,11 +31,7 @@
 
     <sw-checkbox-field
         class="sw-cms-missing-element-modal__dont-remind"
-        {% if VUE3 %}
         @update:value="onChangeDontRemindCheckbox()"
-        {% else %}
-        @change="onChangeDontRemindCheckbox()"
-        {% endif %}
     >
         <template #label>
             {{ $tc('sw-app.component.sw-app-actions.dontAskMeAgain') }}

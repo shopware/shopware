@@ -7,11 +7,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_name %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="currentOption.name"
-        {% else %}
-        v-model="currentOption.name"
-        {% endif %}
         name="sw-field--currentOption-name"
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"
@@ -25,11 +21,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_position %}
     <sw-number-field
-        {% if VUE3 %}
         v-model:value="currentOption.position"
-        {% else %}
-        v-model="currentOption.position"
-        {% endif %}
         name="sw-field--currentOption-position"
         pattern="[0-9]"
         :step="1"
@@ -42,11 +34,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_property_option_detail_color %}
     <sw-colorpicker
-        {% if VUE3 %}
         v-model:value="currentOption.colorHexCode"
-        {% else %}
-        v-model="currentOption.colorHexCode"
-        {% endif %}
         name="sw-field--currentOption-colorHexCode"
         color-output="hex"
         :disabled="!allowEdit"

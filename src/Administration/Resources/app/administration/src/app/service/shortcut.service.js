@@ -42,7 +42,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
 
         const key = event.key.toUpperCase();
         const currentTime = Date.now();
-        const router = window._features_.VUE3 ? Application.view.router : Application.getApplicationRoot().$router;
+        const router = Application.view.router;
 
         let buffer = [];
 

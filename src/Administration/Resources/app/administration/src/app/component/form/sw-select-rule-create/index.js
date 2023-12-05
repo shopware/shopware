@@ -20,7 +20,7 @@ const { Criteria } = Shopware.Data;
  */
 Component.register('sw-select-rule-create', {
     template,
-    inheritAttrs: !window._features_.VUE3,
+    inheritAttrs: false,
 
     inject: [
         'repositoryFactory',

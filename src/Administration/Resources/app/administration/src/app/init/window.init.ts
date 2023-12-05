@@ -4,7 +4,7 @@
 
 /* Is covered by E2E tests */
 /* istanbul ignore file */
-import type VueRouter from 'vue-router_v2';
+import type { Router } from 'vue-router';
 
 /**
  * @private
@@ -29,7 +29,7 @@ export default function initializeWindow(): void {
         path,
         replace,
     }) => {
-        const $router = Shopware.Application.view?.root?.$router as unknown as VueRouter;
+        const $router = Shopware.Application.view?.root?.$router as unknown as Router;
 
         if (!$router) {
             return;

@@ -154,19 +154,11 @@
     >
         <template #content>
             <sw-switch-field
-                {% if VUE3 %}
                 v-model:value="arReady"
-                {% else %}
-                v-model="arReady"
-                {% endif %}
                 :disabled="!editable"
                 :label="$tc('sw-media.sidebar.actions.ar')"
                 class="sw-media-sidebar__quickactions-switch ar-ready-toggle"
-                {% if VUE3 %}
                 @update:value="toggleAR"
-                {% else %}
-                @change="toggleAR"
-                {% endif %}
             />
         </template>
     </sw-media-collapse>

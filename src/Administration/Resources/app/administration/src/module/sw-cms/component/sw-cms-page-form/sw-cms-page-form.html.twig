@@ -9,17 +9,12 @@
     {% block sw_cms_page_form_content %}
     <template
         v-for="section in page.sections"
-        {% if VUE3 %}
         :key="section.id"
-        {% endif %}
     >
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_page_form_section %}
         <div
-            {% if VUE2 %}
-            :key="section.id"
-            {% endif %}
             class="sw-cms-page-form__section"
         >
             <div class="sw-cms-page-form__section-actions">
@@ -75,18 +70,13 @@
             <template
                 v-for="(block, index) in section.blocks"
                 v-else
-                {% if VUE3 %}
                 :key="block.id"
-                {% endif %}
             >
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_section_type_label_wrapper %}
                 <div
                     v-if="displaySectionType(block)"
-                    {% if VUE2 %}
-                    :key="index"
-                    {% endif %}
                     class="sw-cms-page-form__section-type"
                 >
 
@@ -127,9 +117,6 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_page_form_card %}
                 <sw-card
-                    {% if VUE2 %}
-                    :key="block.id"
-                    {% endif %}
                     position-identifier="sw-cms-page-form-block"
                     class="sw-cms-page-form__block-card"
                     :title="$tc(getBlockTitle(block))"

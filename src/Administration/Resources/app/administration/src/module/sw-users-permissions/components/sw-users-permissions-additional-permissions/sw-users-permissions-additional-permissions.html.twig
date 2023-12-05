@@ -9,16 +9,11 @@
     {% block sw_users_permissions_additional_permissions_additional_privileges %}
     <template
         v-for="privilege in additionalPermissions"
-        {% if VUE3 %}
         :key="`head-${privilege.key}`"
-        {% endif %}
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_additional_privileges_headline %}
         <h4
-            {% if VUE2 %}
-            :key="`head-${privilege.key}`"
-            {% endif %}
             :class="'sw-users-permissions-additional-permissions_' + privilege.key"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -33,35 +28,23 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_additional_privileges_switches %}
         <div
-            {% if VUE2 %}
-            :key="`body-${privilege.key}`"
-            {% endif %}
             class="sw-users-permissions-additional-permissions__switches"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content %}
             <template
                 v-for="(value, roleName) in privilege.roles"
-                {% if VUE3 %}
                 :key="roleName"
-                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
                 <sw-switch-field
-                    {% if VUE2 %}
-                    :key="roleName"
-                    {% endif %}
                     :disabled="disabled"
                     :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
                     :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.' + privilege.key + '.' + roleName)"
                     :bordered="true"
-                    {% if VUE3 %}
                     @update:value="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
-                    {% else %}
-                    @change="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>
@@ -75,9 +58,7 @@
     {% block sw_users_permissions_additional_permissions_app_privileges %}
     <template
         v-for="privilege in appPermissions"
-        {% if VUE3 %}
         :key="privilege.key"
-        {% endif %}
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_app_privileges_headline %}
@@ -97,43 +78,28 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_users_permissions_additional_permissions_app_privileges_switches %}
         <div
-            {% if VUE2 %}
-            :key="`body-${privilege.key}`"
-            {% endif %}
             class="sw-users-permissions-additional-permissions__switches"
         >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_additional_permissions_app_privileges_switches_content %}
             <template
                 v-for="(key, roleName) in privilege.roles"
-                {% if VUE3 %}
                 :key="roleName"
-                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_users_permissions_additional_permissions_app_privileges_switches_content_switch %}
                 <sw-switch-field
                     v-if="roleName === 'all'"
-                    {% if VUE2 %}
-                    :key="roleName"
-                    {% endif %}
                     :disabled="disabled"
                     class="sw_users_permissions_additional_permissions_app_all"
                     :value="isPrivilegeSelected('app.' + roleName)"
                     :label="$tc('sw-privileges.additional_permissions.app.all')"
                     :bordered="true"
-                    {% if VUE3 %}
                     @update:value="changeAllAppPermissionsForKey('app.' + roleName, $event)"
-                    {% else %}
-                    @change="changeAllAppPermissionsForKey('app.' + roleName, $event)"
-                    {% endif %}
                 />
 
                 <sw-switch-field
                     v-else
-                    {% if VUE2 %}
-                    :key="roleName"
-                    {% endif %}
                     v-tooltip="{
                         message: $tc('sw-privileges.additional_permissions.app.disabledCheckboxMessage'),
                         disabled: !isPrivilegeSelected('app.all') || disabled,
@@ -144,11 +110,7 @@
                     :value="isPrivilegeSelected('app.' + roleName)"
                     :label="roleName"
                     :bordered="true"
-                    {% if VUE3 %}
                     @update:value="onSelectPrivilege('app.' + roleName, $event)"
-                    {% else %}
-                    @change="onSelectPrivilege('app.' + roleName, $event)"
-                    {% endif %}
                 />
                 {% endblock %}
             </template>

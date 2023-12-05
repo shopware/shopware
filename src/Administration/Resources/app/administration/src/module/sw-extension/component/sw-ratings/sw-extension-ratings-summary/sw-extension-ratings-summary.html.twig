@@ -23,16 +23,11 @@
         <div class="sw-extension-ratings-summary__rows">
             <template
                 v-for="ratingGroup in summary.ratingAssignment"
-                {% if VUE3 %}
                 :key="ratingGroup.rating"
-                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_ratings_summary_grid_rating_rows_content %}
                 <sw-extension-rating-stars
-                    {% if VUE2 %}
-                    :key="ratingGroup.rating"
-                    {% endif %}
                     :rating="Number(ratingGroup.rating)"
                     :size="12"
                 />
@@ -49,16 +44,11 @@
             <div class="sw-extension-ratings-summary__rows">
                 <template
                     v-for="ratingGroup in summary.ratingAssignment"
-                    {% if VUE3 %}
                     :key="ratingGroup.rating"
-                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_extension_ratings_summary_grid_rating_progress_bars_count_rows_count %}
                     <span
-                        {% if VUE2 %}
-                        :key="ratingGroup.rating"
-                        {% endif %}
                     >
                         {{ ratingGroup.count }}
                     </span>
@@ -72,16 +62,11 @@
             <div class="sw-extension-ratings-summary__rows">
                 <template
                     v-for="ratingGroup in summary.ratingAssignment"
-                    {% if VUE3 %}
                     :key="ratingGroup.rating"
-                    {% endif %}
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar %}
                     <sw-progress-bar
-                        {% if VUE2 %}
-                        :key="ratingGroup.rating"
-                        {% endif %}
                         :value="ratingGroup.count"
                         :max-value="maxProgressValue"
                     />

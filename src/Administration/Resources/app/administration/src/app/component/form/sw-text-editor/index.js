@@ -901,20 +901,12 @@ Component.register('sw-text-editor', {
         },
 
         emitContent() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:modelValue', this.getContentValue());
-                return;
-            }
-            this.$emit('input', this.getContentValue());
+            this.$emit('update:modelValue', this.getContentValue());
         },
 
         emitHtmlContent(value) {
             this.content = value;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:modelValue', value);
-            } else {
-                this.$emit('input', value);
-            }
+            this.$emit('update:modelValue', value);
 
             this.isEmpty = this.emptyCheck(this.content);
             this.placeholderVisible = this.isEmpty;

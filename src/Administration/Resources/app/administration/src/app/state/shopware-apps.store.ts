@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import type { Module } from 'vuex_v2';
+import type { Module } from 'vuex';
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

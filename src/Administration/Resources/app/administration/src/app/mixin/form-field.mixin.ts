@@ -106,40 +106,20 @@ export default Shopware.Mixin.register('sw-form-field', defineComponent({
         },
 
         setAttributesForProps(prop: string, propValue: boolean) {
-            if (this.feature.isActive('VUE3')) {
-                switch (prop) {
-                    case 'isInherited': {
-                        this.inheritanceAttrs = {
-                            ...this.inheritanceAttrs,
-                            [prop]: propValue,
-                        };
-                        break;
-                    }
-
-                    case 'isInheritField': {
-                        this.inheritanceAttrs = {
-                            ...this.inheritanceAttrs,
-                            isInheritanceField: propValue,
-                        };
-                        break;
-                    }
-
-                    default: {
-                        break;
-                    }
-                }
-
-                return;
-            }
-
             switch (prop) {
                 case 'isInherited': {
-                    this.$set(this.$attrs, prop, propValue);
+                    this.inheritanceAttrs = {
+                        ...this.inheritanceAttrs,
+                        [prop]: propValue,
+                    };
                     break;
                 }
 
                 case 'isInheritField': {
-                    this.$set(this.$attrs, 'isInheritanceField', propValue);
+                    this.inheritanceAttrs = {
+                        ...this.inheritanceAttrs,
+                        isInheritanceField: propValue,
+                    };
                     break;
                 }
 

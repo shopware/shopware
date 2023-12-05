@@ -20,15 +20,10 @@
                 <!-- eslint-disable vue/no-use-v-if-with-v-for -->
                 <template
                     v-for="(sliderItem, index) in mediaUrls"
-                    {% if VUE3 %}
                     :key="index"
-                    {% endif %}
                 >
                     <sw-media-list-selection-item-v2
                         v-if="index < galleryLimit"
-                        {% if VUE2 %}
-                        :key="index"
-                        {% endif %}
                         :item="sliderItem.media"
                         :class="activeMediaClass(sliderItem.media)"
                         hide-actions

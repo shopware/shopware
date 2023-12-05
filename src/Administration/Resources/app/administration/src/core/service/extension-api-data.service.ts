@@ -4,6 +4,7 @@
 
 import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
 import { get, debounce } from 'lodash';
+import type { App } from 'vue';
 import { selectData } from '@shopware-ag/admin-extension-sdk/es/data/_internals/selectData';
 import MissingPrivilegesError from '@shopware-ag/admin-extension-sdk/es/privileges/missing-privileges-error';
 
@@ -35,7 +36,7 @@ type ParsedPath = {
     lastSegment: string,
 };
 
-type vueWithUid = Partial<Vue> & { _uid: number };
+type vueWithUid = Partial<App<Element>> & { _uid: number };
 
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
@@ -90,6 +91,7 @@ function parsePath(path :string): ParsedPath | null {
 export function publishData({ id, path, scope }: publishOptions): void {
     const registeredDataSet = publishedDataSets.find(s => s.id === id);
 
+    // @ts-expect-error
     // Dataset registered from different scope? Prevent update.
     if (registeredDataSet && registeredDataSet.scope !== (scope as vueWithUid)._uid) {
         console.error(`The dataset id "${id}" you tried to publish is already registered.`);
@@ -97,6 +99,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
         return;
     }
 
+    // @ts-expect-error
     // Dataset registered from same scope? Update.
     if (registeredDataSet && registeredDataSet.scope === (scope as vueWithUid)._uid) {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -195,7 +198,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
     });
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
-    const unwatch = scope.$watch(path, debounce((value: Vue) => {
+    const unwatch = scope.$watch(path, debounce((value: App<Element>) => {
         // const preparedValue = prepareValue(value);
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -211,6 +214,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
         publishedDataSets.push({
             id,
             data: value,
+            // @ts-expect-error
             scope: (scope as vueWithUid)._uid,
         });
     }, 750), {

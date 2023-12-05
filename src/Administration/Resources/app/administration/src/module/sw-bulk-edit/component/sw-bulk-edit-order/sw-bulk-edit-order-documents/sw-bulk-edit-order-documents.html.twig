@@ -12,11 +12,7 @@
         <sw-checkbox-field
             v-for="document in documentTypes"
             :key="document.id"
-            {% if VUE3 %}
             v-model:value="value.documentType[document.technicalName]"
-            {% else %}
-            v-model="value.documentType[document.technicalName]"
-            {% endif %}
             :label="document.name"
             :disabled="documents?.disabled"
         />
@@ -25,11 +21,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_documents_skip_sent_documents %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="value.skipSentDocuments"
-            {% else %}
-            v-model="value.skipSentDocuments"
-            {% endif %}
             :label="$tc('sw-bulk-edit.order.status.documents.skipSentDocuments')"
             :disabled="documents?.disabled"
         />

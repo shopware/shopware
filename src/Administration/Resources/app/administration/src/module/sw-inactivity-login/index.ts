@@ -1,6 +1,6 @@
 import './page/index';
 
-import type { Route } from 'vue-router_v2';
+import type { RouteLocationNamedRaw } from 'vue-router';
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
 
@@ -31,9 +31,9 @@ Module.register('sw-inactivity-login', {
             path: '/inactivity/login/:id',
             coreRoute: true,
             props: {
-                default(route: Route) {
+                default(route: RouteLocationNamedRaw) {
                     return {
-                        hash: route.params.id,
+                        hash: route.params?.id,
                     };
                 },
             },

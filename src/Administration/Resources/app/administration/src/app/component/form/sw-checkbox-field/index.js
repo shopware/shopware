@@ -158,13 +158,7 @@ Component.register('sw-checkbox-field', {
 
     methods: {
         onChange(changeEvent) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', changeEvent.target.checked);
-
-                return;
-            }
-
-            this.$emit('change', changeEvent.target.checked);
+            this.$emit('update:value', changeEvent.target.checked);
         },
     },
 });

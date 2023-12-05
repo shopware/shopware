@@ -9,11 +9,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_shipping_detail_shipping_cost_tax_select %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="taxType"
-        {% else %}
-        v-model="taxType"
-        {% endif %}
         class="sw-settings-shipping__tax-type-selection"
         show-clearable-button
         :disabled="disabled"
@@ -30,11 +26,7 @@
     <sw-entity-single-select
         v-if="shippingMethod.taxType === 'fixed'"
         ref="taxIdSelection"
-        {% if VUE3 %}
         v-model:value="shippingMethod.taxId"
-        {% else %}
-        v-model="shippingMethod.taxId"
-        {% endif %}
         class="sw-settings-shipping__tax-rate"
         validation="required"
         required

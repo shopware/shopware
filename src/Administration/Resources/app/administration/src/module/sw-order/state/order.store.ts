@@ -1,5 +1,5 @@
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
-import type { Module } from 'vuex_v2';
+import type { Module } from 'vuex';
 import type { AxiosResponse } from 'axios';
 import type {
     CalculatedPrice,

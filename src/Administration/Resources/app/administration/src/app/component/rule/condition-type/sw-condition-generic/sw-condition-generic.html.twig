@@ -20,14 +20,9 @@
         <!-- eslint-disable vue/no-v-for-template-key -->
         <template
             v-for="(field, index) in config.fields"
-            {% if VUE3 %}
             :key="index"
-            {% endif %}
         >
             <div
-                {% if VUE2 %}
-                :key="index"
-                {% endif %}
                 class="sw-condition-generic__input-wrapper"
             >
                 <sw-form-field-renderer

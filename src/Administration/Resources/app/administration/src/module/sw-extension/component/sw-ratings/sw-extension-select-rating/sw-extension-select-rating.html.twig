@@ -12,17 +12,9 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_select_rating_input_stars %}
         <sw-extension-rating-stars
-            {% if VUE3 %}
             v-model:rating="currentValue"
-            {% else %}
-            v-model="currentValue"
-            {% endif %}
             editable
-            {% if VUE3 %}
             @update:rating="onChange"
-            {% else %}
-            @rating-changed="onChange"
-            {% endif %}
         />
         {% endblock %}
     </template>

@@ -9,11 +9,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_entry_point_card_selection %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="selectedEntryPoint"
-        {% else %}
-        v-model="selectedEntryPoint"
-        {% endif %}
         class="sw-category-entry-point-card__entry-point-selection"
         :options="entryPoints"
         :label="$tc('sw-category.base.entry-point-card.labelEntryPoint')"
@@ -21,11 +17,7 @@
         :help-text="helpText"
         :disabled="hasExistingNavigation || !acl.can('category.editor')"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="onEntryPointChange"
-        {% else %}
-        @change="onEntryPointChange"
-        {% endif %}
     />
     {% endblock %}
 
@@ -68,11 +60,7 @@
         :criteria="salesChannelCriteria"
         :placeholder="$tc('sw-category.base.entry-point-card.placeholderSalesChannels')"
         :disabled="!selectedEntryPoint || !acl.can('category.editor')"
-        {% if VUE3 %}
         @update:entity-collection="onSalesChannelChange"
-        {% else %}
-        @change="onSalesChannelChange"
-        {% endif %}
     />
     {% endblock %}
 

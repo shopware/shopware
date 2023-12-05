@@ -13,11 +13,7 @@
             disable-auto-close
             :disabled="!allowEdit"
             show-clearable-button
-            {% if VUE3 %}
             @update:value="onToggleProduct"
-            {% else %}
-            @change="onToggleProduct"
-            {% endif %}
         >
 
             <template #result-item="{ item, index }">

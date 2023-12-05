@@ -94,7 +94,6 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_category_view_content %}
-    {% if VUE3 %}
     <router-view
         v-slot="{ Component }"
     >
@@ -103,9 +102,6 @@
             :is-loading="isLoading"
         />
     </router-view>
-    {% else %}
-    <router-view :is-loading="isLoading" />
-    {% endif %}
     {% endblock %}
 </sw-card-view>
 {% endblock %}

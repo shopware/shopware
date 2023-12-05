@@ -5,11 +5,7 @@
     {% block sw_condition_line_item_custom_field_field %}
     <sw-entity-single-select
         ref="selectedField"
-        {% if VUE3 %}
         v-model:value="selectedField"
-        {% else %}
-        v-model="selectedField"
-        {% endif %}
         name="sw-field--selectedField"
         entity="custom_field"
         :criteria="customFieldCriteria"
@@ -17,11 +13,7 @@
         :disabled="disabled"
         size="medium"
         show-clearable-button
-        {% if VUE3 %}
         @update:value="onFieldChange"
-        {% else %}
-        @change="onFieldChange"
-        {% endif %}
     >
         <template #selection-label-property="{ item }">
             {{ getInlineSnippet(item.config.label) || item.name }}

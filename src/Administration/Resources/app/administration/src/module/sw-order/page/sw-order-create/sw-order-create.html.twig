@@ -35,11 +35,7 @@
                 :disabled="isLoading"
                 :is-loading="isLoading"
                 :process-success="isSaveSuccessful"
-                {% if VUE3 %}
                 @update:process-success="saveFinish"
-                {% else %}
-                @process-finish="saveFinish"
-                {% endif %}
                 @click.prevent="onSaveOrder"
             >
                 {{ $tc('sw-order.create.buttonSaveOrder') }}
@@ -98,7 +94,6 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_create_content_view %}
-            {% if VUE3 %}
             <router-view
                 v-slot="{ Component }"
             >
@@ -107,11 +102,6 @@
                     @error="showError"
                 />
             </router-view>
-            {% else %}
-            <router-view
-                @error="showError"
-            />
-            {% endif %}
             {% endblock %}
         </sw-card-view>
         {% endblock %}

@@ -12,20 +12,13 @@
         :options="replyToOptions"
         :label="$tc('sw-flow.modals.mail.useDifferentReplyToLabel')"
         :help-text="buildReplyToTooltip('sw-flow.modals.mail.tooltipDifferentReplyTo')"
-        {% if VUE3 %}
         @update:value="changeShowReplyToField"
-        {% else %}
-        @change="changeShowReplyToField"
-        {% endif %}
     />
 
     <sw-text-field
         v-if="showReplyToField"
-        {% if VUE3 %}
         v-model:value="replyTo"
-        {% else %}
-        v-model="replyTo"
-        {% endif %}
+        name="sw-field--replyTo"
         class="sw-flow-mail-send-modal__reply-to"
         :label="$tc('sw-flow.modals.mail.labelReplyTo')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
@@ -37,20 +30,13 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_recipient %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="mailRecipient"
-        {% else %}
-        v-model="mailRecipient"
-        {% endif %}
+        name="sw-field--mailRecipient"
         class="sw-flow-mail-send-modal__recipient"
         :options="recipientOptions"
         :label="$tc('sw-flow.modals.mail.labelRecipient')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderRecipient')"
-        {% if VUE3 %}
         @update:value="onChangeRecipient"
-        {% else %}
-        @change="onChangeRecipient"
-        {% endif %}
     />
     {% endblock %}
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -73,11 +59,8 @@
         <template #column-email="{ item, column, isInlineEdit, compact }">
             <sw-text-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.email"
-                {% else %}
-                v-model="item.email"
-                {% endif %}
+                name="sw-field--item-email"
                 class="sw-flow-mail-send-modal__recipient-email"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorMail"
@@ -94,11 +77,8 @@
         <template #column-name="{ item, column, isInlineEdit, compact }">
             <sw-text-field
                 v-if="isInlineEdit"
-                {% if VUE3 %}
                 v-model:value="item.name"
-                {% else %}
-                v-model="item.name"
-                {% endif %}
+                name="sw-field--item-name"
                 class="sw-flow-mail-send-modal__recipient-name"
                 :size="compact ? 'small' : 'default'"
                 :error="item.errorName"
@@ -139,11 +119,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_mail_template_select %}
     <sw-entity-single-select
-        {% if VUE3 %}
         v-model:value="mailTemplateId"
-        {% else %}
-        v-model="mailTemplateId"
-        {% endif %}
+        name="sw-field--mailTemplateId"
         class="sw-flow-mail-send-modal__mail-template-select"
         required
         entity="mail_template"
@@ -153,11 +130,7 @@
         :label="$tc('sw-flow.modals.mail.labelEmailTemplate')"
         :placeholder="$tc('sw-flow.modals.mail.placeholderEmailTemplate')"
         :error="mailTemplateIdError"
-        {% if VUE3 %}
         @update:value="(id, template) => onChangeMailTemplate(id, template)"
-        {% else %}
-        @change="(id, template) => onChangeMailTemplate(id, template)"
-        {% endif %}
     >
 
         <template #before-item-list>
@@ -215,11 +188,8 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_flow_mail_send_modal_document_types %}
     <sw-entity-multi-id-select
-        {% if VUE3 %}
         v-model:ids="documentTypeIds"
-        {% else %}
-        v-model="documentTypeIds"
-        {% endif %}
+        name="sw-field--documentTypeIds"
         :repository="documentTypeRepository"
         class="sw-flow-mail-send-modal__document-types"
         :label="$tc('sw-flow.modals.mail.labelLatestDocuments')"

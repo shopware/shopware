@@ -82,7 +82,6 @@
                     </template>
 
                     <template v-else>
-                        {% if VUE3 %}
                         <router-view
                             v-slot="{ Component }"
                         >
@@ -93,13 +92,6 @@
                                 @on-update-total="onUpdateTotalFlow"
                             />
                         </router-view>
-                        {% else %}
-                        <router-view
-                            :is-loading="isLoading"
-                            :search-term="term"
-                            @on-update-total="onUpdateTotalFlow"
-                        />
-                        {% endif %}
                     </template>
                 </template>
             </sw-tabs>

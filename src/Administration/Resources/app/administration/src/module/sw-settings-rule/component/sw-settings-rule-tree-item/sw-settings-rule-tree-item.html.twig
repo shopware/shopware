@@ -12,11 +12,7 @@
         :disabled="hasItemAssociation(item)"
         :ghost-value="checkedGhost"
         :value="checked || hasItemAssociation(item)"
-        {% if VUE3 %}
         @update:value="toggleItemCheck($event, item)"
-        {% else %}
-        @change="toggleItemCheck($event, item)"
-        {% endif %}
     />
 </div>
 {% endblock %}

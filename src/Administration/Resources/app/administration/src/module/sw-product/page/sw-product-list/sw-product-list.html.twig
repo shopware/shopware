@@ -163,11 +163,7 @@
                     {% block sw_product_list_grid_columns_name_inline_edit %}
                     <sw-text-field
                         v-if="isInlineEdit"
-                        {% if VUE3 %}
                         v-model:value="item.name"
-                        {% else %}
-                        v-model="item.name"
-                        {% endif %}
                         size="small"
                     />
                     {% endblock %}
@@ -216,11 +212,7 @@
                     {% block sw_product_list_grid_columns_active_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-checkbox-field
-                            {% if VUE3 %}
                             v-model:value="item.active"
-                            {% else %}
-                            v-model="item.active"
-                            {% endif %}
                         />
                     </template>
                     {% endblock %}
@@ -277,11 +269,7 @@
                     {% block sw_product_list_grid_columns_stock_inline_edit %}
                     <template v-if="isInlineEdit">
                         <sw-number-field
-                            {% if VUE3 %}
                             v-model:value="item.stock"
-                            {% else %}
-                            v-model="item.stock"
-                            {% endif %}
                             :size="compact ? 'small' : 'default'"
                         />
                     </template>

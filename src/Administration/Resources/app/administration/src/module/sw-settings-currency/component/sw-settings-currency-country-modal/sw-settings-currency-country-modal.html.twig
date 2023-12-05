@@ -8,11 +8,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_currency_country_modal_country_select %}
     <sw-entity-single-select
-        {% if VUE3 %}
         v-model:value="currencyCountryRounding.countryId"
-        {% else %}
-        v-model="currencyCountryRounding.countryId"
-        {% endif %}
         required
         show-clearable-button
         class="sw-settings-currency-country-modal__select-country"

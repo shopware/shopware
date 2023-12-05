@@ -287,11 +287,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_individual_codes_behavior_add_codes_modal_code_amount %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="newCodeAmount"
-                {% else %}
-                v-model="newCodeAmount"
-                {% endif %}
                 class="sw-promotion-v2-individual-codes-behavior__code-amount"
                 :label="$tc('sw-promotion-v2.detail.base.codes.individual.addCodesModal.codeAmountLabel')"
                 :min="1"

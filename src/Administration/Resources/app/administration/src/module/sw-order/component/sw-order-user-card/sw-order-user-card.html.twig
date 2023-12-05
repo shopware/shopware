@@ -352,18 +352,10 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_order_detail_base_secondary_info_tracking_codes_input_content %}
                                 <sw-multi-tag-select
-                                    {% if VUE3 %}
                                     v-model:value="delivery.trackingCodes"
-                                    {% else %}
-                                    v-model="delivery.trackingCodes"
-                                    {% endif %}
                                     class="sw-order-user-card__tracking-code-select"
                                     :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
-                                    {% if VUE3 %}
                                     @update:value="emitChange"
-                                    {% else %}
-                                    @change="emitChange"
-                                    {% endif %}
                                 >
                                     <template #message-add-data>
                                         <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>

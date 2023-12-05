@@ -191,9 +191,7 @@ Component.register('sw-search-bar-item', {
         registerEvents() {
             let parent = this.$parent;
 
-            if (this.feature.isActive('VUE3')) {
-                parent = this.$parent.$parent;
-            }
+            parent = this.$parent.$parent;
 
             parent.$on('active-item-index-select', this.checkActiveState);
             parent.$on('keyup-enter', this.onEnter);
@@ -202,9 +200,7 @@ Component.register('sw-search-bar-item', {
         removeEvents() {
             let parent = this.$parent;
 
-            if (this.feature.isActive('VUE3')) {
-                parent = this.$parent.$parent;
-            }
+            parent = this.$parent.$parent;
 
             parent.$off('active-item-index-select', this.checkActiveState);
             parent.$off('keyup-enter', this.onEnter);
@@ -233,9 +229,7 @@ Component.register('sw-search-bar-item', {
         onMouseEnter(originalDomEvent) {
             let parent = this.$parent;
 
-            if (this.feature.isActive('VUE3')) {
-                parent = this.$parent.$parent;
-            }
+            parent = this.$parent.$parent;
 
             parent.$emit('mouse-over', {
                 originalDomEvent,

@@ -133,13 +133,7 @@ Component.register('sw-entity-multi-id-select', {
         updateIds(collection) {
             this.collection = collection;
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:ids', collection.getIds());
-
-                return;
-            }
-
-            this.$emit('change', collection.getIds());
+            this.$emit('update:ids', collection.getIds());
         },
     },
 });

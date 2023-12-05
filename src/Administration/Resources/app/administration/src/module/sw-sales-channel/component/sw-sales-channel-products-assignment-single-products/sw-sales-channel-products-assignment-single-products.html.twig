@@ -47,10 +47,8 @@
                 :show-actions="false"
                 :show-settings="false"
                 @selection-change="onSelectionChange"
-                {% if VUE3 %}
                 @select-item="onSelectionChange"
                 @select-all-items="onSelectionChange"
-                {% endif %}
             >
                 <template #pagination>
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

@@ -2,7 +2,7 @@
  * @package buyers-experience
  */
 
-import Vue, { reactive } from 'vue';
+import { reactive } from 'vue';
 import UserConfigClass from '../../../core/service/support/user-config.class';
 
 const { Application } = Shopware;
@@ -11,14 +11,9 @@ class SalesChannelFavoritesService extends UserConfigClass {
     static USER_CONFIG_KEY = 'sales-channel-favorites';
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    private state: { favorites: string[] } = window._features_?.VUE3
-        ? reactive({
-            favorites: [],
-        }) :
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        Vue.observable({
-            favorites: [],
-        });
+    private state: { favorites: string[] } = reactive({
+        favorites: [],
+    });
 
     private async initService(): Promise<void> {
         this.userConfig = await this.getUserConfig();

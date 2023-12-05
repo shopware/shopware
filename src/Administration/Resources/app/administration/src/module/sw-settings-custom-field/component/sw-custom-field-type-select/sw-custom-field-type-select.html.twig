@@ -5,18 +5,10 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_select_multi %}
 <sw-switch-field
-    {% if VUE3 %}
     v-model:value="multiSelectSwitch"
-    {% else %}
-    v-model="multiSelectSwitch"
-    {% endif %}
     class="sw-custom-field-detail__switch"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-    {% if VUE3 %}
     @update:value="onChangeMultiSelectSwitch"
-    {% else %}
-    @change="onChangeMultiSelectSwitch"
-    {% endif %}
 />
 {% endblock %}
 
@@ -54,11 +46,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_custom_field_type_select_options_container_technical_name %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="option.value"
-            {% else %}
-            v-model="option.value"
-            {% endif %}
             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
         />
         {% endblock %}
@@ -69,11 +57,7 @@
             <sw-text-field
                 v-for="locale in locales"
                 :key="locale"
-                {% if VUE3 %}
                 v-model:value="option.label[locale]"
-                {% else %}
-                v-model="option.label[locale]"
-                {% endif %}
                 class="sw-custom-field-type-select__option-label"
                 :label="getLabel(locale)"
             />

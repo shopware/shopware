@@ -13,15 +13,10 @@
         {% block sw_line_chart_multiple_chart %}
         <template
             v-for="(serie, index) in optimizedSeries"
-            {% if VUE3 %}
             :key="`multiple-chart-${index}`"
-            {% endif %}
         >
             <apexchart
                 v-bind="$attrs"
-                {% if VUE2 %}
-                :key="`multiple-chart-${index}`"
-                {% endif %}
                 :type="type"
                 :options="mergedOptions"
                 :series="serie.data"

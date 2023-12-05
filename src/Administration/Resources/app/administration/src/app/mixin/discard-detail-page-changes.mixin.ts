@@ -1,4 +1,4 @@
-import type { NavigationGuardNext, Route } from 'vue-router_v2';
+import type { NavigationGuardNext } from 'vue-router';
 
 const { Mixin } = Shopware;
 const { types } = Shopware.Utils;
@@ -41,9 +41,7 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
     }
 
     return Shopware.Component.wrapComponentConfig({
-        // @ts-expect-error
-        beforeRouteLeave(to: Route, from: Route, next: NavigationGuardNext) {
-            // @ts-expect-error
+        beforeRouteLeave(to, from, next: NavigationGuardNext) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             this.discardChanges();
 
@@ -52,7 +50,6 @@ export default Mixin.register('discard-detail-page-changes', (...entityNames: Ar
 
         watch: {
             '$route.params.id'() {
-                // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                 this.discardChanges();
             },

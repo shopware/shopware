@@ -19,11 +19,7 @@
         :entity-name="filter.schema.entity"
         :entity-collection="values"
         :display-variants="filter.displayVariants"
-        {% if VUE3 %}
         @update:entity-collection="changeValue"
-        {% else %}
-        @change="changeValue"
-        {% endif %}
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_multi_select_filter_content_slot_selection_label_property %}
@@ -56,11 +52,7 @@
         :placeholder="filter.placeholder"
         :options="filter.options"
         :value="values"
-        {% if VUE3 %}
         @update:value="changeValue"
-        {% else %}
-        @change="changeValue"
-        {% endif %}
     />
     {% endblock %}
     {% endblock %}

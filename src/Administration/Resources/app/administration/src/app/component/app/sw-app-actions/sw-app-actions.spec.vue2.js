@@ -2,12 +2,13 @@
  * @package admin
  */
 
-import { config, createLocalVue, mount } from '@vue/test-utils_v2';
-import VueRouter from 'vue-router_v2';
-import Vuex from 'vuex_v2';
+// Commented out because this file is just still here for the Vue2 test conversion as a reference
+// import { config, createLocalVue, mount } from '@vue/test-utils_v2';
+// import VueRouter from 'vue-router_v2';
+// import Vuex from 'vuex_v2';
 import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
 import InvalidActionButtonParameterError from '../../../../core/service/api/errors/InvalidActionButtonParameterError';
-import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
+import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action.fixtures';
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-button';

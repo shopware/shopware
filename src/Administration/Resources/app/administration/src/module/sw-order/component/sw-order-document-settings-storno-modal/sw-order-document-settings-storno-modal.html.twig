@@ -7,12 +7,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_cancellation_document_number %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="documentConfig.documentNumber"
-        {% else %}
-        v-model="documentConfig.documentNumber"
-        {% endif %}
-        name="sw-field--documentConfig-documentNumber"
         :label="$tc('sw-order.documentModal.labelDocumentStornoNumber')"
     />
     {% endblock %}
@@ -20,11 +15,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_document_select_invoice %}
     <sw-select-field
-        {% if VUE3 %}
         v-model:value="documentConfig.custom.invoiceNumber"
-        {% else %}
-        v-model="documentConfig.custom.invoiceNumber"
-        {% endif %}
         class="sw-order-document-settings-storno-modal__invoice-select"
         :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
         :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')"
@@ -42,11 +33,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_order_document_settings_modal_form_cancellation_document_date %}
     <sw-datepicker
-        {% if VUE3 %}
         v-model:value="documentConfig.documentDate"
-        {% else %}
-        v-model="documentConfig.documentDate"
-        {% endif %}
         date-type="date"
         required
         :label="$tc('sw-order.documentModal.labelDocumentDate')"

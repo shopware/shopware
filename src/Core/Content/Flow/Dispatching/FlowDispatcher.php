@@ -6,6 +6,7 @@ use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\FlowLogEvent;
@@ -124,8 +125,11 @@ class FlowDispatcher implements EventDispatcherInterface
             throw new ServiceNotFoundException(FlowExecutor::class);
         }
 
+        $exceptionsByFlowId = [];
+        $flowNamesByFlowId = [];
         foreach ($flows as $flow) {
             try {
+                $flowNamesByFlowId[$flow['id']] = $flow['name'];
                 /** @var Flow $payload */
                 $payload = $flow['payload'];
                 $flowExecutor->execute($payload, $event);
@@ -138,6 +142,7 @@ class FlowDispatcher implements EventDispatcherInterface
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
                 );
+                $exceptionsByFlowId[$flow['id']] = $e;
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
@@ -146,7 +151,12 @@ class FlowDispatcher implements EventDispatcherInterface
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
                 );
+                $exceptionsByFlowId[$flow['id']] = $e;
             }
+        }
+
+        if (\count($exceptionsByFlowId) > 0) {
+            throw FlowException::errorsDuringExecution($exceptionsByFlowId, $flowNamesByFlowId);
         }
     }
 

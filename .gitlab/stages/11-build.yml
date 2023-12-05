@@ -27,7 +27,12 @@ Build:
       - composer run init:db
       - echo -e "\e[0Ksection_end:`date +%s`:initdb\r\e[0K"
       - !reference [ .scripts, init, npm, admin ]
-      - !reference [ .scripts, init, npm, storefront ]
+
+      # Install only build relevant dependencies
+      - echo -e "\e[0Ksection_start:$(date +%s):npminstallstorefront[collapsed=true]\r\e[0Knpm install storefront"
+      - 'NODE_ENV=production npm --no-audit --prefer-offline --prefix src/Storefront/Resources/app/storefront/ ci'
+      - echo -e "\e[0Ksection_end:`date +%s`:npminstallstorefront\r\e[0K"
+
       - echo -e "\e[0Ksection_start:$(date +%s):testplugin[collapsed=true]\r\e[0Kprepare test plugin"
       - composer run e2e:sdk-plugin:fixture-to-plugin
       - '(cd custom/plugins/TestPlugin/src/Resources/app/administration/ && npm install --no-audit --prefer-offline)'

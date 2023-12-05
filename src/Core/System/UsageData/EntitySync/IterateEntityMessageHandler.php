@@ -34,7 +34,6 @@ final class IterateEntityMessageHandler
         }
 
         if ($this->entityDefinitionService->getAllowedEntityDefinition($message->getEntityName()) === null) {
-            /** @phpstan-ignore-next-line We explicitly want to use this exception */
             throw new UnrecoverableMessageHandlingException(sprintf(
                 'Entity definition for entity %s not found.',
                 $message->getEntityName(),
@@ -43,7 +42,6 @@ final class IterateEntityMessageHandler
 
         $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
         if ($lastApprovalDate === null) {
-            /** @phpstan-ignore-next-line We explicitly want to use this exception */
             throw new UnrecoverableMessageHandlingException(sprintf(
                 'No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
                 $message->getEntityName(),

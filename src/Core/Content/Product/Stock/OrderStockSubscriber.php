@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
@@ -49,7 +48,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
 
     public function beforeWriteOrderItems(EntityWriteEvent $event): void
     {
-        if (!$this->isEnabled()) {
+        if (!$this->enableStockManagement) {
             return;
         }
 
@@ -93,7 +92,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
 
     public function stateChanged(StateMachineTransitionEvent $event): void
     {
-        if (!$this->isEnabled()) {
+        if (!$this->enableStockManagement) {
             return;
         }
 
@@ -126,11 +125,6 @@ final class OrderStockSubscriber implements EventSubscriberInterface
                 $event->getContext()
             );
         }
-    }
-
-    private function isEnabled(): bool
-    {
-        return $this->enableStockManagement && Feature::isActive('STOCK_HANDLING');
     }
 
     /**

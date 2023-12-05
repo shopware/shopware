@@ -17,9 +17,6 @@ shopware:
         default: false
         major: true
         description: "Enables new media path behavior, which calls new services to generate media urls"
-      - name: STOCK_HANDLING
-        default: false
-        major: false
       - name: ASYNC_THEME_COMPILATION
         default: false
         major: true

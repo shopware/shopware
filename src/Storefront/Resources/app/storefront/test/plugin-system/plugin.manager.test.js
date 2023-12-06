@@ -39,67 +39,58 @@ describe('Plugin manager', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div data-plugin="true" class="test-class"></div><div id="test-id"></div>';
 
-        global.activeFeatureFlags = [];
-
-        window.Feature = class Feature {
-            static isActive(flagName) {
-                return global.activeFeatureFlags.includes(flagName);
-            }
-        };
-
         jest.spyOn(console, 'error').mockImplementation();
     });
 
     afterEach(() => {
         jest.resetAllMocks();
-        global.activeFeatureFlags = [];
         expect(console.error).not.toHaveBeenCalled();
     });
 
-    it('should not fail for non-existing id', () => {
+    it('should not fail for non-existing id', async () => {
         PluginManager.register('FooPlugin', FooPluginClass, '#nonExistingId');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPlugin').length).toBe(0);
 
         PluginManager.deregister('FooPlugin', '#nonExistingId');
     });
 
-    it('should not fail for non-existing HTML tag', () => {
+    it('should not fail for non-existing HTML tag', async () => {
         PluginManager.register('FooPlugin', FooPluginClass, 'nonExistingHtmlTag');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPlugin').length).toBe(0);
 
         PluginManager.deregister('FooPlugin', 'nonExistingHtmlTag');
     });
 
-    it('should not fail for non-existing class', () => {
+    it('should not fail for non-existing class', async () => {
         PluginManager.register('FooPlugin', FooPluginClass, '.non-existing-class');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPlugin').length).toBe(0);
 
         PluginManager.deregister('FooPlugin', '.non-existing-class');
     });
 
-    it('should not fail for non-existing selector', () => {
+    it('should not fail for non-existing selector', async () => {
         PluginManager.register('FooPlugin', FooPluginClass, '[data-non-existing-data-attribute]');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPlugin').length).toBe(0);
 
         PluginManager.deregister('FooPlugin', '[data-non-existing-data-attribute]');
     });
 
-    it('should initialize plugin with class selector', () => {
+    it('should initialize plugin with class selector', async () => {
         PluginManager.register('FooPlugin', FooPluginClass, '.test-class');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPlugin').length).toBe(1);
         expect(PluginManager.getPluginInstances('FooPlugin')[0]._initialized).toBe(true);
@@ -107,10 +98,10 @@ describe('Plugin manager', () => {
         PluginManager.deregister('FooPlugin', '.test-class');
     });
 
-    it('should initialize plugin with id selector', () => {
+    it('should initialize plugin with id selector', async () => {
         PluginManager.register('FooPluginID', FooPluginClass, '#test-id');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPluginID').length).toBe(1);
         expect(PluginManager.getPluginInstances('FooPluginID')[0]._initialized).toBe(true);
@@ -118,10 +109,10 @@ describe('Plugin manager', () => {
         PluginManager.deregister('FooPluginID', '#test-id');
     });
 
-    it('should initialize plugin with tag selector', () => {
+    it('should initialize plugin with tag selector', async () => {
         PluginManager.register('FooPluginTag', FooPluginClass, 'div');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPluginTag').length).toBe(2);
 
@@ -132,10 +123,10 @@ describe('Plugin manager', () => {
         PluginManager.deregister('FooPluginTag', 'div');
     });
 
-    it('should initialize plugin with data-attribute selector', () => {
+    it('should initialize plugin with data-attribute selector', async () => {
         PluginManager.register('FooPluginDataAttr', FooPluginClass, '[data-plugin]');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPluginDataAttr').length).toBe(1);
 
@@ -144,11 +135,11 @@ describe('Plugin manager', () => {
         PluginManager.deregister('FooPluginDataAttr', '[data-plugin]');
     });
 
-    it('should initialize plugin with mixed selector (class and data-attribute)', () => {
+    it('should initialize plugin with mixed selector (class and data-attribute)', async () => {
         const selector = '.test-class[data-plugin]';
         PluginManager.register('FooPluginClassDataAttr', FooPluginClass, selector);
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('FooPluginClassDataAttr').length).toBe(1);
 
@@ -158,16 +149,13 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize plugin with async import', async () => {
-        global.activeFeatureFlags = ['v6.6.0.0'];
-
         const asyncImport = new Promise((resolve) => {
             resolve({ default: AsyncPluginClass });
         });
 
         PluginManager.register('AsyncTest', () => asyncImport, '.test-class');
 
-        PluginManager.initializePlugins();
-        await new Promise(process.nextTick);
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('AsyncTest').length).toBe(1);
         expect(PluginManager.getPluginInstances('AsyncTest')[0]._initialized).toBe(true);
@@ -176,8 +164,6 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize plugin with async import on DOM element', async () => {
-        global.activeFeatureFlags = ['v6.6.0.0'];
-
         const asyncImport = new Promise((resolve) => {
             resolve({ default: AsyncPluginClass });
         });
@@ -186,8 +172,7 @@ describe('Plugin manager', () => {
 
         PluginManager.register('AsyncWithElement', () => asyncImport, element);
 
-        PluginManager.initializePlugins();
-        await new Promise(process.nextTick);
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('AsyncWithElement').length).toBe(1);
         expect(PluginManager.getPluginInstances('AsyncWithElement')[0]._initialized).toBe(true);
@@ -196,8 +181,6 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize multiple plugins with async import', async () => {
-        global.activeFeatureFlags = ['v6.6.0.0'];
-
         const asyncImport1 = new Promise((resolve) => {
             resolve({ default: AsyncPluginClass });
         });
@@ -209,8 +192,7 @@ describe('Plugin manager', () => {
         PluginManager.register('Async1', () => asyncImport1, '.test-class');
         PluginManager.register('Async2', () => asyncImport2, '#test-id');
 
-        PluginManager.initializePlugins();
-        await new Promise(process.nextTick);
+        await PluginManager.initializePlugins();
 
         expect(PluginManager.getPluginInstances('Async1').length).toBe(1);
         expect(PluginManager.getPluginInstances('Async1')[0]._initialized).toBe(true);
@@ -223,8 +205,6 @@ describe('Plugin manager', () => {
     });
 
     it('should initialize plugins in correct order, regardless if they are async', async () => {
-        global.activeFeatureFlags = ['v6.6.0.0'];
-
         document.body.innerHTML = `
             <div data-async-one="true"></div>
             <div data-async-two="true"></div>
@@ -247,8 +227,7 @@ describe('Plugin manager', () => {
         PluginManager.register('Plugin2', FooPluginClass, '[data-sync-plugin]');
         PluginManager.register('Plugin3', () => asyncImport2, '[data-async-two]');
 
-        PluginManager.initializePlugins();
-        await new Promise(process.nextTick);
+        await PluginManager.initializePlugins();
 
         // Ensure all init methods are called
         expect(spyInit1).toHaveBeenCalledTimes(1);
@@ -265,13 +244,13 @@ describe('Plugin manager', () => {
         PluginManager.deregister('Plugin3', '[data-async-two]');
     });
 
-    it('should be able get plugin instance from element', () => {
+    it('should be able get plugin instance from element', async () => {
         document.body.innerHTML = `
             <div data-shopping-cart="true"></div>
         `;
 
         PluginManager.register('ShoppingCart', CoreCartPluginClass, '[data-shopping-cart]');
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         const element = document.querySelector('[data-shopping-cart]');
         const coreCartPluginInstance = PluginManager.getPluginInstanceFromElement(element, 'ShoppingCart');
@@ -282,7 +261,7 @@ describe('Plugin manager', () => {
         PluginManager.deregister('ShoppingCart', '[data-shopping-cart]');
     });
 
-    it('should be able to override sync plugin', () => {
+    it('should be able to override sync plugin', async () => {
         document.body.innerHTML = `
             <div data-cart="true"></div>
         `;
@@ -293,7 +272,7 @@ describe('Plugin manager', () => {
         // App/plugin attempts to override core plugin
         PluginManager.override('CoreCart', OverrideCartPluginClass, '[data-cart]');
 
-        PluginManager.initializePlugins();
+        await PluginManager.initializePlugins();
 
         const element = document.querySelector('[data-cart]');
         const cartPluginInstance = PluginManager.getPluginInstanceFromElement(element, 'CoreCart');
@@ -305,8 +284,6 @@ describe('Plugin manager', () => {
     });
 
     it('should be able to override async plugin', async () => {
-        global.activeFeatureFlags = ['v6.6.0.0'];
-
         jest.useFakeTimers();
 
         document.body.innerHTML = `

@@ -195,19 +195,12 @@
                 {# The storefront entry is a combined entry point which contains all plugins & themes #}
                 <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
             {% else %}
-                {# @deprecated tag:v6.6.0 - The original JS bundles are used instead of the all.js from ThemeConfigValueAccessor #}
-                {% if feature('v6.6.0.0') %}
-                    <script>
-                        window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
-                    </script>
-                    {% for script in theme_scripts() %}
-                        <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
-                    {% endfor %}
-                {% else %}
-                    {% for file in theme_config('assets.js') %}
-                        <script type="text/javascript" src="{{ asset(file, 'theme') }}" defer></script>
-                    {% endfor %}
-                {% endif %}
+                <script>
+                    window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
+                </script>
+                {% for script in theme_scripts() %}
+                    <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
+                {% endfor %}
             {% endif %}
         {% endblock %}
     </head>

@@ -8,106 +8,6 @@ Extends the basic offcanvas component with additional cart styles.
     .alert {
         margin-top: $spacer;
     }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item {
-        padding: $spacer 0;
-        position: relative;
-
-        &.is-empty {
-            padding-top: 0;
-            border-bottom: 0;
-        }
-
-        &.is-nested,
-        &.is-child {
-            padding-left: $spacer;
-        }
-
-        &.is-nested {
-            .cart-item-img {
-                background: none;
-                border: 0;
-            }
-        }
-
-        &.is-discount {
-            .cart-item-price {
-                color: $success;
-            }
-        }
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-img {
-        height: 75px;
-        width: 75px;
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-img-link {
-        align-items: center;
-        display: flex;
-        height: 100%;
-        justify-content: center;
-        width: 100%;
-
-        .cart-item-img-source {
-            flex: 0 0 auto;
-            width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-details {
-        margin-bottom: $spacer;
-        word-break: break-word;
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-details-container {
-        .cart-item-details {
-            margin-right: 58px;
-        }
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-children {
-        margin-left: 4px;
-        margin-right: 4px;
-        width: 100%;
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-remove {
-        position: absolute;
-        right: 0;
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-quantity-price {
-        justify-content: space-between;
-        display: flex;
-        align-items: center;
-
-        // add padding to promotion item and remove button
-        min-height: 50px;
-    }
-
-    /** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-    .cart-item-price {
-        font-weight: $font-weight-bold;
-        margin-left: $spacer;
-        text-align: right;
-
-        .cart-item-reference-price {
-            color: lighten($sw-text-color, 20);
-            display: inline-block;
-            line-height: $spacer * 0.85;
-        }
-    }
 }
 
 .offcanvas-cart-items,
@@ -152,14 +52,5 @@ Extends the basic offcanvas component with additional cart styles.
     .summary-value,
     .shipping-value {
         text-align: right;
-    }
-}
-
-/** @deprecated tag:v6.6.0 - Unused CSS rules for "cart-item" will be removed. The corresponding templates were removed in v6.5.0. Please build upon the CSS for "line-item" instead. */
-@include media-breakpoint-down(sm) {
-    .cart-offcanvas {
-        .cart-item-price {
-            order: 4;
-        }
     }
 }

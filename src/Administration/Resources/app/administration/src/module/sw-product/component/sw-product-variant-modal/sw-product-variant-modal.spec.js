@@ -4,6 +4,23 @@
 
 import { mount } from '@vue/test-utils';
 
+function getMedias() {
+    return [
+        {
+            id: '1',
+            media: {
+                url: 'http://shopware.com/image1.jpg',
+            },
+        },
+        {
+            id: '2',
+            media: {
+                url: 'http://shopware.com/image2.jpg',
+            },
+        },
+    ];
+}
+
 function getOptions() {
     return [
         {
@@ -44,6 +61,38 @@ function getOptions() {
             },
             position: 1,
             id: 'option_a',
+        },
+    ];
+}
+
+function getConfiguratorSettings() {
+    return [
+        {
+            productId: '72bfaf5d90214ce592715a9649d8760a',
+            id: '1',
+            option: {
+                groupId: 'group1',
+                name: 'b',
+                id: 'option_b',
+            },
+        },
+        {
+            productId: '72bfaf5d90214ce592715a9649d8760a',
+            id: '2',
+            option: {
+                groupId: 'group2',
+                name: 'a',
+                id: 'option_a',
+            },
+        },
+        {
+            productId: '72bfaf5d90214ce592715a9649d8760a',
+            id: '3',
+            option: {
+                groupId: 'group3',
+                name: 'c',
+                id: 'option_c',
+            },
         },
     ];
 }
@@ -199,6 +248,14 @@ async function createWrapper() {
 
                                 if (entity === 'property_group') {
                                     return Promise.resolve(getGroups());
+                                }
+
+                                if (entity === 'product_media') {
+                                    return Promise.resolve(getMedias());
+                                }
+
+                                if (entity === 'product_configurator_setting') {
+                                    return Promise.resolve(getConfiguratorSettings());
                                 }
 
                                 return Promise.resolve([]);
@@ -423,5 +480,12 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await wrapper.find('.sw-product-variant-modal__reset-filter').trigger('click');
 
         expect(wrapper.vm.includeOptions).toEqual([]);
+    });
+
+    it('should able to fetch media from product', async () => {
+        global.activeAclRoles = [];
+        await flushPromises();
+
+        expect(wrapper.vm.$props.productEntity.media).toEqual(getMedias());
     });
 });

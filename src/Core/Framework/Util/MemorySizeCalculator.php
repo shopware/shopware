@@ -51,4 +51,21 @@ class MemorySizeCalculator
 
         return round($bytes, 2) . ' ' . $units[$pow];
     }
+
+    public static function getMaxUploadSize(?int $maxSize = null): int
+    {
+        $values = [
+            self::convertToBytes((string) ini_get('upload_max_filesize')),
+            self::convertToBytes((string) ini_get('post_max_size')),
+        ];
+
+        if ($maxSize !== null) {
+            $values[] = $maxSize;
+        }
+
+        /** @var non-empty-array<int> $limits */
+        $limits = array_filter($values, static fn (int $value) => $value > 0);
+
+        return min($limits);
+    }
 }

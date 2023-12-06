@@ -362,7 +362,7 @@ class ThumbnailService
 
         if ($imageSize['width'] >= $imageSize['height']) {
             $factor = $preferredThumbnailSize->getWidth() / $imageSize['width'];
-            
+
             $calculatedWidth = $preferredThumbnailSize->getWidth();
             $calculatedHeight = (int) ceil($imageSize['height'] * $factor);
 
@@ -482,7 +482,6 @@ class ThumbnailService
         if (!$this->thumbnailsAreGeneratable($media)) {
             return false;
         }
-
         $this->ensureConfigIsLoaded($media, $context);
 
         if ($media->getMediaFolder() === null || $media->getMediaFolder()->getConfiguration() === null) {

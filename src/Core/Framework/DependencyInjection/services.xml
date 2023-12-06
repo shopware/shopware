@@ -177,9 +177,6 @@ base-uri 'self';
             <tag name="serializer.normalizer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Struct\Serializer\StructDecoder">
-        </service>
-
         <!-- Routing -->
         <service id="Shopware\Core\Framework\Routing\ContextResolverListener">
             <argument type="service" id="Shopware\Core\Framework\Routing\ApiRequestContextResolver"/>

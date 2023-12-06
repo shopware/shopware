@@ -90,7 +90,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -157,7 +156,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -221,7 +219,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],
@@ -326,7 +323,6 @@ class WebhookDispatcherTest extends TestCase
             'appSecret' => 's3cr3t',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'api access key',
                 'secretAccessKey' => 'test',
             ],

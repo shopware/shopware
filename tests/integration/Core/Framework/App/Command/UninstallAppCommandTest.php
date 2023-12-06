@@ -36,7 +36,6 @@ class UninstallAppCommandTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

@@ -288,7 +288,6 @@ class AppRegistrationServiceTest extends TestCase
             'accessToken' => 'testtoken',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'testkey',
                 'secretAccessKey' => 'test',
             ],

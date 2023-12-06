@@ -49,7 +49,6 @@ class DefinitionValidator
         'product.wishlists',
         'order.billingAddress',
         'product_search_config.excludedTerms',
-        'integration.writeAccess',
         'media.metaDataRaw',
         'product.sortedProperties',
         'product.cheapestPriceContainer',

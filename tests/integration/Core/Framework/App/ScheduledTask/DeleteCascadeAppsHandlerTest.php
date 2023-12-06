@@ -82,7 +82,6 @@ class DeleteCascadeAppsHandlerTest extends TestCase
                 'integrations' => [
                     [
                         'label' => 'test',
-                        'writeAccess' => false,
                         'accessKey' => 'api access key',
                         'secretAccessKey' => 'test',
                         'deletedAt' => $timeExpired,

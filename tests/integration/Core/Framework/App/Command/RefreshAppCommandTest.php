@@ -179,7 +179,6 @@ class RefreshAppCommandTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],
@@ -227,7 +226,6 @@ class RefreshAppCommandTest extends TestCase
             'accessToken' => 'test',
             'integration' => [
                 'label' => 'test',
-                'writeAccess' => false,
                 'accessKey' => 'test',
                 'secretAccessKey' => 'test',
             ],

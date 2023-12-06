@@ -78,9 +78,12 @@ class AccountOverviewPageLoader
             ->addAssociation('lineItems.cover')
             ->addAssociation('lineItems.downloads.media')
             ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('addresses')
             ->addAssociation('currency')
+            ->addAssociation('stateMachineState')
             ->addAssociation('documents.documentType')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
@@ -93,10 +96,8 @@ class AccountOverviewPageLoader
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
-        $responseStruct = $this->orderRoute
-            ->load($event->getStoreApiRequest(), $context, $criteria);
-
-        return $responseStruct->getOrders()->first();
+        return $this->orderRoute
+            ->load($event->getStoreApiRequest(), $context, $criteria)->getOrders()->getEntities()->first();
     }
 
     private function loadCustomer(SalesChannelContext $context, CustomerEntity $customer): CustomerEntity

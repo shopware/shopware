@@ -641,7 +641,7 @@
   "cookie": {
     "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
     "messageText": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
-    "deny": "Ablehnen",
+    "deny": "Nur technisch notwendige",
     "configure": "Konfigurieren",
     "configuration": "Einstellungen",
     "save": "Speichern",

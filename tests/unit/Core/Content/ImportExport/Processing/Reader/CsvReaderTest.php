@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\ImportExport\Processing\Reader;
+namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Reader;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader
  */
 #[Package('services-settings')]
 class CsvReaderTest extends TestCase
@@ -25,6 +27,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
+        static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -40,6 +43,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
+        static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, 0));
         static::assertSame(['foo' => '1', 'bar' => '2'], $record);
 
@@ -47,12 +51,14 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
+        static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $record);
 
         $offset = $reader->getOffset();
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
+        static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertNull($record);
     }
@@ -75,6 +81,7 @@ class CsvReaderTest extends TestCase
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
 
+        static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(6, $result);
@@ -88,19 +95,16 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => '', 'bar' => 'zxcv'], $result[$i]);
     }
 
-    public static function eolProvider(): array
+    public static function eolProvider(): \Generator
     {
-        return [
-            ["\r\n"], // windows
-            ["\n"], // unix
-            // ['\r'] // does not work :(
-        ];
+        yield 'windows' => ["\r\n"];
+        yield 'unix' => ["\n"];
     }
 
     /**
      * @dataProvider eolProvider
      */
-    public function testDifferentEOL($eol): void
+    public function testDifferentEOL(string $eol): void
     {
         $content = 'foo;bar' . $eol;
         $content .= '1;2' . $eol;
@@ -108,6 +112,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
+        static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -125,6 +130,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $bomContent, 'rb');
+        static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -140,6 +146,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
+        static::assertIsResource($resource);
         $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
@@ -147,6 +154,11 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => self::BOM_UTF8 . 'asdf', 'bar' => 'zxcv'], $result[1]);
     }
 
+    /**
+     * @param iterable<array<string>> $iterable
+     *
+     * @return array<array<string>>
+     */
     private function getAll(iterable $iterable): array
     {
         $result = [];
@@ -158,10 +170,17 @@ class CsvReaderTest extends TestCase
         return $result;
     }
 
-    private function getFirst(iterable $iterable)
+    /**
+     * @param iterable<array<string>> $iterable
+     *
+     * @return array<string>|null
+     */
+    private function getFirst(iterable $iterable): ?array
     {
         foreach ($iterable as $first) {
             return $first;
         }
+
+        return null;
     }
 }

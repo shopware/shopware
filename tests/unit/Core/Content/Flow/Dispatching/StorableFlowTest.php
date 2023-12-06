@@ -7,7 +7,6 @@ use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\FlowException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @package business-ops
@@ -99,17 +98,6 @@ class StorableFlowTest extends TestCase
         $data = $reflectionProperty->getValue($this->storableFlow)['order'];
 
         static::assertIsCallable($data);
-        static::assertEquals('Order Data', $this->storableFlow->getData('order'));
-    }
-
-    public function testWithThirdArgs(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $callback = fn () => 'Order Data';
-
-        $this->storableFlow->lazy('order', $callback, ['args' => 'args']);
-
         static::assertEquals('Order Data', $this->storableFlow->getData('order'));
     }
 }

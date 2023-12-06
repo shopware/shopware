@@ -296,8 +296,9 @@ jest (administration):
         - npm --prefix $ADMIN_PATH run unit-setup
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
         - npm ci --no-audit --prefer-offline
-        - if grep -q 6.6.x-dev composer.json && [[ "$LATEST_TAG" != "v6.6"* ]]; then
-            export VUE3=1;
+        - >
+          if [[ "$PLATFORM_VERSION" = "6.6"* ]]; then
+              export VUE3=1;
           fi
         - npm exec jest -- --config jest.config.js --ci
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

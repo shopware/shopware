@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart\Address;
 
+use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressCountryRegionMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
+use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressCountryRegionMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
@@ -73,6 +75,18 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
         if (!$customer->getActiveShippingAddress()->getSalutationId() && $validateShipping) {
             $errors->add(new ShippingAddressSalutationMissingError($customer->getActiveShippingAddress()));
+        }
+
+        if ($customer->getActiveBillingAddress()->getCountry()?->getForceStateInRegistration()) {
+            if (!$customer->getActiveBillingAddress()->getCountryState()) {
+                $errors->add(new BillingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
+            }
+        }
+
+        if ($customer->getActiveShippingAddress()->getCountry()?->getForceStateInRegistration()) {
+            if (!$customer->getActiveBillingAddress()->getCountryState()) {
+                $errors->add(new ShippingAddressCountryRegionMissingError($customer->getActiveShippingAddress()));
+            }
         }
     }
 

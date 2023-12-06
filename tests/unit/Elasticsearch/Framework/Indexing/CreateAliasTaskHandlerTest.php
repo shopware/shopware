@@ -8,7 +8,6 @@ use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
-use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -20,17 +19,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class CreateAliasTaskHandlerTest extends TestCase
 {
-    public function testHandledMessages(): void
-    {
-        $messages = CreateAliasTaskHandler::getHandledMessages();
-
-        if ($messages instanceof \Traversable) {
-            $messages = iterator_to_array($messages);
-        }
-
-        static::assertSame([CreateAliasTask::class], $messages);
-    }
-
     public function testHandleLogsErrors(): void
     {
         $connection = $this->createMock(Connection::class);

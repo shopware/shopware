@@ -77,10 +77,6 @@
           "message": "Alle Daten werden indexiert. | Weitere Daten zur Indexierung verbleibend ...",
           "messageSuccess": "Daten indexiert."
         },
-        "warmupIndexing": {
-          "message": "Cache aufgewärmt. | Noch eine Seite verbleibend ... |  {n} Seiten verbleibend ...",
-          "messageSuccess": "Cache aufgewärmt."
-        },
         "productStream": {
           "title": "Indexierung der dynamischen Produktgruppen",
           "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppen verbleibend ...",

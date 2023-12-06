@@ -609,7 +609,7 @@ class TranslationTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $expectedTranslations
+     * @param array<string, string|array<string, string>|null> $expectedTranslations
      * @param array<string, mixed> $data
      */
     private function assertTranslation(array $expectedTranslations, array $data, ?string $langOverride = null, string $entity = 'category'): void
@@ -641,11 +641,11 @@ class TranslationTest extends TestCase
 
         static::assertArrayHasKey('data', $responseData, (string) $response->getContent());
         foreach ($expectedTranslations as $key => $expectedTranslation) {
-            if (!\is_array($expectedTranslations[$key])) {
-                static::assertEquals($expectedTranslations[$key], $responseData['data'][$key]);
+            if (!\is_array($expectedTranslation)) {
+                static::assertEquals($expectedTranslation, $responseData['data'][$key]);
             } else {
-                foreach ($expectedTranslations[$key] as $key2 => $expectedTranslation2) {
-                    static::assertEquals($expectedTranslation[$key2], $responseData['data'][$key][$key2]);
+                foreach ($expectedTranslation as $key2 => $expectedTranslation2) {
+                    static::assertEquals($expectedTranslation2, $responseData['data'][$key][$key2]);
                 }
             }
         }

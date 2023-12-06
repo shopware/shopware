@@ -53,6 +53,7 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         try {
             $app = $this->getAppByName($technicalName, $context);
         } catch (ExtensionNotFoundException) {
+            // extension is not installed, so we can skip the uninstall process
             return;
         }
 

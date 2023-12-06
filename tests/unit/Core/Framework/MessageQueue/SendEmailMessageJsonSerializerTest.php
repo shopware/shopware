@@ -83,26 +83,4 @@ class SendEmailMessageJsonSerializerTest extends TestCase
         $restored = $serializer->deserialize($data, SendEmailMessage::class, 'json');
         static::assertEquals($sendMail, $restored);
     }
-
-    public function testDeserializeOldFormat(): void
-    {
-        $serializer = new Serializer(
-            [
-                new SendEmailMessageJsonSerializer(),
-            ],
-            [
-                new JsonEncoder(null),
-            ]
-        );
-
-        $sendMail = new SendEmailMessage(
-            new RawMessage('test'),
-            null
-        );
-
-        $data = json_encode([SendEmailMessageJsonSerializer::class => addslashes(serialize($sendMail))], \JSON_THROW_ON_ERROR);
-
-        $restored = $serializer->deserialize($data, SendEmailMessage::class, 'json');
-        static::assertEquals($sendMail, $restored);
-    }
 }

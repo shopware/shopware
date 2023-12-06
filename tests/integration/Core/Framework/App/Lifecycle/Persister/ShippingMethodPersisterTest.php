@@ -247,7 +247,6 @@ class ShippingMethodPersisterTest extends TestCase
         $shippingMethodPersister = new ShippingMethodPersister(
             $this->getContainer()->get('shipping_method.repository'),
             $this->getContainer()->get('app_shipping_method.repository'),
-            $this->getContainer()->get('rule.repository'),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get(AppLoader::class),

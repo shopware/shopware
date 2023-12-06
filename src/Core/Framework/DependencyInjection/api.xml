@@ -103,15 +103,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
 
-        <!-- Converter -->
-        <service id="Shopware\Core\Framework\Api\Converter\ConverterRegistry">
-            <argument type="tagged" tag="shopware.api.converter"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
-        </service>
-
         <!-- API Docs -->
         <service id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -185,7 +176,6 @@
         <service id="Shopware\Core\Framework\Api\Controller\CacheController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="cache.object"/>
-            <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <tag name="container.service_subscriber" />
             <tag name="controller.service_arguments" />

@@ -295,6 +295,7 @@ You should use `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteE
 ## Introduced in 6.5.3.0
 ## Removal of `flow-action-1.0.xsd`
 We removed `Shopware\Core\Framework\App\FlowAction\Schema\flow-action-1.0.xsd`, use `Shopware\Core\Framework\App\Flow\Schema\flow-1.0.xsd` instead.
+Also use the `Resources/flow.xml` file path instead of `Resources/flow-action.xml` for your apps flow configuration.
 ## Removal of `Shopware\Core\Framework\App\FlowAction` and `Shopware\Core\Framework\App\FlowAction\Xml`
 We moved all class from namespaces `Shopware\Core\Framework\App\FlowAction` to `Shopware\Core\Framework\App\Flow\Action` and `Shopware\Core\Framework\App\FlowAction\Xml` to `Shopware\Core\Framework\App\Flow\Action\Xml`.
 Please use new namespaces.

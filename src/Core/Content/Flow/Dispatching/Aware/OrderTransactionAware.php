@@ -3,12 +3,14 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Aware;
 
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Event\IsFlowEventAware;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @deprecated tag:v6.6.0 - reason:class-hierarchy-change - extends of FlowEventAware will be removed, implement the interface inside your event
  */
 #[Package('services-settings')]
+#[IsFlowEventAware]
 interface OrderTransactionAware extends FlowEventAware
 {
     public const ORDER_TRANSACTION_ID = 'orderTransactionId';

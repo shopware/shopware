@@ -83,32 +83,4 @@ class StoreExceptionTest extends TestCase
             ],
         ], $exception->getParameters());
     }
-
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testExtensionNotFoundFromId(): void
-    {
-        $exception = StoreException::extensionNotFoundFromId('123');
-
-        static::assertEquals(
-            'Could not find extension with id "123".',
-            $exception->getMessage()
-        );
-
-        static::assertEquals('FRAMEWORK__EXTENSION_NOT_FOUND', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testExtensionNotFoundFromTechnicalName(): void
-    {
-        $exception = StoreException::extensionNotFoundFromTechnicalName('test-app');
-
-        static::assertEquals(
-            'Could not find extension with technical name "test-app".',
-            $exception->getMessage()
-        );
-
-        static::assertEquals('FRAMEWORK__EXTENSION_NOT_FOUND', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
-    }
 }

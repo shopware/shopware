@@ -8,14 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
-use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\StoreException;
@@ -124,11 +122,7 @@ class StoreDownloadCommand extends Command
         }
 
         if ($plugin->getManagedByComposer() && !str_starts_with($plugin->getPath() ?? '', $this->relativePluginDir)) {
-            if (Feature::isActive('v6.6.0.0')) {
-                throw StoreException::cannotDeleteManaged($pluginName);
-            }
-
-            throw new CanNotDownloadPluginManagedByComposerException('can not download plugins managed by composer from store api');
+            throw StoreException::cannotDeleteManaged($pluginName);
         }
     }
 

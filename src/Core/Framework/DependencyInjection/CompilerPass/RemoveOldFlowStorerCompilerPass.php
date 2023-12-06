@@ -5,9 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ContentsStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\ContextTokenStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\DataStorer;
-use Shopware\Core\Content\Flow\Dispatching\Storer\EmailStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\NameStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\RecipientsStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer;
@@ -28,14 +26,12 @@ class RemoveOldFlowStorerCompilerPass implements CompilerPassInterface
         $deprecated = [
             ResetUrlStorer::class,
             RecipientsStorer::class,
-            ContextTokenStorer::class,
             NameStorer::class,
             DataStorer::class,
             ContactFormDataStorer::class,
             ContentsStorer::class,
             ConfirmUrlStorer::class,
             ReviewFormDataStorer::class,
-            EmailStorer::class,
             UrlStorer::class,
             TemplateDataStorer::class,
             SubjectStorer::class,

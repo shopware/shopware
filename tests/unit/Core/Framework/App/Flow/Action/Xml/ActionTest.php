@@ -26,8 +26,8 @@ class ActionTest extends TestCase
     protected function setUp(): void
     {
         $this->document = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow-action.xml',
-            __DIR__ . '/../../../../../../../../src/Core/Framework/App/FlowAction/Schema/flow-action-1.0.xsd'
+            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
 
         $actions = $this->document->getElementsByTagName('flow-actions')->item(0);

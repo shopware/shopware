@@ -4691,16 +4691,6 @@ parameters:
 			path: src/Core/Framework/Event/FlowLogEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Increment\\\\IncrementerGatewayCompilerPass\\:\\:resolveTypeDefinition\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/IncrementerGatewayCompilerPass.php
-
-		-
-			message: "#^PHPDoc tag @var for variable \\$services has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Increment/IncrementerGatewayCompilerPass.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\RefreshMigrationCommand\\:\\:updateMigrationFile\\(\\) has parameter \\$replace with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Migration/Command/RefreshMigrationCommand.php
@@ -4894,36 +4884,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\BundleConfigGeneratorInterface\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/BundleConfigGeneratorInterface.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseItem\\(\\) has parameter \\$line with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogParser\\:\\:parseTitle\\(\\) has parameter \\$line with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:getChangelogFiles\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:getLocaleFromChangelogFile\\(\\) has parameter \\$file with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Changelog\\\\ChangelogService\\:\\:parseChangelog\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Changelog/ChangelogService.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Command\\\\Lifecycle\\\\AbstractPluginLifecycleCommand\\:\\:parsePluginArgument\\(\\) has parameter \\$arguments with no value type specified in iterable type array\\.$#"
@@ -6149,11 +6109,6 @@ parameters:
 			message: "#^Unsafe call to private method Shopware\\\\Core\\\\Framework\\\\Test\\\\Filesystem\\\\Adapter\\\\MemoryAdapterFactory\\:\\:addAdapter\\(\\) through static\\:\\:\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Filesystem/Adapter/MemoryAdapterFactory.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with bool will always evaluate to true\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/Increment/IncrementerGatewayCompilerPassTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Language\\\\LanguageValidatorTest\\:\\:addDefaultLocale\\(\\) has parameter \\$lang with no value type specified in iterable type array\\.$#"
@@ -8757,17 +8712,7 @@ parameters:
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/ContextTokenStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
 			path: tests/unit/Core/Content/Flow/Dispatching/Storer/DataStorerTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/EmailStorerTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"

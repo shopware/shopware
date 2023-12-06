@@ -77,10 +77,6 @@
           "message": "All data indexed. | Indexing data.",
           "messageSuccess": "Indexing has finished."
         },
-        "warmupIndexing": {
-          "message": "Cache warming up. | One page remaining... | Approximately {n} pages remaining...",
-          "messageSuccess": "Cache has been warmed up."
-        },
         "productStream": {
           "title": "Indexing dynamic product groups",
           "message": "Dynamic product group indexed. | One dynamic product group remaining... | {n} dynamic product groups remaining...",

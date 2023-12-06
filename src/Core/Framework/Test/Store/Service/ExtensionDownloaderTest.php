@@ -6,9 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\PluginException;
-use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
@@ -24,10 +22,7 @@ class ExtensionDownloaderTest extends TestCase
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
-    /**
-     * @var ExtensionDownloader
-     */
-    private $extensionDownloader;
+    private ExtensionDownloader $extensionDownloader;
 
     protected function setUp(): void
     {
@@ -66,11 +61,7 @@ class ExtensionDownloaderTest extends TestCase
 
     public function testDownloadWhichIsAnComposerExtension(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::expectException(StoreException::class);
-        } else {
-            static::expectException(CanNotDownloadPluginManagedByComposerException::class);
-        }
+        static::expectException(StoreException::class);
 
         $this->getContainer()->get('plugin.repository')->create(
             [

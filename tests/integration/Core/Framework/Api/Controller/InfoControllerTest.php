@@ -10,7 +10,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
-use Shopware\Core\Content\Flow\Dispatching\Aware\ContextTokenAware;
+use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
@@ -236,8 +236,8 @@ class InfoControllerTest extends TestCase
                     ],
                 ],
                 'aware' => [
-                    ContextTokenAware::class,
-                    lcfirst((new \ReflectionClass(ContextTokenAware::class))->getShortName()),
+                    ScalarValuesAware::class,
+                    lcfirst((new \ReflectionClass(ScalarValuesAware::class))->getShortName()),
                     SalesChannelAware::class,
                     lcfirst((new \ReflectionClass(SalesChannelAware::class))->getShortName()),
                     MailAware::class,
@@ -296,7 +296,7 @@ class InfoControllerTest extends TestCase
             sort($actualEvents[0]['aware']);
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
-            static::assertEquals($event, $actualEvents[0]);
+            static::assertEquals($event, $actualEvents[0], $event['name']);
         }
     }
 
@@ -574,8 +574,8 @@ class InfoControllerTest extends TestCase
                 continue;
             }
 
-            static::assertTrue(\in_array('Shopware\Core\Framework\Event\MailAware', $event['aware'], true));
-            static::assertFalse(\in_array('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], true));
+            static::assertContains('Shopware\Core\Framework\Event\MailAware', $event['aware'], $event['name']);
+            static::assertNotContains('Shopware\Core\Framework\Event\MailActionInterface', $event['aware'], $event['name']);
         }
     }
 

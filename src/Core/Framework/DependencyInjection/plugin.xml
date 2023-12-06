@@ -61,12 +61,6 @@
             <argument type="service" id="Shopware\Core\Framework\Plugin\Util\VersionSanitizer"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
-
-        <service id="Shopware\Core\Framework\Plugin\Changelog\ChangelogService">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\Changelog\ChangelogParser"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Plugin\PluginManagementService">
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginZipDetector"/>

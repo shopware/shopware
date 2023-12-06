@@ -90,12 +90,16 @@
                 :class="{'sw-order-address-selection__order-address': isSelected(item)}"
             >
                 <div class="sw-order-address-selection__information">
+
                     <p>{{ item.firstName }} {{ item.lastName }}</p>
                     <p class="text-gray">
                         {{ item.street }}
                     </p>
                     <p class="text-gray">
                         {{ item.zipcode }} {{ item.city }}
+                    </p>
+                    <p class="text-gray">
+                        {{ item.country.translated.name }}
                     </p>
                 </div>
 

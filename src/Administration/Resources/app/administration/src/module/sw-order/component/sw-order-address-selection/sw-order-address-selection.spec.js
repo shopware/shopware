@@ -64,6 +64,11 @@ async function createWrapper(propsData) {
                                     zipcode: '64885-2245',
                                     city: 'Faheyshire',
                                     id: '652e9e571cc94bd898077f256dcf629f',
+                                    country: {
+                                        translated: {
+                                            name: 'Buzbach',
+                                        },
+                                    },
                                 },
                             ]),
                         }),
@@ -84,6 +89,11 @@ async function createWrapper(propsData) {
                 zipcode: '05132',
                 city: 'Bernierstad',
                 id: '38e8895864a649a1b2ec806dad02ab87',
+                country: {
+                    translated: {
+                        name: 'Buzbach',
+                    },
+                },
             },
             addressId: '38e8895864a649a1b2ec806dad02ab87',
             type: 'billing',
@@ -108,6 +118,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
                         zipcode: '05132',
                         city: 'Bernierstad',
                         id: '38e8895864a649a1b2ec806dad02ab87',
+                        country: {
+                            translated: {
+                                name: 'Buzbach',
+                            },
+                        },
                     }],
                     billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
                     orderCustomer: {
@@ -145,6 +160,11 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
             zipcode: '05132',
             city: 'Bernierstad',
             id: '38e8895864a649a1b2ec806dad02ab87',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
         });
     });
 
@@ -152,7 +172,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         expect(addressSelection.find('.sw-single-select__selection-text').text())
-            .toBe('Denesik Bridge, 05132 Bernierstad');
+            .toBe('Denesik Bridge, 05132 Bernierstad, Buzbach');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
 
@@ -196,10 +216,12 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
         expect(firstSelection.findAll('p').at(1).text()).toBe('Denesik Bridge');
         expect(firstSelection.findAll('p').at(2).text()).toBe('05132 Bernierstad');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
 
         const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
         expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
+        expect(firstSelection.findAll('p').at(3).text()).toBe('Buzbach');
     });
 
     it('should be able to get the options with not props', async () => {
@@ -221,5 +243,6 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         expect(list.findAll('.sw-select-result')).toHaveLength(1);
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
+        expect(information.findAll('p').at(3).text()).toBe('Buzbach');
     });
 });

@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Currency;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -26,7 +25,6 @@ class CurrencyFormatter implements ResetInterface
 
     /**
      * @throws InconsistentCriteriaIdsException
-     * @throws LanguageNotFoundException
      */
     public function formatCurrencyByLanguage(float $price, string $currency, string $languageId, Context $context, ?int $decimals = null): string
     {

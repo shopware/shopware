@@ -3,13 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\VersionMergeAlreadyLockedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -41,10 +37,6 @@ class DataAbstractionLayerException extends HttpException
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InvalidSerializerFieldException($expectedClass, $field);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_FIELD_SERIALIZER_CODE,
@@ -99,15 +91,8 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will return `self` in the future
-     */
-    public static function invalidLanguageId(?string $languageId): HttpException
+    public static function invalidLanguageId(?string $languageId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new LanguageNotFoundException($languageId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_LANGUAGE_ID,
@@ -136,10 +121,6 @@ class DataAbstractionLayerException extends HttpException
 
     public static function versionMergeAlreadyLocked(string $versionId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new VersionMergeAlreadyLockedException($versionId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::VERSION_MERGE_ALREADY_LOCKED,

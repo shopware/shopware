@@ -4,9 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Locale;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\System\Locale\LocaleException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -31,16 +29,5 @@ class LocaleExceptionTest extends TestCase
 
         static::assertSame(Response::HTTP_PRECONDITION_FAILED, $e->getStatusCode());
         static::assertSame(LocaleException::LANGUAGE_NOT_FOUND, $e->getErrorCode());
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testLanguageNotFoundLegacy(): void
-    {
-        $e = LocaleException::languageNotFound('foo');
-
-        static::assertInstanceOf(LanguageNotFoundException::class, $e);
     }
 }

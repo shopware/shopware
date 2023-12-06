@@ -12,8 +12,6 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -63,11 +61,7 @@ class GuestWishlistPageletTest extends TestCase
 
     public function testItThrowsExceptionWithInvalidProductIds(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            static::expectException(RoutingException::class);
-        } else {
-            static::expectException(MissingRequestParameterException::class);
-        }
+        static::expectException(RoutingException::class);
 
         $request = new Request();
 

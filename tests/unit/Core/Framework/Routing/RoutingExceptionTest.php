@@ -4,11 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,17 +23,6 @@ class RoutingExceptionTest extends TestCase
         static::assertSame(RoutingException::INVALID_REQUEST_PARAMETER_CODE, $e->getErrorCode());
     }
 
-    /**
-     * @deprecated tag:v6.6.0.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testInvalidRequestParameterLegacy(): void
-    {
-        $e = RoutingException::invalidRequestParameter('foo');
-
-        static::assertInstanceOf(InvalidRequestParameterException::class, $e);
-    }
-
     public function testMissingRequestParameter(): void
     {
         $e = RoutingException::missingRequestParameter('foo');
@@ -46,34 +31,12 @@ class RoutingExceptionTest extends TestCase
         static::assertSame(RoutingException::MISSING_REQUEST_PARAMETER_CODE, $e->getErrorCode());
     }
 
-    /**
-     * @deprecated tag:v6.6.0.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testMissingRequestParameterLegacy(): void
-    {
-        $e = RoutingException::missingRequestParameter('foo');
-
-        static::assertInstanceOf(MissingRequestParameterException::class, $e);
-    }
-
     public function testLanguageNotFound(): void
     {
         $e = RoutingException::languageNotFound('foo');
 
         static::assertSame(Response::HTTP_PRECONDITION_FAILED, $e->getStatusCode());
         static::assertSame(RoutingException::LANGUAGE_NOT_FOUND, $e->getErrorCode());
-    }
-
-    /**
-     * @deprecated tag:v6.6.0.0 - will be removed
-     */
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testLanguageNotFoundLegacy(): void
-    {
-        $e = RoutingException::languageNotFound('foo');
-
-        static::assertInstanceOf(LanguageNotFoundException::class, $e);
     }
 
     public function testAppIntegrationNotFound(): void

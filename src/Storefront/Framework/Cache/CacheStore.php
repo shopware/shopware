@@ -11,7 +11,6 @@ use Shopware\Core\System\SalesChannel\StoreApiResponse;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
 use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
-use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,11 +90,6 @@ class CacheStore implements StoreInterface
         // maintenance mode active and current ip is whitelisted > disable caching
         if ($this->maintenanceResolver->isMaintenanceRequest($request)) {
             return $key;
-        }
-
-        if (!Feature::isActive('v6.6.0.0') && $response instanceof StorefrontResponse) {
-            $response->setData([]);
-            $response->setContext(null);
         }
 
         $tags = $this->tracer->get('all');

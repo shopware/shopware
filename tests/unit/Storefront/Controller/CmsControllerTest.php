@@ -20,9 +20,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -89,11 +87,7 @@ class CmsControllerTest extends TestCase
 
     public function testCategoryNoId(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(RoutingException::class);
-        } else {
-            $this->expectException(MissingRequestParameterException::class);
-        }
+        $this->expectException(RoutingException::class);
         $this->expectExceptionMessage('Parameter "navigationId" is missing.');
 
         $this->controller->category(null, new Request(), $this->createMock(SalesChannelContext::class));

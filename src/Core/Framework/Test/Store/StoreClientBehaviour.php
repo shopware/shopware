@@ -23,14 +23,6 @@ use Shopware\Core\System\User\UserEntity;
 #[Package('services-settings')]
 trait StoreClientBehaviour
 {
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed, use ::getStoreRequestHandler() instead
-     */
-    public function getRequestHandler(): MockHandler
-    {
-        return $this->getStoreRequestHandler();
-    }
-
     public function getStoreRequestHandler(): MockHandler
     {
         /** @var MockHandler $handler */

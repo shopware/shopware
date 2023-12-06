@@ -38,9 +38,9 @@ class ExtensionDownloaderTest extends TestCase
 
     public function testDownloadExtension(): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
-        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
 
         $context = $this->createAdminStoreContext();
 
@@ -53,9 +53,9 @@ class ExtensionDownloaderTest extends TestCase
 
     public function testDownloadExtensionServerNotReachable(): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip"}'));
-        $this->getRequestHandler()->append(new Response(500, [], ''));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip"}'));
+        $this->getStoreRequestHandler()->append(new Response(500, [], ''));
 
         $context = $this->createAdminStoreContext();
 
@@ -92,9 +92,9 @@ class ExtensionDownloaderTest extends TestCase
 
     public function testDownloadExtensionWhichIsALocalComposerPlugin(): void
     {
-        $this->getRequestHandler()->reset();
-        $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
-        $this->getRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
+        $this->getStoreRequestHandler()->reset();
+        $this->getStoreRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
+        $this->getStoreRequestHandler()->append(new Response(200, [], (string) file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
 
         $pluginPath = $this->getContainer()->getParameter('kernel.plugin_dir') . '/TestApp';
         $projectPath = $this->getContainer()->getParameter('kernel.project_dir');

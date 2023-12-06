@@ -188,7 +188,7 @@ abstract class StorefrontController extends AbstractController
             $params = json_decode($params, true);
         }
 
-        if (empty($params)) {
+        if (empty($params) || \is_numeric($params)) {
             $params = [];
         }
 

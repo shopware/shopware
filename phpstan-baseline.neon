@@ -1411,36 +1411,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Processing/Reader/AbstractReader.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:mapRecord\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:mapRecord\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:read\\(\\) return type has no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:readSingleRecord\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Parameter \\#1 \\$offset of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:setOffset\\(\\) expects int, int\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:\\$header type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Processing/Reader/CsvReader.php
-
-		-
 			message: "#^Cannot call method getFileType\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\ImportExportProfileEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/Processing/Reader/CsvReaderFactory.php
@@ -2539,41 +2509,6 @@ parameters:
 			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductTranslation\\\\ProductTranslationEntity\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ImportExport/Processing/Pipe/EntityPipeTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:eolProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:getAll\\(\\) has parameter \\$iterable with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:getAll\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:getFirst\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:getFirst\\(\\) has parameter \\$iterable with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReaderTest\\:\\:testDifferentEOL\\(\\) has parameter \\$eol with no type specified\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$resource of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Processing\\\\Reader\\\\CsvReader\\:\\:read\\(\\) expects resource, resource\\|false given\\.$#"
-			count: 8
-			path: src/Core/Content/Test/ImportExport/Processing/Reader/CsvReaderTest.php
 
 		-
 			message: "#^Cannot call method getAccessToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

@@ -109,7 +109,7 @@ class ThemeScripts
             }
         }
 
-        return $mainEntryFiles;
+        return array_unique($mainEntryFiles);
     }
 
     /**

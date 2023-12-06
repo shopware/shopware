@@ -318,7 +318,7 @@ export default {
                 this.fetchProductVariants(),
                 this.fetchSystemCurrency(),
                 this.loadGroups(),
-            ]).then(() => {
+            ]).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -351,9 +351,13 @@ export default {
         },
 
         fetchProductVariants() {
+            this.isLoading = true;
+
             return this.productRepository.search(this.productVariantCriteria)
                 .then(response => {
                     this.productVariants = response;
+                }).finally(() => {
+                    this.isLoading = false;
                 });
         },
 

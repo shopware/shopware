@@ -12,8 +12,7 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 400;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular-Roman.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Regular-Roman.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular-Roman.woff2') format('woff2');
     }
 
     @font-face {
@@ -21,8 +20,7 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 400;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular-Italic.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Regular-Italic.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Regular-Italic.woff2') format('woff2');
     }
 
     @font-face {
@@ -30,8 +28,7 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 600;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Roman.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Roman.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Roman.woff2') format('woff2');
     }
 
     @font-face {
@@ -39,8 +36,7 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 600;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Italic.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Italic.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-SemiBold-Italic.woff2') format('woff2');
     }
 
     @font-face {
@@ -48,8 +44,7 @@ https://rsms.me/inter/
         font-style: normal;
         font-weight: 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold-Roman.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Bold-Roman.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold-Roman.woff2') format('woff2');
     }
 
     @font-face {
@@ -57,8 +52,7 @@ https://rsms.me/inter/
         font-style: italic;
         font-weight: 700;
         font-display: fallback;
-        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold-Italic.woff2') format('woff2'),
-            url('#{$app-css-relative-asset-path}/font/Inter-Bold-Italic.woff') format('woff');
+        src: url('#{$app-css-relative-asset-path}/font/Inter-Bold-Italic.woff2') format('woff2');
     }
 }
 

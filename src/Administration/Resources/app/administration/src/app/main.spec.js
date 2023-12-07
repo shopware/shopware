@@ -37,6 +37,7 @@ describe('src/app/main.ts', () => {
         EntityValidationService: undefined,
         CustomEntityDefinitionService: undefined,
         addUsageDataConsentListener: undefined,
+        FileValidationService: undefined,
     };
 
     beforeAll(async () => {
@@ -166,6 +167,9 @@ describe('src/app/main.ts', () => {
         jest.mock('src/core/service/usage-data-consent-listener.service');
         serviceMocks.addUsageDataConsentListener = (await import('src/core/service/usage-data-consent-listener.service')).default;
 
+        jest.mock('src/app/service/file-validation.service');
+        serviceMocks.FileValidationService = (await import('src/app/service/file-validation.service')).default;
+
         // Reset the Shopware object to make sure that the application is not already initialized
         Shopware = undefined;
         // Import the Shopware object
@@ -264,6 +268,7 @@ describe('src/app/main.ts', () => {
         expect(services).toContain('recentlySearchService');
         expect(services).toContain('searchPreferencesService');
         expect(services).toContain('userActivityService');
+        expect(services).toContain('fileValidationService');
     });
 
     it('should create imported services on usage', () => {
@@ -393,5 +398,9 @@ describe('src/app/main.ts', () => {
         expect(serviceMocks.UserActivityService).not.toHaveBeenCalled();
         Shopware.Service('userActivityService');
         expect(serviceMocks.UserActivityService).toHaveBeenCalled();
+
+        expect(serviceMocks.FileValidationService).not.toHaveBeenCalled();
+        Shopware.Service('fileValidationService');
+        expect(serviceMocks.FileValidationService).toHaveBeenCalled();
     });
 });

@@ -69,8 +69,8 @@ class Migration1701776095FixDefaultMailFooter extends MigrationStep
 
             FROM mail_header_footer
 
-                INNER JOIN mail_header_footer_translation
-                    ON mail_header_footer.id = mail_header_footer_translation.mail_header_footer_id
+            INNER JOIN mail_header_footer_translation
+                ON mail_header_footer.id = mail_header_footer_translation.mail_header_footer_id
 
             WHERE mail_header_footer_translation.language_id IN (:ids)
             AND mail_header_footer.system_default = 1

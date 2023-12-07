@@ -8270,19 +8270,9 @@ parameters:
 			path: src/Storefront/Theme/CachedResolvedConfigLoader.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\AbstractAvailableThemeProvider\\:\\:load\\(\\) invoked with 2 parameters, 1 required\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Command/ThemeCompileCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\Command\\\\ThemePrepareIconsCommand\\:\\:getChildren\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Command/ThemePrepareIconsCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ConfigLoader\\\\AbstractAvailableThemeProvider\\:\\:load\\(\\) invoked with 2 parameters, 1 required\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ConfigLoader/StaticFileConfigDumper.php
 
 		-
 			message: "#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#"

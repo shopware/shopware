@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
-use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
@@ -352,21 +351,6 @@ PHP_EOL;
         $actual = $event->getConcatenatedStyles();
 
         $expected = $styles . MockThemeCompilerConcatenatedSubscriber::STYLES_CONCAT;
-
-        static::assertEquals($expected, $actual);
-    }
-
-    public function testConcanatedScriptsEventPassThrough(): void
-    {
-        $subscriber = new MockThemeCompilerConcatenatedSubscriber();
-
-        $scripts = 'console.log(\'foo\');';
-
-        $event = new ThemeCompilerConcatenatedScriptsEvent($scripts, $this->mockSalesChannelId);
-        $subscriber->onGetConcatenatedScripts($event);
-        $actual = $event->getConcatenatedScripts();
-
-        $expected = $scripts . MockThemeCompilerConcatenatedSubscriber::SCRIPTS_CONCAT;
 
         static::assertEquals($expected, $actual);
     }

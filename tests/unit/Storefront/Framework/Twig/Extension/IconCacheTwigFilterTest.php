@@ -174,7 +174,7 @@ class IconCacheTwigFilterTest extends TestCase
         $twig->getExtension(NodeExtension::class)->getFinder();
 
         $twig->addExtension(new IconCacheTwigFilter());
-        $twig->addExtension(new IconExtension($templateFinder));
+        $twig->addExtension(new IconExtension());
 
         return $twig;
     }

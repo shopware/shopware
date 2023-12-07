@@ -66,7 +66,6 @@ PHP integration:
         FEATURE_ALL: "major"
         GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
         REDIS_URL: redis://redis:6379
-        SYMFONY_DEPRECATIONS_HELPER: "disabled" # remove line when phpunit-bridge supports phpunit 10
     rules:
         # do not run in merge trains - PHP Full should cover all tests
         - if: $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"
@@ -159,7 +158,6 @@ PHP unit coverage:
     services: []
     variables:
         APP_ENV: "test"
-        SYMFONY_DEPRECATIONS_HELPER: "disabled" # remove line when phpunit-bridge supports phpunit 10
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -203,7 +201,6 @@ PHP migration coverage:
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "false"
-        SYMFONY_DEPRECATIONS_HELPER: "disabled" # remove line when phpunit-bridge supports phpunit 10
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -248,7 +245,6 @@ PHP Full:
         REDIS_URL: redis://redis:6379
         SWAGGER_VALIDATOR_URL: http://swagger:8080/validator/debug
         FEATURE_ALL: 'false'
-        SYMFONY_DEPRECATIONS_HELPER: "disabled" # remove line when phpunit-bridge supports phpunit 10
     rules:
         - !reference [.rules, skip]
         - if: !reference [.rules, run-allow-failure, if ]

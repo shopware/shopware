@@ -177,7 +177,7 @@
         "symfony/css-selector": "~6.3.0",
         "symfony/dom-crawler": "~6.3.0",
         "symfony/expression-language": "~6.3.0",
-        "symfony/phpunit-bridge": "~6.1.0",
+        "symfony/phpunit-bridge": "^7.0",
         "symfony/var-dumper": "~6.3.0",
         "symplify/phpstan-rules": "12.4.3",
         "tomasvotruba/type-coverage": "^0.2.1"

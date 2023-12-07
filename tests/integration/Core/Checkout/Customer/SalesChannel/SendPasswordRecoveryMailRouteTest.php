@@ -123,7 +123,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(404, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(401, $this->browser->getResponse()->getStatusCode());
 
         $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 

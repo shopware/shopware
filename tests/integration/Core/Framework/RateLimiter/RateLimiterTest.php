@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Api\UserRecoveryController;
@@ -127,10 +126,7 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
-            $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(AccountService::class),
-            $this->getContainer()->get('customer.repository'),
-            $this->getContainer()->get(CartRestorer::class),
             $this->getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,

@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-#[Package('business-ops')]
+#[Package('checkout')]
 /**
  * @final
  */

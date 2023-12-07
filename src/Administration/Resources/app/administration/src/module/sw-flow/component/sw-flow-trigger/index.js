@@ -42,8 +42,6 @@ export default {
 
     data() {
         return {
-            /** @deprecated tag:v6.6.0 - events will be removed, use state triggerEvents instead. */
-            events: [],
             isExpanded: false,
             isLoading: false,
             searchTerm: '',
@@ -559,22 +557,6 @@ export default {
         onCloseConfirm() {
             this.showConfirmModal = false;
             this.triggerSelect = {};
-        },
-
-        /*
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        getBusinessEvents() {
-            this.isLoading = true;
-
-            return this.businessEventService.getBusinessEvents()
-                .then(events => {
-                    this.events = events;
-                    State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
-                    State.dispatch('swFlowState/setRestrictedRules', this.eventName);
-                }).finally(() => {
-                    this.isLoading = false;
-                });
         },
 
         getLastEventName({ parentId = null, id }) {

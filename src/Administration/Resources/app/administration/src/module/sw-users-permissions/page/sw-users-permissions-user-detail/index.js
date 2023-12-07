@@ -159,13 +159,6 @@ export default {
             }];
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed.
-         */
-        secretAccessKeyFieldType() {
-            return this.showSecretAccessKey ? 'text' : 'password';
-        },
-
         languageId() {
             return Shopware.State.get('session').languageId;
         },
@@ -227,10 +220,6 @@ export default {
             Promise.all(promises).then(() => {
                 this.isLoading = false;
             });
-        },
-
-        // @deprecated tag:v6.6.0 - Unused
-        loadTimezones() {
         },
 
         loadLanguages() {

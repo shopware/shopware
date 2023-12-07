@@ -236,59 +236,11 @@
             <tag name="flow.storer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContactFormDataStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ReviewFormDataStorer">
-            <tag name="flow.storer"/>
-        </service>
-
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer">
             <tag name="flow.storer"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ConfirmUrlStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ContentsStorer">
-            <tag name="flow.storer"/>
-        </service>
-
         <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\NameStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\RecipientsStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ResetUrlStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\ShopNameStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\SubjectStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\TemplateDataStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\UrlStorer">
-            <tag name="flow.storer"/>
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Dispatching\Storer\MediaUploadedStorer">
             <tag name="flow.storer"/>
         </service>
 

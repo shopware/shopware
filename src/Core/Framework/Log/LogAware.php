@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Log;
 
 use Monolog\Level;
+use Shopware\Core\Framework\Event\IsFlowEventAware;
 
+#[IsFlowEventAware]
 #[Package('core')]
 interface LogAware
 {

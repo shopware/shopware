@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[IsFlowEventAware]
 interface MailAware
 {

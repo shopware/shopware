@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver as CoreMaintenanceModeResolver;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -17,11 +18,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class MaintenanceModeResolverTest extends TestCase
 {
-    public function testShouldInstantiate(): void
-    {
-        static::assertInstanceOf(MaintenanceModeResolver::class, new MaintenanceModeResolver($this->getRequestStack(), new CoreMaintenanceModeResolver(new EventDispatcher())));
-    }
-
     /**
      * Tests whether the resolver redirects requests to the maintenance page correctly.
      *
@@ -256,7 +252,7 @@ class MaintenanceModeResolverTest extends TestCase
 
         if ($isMaintenancePageRoute) {
             $request->attributes->set('_route', 'frontend.maintenance');
-            $request->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE, true);
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE, true);
         }
 
         if ($useProxy) {

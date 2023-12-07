@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -263,8 +264,6 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel->boot();
 
         $expectedParameters = [
-            'kernel.shopware_version' => self::getTestVersion(),
-            'kernel.shopware_version_revision' => self::getTestRevision(),
             'kernel.project_dir' => TEST_PROJECT_DIR,
             'kernel.plugin_dir' => TEST_PROJECT_DIR . '/custom/plugins',
         ];
@@ -369,23 +368,13 @@ class KernelPluginIntegrationTest extends TestCase
 
     private function makeKernel(KernelPluginLoader $loader): Kernel
     {
-        $kernelClass = KernelLifecycleManager::getKernelClass();
-        $version = 'v' . self::getTestVersion() . '@' . self::getTestRevision();
-        $this->kernel = new $kernelClass('test', true, $loader, Uuid::randomHex(), $version);
-        $connection = (new \ReflectionClass($kernelClass))->getProperty('connection');
+        $kernel = KernelFactory::create('test', true, KernelLifecycleManager::getClassLoader(), $loader);
+        static::assertInstanceOf(Kernel::class, $kernel);
+        $this->kernel = $kernel;
+        $connection = (new \ReflectionClass(KernelFactory::$kernelClass))->getProperty('connection');
         $connection->setAccessible(true);
         $connection->setValue($this->kernel, $this->connection);
 
         return $this->kernel;
-    }
-
-    private static function getTestRevision(): string
-    {
-        return md5('test');
-    }
-
-    private static function getTestVersion(): string
-    {
-        return '6.3.0.0';
     }
 }

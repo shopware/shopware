@@ -2,9 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
 #[Package('core')]
 class IndexerOffset
@@ -22,7 +20,7 @@ class IndexerOffset
     protected ?string $definition = null;
 
     /**
-     * @param iterable<AbstractElasticsearchDefinition>|iterable<string> $mappingDefinitions
+     * @param iterable<string> $mappingDefinitions
      * @param array{offset: int|null}|null $lastId
      */
     public function __construct(
@@ -31,14 +29,9 @@ class IndexerOffset
         protected ?array $lastId = null
     ) {
         $mapping = [];
-        /** @var AbstractElasticsearchDefinition|string $mappingDefinition */
+        /** @var string $mappingDefinition */
         foreach ($mappingDefinitions as $mappingDefinition) {
-            if ($mappingDefinition instanceof AbstractElasticsearchDefinition) {
-                Feature::triggerDeprecationOrThrow('v6.6.0.0', 'Passing definitions objects is deprecated. Pass the entity name instead.');
-                $mapping[] = $mappingDefinition->getEntityDefinition()->getEntityName();
-            } else {
-                $mapping[] = $mappingDefinition;
-            }
+            $mapping[] = $mappingDefinition;
         }
 
         $this->allDefinitions = $mapping;

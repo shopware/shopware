@@ -9,5 +9,4 @@ use Shopware\Core\TestBootstrapper;
 (new TestBootstrapper())
     ->setForceInstall(false)
     ->setPlatformEmbedded(false)
-    ->setBypassFinals(false)
     ->bootstrap();

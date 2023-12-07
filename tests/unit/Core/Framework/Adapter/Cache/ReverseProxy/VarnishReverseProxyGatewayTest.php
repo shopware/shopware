@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Cache\ReverseProxy;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
@@ -10,16 +10,14 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  *
- * @deprecated tag:v6.6.0 - Move to core
- *
- * @covers \Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway
+ * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway
  */
 class VarnishReverseProxyGatewayTest extends TestCase
 {
@@ -47,7 +45,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
     {
         $gateway = new VarnishReverseProxyGateway([], 0, $this->client);
         static::expectException(\ArgumentCountError::class);
-        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway::tag()');
+        static::expectExceptionMessage('Too few arguments to function Shopware\Core\Framework\Adapter\Cache\ReverseProxy\VarnishReverseProxyGateway::tag()');
         /** @phpstan-ignore-next-line  */
         $gateway->tag([], 'https://example.com');
     }

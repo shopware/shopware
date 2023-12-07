@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Cache;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
-use Shopware\Storefront\Framework\Cache\CacheStateValidator;
-use Shopware\Storefront\Framework\Cache\CacheStore;
-use Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator;
-use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  *
- * @covers \Shopware\Storefront\Framework\Cache\CacheStore
+ * @covers \Shopware\Core\Framework\Adapter\Cache\Http\CacheStore
  */
 class CacheStoreTest extends TestCase
 {

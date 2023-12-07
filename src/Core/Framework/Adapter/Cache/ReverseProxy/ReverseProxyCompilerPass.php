@@ -1,14 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\DependencyInjection;
+namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Cache\CacheStore;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCache;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\VarnishReverseProxyGateway;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -17,7 +12,7 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->getParameter('storefront.reverse_proxy.enabled')) {
+        if (!$container->getParameter('shopware.http_cache.reverse_proxy.enabled')) {
             $container->removeDefinition('shopware.cache.reverse_proxy.redis');
             $container->removeDefinition(ReverseProxyCache::class);
             $container->removeDefinition(AbstractReverseProxyGateway::class);
@@ -33,9 +28,9 @@ class ReverseProxyCompilerPass implements CompilerPassInterface
         $container->setAlias(CacheStore::class, ReverseProxyCache::class);
         $container->getAlias(CacheStore::class)->setPublic(true);
 
-        if ($container->getParameter('storefront.reverse_proxy.fastly.enabled')) {
+        if ($container->getParameter('shopware.http_cache.reverse_proxy.fastly.enabled')) {
             $container->setAlias(AbstractReverseProxyGateway::class, FastlyReverseProxyGateway::class);
-        } elseif ($container->getParameter('storefront.reverse_proxy.use_varnish_xkey')) {
+        } elseif ($container->getParameter('shopware.http_cache.reverse_proxy.use_varnish_xkey')) {
             $container->setAlias(AbstractReverseProxyGateway::class, VarnishReverseProxyGateway::class);
         }
     }

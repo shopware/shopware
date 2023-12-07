@@ -30,15 +30,12 @@ class HttpCacheKernel extends HttpCache
      */
     public function __construct(
         HttpKernelInterface $kernel,
-        ?StoreInterface $store,
+        StoreInterface $store,
         SurrogateInterface $surrogate,
         array $options,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $externalReverseProxyEnabled,
-        StoreInterface $core
+        private readonly bool $externalReverseProxyEnabled
     ) {
-        $store = $store ?? $core;
-
         $this->store = $store;
 
         parent::__construct($kernel, $store, $surrogate, $options);

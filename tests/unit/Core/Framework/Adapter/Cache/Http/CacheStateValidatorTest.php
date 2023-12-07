@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Cache;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\Http;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
-use Shopware\Storefront\Framework\Cache\CacheStateValidator;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  *
  * @group cache
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Cache\Http\CacheStateValidator
  */
 class CacheStateValidatorTest extends TestCase
 {
@@ -24,6 +26,9 @@ class CacheStateValidatorTest extends TestCase
         static::assertSame($isValid, $validator->isValid($request, $response));
     }
 
+    /**
+     * @return array<array{bool, Request, Response}>
+     */
     public static function cases(): array
     {
         return [

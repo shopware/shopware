@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Storefront\Framework\Cache\ReverseProxy;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
@@ -10,14 +10,12 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway
- *
- * @deprecated tag:v6.6.0 - Move to core
+ * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway
  *
  * @internal
  */
@@ -46,7 +44,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     public function testTagDeprecated(): void
     {
         static::expectException(\ArgumentCountError::class);
-        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway::tag()');
+        static::expectExceptionMessage('Too few arguments to function Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway::tag()');
 
         $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', '', 'http://localhost');
         /** @phpstan-ignore-next-line  */

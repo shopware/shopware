@@ -1,18 +1,18 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Cache\ReverseProxy;
+namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Adapter\Cache\AbstractCacheTracer;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheResponseSubscriber;
+use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheEvent;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
-use Shopware\Storefront\Framework\Cache\CacheStore;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\StoreInterface;
 
 /**
- * @deprecated tag:v6.6.0 - reason:becomes-internal
+ * @internal
  *
  * @template TCachedContent
  */

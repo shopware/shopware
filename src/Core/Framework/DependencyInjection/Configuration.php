@@ -391,7 +391,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('delay_options')
                             ->children()
                                 ->scalarNode('storage')
-                                    ->defaultValue('cache')
+                                    ->defaultValue('redis')
                                 ->end()
                                 ->scalarNode('dsn')
                                     ->defaultValue('redis://localhost')

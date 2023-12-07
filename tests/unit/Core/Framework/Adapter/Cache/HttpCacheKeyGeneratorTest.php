@@ -1,27 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Framework\Cache;
+namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Cache\AbstractHttpCacheKeyGenerator;
-use Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  *
  * @group cache
+ *
+ * @covers \Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator
  */
 class HttpCacheKeyGeneratorTest extends TestCase
 {
-    use KernelTestBehaviour;
-
-    private AbstractHttpCacheKeyGenerator $cacheKeyGenerator;
+    private HttpCacheKeyGenerator $cacheKeyGenerator;
 
     protected function setUp(): void
     {
-        $this->cacheKeyGenerator = $this->getContainer()->get(HttpCacheKeyGenerator::class);
+        $this->cacheKeyGenerator = new HttpCacheKeyGenerator('foo', new EventDispatcher(), ['_ga']);
     }
 
     /**

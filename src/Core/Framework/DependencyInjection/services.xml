@@ -32,6 +32,12 @@ base-uri 'self';
             <parameter key="storefront"/>
             <parameter key="installer"/>
         </parameter>
+
+        <parameter key="shopware_http_cache_enabled_default">1</parameter>
+        <parameter key="shopware.http.cache.enabled">%env(default:shopware_http_cache_enabled_default:SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
+
+        <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
+        <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
     </parameters>
 
     <monolog:config>

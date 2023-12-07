@@ -37,7 +37,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * @deprecated tag:v6.6.0 - Will be internal - reason:visibility-change
+ * @internal
  */
 #[Package('core')]
 class WebhookDispatcher implements EventDispatcherInterface

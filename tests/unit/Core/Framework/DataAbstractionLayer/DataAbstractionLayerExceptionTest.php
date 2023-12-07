@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\Log\Package;
@@ -74,9 +73,8 @@ class DataAbstractionLayerExceptionTest extends TestCase
     {
         $e = DataAbstractionLayerException::invalidFilterQuery('foo', 'baz');
 
-        static::assertInstanceOf(InvalidFilterQueryException::class, $e);
         static::assertEquals('foo', $e->getMessage());
-        static::assertEquals('baz', $e->getPath());
+        static::assertEquals('baz', $e->getParameters()['path']);
     }
 
     public function testCannotCreateNewVersion(): void

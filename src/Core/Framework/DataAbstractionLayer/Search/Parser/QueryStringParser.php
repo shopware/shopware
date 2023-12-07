@@ -249,7 +249,7 @@ class QueryStringParser
             try {
                 $parsed[] = self::fromArray($definition, $subQuery, $exception, $path . '/queries/' . $index);
             } catch (InvalidFilterQueryException $ex) {
-                $exception->add($ex, $ex->getPath());
+                $exception->add($ex, $ex->getParameters()['path']);
             }
         }
 

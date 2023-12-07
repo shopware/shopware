@@ -264,7 +264,7 @@ class AggregationParser
                     try {
                         $filters[] = QueryStringParser::fromArray($definition, $query, $exceptions, '/filter/' . $filterIndex);
                     } catch (InvalidFilterQueryException $ex) {
-                        $exceptions->add($ex, $ex->getPath());
+                        $exceptions->add($ex, $ex->getParameters()['path']);
                     }
                 }
 

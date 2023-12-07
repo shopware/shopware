@@ -6,7 +6,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
@@ -280,19 +279,28 @@ class RequestCriteriaBuilder
             ++$index;
 
             if ($field === '') {
-                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The key for filter at position "%d" must not be blank.', $index)), '/filter/' . $index);
+                $searchRequestException->add(
+                    DataAbstractionLayerException::invalidFilterQuery(sprintf('The key for filter at position "%d" must not be blank.', $index), '/filter/' . $index),
+                    '/filter/' . $index
+                );
 
                 continue;
             }
 
             if ($value === '') {
-                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must not be blank.', $field)), '/filter/' . $field);
+                $searchRequestException->add(
+                    DataAbstractionLayerException::invalidFilterQuery(sprintf('The value for filter "%s" must not be blank.', $field), '/filter/' . $field),
+                    '/filter/' . $field
+                );
 
                 continue;
             }
 
             if (!\is_scalar($value)) {
-                $searchRequestException->add(new InvalidFilterQueryException(sprintf('The value for filter "%s" must be scalar.', $field)), '/filter/' . $field);
+                $searchRequestException->add(
+                    DataAbstractionLayerException::invalidFilterQuery(sprintf('The value for filter "%s" must be scalar.', $field), '/filter/' . $field),
+                    '/filter/' . $field
+                );
 
                 continue;
             }
@@ -372,7 +380,7 @@ class RequestCriteriaBuilder
     private function addFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['filter'])) {
-            $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/filter');
+            $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.', '/filter'), '/filter');
 
             return;
         }
@@ -382,8 +390,8 @@ class RequestCriteriaBuilder
                 try {
                     $filter = QueryStringParser::fromArray($definition, $query, $searchException, '/filter/' . $index);
                     $criteria->addFilter($filter);
-                } catch (InvalidFilterQueryException $ex) {
-                    $searchException->add($ex, $ex->getPath());
+                } catch (DataAbstractionLayerException $ex) {
+                    $searchException->add($ex, $ex->getParameters()['path']);
                 }
             }
 
@@ -399,7 +407,7 @@ class RequestCriteriaBuilder
     private function addPostFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
     {
         if (!\is_array($payload['post-filter'])) {
-            $searchException->add(new InvalidFilterQueryException('The filter parameter has to be a list of filters.'), '/post-filter');
+            $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.'), '/post-filter');
 
             return;
         }
@@ -409,8 +417,8 @@ class RequestCriteriaBuilder
                 try {
                     $filter = QueryStringParser::fromArray($definition, $query, $searchException, '/post-filter/' . $index);
                     $criteria->addPostFilter($filter);
-                } catch (InvalidFilterQueryException $ex) {
-                    $searchException->add($ex, $ex->getPath());
+                } catch (DataAbstractionLayerException $ex) {
+                    $searchException->add($ex, $ex->getParameters()['path']);
                 }
             }
 

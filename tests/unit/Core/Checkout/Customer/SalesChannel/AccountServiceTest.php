@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSwitchDefaultAddressRoute;
@@ -18,6 +21,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -30,6 +35,111 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('checkout')]
 class AccountServiceTest extends TestCase
 {
+    public function testLoginByValidCredentials(): void
+    {
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $customer = $salesChannelContext->getCustomer();
+        static::assertNotNull($customer);
+        $customer->setActive(true);
+        $customer->setGuest(false);
+        $customer->setPassword(TestDefaults::HASHED_PASSWORD);
+        $customer->setEmail('foo@bar.de');
+        $customer->setDoubleOptInRegistration(false);
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->expects(static::once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                1,
+                new CustomerCollection([$customer]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext()
+            ));
+
+        $loggedinSalesChannelContext = Generator::createSalesChannelContext();
+        $cartRestorer = $this->createMock(CartRestorer::class);
+        $cartRestorer->expects(static::once())
+            ->method('restore')
+            ->willReturn($loggedinSalesChannelContext);
+
+        $beforeLoginEventCalled = false;
+        $loginEventCalled = false;
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(
+            CustomerBeforeLoginEvent::class,
+            function (CustomerBeforeLoginEvent $event) use ($salesChannelContext, &$beforeLoginEventCalled) {
+                $beforeLoginEventCalled = true;
+                static::assertSame('foo@bar.de', $event->getEmail());
+                static::assertSame($salesChannelContext, $event->getSalesChannelContext());
+            },
+        );
+
+        $eventDispatcher->addListener(
+            CustomerLoginEvent::class,
+            function (CustomerLoginEvent $event) use ($customer, $loggedinSalesChannelContext, &$loginEventCalled) {
+                $loginEventCalled = true;
+                static::assertSame($customer, $event->getCustomer());
+                static::assertSame($loggedinSalesChannelContext, $event->getSalesChannelContext());
+                static::assertSame($loggedinSalesChannelContext->getToken(), $event->getContextToken());
+            },
+        );
+
+        $accountService = new AccountService(
+            $customerRepository,
+            $eventDispatcher,
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $cartRestorer,
+        );
+
+        $token = $accountService->loginByCredentials('foo@bar.de', 'shopware', $salesChannelContext);
+        static::assertSame($loggedinSalesChannelContext->getToken(), $token);
+        static::assertTrue($beforeLoginEventCalled);
+        static::assertTrue($loginEventCalled);
+    }
+
+    public function testLoginFailsByInvalidCredentials(): void
+    {
+        $salesChannelContext = Generator::createSalesChannelContext();
+        $customer = $salesChannelContext->getCustomer();
+        static::assertNotNull($customer);
+        $customer->setActive(true);
+        $customer->setGuest(false);
+        $customer->setPassword(TestDefaults::HASHED_PASSWORD);
+        $customer->setEmail('foo@bar.de');
+        $customer->setDoubleOptInRegistration(false);
+
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository->expects(static::once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                CustomerDefinition::ENTITY_NAME,
+                1,
+                new CustomerCollection([$customer]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext()
+            ));
+
+        $cartRestorer = $this->createMock(CartRestorer::class);
+        $cartRestorer->expects(static::never())
+            ->method('restore');
+
+        $accountService = new AccountService(
+            $customerRepository,
+            new EventDispatcher(),
+            $this->createMock(LegacyPasswordVerifier::class),
+            $this->createMock(AbstractSwitchDefaultAddressRoute::class),
+            $cartRestorer,
+        );
+
+        $this->expectException(BadCredentialsException::class);
+        $accountService->loginByCredentials('foo@bar.de', 'invalidPassword', $salesChannelContext);
+    }
+
     public function testGetCustomerByIdThrowsPasswordPoliciesChangedException(): void
     {
         $salesChannelContext = Generator::createSalesChannelContext();

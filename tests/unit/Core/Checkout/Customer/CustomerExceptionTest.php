@@ -256,14 +256,6 @@ class CustomerExceptionTest extends TestCase
             'message' => 'Guest account is not allowed to login',
         ];
 
-        yield CustomerException::CUSTOMER_IS_INACTIVE => [
-            'callback' => [CustomerException::class, 'inactiveCustomer'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_UNAUTHORIZED,
-            'errorCode' => CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED,
-            'message' => 'The customer with the id "id-1" has not completed the opt-in.',
-        ];
-
         yield CustomerException::COUNTRY_NOT_FOUND => [
             'callback' => [CustomerException::class, 'countryNotFound'],
             'args' => ['100'],

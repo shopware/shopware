@@ -127,10 +127,7 @@ class RateLimiterTest extends TestCase
     public function testResetRateLimitLoginRoute(): void
     {
         $route = new LoginRoute(
-            $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(AccountService::class),
-            $this->getContainer()->get('customer.repository'),
-            $this->getContainer()->get(CartRestorer::class),
             $this->getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,

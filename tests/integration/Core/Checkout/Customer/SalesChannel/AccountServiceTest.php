@@ -57,6 +57,18 @@ class AccountServiceTest extends TestCase
         static::assertSame($customerId, $customer->getId());
     }
 
+    public function testLoginByCredentials(): void
+    {
+        $salesChannelContext = $this->createSalesChannelContext();
+        $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
+        $token = $this->accountService->loginByCredentials('foo@bar.com', 'shopware', $salesChannelContext);
+
+        $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
+
+        static::assertSame('foo@bar.com', $customer->getEmail());
+        static::assertSame($customerId, $customer->getId());
+    }
+
     public function testGetCustomerByLogin(): void
     {
         $email = 'johndoe@example.com';

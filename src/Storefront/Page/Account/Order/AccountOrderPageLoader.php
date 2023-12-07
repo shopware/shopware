@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
@@ -57,10 +59,14 @@ class AccountOrderPageLoader
         $firstOrder = $page->getOrders()->getEntities()->first();
         $orderCustomerId = $firstOrder?->getOrderCustomer()?->getCustomer()?->getId();
         if ($request->get('deepLinkCode') && $orderCustomerId !== null) {
-            $this->accountService->loginById(
-                $orderCustomerId,
-                $salesChannelContext
-            );
+            try {
+                $this->accountService->loginById(
+                    $orderCustomerId,
+                    $salesChannelContext
+                );
+            } catch (CustomerNotFoundByIdException $exception) {
+                throw new UnauthorizedHttpException('json', $exception->getMessage());
+            }
         }
 
         $this->eventDispatcher->dispatch(

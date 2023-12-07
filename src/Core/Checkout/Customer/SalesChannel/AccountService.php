@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -64,11 +65,15 @@ class AccountService
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Method will be removed, use `AccountService::loginById` or `AccountService::loginByCredentials` instead
+     *
      * @throws BadCredentialsException
      * @throws UnauthorizedHttpException
      */
     public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method `AccountService::login` will be removed, use `AccountService::loginById` or `AccountService::loginByCredentials` instead');
+
         if (empty($email)) {
             throw CustomerException::badCredentials();
         }
@@ -87,7 +92,7 @@ class AccountService
 
     /**
      * @throws BadCredentialsException
-     * @throws UnauthorizedHttpException
+     * @throws CustomerNotFoundByIdException
      */
     public function loginById(string $id, SalesChannelContext $context): string
     {
@@ -95,14 +100,27 @@ class AccountService
             throw CustomerException::badCredentials();
         }
 
-        try {
-            $customer = $this->getCustomerById($id, $context);
-        } catch (CustomerNotFoundByIdException $exception) {
-            throw new UnauthorizedHttpException('json', $exception->getMessage());
+        $customer = $this->fetchCustomer(new Criteria([$id]), $context, true);
+        if ($customer === null) {
+            throw CustomerException::customerNotFoundByIdException($id);
         }
 
         $event = new CustomerBeforeLoginEvent($context, $customer->getEmail());
         $this->eventDispatcher->dispatch($event);
+
+        return $this->loginByCustomer($customer, $context);
+    }
+
+    public function loginByCredentials(string $email, string $password, SalesChannelContext $context): string
+    {
+        if ($email === '' || $password === '') {
+            throw CustomerException::badCredentials();
+        }
+
+        $event = new CustomerBeforeLoginEvent($context, $email);
+        $this->eventDispatcher->dispatch($event);
+
+        $customer = $this->getCustomerByLogin($email, $password, $context);
 
         return $this->loginByCustomer($customer, $context);
     }
@@ -150,6 +168,7 @@ class AccountService
             [
                 'id' => $customer->getId(),
                 'lastLogin' => new \DateTimeImmutable(),
+                'languageId' => $context->getLanguageId(),
             ],
         ], $context->getContext());
 
@@ -163,6 +182,8 @@ class AccountService
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Parameter $includeGuest is unused and will be removed
+     *
      * @throws CustomerNotFoundException
      */
     private function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
@@ -173,21 +194,6 @@ class AccountService
         $customer = $this->fetchCustomer($criteria, $context, $includeGuest);
         if ($customer === null) {
             throw CustomerException::customerNotFound($email);
-        }
-
-        return $customer;
-    }
-
-    /**
-     * @throws CustomerNotFoundByIdException
-     */
-    private function getCustomerById(string $id, SalesChannelContext $context): CustomerEntity
-    {
-        $criteria = new Criteria([$id]);
-
-        $customer = $this->fetchCustomer($criteria, $context, true);
-        if ($customer === null) {
-            throw CustomerException::customerNotFoundByIdException($id);
         }
 
         return $customer;
@@ -208,9 +214,7 @@ class AccountService
         $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                if ($this->isCustomerConfirmed($customer)) {
-                    return null;
-                }
+                return null;
             }
 
             // Skip guest if not required

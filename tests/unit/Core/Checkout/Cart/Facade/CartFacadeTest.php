@@ -46,7 +46,7 @@ class CartFacadeTest extends TestCase
         ));
 
         $cart->setErrors(new ErrorCollection([
-            new GenericCartError('foo', 'foo', [], 1, false, false),
+            new GenericCartError('foo', 'foo', [], 1, false, false, false),
         ]));
 
         $facade = new CartFacade(

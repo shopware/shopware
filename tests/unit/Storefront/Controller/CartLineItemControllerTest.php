@@ -464,7 +464,7 @@ class CartLineItemControllerTest extends TestCase
         $uniqueKey = PromotionItemBuilder::PLACEHOLDER_PREFIX . $code;
         $item = new LineItem($uniqueKey, PromotionProcessor::LINE_ITEM_TYPE);
         $item->setLabel($code);
-        $cart->addErrors(new GenericCartError('d', 's', [], 0, false, true));
+        $cart->addErrors(new GenericCartError('d', 's', [], 0, false, true, false));
 
         $this->promotionItemBuilderMock->method('buildPlaceholderItem')->willReturn($item);
 

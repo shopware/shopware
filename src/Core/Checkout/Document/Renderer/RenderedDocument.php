@@ -11,6 +11,9 @@ final class RenderedDocument extends Struct
 {
     private string $content;
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(
         private readonly string $html = '',
         private readonly string $number = '',
@@ -71,16 +74,14 @@ final class RenderedDocument extends Struct
         return $this->config['pageSize'] ?? 'a4';
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - reason:return-type-change - will be changed to void and not return anything anymore
-     *
-     * @phpstan-ignore-next-line ignore needs to be removed when deprecation is removed
-     */
-    public function setContent(string $content): string
+    public function setContent(string $content): void
     {
-        return $this->content = $content;
+        $this->content = $content;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;

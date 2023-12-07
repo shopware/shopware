@@ -3,7 +3,7 @@
 {% block buy_widget_buy_form_inner %}
     <form
         id="productDetailPageBuyProductForm"
-        action="{% block buy_widget_buy_form_action %}{# @deprecated tag:v6.6.0 - block will be removed, overwrite `formAction` instead #}{{ formAction }}{% endblock %}"
+        action="{{ formAction }}"
         method="post"
         class="buy-widget"
         data-add-to-cart="true">

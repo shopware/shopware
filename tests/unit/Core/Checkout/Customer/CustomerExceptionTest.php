@@ -4,12 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
-use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Country\CountryException;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,48 +35,6 @@ class CustomerExceptionTest extends TestCase
             static::assertSame($message, $e->getMessage());
         } catch (\Throwable $e) {
             static::fail(\sprintf('Exception with message "%s" of type %s has not expected type %s', $e->getMessage(), $e::class, CustomerException::class));
-        }
-    }
-
-    /**
-     * @deprecated tag:v6.6.0 - can be removed and test cases can be added to the data provider, once the feature flag is removed
-     */
-    public function testFeatureFlaggedExceptions(): void
-    {
-        $e = CustomerException::inactiveCustomer('id-1');
-
-        try {
-            throw $e;
-        } catch (CustomerException $thrown) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                static::assertInstanceOf(InactiveCustomerException::class, $thrown);
-                static::assertSame(Response::HTTP_UNAUTHORIZED, $thrown->getStatusCode());
-                static::assertSame(CustomerException::CUSTOMER_IS_INACTIVE, $thrown->getErrorCode());
-                static::assertSame('The customer with the id "id-1" is inactive.', $thrown->getMessage());
-            } else {
-                static::assertInstanceOf(CustomerOptinNotCompletedException::class, $e);
-                static::assertSame(Response::HTTP_UNAUTHORIZED, $thrown->getStatusCode());
-                static::assertSame(CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED, $thrown->getErrorCode());
-                static::assertSame('The customer with the id "id-1" has not completed the opt-in.', $thrown->getMessage());
-            }
-        }
-
-        $e = CustomerException::countryNotFound('100');
-
-        try {
-            throw $e;
-        } catch (CustomerException|CountryException $thrown) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                static::assertInstanceOf(CountryNotFoundException::class, $thrown);
-                static::assertSame(Response::HTTP_BAD_REQUEST, $thrown->getStatusCode());
-                static::assertSame(CountryException::COUNTRY_NOT_FOUND, $thrown->getErrorCode());
-            } else {
-                static::assertInstanceOf(CustomerException::class, $e);
-                static::assertSame(Response::HTTP_BAD_REQUEST, $thrown->getStatusCode());
-                static::assertSame(CustomerException::COUNTRY_NOT_FOUND, $thrown->getErrorCode());
-            }
-
-            static::assertSame('Country with id "100" not found.', $thrown->getMessage());
         }
     }
 
@@ -301,6 +254,22 @@ class CustomerExceptionTest extends TestCase
             'statusCode' => Response::HTTP_FORBIDDEN,
             'errorCode' => CustomerException::CUSTOMER_GUEST_AUTH_INVALID,
             'message' => 'Guest account is not allowed to login',
+        ];
+
+        yield CustomerException::CUSTOMER_IS_INACTIVE => [
+            'callback' => [CustomerException::class, 'inactiveCustomer'],
+            'args' => ['id-1'],
+            'statusCode' => Response::HTTP_UNAUTHORIZED,
+            'errorCode' => CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED,
+            'message' => 'The customer with the id "id-1" has not completed the opt-in.',
+        ];
+
+        yield CustomerException::COUNTRY_NOT_FOUND => [
+            'callback' => [CustomerException::class, 'countryNotFound'],
+            'args' => ['100'],
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => CustomerException::COUNTRY_NOT_FOUND,
+            'message' => 'Country with id "100" not found.',
         ];
     }
 }

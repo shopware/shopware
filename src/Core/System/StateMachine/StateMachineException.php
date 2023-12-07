@@ -2,15 +2,9 @@
 
 namespace Shopware\Core\System\StateMachine;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
-use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
 use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -35,10 +29,6 @@ class StateMachineException extends HttpException
 
     public static function stateMachineInvalidEntityId(string $entityName, string $entityId): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new StateMachineInvalidEntityIdException($entityName, $entityId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STATE_MACHINE_INVALID_ENTITY_ID,
@@ -52,10 +42,6 @@ class StateMachineException extends HttpException
 
     public static function stateMachineInvalidStateField(string $fieldName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new StateMachineInvalidStateFieldException($fieldName);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STATE_MACHINE_INVALID_STATE_FIELD,
@@ -68,10 +54,6 @@ class StateMachineException extends HttpException
 
     public static function stateMachineNotFound(string $stateMachineName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new StateMachineNotFoundException($stateMachineName);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STATE_MACHINE_NOT_FOUND,
@@ -82,10 +64,6 @@ class StateMachineException extends HttpException
 
     public static function stateMachineStateNotFound(string $stateMachineName, string $technicalPlaceName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new StateMachineStateNotFoundException($stateMachineName, $technicalPlaceName);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STATE_MACHINE_STATE_NOT_FOUND,
@@ -99,10 +77,6 @@ class StateMachineException extends HttpException
 
     public static function stateMachineWithoutInitialState(string $stateMachineName): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new StateMachineWithoutInitialStateException($stateMachineName);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::STATE_MACHINE_WITHOUT_INITIAL_STATE,

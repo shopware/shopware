@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cleanup\CleanupCartTaskHandler;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -61,15 +60,9 @@ class CleanupCartTaskHandlerTest extends TestCase
 
     private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void
     {
-        // @deprecated tag:v6.6.0 - keep $column = 'payload'
-        $column = 'cart';
-        if (EntityDefinitionQueryHelper::columnExists($this->getContainer()->get(Connection::class), 'cart', 'payload')) {
-            $column = 'payload';
-        }
-
         $cart = [
             'token' => $token,
-            $column => '',
+            'payload' => '',
             'price' => 1,
             'line_item_count' => 1,
             'rule_ids' => json_encode([]),

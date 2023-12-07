@@ -4,29 +4,21 @@ namespace Shopware\Core\Checkout\Customer;
 
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerGroupRegistrationConfigurationNotFound;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerRecoveryHashExpiredException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
-use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
-use Shopware\Core\Checkout\Customer\Exception\LegacyPasswordEncoderNotFoundException;
-use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
-use Shopware\Core\Checkout\Customer\Exception\WishlistProductNotFoundException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\System\Country\Exception\CountryNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Package('checkout')]
@@ -149,10 +141,6 @@ class CustomerException extends HttpException
 
     public static function countryNotFound(string $countryId): HttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CountryNotFoundException($countryId);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::COUNTRY_NOT_FOUND,
@@ -168,10 +156,6 @@ class CustomerException extends HttpException
 
     public static function cannotDeleteActiveAddress(string $id): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CannotDeleteActiveAddressException($id);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOMER_ADDRESS_IS_ACTIVE,
@@ -192,10 +176,6 @@ class CustomerException extends HttpException
 
     public static function customerGroupRegistrationConfigurationNotFound(string $customerGroupId): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CustomerGroupRegistrationConfigurationNotFound($customerGroupId);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::CUSTOMER_GROUP_REGISTRATION_NOT_FOUND,
@@ -226,10 +206,6 @@ class CustomerException extends HttpException
 
     public static function customerWishlistNotActivated(): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new CustomerWishlistNotActivatedException();
-        }
-
         return new self(
             Response::HTTP_FORBIDDEN,
             self::WISHLIST_IS_NOT_ACTIVATED,
@@ -249,10 +225,6 @@ class CustomerException extends HttpException
 
     public static function legacyPasswordEncoderNotFound(string $encoder): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new LegacyPasswordEncoderNotFoundException($encoder);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::LEGACY_PASSWORD_ENCODER_NOT_FOUND,
@@ -263,10 +235,6 @@ class CustomerException extends HttpException
 
     public static function noHashProvided(): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new NoHashProvidedException();
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::NO_HASH_PROVIDED,
@@ -276,10 +244,6 @@ class CustomerException extends HttpException
 
     public static function wishlistProductNotFound(string $productId): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new WishlistProductNotFoundException($productId);
-        }
-
         return new self(
             Response::HTTP_NOT_FOUND,
             self::WISHLIST_PRODUCT_NOT_FOUND,
@@ -290,16 +254,19 @@ class CustomerException extends HttpException
 
     public static function inactiveCustomer(string $id): ShopwareHttpException
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new InactiveCustomerException($id);
-        }
-
         return self::customerOptinNotCompleted($id);
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Parameter $message will be removed as it is unused
+     */
     public static function customerOptinNotCompleted(string $id, ?string $message = null): CustomerOptinNotCompletedException
     {
-        return new CustomerOptinNotCompletedException($id, $message);
+        if ($message !== null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'The parameter $message is unused and will be removed.');
+        }
+
+        return new CustomerOptinNotCompletedException($id);
     }
 
     public static function customerAuthThrottledException(int $waitTime, ?\Throwable $e = null): CustomerAuthThrottledException

@@ -17,8 +17,6 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Event\FinalizePaymentOrderTransactionCriteriaEvent;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -88,7 +86,7 @@ class PaymentService
 
         try {
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
-        } catch (PaymentProcessException|PaymentException $e) {
+        } catch (PaymentException $e) {
             $transactionId = $e->getOrderTransactionId();
             $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage(), 'exception' => $e]);
             if ($transactionId !== null) {
@@ -133,7 +131,7 @@ class PaymentService
 
         try {
             $paymentHandler->finalize($transaction, $request, $context);
-        } catch (CustomerCanceledAsyncPaymentException|PaymentException $e) {
+        } catch (PaymentException $e) {
             if ($e->getErrorCode() === PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL) {
                 $this->transactionStateHandler->cancel($transactionId, $context->getContext());
             } else {

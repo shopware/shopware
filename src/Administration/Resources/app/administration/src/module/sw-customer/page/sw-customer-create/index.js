@@ -31,19 +31,7 @@ export default {
             address: null,
             customerNumberPreview: '',
             isSaveSuccessful: false,
-            /**
-             * @deprecated tag:v6.6.0 - salesChannels Will be removed due to unused
-             * */
-            salesChannels: null,
             isLoading: false,
-            /**
-             * @deprecated tag:v6.6.0 - errorEmailCustomer Will be removed due to unused
-            * */
-            errorEmailCustomer: null,
-            /**
-             * @deprecated tag:v6.6.0 - defaultMinPasswordLength will be removed due to unused
-             * */
-            defaultMinPasswordLength: null,
         };
     },
 
@@ -59,13 +47,6 @@ export default {
         validCompanyField() {
             return this.customer.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS ?
                 this.address.company?.trim().length : true;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - validPasswordField will be removed due to unused
-         * */
-        validPasswordField() {
-            return this.customer.password?.trim().length >= this.defaultMinPasswordLength;
         },
 
         languageRepository() {
@@ -258,15 +239,6 @@ export default {
 
             this.createNotificationError({
                 message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
-            });
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - getDefaultRegistrationConfig will be removed due to unused
-         * */
-        getDefaultRegistrationConfig() {
-            this.systemConfigApiService.getValues('core.register').then((response) => {
-                this.defaultMinPasswordLength = response['core.register.minPasswordLength'];
             });
         },
 

@@ -4,12 +4,9 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
 use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
-use Shopware\Core\Checkout\Payment\Exception\RefundException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownRefundHandlerException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\RefundResponse;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -80,10 +77,6 @@ class AppRefundHandlerTest extends AbstractAppPaymentHandlerTestCase
         try {
             $this->paymentRefundProcessor->processRefund($refundId, $salesChannelContext->getContext());
         } catch (\Throwable $e) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                static::assertInstanceOf(RefundException::class, $e);
-            }
-
             static::assertInstanceOf(PaymentException::class, $e);
             static::assertSame('The refund process was interrupted due to the following error:
 FOO_BAR_ERROR_MESSAGE', $e->getMessage());
@@ -115,10 +108,6 @@ FOO_BAR_ERROR_MESSAGE', $e->getMessage());
         try {
             $this->paymentRefundProcessor->processRefund($refundId, $context->getContext());
         } catch (\Throwable $e) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                static::assertInstanceOf(RefundException::class, $e);
-            }
-
             static::assertInstanceOf(PaymentException::class, $e);
             static::assertSame('The refund process was interrupted due to the following error:
 Invalid app response', $e->getMessage());
@@ -150,10 +139,6 @@ Invalid app response', $e->getMessage());
         try {
             $this->paymentRefundProcessor->processRefund($refundId, $context->getContext());
         } catch (\Throwable $e) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                static::assertInstanceOf(RefundException::class, $e);
-            }
-
             static::assertInstanceOf(PaymentException::class, $e);
             static::assertSame('The refund process was interrupted due to the following error:
 Invalid app response', $e->getMessage());
@@ -182,9 +167,6 @@ Invalid app response', $e->getMessage());
 
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(UnknownRefundHandlerException::class);
-        }
         static::expectException(PaymentException::class);
         static::expectExceptionMessage('The Refund process failed with following exception: Unknown refund handler for refund id ' . $refundId . '.');
 

@@ -3,9 +3,7 @@
 namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Promotion\Exception\InvalidCodePatternException;
-use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,10 +54,6 @@ class PromotionException extends HttpException
 
     public static function patternAlreadyInUse(): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new PatternAlreadyInUseException();
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::PATTERN_ALREADY_IN_USE,

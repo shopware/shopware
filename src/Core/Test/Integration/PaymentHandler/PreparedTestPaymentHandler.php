@@ -5,7 +5,6 @@ namespace Shopware\Core\Test\Integration\PaymentHandler;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\PreparedPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\ValidatePreparedPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -31,7 +30,7 @@ class PreparedTestPaymentHandler implements PreparedPaymentHandlerInterface
         SalesChannelContext $context
     ): Struct {
         if (self::$fail) {
-            throw new ValidatePreparedPaymentException('this is supposed to fail');
+            throw PaymentException::validatePreparedPaymentInterrupted('this is supposed to fail');
         }
 
         self::$preOrderPaymentStruct = null;

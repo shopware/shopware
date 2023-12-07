@@ -3,9 +3,6 @@
 namespace Shopware\Core\Checkout\Payment\Cart\PaymentHandler;
 
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
-use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -22,24 +19,20 @@ interface AsynchronousPaymentHandlerInterface extends PaymentHandlerInterface
      *
      * A redirect to the url will be performed
      *
-     * Throw a @see AsyncPaymentProcessException exception if an error ocurres while processing the payment
      * Throw a @see PaymentException::PAYMENT_ASYNC_PROCESS_INTERRUPTED exception if an error ocurres while processing the payment
      *
-     * @throws AsyncPaymentProcessException
+     * @throws PaymentException
      */
     public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse;
 
     /**
      * The finalize function will be called when the user is redirected back to shop from the payment gateway.
      *
-     * Throw a @see AsyncPaymentFinalizeException exception if an error ocurres while calling an external payment API
      * Throw a @see PaymentException::PAYMENT_ASYNC_FINALIZE_INTERRUPTED exception if an error ocurres while calling an external payment API
-     * Throw a @see CustomerCanceledAsyncPaymentException exception if the customer canceled the payment process on
      * Throw a @see PaymentException::PAYMENT_CUSTOMER_CANCELED_EXTERNAL exception if the customer canceled the payment process on
      * payment provider page
      *
-     * @throws AsyncPaymentFinalizeException
-     * @throws CustomerCanceledAsyncPaymentException
+     * @throws PaymentException
      */
     public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void;
 }

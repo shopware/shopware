@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\ConsoleProgressTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\LastIdQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -32,17 +31,13 @@ class CartMigrateCommand extends Command
     /**
      * @internal
      *
-     * param cannot be natively typed, as symfony might change the type in the future
-     *
      * @param \Redis|\RedisArray|\RedisCluster|\Predis\ClientInterface|\Relay\Relay|null $redis
      *
-     * @phpstan-ignore-next-line ignore can be removed in 6.6.0 when all props are natively typed
+     * @phpstan-ignore-next-line param cannot be natively typed, as symfony might change the type in the future
      */
     public function __construct(
-        /** @deprecated tag:v6.6.0 - Property will become private */
-        protected $redis,
-        /** @deprecated tag:v6.6.0 - Property will become private and readonly */
-        protected Connection $connection,
+        private $redis,
+        private readonly Connection $connection,
         private readonly bool $compress,
         private readonly int $expireDays,
         private readonly RedisConnectionFactory $factory
@@ -119,9 +114,6 @@ class CartMigrateCommand extends Command
 
         $queue = new MultiInsertQueryQueue($this->connection, 50, false, true);
 
-        // @deprecated tag:v6.6.0 - payload always exists
-        $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
-
         foreach ($keys as $index => $key) {
             if (\method_exists($this->redis, '_prefix')) {
                 $key = \substr((string) $key, \strlen($this->redis->_prefix('')));
@@ -144,13 +136,8 @@ class CartMigrateCommand extends Command
 
             unset($value['content'], $value['compressed']);
 
-            // @deprecated tag:v6.6.0 - payload always exists - keep IF body
-            if ($payloadExists) {
-                $value['payload'] = $this->compress ? CacheValueCompressor::compress($content['cart']) : serialize($content['cart']);
-                $value['compressed'] = $this->compress ? 1 : 0;
-            } else {
-                $value['cart'] = serialize($content['cart']);
-            }
+            $value['payload'] = $this->compress ? CacheValueCompressor::compress($content['cart']) : serialize($content['cart']);
+            $value['compressed'] = $this->compress ? 1 : 0;
 
             $value['rule_ids'] = \json_encode($value['rule_ids'], \JSON_THROW_ON_ERROR);
             $value['customer_id'] = $value['customer_id'] ? Uuid::fromHexToBytes($value['customer_id']) : null;
@@ -202,9 +189,6 @@ class CartMigrateCommand extends Command
 
         $iterator = $this->createIterator();
 
-        // @deprecated tag:v6.6.0 - payload always exists
-        $payloadExists = EntityDefinitionQueryHelper::columnExists($this->connection, 'cart', 'payload');
-
         while ($tokens = $iterator->fetch()) {
             $rows = $this->connection->fetchAllAssociative('SELECT * FROM cart WHERE token IN (:tokens)', ['tokens' => $tokens], ['tokens' => ArrayParameterType::STRING]);
 
@@ -212,12 +196,7 @@ class CartMigrateCommand extends Command
             foreach ($rows as $row) {
                 $key = RedisCartPersister::PREFIX . $row['token'];
 
-                // @deprecated tag:v6.6.0 - keep if body, remove complete else
-                if ($payloadExists) {
-                    $cart = $row['compressed'] ? CacheValueCompressor::uncompress($row['payload']) : unserialize((string) $row['payload']);
-                } else {
-                    $cart = \unserialize($row['cart']);
-                }
+                $cart = $row['compressed'] ? CacheValueCompressor::uncompress($row['payload']) : unserialize((string) $row['payload']);
 
                 $content = ['cart' => $cart, 'rule_ids' => \json_decode((string) $row['rule_ids'], true, 512, \JSON_THROW_ON_ERROR)];
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Exception;
+namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionException;
@@ -8,9 +8,9 @@ use Shopware\Core\Checkout\Promotion\PromotionException;
 /**
  * @internal
  *
- * @covers \Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException
+ * @covers \Shopware\Core\Checkout\Promotion\PromotionException
  */
-class CodeAlreadyRedeemedExceptionTest extends TestCase
+class PromotionExceptionTest extends TestCase
 {
     /**
      * This test verifies that our provided code is correctly

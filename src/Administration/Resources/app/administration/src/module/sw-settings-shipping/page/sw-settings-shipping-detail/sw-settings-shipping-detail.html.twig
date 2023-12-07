@@ -254,13 +254,11 @@
                     :title="$tc('sw-settings-shipping.detail.topRule')"
                 >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    <!-- @deprecated tag:v6.6.0 - remove required property because rule will be nullable -->
                     {% block sw_settings_shipping_detail_top_rule_select %}
                     <sw-select-rule-create
                         :rule-id="shippingMethod.availabilityRuleId"
                         :rule-filter="ruleFilter"
                         :disabled="!acl.can('shipping.editor')"
-                        required
                         :error="shippingMethodAvailabilityRuleIdError"
                         :label="$tc('sw-settings-shipping.detail.topRule')"
                         class="sw-settings-shipping-detail__top-rule"

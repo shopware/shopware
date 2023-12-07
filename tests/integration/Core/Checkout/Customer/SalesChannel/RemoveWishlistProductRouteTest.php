@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\Event\WishlistProductRemovedEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
@@ -170,11 +169,7 @@ class RemoveWishlistProductRouteTest extends TestCase
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
         static::assertSame('CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND', $errors['code']);
         static::assertSame('Not Found', $errors['title']);
-        if (Feature::isActive('v6.6.0.0')) {
-            static::assertSame(sprintf('Could not find wishlist product with id "%s"', $productId), $errors['detail']);
-        } else {
-            static::assertSame(sprintf('Wishlist product with id %s not found', $productId), $errors['detail']);
-        }
+        static::assertSame(sprintf('Could not find wishlist product with id "%s"', $productId), $errors['detail']);
     }
 
     private function createProduct(Context $context): string

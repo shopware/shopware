@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Promotion\Util;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Promotion\Exception\PatternAlreadyInUseException;
 use Shopware\Core\Checkout\Promotion\Exception\PatternNotComplexEnoughException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
@@ -108,7 +107,7 @@ class PromotionCodeService
     }
 
     /**
-     * @throws PatternAlreadyInUseException
+     * @throws PromotionException
      */
     public function replaceIndividualCodes(string $promotionId, string $pattern, int $amount, Context $context): void
     {

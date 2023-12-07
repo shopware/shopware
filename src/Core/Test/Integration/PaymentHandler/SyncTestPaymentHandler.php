@@ -5,7 +5,7 @@ namespace Shopware\Core\Test\Integration\PaymentHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -27,12 +27,12 @@ class SyncTestPaymentHandler implements SynchronousPaymentHandlerInterface
 
         $lineItems = $order->getLineItems();
         if ($lineItems === null) {
-            throw new SyncPaymentProcessException($transactionId, 'lineItems is null');
+            throw PaymentException::syncProcessInterrupted($transactionId, 'lineItems is null');
         }
 
         $customer = $order->getOrderCustomer()?->getCustomer();
         if ($customer === null) {
-            throw new SyncPaymentProcessException($transactionId, 'customer is null');
+            throw PaymentException::syncProcessInterrupted($transactionId, 'customer is null');
         }
 
         $context = $salesChannelContext->getContext();

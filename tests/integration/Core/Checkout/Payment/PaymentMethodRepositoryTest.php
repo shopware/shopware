@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Payment;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\DefaultPayment;
-use Shopware\Core\Checkout\Payment\Exception\PluginPaymentMethodsDeleteRestrictionException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Framework\Context;
@@ -183,7 +182,7 @@ class PaymentMethodRepositoryTest extends TestCase
         try {
             $this->paymentRepository->delete([$primaryKey], $defaultContext);
             static::fail('this should not be reached');
-        } catch (PluginPaymentMethodsDeleteRestrictionException|PaymentException $e) {
+        } catch (PaymentException $e) {
             if ($e->getErrorCode() !== PaymentException::PAYMENT_PLUGIN_PAYMENT_METHOD_DELETE_RESTRICTION) {
                 throw $e;
             }

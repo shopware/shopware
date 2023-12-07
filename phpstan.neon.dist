@@ -189,12 +189,6 @@ parameters:
         - message: '#PHPDoc tag \@param references unknown parameter: \$app#'
           path: src/Core/Framework/Webhook/Hookable.php
 
-        # @deprecated tag:v6.6.0 - column availability_rule_id in table shipping_method can be nullable in the next major version. The concerned shipping methods will always be interpreted as valid.
-        - message: '#Strict comparison using === between string and null will always evaluate to false.#'
-          path: src/Core/Checkout/Cart/Delivery/DeliveryValidator.php
-        - message: '#Strict comparison using === between string and null will always evaluate to false.#'
-          path: src/Core/Checkout/Shipping/ShippingMethodCollection.php
-
         - # Classes that are allowed to use dynamic property name access
             message: '#Use explicit names over dynamic ones#'
             paths:

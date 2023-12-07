@@ -82,7 +82,10 @@ class Migration1612442786ChangeVersionOfDocumentsTest extends TestCase
             ]
         );
 
-        $ruleIds = [$shippingMethod->getAvailabilityRuleId()];
+        $ruleIds = [];
+        if ($shippingRuleId = $shippingMethod->getAvailabilityRuleId()) {
+            $ruleIds[] = $shippingRuleId;
+        }
         if ($paymentRuleId = $paymentMethod->getAvailabilityRuleId()) {
             $ruleIds[] = $paymentRuleId;
         }

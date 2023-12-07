@@ -7,9 +7,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -75,12 +73,6 @@ class LoginRoute extends AbstractLoginRoute
             );
         } catch (CustomerNotFoundException|BadCredentialsException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
-        } catch (CustomerOptinNotCompletedException $exception) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                throw CustomerException::inactiveCustomer($exception->getParameters()['customerId']);
-            }
-
-            throw $exception;
         }
 
         if (isset($cacheKey)) {

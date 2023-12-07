@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Checkout\Shipping;
 
-use Shopware\Core\Checkout\Shipping\Exception\ShippingMethodNotFoundException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,10 +17,6 @@ class ShippingException extends HttpException
 
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            return new ShippingMethodNotFoundException($id, $e);
-        }
-
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::SHIPPING_METHOD_NOT_FOUND,

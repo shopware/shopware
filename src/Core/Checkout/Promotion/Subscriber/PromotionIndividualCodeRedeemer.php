@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
+use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -26,6 +26,8 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<PromotionIndividualCodeCollection> $codesRepository
      */
     public function __construct(private readonly EntityRepository $codesRepository)
     {
@@ -39,7 +41,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
     }
 
     /**
-     * @throws CodeAlreadyRedeemedException
+     * @throws PromotionException
      * @throws InconsistentCriteriaIdsException
      */
     public function onOrderPlaced(CheckoutOrderPlacedEvent $event): void
@@ -106,14 +108,12 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             new EqualsFilter('code', $code)
         );
 
-        /** @var PromotionIndividualCodeCollection $result */
-        $result = $this->codesRepository->search($criteria, $context)->getEntities();
+        $result = $this->codesRepository->search($criteria, $context)->getEntities()->first();
 
-        if (\count($result->getElements()) <= 0) {
+        if (!$result) {
             throw new PromotionCodeNotFoundException($code);
         }
 
-        // return first element
-        return $result->first();
+        return $result;
     }
 }

@@ -29,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -671,11 +670,7 @@ class OrderRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::assertEquals('CHECKOUT__UNKNOWN_PAYMENT_METHOD', $response['errors'][0]['code']);
-        } else {
-            static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
-        }
+        static::assertEquals('CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE', $response['errors'][0]['code']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection

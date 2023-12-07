@@ -394,7 +394,8 @@ class StorefrontControllerTest extends TestCase
             ['test' => 'error'],
             Error::LEVEL_ERROR,
             true,
-            true
+            true,
+            true,
         );
 
         $cart = new Cart('foo');

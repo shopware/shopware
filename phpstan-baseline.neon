@@ -316,16 +316,6 @@ parameters:
 			path: src/Core/Checkout/Document/Event/DocumentTemplateRendererParameterEvent.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RenderedDocument\\:\\:__construct\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/RenderedDocument.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RenderedDocument\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/Renderer/RenderedDocument.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Document\\\\Renderer\\\\RendererResult\\:\\:getErrors\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/Renderer/RendererResult.php
@@ -559,11 +549,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Subscriber\\\\PromotionIndividualCodeRedeemer\\:\\:getIndividualCode\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeEntity but returns Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Aggregate\\\\PromotionIndividualCode\\\\PromotionIndividualCodeEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Subscriber/PromotionIndividualCodeRedeemer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"

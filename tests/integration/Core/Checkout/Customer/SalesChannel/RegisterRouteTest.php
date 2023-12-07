@@ -16,7 +16,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -385,11 +384,7 @@ class RegisterRouteTest extends TestCase
 
         $responseData = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertArrayHasKey('errors', $responseData);
-        if (Feature::isActive('v6.6.0.0')) {
-            static::assertSame('CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED', $responseData['errors'][0]['code']);
-        } else {
-            static::assertSame('CHECKOUT__CUSTOMER_IS_INACTIVE', $responseData['errors'][0]['code']);
-        }
+        static::assertSame('CHECKOUT__CUSTOMER_OPTIN_NOT_COMPLETED', $responseData['errors'][0]['code']);
         static::assertSame('401', $responseData['errors'][0]['status']);
 
         $criteria = new Criteria([$customerId]);

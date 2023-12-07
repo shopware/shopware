@@ -152,10 +152,9 @@ class StateMachineRegistry implements ResetInterface
                 'toStateId' => $toPlace->getId(),
                 'transitionActionName' => $transition->getTransitionName(),
                 'userId' => $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null,
+                'referencedId' => $transition->getEntityId(),
+                'referencedVersionId' => $context->getVersionId(),
             ];
-
-            $stateMachineHistoryEntity['referencedId'] = $transition->getEntityId();
-            $stateMachineHistoryEntity['referencedVersionId'] = $context->getVersionId();
 
             $this->stateMachineHistoryRepository->create([$stateMachineHistoryEntity], $context);
 

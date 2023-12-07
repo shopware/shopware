@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -285,15 +284,9 @@ class LoginRouteTest extends TestCase
         $defaultPaymentMethod = $connection->fetchOne('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`');
         $defaultShippingMethod = $connection->fetchOne('SELECT id FROM shipping_method WHERE active = 1');
 
-        // @deprecated tag:v6.6.0 - keep $column = 'payload'
-        $column = 'cart';
-        if (EntityDefinitionQueryHelper::columnExists($connection, 'cart', 'payload')) {
-            $column = 'payload';
-        }
-
         $connection->insert('cart', [
             'token' => $contextToken,
-            $column => serialize(new Cart($contextToken)),
+            'payload' => serialize(new Cart($contextToken)),
             'line_item_count' => 1,
             'rule_ids' => json_encode([]),
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),

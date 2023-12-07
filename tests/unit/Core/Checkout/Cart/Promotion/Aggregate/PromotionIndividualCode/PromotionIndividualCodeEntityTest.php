@@ -4,9 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionIn
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
-use Shopware\Core\Checkout\Promotion\Exception\CodeAlreadyRedeemedException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
-use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -46,15 +44,11 @@ class PromotionIndividualCodeEntityTest extends TestCase
      *
      * @group promotions
      *
-     * @throws CodeAlreadyRedeemedException
+     * @throws PromotionException
      */
     public function testAlreadyRedeemedThrowsException(): void
     {
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->expectException(PromotionException::class);
-        } else {
-            $this->expectException(CodeAlreadyRedeemedException::class);
-        }
+        $this->expectException(PromotionException::class);
 
         $entity = new PromotionIndividualCodeEntity();
         $entity->setCode('my-code-123');
@@ -70,7 +64,7 @@ class PromotionIndividualCodeEntityTest extends TestCase
      *
      * @group promotions
      *
-     * @throws CodeAlreadyRedeemedException
+     * @throws PromotionException
      */
     public function testAlreadyRedeemedIsOkWithSameData(): void
     {

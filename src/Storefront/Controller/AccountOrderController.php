@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
@@ -283,7 +283,7 @@ class AccountOrderController extends StorefrontController
                 $context
             );
             $response = $routeResponse->getRedirectResponse();
-        } catch (PaymentProcessException) {
+        } catch (PaymentException) {
             return $this->forwardToRoute(
                 'frontend.checkout.finish.page',
                 ['orderId' => $orderId, 'changedPayment' => true, 'paymentFailed' => true]

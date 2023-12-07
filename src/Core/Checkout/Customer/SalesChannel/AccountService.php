@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -209,9 +208,7 @@ class AccountService
         $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                // Customers with double opt-in will be active by default starting at Shopware 6.6.0.0,
-                // remove complete if statement and always return null
-                if (Feature::isActive('v6.6.0.0') || $this->isCustomerConfirmed($customer)) {
+                if ($this->isCustomerConfirmed($customer)) {
                     return null;
                 }
             }

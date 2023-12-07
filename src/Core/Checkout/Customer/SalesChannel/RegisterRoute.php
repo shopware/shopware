@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -279,9 +278,6 @@ class RegisterRoute extends AbstractRegisterRoute
             return $customer;
         }
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $customer['active'] = false;
-        }
         $customer['doubleOptInRegistration'] = true;
         $customer['doubleOptInEmailSentDate'] = new \DateTimeImmutable();
         $customer['hash'] = Uuid::randomHex();

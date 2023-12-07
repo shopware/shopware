@@ -7,7 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Exception;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentRefundProcessor;
-use Shopware\Core\Checkout\Payment\Exception\RefundProcessException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -143,7 +143,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @throws RefundProcessException
+     * @throws PaymentException
      */
     #[Route(path: '/api/_action/order_transaction_capture_refund/{refundId}', name: 'api.action.order.order_transaction_capture_refund', methods: ['POST'], defaults: ['_acl' => ['order_refund.editor']])]
     public function refundOrderTransactionCapture(string $refundId, Context $context): JsonResponse

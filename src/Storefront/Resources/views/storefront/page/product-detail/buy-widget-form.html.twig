@@ -8,7 +8,7 @@
 
     <form
         id="productDetailPageBuyProductForm"
-        action="{% block page_product_detail_buy_form_action %}{# @deprecated tag:v6.6.0 - block will be removed, overwrite `formAction` instead #}{{ formAction }}{% endblock %}"
+        action="{{ formAction }}"
         method="post"
         class="buy-widget"
         data-add-to-cart="true">

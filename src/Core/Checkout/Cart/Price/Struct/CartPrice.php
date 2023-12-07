@@ -16,11 +16,6 @@ class CartPrice extends Struct
     final public const TAX_STATE_FREE = 'tax-free';
 
     /**
-     * @deprecated tag:v6.6.0 - Will be removed, tax state is for internal price and tax calculations, external can't be considered
-     */
-    final public const TAX_STATE_EXTERNAL = 'external';
-
-    /**
      * @var float
      */
     protected $netPrice;

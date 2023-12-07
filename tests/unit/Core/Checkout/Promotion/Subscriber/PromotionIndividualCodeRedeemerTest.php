@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
@@ -26,9 +25,27 @@ use Shopware\Core\Test\TestDefaults;
  *
  * @covers \Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer
  */
-#[Package('buyers-experience')]
 class PromotionIndividualCodeRedeemerTest extends TestCase
 {
+    /**
+     * This test verifies that our subscriber has the
+     * correct event that its listening to.
+     * This is important, because we have to ensure that
+     * we save meta data in the payload of the line item
+     * when the order is created.
+     * This payload data helps us to reference used individual codes
+     * with placed orders.
+     *
+     * @group promotions
+     */
+    public function testSubscribeToOrderLineItemWritten(): void
+    {
+        $expectedEvent = CheckoutOrderPlacedEvent::class;
+
+        // we need to have a key for the Shopware event
+        static::assertArrayHasKey($expectedEvent, PromotionIndividualCodeRedeemer::getSubscribedEvents());
+    }
+
     public function testOnOrderCreateWithOtherLineItem(): void
     {
         $repository = $this->createMock(EntityRepository::class);
@@ -54,6 +71,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $code = new PromotionIndividualCodeEntity();
         $code->setId(Uuid::randomHex());
 
+        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $repository */
         $repository = new StaticEntityRepository([
             static function (Criteria $criteria) {
                 $filter = $criteria->getFilters()[0];

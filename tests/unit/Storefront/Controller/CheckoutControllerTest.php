@@ -16,8 +16,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
-use Shopware\Core\Checkout\Payment\Exception\SyncPaymentProcessException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
+use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -419,7 +418,8 @@ class CheckoutControllerTest extends TestCase
                             [],
                             1,
                             true,
-                            false
+                            false,
+                            true,
                         ),
                     ]
                 )
@@ -440,7 +440,7 @@ class CheckoutControllerTest extends TestCase
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->orderServiceMock->expects(static::once())->method('createOrder')->willThrowException(
-            new UnknownPaymentMethodException(Uuid::randomHex())
+            PaymentException::unknownPaymentMethodById(Uuid::randomHex())
         );
 
         $response = $this->controller->order(new RequestDataBag(), $context, $request);
@@ -475,7 +475,7 @@ class CheckoutControllerTest extends TestCase
         $context->method('getCustomer')->willReturn(new CustomerEntity());
 
         $this->paymentServiceMock->expects(static::once())->method('handlePaymentByOrder')->willThrowException(
-            new SyncPaymentProcessException(Uuid::randomHex(), 'error')
+            PaymentException::syncProcessInterrupted(Uuid::randomHex(), 'error')
         );
 
         $response = $this->controller->order(new RequestDataBag(), $context, $request);

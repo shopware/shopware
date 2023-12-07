@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentRendererException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
@@ -24,7 +23,6 @@ use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -36,7 +34,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -142,11 +139,7 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidOrderException::class);
-        } else {
-            $this->expectException(DocumentException::class);
-        }
+        $this->expectException(DocumentException::class);
 
         /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->first();
@@ -412,12 +405,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        // Remove if branch and keep else branch in v6.6 release
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(InvalidDocumentException::class);
-        } else {
-            static::expectException(DocumentException::class);
-        }
+        static::expectException(DocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         $this->documentGenerator->readDocument($documentId, $this->context);
@@ -427,11 +415,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(InvalidDocumentException::class);
-        } else {
-            static::expectException(DocumentException::class);
-        }
+        static::expectException(DocumentException::class);
         static::expectExceptionMessage(\sprintf('The document with id "%s" is invalid or could not be found.', $documentId));
 
         /** @var FilesystemOperator $fileSystem */

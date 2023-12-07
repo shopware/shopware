@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -246,8 +245,6 @@ class LineItemTest extends TestCase
 
     public function testReplacePayloadNonRecursively(): void
     {
-        Feature::skipTestIfInActive('v6.6.0.0', $this);
-
         $lineItem = new LineItem('abc', 'type', null, 5);
         $lineItem->setPayload([
             'test' => 5,

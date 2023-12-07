@@ -1811,7 +1811,7 @@ class VersioningTest extends TestCase
             ]
         );
         $context->setRuleIds(
-            [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId()]
+            [$ruleId, $context->getShippingMethod()->getAvailabilityRuleId() ?? Uuid::randomHex()]
         );
 
         $cart = $this->createDemoCart($context);

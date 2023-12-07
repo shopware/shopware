@@ -16,15 +16,12 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStructFactory;
 use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Event\PayPaymentOrderCriteriaEvent;
-use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
-use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -84,9 +81,6 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $eventDispatcher,
         );
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(InvalidOrderException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(\sprintf('The order with id %s is invalid or could not be found.', $this->ids->get('test-order')));
 
@@ -150,9 +144,6 @@ class PaymentTransactionChainProcessorTest extends TestCase
             $eventDispatcher,
         );
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectException(UnknownPaymentMethodException::class);
-        }
         $this->expectException(PaymentException::class);
         $this->expectExceptionMessage(\sprintf('Could not find payment method with id "%s"', $this->ids->get('payment')));
 

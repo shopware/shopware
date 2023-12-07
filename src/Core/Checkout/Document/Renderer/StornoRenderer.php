@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
-use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -69,7 +69,7 @@ final class StornoRenderer extends AbstractDocumentRenderer
                 $invoice = $this->referenceInvoiceLoader->load($orderId, $operation->getReferencedDocumentId(), $rendererConfig->deepLinkCode);
 
                 if (empty($invoice)) {
-                    throw new DocumentGenerationException('Can not generate storno document because no invoice document exists. OrderId: ' . $operation->getOrderId());
+                    throw DocumentException::generationError('Can not generate storno document because no invoice document exists. OrderId: ' . $operation->getOrderId());
                 }
 
                 $documentRefer = json_decode($invoice['config'], true, 512, \JSON_THROW_ON_ERROR);
@@ -129,8 +129,15 @@ final class StornoRenderer extends AbstractDocumentRenderer
                     continue;
                 }
 
+                /** @var LanguageEntity|null $language */
+                $language = $order->getLanguage();
+                if ($language === null) {
+                    throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                }
+
                 /** @var LocaleEntity $locale */
-                $locale = $order->getLanguage()->getLocale();
+                $locale = $language->getLocale();
+
                 $html = $this->documentTemplateRenderer->render(
                     $template,
                     [

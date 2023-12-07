@@ -62,10 +62,18 @@ class ApiService {
      * Get the basic headers for a request.
      */
     getBasicHeaders(additionalHeaders = {}): BasicHeaders {
+        let languageIdHeader = {};
+        if (typeof Shopware.Context?.api?.languageId === 'string') {
+            languageIdHeader = {
+                'sw-language-id': Shopware.Context.api.languageId,
+            };
+        }
+
         const basicHeaders = {
             Accept: this.contentType,
             Authorization: `Bearer ${this.loginService.getToken()}`,
             'Content-Type': 'application/json',
+            ...languageIdHeader,
         };
 
         return { ...basicHeaders, ...additionalHeaders };

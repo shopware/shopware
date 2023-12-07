@@ -5,9 +5,8 @@ const { Component } = Shopware;
 
 /**
  * @package services-settings
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Component.register('sw-settings-shopware-updates-info', {
     template,
 

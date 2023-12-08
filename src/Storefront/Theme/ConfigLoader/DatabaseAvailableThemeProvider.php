@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -29,22 +28,8 @@ class DatabaseAvailableThemeProvider extends AbstractAvailableThemeProvider
         throw new DecorationPatternException(self::class);
     }
 
-    /**
-     * @deprecated tag:v6.6.0 - Second parameter $activeOnly will be required in future versions.
-     */
-    public function load(Context $context, bool $activeOnly = false): array
+    public function load(Context $context, bool $activeOnly): array
     {
-        if (\count(\func_get_args()) === 1) {
-            Feature::triggerDeprecationOrThrow(
-                'v6.6.0.0',
-                sprintf(
-                    'Method %s::%s is deprecated. Second parameter $activeOnly will be required in future versions.',
-                    __CLASS__,
-                    __METHOD__,
-                )
-            );
-        }
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 

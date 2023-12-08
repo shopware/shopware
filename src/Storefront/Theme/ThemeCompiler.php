@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatch;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -97,27 +96,12 @@ class ThemeCompiler implements ThemeCompilerInterface
             $context
         );
 
-        $concatenatedScripts = '';
-
-        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
-        if (!Feature::isActive('v6.6.0.0')) {
-            try {
-                $concatenatedScripts = $this->getConcatenatedScripts($resolvedFiles[ThemeFileResolver::SCRIPT_FILES], $themeConfig, $salesChannelId);
-            } catch (\Throwable $e) {
-                throw new ThemeCompileException(
-                    $themeConfig->getName() ?? '',
-                    'Error while trying to concatenate Scripts: ' . $e->getMessage(),
-                    $e
-                );
-            }
-        }
-
         $newThemeHash = Uuid::randomHex();
         $themePrefix = $this->themePathBuilder->generateNewPath($salesChannelId, $themeId, $newThemeHash);
         $oldThemePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
 
         try {
-            $this->writeCompiledFiles($themePrefix, $themeId, $compiled, $concatenatedScripts, $withAssets, $themeConfig, $configurationCollection);
+            $this->writeCompiledFiles($themePrefix, $themeId, $compiled, $withAssets, $themeConfig, $configurationCollection);
         } catch (\Throwable $e) {
             // delete folder in case of error and rethrow exception
             if ($themePrefix !== $oldThemePrefix) {
@@ -131,10 +115,7 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
-        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
-        if (Feature::isActive('v6.6.0.0')) {
-            $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
-        }
+        $this->copyScriptFilesToTheme($configurationCollection, $themePrefix);
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -487,27 +468,10 @@ PHP_EOL;
         return $concatenatedStylesEvent->getConcatenatedStyles();
     }
 
-    private function getConcatenatedScripts(
-        FileCollection $scriptFiles,
-        StorefrontPluginConfiguration $themeConfig,
-        string $salesChannelId
-    ): string {
-        $concatenatedScripts = '';
-        foreach ($scriptFiles as $file) {
-            $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
-        }
-
-        $concatenatedScriptsEvent = new ThemeCompilerConcatenatedScriptsEvent($concatenatedScripts, $salesChannelId);
-        $this->eventDispatcher->dispatch($concatenatedScriptsEvent);
-
-        return $concatenatedScriptsEvent->getConcatenatedScripts();
-    }
-
     private function writeCompiledFiles(
         string $themePrefix,
         string $themeId,
         string $compiled,
-        string $concatenatedScripts,
         bool $withAssets,
         StorefrontPluginConfiguration $themeConfig,
         StorefrontPluginConfigurationCollection $configurationCollection
@@ -520,12 +484,6 @@ PHP_EOL;
 
         $cssFilePath = $path . \DIRECTORY_SEPARATOR . 'css' . \DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->write($cssFilePath, $compiled);
-
-        /** @deprecated tag:v6.6.0 - Scripts are not concatenated into an all.js. */
-        if (!Feature::isActive('v6.6.0.0')) {
-            $scriptFilepath = $path . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'all.js';
-            $this->filesystem->write($scriptFilepath, $concatenatedScripts);
-        }
 
         // assets
         if ($withAssets) {

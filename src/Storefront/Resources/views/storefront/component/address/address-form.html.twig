@@ -211,24 +211,13 @@
                     {% endblock %}
                 {% endset %}
 
-                {# @deprecated tag:v6.6.0 - Will remove the if statement #}
-                {% if config('core.address.showZipcodeInFrontOfCity') %}
-                    <div class="form-group col-md-2 col-4">
-                        {{ zipcodeField }}
-                    </div>
+                <div class="form-group col-md-4 col-8">
+                    {{ cityField }}
+                </div>
 
-                    <div class="form-group col-md-4 col-8">
-                        {{ cityField }}
-                    </div>
-                {% else %}
-                    <div class="form-group col-md-4 col-8">
-                        {{ cityField }}
-                    </div>
-
-                    <div class="form-group col-md-2 col-4">
-                        {{ zipcodeField }}
-                    </div>
-                {% endif %}
+                <div class="form-group col-md-2 col-4">
+                    {{ zipcodeField }}
+                </div>
             {% endblock %}
 
             {% block component_address_form_additional_field1 %}

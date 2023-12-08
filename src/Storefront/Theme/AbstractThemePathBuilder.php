@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -25,40 +24,12 @@ abstract class AbstractThemePathBuilder
     /**
      * `generateNewPath()` should work in the same way as `assemblePath()`, but it should use the given seed instead of the lastly saved one.
      * This method is used before the theme is recompiled to get a new location for the result of that compilation.
-     *
-     * @deprecated tag:v6.6.0 - Method will be abstract in v6.6.0, so implement the method in your implementations
      */
-    public function generateNewPath(string $salesChannelId, string $themeId, string $seed): string
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            sprintf(
-                'Method "%s" will be abstract in v6.6.0, so you need to implement the method in "%s".',
-                __METHOD__,
-                static::class
-            )
-        );
-
-        return $this->assemblePath($salesChannelId, $themeId);
-    }
+    abstract public function generateNewPath(string $salesChannelId, string $themeId, string $seed): string;
 
     /**
      * `saveSeed()` is called after the successful compilation of a theme.
      * I should save the seed so that it will be used for subsequent calls to `assemblePath()`.
-     *
-     * @deprecated tag:v6.6.0 - Method will be abstract in v6.6.0, so implement the method in your implementations
      */
-    public function saveSeed(string $salesChannelId, string $themeId, string $seed): void
-    {
-        Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
-            sprintf(
-                'Method "%s" will be abstract in v6.6.0, so you need to implement the method in "%s".',
-                __METHOD__,
-                static::class
-            )
-        );
-
-        // empty for backwards compatibility
-    }
+    abstract public function saveSeed(string $salesChannelId, string $themeId, string $seed): void;
 }

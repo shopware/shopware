@@ -133,3 +133,16 @@ Publish Github platform release:
   before_script: []
   script:
     - .gitlab/bin/create_github_release.sh publish "$CI_COMMIT_TAG"
+
+Post Slack Release message:
+  extends: .base-no-setup
+  stage: deploy
+  needs: [ "Prepare SBP platform release" ]
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: manual
+  before_script: []
+  script:
+    - >
+      SLACK_PAYLOAD=$(jq --null-input --arg version "${CI_COMMIT_TAG}" '{"version": $version, "github_url": "https://github.com/shopware/shopware/releases/tag/\($version)"}');
+      curl --silent --request POST --url ${SLACK_RELEASE_WORKFLOW_URL} --header "Content-Type: application/json" --data "${SLACK_PAYLOAD}"

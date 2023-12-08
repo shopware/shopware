@@ -385,9 +385,13 @@
                                                 {% block element_image_gallery_inner_thumbnails_controls_prev %}
                                                     <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev">
                                                         {% if galleryPosition == "left" %}
-                                                            {% sw_icon 'arrow-head-up' %}
+                                                            {% block element_image_gallery_inner_thumbnails_controls_left_prev_icon %}
+                                                                {% sw_icon 'arrow-head-up' %}
+                                                            {% endblock %}
                                                         {% elseif galleryPosition == "underneath" %}
-                                                            {% sw_icon 'arrow-head-left' %}
+                                                            {% block element_image_gallery_inner_thumbnails_controls_underneath_prev_icon %}
+                                                                {% sw_icon 'arrow-head-left' %}
+                                                            {% endblock %}
                                                         {% endif %}
                                                     </button>
                                                 {% endblock %}
@@ -395,9 +399,13 @@
                                                 {% block element_image_gallery_inner_thumbnails_controls_next %}
                                                     <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next">
                                                         {% if galleryPosition == "left" %}
-                                                            {% sw_icon 'arrow-head-down' %}
+                                                            {% block element_image_gallery_inner_thumbnails_controls_left_next_icon %}
+                                                                {% sw_icon 'arrow-head-down' %}
+                                                            {% endblock %}
                                                         {% elseif galleryPosition == "underneath" %}
-                                                            {% sw_icon 'arrow-head-right' %}
+                                                            {% block element_image_gallery_inner_thumbnails_controls_underneath_next_icon %}
+                                                                {% sw_icon 'arrow-head-right' %}
+                                                            {% endblock %}
                                                         {% endif %}
                                                     </button>
                                                 {% endblock %}
@@ -584,11 +592,15 @@
                                                                                 <div data-thumbnail-slider-controls="true" class="gallery-slider-modal-thumbnails">
                                                                                     <button class="base-slider-controls-prev gallery-slider-thumbnails-controls-prev"
                                                                                             aria-label="{{ 'general.previous'|trans|striptags }}">
-                                                                                        {% sw_icon 'arrow-head-left' %}
+                                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails_controls_prev_icon %}
+                                                                                            {% sw_icon 'arrow-head-left' %}
+                                                                                        {% endblock %}
                                                                                     </button>
                                                                                     <button class="base-slider-controls-next gallery-slider-thumbnails-controls-next"
                                                                                             aria-label="{{ 'general.next'|trans|striptags }}">
-                                                                                        {% sw_icon 'arrow-head-right' %}
+                                                                                        {% block element_image_gallery_inner_zoom_modal_thumbnails_controls_next_icon %}
+                                                                                            {% sw_icon 'arrow-head-right' %}
+                                                                                        {% endblock %}
                                                                                     </button>
                                                                                 </div>
                                                                             </div>

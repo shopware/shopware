@@ -42,16 +42,6 @@ class NoFlowEventAwareExtendsRule implements Rule
             return [];
         }
 
-        $text = $node->getDocComment()?->getText() ?? '';
-
-        if (\str_contains($text, '@deprecated tag:v6.6.0 - Will be removed')) {
-            return [];
-        }
-
-        if (\str_contains($text, '@deprecated tag:v6.6.0 - reason:class-hierarchy-change')) {
-            return [];
-        }
-
         return [
             \sprintf('Class %s should not extend FlowEventAware. Flow events should not be derived from each other to make them easier to test', $reflection->getName()),
         ];

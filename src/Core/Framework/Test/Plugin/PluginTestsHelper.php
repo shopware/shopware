@@ -42,7 +42,7 @@ trait PluginTestsHelper
             [
                 [
                     'baseClass' => SwagTestPlugin::class,
-                    'name' => 'SwagTest',
+                    'name' => 'SwagTestPlugin',
                     'version' => $version,
                     'label' => SwagTestPlugin::PLUGIN_LABEL,
                     'installedAt' => $installedAt,

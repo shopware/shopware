@@ -213,7 +213,7 @@ class PluginServiceTest extends TestCase
     {
         $this->createPlugin($this->pluginRepo, $this->context);
 
-        $plugin = $this->pluginService->getPluginByName('SwagTest', $this->context);
+        $plugin = $this->pluginService->getPluginByName('SwagTestPlugin', $this->context);
 
         $this->assertDefaultPlugin($plugin);
     }

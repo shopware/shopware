@@ -536,15 +536,15 @@ class PluginLifecycleServiceTest extends TestCase
 
         static::assertSame(1, $this->getMigrationTestKeyCount());
 
-        static::assertSame(7, $this->systemConfigService->get('SwagTest.config.intField'));
-        static::assertNull($this->systemConfigService->get('SwagTest.config.textFieldWithoutDefault'));
-        static::assertSame('string', $this->systemConfigService->get('SwagTest.config.textField'));
-        static::assertNull($this->systemConfigService->get('SwagTest.config.textFieldNull'));
-        static::assertFalse($this->systemConfigService->get('SwagTest.config.switchField'));
-        static::assertSame(0.349831239840912348, $this->systemConfigService->get('SwagTest.config.floatField'));
-        static::assertNull($this->systemConfigService->get('SwagTest.config.priceField'));
-        static::assertSame('100', $this->systemConfigService->get('SwagTest.config.numericTextField'));
-        static::assertSame(['value1', 'value2'], $this->systemConfigService->get('SwagTest.config.multiSelectField'));
+        static::assertSame(7, $this->systemConfigService->get('SwagTestPlugin.config.intField'));
+        static::assertNull($this->systemConfigService->get('SwagTestPlugin.config.textFieldWithoutDefault'));
+        static::assertSame('string', $this->systemConfigService->get('SwagTestPlugin.config.textField'));
+        static::assertNull($this->systemConfigService->get('SwagTestPlugin.config.textFieldNull'));
+        static::assertFalse($this->systemConfigService->get('SwagTestPlugin.config.switchField'));
+        static::assertSame(0.349831239840912348, $this->systemConfigService->get('SwagTestPlugin.config.floatField'));
+        static::assertNull($this->systemConfigService->get('SwagTestPlugin.config.priceField'));
+        static::assertSame('100', $this->systemConfigService->get('SwagTestPlugin.config.numericTextField'));
+        static::assertSame(['value1', 'value2'], $this->systemConfigService->get('SwagTestPlugin.config.multiSelectField'));
     }
 
     private function installPluginWithoutConfig(Context $context): void

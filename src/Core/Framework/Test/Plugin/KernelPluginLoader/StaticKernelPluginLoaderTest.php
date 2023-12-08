@@ -338,7 +338,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         ]);
 
         $this->expectException(KernelPluginLoaderException::class);
-        $this->expectExceptionMessage('Failed to load plugin "SwagTest". Reason: Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR);
+        $this->expectExceptionMessage('Failed to load plugin "SwagTestPlugin". Reason: Plugin dir /custom/plugins/TestPlugin needs to be a sub-directory of the project dir ' . TEST_PROJECT_DIR);
 
         $loader = new StaticKernelPluginLoader($classLoader, null, [$plugin->jsonSerialize()]);
         $loader->initializePlugins(TEST_PROJECT_DIR);

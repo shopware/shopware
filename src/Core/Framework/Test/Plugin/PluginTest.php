@@ -20,12 +20,12 @@ class PluginTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         $pluginsDir = __DIR__ . '/_fixture/plugins';
-        self::$swagTestPluginPath = $pluginsDir . '/SwagTest';
+        self::$swagTestPluginPath = $pluginsDir . '/SwagTestPlugin';
 
         self::$symlinkedSwagTestPluginPath = sys_get_temp_dir() . '/SymlinkedSwagTest_' . uniqid();
         symlink(self::$swagTestPluginPath, self::$symlinkedSwagTestPluginPath);
 
-        require_once self::$swagTestPluginPath . '/src/SwagTest.php';
+        require_once self::$swagTestPluginPath . '/src/SwagTestPlugin.php';
     }
 
     public static function tearDownAfterClass(): void

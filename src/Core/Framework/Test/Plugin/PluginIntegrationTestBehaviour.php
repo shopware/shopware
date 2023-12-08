@@ -77,12 +77,12 @@ trait PluginIntegrationTestBehaviour
         $plugin = new PluginEntity();
         $plugin->assign([
             'id' => Uuid::randomHex(),
-            'name' => 'SwagTest',
+            'name' => 'SwagTestPlugin',
             'baseClass' => SwagTestPlugin::class,
             'version' => '1.0.1',
             'active' => false,
-            'path' => __DIR__ . '/_fixture/plugins/SwagTest',
-            'autoload' => ['psr-4' => ['SwagTest\\' => 'src/']],
+            'path' => __DIR__ . '/_fixture/plugins/SwagTestPlugin',
+            'autoload' => ['psr-4' => ['SwagTestPlugin\\' => 'src/']],
             'createdAt' => new \DateTimeImmutable('2019-01-01'),
             'managedByComposer' => false,
         ]);

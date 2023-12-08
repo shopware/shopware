@@ -41,6 +41,7 @@ class PromotionItemBuilderTest extends TestCase
     {
         $this->promotion = new PromotionEntity();
         $this->promotion->setId('PR-1');
+        $this->promotion->setPriority(1);
         $this->promotion->setUseCodes(false);
         $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);

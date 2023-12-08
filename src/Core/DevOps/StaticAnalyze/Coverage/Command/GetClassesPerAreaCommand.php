@@ -145,13 +145,7 @@ class GetClassesPerAreaCommand extends Command
         $areas = [];
 
         foreach ($this->getShopwareClasses() as $class => $path) {
-            try {
-                $area = Package::getPackageName($class);
-            } catch (\Throwable $e) {
-                $areas['unknown'][$class] = $path;
-
-                continue;
-            }
+            $area = Package::getPackageName($class);
 
             if (!\is_string($area)) {
                 continue;

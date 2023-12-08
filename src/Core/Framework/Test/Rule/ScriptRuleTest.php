@@ -34,6 +34,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ *
  * @runTestsInSeparateProcesses
  */
 #[Package('services-settings')]

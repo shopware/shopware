@@ -56,6 +56,10 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Api\Controller\HealthCheckController" public="true">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Api\Controller\IndexingController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
             <argument type="service" id="messenger.bus.shopware"/>

@@ -163,7 +163,7 @@ class CustomerExceptionTest extends TestCase
         yield CustomerException::CUSTOMER_NOT_FOUND_BY_ID => [
             'callback' => [CustomerException::class, 'customerNotFoundByIdException'],
             'args' => ['id-1'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
+            'statusCode' => Response::HTTP_UNAUTHORIZED,
             'errorCode' => CustomerException::CUSTOMER_NOT_FOUND_BY_ID,
             'message' => 'No matching customer for the id "id-1" was found.',
         ];
@@ -171,7 +171,7 @@ class CustomerExceptionTest extends TestCase
         yield CustomerException::CUSTOMER_NOT_FOUND => [
             'callback' => [CustomerException::class, 'customerNotFound'],
             'args' => ['abc@com'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
+            'statusCode' => Response::HTTP_UNAUTHORIZED,
             'errorCode' => CustomerException::CUSTOMER_NOT_FOUND,
             'message' => 'No matching customer for the email "abc@com" was found.',
         ];

@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
@@ -13,7 +11,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(defaults: ['_routeScope' => ['store-api']])]
@@ -50,15 +47,11 @@ class LoginRoute extends AbstractLoginRoute
             }
         }
 
-        try {
-            $token = $this->accountService->loginByCredentials(
-                $email,
-                (string) $data->get('password'),
-                $context
-            );
-        } catch (CustomerNotFoundException $exception) {
-            throw new UnauthorizedHttpException('json', $exception->getMessage());
-        }
+        $token = $this->accountService->loginByCredentials(
+            $email,
+            (string) $data->get('password'),
+            $context
+        );
 
         if (isset($cacheKey)) {
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);

@@ -26,7 +26,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
@@ -68,7 +67,7 @@ class AccountService
      * @deprecated tag:v6.7.0 - Method will be removed, use `AccountService::loginById` or `AccountService::loginByCredentials` instead
      *
      * @throws BadCredentialsException
-     * @throws UnauthorizedHttpException
+     * @throws CustomerNotFoundException
      */
     public function login(string $email, SalesChannelContext $context, bool $includeGuest = false): string
     {
@@ -81,11 +80,7 @@ class AccountService
         $event = new CustomerBeforeLoginEvent($context, $email);
         $this->eventDispatcher->dispatch($event);
 
-        try {
-            $customer = $this->getCustomerByEmail($email, $context, $includeGuest);
-        } catch (CustomerNotFoundException $exception) {
-            throw new UnauthorizedHttpException('json', $exception->getMessage());
-        }
+        $customer = $this->getCustomerByEmail($email, $context, $includeGuest);
 
         return $this->loginByCustomer($customer, $context);
     }
@@ -111,6 +106,11 @@ class AccountService
         return $this->loginByCustomer($customer, $context);
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     * @throws BadCredentialsException
+     * @throws CustomerOptinNotCompletedException
+     */
     public function loginByCredentials(string $email, string $password, SalesChannelContext $context): string
     {
         if ($email === '' || $password === '') {

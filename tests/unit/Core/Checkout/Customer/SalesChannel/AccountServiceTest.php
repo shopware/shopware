@@ -70,7 +70,7 @@ class AccountServiceTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $eventDispatcher->addListener(
             CustomerBeforeLoginEvent::class,
-            function (CustomerBeforeLoginEvent $event) use ($salesChannelContext, &$beforeLoginEventCalled) {
+            function (CustomerBeforeLoginEvent $event) use ($salesChannelContext, &$beforeLoginEventCalled): void {
                 $beforeLoginEventCalled = true;
                 static::assertSame('foo@bar.de', $event->getEmail());
                 static::assertSame($salesChannelContext, $event->getSalesChannelContext());
@@ -79,7 +79,7 @@ class AccountServiceTest extends TestCase
 
         $eventDispatcher->addListener(
             CustomerLoginEvent::class,
-            function (CustomerLoginEvent $event) use ($customer, $loggedinSalesChannelContext, &$loginEventCalled) {
+            function (CustomerLoginEvent $event) use ($customer, $loggedinSalesChannelContext, &$loginEventCalled): void {
                 $loginEventCalled = true;
                 static::assertSame($customer, $event->getCustomer());
                 static::assertSame($loggedinSalesChannelContext, $event->getSalesChannelContext());

@@ -386,7 +386,7 @@ EOF;
         static::assertCount(1, $written[JsonDefinition::ENTITY_NAME]);
 
         /** @var EntityWriteResult $event */
-        $event = $written[JsonDefinition::ENTITY_NAME][0];
+        $event = array_shift($written[JsonDefinition::ENTITY_NAME]);
         static::assertSame($insertTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDateTime']);
         static::assertSame($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $event->getPayload()['root']['child']['childDate']);
 
@@ -404,7 +404,7 @@ EOF;
         static::assertCount(1, $written[JsonDefinition::ENTITY_NAME]);
 
         /** @var EntityWriteResult $event */
-        $event = $written[JsonDefinition::ENTITY_NAME][0];
+        $event = array_shift($written[JsonDefinition::ENTITY_NAME]);
         static::assertSame($updateTime->format(\DateTime::ATOM), $event->getPayload()['root']['child']['childDateTime']);
         static::assertSame($updateTime->format(Defaults::STORAGE_DATE_FORMAT), $event->getPayload()['root']['child']['childDate']);
     }

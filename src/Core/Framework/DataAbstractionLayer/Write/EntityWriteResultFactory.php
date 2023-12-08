@@ -335,12 +335,12 @@ class EntityWriteResultFactory
         $order = [];
         // we have to create the written events in the written order, otherwise the version manager would
         // trace the change sets in a wrong order
-        foreach ($queue->getCommandsInOrder() as $command) {
-            $class = $command->getDefinition()->getEntityName();
+        foreach ($queue->getCommandsInOrder($this->registry) as $command) {
+            $class = $command->getEntityName();
             if (isset($order[$class])) {
                 continue;
             }
-            $order[$class] = $command->getDefinition();
+            $order[$class] = $this->registry->getByEntityName($class);
         }
 
         foreach ($order as $class => $definition) {
@@ -376,10 +376,11 @@ class EntityWriteResultFactory
                 }
 
                 $payload = $this->getCommandPayload($command);
+
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $primaryKey,
                     \array_merge($payload, ($writeResults[$uniqueId] ?? null)?->getPayload() ?? []),
-                    $command->getDefinition()->getEntityName(),
+                    $definition->getEntityName(),
                     $operation,
                     $command->getEntityExistence(),
                     $command instanceof ChangeSetAware ? $command->getChangeSet() : null
@@ -396,7 +397,9 @@ class EntityWriteResultFactory
                     $payload = $writeResults[$uniqueId]->getPayload();
                 }
 
-                $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
+                $definition = $this->registry->getByEntityName($command->getEntityName());
+
+                $field = $definition->getFields()->getByStorageName($command->getStorageName());
 
                 if (!$field instanceof Field) {
                     throw DataAbstractionLayerException::fieldByStorageNameNotFound(
@@ -414,7 +417,7 @@ class EntityWriteResultFactory
                 $writeResults[$uniqueId] = new EntityWriteResult(
                     $this->getCommandPrimaryKey($command, $primaryKeys),
                     $mergedPayload,
-                    $command->getDefinition()->getEntityName(),
+                    $command->getEntityName(),
                     EntityWriteResult::OPERATION_UPDATE,
                     $command->getEntityExistence(),
                     $command->getChangeSet()
@@ -464,7 +467,9 @@ class EntityWriteResultFactory
             $payload = $command->getPayload();
         }
 
-        $fields = $command->getDefinition()->getFields();
+        $definition = $this->registry->getByEntityName($command->getEntityName());
+
+        $fields = $definition->getFields();
 
         $convertedPayload = [];
         foreach ($payload as $key => $value) {
@@ -477,7 +482,7 @@ class EntityWriteResultFactory
             $convertedPayload[$field->getPropertyName()] = $field->getSerializer()->decode($field, $value);
         }
 
-        $primaryKeys = $command->getDefinition()->getPrimaryKeys();
+        $primaryKeys = $definition->getPrimaryKeys();
 
         foreach ($primaryKeys as $primaryKey) {
             if (!$primaryKey instanceof StorageAware) {
@@ -489,7 +494,7 @@ class EntityWriteResultFactory
 
             if (!\array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
                 throw DataAbstractionLayerException::inconsistentPrimaryKey(
-                    $command->getDefinition()->getEntityName(),
+                    $command->getEntityName(),
                     $primaryKey->getStorageName()
                 );
             }

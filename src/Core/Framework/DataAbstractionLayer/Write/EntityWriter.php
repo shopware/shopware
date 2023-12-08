@@ -107,7 +107,7 @@ class EntityWriter implements EntityWriterInterface
 
         $context->getExceptions()->tryToThrow();
 
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $context);
+        $this->gateway->execute($commandQueue->getCommandsInOrder($this->registry), $context);
 
         $result = $this->factory->build($commandQueue);
 
@@ -155,7 +155,7 @@ class EntityWriter implements EntityWriterInterface
         $notFound = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
-        $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
+        $this->gateway->execute($commandQueue->getCommandsInOrder($this->registry), $writeContext);
 
         $result = $this->factory->build($commandQueue);
 
@@ -199,7 +199,7 @@ class EntityWriter implements EntityWriterInterface
 
         $writeContext->getExceptions()->tryToThrow();
 
-        $ordered = $commandQueue->getCommandsInOrder();
+        $ordered = $commandQueue->getCommandsInOrder($this->registry);
 
         $this->gateway->execute($ordered, $writeContext);
 
@@ -260,7 +260,18 @@ class EntityWriter implements EntityWriterInterface
 
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
-                $queue->add($affectedDefinition, new UpdateCommand($affectedDefinition, [], $primary, $existence, ''));
+                $command = new UpdateCommand($affectedDefinition, [], $primary, $existence, '');
+
+                $identifier = WriteCommandQueue::decodeCommandPrimary(
+                    $this->registry,
+                    $command
+                );
+
+                $queue->add(
+                    $affectedDefinition->getEntityName(),
+                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $command
+                );
             }
         }
     }
@@ -287,7 +298,18 @@ class EntityWriter implements EntityWriterInterface
 
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
-                $queue->add($affectedDefinition, new CascadeDeleteCommand($affectedDefinition, $primary, $existence));
+                $command = new CascadeDeleteCommand($affectedDefinition, $primary, $existence);
+
+                $identifier = WriteCommandQueue::decodeCommandPrimary(
+                    $this->registry,
+                    $command
+                );
+
+                $queue->add(
+                    $affectedDefinition->getEntityName(),
+                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $command
+                );
             }
         }
     }
@@ -330,7 +352,15 @@ class EntityWriter implements EntityWriterInterface
                     $payload[$versionField] = null;
                 }
 
-                $queue->add($affectedDefinition, new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, '', $isEnforced));
+                $command = new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, '', $isEnforced);
+
+                $identifier = WriteCommandQueue::decodeCommandPrimary($this->registry, $command);
+
+                $queue->add(
+                    $affectedDefinition->getEntityName(),
+                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $command
+                );
             }
         }
     }
@@ -423,7 +453,15 @@ class EntityWriter implements EntityWriterInterface
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
             if ($existence->exists()) {
-                $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
+                $command = new DeleteCommand($definition, $mappedBytes, $existence);
+
+                $identifier = WriteCommandQueue::decodeCommandPrimary($this->registry, $command);
+
+                $commandQueue->add(
+                    $definition->getEntityName(),
+                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $command
+                );
 
                 continue;
             }

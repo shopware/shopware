@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Command;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -28,35 +29,39 @@ class WriteCommandQueue
      */
     private array $entityCommands = [];
 
-    /**
-     * @var EntityDefinition[]
-     */
-    private array $definitions = [];
+    public function add(string $entity, string $identifier, WriteCommand $command): void
+    {
+        $hash = $entity . ':' . $identifier;
 
-    public function add(EntityDefinition $senderIdentification, WriteCommand $command): void
+        $this->commands[$entity][] = $command;
+        $this->entityCommands[$hash][] = $command;
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    public static function decodeCommandPrimary(DefinitionInstanceRegistry $registry, WriteCommand $command): array
     {
         $primaryKey = $command->getPrimaryKey();
 
         sort($primaryKey);
 
-        $decodedPrimaryKey = [];
+        // don't access definition of command directly, goal is to get rid of definition inside DTOs
+        $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
+
+        $decoded = [];
         foreach ($primaryKey as $fieldValue) {
             /** @var string|false $fieldName */
             $fieldName = array_search($fieldValue, $command->getPrimaryKey(), true);
             /** @var Field|null $field */
             $field = null;
             if ($fieldName) {
-                $field = $senderIdentification->getFields()->get($fieldName) ?? $senderIdentification->getFields()->getByStorageName($fieldName);
+                $field = $definition->getFields()->get($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
             }
-            $decodedPrimaryKey[] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
+            $decoded[] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
         }
 
-        $hash = $senderIdentification->getEntityName() . ':' . md5(json_encode($decodedPrimaryKey, \JSON_THROW_ON_ERROR));
-
-        $this->commands[$senderIdentification->getEntityName()][] = $command;
-
-        $this->entityCommands[$hash][] = $command;
-        $this->definitions[$senderIdentification->getEntityName()] = $senderIdentification;
+        return $decoded;
     }
 
     /**
@@ -64,14 +69,14 @@ class WriteCommandQueue
      *
      * @return list<WriteCommand>
      */
-    public function getCommandsInOrder(): array
+    public function getCommandsInOrder(DefinitionInstanceRegistry $registry): array
     {
         $mapping = [];
 
         $foreignKeys = [];
 
         foreach ($this->commands as $entity => $grouped) {
-            $definition = $this->definitions[$entity];
+            $definition = $registry->getByEntityName($entity);
 
             // we need a foreign key mapping later on
             foreach ($definition->getFields() as $field) {
@@ -87,7 +92,7 @@ class WriteCommandQueue
                     continue;
                 }
 
-                $key = self::createPrimaryHash($entity, $this->getDecodedPrimaryKey($command));
+                $key = self::createPrimaryHash($entity, $this->getDecodedPrimaryKey($registry, $command));
 
                 $mapping[$key] = true;
             }
@@ -112,7 +117,7 @@ class WriteCommandQueue
                         continue;
                     }
 
-                    $key = self::createPrimaryHash($definition, $this->getDecodedPrimaryKey($command));
+                    $key = self::createPrimaryHash($definition, $this->getDecodedPrimaryKey($registry, $command));
                     unset($mapping[$key]);
 
                     $order[] = $command;
@@ -173,13 +178,15 @@ class WriteCommandQueue
     /**
      * @return array<string, string>
      */
-    private function getDecodedPrimaryKey(WriteCommand $command): array
+    private function getDecodedPrimaryKey(DefinitionInstanceRegistry $registry, WriteCommand $command): array
     {
         $primaryKey = $command->getPrimaryKey();
 
+        $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
+
         $mapped = [];
         /** @var Field $key */
-        foreach ($command->getDefinition()->getPrimaryKeys() as $key) {
+        foreach ($definition->getPrimaryKeys() as $key) {
             if ($key instanceof VersionField || $key instanceof ReferenceVersionField) {
                 continue;
             }

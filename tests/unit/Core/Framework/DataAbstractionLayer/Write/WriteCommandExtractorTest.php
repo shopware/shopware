@@ -35,10 +35,6 @@ class WriteCommandExtractorTest extends TestCase
     #[DataProvider('writeProtectedFieldsProvider')]
     public function testExceptionForWriteProtectedFields(array $payload, ContextSource $scope, bool $valid): void
     {
-        $extractor = new WriteCommandExtractor(
-            $this->createMock(EntityWriteGateway::class)
-        );
-
         $data = [
             'name' => 'My super webhook',
             'eventName' => 'product.written',
@@ -53,7 +49,10 @@ class WriteCommandExtractorTest extends TestCase
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
         );
-
+        $extractor = new WriteCommandExtractor(
+            $this->createMock(EntityWriteGateway::class),
+            $registry
+        );
         $context = Context::createDefaultContext($scope);
 
         $parameters = new WriteParameterBag(

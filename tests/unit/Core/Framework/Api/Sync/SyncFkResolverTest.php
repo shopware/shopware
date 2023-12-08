@@ -3,14 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -57,7 +58,7 @@ class SyncFkResolverTest extends TestCase
             [new DummyFkResolver()]
         );
 
-        $resolved = $resolver->resolve('product', [$payload]);
+        $resolved = $resolver->resolve('ops-1', 'product', [$payload]);
 
         $expected = [
             'taxId' => 't1',
@@ -74,49 +75,146 @@ class SyncFkResolverTest extends TestCase
         static::assertEquals($expected, $resolved[0]);
     }
 
-    public function testFailResolving(): void
+    /**
+     * @param array<array<string, mixed>> $payload
+     * @param array<string> $expected
+     */
+    #[DataProvider('missingResolverProvider')]
+    public function testMissingResolverThrowsException(array $payload, array $expected): void
     {
         $resolver = new SyncFkResolver(
             new StaticDefinitionInstanceRegistry(
-                [
-                    ProductDefinition::class,
-                    TaxDefinition::class,
-                ],
+                [ProductDefinition::class, TaxDefinition::class, CategoryDefinition::class, ProductCategoryDefinition::class],
                 $this->createMock(ValidatorInterface::class),
                 $this->createMock(EntityWriteGatewayInterface::class)
             ),
-            [new DummyFkResolver(), new FailingFkResolver()]
+            [new DummyFkResolver(), new DoNothingResolver()]
+        );
+
+        try {
+            $resolver->resolve('ops-1', 'product', $payload);
+
+            static::fail('Case should fail');
+        } catch (ApiException $exception) {
+            static::assertSame(ApiException::API_INVALID_SYNC_RESOLVERS, $exception->getErrorCode());
+
+            foreach ($expected as $pointer) {
+                static::assertStringContainsString($pointer, $exception->getMessage());
+            }
+        }
+    }
+
+    public static function missingResolverProvider(): \Generator
+    {
+        yield 'Single record, single id missing' => [
+            'payload' => [
+                [
+                    'taxId' => [
+                        'resolver' => 'do-nothing',
+                        'value' => 't1',
+                    ],
+                ],
+            ],
+            'expected' => ['ops-1/0/taxId'],
+        ];
+
+        yield 'Single record, multiple ids missing' => [
+            'payload' => [
+                [
+                    'taxId' => [
+                        'resolver' => 'do-nothing',
+                        'value' => 't1',
+                    ],
+                    'categories' => [
+                        ['id' => ['resolver' => 'do-nothing', 'value' => 'c1']],
+                        ['id' => ['resolver' => 'do-nothing', 'value' => 'c2']],
+                    ],
+                ],
+            ],
+            'expected' => [
+                'ops-1/0/taxId',
+                'ops-1/0/categories/0/id',
+                'ops-1/0/categories/1/id',
+            ],
+        ];
+
+        yield 'Multiple records, single id missing' => [
+            'payload' => [
+                [
+                    'taxId' => [
+                        'resolver' => 'do-nothing',
+                        'value' => 't1',
+                    ],
+                ],
+                [
+                    'taxId' => [
+                        'resolver' => 'do-nothing',
+                        'value' => 't2',
+                    ],
+                ],
+            ],
+            'expected' => [
+                'ops-1/0/taxId',
+                'ops-1/1/taxId',
+            ],
+        ];
+
+        yield 'Multiple records, multiple ids missing' => [
+            'payload' => [
+                [
+                    'taxId' => [
+                        'resolver' => 'do-nothing',
+                        'value' => 't1',
+                    ],
+                    'categories' => [
+                        ['id' => ['resolver' => 'do-nothing', 'value' => 'c1']],
+                        ['id' => ['resolver' => 'do-nothing', 'value' => 'c2']],
+                    ],
+                ],
+                [
+                    'taxId' => [
+                        'resolver' => 'do-nothing',
+                        'value' => 't2',
+                    ],
+                    'categories' => [
+                        ['id' => ['resolver' => 'do-nothing', 'value' => 'c3']],
+                        ['id' => ['resolver' => 'do-nothing', 'value' => 'c4']],
+                    ],
+                ],
+            ],
+            'expected' => [
+                'ops-1/0/taxId',
+                'ops-1/0/categories/0/id',
+                'ops-1/0/categories/1/id',
+                'ops-1/1/taxId',
+                'ops-1/1/categories/0/id',
+                'ops-1/1/categories/1/id',
+            ],
+        ];
+    }
+
+    public function testMissingOnNull(): void
+    {
+        $resolver = new SyncFkResolver(
+            new StaticDefinitionInstanceRegistry(
+                [ProductDefinition::class, TaxDefinition::class, CategoryDefinition::class, ProductCategoryDefinition::class],
+                $this->createMock(ValidatorInterface::class),
+                $this->createMock(EntityWriteGatewayInterface::class)
+            ),
+            [new DummyFkResolver(), new DoNothingResolver()]
         );
 
         $payload = [
             'taxId' => [
-                'resolver' => 'failing',
+                'resolver' => 'do-nothing',
                 'value' => 't1',
                 'nullOnMissing' => true,
             ],
         ];
-        $resolved = $resolver->resolve('product', [$payload]);
 
-        static::assertEquals([
-            [
-                'taxId' => null,
-            ],
-        ], $resolved);
+        $resolved = $resolver->resolve('ops-1', 'product', [$payload]);
 
-        $payload = [
-            'taxId' => [
-                'resolver' => 'failing',
-                'value' => 't1',
-            ],
-        ];
-
-        try {
-            $resolver->resolve('product', [$payload]);
-            static::fail('Failed to fail a taxId lookup');
-        } catch (EntityNotFoundException $exception) {
-            static::assertSame('tax', $exception->getParameter('entity'));
-            static::assertSame('t1', $exception->getParameter('identifier'));
-        }
+        static::assertEquals([['taxId' => null]], $resolved);
     }
 }
 
@@ -143,21 +241,15 @@ class DummyFkResolver extends AbstractFkResolver
 /**
  * @internal
  */
-class FailingFkResolver extends AbstractFkResolver
+class DoNothingResolver extends AbstractFkResolver
 {
     public static function getName(): string
     {
-        return 'failing';
+        return 'do-nothing';
     }
 
     public function resolve(array $map): array
     {
-        foreach ($map as $value) {
-            if (!$value->nullOnMissing) {
-                throw new EntityNotFoundException($value->entityName, $value->value);
-            }
-        }
-
         return $map;
     }
 }

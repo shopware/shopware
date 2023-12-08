@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\Api\Sync\FkReference;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -48,16 +47,9 @@ class ProductNumberFkResolver extends AbstractFkResolver
         );
 
         foreach ($map as $reference) {
-            if (!\array_key_exists($reference->value, $hash)) {
-                if ($reference->nullOnMissing) {
-                    $reference->resolved = null;
-                    continue;
-                }
-
-                throw new EntityNotFoundException('product', (string) $reference->value);
+            if (isset($hash[$reference->value])) {
+                $reference->resolved = $hash[$reference->value];
             }
-
-            $reference->resolved = $hash[$reference->value];
         }
 
         return $map;

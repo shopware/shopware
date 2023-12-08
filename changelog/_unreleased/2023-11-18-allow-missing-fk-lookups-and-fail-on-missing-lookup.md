@@ -1,6 +1,7 @@
 ---
 title: Allow missing foreign key lookups and fail on missing lookups
 author: Joshua Behrens
+issue: NEXT-32250
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens
 ---

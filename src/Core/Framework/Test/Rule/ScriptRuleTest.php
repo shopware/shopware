@@ -34,6 +34,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
+ * @runTestsInSeparateProcesses
  */
 #[Package('services-settings')]
 class ScriptRuleTest extends TestCase
@@ -68,8 +69,6 @@ class ScriptRuleTest extends TestCase
     }
 
     /**
-     * @runInSeparateProcess
-     *
      * @param array<string, string> $values
      */
     #[DataProvider('scriptProvider')]
@@ -99,9 +98,6 @@ class ScriptRuleTest extends TestCase
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     #[Depends('testRuleScriptExecution')]
     public function testRuleScriptIsCached(): void
     {
@@ -120,9 +116,6 @@ class ScriptRuleTest extends TestCase
         static::assertFalse($rule->match($scope));
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     #[Depends('testRuleScriptIsCached')]
     public function testCachedRuleScriptIsInvalidated(): void
     {

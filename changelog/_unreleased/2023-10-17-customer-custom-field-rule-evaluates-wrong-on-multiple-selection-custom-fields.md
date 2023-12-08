@@ -7,13 +7,7 @@ author_github: @Xnaff
 ---
 # Core
 * Changed method `match` in `Shopware\Core\Framework\Rule\CustomFieldRule` to fix the validation of multi select fields
-* Changed method `isFloat` in `Shopware\Core\Framework\Rule\CustomFieldRule` to public function to be able to use it in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Changed method `getExpectedValue` in `Shopware\Core\Framework\Rule\CustomFieldRule` to public function to be able to use it in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Changed method `getValue` in `Shopware\Core\Framework\Rule\CustomFieldRule` to public function to be able to use it in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Changed method `floatMatch` in `Shopware\Core\Framework\Rule\CustomFieldRule` to public function to be able to use it in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Changed method `getConstraints` in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to use same public function from `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Removed method `getRenderedFieldValueConstraints` in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to use same public function from `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Removed method `getValue` in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to use same public function from `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
-* Removed method `getExpectedValue` in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to use same public function from `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
+* Changed `isFloat`, `getExpectedValue`, `getValue` and `floatMatch` methods in `Shopware\Core\Framework\Rule\CustomFieldRule` to public function to be able to use it in `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to prevent duplicate code
+* Changed `Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule` to allow the usage of multi select fields
 * Added method `isArray` in `Shopware\Core\Framework\Rule\CustomFieldRule` to validate if the field value is an array from a multi select field
 * Added method `arrayMatch` in `Shopware\Core\Framework\Rule\CustomFieldRule` to validate the field value against the rule value if the field value is an array from a multi select field

@@ -48,10 +48,8 @@ class ToOneSerializer extends FieldSerializer
 
     /**
      * @param mixed $records
-     *
-     * @return mixed
      */
-    public function deserialize(Config $config, Field $toOne, $records)
+    public function deserialize(Config $config, Field $toOne, $records): mixed
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
             throw new \InvalidArgumentException('Expected *ToOneField');

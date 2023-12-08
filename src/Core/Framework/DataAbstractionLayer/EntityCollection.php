@@ -54,14 +54,9 @@ class EntityCollection extends Collection
     }
 
     /**
-     * tag v6.6.0 Return type will be natively typed to `static`
-     *
      * @param mixed $value
-     *
-     * @return static
      */
-    #[\ReturnTypeWillChange]
-    public function filterByProperty(string $property, $value)
+    public function filterByProperty(string $property, $value): static
     {
         return $this->filter(
             static function (Entity $struct) use ($property, $value) {
@@ -70,13 +65,7 @@ class EntityCollection extends Collection
         );
     }
 
-    /**
-     * tag v6.6.0 Return type will be natively typed to `static`
-     *
-     * @return static
-     */
-    #[\ReturnTypeWillChange]
-    public function filterAndReduceByProperty(string $property, $value)
+    public function filterAndReduceByProperty(string $property, $value): static
     {
         $filtered = [];
 
@@ -121,14 +110,9 @@ class EntityCollection extends Collection
     }
 
     /**
-     * tag v6.6.0 Return type will be natively typed to `static`
-     *
      * @param array<string> $ids
-     *
-     * @return static
      */
-    #[\ReturnTypeWillChange]
-    public function getList(array $ids)
+    public function getList(array $ids): static
     {
         return $this->createNew(array_intersect_key($this->elements, array_flip($ids)));
     }

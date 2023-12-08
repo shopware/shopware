@@ -617,9 +617,10 @@ class DocumentGeneratorTest extends TestCase
         static::assertCount(2, $documents);
 
         $invoiceDoc = $documents->filter(function (DocumentEntity $doc) {
-            static::assertNotNull($doc->getDocumentType());
+            $type = $doc->getDocumentType();
+            static::assertNotNull($type);
 
-            return $doc->getDocumentType()->getTechnicalName() === InvoiceRenderer::TYPE;
+            return $type->getTechnicalName() === InvoiceRenderer::TYPE;
         })->first();
 
         static::assertNotNull($invoiceDoc);
@@ -628,9 +629,10 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame(FileTypes::PDF, $invoiceDoc->getFileType());
 
         $deliveryDoc = $documents->filter(function (DocumentEntity $doc) {
-            static::assertNotNull($doc->getDocumentType());
+            $type = $doc->getDocumentType();
+            static::assertNotNull($type);
 
-            return $doc->getDocumentType()->getTechnicalName() === InvoiceRenderer::TYPE;
+            return $type->getTechnicalName() === InvoiceRenderer::TYPE;
         })->first();
 
         static::assertNotNull($deliveryDoc);

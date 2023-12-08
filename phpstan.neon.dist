@@ -99,7 +99,10 @@ parameters:
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
             message: '#Unsafe usage of new static\(\)#'
-            path: src/Core/Framework/Struct/Collection.php
+            paths:
+             - src/Core/Framework/Struct/Collection.php
+             - src/Core/Framework/Rule/RuleCollection.php
+             - src/Core/Framework/DataAbstractionLayer/CompiledFieldCollection.php
 
         # @final annotation of internal classes
         - '#.*extends @final class Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult\.#'

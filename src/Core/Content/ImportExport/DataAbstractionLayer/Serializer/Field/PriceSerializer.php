@@ -16,12 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyEntity;
 
 #[Package('core')]
 class PriceSerializer extends FieldSerializer
 {
     /**
+     * @param EntityRepository<CurrencyCollection> $currencyRepository
+     *
      * @internal
      */
     public function __construct(private readonly EntityRepository $currencyRepository)
@@ -53,6 +56,9 @@ class PriceSerializer extends FieldSerializer
         yield $entity->getPropertyName() => $isoPrices;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>|null
+     */
     public function deserialize(Config $config, Field $field, $record): ?array
     {
         $prices = [];
@@ -99,9 +105,9 @@ class PriceSerializer extends FieldSerializer
     }
 
     /**
-     * @deprecated tag:v6.6.0 - reason:visibility-change - Will be private in future
+     * @param array<string, mixed> $price
      */
-    public function isValidPrice(array $price): bool
+    private function isValidPrice(array $price): bool
     {
         return filter_var($price['net'] ?? null, \FILTER_VALIDATE_FLOAT) !== false
             && filter_var($price['gross'] ?? null, \FILTER_VALIDATE_FLOAT) !== false;
@@ -111,6 +117,7 @@ class PriceSerializer extends FieldSerializer
     {
         $currency = $this->currencyRepository
             ->search(new Criteria([$currencyId]), Context::createDefaultContext())
+            ->getEntities()
             ->first();
 
         return $currency ? $currency->getIsoCode() : $currencyId;

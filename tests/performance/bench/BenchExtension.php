@@ -35,7 +35,6 @@ class BenchExtension implements ExtensionInterface
             ->setForceInstall(static::parseEnvVar('FORCE_INSTALL', true))
             ->setForceInstallPlugins(static::parseEnvVar('FORCE_INSTALL_PLUGINS', true))
             ->setPlatformEmbedded(static::parseEnvVar('PLATFORM_EMBEDDED'))
-            ->setBypassFinals(static::parseEnvVar('BYPASS_FINALS'))
             ->setEnableCommercial(static::parseEnvVar('ENABLE_COMMERCIAL'))
             ->setLoadEnvFile(static::parseEnvVar('LOAD_ENV_FILE', true))
             ->setProjectDir($_ENV['PROJECT_DIR'] ?? null)

@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
-use Shopware\Core\HttpKernel;
 use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -46,8 +46,7 @@ return static function (array &$context) {
         $pluginLoader = new DbalKernelPluginLoader($classLoader, null, \Shopware\Core\Kernel::getConnection());
     }
 
-    $kernel = new HttpKernel($env, $debug, $classLoader);
-    $kernel->setPluginLoader($pluginLoader);
+    $kernel = KernelFactory::create($env, $debug, $classLoader, $pluginLoader);
 
     $application = new Application($kernel->getKernel());
     $kernel->getKernel()->boot();

@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationFiel
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 #[Package('core')]
@@ -100,7 +101,7 @@ class FieldSerializer extends AbstractFieldSerializer
     /**
      * {@inheritDoc}
      */
-    public function deserialize(Config $config, Field $field, $value)
+    public function deserialize(Config $config, Field $field, $value): mixed
     {
         if ($value === null) {
             return null;
@@ -192,6 +193,11 @@ class FieldSerializer extends AbstractFieldSerializer
     public function supports(Field $field): bool
     {
         return true;
+    }
+
+    public function getDecorated(): AbstractFieldSerializer
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     private function normalizeId(?string $id): string

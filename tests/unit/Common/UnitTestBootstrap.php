@@ -1,12 +1,9 @@
 <?php declare(strict_types=1);
-use DG\BypassFinals;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\TestBootstrapper;
 use Symfony\Component\Dotenv\Dotenv;
 
 $classloader = require __DIR__ . '/../../../vendor/autoload.php';
-
-BypassFinals::enable();
 
 // Boot Kernel once to initialize the feature flags
 KernelLifecycleManager::prepare($classloader);

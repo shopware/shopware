@@ -63,12 +63,12 @@ class EntitySearchResult extends EntityCollection
         parent::__construct($entities);
     }
 
-    public function filter(\Closure $closure)
+    public function filter(\Closure $closure): static
     {
         return $this->createNew($this->entities->filter($closure));
     }
 
-    public function slice(int $offset, ?int $length = null)
+    public function slice(int $offset, ?int $length = null): static
     {
         return $this->createNew($this->entities->slice($offset, $length));
     }

@@ -50,10 +50,8 @@ class CustomFieldsSerializer extends FieldSerializer
 
     /**
      * @param mixed|null $value
-     *
-     * @return mixed|null
      */
-    public function deserialize(Config $config, Field $field, $value)
+    public function deserialize(Config $config, Field $field, $value): mixed
     {
         if (!$field instanceof CustomFields) {
             throw new \InvalidArgumentException('Expected CustomFields');

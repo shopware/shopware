@@ -1,8 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
-use Shopware\Core\HttpKernel;
 use Shopware\Core\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -43,8 +43,7 @@ return static function (array &$context) {
         $_SERVER['DATABASE_URL'] = Kernel::PLACEHOLDER_DATABASE_URL;
     }
 
-    $kernel = new HttpKernel($env, $debug, $classLoader);
-    $kernel->setPluginLoader($pluginLoader);
+    $kernel = KernelFactory::create($env, $debug, $classLoader, $pluginLoader);
 
     $application = new Application($kernel->getKernel());
     $kernel->getKernel()->boot();

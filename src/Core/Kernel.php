@@ -6,8 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
-use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\VersionParser;
@@ -37,10 +35,7 @@ class Kernel extends HttpKernel
      */
     final public const SHOPWARE_FALLBACK_VERSION = '6.6.9999999.9999999-dev';
 
-    /**
-     * @var Connection|null
-     */
-    protected static $connection;
+    protected static ?Connection $connection = null;
 
     /**
      * @var KernelPluginLoader
@@ -57,17 +52,10 @@ class Kernel extends HttpKernel
      */
     protected $shopwareVersionRevision;
 
-    /**
-     * @deprecated tag:v6.6.0 - Signature will change to `@var string`. Property will also be declared over __construct
-     *
-     * @var string|null
-     */
-    protected $projectDir;
-
     private bool $rebooting = false;
 
     /**
-     * @deprecated tag:v6.6.0 - reason:becomes-internal - Will become internal, use `KernelFactory::create`
+     * @internal
      *
      * {@inheritdoc}
      */
@@ -76,15 +64,10 @@ class Kernel extends HttpKernel
         bool $debug,
         KernelPluginLoader $pluginLoader,
         private string $cacheId,
-        // @deprecated tag:v6.6.0 - change signature to `string $version,`
-        ?string $version = self::SHOPWARE_FALLBACK_VERSION,
-        // @deprecated tag:v6.6.0 - change signature to `Connection $connection,`
-        ?Connection $connection = null,
-        // @deprecated tag:v6.6.0 - change signature to `protected string $projectDir`
-        ?string $projectDir = null
+        string $version,
+        Connection $connection,
+        protected string $projectDir
     ) {
-        $version = $version ?? self::SHOPWARE_FALLBACK_VERSION;
-
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
@@ -95,7 +78,6 @@ class Kernel extends HttpKernel
         $version = VersionParser::parseShopwareVersion($version);
         $this->shopwareVersion = $version['version'];
         $this->shopwareVersionRevision = $version['revision'];
-        $this->projectDir = $projectDir;
     }
 
     /**
@@ -121,41 +103,11 @@ class Kernel extends HttpKernel
 
     public function getProjectDir(): string
     {
-        // @deprecated tag:v6.6.0 - remove all code below and just return projectDir
-        if ($this->projectDir !== null) {
-            return $this->projectDir;
-        }
-
-        if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
-            return $this->projectDir = $dir;
-        }
-
-        $r = new \ReflectionObject($this);
-
-        $dir = (string) $r->getFileName();
-        if (!file_exists($dir)) {
-            throw FrameworkException::projectDirNotExists($dir);
-        }
-
-        $dir = $rootDir = \dirname($dir);
-        while (!file_exists($dir . '/vendor')) {
-            if ($dir === \dirname($dir)) {
-                return $this->projectDir = $rootDir;
-            }
-            $dir = \dirname($dir);
-        }
-        $this->projectDir = $dir;
-
         return $this->projectDir;
     }
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        // @deprecated tag:v6.6.0 - remove complete IF statement
-        if (!Feature::isActive('v6.6.0.0')) {
-            return parent::handle($request, $type, $catch);
-        }
-
         if (!$this->booted) {
             $this->boot();
         }

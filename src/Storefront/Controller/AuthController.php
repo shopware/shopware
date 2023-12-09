@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
@@ -96,8 +95,10 @@ class AuthController extends StorefrontController
         /** @var string|null $redirect */
         $redirect = $request->get('redirectTo');
         if (!$redirect) {
-            // page was probably called directly, instead of deeplink url
-            throw CustomerException::guestAccountInvalidAuth();
+            // page was probably called directly
+            $this->addFlash(self::DANGER, $this->trans('account.orderGuestLoginWrongCredentials'));
+
+            return $this->redirectToRoute('frontend.account.login.page');
         }
 
         $customer = $context->getCustomer();

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -50,7 +51,12 @@ class AccountOrderPageLoader
 
         $page->getMetaInformation()?->setRobots('noindex,follow');
 
-        $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
+        $orders = $this->getOrders($request, $salesChannelContext);
+        if (!Feature::isActive('v6.7.0.0')) {
+            $orders = StorefrontSearchResult::createFrom($orders);
+        }
+
+        $page->setOrders($orders);
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 

@@ -236,6 +236,15 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
+        $requestContext = static::createMock(RequestContext::class);
+        $requestContext
+            ->method('getMethod')
+            ->willReturn('POST');
+
+        $router
+            ->method('getContext')
+            ->willReturn($requestContext);
+
         $router
             ->method('match')
             ->with('/foo/generated')
@@ -295,9 +304,14 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
+        $requestContext = static::createMock(RequestContext::class);
+        $requestContext
+            ->method('getMethod')
+            ->willReturn('POST');
+
         $router
             ->method('getContext')
-            ->willReturn(new RequestContext(method: Request::METHOD_POST));
+            ->willReturn($requestContext);
 
         $router
             ->expects(static::once())

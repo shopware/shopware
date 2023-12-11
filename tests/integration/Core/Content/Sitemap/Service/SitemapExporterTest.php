@@ -199,7 +199,7 @@ class SitemapExporterTest extends TestCase
             $files = $this->getFilesystem('shopware.filesystem.sitemap')
                 ->listContents('sitemap/salesChannel-' . $salesChannel->getId() . '-' . $salesChannelContext->getLanguageId());
 
-            static::assertCount(1, $files);
+            static::assertCount(1, iterator_to_array($files));
         }
     }
 

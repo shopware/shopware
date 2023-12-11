@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
@@ -97,6 +98,12 @@ class AccountService
 
         $customer = $this->fetchCustomer(new Criteria([$id]), $context, true);
         if ($customer === null) {
+            // @deprecated tag:v6.7.0 - remove this if block
+            if (!Feature::isActive('v6.7.0.0')) {
+                // @phpstan-ignore-next-line
+                throw new UnauthorizedHttpException('json', CustomerException::customerNotFoundByIdException($id)->getMessage());
+            }
+
             throw CustomerException::customerNotFoundByIdException($id);
         }
 

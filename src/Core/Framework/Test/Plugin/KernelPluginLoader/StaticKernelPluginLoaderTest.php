@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin\KernelPluginLoader;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Exception\KernelPluginLoaderException;
@@ -68,6 +69,7 @@ class StaticKernelPluginLoaderTest extends TestCase
         static::assertCount(0, $kernelPlugins);
     }
 
+    #[RunInSeparateProcess]
     public function testManagedByComposerIsSkipped(): void
     {
         $active = $this->getActivePlugin();

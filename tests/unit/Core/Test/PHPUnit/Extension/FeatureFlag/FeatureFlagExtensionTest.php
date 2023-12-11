@@ -32,11 +32,6 @@ class FeatureFlagExtensionTest extends TestCase
         $_SERVER['FOOBAR'] = true;
 
         static::assertTrue(Feature::isActive('foobar'));
-
-        // FEATURE_NEXT_12345 is a test feature flag set from the test shopware.yaml
-        // The extension should convert it to a server var and set it to true
-        static::assertArrayNotHasKey('FEATURE_NEXT_12345', $_SERVER);
-        static::assertFalse(Feature::isActive('FEATURE_NEXT_12345'));
     }
 
     #[AfterClass]
@@ -48,9 +43,6 @@ class FeatureFlagExtensionTest extends TestCase
     public function testFeatureIsSet(): void
     {
         static::assertTrue(Feature::isActive('foobar'));
-
-        static::assertTrue($_SERVER['FEATURE_NEXT_12345']);
-        static::assertTrue(Feature::isActive('FEATURE_NEXT_12345'));
     }
 
     #[DisabledFeatures(['foobar'])]

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
@@ -22,10 +23,9 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 /**
  * @internal
- *
- * @group cache
  */
 #[CoversClass(CacheInvalidationSubscriber::class)]
+#[Group('cache')]
 class CacheInvalidationSubscriberTest extends TestCase
 {
     /**

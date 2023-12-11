@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\System\Test\Salutation;
 
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Context;
@@ -32,10 +34,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedSalutationRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -51,9 +52,7 @@ class CachedSalutationRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')

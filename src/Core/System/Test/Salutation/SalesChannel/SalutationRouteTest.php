@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\Salutation\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -10,9 +11,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class SalutationRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

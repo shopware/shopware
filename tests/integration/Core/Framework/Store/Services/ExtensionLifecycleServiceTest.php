@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store\Services;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -23,9 +24,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class ExtensionLifecycleServiceTest extends TestCase
 {
     use ExtensionBehaviour;

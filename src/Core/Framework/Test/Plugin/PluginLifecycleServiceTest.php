@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -43,10 +44,9 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class PluginLifecycleServiceTest extends TestCase
 {
     use KernelTestBehaviour;

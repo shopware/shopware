@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
@@ -25,10 +26,9 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  * NEXT-21735 - Not deterministic due to SalesChannelContextFactory
- *
- * @group not-deterministic
  */
 #[Package('core')]
+#[Group('not-deterministic')]
 class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\ProductFeatureSet;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
@@ -37,12 +38,10 @@ class ProductFeatureSetEntityTest extends TestCase
         static::assertEquals($returnValue, $definition->$method()); /* @phpstan-ignore-line */
     }
 
-    /**
-     * @testWith    ["id"]
-     *              ["name"]
-     *              ["description"]
-     *              ["features"]
-     */
+    #[TestWith(['id'])]
+    #[TestWith(['name'])]
+    #[TestWith(['description'])]
+    #[TestWith(['features'])]
     public function testDefinitionFieldsAreComplete(string $field): void
     {
         $definition = $this->getContainer()->get(ProductFeatureSetDefinition::class);
@@ -58,12 +57,10 @@ class ProductFeatureSetEntityTest extends TestCase
         );
     }
 
-    /**
-     * @testWith    ["getName"]
-     *              ["getDescription"]
-     *              ["getFeatures"]
-     *              ["getTranslations"]
-     */
+    #[TestWith(['getName'])]
+    #[TestWith(['getDescription'])]
+    #[TestWith(['getFeatures'])]
+    #[TestWith(['getTranslations'])]
     public function testEntityIsComplete(string $method): void
     {
         static::assertTrue(method_exists(ProductFeatureSetEntity::class, $method));

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\OAuth;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
@@ -57,9 +58,8 @@ class ClientRepositoryTest extends TestCase
 
     /**
      * NEXT-6026
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testDoesntAffectIntegrationWithoutApp(): void
     {
         $browser = $this->getBrowserAuthenticatedWithIntegration();

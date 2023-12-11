@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -20,10 +21,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
  */
 #[CoversClass(OrderCreatedByAdminRule::class)]
+#[Group('rules')]
 class OrderCreatedByAdminRuleTest extends TestCase
 {
     private OrderCreatedByAdminRule $rule;

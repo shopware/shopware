@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -30,11 +32,8 @@ class CartLineItemControllerTest extends TestCase
     use StorefrontControllerTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function clearFlashBag(): void
     {
         $this->getFlashBag()->clear();

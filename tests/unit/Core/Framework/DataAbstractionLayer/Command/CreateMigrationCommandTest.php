@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\CreateMigrationCommand;
@@ -25,9 +26,8 @@ class CreateMigrationCommandTest extends TestCase
      * @param array<int, string> $expectedNamespaces
      * @param array<int, string> $expectedClassNames
      * @param array<int, string> $expectedPaths
-     *
-     * @dataProvider commandProvider
      */
+    #[DataProvider('commandProvider')]
     public function testExecute(
         array $entities,
         ?string $namespace,

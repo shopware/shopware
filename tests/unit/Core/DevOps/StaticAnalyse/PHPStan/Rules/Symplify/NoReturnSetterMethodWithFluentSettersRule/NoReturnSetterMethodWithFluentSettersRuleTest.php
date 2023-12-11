@@ -6,6 +6,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule;
 use Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule;
 
@@ -21,10 +22,9 @@ class NoReturnSetterMethodWithFluentSettersRuleTest extends RuleTestCase
 {
     /**
      * @param list<array{0: string, 1: int, 2?: string}> $expectedErrorsWithLines
-     *
-     * @runInSeparateProcess run in separate process to prevent autoloading issues, see https://github.com/phpstan/phpdoc-parser/issues/188
      */
     #[DataProvider('provideData')]
+    #[RunInSeparateProcess]
     public function testRule(string $filePath, array $expectedErrorsWithLines): void
     {
         $this->analyse([$filePath], $expectedErrorsWithLines);

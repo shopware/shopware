@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -14,9 +15,8 @@ use Shopware\Storefront\Migration\V6_3\Migration1595492054SeoUrlTemplateData;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class Migration1595492054SeoUrlTemplateDataTest extends TestCase
 {
     use IntegrationTestBehaviour;

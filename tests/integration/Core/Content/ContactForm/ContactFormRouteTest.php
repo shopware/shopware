@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\ContactForm;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
@@ -22,10 +23,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('buyers-experience')]
+#[Group('store-api')]
 class ContactFormRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

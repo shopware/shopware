@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -89,9 +90,7 @@ class ActiveAppsLoaderTest extends TestCase
         static::assertEquals($expected, $activeAppsLoader->getActiveApps());
     }
 
-    /**
-     * @backupGlobals enabled
-     */
+    #[BackupGlobals(true)]
     public function testDisabled(): void
     {
         $_SERVER['DISABLE_EXTENSIONS'] = '1';

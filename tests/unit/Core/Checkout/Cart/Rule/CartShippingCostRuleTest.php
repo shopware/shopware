@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
@@ -33,10 +34,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
  */
 #[CoversClass(CartShippingCostRule::class)]
+#[Group('rules')]
 class CartShippingCostRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

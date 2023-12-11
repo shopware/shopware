@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Category\SalesChannel;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
@@ -20,10 +21,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedNavigationRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

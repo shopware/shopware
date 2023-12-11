@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -21,10 +22,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
  */
 #[CoversClass(BillingCityRule::class)]
+#[Group('rules')]
 class BillingCityRuleTest extends TestCase
 {
     private BillingCityRule $rule;

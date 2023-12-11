@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\Store\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClientFactory;
@@ -25,18 +27,14 @@ class StoreClientFactoryTest extends TestCase
 
     private ?string $originalStoreUri = null;
 
-    /**
-     * @before
-     */
+    #[Before]
     public function updateStoreUri(): void
     {
         $this->originalStoreUri = $this->getApiUrlFromSystemConfig();
         $this->getSystemConfigService()->set(self::STORE_URI_CONFIG_KEY, self::TEST_STORE_URI);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function restoreStoreUri(): void
     {
         $this->getSystemConfigService()->set(self::STORE_URI_CONFIG_KEY, $this->originalStoreUri);

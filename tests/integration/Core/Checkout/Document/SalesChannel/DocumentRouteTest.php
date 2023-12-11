@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document\SalesChannel;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
@@ -20,11 +21,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @group store-api
- *
  * @internal
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class DocumentRouteTest extends TestCase
 {
     use CustomerTestTrait, OrderActionTrait {

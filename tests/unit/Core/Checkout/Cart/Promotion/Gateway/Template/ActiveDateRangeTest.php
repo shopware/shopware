@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Gateway\Template;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -18,9 +19,8 @@ class ActiveDateRangeTest extends TestCase
     /**
      * This test verifies, that we get the
      * expected and defined criteria from the template.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCriteria(): void
     {
         $template = new ActiveDateRange();

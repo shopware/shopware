@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,10 +21,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
  */
 #[CoversClass(OrderStatusRule::class)]
+#[Group('rules')]
 class OrderStatusRuleTest extends TestCase
 {
     private OrderStatusRule $rule;

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
@@ -343,11 +344,9 @@ class SwEscapeFilterTest extends TestCase
 
     /**
      * @param string|int|null $string
-     *
-     * @runInSeparateProcess
-     * custom escaper are cached inside twig, therefore this test has to run in seperate processes, where the custom escapers are not yet cached
      */
     #[DataProvider('provideCustomEscaperCases')]
+    #[RunInSeparateProcess]
     public function testCustomEscaper(string $expected, $string, string $strategy): void
     {
         $twig = new Environment($this->createMock(LoaderInterface::class));
@@ -368,10 +367,7 @@ class SwEscapeFilterTest extends TestCase
         ];
     }
 
-    /**
-     * @runInSeparateProcess
-     * custom escaper are cached inside twig, therefore this test has to run in seperate processes, where the custom escapers are not yet cached
-     */
+    #[RunInSeparateProcess]
     public function testUnknownCustomEscaper(): void
     {
         $this->expectException(RuntimeError::class);

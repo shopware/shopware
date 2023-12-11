@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -27,11 +28,10 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
 #[Package('buyers-experience')]
+#[Group('slow')]
+#[Group('skip-paratest')]
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;

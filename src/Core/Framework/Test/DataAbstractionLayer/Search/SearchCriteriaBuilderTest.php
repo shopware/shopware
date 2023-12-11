@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -21,9 +22,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class SearchCriteriaBuilderTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -348,9 +348,7 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testNonIntegerPage(): void
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['page' => 'foo']);

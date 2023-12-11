@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
@@ -17,11 +18,10 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 
 /**
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
 #[CoversClass(CustomerCustomFieldRule::class)]
+#[Group('rules')]
 class CustomerCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

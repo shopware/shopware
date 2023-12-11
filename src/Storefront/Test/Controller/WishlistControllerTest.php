@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -49,11 +51,8 @@ class WishlistControllerTest extends TestCase
         $systemConfig->set('core.cart.wishlistEnabled', true);
     }
 
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function clearFlashBag(): void
     {
         $this->getFlashBag()->clear();

@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\System\Currency\SalesChannel;
 
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,10 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedCurrencyRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -57,9 +58,7 @@ class CachedCurrencyRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')

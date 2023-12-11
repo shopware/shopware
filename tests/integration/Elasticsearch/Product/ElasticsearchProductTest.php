@@ -4,8 +4,11 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -90,10 +93,9 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  *
- * @group skip-paratest
- *
  * @package system-settings
  */
+#[Group('skip-paratest')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -168,9 +170,7 @@ class ElasticsearchProductTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -195,9 +195,7 @@ class ElasticsearchProductTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()

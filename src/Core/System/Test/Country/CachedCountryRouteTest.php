@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\System\Test\Country;
 
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\Context;
@@ -33,11 +35,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
 #[Package('system-settings')]
+#[Group('cache')]
+#[Group('store-api')]
 class CachedCountryRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -53,9 +54,7 @@ class CachedCountryRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')

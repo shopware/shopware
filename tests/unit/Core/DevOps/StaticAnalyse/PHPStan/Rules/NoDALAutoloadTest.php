@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload;
 
 /**
@@ -15,9 +16,7 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload;
 #[CoversClass(NoDALAutoload::class)]
 class NoDALAutoloadTest extends RuleTestCase
 {
-    /**
-     * @runInSeparateProcess run in separate process to prevent autoloading issues, see https://github.com/phpstan/phpdoc-parser/issues/188
-     */
+    #[RunInSeparateProcess]
     public function testRule(): void
     {
         // not in a class, ignore

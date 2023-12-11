@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
@@ -56,9 +57,8 @@ class LineItemGroupServiceRegistryTest extends TestCase
     /**
      * This test verifies that we can retrieve
      * our packager by its key.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testGetPackagerByKey(): void
     {
         $packager = new LineItemGroupCountPackager();
@@ -77,9 +77,8 @@ class LineItemGroupServiceRegistryTest extends TestCase
     /**
      * This test verifies that we can retrieve
      * our sorter by its key.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testGetSorterByKey(): void
     {
         $sorter = new LineItemGroupPriceAscSorter();

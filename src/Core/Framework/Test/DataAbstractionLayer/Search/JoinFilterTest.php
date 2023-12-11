@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -33,9 +35,7 @@ class JoinFilterTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -45,9 +45,7 @@ class JoinFilterTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()

@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\System\Test\Country\SalesChannel;
 
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,11 +25,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
 #[Package('system-settings')]
+#[Group('cache')]
+#[Group('store-api')]
 class CachedCountryStateRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -60,9 +61,7 @@ class CachedCountryStateRouteTest extends TestCase
         );
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')

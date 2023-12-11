@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
@@ -19,9 +20,8 @@ class LineItemQuantityCollectionTest extends TestCase
      * This test verifies that we can correctly
      * test if our collection has an entry
      * for the provided item id.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testHasItem(): void
     {
         $item1 = new LineItemQuantity('A', 2);
@@ -36,9 +36,8 @@ class LineItemQuantityCollectionTest extends TestCase
      * This test verifies that we can successfully
      * compress our list of entries and combine them
      * into single entries with aggregated quantities.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testCompress(): void
     {
         $item1 = new LineItemQuantity('A', 2);

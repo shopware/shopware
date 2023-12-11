@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -18,11 +19,10 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 
 /**
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
 #[CoversClass(LineItemCustomFieldRule::class)]
+#[Group('rules')]
 class LineItemCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

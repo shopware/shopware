@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -51,10 +52,9 @@ class PromotionMixedCalculationTest extends TestCase
      * This test verifies that we get a correct 0,00 final price if we
      * add an absolute promotion of -10 and an additional 100% discount.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testMixedAbsoluteAndPercentageDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -87,10 +87,9 @@ class PromotionMixedCalculationTest extends TestCase
      * This test verifies that we can successfully remove an added
      * promotion by code and get the original price again.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testRemoveDiscountByCode(): void
     {
         $productId = Uuid::randomHex();
@@ -131,10 +130,9 @@ class PromotionMixedCalculationTest extends TestCase
      * The final assert will ensure that our 2 taxes have the correct values with the
      * new proportional distribution.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testProportionalTaxDistribution(): void
     {
         $productId1 = Uuid::randomHex();
@@ -179,9 +177,8 @@ class PromotionMixedCalculationTest extends TestCase
      * complete sets will be discounted
      * In this test it would be possible to discount a second setGroup2. Because we cannot build two complete setGroups,
      * only setGroup1 and setGroup2 is discounted once (the cheapest items because it is the standard sorting)
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testSetGroupDiscountOnlyOnCompleteSets(): void
     {
         $set1ProductId1 = Uuid::randomHex();
@@ -244,10 +241,9 @@ class PromotionMixedCalculationTest extends TestCase
      * e.g. Applying maximum amount of discounted products
      * the percent rate
      * and the type of picking (vertical or horizontal)
-     *
-     * @group promotions
      */
     #[DataProvider('groupPackageAndPickerProvider')]
+    #[Group('promotions')]
     public function testSetGroupPackageAndPickerCombinations(
         float $expectedDiscount,
         string $applyTo,
@@ -614,10 +610,9 @@ class PromotionMixedCalculationTest extends TestCase
 
     /**
      * buy 3 t-shirts get first one free. Test vertical and horizontal picking
-     *
-     * @group promotions
      */
     #[DataProvider('getBuyThreeTshirtsGetFirstOneFreeTestData')]
+    #[Group('promotions')]
     public function testBuy3TshirtsGetFirstOneFree(float $expectedDiscount, string $pickingType): void
     {
         $tshirt1 = Uuid::randomHex();
@@ -699,10 +694,9 @@ class PromotionMixedCalculationTest extends TestCase
 
     /**
      * buy 3 t-shirts get second one free. Test vertical and horizontal picking
-     *
-     * @group promotions
      */
     #[DataProvider('getBuyThreeTshirtsGetSecondOneFreeTestData')]
+    #[Group('promotions')]
     public function testBuy3TshirtsGetSecondOneFree(float $expectedDiscount, string $pickingType): void
     {
         $tshirt1 = Uuid::randomHex();

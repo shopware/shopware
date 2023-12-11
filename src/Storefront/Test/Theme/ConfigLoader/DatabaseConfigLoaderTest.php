@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -54,9 +55,8 @@ class DatabaseConfigLoaderTest extends TestCase
 
     /**
      * NEXT-20034
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testMediaConfigurationLoading(): void
     {
         $this->setUpMedia();

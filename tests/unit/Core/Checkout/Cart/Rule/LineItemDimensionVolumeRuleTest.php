@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -19,11 +20,10 @@ use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
 #[CoversClass(LineItemDimensionVolumeRule::class)]
+#[Group('rules')]
 class LineItemDimensionVolumeRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

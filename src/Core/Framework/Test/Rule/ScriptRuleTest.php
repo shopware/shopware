@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Rule;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -34,10 +35,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @runTestsInSeparateProcesses
  */
 #[Package('services-settings')]
+#[RunTestsInSeparateProcesses]
 class ScriptRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

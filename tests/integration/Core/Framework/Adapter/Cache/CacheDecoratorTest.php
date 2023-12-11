@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheDecorator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollection;
@@ -10,10 +11,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @group cache
  */
 #[CoversClass(CacheDecorator::class)]
+#[Group('cache')]
 class CacheDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

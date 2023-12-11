@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\TypeDetector;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaException;
@@ -55,9 +56,7 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
     }
 
-    /**
-     * @group needsWebserver
-     */
+    #[Group('needsWebserver')]
     public function testDetectAnimatedGifFromUrl(): void
     {
         $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.gif';
@@ -114,9 +113,7 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
     }
 
-    /**
-     * @group needsWebserver
-     */
+    #[Group('needsWebserver')]
     public function testDetectAnimatedWebpFromUrl(): void
     {
         $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.webp';
@@ -173,9 +170,7 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
     }
 
-    /**
-     * @group needsWebserver
-     */
+    #[Group('needsWebserver')]
     public function testDetectAnimatedAvifFromUrl(): void
     {
         $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.avif';
@@ -207,9 +202,7 @@ class ImageTypeDetectorTest extends TestCase
         unlink($publicPath);
     }
 
-    /**
-     * @group needsWebserver
-     */
+    #[Group('needsWebserver')]
     public function testDetectAvifThrowsExceptionOnUnreadableFile(): void
     {
         $path = 'invalid.avif';

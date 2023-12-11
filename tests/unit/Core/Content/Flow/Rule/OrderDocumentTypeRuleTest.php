@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
@@ -22,11 +23,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
 #[CoversClass(OrderDocumentTypeRule::class)]
+#[Group('rules')]
 class OrderDocumentTypeRuleTest extends TestCase
 {
     private OrderDocumentTypeRule $rule;

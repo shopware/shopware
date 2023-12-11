@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\DataAbstractionLayer\Indexer;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Framework\Context;
@@ -34,9 +35,8 @@ class PromotionExclusionIndexerTest extends TestCase
 
     /**
      * tests that a update of promotion exclusions is written in excluded promotions too
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testUpsertPromotionIndexerLogic(): void
     {
         $promotionA = $this->createPromotion([], 'Promotion A');
@@ -65,9 +65,8 @@ class PromotionExclusionIndexerTest extends TestCase
      * tests that exclusions in all promotions are rewritten correctly after a promotion
      * has been deleted. No reference on the deleted entity may be in any exclusions of
      * other promotions
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDeletePromotionIndexerLogic(): void
     {
         $promotionA = $this->createPromotion([], 'Promotion A');

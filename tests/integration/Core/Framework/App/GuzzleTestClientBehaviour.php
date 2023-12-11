@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Framework\App;
 
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Promise\PromiseInterface;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -14,11 +16,8 @@ trait GuzzleTestClientBehaviour
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function resetHistory(): void
     {
         $historyCollector = $this->getContainer()->get(GuzzleHistoryCollector::class);

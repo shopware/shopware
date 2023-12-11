@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -35,10 +36,9 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;

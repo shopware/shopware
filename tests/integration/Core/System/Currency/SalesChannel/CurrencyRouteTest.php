@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\Currency\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -12,9 +13,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class CurrencyRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

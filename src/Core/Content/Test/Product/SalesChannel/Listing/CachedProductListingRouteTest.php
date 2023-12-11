@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductListingRouteCacheTagsEvent;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -32,10 +33,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
+#[Group('cache')]
+#[Group('store-api')]
 class CachedProductListingRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

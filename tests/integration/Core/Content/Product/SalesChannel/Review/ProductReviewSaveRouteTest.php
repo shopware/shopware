@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Review;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -22,9 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
     use EventDispatcherBehaviour;

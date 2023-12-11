@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
@@ -59,9 +61,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -71,9 +71,7 @@ class ProductSearchQueryBuilderTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()

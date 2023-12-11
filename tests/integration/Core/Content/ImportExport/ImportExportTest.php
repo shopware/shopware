@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -193,9 +194,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertNotNull($product);
     }
 
-    /**
-     * @group needsWebserver
-     */
+    #[Group('needsWebserver')]
     public function testMediaWithEncodedUrl(): void
     {
         $csvContent = sprintf('url
@@ -370,9 +369,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertNotNull($actualNewsletter);
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testDefaultProperties(): void
     {
         $repository = static::getContainer()->get('property_group.repository');
@@ -603,9 +600,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertStringContainsString('media_url is set to required by the user but has no value', $first['_error']);
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testProductsCsv(): void
     {
         $context = Context::createDefaultContext();
@@ -661,9 +656,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertCount(1, $product->getMedia());
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testProductsWithVariantsCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -701,9 +694,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertCount(10, $settings);
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testProductsWithInvalidVariantsCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -1217,9 +1208,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         ];
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testCrossSellingCsv(): void
     {
         $context = Context::createDefaultContext();
@@ -1278,9 +1267,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         );
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testCustomersCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);

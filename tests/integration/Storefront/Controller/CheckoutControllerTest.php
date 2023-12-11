@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
@@ -80,11 +81,10 @@ class CheckoutControllerTest extends TestCase
     private ?string $customerId = null;
 
     /**
-     * @group slow
-     *
      * @param string|float|int|bool|null $customerComment
      */
     #[DataProvider('customerComments')]
+    #[Group('slow')]
     public function testOrderCustomerComment($customerComment, ?string $savedCustomerComment): void
     {
         $order = $this->performOrder($customerComment);

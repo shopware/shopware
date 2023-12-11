@@ -4,6 +4,8 @@ namespace Shopware\Elasticsearch\Test;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
@@ -22,9 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 #[Package('core')]
 trait ElasticsearchTestTestBehaviour
 {
-    /**
-     * @before
-     */
+    #[Before]
     public function enableElasticsearch(): void
     {
         $this->getDiContainer()
@@ -32,9 +32,7 @@ trait ElasticsearchTestTestBehaviour
             ->setEnabled(true);
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function disableElasticsearch(): void
     {
         $this->getDiContainer()

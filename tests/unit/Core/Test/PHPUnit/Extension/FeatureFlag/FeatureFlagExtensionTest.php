@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
@@ -21,9 +23,7 @@ class FeatureFlagExtensionTest extends TestCase
      */
     private static array $serverVars = [];
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function registerTestFeature(): void
     {
         self::$serverVars = $_SERVER;
@@ -39,9 +39,7 @@ class FeatureFlagExtensionTest extends TestCase
         static::assertFalse(Feature::isActive('FEATURE_NEXT_12345'));
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function restoreServerVars(): void
     {
         $_SERVER = self::$serverVars;

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Validator;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -46,9 +47,8 @@ class PromotionValidatorTest extends TestCase
      * been configured to use a code, but the code is empty.
      * So we set useCodes to TRUE, provide an empty code and expect
      * a corresponding exception.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionCodeRequired(): void
     {
         $commands = [];
@@ -92,9 +92,8 @@ class PromotionValidatorTest extends TestCase
     /**
      * This test verifies that we get a correct exception if our
      * validUntil date is before the validFrom date.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionValidUntilAfterFrom(): void
     {
         $commands = [];
@@ -130,9 +129,8 @@ class PromotionValidatorTest extends TestCase
     /**
      * This test verifies that we do not require a global code
      * if we have individual codes turned on.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionIndividualDoesNotRequireCode(): void
     {
         $commands = [];
@@ -162,14 +160,13 @@ class PromotionValidatorTest extends TestCase
      * This test verifies that we get a correct exception when
      * sending invalid discount values to our validator.
      *
-     * @group promotions
-     *
      * @throws \ReflectionException
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
     #[DataProvider('invalidProvider')]
+    #[Group('promotions')]
     public function testDiscountValueInvalid(string $type, float $value): void
     {
         $commands = [];
@@ -222,14 +219,13 @@ class PromotionValidatorTest extends TestCase
      * use fixed prices of 0,00...and thus percentage and
      * absolute do also get that minValue (to make things easier).
      *
-     * @group promotions
-     *
      * @throws \ReflectionException
      * @throws InvalidUuidException
      * @throws InvalidUuidLengthException
      * @throws WriteConstraintViolationException
      */
     #[DataProvider('validProvider')]
+    #[Group('promotions')]
     public function testDiscountValueValid(string $type, float $value): void
     {
         $commands = [];

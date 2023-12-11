@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
 use Shopware\Core\Framework\Feature;
@@ -21,9 +22,8 @@ class PromotionCodeNotFoundExceptionTest extends TestCase
     /**
      * This test verifies that our provided code is correctly
      * visible in the resulting exception message.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCodeInMessage(): void
     {
         $exception = new PromotionCodeNotFoundException('MY-CODE-123');
@@ -33,9 +33,8 @@ class PromotionCodeNotFoundExceptionTest extends TestCase
 
     /**
      * This test verifies that our error code is correct
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testErrorCode(): void
     {
         $exception = new PromotionCodeNotFoundException('');
@@ -45,9 +44,8 @@ class PromotionCodeNotFoundExceptionTest extends TestCase
 
     /**
      * This test verifies that our error code is correct
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testStatusCode(): void
     {
         $exception = new PromotionCodeNotFoundException('');

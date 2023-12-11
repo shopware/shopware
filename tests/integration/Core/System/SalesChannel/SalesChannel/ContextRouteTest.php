@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\System\SalesChannel\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -15,11 +16,10 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('buyers-experience')]
 #[CoversClass(ContextRoute::class)]
+#[Group('store-api')]
 class ContextRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Subscriber;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -37,9 +38,8 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
      * when the order is created.
      * This payload data helps us to reference used individual codes
      * with placed orders.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testSubscribeToOrderLineItemWritten(): void
     {
         $expectedEvent = CheckoutOrderPlacedEvent::class;

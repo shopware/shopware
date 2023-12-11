@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCityRule;
 use Shopware\Core\Framework\Context;
@@ -19,10 +20,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
  */
 #[CoversClass(ShippingCityRule::class)]
+#[Group('rules')]
 class ShippingCityRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

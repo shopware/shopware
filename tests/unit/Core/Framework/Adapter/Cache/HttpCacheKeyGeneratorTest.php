@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -11,10 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
  */
 #[CoversClass(HttpCacheKeyGenerator::class)]
+#[Group('cache')]
 class HttpCacheKeyGeneratorTest extends TestCase
 {
     private HttpCacheKeyGenerator $cacheKeyGenerator;

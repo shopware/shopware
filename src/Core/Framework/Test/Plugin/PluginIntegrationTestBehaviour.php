@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -25,9 +27,7 @@ trait PluginIntegrationTestBehaviour
      */
     protected $connection;
 
-    /**
-     * @before
-     */
+    #[Before]
     public function pluginIntegrationSetUp(): void
     {
         $this->connection = Kernel::getConnection();
@@ -39,9 +39,7 @@ trait PluginIntegrationTestBehaviour
         $this->classLoader->register();
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function pluginIntegrationTearDown(): void
     {
         $this->classLoader->unregister();

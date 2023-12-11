@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Seo\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
@@ -13,9 +14,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class SeoUrlRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

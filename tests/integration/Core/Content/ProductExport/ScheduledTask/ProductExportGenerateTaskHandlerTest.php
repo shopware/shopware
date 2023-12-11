@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ProductExport\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
@@ -28,9 +29,8 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -56,9 +56,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testRun(): void
     {
         // Add a second storefront sales channel, to check if all sales channels will be recognized for the product export
@@ -97,9 +95,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertGreaterThan($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testSkipGenerateByCronjobFalseProductExports(): void
     {
         $this->createProductStream();
@@ -128,9 +124,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertSame($previousGeneratedAt, $newExport->getGeneratedAt());
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testGeneratedAtAndIntervalsAreRespected(): void
     {
         $this->createProductStream();
@@ -156,9 +150,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testGeneratedAtIsNullWorks(): void
     {
         $this->createProductStream();
@@ -184,9 +176,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testSchedulerRunIfSalesChannelIsActive(): void
     {
         $this->prepareProductExportForScheduler(true);
@@ -203,9 +193,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
-    /**
-     * @group quarantined
-     */
+    #[Group('quarantined')]
     public function testSchedulerDontRunIfSalesChannelIsNotActive(): void
     {
         $this->prepareProductExportForScheduler(false);

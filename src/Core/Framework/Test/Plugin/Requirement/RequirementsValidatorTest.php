@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Plugin\Requirement;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -169,9 +170,7 @@ class RequirementsValidatorTest extends TestCase
         static::assertEmpty($dependants);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testValidateConflictsValid(): void
     {
         $path = __DIR__ . '/_fixture/SwagTestValidateConflictsValid';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\Language\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -12,9 +13,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class LanguageRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

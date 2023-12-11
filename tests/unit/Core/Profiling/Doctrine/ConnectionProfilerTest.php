@@ -8,6 +8,7 @@ use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
@@ -19,10 +20,9 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 /**
  * @internal
- *
- * @group time-sensitive
  */
 #[CoversClass(ConnectionProfiler::class)]
+#[Group('time-sensitive')]
 class ConnectionProfilerTest extends TestCase
 {
     protected function setUp(): void

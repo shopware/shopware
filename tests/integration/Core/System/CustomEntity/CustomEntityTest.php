@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Schema\Schema;
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -89,9 +90,7 @@ class CustomEntityTest extends TestCase
         'email' => 'test@test.com',
     ];
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function tearDownSomeOtherSharedFixtures(): void
     {
         $container = KernelLifecycleManager::bootKernel()->getContainer();

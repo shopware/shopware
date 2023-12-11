@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\DevOps\DevOps\StaticAnalyse\Coverage\Command;
 
 use Composer\Autoload\ClassLoader;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\DevOps\DevOps;
@@ -25,11 +27,8 @@ class GetClassesPerAreaCommandTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @before
-     *
-     * @after
-     */
+    #[Before]
+    #[After]
     public function cleanUp(): void
     {
         $filesystem = new Filesystem();

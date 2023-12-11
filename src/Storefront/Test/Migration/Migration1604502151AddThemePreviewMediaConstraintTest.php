@@ -3,6 +3,8 @@
 namespace Shopware\Storefront\Test\Migration;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -11,9 +13,8 @@ use Shopware\Storefront\Migration\V6_3\Migration1604502151AddThemePreviewMediaCo
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -58,12 +59,11 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
     /**
      * This is a regression test for the problem described in NEXT-12797.
      *
-     * @testWith [1]
-     *           [0]
-     *           [3]
-     *
      * @see https://issues.shopware.com/issues/NEXT-12797
      */
+    #[TestWith([1])]
+    #[TestWith([0])]
+    #[TestWith([3])]
     public function testForeignKeySafeguardIsWorking(int $invalidEntries): void
     {
         $this->connection->rollBack();

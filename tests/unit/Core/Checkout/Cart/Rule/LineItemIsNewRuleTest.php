@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -17,11 +18,10 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
 #[CoversClass(LineItemIsNewRule::class)]
+#[Group('rules')]
 class LineItemIsNewRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -42,9 +42,8 @@ class LineItemIsNewRuleTest extends TestCase
      * This test verifies that we have the correct constraint
      * and that no NotBlank is existing - only 1 BOOL constraint.
      * Otherwise a FALSE value would not work when saving in the administration.
-     *
-     * @group rules
      */
+    #[Group('rules')]
     public function testIsNewConstraint(): void
     {
         $ruleConstraints = $this->rule->getConstraints();

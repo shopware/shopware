@@ -3,8 +3,12 @@
 namespace Shopware\Core\Content\Test\Product\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute;
@@ -27,9 +31,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class ProductSearchRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,9 +54,7 @@ class ProductSearchRouteTest extends TestCase
         $this->productSearchConfigId = $this->getProductSearchConfigId();
     }
 
-    /**
-     * @beforeClass
-     */
+    #[BeforeClass]
     public static function startTransactionBefore(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -63,9 +64,7 @@ class ProductSearchRouteTest extends TestCase
         $connection->beginTransaction();
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public static function stopTransactionAfter(): void
     {
         $connection = KernelLifecycleManager::getKernel()
@@ -75,9 +74,7 @@ class ProductSearchRouteTest extends TestCase
         $connection->rollBack();
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testIndexing(): array
     {
         $this->createNavigationCategory();

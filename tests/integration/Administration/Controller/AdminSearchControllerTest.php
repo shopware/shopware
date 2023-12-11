@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -12,9 +13,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class AdminSearchControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

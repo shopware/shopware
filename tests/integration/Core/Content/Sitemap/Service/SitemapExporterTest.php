@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Sitemap\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -149,9 +150,8 @@ class SitemapExporterTest extends TestCase
 
     /**
      * NEXT-21735
-     *
-     * @group not-deterministic
      */
+    #[Group('not-deterministic')]
     public function testWriteWithMultipleSchemesAndSameLanguage(): void
     {
         $salesChannel = $this->salesChannelRepository->search(

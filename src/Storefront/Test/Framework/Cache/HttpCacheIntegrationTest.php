@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -23,10 +24,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @group skip-paratest
- * @group cache
  */
+#[Group('skip-paratest')]
+#[Group('cache')]
 class HttpCacheIntegrationTest extends TestCase
 {
     use AppSystemTestBehaviour;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Hook\PaymentMethodRouteHook;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
@@ -23,9 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @package checkout
  *
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class PaymentMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

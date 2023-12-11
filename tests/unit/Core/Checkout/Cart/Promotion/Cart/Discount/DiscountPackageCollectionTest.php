@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
@@ -22,9 +23,8 @@ class DiscountPackageCollectionTest extends TestCase
     /**
      * This test verifies that we can add our elements
      * and that the count returns the correct value
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCountReturnsCorrectValue(): void
     {
         $collection = new DiscountPackageCollection(
@@ -40,9 +40,8 @@ class DiscountPackageCollectionTest extends TestCase
     /**
      * This test verifies that our object collects the
      * calculated prices from all existing packages.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAffectedPricesFromAllPackages(): void
     {
         $product1 = $this->createProductItem(29, 19);
@@ -62,9 +61,8 @@ class DiscountPackageCollectionTest extends TestCase
     /**
      * This test verifies that our object collects the
      * line items from all existing packages.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAllLineItemsFromAllPackages(): void
     {
         $package1 = new DiscountPackage(new LineItemQuantityCollection(
@@ -87,9 +85,8 @@ class DiscountPackageCollectionTest extends TestCase
     /**
      * This test verifies that our object collects the
      * line items from all existing packages.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPackagesCanBeSplitIntoSinglePackages(): void
     {
         $package1 = new DiscountPackage(new LineItemQuantityCollection(

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
@@ -40,9 +41,7 @@ class SendEmailMessageJsonSerializerTest extends TestCase
         static::assertNotEquals($our, $their);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testNormalizeRawBytes(): void
     {
         $serializer = new Serializer(

@@ -4,17 +4,17 @@ namespace Shopware\Tests\Unit\Core\Framework\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 
 /**
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
 #[CoversClass(CustomFieldRule::class)]
+#[Group('rules')]
 class CustomFieldRuleTest extends TestCase
 {
     private const CUSTOM_FIELD_NAME = 'custom_test';

@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\SalesChannel;
 
+use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\Event\PaymentMethodRouteCacheTagsEvent;
 use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
@@ -22,11 +24,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @group cache
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('cache')]
+#[Group('store-api')]
 class CachedPaymentMethodRouteTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -53,9 +54,7 @@ class CachedPaymentMethodRouteTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @afterClass
-     */
+    #[AfterClass]
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')

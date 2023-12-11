@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Seo\SeoResolver;
@@ -27,9 +28,8 @@ use Symfony\Component\Routing\RequestContext;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class StorefrontRoutingTest extends TestCase
 {
     use IntegrationTestBehaviour;

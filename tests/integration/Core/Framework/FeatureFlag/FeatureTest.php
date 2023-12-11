@@ -159,6 +159,10 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
+        set_error_handler(static function (int $errno, string $errstr): never {
+            throw new \Exception($errstr, $errno);
+        }, \E_USER_WARNING);
+
         $_SERVER['APP_ENV'] = 'test';
         $_ENV['APP_ENV'] = 'test';
         KernelLifecycleManager::bootKernel(true, self::$customCacheId);
@@ -173,6 +177,8 @@ class FeatureTest extends TestCase
         $this->expectExceptionMessageMatches('/.*RANDOMFLAGTHATISNOTREGISTERDE471112.*/');
 
         $template->render([]);
+
+        restore_error_handler();
     }
 
     public function testTwigFeatureFlagNotRegisteredInProd(): void

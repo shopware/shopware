@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller\Exception;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Error\Error as TwigError;
 
 #[Package('storefront')]
 class StorefrontException extends HttpException
@@ -16,7 +17,7 @@ class StorefrontException extends HttpException
     /**
      * @param array<string, mixed> $parameters
      */
-    public static function cannotRenderView(string $view, string $message, array $parameters): self
+    public static function renderViewException(string $view, TwigError $error, array $parameters): self
     {
         /**
          * The parameters array often contains large objects (like the page context). Passing them into the exception
@@ -26,16 +27,36 @@ class StorefrontException extends HttpException
             return !\is_object($param);
         });
 
-        return new self(
+        $exception = new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::CAN_NOT_RENDER_VIEW,
             'Can not render {{ view }} view: {{ message }} with these parameters: {{ parameters }}',
             [
-                'message' => $message,
-                'view' => $view,
+                'message' => $error->getMessage(),
+                'view' => $error->getSourceContext()?->getName() ?: $view,
                 'parameters' => \json_encode($parameters),
-            ]
+            ],
+            $error
         );
+
+        if ($error->getLine() !== -1) {
+            $exception->line = $error->getLine();
+        }
+        if ($error->getFile()) {
+            $exception->file = $error->getFile();
+        }
+
+        return $exception;
+    }
+
+    /**
+     * @deprecated tag:v6.7.0 - Use renderViewException instead
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public static function cannotRenderView(string $view, string $message, array $parameters): self
+    {
+        return self::renderViewException($view, new TwigError($message), $parameters);
     }
 
     public static function unSupportStorefrontResponse(): self

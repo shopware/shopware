@@ -37,7 +37,7 @@ class ProductListingLoader
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EventDispatcherInterface $dispatcher,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
     ) {
     }
@@ -50,16 +50,12 @@ class ProductListingLoader
         $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria = clone $origin;
 
-        $this->addGrouping($criteria);
-        $this->handleAvailableStock($criteria, $context);
+        $ids = $this->resolveIds($criteria, $context);
 
-        $ids = $this->productRepository->searchIds($criteria, $context);
-        /** @var list<string> $keys */
-        $keys = $ids->getIds();
-        $aggregations = $this->productRepository->aggregate($criteria, $context);
+        $aggregations = $this->resolveAggregations($criteria, $context);
 
         // no products found, no need to continue
-        if (empty($keys)) {
+        if (empty($ids->getIds())) {
             return new EntitySearchResult(
                 ProductDefinition::ENTITY_NAME,
                 0,
@@ -70,21 +66,12 @@ class ProductListingLoader
             );
         }
 
-        $mapping = array_combine($keys, $keys);
+        /** @var list<string> $keys */
+        $keys = $ids->getIds();
 
-        $hasOptionFilter = $this->hasOptionFilter($criteria);
-        if (!$hasOptionFilter) {
-            $mapping = $this->resolvePreviews($keys, $context);
-        }
+        $mapping = $this->resolvePreviews($keys, $criteria, $context);
 
-        $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
-        $this->eventDispatcher->dispatch($event);
-        $mapping = $event->getMapping();
-
-        $read = $criteria->cloneForRead(array_values($mapping));
-        $read->addAssociation('options.group');
-
-        $searchResult = $this->productRepository->search($read, $context);
+        $searchResult = $this->resolveData($criteria, $mapping, $context);
 
         $this->addExtensions($ids, $searchResult, $mapping);
 
@@ -149,7 +136,7 @@ class ProductListingLoader
      *
      * @return array<string>
      */
-    private function resolvePreviews(array $ids, SalesChannelContext $context): array
+    private function loadPreviews(array $ids, SalesChannelContext $context): array
     {
         $ids = array_combine($ids, $ids);
 
@@ -198,7 +185,7 @@ class ProductListingLoader
         $criteria->addFilter(new ProductAvailableFilter($context->getSalesChannel()->getId()));
         $this->handleAvailableStock($criteria, $context);
 
-        $this->eventDispatcher->dispatch(
+        $this->dispatcher->dispatch(
             new ProductListingPreviewCriteriaEvent($criteria, $context)
         );
 
@@ -258,5 +245,42 @@ class ProductListingLoader
             // get access to the data of the search result
             $entity->addExtension('search', new ArrayEntity($ids->getDataOfId($id)));
         }
+    }
+
+    private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
+    {
+        $this->addGrouping($criteria);
+
+        $this->handleAvailableStock($criteria, $context);
+
+        return $this->productRepository->searchIds($criteria, $context);
+    }
+
+    private function resolveAggregations(Criteria $criteria, SalesChannelContext $context): \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection
+    {
+        return $this->productRepository->aggregate($criteria, $context);
+    }
+
+    private function resolvePreviews(array $keys, Criteria $criteria, SalesChannelContext $context): array
+    {
+        $mapping = array_combine($keys, $keys);
+
+        $hasOptionFilter = $this->hasOptionFilter($criteria);
+        if (!$hasOptionFilter) {
+            $mapping = $this->loadPreviews($keys, $context);
+        }
+
+        $event = new ProductListingResolvePreviewEvent($context, $criteria, $mapping, $hasOptionFilter);
+        $this->dispatcher->dispatch($event);
+
+        return $event->getMapping();
+    }
+
+    private function resolveData(Criteria $criteria, array $mapping, SalesChannelContext $context): EntitySearchResult
+    {
+        $read = $criteria->cloneForRead(array_values($mapping));
+        $read->addAssociation('options.group');
+
+        return $this->productRepository->search($read, $context);
     }
 }

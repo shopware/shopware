@@ -1076,23 +1076,23 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field multi tag ip select for maintenanceIpWhitelist disabled', async () => {
+    it('should have the field multi tag ip select for maintenanceIpAllowlist disabled', async () => {
         const wrapper = await createWrapper();
 
         const field = wrapper.get(
-            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]',
+            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressAllowlist"]',
         );
 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field multi tag ip select for maintenanceIpWhitelist enabled', async () => {
+    it('should have the field multi tag ip select for maintenanceIpAllowlist enabled', async () => {
         global.activeAclRoles = ['sales_channel.editor'];
 
         const wrapper = await createWrapper();
 
         const field = wrapper.get(
-            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressWhitleList"]',
+            'sw-multi-tag-ip-select-stub[label="sw-sales-channel.detail.ipAddressAllowlist"]',
         );
 
         expect(field.attributes().disabled).toBeUndefined();

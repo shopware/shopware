@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * The url generator is called at runtime to generate the absolute urls for the media and thumbnails.
  * Generated urls are based on the stored paths in the database.
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 abstract class AbstractMediaUrlGenerator
 {
     /**

@@ -141,9 +141,9 @@
       "maintenanceModeTitle": "Wartungsmodus",
       "maintenanceModeDescription": "Im Wartungsmodus ist der Verkaufskanal für Besucher unsichtbar. IPs die auf der Whitelist stehen, können jedoch weiterhin auf den Verkaufskanal zugreifen. Auf diese Weise kann sicher mit den Daten des Verkaufskanals gearbeitet werden, während Kunden und Besucher einen Wartungsmodus-Bildschirm angezeigt bekommen.",
       "labelMaintenanceActive": "Wartungsmodus",
-      "ipAddressWhitleListHelpText": "Füge der Whitelist IP-Adressen hinzu, um einen selektiven Zugriff auf den Shop zu ermöglichen. Du kannst bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
+      "ipAddressAllowlistHelpText": "Füge der Allowlist IP-Adressen hinzu, um einen selektiven Zugriff auf den Shop zu ermöglichen. Du kannst bei Bedarf IPv4- und IPv6-Adressen hinzufügen.",
       "basicinformationLink": "Standard-Wartungsseiten-Layout ändern",
-      "ipAddressWhitleList": "Whitelist für IP-Adressen",
+      "ipAddressAllowlist": "Allowlist für IP-Adressen",
       "columnDomainCurrency": "Währung",
       "products": {
         "titleEmptyState": "Keine weiteren Produkte gefunden",

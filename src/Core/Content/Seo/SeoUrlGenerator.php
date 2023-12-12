@@ -101,6 +101,7 @@ class SeoUrlGenerator
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
             $copy->setError($mapping->getError());
+
             $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 

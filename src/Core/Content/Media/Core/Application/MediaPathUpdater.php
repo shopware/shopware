@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaPathUpdater
 {
     /**

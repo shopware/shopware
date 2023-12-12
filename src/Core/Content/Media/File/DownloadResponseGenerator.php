@@ -12,10 +12,8 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -106,10 +104,6 @@ class DownloadResponseGenerator
         $stream = $stream->detach();
 
         if (!\is_resource($stream)) {
-            if (!Feature::isActive('v6.6.0.0')) {
-                throw new FileNotFoundException($media->getFilename() . '.' . $media->getFileExtension());
-            }
-
             throw MediaException::fileNotFound($media->getFilename() . '.' . $media->getFileExtension());
         }
 

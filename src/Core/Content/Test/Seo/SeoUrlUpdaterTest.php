@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Seo;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
@@ -12,7 +13,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -138,6 +138,8 @@ class SeoUrlUpdaterTest extends TestCase
         $criteria->addFilter(new EqualsFilter('foreignKey', $this->ids->get('p1')));
         $criteria->addFilter(new EqualsFilter('routeName', TestProductSeoUrlRoute::ROUTE_NAME));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $this->storefrontSalesChannel['id']));
+
+        /** @var SeoUrlEntity $seoUrl */
         $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
             $criteria,
             Context::createDefaultContext()
@@ -158,13 +160,8 @@ class SeoUrlUpdaterTest extends TestCase
             Context::createDefaultContext()
         )->first();
 
-        if (Feature::isActive('v6.6.0.0')) {
-            // Check that no seo url was created.
-            static::assertNull($seoUrl);
-        } else {
-            // Check that seo url was created.
-            static::assertNotNull($seoUrl);
-        }
+        // Check that no seo url was created.
+        static::assertNull($seoUrl);
     }
 
     /**

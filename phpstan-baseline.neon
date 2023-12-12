@@ -1726,11 +1726,6 @@ parameters:
 			path: src/Core/Content/Media/Metadata/MetadataLoader.php
 
 		-
-			message: "#^Parameter \\#1 \\$fromValue of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\AbstractPathNameStrategy\\:\\:generateMd5Path\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Pathname/PathnameStrategy/FilenamePathnameStrategy.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\TypeDetector\\\\TypeDetector\\:\\:detect\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType but returns Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/TypeDetector/TypeDetector.php
@@ -3384,11 +3379,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsObject\\(\\) with Twig\\\\Extension\\\\ExtensionInterface will always evaluate to true\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Seo/SeoUrlTwigFactoryTest.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getSeoPathInfo\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Seo/SeoUrlUpdaterTest.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\Sitemap\\\\Provider\\\\CategoryUrlProviderTest\\:\\:\\$categorySalesChannelRepository is never read, only written\\.$#"
@@ -8015,56 +8005,6 @@ parameters:
 			path: src/Storefront/Test/Framework/Seo/NavigationPageSeoUrlTest.php
 
 		-
-			message: "#^Cannot call method filterByProperty\\(\\) on Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrl\\\\SeoUrlCollection\\|null\\.$#"
-			count: 3
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Cannot call method getSeoUrls\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Cannot call method getType\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:createTestLandingPage\\(\\) has parameter \\$overrides with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:createTestProduct\\(\\) has parameter \\$overrides with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:runChecks\\(\\) has parameter \\$cases with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:upsertProduct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:\\$seoUrlGenerator is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Test\\\\Framework\\\\Seo\\\\SeoUrl\\\\SeoUrlTest\\:\\:\\$seoUrlTemplateRepository is never read, only written\\.$#"
-			count: 1
-			path: src/Storefront/Test/Framework/Seo/SeoUrl/SeoUrlTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
 			path: src/Storefront/Test/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRouteTest.php
@@ -8778,8 +8718,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/PackageTest.php
-
-
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Plugin\\\\\\\\Event\\\\\\\\PluginLifecycleEvent' and Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Event\\\\PluginPostDeactivationFailedEvent will always evaluate to true\\.$#"

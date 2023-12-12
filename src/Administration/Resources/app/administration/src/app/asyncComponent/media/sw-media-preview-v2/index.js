@@ -187,11 +187,7 @@ export default {
                 return true;
             }
 
-            if (this.$options.playableAudioFormats.includes(this.mimeType)) {
-                return true;
-            }
-
-            return false;
+            return this.$options.playableAudioFormats.includes(this.mimeType);
         },
 
         isIcon() {
@@ -232,11 +228,7 @@ export default {
                 return this.trueSource.href;
             }
 
-            if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                return this.trueSource.url;
-            }
-
-            return `${this.trueSource.url}?${Shopware.Utils.createId()}`;
+            return this.trueSource.url;
         },
 
         isUrl() {
@@ -281,13 +273,7 @@ export default {
 
             const sources = [];
             this.trueSource.thumbnails.forEach((thumbnail) => {
-                let url;
-
-                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                    url = thumbnail.url;
-                } else {
-                    url = `${thumbnail.url}?${Shopware.Utils.createId()}`;
-                }
+                const url = thumbnail.url;
 
                 const encoded = encodeURI(url);
                 sources.push(`${encoded} ${thumbnail.width}w`);

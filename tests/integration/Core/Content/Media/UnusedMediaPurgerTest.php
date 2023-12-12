@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Media;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
@@ -55,7 +54,6 @@ class UnusedMediaPurgerTest extends TestCase
         $withProduct = $this->getMediaWithProduct();
         $withManufacturer = $this->getMediaWithManufacturer();
 
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
         $firstPath = $txt->getPath();
         $secondPath = $png->getPath();
         $thirdPath = $withProduct->getPath();

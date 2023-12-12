@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -69,7 +68,8 @@ class SeoUrlPersister
             $processed[$fk][$salesChannelId] = true;
 
             $updatedFks[] = $fk;
-            if (isset($seoUrl['error'])) {
+
+            if (!empty($seoUrl['error'])) {
                 continue;
             }
             $existing = $canonicals[$fk][$salesChannelId] ?? null;

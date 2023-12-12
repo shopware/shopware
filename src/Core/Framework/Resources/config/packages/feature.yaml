@@ -13,10 +13,6 @@ shopware:
       - name: VUE3
         default: false
         major: true
-      - name: media_path
-        default: false
-        major: true
-        description: "Enables new media path behavior, which calls new services to generate media urls"
       - name: ASYNC_THEME_COMPILATION
         default: false
         major: true

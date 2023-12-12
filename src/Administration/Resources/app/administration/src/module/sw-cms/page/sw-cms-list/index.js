@@ -75,18 +75,6 @@ export default {
             return this.getColumnConfig();
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        sortOptions() {
-            return [
-                { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
-                { value: 'createdAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc') },
-                { value: 'updatedAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc') },
-            ];
-        },
-
         sortPageTypes() {
             const sortByAllPagesOption = {
                 value: '',

@@ -141,8 +141,8 @@
       "maintenanceModeTitle": "Maintenance mode",
       "maintenanceModeDescription": "In maintenance mode the Sales Channel will be invisible to visitors. However, you will be able to access it, using white listed IPs. This way you can safely work on the Sales Channel data, while blocking visitors at a maintenance mode screen.",
       "labelMaintenanceActive": "Maintenance",
-      "ipAddressWhitleList": "IP addresses whitelist",
-      "ipAddressWhitleListHelpText": "Add IP addresses to the white list in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
+      "ipAddressAllowlist": "IP addresses allowlist",
+      "ipAddressAllowlistHelpText": "Add IP addresses to the allowlist in order to allow selective access to your shop. You may add IPv4 and IPv6 addresses as needed.",
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
       "products": {

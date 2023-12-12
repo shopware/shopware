@@ -27,8 +27,6 @@ use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
-use Shopware\Core\Content\Media\Pathname\UrlGenerator;
-use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -420,9 +418,6 @@ class DocumentGeneratorTest extends TestCase
 
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-
-        /** @var UrlGenerator $urlGenerator */
-        $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
 
         $documentTypeRepository = $this->getContainer()->get('document_type.repository');
 
@@ -834,7 +829,6 @@ class DocumentGeneratorTest extends TestCase
 
         if ($withMedia === false) {
             $fileSystem = $this->getContainer()->get('shopware.filesystem.private');
-            $urlGenerator = $this->getContainer()->get(UrlGeneratorInterface::class);
             $mediaRepository = $this->getContainer()->get('media.repository');
             /** @var MediaEntity $media */
             $media = $mediaRepository->search(new Criteria([$documentMediaFileId]), $this->context)->get($documentMediaFileId);

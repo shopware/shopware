@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -64,7 +66,7 @@ class RemoteAddressFieldTest extends TestCase
             $this->getWriteParameterBagMock()
         )->current();
 
-        static::assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     public function testRemoteAddressSerializerAnonymize(): void
@@ -77,13 +79,13 @@ class RemoteAddressFieldTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $result = $this->getContainer()->get('order_customer.repository')
+        $orderCustomer = $this->getContainer()->get('order_customer.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
-        static::assertNotEmpty($result);
-        static::assertNotSame($remoteAddress, $result->getRemoteAddress());
-        static::assertSame(IPUtils::anonymize($remoteAddress), $result->getRemoteAddress());
+        static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer);
+        static::assertNotSame($remoteAddress, $orderCustomer->getRemoteAddress());
+        static::assertSame(IPUtils::anonymize($remoteAddress), $orderCustomer->getRemoteAddress());
     }
 
     public function testRemoteAddressSerializerNoAnonymize(): void
@@ -96,12 +98,12 @@ class RemoteAddressFieldTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $result = $this->getContainer()->get('order_customer.repository')
+        $orderCustomer = $this->getContainer()->get('order_customer.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
-        static::assertNotEmpty($result);
-        static::assertSame($remoteAddress, $result->getRemoteAddress());
+        static::assertInstanceOf(OrderCustomerEntity::class, $orderCustomer);
+        static::assertSame($remoteAddress, $orderCustomer->getRemoteAddress());
     }
 
     public function testSetRemoteAddressByLogin(): void
@@ -111,14 +113,15 @@ class RemoteAddressFieldTest extends TestCase
         $customerId = $this->createCustomer();
 
         $this->getContainer()->get(AccountService::class)
-            ->login('test@example.com', $this->createSalesChannelContext(), true);
+            ->loginByCredentials('test@example.com', 'shopware', $this->createSalesChannelContext());
 
         $criteria = new Criteria([$customerId]);
+
         $customer = $this->getContainer()->get('customer.repository')
             ->search($criteria, Context::createDefaultContext())
             ->first();
 
-        static::assertNotEmpty($customer);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertNotSame('127.0.0.1', $customer->getRemoteAddress());
         static::assertSame(IPUtils::anonymize('127.0.0.1'), $customer->getRemoteAddress());
     }

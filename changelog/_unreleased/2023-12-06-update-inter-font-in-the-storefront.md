@@ -1,6 +1,6 @@
 ---
 title: Update Inter font in the storefront
-issue: NEXT-0000
+issue: NEXT-32268
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

@@ -23,6 +23,8 @@ class PromotionException extends HttpException
 
     public const PROMOTION_DISCOUNT_NOT_FOUND = 'CHECKOUT__PROMOTION_DISCOUNT_NOT_FOUND';
 
+    public const PROMOTION_CODE_NOT_FOUND = 'CHECKOUT__PROMOTION_CODE_NOT_FOUND';
+
     public static function codeAlreadyRedeemed(string $code): self
     {
         return new self(
@@ -84,6 +86,16 @@ class PromotionException extends HttpException
             self::PROMOTION_DISCOUNT_NOT_FOUND,
             'These promotion discounts "{{ ids }}" are not found',
             ['ids' => implode(', ', $ids)]
+        );
+    }
+
+    public static function promotionCodeNotFound(string $code): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROMOTION_CODE_NOT_FOUND,
+            'Promotion code "{{ code }}" has not been found!',
+            ['code' => $code]
         );
     }
 }

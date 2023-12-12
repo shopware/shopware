@@ -79,7 +79,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
                 'seoPathInfo' => 'awesome-product',
-                'isValid' => true,
                 'isCanonical' => false,
             ],
             [
@@ -88,7 +87,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
                 'seoPathInfo' => 'awesome-product-v2',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
         ], Context::createDefaultContext());
@@ -147,7 +145,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
                 'seoPathInfo' => 'awesome-product-de',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
             [
@@ -157,7 +154,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/detail/1234',
                 'seoPathInfo' => 'awesome-product-en',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
         ], Context::createDefaultContext());
@@ -192,7 +188,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/detail/default',
                 'seoPathInfo' => 'awesome-product',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
             [
@@ -202,7 +197,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/detail/other',
                 'seoPathInfo' => 'awesome-product',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
         ], Context::createDefaultContext());
@@ -230,7 +224,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/default',
                 'seoPathInfo' => 'awesome-product',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
             [
@@ -239,7 +232,6 @@ class SeoResolverTest extends TestCase
                 'routeName' => 'r',
                 'pathInfo' => '/sales-channel',
                 'seoPathInfo' => 'awesome-product',
-                'isValid' => true,
                 'isCanonical' => true,
             ],
         ], Context::createDefaultContext());

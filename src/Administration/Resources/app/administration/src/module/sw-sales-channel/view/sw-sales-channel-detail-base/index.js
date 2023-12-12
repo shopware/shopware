@@ -359,23 +359,10 @@ export default {
             ];
         },
 
-        /**
-         * @deprecated tag:v6.6.0 will be removed. use maintenanceIpAllowlist instead
-         */
-        // eslint-disable-next-line inclusive-language/use-inclusive-words
-        maintenanceIpWhitelist: {
-            get() {
-                return this.maintenanceIpAllowlist;
-            },
-            set(value) {
-                this.maintenanceIpAllowlist = value;
-            },
-        },
-
         maintenanceIpAllowlist: {
             get() {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
-                return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];
+                return this.salesChannel.maintenanceIpWhitelist ?? [];
             },
             set(value) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words

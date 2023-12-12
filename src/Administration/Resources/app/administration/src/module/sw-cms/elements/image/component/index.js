@@ -69,11 +69,7 @@ export default {
             }
 
             if (elemData?.id) {
-                if (this.feature.isActive('MEDIA_PATH') || this.feature.isActive('v6.6.0.0')) {
-                    return this.element.data.media.url;
-                }
-
-                return `${this.element.data.media.url}?${Shopware.Utils.createId()}`;
+                return this.element.data.media.url;
             }
 
             if (elemData?.url) {

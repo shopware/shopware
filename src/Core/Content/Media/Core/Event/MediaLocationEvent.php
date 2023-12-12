@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements \IteratorAggregate<array-key, MediaLocationStruct>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class MediaLocationEvent implements \IteratorAggregate
 {
     /**

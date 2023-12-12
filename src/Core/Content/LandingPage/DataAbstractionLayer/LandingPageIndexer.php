@@ -18,11 +18,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class LandingPageIndexer extends EntityIndexer
 {
     /**
-     * @deprecated tag:v6.6.0 - Will be removed, as landing page entities don't have a ManyToManyIdField
-     */
-    final public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
-
-    /**
      * @internal
      */
     public function __construct(
@@ -77,7 +72,6 @@ class LandingPageIndexer extends EntityIndexer
     public function getOptions(): array
     {
         return [
-            self::MANY_TO_MANY_ID_FIELD_UPDATER,
             SeoUrlUpdateListener::LANDING_PAGE_SEO_URL_UPDATER,
         ];
     }

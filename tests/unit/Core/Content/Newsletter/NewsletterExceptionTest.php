@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Content\Newsletter;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\NewsletterException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,21 +37,12 @@ class NewsletterExceptionTest extends TestCase
      */
     public static function exceptionDataProvider(): iterable
     {
-        if (!Feature::isActive('v6.6.0.0')) {
-            yield NewsletterException::NEWSLETTER_RECIPIENT_NOT_FOUND_CODE => [
-                'exception' => NewsletterException::recipientNotFound('id-1', 'value-1'),
-                'statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'errorCode' => NewsletterException::NEWSLETTER_RECIPIENT_NOT_FOUND_CODE,
-                'message' => 'The NewsletterRecipient with the identifier "id-1" - value-1 was not found.',
-            ];
-        } else {
-            yield NewsletterException::NEWSLETTER_RECIPIENT_NOT_FOUND_CODE => [
-                'exception' => NewsletterException::recipientNotFound('id-1', 'value-1'),
-                'statusCode' => Response::HTTP_BAD_REQUEST,
-                'errorCode' => NewsletterException::NEWSLETTER_RECIPIENT_NOT_FOUND_CODE,
-                'message' => 'The NewsletterRecipient with the identifier "id-1" - value-1 was not found.',
-            ];
-        }
+        yield NewsletterException::NEWSLETTER_RECIPIENT_NOT_FOUND_CODE => [
+            'exception' => NewsletterException::recipientNotFound('id-1', 'value-1'),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => NewsletterException::NEWSLETTER_RECIPIENT_NOT_FOUND_CODE,
+            'message' => 'The NewsletterRecipient with the identifier "id-1" - value-1 was not found.',
+        ];
 
         yield NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED => [
             'exception' => NewsletterException::newsletterThrottled(2),

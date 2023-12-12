@@ -11,7 +11,6 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -293,11 +292,7 @@ class NewsletterSubscribeRouteTest extends TestCase
             $requestStack,
         );
 
-        if (!Feature::isActive('v6.6.0.0')) {
-            static::expectException(RateLimitExceededException::class);
-        } else {
-            static::expectException(NewsletterException::class);
-        }
+        static::expectException(NewsletterException::class);
 
         $newsletterSubscribeRoute->subscribe($requestData, $this->salesChannelContext, false);
     }

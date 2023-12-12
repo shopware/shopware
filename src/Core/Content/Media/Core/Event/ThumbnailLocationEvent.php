@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @implements \IteratorAggregate<array-key, ThumbnailLocationStruct>
  */
-#[Package('content')]
+#[Package('buyers-experience')]
 class ThumbnailLocationEvent implements \IteratorAggregate
 {
     /**

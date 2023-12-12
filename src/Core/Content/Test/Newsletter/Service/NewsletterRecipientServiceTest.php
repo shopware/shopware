@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Newsletter\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
@@ -15,7 +14,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -158,11 +156,7 @@ class NewsletterRecipientServiceTest extends TestCase
     {
         $dataBag = new RequestDataBag(['hash' => 'notExistentHash']);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            self::expectException(NewsletterException::class);
-        } else {
-            self::expectException(NewsletterRecipientNotFoundException::class);
-        }
+        self::expectException(NewsletterException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -228,11 +222,7 @@ class NewsletterRecipientServiceTest extends TestCase
             'option' => 'unsubscribe',
         ]);
 
-        if (Feature::isActive('v6.6.0.0')) {
-            self::expectException(NewsletterException::class);
-        } else {
-            self::expectException(NewsletterRecipientNotFoundException::class);
-        }
+        self::expectException(NewsletterException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

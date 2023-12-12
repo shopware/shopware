@@ -43,8 +43,6 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * our expected exception.
      *
      * @group promotions
-     *
-     * @throws PromotionException
      */
     public function testAlreadyRedeemedThrowsException(): void
     {
@@ -63,8 +61,6 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * data in a workflow with multiple iterations.
      *
      * @group promotions
-     *
-     * @throws PromotionException
      */
     public function testAlreadyRedeemedIsOkWithSameData(): void
     {

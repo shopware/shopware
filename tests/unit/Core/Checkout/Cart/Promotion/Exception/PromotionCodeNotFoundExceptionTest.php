@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
+use Shopware\Core\Framework\Feature;
 
 /**
  * @internal
@@ -12,6 +13,11 @@ use Shopware\Core\Checkout\Promotion\Exception\PromotionCodeNotFoundException;
  */
 class PromotionCodeNotFoundExceptionTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+    }
+
     /**
      * This test verifies that our provided code is correctly
      * visible in the resulting exception message.

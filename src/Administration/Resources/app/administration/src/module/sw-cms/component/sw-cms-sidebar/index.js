@@ -158,11 +158,7 @@ export default {
                 return true;
             }
 
-            if (this.page.type === 'product_detail' && this.feature.isActive('v6.6.0.0')) {
-                return true;
-            }
-
-            return false;
+            return this.page.type === 'product_detail';
         },
 
         cmsBlocksBySelectedBlockCategory() {

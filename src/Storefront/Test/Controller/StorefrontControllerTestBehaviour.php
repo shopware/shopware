@@ -16,6 +16,8 @@ trait StorefrontControllerTestBehaviour
 {
     /**
      * @param array<string, mixed> $data
+     * @param array<string, mixed> $files
+     * @param array<string, mixed> $server
      */
     public function request(string $method, string $path, array $data, array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true): Response
     {

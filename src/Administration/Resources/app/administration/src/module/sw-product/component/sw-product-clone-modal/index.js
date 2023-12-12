@@ -66,7 +66,7 @@ export default {
             };
 
             await this.repository.save(this.product);
-            const clone = await this.repository.clone(this.product.id, Shopware.Context.api, behavior);
+            const clone = await this.repository.clone(this.product.id, behavior, Shopware.Context.api);
 
             return { id: clone.id, productNumber: number.number };
         },
@@ -119,7 +119,7 @@ export default {
             };
 
             this.repository
-                .clone(id, Shopware.Context.api, behavior)
+                .clone(id, behavior, Shopware.Context.api)
                 .then(() => {
                     this.cloneProgress += 1;
                     this.duplicateVariant(duplicate, ids, callback);

@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description textarea input field.
  * @status ready
  * @example-type static

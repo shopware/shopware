@@ -250,7 +250,7 @@ export default {
 
                 this.isLoading = true;
 
-                return this.productStreamRepository.clone(this.productStream.id, Shopware.Context.api, behavior)
+                return this.productStreamRepository.clone(this.productStream.id, behavior, Shopware.Context.api)
                     .then((clone) => {
                         const route = { name: 'sw.product.stream.detail', params: { id: clone.id } };
 

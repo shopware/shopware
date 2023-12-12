@@ -40,6 +40,7 @@
             {% else %}
             v-model="emptyValue"
             {% endif %}
+            name="sw-field--emptyValue"
             class="sw-product-stream-value__select"
             size="medium"
             :options="reversedEmptyOptions"
@@ -62,6 +63,7 @@
                 {% else %}
                 v-model="filterType"
                 {% endif %}
+                name="sw-field--filterType"
                 size="medium"
                 :options="operators"
                 :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"

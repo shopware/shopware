@@ -47,7 +47,6 @@ async function createWrapper() {
                 'sw-context-menu-item': true,
                 'sw-media-modal-v2': true,
                 'sw-container': true,
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-text-editor': true,
                 'sw-switch-field': true,
                 'sw-product-media-form': true,

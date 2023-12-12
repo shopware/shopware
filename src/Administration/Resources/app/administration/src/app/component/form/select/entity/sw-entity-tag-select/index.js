@@ -2,7 +2,7 @@ const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.extend('sw-entity-tag-select', 'sw-entity-multi-select', {
     data() {

@@ -26,7 +26,7 @@ export type NotificationService = {
 ;}
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     getRegistry,

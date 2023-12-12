@@ -43,9 +43,7 @@
                     {% else %}
                     v-model="crossSelling.name"
                     {% endif %}
-                    {% if VUE3 %}
                     name="sw-field--crossSelling-name"
-                    {% endif %}
                     :label="$tc('sw-product.crossselling.inputCrossSellingTitle')"
                     required
                     :placeholder="placeholder(crossSelling, 'name', $tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder'))"
@@ -64,9 +62,7 @@
                     class="sw-product-detail-cross-selling__active-switch"
                     :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
                     :disabled="!allowEdit"
-                    {% if VUE3 %}
                     name="sw-field--crossSelling-active"
-                    {% endif %}
                 />
                 {% endblock %}
             </sw-container>

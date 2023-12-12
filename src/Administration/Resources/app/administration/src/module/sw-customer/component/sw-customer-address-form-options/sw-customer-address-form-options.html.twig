@@ -9,6 +9,7 @@
         {% else %}
         v-model="isDefaultShippingAddressId"
         {% endif %}
+        name="sw-field--isDefaultShippingAddressId"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
         {% if VUE3 %}
         @update:value="onChangeDefaultShippingAddress"
@@ -26,6 +27,7 @@
         {% else %}
         v-model="isDefaultBillingAddressId"
         {% endif %}
+        name="sw-field--isDefaultBillingAddressId"
         class="sw-customer-address-form__set-default-billing-address-action"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
         {% if VUE3 %}

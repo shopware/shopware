@@ -5,7 +5,7 @@ import './sw-notification-center.scss';
 const { Component, Mixin } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-notification-center', {
     template,
@@ -28,11 +28,7 @@ Component.register('sw-notification-center', {
 
     computed: {
         notifications() {
-            if (this.feature.isActive('VUE3')) {
-                return Object.values(Shopware.State.getters['notification/getNotificationsObject']).reverse();
-            }
-
-            return Shopware.State.getters['notification/getNotifications'];
+            return Object.values(Shopware.State.getters['notification/getNotificationsObject']).reverse();
         },
 
         additionalContextButtonClass() {

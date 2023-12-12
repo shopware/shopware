@@ -6,7 +6,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-entity-many-to-many-select', {
     template,

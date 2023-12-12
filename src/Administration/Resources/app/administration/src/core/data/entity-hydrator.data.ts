@@ -64,7 +64,7 @@ type toOneData = {
 type entityNames = keyof EntitySchema.Entities;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default class EntityHydrator {
     cache: { [key: string]: Entity<entityNames> } = {};

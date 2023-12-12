@@ -18,10 +18,10 @@
             <sw-text-field
                 {% if VUE3 %}
                 v-model:value="country.name"
-                name="sw-field--country-name"
                 {% else %}
                 v-model="country.name"
                 {% endif %}
+                name="sw-field--country-name"
                 required
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelName')"
@@ -35,10 +35,10 @@
             <sw-number-field
                 {% if VUE3 %}
                 v-model:value="country.position"
-                name="sw-field--country-position"
                 {% else %}
                 v-model="country.position"
                 {% endif %}
+                name="sw-field--country-position"
                 number-type="int"
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelPosition')"
@@ -51,10 +51,10 @@
             <sw-text-field
                 {% if VUE3 %}
                 v-model:value="country.iso"
-                name="sw-field--country-iso"
                 {% else %}
                 v-model="country.iso"
                 {% endif %}
+                name="sw-field--country-iso"
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelIso')"
                 :placeholder="placeholder(country, 'iso', $tc('sw-settings-country.detail.placeholderIso'))"
@@ -66,10 +66,10 @@
             <sw-text-field
                 {% if VUE3 %}
                 v-model:value="country.iso3"
-                name="sw-field--country-iso3"
                 {% else %}
                 v-model="country.iso3"
                 {% endif %}
+                name="sw-field--country-iso3"
                 :disabled="!acl.can('country.editor')"
                 :label="$tc('sw-settings-country.detail.labelIso3')"
                 :placeholder="placeholder(country, 'iso3', $tc('sw-settings-country.detail.placeholderIso3'))"
@@ -93,10 +93,10 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.active"
-                name="sw-field--country-active"
                 {% else %}
                 v-model="country.active"
                 {% endif %}
+                name="sw-field--country-active"
                 class="sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -109,10 +109,10 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.shippingAvailable"
-                name="sw-field--country-shippingAvailable"
                 {% else %}
                 v-model="country.shippingAvailable"
                 {% endif %}
+                name="sw-field--country-shippingAvailable"
                 class="sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -125,10 +125,10 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.customerTax.enabled"
-                name="sw-field--country-customerTax-enabled"
                 {% else %}
                 v-model="country.customerTax.enabled"
                 {% endif %}
+                name="sw-field--country-customerTax-enabled"
                 class="sw-settings-country-general__option-items switch-field-customer-tax-free"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -148,10 +148,10 @@
                 <sw-number-field
                     {% if VUE3 %}
                     v-model:value="country.customerTax.amount"
-                    name="sw-field--country-customerTax-amount"
                     {% else %}
                     v-model="country.customerTax.amount"
                     {% endif %}
+                    name="sw-field--country-customerTax-amount"
                     class="sw-settings-country-general__input-amount customer-tax-amount"
                     :min="0"
                     :label="$tc('sw-settings-country.detail.taxFreeFrom')"
@@ -162,10 +162,10 @@
                         <sw-entity-single-select
                             {% if VUE3 %}
                             v-model:value="country.customerTax.currencyId"
-                            name="sw-field--country-customerTax-currencyId"
                             {% else %}
                             v-model="country.customerTax.currencyId"
                             {% endif %}
+                            name="sw-field--country-customerTax-currencyId"
                             class="sw-settings-country-general__customer-select-currency sw-settings-country-general__select"
                             entity="currency"
                             bordered
@@ -206,10 +206,10 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.companyTax.enabled"
-                name="sw-field--country-companyTax-enabled"
                 {% else %}
                 v-model="country.companyTax.enabled"
                 {% endif %}
+                name="sw-field--country-companyTax-enabled"
                 class="sw-settings-country-general__option-items switch-field-company-tax-free"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -230,10 +230,10 @@
                 <sw-number-field
                     {% if VUE3 %}
                     v-model:value="country.companyTax.amount"
-                    name="sw-field--country-companyTax-amount"
                     {% else %}
                     v-model="country.companyTax.amount"
                     {% endif %}
+                    name="sw-field--country-companyTax-amount"
                     class="sw-settings-country-general__input-amount"
                     :min="0"
                     :label="$tc('sw-settings-country.detail.taxFreeFrom')"
@@ -244,10 +244,10 @@
                         <sw-entity-single-select
                             {% if VUE3 %}
                             v-model:value="country.companyTax.currencyId"
-                            name="sw-field--country-companyTax-currencyId"
                             {% else %}
                             v-model="country.companyTax.currencyId"
                             {% endif %}
+                            name="sw-field--country-companyTax-currencyId"
                             class="sw-settings-country-general__company-select-currency sw-settings-country-general__select"
                             entity="currency"
                             show-clearable-button
@@ -303,10 +303,10 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.checkVatIdPattern"
-                name="sw-field--country-checkVatIdPattern"
                 {% else %}
                 v-model="country.checkVatIdPattern"
                 {% endif %}
+                name="sw-field--country-checkVatIdPattern"
                 class="sw-settings-country-general__field-check-vatid-format sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"
@@ -320,10 +320,10 @@
             <sw-switch-field
                 {% if VUE3 %}
                 v-model:value="country.vatIdRequired"
-                name="sw-field--country-vatIdRequired"
                 {% else %}
                 v-model="country.vatIdRequired"
                 {% endif %}
+                name="sw-field--country-vatIdRequired"
                 class="sw-settings-country-general__vat-id-required sw-settings-country-general__option-items"
                 bordered
                 :disabled="!acl.can('country.editor')"

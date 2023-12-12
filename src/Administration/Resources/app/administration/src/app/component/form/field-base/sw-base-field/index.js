@@ -9,7 +9,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-base-field', {
     template,

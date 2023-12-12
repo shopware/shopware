@@ -12,6 +12,7 @@
         {% else %}
         v-model="currentOption.name"
         {% endif %}
+        name="sw-field--currentOption-name"
         validation="required"
         :label="$tc('sw-property.detail.labelOptionName')"
         :disabled="!allowEdit"
@@ -29,6 +30,7 @@
         {% else %}
         v-model="currentOption.position"
         {% endif %}
+        name="sw-field--currentOption-position"
         pattern="[0-9]"
         :step="1"
         :disabled="!allowEdit"
@@ -45,6 +47,7 @@
         {% else %}
         v-model="currentOption.colorHexCode"
         {% endif %}
+        name="sw-field--currentOption-colorHexCode"
         color-output="hex"
         :disabled="!allowEdit"
         :label="$tc('sw-property.detail.labelOptionColor')"

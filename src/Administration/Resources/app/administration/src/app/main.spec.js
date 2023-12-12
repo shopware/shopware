@@ -198,7 +198,7 @@ describe('src/app/main.ts', () => {
     it('should add all initializer to Application', () => {
         const initializers = Shopware.Application.getContainer('init').$list();
 
-        expect(initializers).toHaveLength(33);
+        expect(initializers).toHaveLength(32);
         expect(initializers).toContain('apiServices');
         expect(initializers).toContain('state');
         expect(initializers).toContain('coreMixin');
@@ -227,7 +227,6 @@ describe('src/app/main.ts', () => {
         expect(initializers).toContain('actionButton');
         expect(initializers).toContain('actions');
         expect(initializers).toContain('extensionDataHandling');
-        expect(initializers).toContain('cookies');
         expect(initializers).toContain('language');
         expect(initializers).toContain('userInformation');
         expect(initializers).toContain('worker');

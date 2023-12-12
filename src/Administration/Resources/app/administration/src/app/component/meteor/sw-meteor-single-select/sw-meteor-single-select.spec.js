@@ -58,7 +58,6 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'sw-popover': true,
                     'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                    'sw-field': await wrapTestComponent('sw-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),

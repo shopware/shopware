@@ -5,7 +5,6 @@ import { defineComponent } from 'vue';
  * @private
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
  * @module app/mixin/validation
  */
 export default Shopware.Mixin.register('validation', defineComponent({

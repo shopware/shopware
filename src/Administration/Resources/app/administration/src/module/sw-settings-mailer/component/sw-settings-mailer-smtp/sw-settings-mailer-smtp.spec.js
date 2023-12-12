@@ -17,7 +17,6 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                     validationService: {},
                 },
                 stubs: {
-                    'sw-field': await wrapTestComponent('sw-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-number-field': await wrapTestComponent('sw-number-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

@@ -7,7 +7,7 @@
 import type VueRouter from 'vue-router_v2';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeWindow(): void {
     // Handle incoming window requests from the ExtensionAPI

@@ -96,10 +96,10 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="customerGroup.name"
-                                name="sw-field--customerGroup-name"
                                 {% else %}
                                 v-model="customerGroup.name"
                                 {% endif %}
+                                name="sw-field--customerGroup-name"
                                 class="sw-settings-customer-group-detail__name"
                                 required
                                 validation="required"
@@ -131,10 +131,10 @@
                             <sw-switch-field
                                 {% if VUE3 %}
                                 v-model:value="customerGroup.registrationActive"
-                                name="sw-field--customerGroup-registrationActive"
                                 {% else %}
                                 v-model="customerGroup.registrationActive"
                                 {% endif %}
+                                name="sw-field--customerGroup-registrationActive"
                                 class="sw-settings-customer-group-detail__registration-form-switch"
                                 :label="$tc('sw-settings-customer-group.detail.registrationForm')"
                                 :disabled="!acl.can('customer_groups.editor')"

@@ -1,7 +1,7 @@
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeModal(): void {
     // eslint-disable-next-line @typescript-eslint/require-await

@@ -10,6 +10,7 @@
         {% else %}
         v-model="selectedField"
         {% endif %}
+        name="sw-field--selectedField"
         entity="custom_field"
         :criteria="customFieldCriteria"
         :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
@@ -50,6 +51,7 @@
     <sw-condition-operator-select
         v-if="renderedField"
         v-model="operator"
+        name="sw-field--operator"
         v-bind="{ operators, condition }"
         :disabled="disabled"
     />
@@ -59,6 +61,7 @@
     <sw-form-field-renderer
         v-if="renderedField"
         v-model="renderedFieldValue"
+        name="sw-field--renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
         size="medium"

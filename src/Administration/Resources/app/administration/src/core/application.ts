@@ -26,7 +26,7 @@ interface bundlesPluginResponse {
 }
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  *
  * The application bootstrapper bootstraps the application and registers the necessary
  * and optional parts of the application in a shared DI container which provides you

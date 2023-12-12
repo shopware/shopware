@@ -32,15 +32,13 @@
             {% else %}
             v-model="flow.name"
             {% endif %}
+            name="sw-field--flow-name"
             class="sw-flow-detail-general__general-name"
             :required="!isTemplate"
             :disabled="!acl.can('flow.editor')"
             :label="$tc('sw-flow.detail.labelGeneralInformationName')"
             :placeholder="$tc('sw-flow.detail.placeholderGeneralInformationName')"
             :error="flowNameError"
-            {% if VUE3 %}
-            name="sw-field--flow-name"
-            {% endif %}
         />
         {% endblock %}
 
@@ -75,9 +73,7 @@
                 class="sw-flow-detail-general__general-priority"
                 :disabled="!acl.can('flow.editor')"
                 :label="$tc('sw-flow.detail.labelGeneralInformationPriority')"
-                {% if VUE3 %}
                 name="sw-field--flow-priority"
-                {% endif %}
             />
             {% endblock %}
 

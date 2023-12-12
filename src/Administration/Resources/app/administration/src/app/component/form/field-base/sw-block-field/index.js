@@ -8,7 +8,7 @@ import './sw-block-field.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-block-field', {
     template,

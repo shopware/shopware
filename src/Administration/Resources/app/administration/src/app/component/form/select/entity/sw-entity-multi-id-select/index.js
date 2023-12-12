@@ -4,7 +4,7 @@ const { Component, Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-entity-multi-id-select', {
     template,

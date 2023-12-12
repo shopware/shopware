@@ -55,7 +55,6 @@ async function createWrapper(condition = {}) {
                 stubs: {
                     'sw-condition-operator-select': await wrapTestComponent('sw-condition-operator-select'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
-                    'sw-field': await wrapTestComponent('sw-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),

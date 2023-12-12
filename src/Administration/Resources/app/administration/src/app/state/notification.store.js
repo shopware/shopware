@@ -131,20 +131,6 @@ export default {
     },
 
     getters: {
-        /**
-         * @deprecated tag:v6.6.0 - use `getNotificationsObject` instead
-         */
-        getNotifications(state) {
-            return Object.values(state.notifications).reverse();
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - use `getGrowlNotificationsObject` instead
-         */
-        getGrowlNotifications(state) {
-            return Object.values(state.growlNotifications);
-        },
-
         getNotificationsObject(state) {
             return state.notifications;
         },

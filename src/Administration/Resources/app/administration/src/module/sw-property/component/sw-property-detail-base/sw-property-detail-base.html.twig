@@ -15,6 +15,7 @@
         {% else %}
         v-model="propertyGroup.name"
         {% endif %}
+        name="sw-field--propertyGroup-name"
         required
         :error="propertyGroupNameError"
         :label="$tc('sw-property.detail.labelName')"
@@ -31,6 +32,7 @@
         {% else %}
         v-model="propertyGroup.description"
         {% endif %}
+        name="sw-field--propertyGroup-description"
         :label="$tc('sw-property.detail.labelDescription')"
         :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"
         :disabled="!allowEdit"
@@ -89,6 +91,7 @@
             {% else %}
             v-model="propertyGroup.displayType"
             {% endif %}
+            name="sw-field--propertyGroup-displayType"
             validation="required"
             required
             :label="$tc('sw-property.detail.labelDisplayType')"
@@ -112,6 +115,7 @@
             {% else %}
             v-model="propertyGroup.sortingType"
             {% endif %}
+            name="sw-field--propertyGroup-sortingType"
             validation="required"
             :disabled="!allowEdit"
             required
@@ -135,6 +139,7 @@
             {% else %}
             v-model="propertyGroup.position"
             {% endif %}
+            name="sw-field--propertyGroup-position"
             pattern="[0-9]"
             :step="1"
             :label="$tc('sw-property.detail.labelPosition')"

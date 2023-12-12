@@ -430,7 +430,7 @@ export default {
             }
 
             this.isLoading = true;
-            this.pageRepository.clone(page.id, Shopware.Context.api, behavior).then(() => {
+            this.pageRepository.clone(page.id, behavior, Shopware.Context.api).then(() => {
                 this.resetList();
                 this.isLoading = false;
             }).catch(() => {

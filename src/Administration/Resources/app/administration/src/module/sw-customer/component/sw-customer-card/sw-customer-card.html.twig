@@ -69,6 +69,7 @@
                                     {% else %}
                                     v-model="customer.accountType"
                                     {% endif %}
+                                    name="sw-field--customer-accountType"
                                     class="sw-customer-card__account-type-select"
                                     :label="$tc('sw-customer.customerType.labelAccountType')"
                                     :placeholder="$tc('sw-customer.customerType.placeholderAccountType')"
@@ -84,6 +85,7 @@
                                     {% else %}
                                     v-model="customer.salutationId"
                                     {% endif %}
+                                    name="sw-field--customer-salutationId"
                                     class="sw-customer-card__salutation-select"
                                     entity="salutation"
                                     label-property="displayName"
@@ -100,6 +102,7 @@
                                     {% else %}
                                     v-model="customer.title"
                                     {% endif %}
+                                    name="sw-field--customer-title"
                                     :label="$tc('sw-customer.card.labelTitle')"
                                     :placeholder="$tc('sw-customer.card.placeholderTitle')"
                                 />
@@ -118,6 +121,7 @@
                                     {% else %}
                                     v-model="customer.firstName"
                                     {% endif %}
+                                    name="sw-field--customer-firstName"
                                     :label="$tc('sw-customer.card.labelFirstName')"
                                     validation="required"
                                     required
@@ -134,6 +138,7 @@
                                     {% else %}
                                     v-model="customer.lastName"
                                     {% endif %}
+                                    name="sw-field--customer-lastName"
                                     :label="$tc('sw-customer.card.labelLastName')"
                                     validation="required"
                                     required
@@ -151,6 +156,7 @@
                                 {% else %}
                                 v-model="customer.company"
                                 {% endif %}
+                                name="sw-field--customer-company"
                                 :required="isBusinessAccountType"
                                 :error="customerCompanyError"
                                 :label="$tc('sw-customer.card.labelCompany')"
@@ -201,6 +207,7 @@
                             {% else %}
                             v-model="customer.email"
                             {% endif %}
+                            name="sw-field--customer-email"
                             validation="required"
                             required
                             :label="$tc('sw-customer.card.labelEmail')"
@@ -219,6 +226,7 @@
                             {% else %}
                             v-model="customer.passwordNew"
                             {% endif %}
+                            name="sw-field--customer-passwordNew"
                             autocomplete="new-password"
                             :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPassword')"
@@ -236,6 +244,7 @@
                             {% else %}
                             v-model="customer.passwordConfirm"
                             {% endif %}
+                            name="sw-field--customer-passwordConfirm"
                             autocomplete="new-password"
                             :disabled="customer.guest"
                             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
@@ -252,6 +261,7 @@
                             {% else %}
                             v-model="customer.tags"
                             {% endif %}
+                            name="sw-field--customer-tags"
                             :label="editMode ? $tc('sw-customer.baseForm.labelTags') : ''"
                             class="sw-customer-card__tag-select"
                             :disabled="!editMode"

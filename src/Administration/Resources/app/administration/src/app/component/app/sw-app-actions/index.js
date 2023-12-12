@@ -26,7 +26,7 @@ const modalSizeMapping = {
 const IFRAME_KEY = 'app.action_button.iframe';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-app-actions', {
     template,

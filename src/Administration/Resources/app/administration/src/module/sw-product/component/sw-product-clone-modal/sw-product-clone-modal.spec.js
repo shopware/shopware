@@ -54,7 +54,7 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
             number: 250,
         });
 
-        expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(undefined, expect.anything(), {
+        expect(wrapper.vm.repository.clone).toHaveBeenCalledWith(undefined, {
             cloneChildren: false,
             overwrites: {
                 active: false,
@@ -62,6 +62,6 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 name: 'shirt global.default.copy',
                 productNumber: 250,
             },
-        });
+        }, expect.anything());
     });
 });

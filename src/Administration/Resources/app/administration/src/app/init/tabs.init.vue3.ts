@@ -7,7 +7,7 @@ import type { TabItemEntry } from 'src/app/state/tabs.store';
 import type { Router, RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeTabs(): void {
     Shopware.ExtensionAPI.handle('uiTabsAddTabItem', (componentConfig) => {

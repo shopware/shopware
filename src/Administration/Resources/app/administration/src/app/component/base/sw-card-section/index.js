@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description A container component which separates the content of <code>sw-card</code> into multiple sections.
  * @status ready
  * @example-type static

@@ -16,6 +16,7 @@
         {% else %}
         v-model="config.order_transaction"
         {% endif %}
+        name="sw-field--config-order_transaction"
         class="sw-flow-set-order-state-modal__payment-status"
         :options="paymentOptions"
         :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
@@ -31,6 +32,7 @@
         {% else %}
         v-model="config.order_delivery"
         {% endif %}
+        name="sw-field--config-order_delivery"
         class="sw-flow-set-order-state-modal__delivery-status"
         :options="deliveryOptions"
         :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
@@ -46,6 +48,7 @@
         {% else %}
         v-model="config.order"
         {% endif %}
+        name="sw-field--config-order"
         class="sw-flow-set-order-state-modal__order-status"
         :options="orderOptions"
         :label="$tc('sw-flow.modals.status.labelOrderStatus')"

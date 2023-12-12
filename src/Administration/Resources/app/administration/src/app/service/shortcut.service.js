@@ -7,7 +7,7 @@
 const { Application } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @memberOf module:core/service/shortcut
  * @constructor
  * @method createShortcutService

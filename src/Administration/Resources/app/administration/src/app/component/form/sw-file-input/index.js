@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description The <u>sw-file-input</u> component can be used wherever a file input is needed.
  * @example-type code-only
  * @component-example

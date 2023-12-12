@@ -271,6 +271,7 @@
                             {% else %}
                             v-model="review.languageId"
                             {% endif %}
+                            name="sw-field--review-languageId"
                             entity="language"
                             class="sw-review__language-select"
                             required
@@ -289,6 +290,7 @@
                             {% else %}
                             v-model="review.status"
                             {% endif %}
+                            name="sw-field--review-status"
                             class="status-switch"
                             :disabled="!acl.can('review.editor')"
                             :label="$tc('sw-review.detail.labelStatus')"
@@ -313,6 +315,7 @@
                         {% else %}
                         v-model="review.comment"
                         {% endif %}
+                        name="sw-field--review-comment"
                         class="sw-review__comment-field"
                         :disabled="!acl.can('review.editor')"
                         :label="$tc('sw-review.detail.titleCardComment')"

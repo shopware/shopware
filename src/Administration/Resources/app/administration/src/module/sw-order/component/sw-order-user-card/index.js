@@ -213,6 +213,7 @@ export default {
 
             this.orderAddressRepository.clone(
                 this.delivery.shippingOrderAddressId,
+                {},
                 this.versionContext,
             ).then((response) => {
                 this.delivery.shippingOrderAddressId = response.id;

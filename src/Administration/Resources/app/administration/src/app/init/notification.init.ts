@@ -3,7 +3,7 @@ import type { I18n } from 'vue-i18n';
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeNotifications(): void {
     // Handle incoming notifications from the ExtensionAPI

@@ -92,6 +92,7 @@
                             {% else %}
                             v-model="currentIntegration.label"
                             {% endif %}
+                            name="sw-field--currentIntegration-label"
                             :label="$tc('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
                         />
@@ -104,6 +105,7 @@
                             {% else %}
                             v-model="currentIntegration.admin"
                             {% endif %}
+                            name="sw-field--currentIntegration-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                             :disabled="!acl.can('admin')"
@@ -125,6 +127,7 @@
                             message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
                             disabled: !currentIntegration.admin || !acl.can('integration.editor')
                         }"
+                        name="sw-field--currentIntegration-aclRoles"
                         class="sw-settings-user-detail__grid-aclRoles"
                         :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                         :disabled="currentIntegration.admin || !acl.can('integration.editor')"
@@ -140,6 +143,7 @@
                         {% else %}
                         v-model="currentIntegration.accessKey"
                         {% endif %}
+                        name="sw-field--currentIntegration-accessKey"
                         :label="$tc('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
                         :copyable="true"
@@ -157,6 +161,7 @@
                             {% else %}
                             v-model="currentIntegration.secretAccessKey"
                             {% endif %}
+                            name="sw-field--currentIntegration-secretAccessKey"
                             :type="secretAccessKeyFieldType"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"
@@ -172,6 +177,7 @@
                             {% else %}
                             v-model="currentIntegration.secretAccessKey"
                             {% endif %}
+                            name="sw-field--currentIntegration-secretAccessKey"
                             :type="secretAccessKeyFieldType"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
                             :disabled="true"

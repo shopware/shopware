@@ -6,8 +6,7 @@ const { debounce, get } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description Renders a multi select field with a defined list of options. This component uses the sw-field base
  * components. This adds the base properties such as <code>helpText</code>, <code>error</code>, <code>disabled</code> etc.

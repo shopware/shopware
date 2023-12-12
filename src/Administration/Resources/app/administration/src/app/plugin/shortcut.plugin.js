@@ -8,7 +8,7 @@ const { warn } = Shopware.Utils.debug;
 let pluginInstalled = false;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     install(Vue) {

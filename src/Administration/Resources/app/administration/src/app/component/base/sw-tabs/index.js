@@ -10,8 +10,7 @@ const util = Shopware.Utils;
 const dom = Shopware.Utils.dom;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Renders tabs. Each item references a route or emits a custom event.
  * @status ready
  * @example-type static

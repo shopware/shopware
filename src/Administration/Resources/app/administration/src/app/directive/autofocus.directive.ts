@@ -28,6 +28,6 @@ Shopware.Directive.register('autofocus', window._features_?.vue3
     });
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export {};

@@ -8,8 +8,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type code-only
  * @component-example

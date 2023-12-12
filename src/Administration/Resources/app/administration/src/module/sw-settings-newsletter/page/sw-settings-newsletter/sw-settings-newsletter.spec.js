@@ -60,7 +60,6 @@ async function createWrapper() {
                 'sw-system-config': await wrapTestComponent('sw-system-config'),
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                 'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),

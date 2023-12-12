@@ -187,10 +187,10 @@
                             <sw-text-field
                                 {% if VUE3 %}
                                 v-model:value="documentConfig.name"
-                                name="sw-field--documentConfig-name"
                                 {% else %}
                                 v-model="documentConfig.name"
                                 {% endif %}
+                                name="sw-field--documentConfig-name"
                                 :label="$tc('sw-settings-document.detail.labelName')"
                                 :placeholder="$tc('sw-settings-document.detail.placeholderName')"
                                 :disabled="!acl.can('document.editor')"

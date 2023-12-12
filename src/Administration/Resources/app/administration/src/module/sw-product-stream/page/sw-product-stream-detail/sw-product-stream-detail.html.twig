@@ -138,6 +138,7 @@
                         v-model="productStream.name"
                         {% endif %}
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                        name="sw-field--productStream-name"
                         :label="$tc('sw-product-stream.detail.labelName')"
                         :validation="nameRequired"
                         :required="isSystemLanguage"
@@ -157,6 +158,7 @@
                         v-model="productStream.description"
                         {% endif %}
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                        name="sw-field--productStream-description"
                         :label="$tc('sw-product-stream.detail.labelDescription')"
                         :placeholder="placeholder(productStream, 'description', $tc('sw-product-stream.detail.placeholderDescription'))"
                         :disabled="!acl.can('product_stream.editor')"

@@ -634,7 +634,7 @@ Shopware.Directive.register('droppable', window._features_?.vue3
     });
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export type { DragConfig, DropConfig };
 /* @private */

@@ -806,11 +806,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const cloneMock = wrapper.vm.pageRepository.clone.mock.calls[0];
 
         expect(cloneMock[0]).toBe('1a');
-        expect(cloneMock[1]).toStrictEqual(Shopware.Context.api);
-        expect(cloneMock[2]).toStrictEqual({
+        expect(cloneMock[1]).toStrictEqual({
             overwrites: {
                 name: 'CMS Page 1 - global.default.copy',
             },
         });
+        expect(cloneMock[2]).toStrictEqual(Shopware.Context.api);
     });
 });

@@ -32,7 +32,7 @@ const MenuItemStore: Module<MenuItemState, VuexRootState> = {
 };
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default MenuItemStore;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

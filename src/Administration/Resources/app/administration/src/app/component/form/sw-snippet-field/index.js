@@ -6,8 +6,7 @@ const { Component, State, Data: { Criteria } } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Input field that allows you to easily edit and translate snippet in a modal.
  * @status ready
  * @example-type static

@@ -6,8 +6,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Renders a loading indicator for panels, input fields, buttons, etc.
  * @status ready
  * @example-type dynamic

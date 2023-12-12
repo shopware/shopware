@@ -6,8 +6,7 @@ const { Component, Utils } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description a search field with delayed update
  * @status ready
  * @example-type static

@@ -34,7 +34,7 @@ class StorefrontSearchResult extends EntitySearchResult
     public function getSortings(): array
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
+            'v6.7.0.0',
             '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
         );
 
@@ -47,7 +47,7 @@ class StorefrontSearchResult extends EntitySearchResult
     public function setSortings(array $sortings): void
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
+            'v6.7.0.0',
             '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
         );
 
@@ -57,7 +57,7 @@ class StorefrontSearchResult extends EntitySearchResult
     public function getSorting(): ?string
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
+            'v6.7.0.0',
             '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
         );
 
@@ -67,7 +67,7 @@ class StorefrontSearchResult extends EntitySearchResult
     public function setSorting(?string $sorting): void
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
+            'v6.7.0.0',
             '\Shopware\Storefront\Framework\Page\StorefrontSearchResult will be removed use \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult instead'
         );
 

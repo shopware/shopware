@@ -1,5 +1,5 @@
 {# @deprecated tag:v6.7.0 - variable `currentPage` will be removed #}
-{% if not feature('v6_7_0_0') %}
+{% if not feature('v6.7.0.0') %}
     {% set currentPage = searchResult.page %}
 {% endif %}
 {% set paginationConfig = { page: searchResult.page }|json_encode %}
@@ -36,7 +36,7 @@
                             <div class="col-md-auto">
                                 {% block element_product_listing_pagination_nav_top %}
                                     {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
-                                    {% if feature('v6_7_0_0') %}
+                                    {% if feature('v6.7.0.0') %}
                                         {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {entities: searchResult} %}
                                     {% else %}
                                         {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
@@ -92,7 +92,7 @@
                 {% if searchResult.total > searchResult.limit %}
                     {% block element_product_listing_pagination_nav_bottom %}
                         {# @deprecated tag:v6.7.0 - variable `criteria` will be removed #}
-                        {% if feature('v6_7_0_0') %}
+                        {% if feature('v6.7.0.0') %}
                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                 entities: searchResult,
                                 paginationLocation: 'bottom',

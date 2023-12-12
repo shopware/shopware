@@ -1,68 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd" bootstrap="src/Core/TestBootstrap.php" cacheResult="false" executionOrder="random" cacheDirectory=".phpunit.cache">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.4/phpunit.xsd"
+         bootstrap="src/Core/TestBootstrap.php"
+         cacheResult="false"
+         executionOrder="random"
+         cacheDirectory=".phpunit.cache">
     <coverage includeUncoveredFiles="true"/>
-    <php>
-        <ini name="error_reporting" value="-1"/>
-        <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
-        <env name="APP_ENV" value="test"/>
-        <env name="APP_DEBUG" value="1"/>
-        <env name="APP_SECRET" value="s$cretf0rt3st"/>
-        <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0"/>
-        <env name="SHELL_VERBOSITY" value="-1"/>
-        <server name="MAILER_URL" value="null://localhost"/>
-        <server name="HTTPS" value="off"/>
-        <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
-        <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
-        <!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
-    </php>
-    <testsuites>
-        <testsuite name="administration">
-            <directory>src/Administration/Test</directory>
-        </testsuite>
-        <testsuite name="storefront">
-            <directory>src/Storefront/Test</directory>
-        </testsuite>
-        <testsuite name="content">
-            <directory>src/Core/Content/Test</directory>
-        </testsuite>
-        <testsuite name="framework">
-            <directory>src/Core/Framework/Test</directory>
-            <directory>src/Core/Test</directory>
-        </testsuite>
-        <testsuite name="migration">
-            <directory>src/Core/Migration/Test</directory>
-        </testsuite>
-        <testsuite name="maintenance">
-            <directory>src/Core/Maintenance/Test</directory>
-        </testsuite>
-        <testsuite name="system">
-            <directory>src/Core/System/Test</directory>
-        </testsuite>
-        <testsuite name="unit">
-            <directory>tests/unit</directory>
-        </testsuite>
-        <testsuite name="integration">
-            <directory>tests/integration</directory>
-        </testsuite>
-        <testsuite name="migration-tests">
-            <directory>tests/migration</directory>
-        </testsuite>
-        <testsuite name="paratest">
-            <directory>src/Core/*/Test</directory>
-            <directory>src/*/Test</directory>
-            <directory>tests/unit</directory>
-            <exclude>src/Storefront/Test/Migration</exclude>
-            <exclude>src/Core/Migration/Test</exclude>
-        </testsuite>
-    </testsuites>
-    <extensions>
-        <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
-        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
-        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
-        <!-- Enable to see the db side effects of the tests. -->
-<!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
-    </extensions>
     <source>
         <include>
             <!--
@@ -129,4 +72,66 @@
             <directory suffix="Collection.php">src/</directory>
         </exclude>
     </source>
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <server name="KERNEL_CLASS" value="Shopware\Core\Kernel"/>
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="1"/>
+        <env name="APP_SECRET" value="s$cretf0rt3st"/>
+        <env name="SHOPWARE_HTTP_CACHE_ENABLED" value="0"/>
+        <env name="SHELL_VERBOSITY" value="-1"/>
+        <server name="MAILER_URL" value="null://localhost"/>
+        <server name="HTTPS" value="off"/>
+        <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
+        <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
+        <!--        <env name="SYMFONY_DEPRECATIONS_HELPER" value="ignoreFile=./deprecation.ignore" />-->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
+    </php>
+    <testsuites>
+        <testsuite name="administration">
+            <directory>src/Administration/Test</directory>
+        </testsuite>
+        <testsuite name="storefront">
+            <directory>src/Storefront/Test</directory>
+        </testsuite>
+        <testsuite name="content">
+            <directory>src/Core/Content/Test</directory>
+        </testsuite>
+        <testsuite name="framework">
+            <directory>src/Core/Framework/Test</directory>
+            <directory>src/Core/Test</directory>
+        </testsuite>
+        <testsuite name="migration">
+            <directory>src/Core/Migration/Test</directory>
+        </testsuite>
+        <testsuite name="maintenance">
+            <directory>src/Core/Maintenance/Test</directory>
+        </testsuite>
+        <testsuite name="system">
+            <directory>src/Core/System/Test</directory>
+        </testsuite>
+        <testsuite name="unit">
+            <directory>tests/unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>tests/integration</directory>
+        </testsuite>
+        <testsuite name="migration-tests">
+            <directory>tests/migration</directory>
+        </testsuite>
+        <testsuite name="paratest">
+            <directory>src/Core/*/Test</directory>
+            <directory>src/*/Test</directory>
+            <directory>tests/unit</directory>
+            <exclude>src/Storefront/Test/Migration</exclude>
+            <exclude>src/Core/Migration/Test</exclude>
+        </testsuite>
+    </testsuites>
+    <extensions>
+        <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
+        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
+        <!-- Enable to see the db side effects of the tests. -->
+<!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
+    </extensions>
 </phpunit>

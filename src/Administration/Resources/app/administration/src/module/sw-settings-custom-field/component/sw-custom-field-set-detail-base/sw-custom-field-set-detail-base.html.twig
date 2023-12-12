@@ -10,10 +10,10 @@
     <sw-text-field
         {% if VUE3 %}
         v-model:value="set.name"
-        name="sw-field--set-name"
         {% else %}
         v-model="set.name"
         {% endif %}
+        name="sw-field--set-name"
         class="sw-settings-custom-field-set-detail-base__technical-name"
         :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
         :help-text="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
@@ -29,10 +29,10 @@
     <sw-number-field
         {% if VUE3 %}
         v-model:value="set.position"
-        name="sw-field--set-position"
         {% else %}
         v-model="set.position"
         {% endif %}
+        name="sw-field--set-position"
         class="sw-settings-custom-field-set-detail-base__base-postion"
         :disabled="!acl.can('custom_field.editor')"
         :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"

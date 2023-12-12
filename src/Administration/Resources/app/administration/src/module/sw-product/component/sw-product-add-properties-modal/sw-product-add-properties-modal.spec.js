@@ -30,7 +30,6 @@ async function createWrapper() {
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-icon': await wrapTestComponent('sw-icon'),
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

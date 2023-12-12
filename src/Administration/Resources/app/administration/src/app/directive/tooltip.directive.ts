@@ -24,7 +24,7 @@ const availableTooltipPlacements: Placements[] = [
 const tooltipRegistry = new Map<string, Tooltip>();
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 class Tooltip {
     private _id?: string;

@@ -8,7 +8,7 @@ import template from './sw-login-login.html.twig';
 const { Component, Mixin } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-login-login', {
     template,

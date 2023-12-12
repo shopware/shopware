@@ -8,7 +8,7 @@ import type { TabItemEntry } from 'src/app/state/tabs.store';
 import initializeTabsVue3 from './tabs.init.vue3';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeTabs(): void {
     if (window._features_?.vue3) {

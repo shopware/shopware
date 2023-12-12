@@ -9,6 +9,7 @@
         {% else %}
         v-model="useTime"
         {% endif %}
+        name="sw-field--useTime"
         size="medium"
         :options="selectValues"
         :disabled="disabled"
@@ -25,6 +26,7 @@
         {% else %}
         v-model="fromDate"
         {% endif %}
+        name="sw-field--fromDate"
         size="medium"
         :date-type="isDateTime"
         required
@@ -40,6 +42,7 @@
         {% else %}
         v-model="toDate"
         {% endif %}
+        name="sw-field--toDate"
         size="medium"
         :date-type="isDateTime"
         required

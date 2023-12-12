@@ -13,7 +13,6 @@ async function createWrapper() {
         global: {
             attachTo: document.body,
             stubs: {
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),

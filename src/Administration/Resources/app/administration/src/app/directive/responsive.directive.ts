@@ -9,7 +9,7 @@ interface ResponsiveDirectiveBinding extends ObjectDirective {
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * Directive for responsive element classes
  *
  * Usage:

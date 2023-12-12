@@ -43,7 +43,7 @@ Filter.register('salutation', (
 });
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {};
 

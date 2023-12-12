@@ -52,7 +52,6 @@ async function createWrapper(condition = {}) {
             renderStubDefaultSlot: true,
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

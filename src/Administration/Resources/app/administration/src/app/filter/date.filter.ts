@@ -11,6 +11,6 @@ Shopware.Filter.register('date', (value: string, options: Intl.DateTimeFormatOpt
 });
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {};

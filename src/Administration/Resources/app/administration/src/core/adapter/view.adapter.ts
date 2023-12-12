@@ -13,7 +13,7 @@ import type LocaleFactory from 'src/core/factory/locale.factory';
 import type Vue2 from 'vue_v2';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * View Adapter Boilerplate class which provides a blueprint for view adapters (like for React, VueJS, ...)
  */
 export default abstract class ViewAdapter {

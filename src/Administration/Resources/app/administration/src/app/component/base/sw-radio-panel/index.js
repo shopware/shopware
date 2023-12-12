@@ -9,8 +9,7 @@ const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Radio panel that can be used for radio input with bigger content.
  * It is possible to define custom content via slots.
  * @status ready

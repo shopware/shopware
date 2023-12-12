@@ -85,7 +85,7 @@ export default class EntityValidationService {
 
         // report errors
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+        this.errorResolver.handleWriteErrors([{ entity, changes }], { errors });
         return errors.length < 1;
     }
 

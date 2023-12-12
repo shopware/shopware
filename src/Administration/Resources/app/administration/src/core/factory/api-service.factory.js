@@ -6,7 +6,7 @@
 import { warn } from 'src/core/service/utils/debug.utils';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     getRegistry,

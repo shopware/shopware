@@ -482,7 +482,7 @@ export default {
                     },
                 };
 
-                return this.ruleRepository.clone(this.rule.id, Shopware.Context.api, behaviour).then((duplicatedData) => {
+                return this.ruleRepository.clone(this.rule.id, behaviour, Shopware.Context.api).then((duplicatedData) => {
                     this.$router.push(
                         {
                             name: 'sw.settings.rule.detail',

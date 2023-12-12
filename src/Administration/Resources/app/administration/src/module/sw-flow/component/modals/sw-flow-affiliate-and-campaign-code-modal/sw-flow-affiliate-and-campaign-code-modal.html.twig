@@ -39,6 +39,7 @@
                 {% else %}
                 v-model="affiliateCode.value"
                 {% endif %}
+                name="sw-field--affiliateCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
                 :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderAffiliateCode')"
@@ -71,6 +72,7 @@
                 {% else %}
                 v-model="campaignCode.value"
                 {% endif %}
+                name="sw-field--campaignCode-value"
                 class="sw-flow-affiliate-and-campaign-code-modal__campaign-code"
                 :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
                 :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderCampaignCode')"

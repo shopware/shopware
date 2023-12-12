@@ -7,8 +7,7 @@ const { dom } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Container for the content of a page, including the search bar, page header, actions and the actual content.
  * @status ready

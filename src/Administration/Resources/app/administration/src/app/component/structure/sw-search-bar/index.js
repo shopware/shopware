@@ -9,8 +9,7 @@ const { cloneDeep } = utils.object;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders the search bar. This component uses the search service to find entities in the administration.
  * @status ready

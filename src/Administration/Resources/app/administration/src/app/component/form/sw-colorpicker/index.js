@@ -7,7 +7,7 @@ const debounce = Shopware.Utils.debounce;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  * @description
  * The color picker field allows you to select a custom color.
  * @status ready

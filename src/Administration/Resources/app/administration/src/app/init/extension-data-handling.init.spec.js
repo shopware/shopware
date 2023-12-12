@@ -29,7 +29,7 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         };
     });
     const saveMockMethod = jest.fn(() => saveResult);
-    const cloneMockMethod = jest.fn((criteria, context) => {
+    const cloneMockMethod = jest.fn((criteria, behaviour, context) => {
         return {
             ...cloneResult,
             context,
@@ -177,10 +177,10 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         expect(Shopware.Service('repositoryFactory').create).toHaveBeenCalledWith('product');
         expect(cloneMockMethod).toHaveBeenCalledWith(
             'my-awesome-id',
+            'my-awesome-behavior',
             expect.objectContaining({
                 languageId: 'my-awesome-language-id',
             }),
-            'my-awesome-behavior',
         );
         expect(result).toEqual({
             ...cloneResult,

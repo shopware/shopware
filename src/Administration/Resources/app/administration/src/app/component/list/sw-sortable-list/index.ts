@@ -33,8 +33,7 @@ interface ScrollOnDragConf {
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @example-type static
  * @description A configurable list component that can be used to sort items via drag-and-drop.

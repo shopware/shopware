@@ -62,7 +62,7 @@ function filterContext(result: any, customContext: any) {
 }
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function initializeExtensionDataLoader(): void {
     Shopware.ExtensionAPI.handle('repositorySearch', async (
@@ -151,7 +151,7 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        const result = repository.clone(entityId, mergedContext, behavior as $TSDangerUnknownObject);
+        const result = repository.clone(entityId, behavior as $TSDangerUnknownObject, mergedContext);
         filterContext(result, context);
         return result;
     });

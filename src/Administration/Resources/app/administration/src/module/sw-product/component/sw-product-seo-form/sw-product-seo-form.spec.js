@@ -72,7 +72,6 @@ describe('module/sw-product/component/sw-product-seo-form', () => {
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-popover': true,
                     'sw-help-text': true,
-                    'sw-field': await wrapTestComponent('sw-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),

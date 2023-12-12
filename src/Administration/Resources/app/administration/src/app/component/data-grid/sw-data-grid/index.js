@@ -8,8 +8,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description The sw-data-grid is a component to render tables with data.
  * It also supports hiding columns or scrolling horizontally when many columns are present.

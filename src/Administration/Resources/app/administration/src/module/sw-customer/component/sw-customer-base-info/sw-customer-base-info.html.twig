@@ -63,6 +63,7 @@
                     {% else %}
                     v-model="customer.groupId"
                     {% endif %}
+                    name="sw-field--customer-groupId"
                     entity="customer_group"
                     size="small"
                     show-clearable-button
@@ -102,6 +103,7 @@
                     {% else %}
                     v-model="customer.defaultPaymentMethodId"
                     {% endif %}
+                    name="sw-field--customer-defaultPaymentMethodId"
                     class="sw-customer-base-info__payment-select"
                     entity="payment_method"
                     label-property="distinguishableName"
@@ -143,6 +145,7 @@
                     {% else %}
                     v-model="customer.active"
                     {% endif %}
+                    name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
                     size="small"
@@ -181,6 +184,7 @@
                     {% else %}
                     v-model="customer.languageId"
                     {% endif %}
+                    name="sw-field--customer-languageId"
                     class="sw-customer-base-info__language-select"
                     entity="language"
                     :criteria="languageCriteria"
@@ -324,6 +328,7 @@
                     {% else %}
                     v-model="customer.birthday"
                     {% endif %}
+                    name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"
                 />

@@ -10,8 +10,7 @@ const { Mixin } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Datepicker wrapper for date inputs. For all configuration options visit:
  * <a href="https://flatpickr.js.org/options/">https://flatpickr.js.org/options/</a>.
  * Be careful when changing the config object. To add a parameter to the config at runtime use:
@@ -112,13 +111,6 @@ export default {
     },
 
     computed: {
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed, use `this.$refs.flatpickrInput` instead.
-         */
-        flatpickrInputRef() {
-            return this.$refs.flatpickrInput;
-        },
-
         locale() {
             return Shopware.State.getters.adminLocaleLanguage || 'en';
         },

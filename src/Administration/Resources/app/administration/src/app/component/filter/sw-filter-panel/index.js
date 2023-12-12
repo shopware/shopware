@@ -4,7 +4,7 @@ import './sw-filter-panel.scss';
 const { Component } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 Component.register('sw-filter-panel', {
     template,

@@ -170,12 +170,8 @@ export default {
             });
         },
 
-        /**
-         * @deprecated tag:v6.6.0 - will emit hypernated event only.
-         */
         checkedElementsCount(count) {
             this.$emit('landing-page-checked-elements-count', count);
-            this.$emit('landingPage-checked-elements-count', count);
         },
 
         deleteCheckedItems(checkedItems) {
@@ -220,7 +216,7 @@ export default {
                 },
             };
 
-            this.landingPageRepository.clone(contextItem.id, Shopware.Context.api, behavior).then((clone) => {
+            this.landingPageRepository.clone(contextItem.id, behavior, Shopware.Context.api).then((clone) => {
                 const criteria = new Criteria(1, 25);
                 criteria.setIds([clone.id]);
                 this.landingPageRepository.search(criteria).then((landingPages) => {

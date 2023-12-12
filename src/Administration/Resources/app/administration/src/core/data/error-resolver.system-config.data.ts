@@ -19,7 +19,7 @@ interface ApiError {
 /**
  * @package system-settings
  *
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default class ErrorResolverSystemConfig {
     public static ENTITY_NAME = 'SYSTEM_CONFIG';

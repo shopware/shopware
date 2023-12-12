@@ -226,9 +226,7 @@
                 {% else %}
                 v-model="item.priceDefinition.price"
                 {% endif %}
-                {% if VUE3 %}
                 name="sw-field--item-priceDefinition-price"
-                {% endif %}
                 placeholder="0"
                 size="small"
                 :min="getMinItemPrice(item.id)"
@@ -276,9 +274,7 @@
                 {% else %}
                 v-model="item.quantity"
                 {% endif %}
-                {% if VUE3 %}
                 name="sw-field--item-quantity"
-                {% endif %}
                 number-type="int"
                 :min="1"
                 size="small"
@@ -316,9 +312,7 @@
                 {% else %}
                 v-model="item.priceDefinition.taxRules[0].taxRate"
                 {% endif %}
-                {% if VUE3 %}
                 name="sw-field--item-priceDefinition-taxRules[0]-taxRate"
-                {% endif %}
                 size="small"
                 placeholder="0"
             />

@@ -936,7 +936,7 @@ export default {
                 cloneChildren: true,
             };
 
-            const { id: clonedBlockID } = await this.blockRepository.clone(block.id, Shopware.Context.api, behavior);
+            const { id: clonedBlockID } = await this.blockRepository.clone(block.id, behavior, Shopware.Context.api);
             const clonedBlock = await this.blockRepository.get(clonedBlockID);
 
             const section = this.page.sections[sectionPosition];
@@ -955,7 +955,7 @@ export default {
                 cloneChildren: true,
             };
 
-            const { id: clonedSectionID } = await this.sectionRepository.clone(section.id, Shopware.Context.api, behavior);
+            const { id: clonedSectionID } = await this.sectionRepository.clone(section.id, behavior, Shopware.Context.api);
             const clonedSection = await this.sectionRepository.get(clonedSectionID);
 
 

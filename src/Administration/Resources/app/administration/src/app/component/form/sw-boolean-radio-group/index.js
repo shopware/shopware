@@ -5,8 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description radio input field for boolean and named entries.
  * @status ready
  * @example-type static

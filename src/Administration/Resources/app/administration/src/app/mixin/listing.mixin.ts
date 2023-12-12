@@ -15,7 +15,7 @@ export {};
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('listing', defineComponent({
     inject: ['searchRankingService', 'feature'],

@@ -9,6 +9,7 @@
         {% else %}
         v-model="id"
         {% endif %}
+        name="sw-field--id"
         entity="product"
         :disabled="disabled"
         :value="initialProduct"
@@ -35,6 +36,7 @@
         {% else %}
         v-model="quantity"
         {% endif %}
+        name="sw-field--quantity"
         :disabled="disabled"
         size="medium"
         :step="1"

@@ -7,8 +7,7 @@ const { Component } = Shopware;
 const { debug } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * Renders a sales channel switcher.
  * @status ready

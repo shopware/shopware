@@ -9,7 +9,7 @@ import { defineComponent } from 'vue';
 export {};
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default Shopware.Mixin.register('remove-api-error', defineComponent({
     created() {

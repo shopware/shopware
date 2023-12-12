@@ -12,7 +12,7 @@ type UpdatedListResponse = {
 
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default function addPluginUpdatesListener(loginService: LoginService, serviceContainer: ServiceContainer): void {
     const localStorageKey = 'lastPluginUpdateCheck';

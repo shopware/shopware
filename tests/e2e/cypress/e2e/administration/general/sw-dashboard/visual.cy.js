@@ -38,6 +38,7 @@ describe('Dashboard:  Visual tests', () => {
             cy.wrap(item).contains(/Orders|Turnover/g);
         });
 
+        cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').scrollIntoView();
         cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');
         //select command again to reload data within the card
         cy.get('.sw-dashboard-statistics__statistics-count #sw-field--selectedRange').select('14Days');

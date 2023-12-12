@@ -7,8 +7,7 @@ const utils = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Modal box component which can be displayed in different variants and sizes
  * @status ready
  * @example-type static
@@ -94,13 +93,6 @@ Component.register('sw-modal', {
             return {
                 [`sw-modal--${this.variant}`]: (this.variant && !this.size),
             };
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - will be removed
-         */
-        identifierClass() {
-            return `sw-modal--${this.id}`;
         },
 
         modalDialogClasses() {

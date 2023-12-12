@@ -9,8 +9,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Component to render a postal address
  * @status ready
  * @example-type static

@@ -75,7 +75,6 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
                         template: '<div><slot></slot></div>',
                     },
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
-                    'sw-field': await wrapTestComponent('sw-field'),
                     'sw-entity-single-select': true,
                     'sw-inheritance-switch': true,
                     'sw-field-error': true,

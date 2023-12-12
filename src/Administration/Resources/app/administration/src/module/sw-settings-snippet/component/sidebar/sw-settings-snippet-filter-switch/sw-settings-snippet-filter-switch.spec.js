@@ -9,7 +9,6 @@ async function createWrapper() {
     }), {
         global: {
             stubs: {
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),

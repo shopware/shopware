@@ -51,6 +51,7 @@
                 {% else %}
                 v-model="selectedRange"
                 {% endif %}
+                name="sw-field--selectedRange"
                 size="small"
                 {% if VUE3 %}
                 @update:value="dispatchRangeUpdate"

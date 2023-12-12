@@ -7,8 +7,7 @@ const { warn } = Shopware.Utils.debug;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description Number field component which supports Int and Float with optional min, max and step.
  * @status ready
  * @example-type dynamic

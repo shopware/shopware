@@ -22,6 +22,7 @@
             {% else %}
             v-model="rule.name"
             {% endif %}
+            name="sw-field--rule-name"
             :label="$tc('sw-rule-modal.labelName')"
             :placeholder="$tc('sw-rule-modal.placeholderName')"
             :error="ruleNameError"
@@ -36,6 +37,7 @@
             {% else %}
             v-model="rule.priority"
             {% endif %}
+            name="sw-field--rule-priority"
             :label="$tc('sw-rule-modal.labelPriority')"
             :placeholder="$tc('sw-rule-modal.placeholderPriority')"
             :error="rulePriorityError"
@@ -53,6 +55,7 @@
         {% else %}
         v-model="rule.description"
         {% endif %}
+        name="sw-field--rule-description"
         :label="$tc('sw-rule-modal.labelDescription')"
         :placeholder="$tc('sw-rule-modal.placeholderDescription')"
     />

@@ -28,7 +28,7 @@ import type { ComponentPublicInstance } from '@vue/runtime-core';
 const { Component, State, Mixin } = Shopware;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default class VueAdapter extends ViewAdapter {
     private resolvedComponentConfigs: Map<string, Promise<ComponentConfig|boolean>>;
@@ -265,7 +265,6 @@ export default class VueAdapter extends ViewAdapter {
             'sw-entity-single-select',
             'sw-error-boundary',
             'sw-extension-component-section',
-            'sw-field',
             'sw-ignore-class',
             'sw-loader',
             'sw-modal',

@@ -5,8 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @description
  * A modal that prompts the user if he wants to leave a detail page with unsaved changes.
  * @status ready

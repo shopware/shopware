@@ -58,7 +58,7 @@ describe('src/core/data/error-resolver.data', () => {
                 },
             ];
 
-            errorResolver.handleWriteErrors({ errors }, changeset);
+            errorResolver.handleWriteErrors(changeset, { errors });
 
             expect(Shopware.State.dispatch).toHaveBeenCalledTimes(3);
             expect(Shopware.State.dispatch).toHaveBeenNthCalledWith(1, 'error/addApiError', {
@@ -94,7 +94,7 @@ describe('src/core/data/error-resolver.data', () => {
             });
 
 
-            errorResolver.handleWriteErrors({ errors }, changeset);
+            errorResolver.handleWriteErrors(changeset, { errors });
 
             expect(errorResolver.reduceErrorsByWriteIndex).toHaveBeenCalledTimes(1);
             expect(Shopware.State.dispatch).toHaveBeenNthCalledWith(1, 'error/addApiError', {

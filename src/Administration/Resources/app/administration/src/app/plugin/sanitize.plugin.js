@@ -8,7 +8,7 @@ const Sanitizer = Shopware.Helper.SanitizerHelper;
 let pluginInstalled = false;
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default {
     install(Vue) {

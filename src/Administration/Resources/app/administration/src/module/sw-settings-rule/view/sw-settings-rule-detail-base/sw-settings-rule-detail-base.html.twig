@@ -19,6 +19,7 @@
                     {% else %}
                     v-model="rule.name"
                     {% endif %}
+                    name="sw-field--rule-name"
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                     :error="ruleNameError"
@@ -35,6 +36,7 @@
                     {% else %}
                     v-model="rule.priority"
                     {% endif %}
+                    name="sw-field--rule-priority"
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                     :error="rulePriorityError"
@@ -52,6 +54,7 @@
                 {% else %}
                 v-model="rule.description"
                 {% endif %}
+                name="sw-field--rule-description"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
                 :disabled="!acl.can('rule.editor')"
@@ -68,6 +71,7 @@
                     {% else %}
                     v-model="moduleTypes"
                     {% endif %}
+                    name="sw-field--moduleTypes"
                     class="sw-settings-rule-detail__type-field"
                     value-property="id"
                     label-property="name"
@@ -94,6 +98,7 @@
                     {% else %}
                     v-model="rule.tags"
                     {% endif %}
+                    name="sw-field--rule-tags"
                     class="sw-settings-rule-detail__tags-field"
                     :label="$tc('global.sw-tag-field.title')"
                     :disabled="!acl.can('rule.editor')"

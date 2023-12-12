@@ -60,5 +60,6 @@ function getByName<MN extends keyof MixinContainer>(mixinName: MN): MixinContain
         throw new Error(`The mixin "${mixinName}" is not registered.`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return mixinRegistry.get(mixinName) as MixinContainer[MN];
 }

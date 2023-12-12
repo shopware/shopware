@@ -7,7 +7,6 @@ import './sw-settings-search-search-index.scss';
 const PRODUCT_INDEXER_INTERVAL = 3000;
 const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
-const { format } = Shopware.Utils;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -54,19 +53,6 @@ export default {
             criteria.addAggregation(Criteria.min('firstDate', 'createdAt'));
             criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
             return criteria;
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - will be removed
-         */
-        latestBuild() {
-            if (!this.latestProductIndexed) {
-                return this.$tc('sw-settings-search.generalTab.textSearchNotIndexedYet');
-            }
-
-            const latestBuildDate = new Date(this.latestProductIndexed.createdAt);
-            const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-            return format.date(latestBuildDate, options);
         },
     },
 

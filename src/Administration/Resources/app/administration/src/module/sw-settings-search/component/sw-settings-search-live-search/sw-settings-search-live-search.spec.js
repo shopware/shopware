@@ -83,7 +83,6 @@ async function createWrapper() {
                 'sw-icon': true,
                 'sw-field-error': true,
                 'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
-                'sw-field': await wrapTestComponent('sw-field'),
                 'sw-text-field': await wrapTestComponent('sw-text-field'),
                 'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

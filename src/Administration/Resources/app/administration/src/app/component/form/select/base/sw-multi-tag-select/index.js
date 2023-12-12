@@ -7,8 +7,7 @@ const { get } = Shopware.Utils;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @public
+ * @private
  * @status ready
  * @description Renders a multi select field for data of any kind. This component uses the sw-field base
  * components. This adds the base properties such as <code>helpText</code>, <code>error</code>, <code>disabled</code> etc.
@@ -99,27 +98,6 @@ Component.register('sw-multi-tag-select', {
     },
 
     methods: {
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        mountedComponent() {
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        beforeDestroyComponent() {
-        },
-
-        /**
-         * @deprecated tag:v6.6.0 - Will be removed
-         */
-        onKeyDown({ key }) {
-            if (key.toUpperCase() === 'ENTER') {
-                this.addItem();
-            }
-        },
-
         onSelectionListKeyDownEnter() {
             this.addItem();
         },

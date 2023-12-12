@@ -815,9 +815,9 @@
         {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
         <sw-multi-tag-ip-select
             {% if VUE3 %}
-            v-model:value="maintenanceIpWhitelist"
+            v-model:value="maintenanceIpAllowlist"
             {% else %}
-            v-model="maintenanceIpWhitelist"
+            v-model="maintenanceIpAllowlist"
             {% endif %}
             :is-loading="isLoading"
             :disabled="!acl.can('sales_channel.editor')"

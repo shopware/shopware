@@ -1,7 +1,7 @@
 import { getTimeZones } from '@vvo/tzdb';
 
 /**
- * @deprecated tag:v6.6.0 - Will be private
+ * @private
  */
 export default class TimezoneService {
     /**

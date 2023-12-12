@@ -25,7 +25,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                     'sw-container': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-field': await wrapTestComponent('sw-field'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-switch-field': await wrapTestComponent('sw-switch-field'),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),

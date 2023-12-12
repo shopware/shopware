@@ -9,6 +9,7 @@
         {% else %}
         v-model="isNumeric"
         {% endif %}
+        name="sw-field--isNumeric"
         :disabled="disabled"
         class="sw-condition-zipcode-type-select"
         size="medium"
@@ -39,6 +40,7 @@
         {% else %}
         v-model="zipCodes"
         {% endif %}
+        name="sw-field--zipCodes"
         size="medium"
         :placeholder="taggedFieldPlaceholder"
         :disabled="disabled"
@@ -50,6 +52,7 @@
         {% else %}
         v-model="zipCodes"
         {% endif %}
+        name="sw-field--zipCodes"
         size="medium"
         :disabled="disabled"
         :min="0"

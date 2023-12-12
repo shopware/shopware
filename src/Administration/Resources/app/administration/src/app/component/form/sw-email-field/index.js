@@ -5,8 +5,7 @@ const { Component } = Shopware;
 /**
  * @package admin
  *
- * @deprecated tag:v6.6.0 - Will be private
- * @protected
+ * @private
  * @description Simple email field.
  * @status ready
  * @example-type dynamic

@@ -6,17 +6,20 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
+use Shopware\Core\Content\Product\Decoration\ResolveListingLoaderIds;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Decoration\Decorator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -38,7 +41,8 @@ class ProductListingLoader
         private readonly SystemConfigService $systemConfigService,
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $dispatcher,
-        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly Decorator $decorator
     ) {
     }
 
@@ -249,14 +253,19 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        $this->addGrouping($criteria);
+        return $this->decorator->decorate(
+            decoration: new ResolveListingLoaderIds($criteria, $context),
+            function: function(ResolveListingLoaderIds $event): IdSearchResult {
+                $this->addGrouping($event->criteria);
 
-        $this->handleAvailableStock($criteria, $context);
+                $this->handleAvailableStock($event->criteria, $event->context);
 
-        return $this->productRepository->searchIds($criteria, $context);
+                return $this->productRepository->searchIds($event->criteria, $event->context);
+            }
+        );
     }
 
-    private function resolveAggregations(Criteria $criteria, SalesChannelContext $context): \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection
+    private function resolveAggregations(Criteria $criteria, SalesChannelContext $context): AggregationResultCollection
     {
         return $this->productRepository->aggregate($criteria, $context);
     }

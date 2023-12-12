@@ -40,8 +40,8 @@ export const PropertiesData = base.extend<FixtureTypes>({
             },
         });
 
-        expect(propertyGroupColorResponse.ok()).toBeTruthy();
-        expect(propertyGroupSizeResponse.ok()).toBeTruthy();
+        await expect(propertyGroupColorResponse.ok()).toBeTruthy();
+        await expect(propertyGroupSizeResponse.ok()).toBeTruthy();
 
         const { data: propertyGroupColor } = await propertyGroupColorResponse.json();
         const { data: propertyGroupSize } = await propertyGroupSizeResponse.json();
@@ -54,7 +54,7 @@ export const PropertiesData = base.extend<FixtureTypes>({
         const deleteGroupColor = await adminApiContext.delete(`property-group/${propertyGroupColor.id}`);
         const deleteGroupSize = await adminApiContext.delete(`property-group/${propertyGroupSize.id}`);
 
-        expect(deleteGroupColor.ok()).toBeTruthy();
-        expect(deleteGroupSize.ok()).toBeTruthy();
+        await expect(deleteGroupColor.ok()).toBeTruthy();
+        await expect(deleteGroupSize.ok()).toBeTruthy();
     },
 });

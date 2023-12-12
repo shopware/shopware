@@ -30,9 +30,8 @@ export const ProductData = base.extend<FixtureTypes>({
             },
         });
 
-        expect(productResponse.ok()).toBeTruthy();
+        await expect(productResponse.ok()).toBeTruthy();
 
-        // Allow access to new product in test
         const { data: product } = (await productResponse.json()) as { data: components['schemas']['Product'] };
 
         // Assign product to sales channel
@@ -62,13 +61,13 @@ export const ProductData = base.extend<FixtureTypes>({
             },
         });
 
-        expect(syncResp.ok()).toBeTruthy();
+        await expect(syncResp.ok()).toBeTruthy();
 
         // Use product data in the test
         await use(product);
 
         // Delete product after the test is done
         const cleanupResponse = await adminApiContext.delete(`./product/${productUuid}`);
-        expect(cleanupResponse.ok()).toBeTruthy();
+        await expect(cleanupResponse.ok()).toBeTruthy();
     },
 });

@@ -155,14 +155,14 @@ export const test = base.extend<NonNullable<unknown>, WorkerFixtures>({
                 for (const order of orders.data) {
                     // delete orders
                     const deleteOrderResp = await adminApiContext.delete(`./order/${order.id}`);
-                    expect(deleteOrderResp.ok()).toBeTruthy();
+                    await expect(deleteOrderResp.ok()).toBeTruthy();
                 }
             }
 
             // fetch all versions
             // delete orders for each version
             const versionsResp = await adminApiContext.post(`./search/version`);
-            expect(versionsResp.ok()).toBeTruthy();
+            await expect(versionsResp.ok()).toBeTruthy();
             const versions = (await versionsResp.json()) as { data: { id: string }[] };
             const versionIds = versions.data.map((v) => v.id);
 
@@ -190,7 +190,7 @@ export const test = base.extend<NonNullable<unknown>, WorkerFixtures>({
                         const deleteOrderResp = await adminApiContext.post(
                             `./_action/version/${versionId}/order/${order.id}`
                         );
-                        expect(deleteOrderResp.ok()).toBeTruthy();
+                        await expect(deleteOrderResp.ok()).toBeTruthy();
                     }
                 }
             }
@@ -261,7 +261,7 @@ export const test = base.extend<NonNullable<unknown>, WorkerFixtures>({
                     },
                 },
             });
-            expect(syncResp.ok()).toBeTruthy();
+            await expect(syncResp.ok()).toBeTruthy();
 
             const salesChannelPromise = adminApiContext.get(`./sales-channel/${uuid}`);
 
@@ -338,9 +338,9 @@ export const test = base.extend<NonNullable<unknown>, WorkerFixtures>({
                 salesChannelPromise,
             ]);
 
-            expect(customerResp.ok()).toBeTruthy();
-            expect(themeAssignResp.ok()).toBeTruthy();
-            expect(salesChannelResp.ok()).toBeTruthy();
+            await expect(customerResp.ok()).toBeTruthy();
+            await expect(themeAssignResp.ok()).toBeTruthy();
+            await expect(salesChannelResp.ok()).toBeTruthy();
 
             const customer = (await customerResp.json()) as { data: components['schemas']['Customer'] };
             const salesChannel = (await salesChannelResp.json()) as { data: components['schemas']['SalesChannel'] };

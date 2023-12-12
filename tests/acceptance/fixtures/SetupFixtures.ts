@@ -34,7 +34,7 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
             data: adminUser,
         });
 
-        expect(response.ok()).toBeTruthy();
+        await expect(response.ok()).toBeTruthy();
 
         await page.goto('#/login');
 
@@ -68,7 +68,7 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
 
         // Cleanup created user
         const cleanupResponse = await adminApiContext.delete(`./user/${uuid}`);
-        expect(cleanupResponse.ok()).toBeTruthy();
+        await expect(cleanupResponse.ok()).toBeTruthy();
     },
 
     storefrontPage: async ({ defaultStorefront, browser }, use) => {

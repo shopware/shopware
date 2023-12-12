@@ -12,7 +12,7 @@ export const CartWithProductData = base.extend({
                 name: `default-customer-cart`,
             },
         });
-        expect(cartResponse.ok()).toBeTruthy();
+        await expect(cartResponse.ok()).toBeTruthy();
 
         // Create new line items in the cart.
         const lineItemResponse = await storeApiContext.post('checkout/cart/line-item', {
@@ -26,7 +26,7 @@ export const CartWithProductData = base.extend({
                 ],
             },
         });
-        expect(lineItemResponse.ok()).toBeTruthy();
+        await expect(lineItemResponse.ok()).toBeTruthy();
 
         const cartData = await lineItemResponse.json();
 

@@ -40,11 +40,11 @@ test('Registered shop customer should be able to use promotion code during check
         const orderId = checkoutFinishPage.getOrderId();
         const orderResponse = await adminApiContext.get(`order/${orderId}`);
 
-        expect(orderResponse.ok()).toBeTruthy();
+        await expect(orderResponse.ok()).toBeTruthy();
 
         const order = await orderResponse.json();
 
-        expect(order.data).toEqual(
+        await expect(order.data).toEqual(
             expect.objectContaining({
                 price: expect.objectContaining({
                     totalPrice: 90,

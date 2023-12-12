@@ -42,7 +42,7 @@ export const PromotionWithCodeData = base.extend<FixtureTypes>({
             },
         });
 
-        expect(promotionResponse.ok()).toBeTruthy();
+        await expect(promotionResponse.ok()).toBeTruthy();
 
         const { data: promotion } = (await promotionResponse.json()) as { data: components['schemas']['Promotion'] };
 
@@ -51,6 +51,6 @@ export const PromotionWithCodeData = base.extend<FixtureTypes>({
 
         // Delete promotion after test is done
         const cleanupResponse = await adminApiContext.delete(`promotion/${promotion.id}`);
-        expect(cleanupResponse.ok()).toBeTruthy();
+        await expect(cleanupResponse.ok()).toBeTruthy();
     },
 });

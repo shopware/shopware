@@ -21,7 +21,8 @@ export const getLanguageData = async (
 
     const result = (await resp.json()) as { data: { id: string; translationCode: { id: string } }[]; total: number };
 
-    expect(result.total).toBe(1);
+    await expect(result.total).toBe(1);
+
     return {
         id: result.data[0].id,
         localeId: result.data[0].translationCode.id,
@@ -43,7 +44,8 @@ export const getSnippetSetId = async (languageCode: string, adminApiContext: Adm
     });
 
     const result = (await resp.json()) as { data: { id: string }[]; total: number };
-    expect(result.total).toBe(1);
+    await expect(result.total).toBe(1);
+
     return result.data[0].id;
 };
 
@@ -62,7 +64,7 @@ export const getCurrencyId = async (adminApiContext: AdminApiContext): Promise<s
     });
 
     const result = (await resp.json()) as { data: { id: string }[]; total: number };
-    expect(result.total).toBe(1);
+    await expect(result.total).toBe(1);
 
     return result.data[0].id;
 };
@@ -75,7 +77,7 @@ export const getTaxId = async (adminApiContext: AdminApiContext): Promise<string
     });
 
     const result = (await resp.json()) as { data: { id: string }[]; total: number };
-    expect(result.total).toBe(1);
+    await expect(result.total).toBe(1);
 
     return result.data[0].id;
 };
@@ -95,8 +97,8 @@ export const getPaymentMethodId = async (handlerId: string, adminApiContext: Adm
     });
 
     const result = (await resp.json()) as { data: { id: string; active: boolean }[]; total: number };
-    expect(result.total).toBe(1);
-    expect(result.data[0].active).toBe(true);
+    await expect(result.total).toBe(1);
+    await expect(result.data[0].active).toBe(true);
 
     return result.data[0].id;
 };
@@ -116,8 +118,8 @@ export const getDefaultShippingMethod = async (adminApiContext: AdminApiContext)
     });
 
     const result = (await resp.json()) as { data: { id: string; active: boolean }[]; total: number };
-    expect(result.total).toBe(1);
-    expect(result.data[0].active).toBe(true);
+    await expect(result.total).toBe(1);
+    await expect(result.data[0].active).toBe(true);
 
     return result.data[0].id;
 };
@@ -137,7 +139,7 @@ export const getCountryId = async (iso2: string, adminApiContext: AdminApiContex
     });
 
     const result = (await resp.json()) as { data: { id: string }[]; total: number };
-    expect(result.total).toBe(1);
+    await expect(result.total).toBe(1);
 
     return result.data[0].id;
 };
@@ -157,7 +159,7 @@ export const getThemeId = async (technicalName: string, adminApiContext: AdminAp
     });
 
     const result = (await resp.json()) as { data: { id: string }[]; total: number };
-    expect(result.total).toBe(1);
+    await expect(result.total).toBe(1);
 
     return result.data[0].id;
 };

@@ -5576,16 +5576,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/OneToOneAssociationFieldTest.php
 
 		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getRemoteAddress\\(\\)\\.$#"
-			count: 5
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/RemoteAddressFieldTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Field/RemoteAddressFieldTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Field\\\\StringFieldTest\\:\\:getEntityExisting\\(\\) is unused\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/DataAbstractionLayer/Field/StringFieldTest.php

@@ -163,7 +163,7 @@ class CustomerExceptionTest extends TestCase
         yield CustomerException::CUSTOMER_NOT_FOUND_BY_ID => [
             'callback' => [CustomerException::class, 'customerNotFoundByIdException'],
             'args' => ['id-1'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
+            'statusCode' => Response::HTTP_UNAUTHORIZED,
             'errorCode' => CustomerException::CUSTOMER_NOT_FOUND_BY_ID,
             'message' => 'No matching customer for the id "id-1" was found.',
         ];
@@ -171,7 +171,7 @@ class CustomerExceptionTest extends TestCase
         yield CustomerException::CUSTOMER_NOT_FOUND => [
             'callback' => [CustomerException::class, 'customerNotFound'],
             'args' => ['abc@com'],
-            'statusCode' => Response::HTTP_NOT_FOUND,
+            'statusCode' => Response::HTTP_UNAUTHORIZED,
             'errorCode' => CustomerException::CUSTOMER_NOT_FOUND,
             'message' => 'No matching customer for the email "abc@com" was found.',
         ];
@@ -254,14 +254,6 @@ class CustomerExceptionTest extends TestCase
             'statusCode' => Response::HTTP_FORBIDDEN,
             'errorCode' => CustomerException::CUSTOMER_GUEST_AUTH_INVALID,
             'message' => 'Guest account is not allowed to login',
-        ];
-
-        yield CustomerException::CUSTOMER_IS_INACTIVE => [
-            'callback' => [CustomerException::class, 'inactiveCustomer'],
-            'args' => ['id-1'],
-            'statusCode' => Response::HTTP_UNAUTHORIZED,
-            'errorCode' => CustomerException::CUSTOMER_OPTIN_NOT_COMPLETED,
-            'message' => 'The customer with the id "id-1" has not completed the opt-in.',
         ];
 
         yield CustomerException::COUNTRY_NOT_FOUND => [

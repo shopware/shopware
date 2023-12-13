@@ -80,7 +80,7 @@ class AccountServiceEventTest extends TestCase
 
         try {
             $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-            $this->accountService->login('', $this->salesChannelContext);
+            $this->accountService->loginByCredentials('', 'shopware', $this->salesChannelContext);
         } catch (BadCredentialsException) {
             // nth
         }
@@ -125,7 +125,7 @@ class AccountServiceEventTest extends TestCase
 
             $eventDidRun = false;
 
-            $this->accountService->login('info@example.com', $this->salesChannelContext);
+            $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
             /** @phpstan-ignore-next-line - $eventDidRun updated value on listener */
             static::assertTrue($eventDidRun, 'Event "' . $eventClass . '" did not run');
 

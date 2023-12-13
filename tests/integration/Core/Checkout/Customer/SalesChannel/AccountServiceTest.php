@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,6 +36,8 @@ class AccountServiceTest extends TestCase
 
     public function testLogin(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $salesChannelContext = $this->createSalesChannelContext();
         $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
         $token = $this->accountService->login('foo@bar.com', $salesChannelContext);
@@ -50,6 +53,18 @@ class AccountServiceTest extends TestCase
         $salesChannelContext = $this->createSalesChannelContext();
         $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
         $token = $this->accountService->loginById($customerId, $salesChannelContext);
+
+        $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
+
+        static::assertSame('foo@bar.com', $customer->getEmail());
+        static::assertSame($customerId, $customer->getId());
+    }
+
+    public function testLoginByCredentials(): void
+    {
+        $salesChannelContext = $this->createSalesChannelContext();
+        $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
+        $token = $this->accountService->loginByCredentials('foo@bar.com', 'shopware', $salesChannelContext);
 
         $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
 

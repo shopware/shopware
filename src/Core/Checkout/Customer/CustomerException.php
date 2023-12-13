@@ -24,6 +24,11 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('checkout')]
 class CustomerException extends HttpException
 {
+    /**
+     * @deprecated tag:v6.7.0 - Constant CUSTOMER_IS_INACTIVE will be removed as it is unused
+     */
+    public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
+
     public const CUSTOMERS_NOT_FOUND = 'CHECKOUT__CUSTOMERS_NOT_FOUND';
     public const CUSTOMER_NOT_FOUND = 'CHECKOUT__CUSTOMER_NOT_FOUND';
     public const CUSTOMER_GROUP_NOT_FOUND = 'CHECKOUT__CUSTOMER_GROUP_NOT_FOUND';
@@ -45,7 +50,6 @@ class CustomerException extends HttpException
     public const WISHLIST_NOT_FOUND = 'CHECKOUT__WISHLIST_NOT_FOUND';
     public const COUNTRY_NOT_FOUND = 'CHECKOUT__CUSTOMER_COUNTRY_NOT_FOUND';
     public const DUPLICATE_WISHLIST_PRODUCT = 'CHECKOUT__DUPLICATE_WISHLIST_PRODUCT';
-    public const CUSTOMER_IS_INACTIVE = 'CHECKOUT__CUSTOMER_IS_INACTIVE';
     public const LEGACY_PASSWORD_ENCODER_NOT_FOUND = 'CHECKOUT__LEGACY_PASSWORD_ENCODER_NOT_FOUND';
     public const NO_HASH_PROVIDED = 'CHECKOUT__NO_HASH_PROVIDED';
     public const WISHLIST_PRODUCT_NOT_FOUND = 'CHECKOUT__WISHLIST_PRODUCT_NOT_FOUND';
@@ -252,8 +256,13 @@ class CustomerException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed as it is unused
+     */
     public static function inactiveCustomer(string $id): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Method "CustomerException::inactiveCustomer" will be removed as it is unused.');
+
         return self::customerOptinNotCompleted($id);
     }
 

@@ -77,7 +77,7 @@ class CustomerValueResolverTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
 
-        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->loginCustomer(false));
+        $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->loginCustomer());
 
         if ($loginRequired) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED, $loginRequired);
@@ -129,13 +129,13 @@ class CustomerValueResolverTest extends TestCase
         ];
     }
 
-    private function loginCustomer(bool $isGuest): string
+    private function loginCustomer(): string
     {
         $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer($email, $isGuest);
+        $this->createCustomer($email);
 
         try {
-            return $this->accountService->login($email, $this->salesChannelContext, $isGuest);
+            return $this->accountService->loginByCredentials($email, 'shopware', $this->salesChannelContext);
         } catch (BadCredentialsException) {
             // nth
         }

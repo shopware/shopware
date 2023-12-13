@@ -175,9 +175,6 @@ const coreConfig = {
             },
             {
                 test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-                include: [
-                    path.resolve(__dirname, 'vendor/Inter-3.5/font'),
-                ],
                 use: [
                     {
                         loader: 'file-loader',
@@ -191,9 +188,6 @@ const coreConfig = {
             },
             {
                 test: /\.(jp(e)g|png|gif|svg)(\?v=\d+\.\d+\.\d+)?$/,
-                exclude: [
-                    path.resolve(__dirname, 'vendor/Inter-3.5/font'),
-                ],
                 use: [
                     {
                         loader: 'file-loader',

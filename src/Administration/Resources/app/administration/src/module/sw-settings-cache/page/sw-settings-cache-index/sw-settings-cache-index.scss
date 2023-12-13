@@ -5,6 +5,12 @@
         padding-top: 0;
     }
 
+    .sw-settings-cache__card-indexes {
+        .sw-container + .sw-container {
+            margin-top: 30px;
+        }
+    }
+
     &__indexers-entry {
         padding: 4px 8px;
         border-radius: $border-radius-default;
@@ -61,12 +67,18 @@
 
 .sw-settings-cache__indexers-select {
     &.sw-field {
-        margin: 8px 0 0;
+        margin: 0;
     }
 
     &.sw-select {
         .sw-select__selection {
             padding-top: 8px;
         }
+    }
+}
+
+.sw-settings-cache__skip-indexers-select {
+    &.sw-field {
+        margin-bottom: 0;
     }
 }

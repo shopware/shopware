@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -107,17 +107,44 @@ class CacheControllerTest extends TestCase
 
         $messages = $bus->getDispatchedMessages();
 
-        $hasSalesChannelIndexerMessage = false;
-        $hasCategoryIndexerMessage = false;
-        foreach ($messages as $message) {
-            if (isset($message['message']) && $message['message'] instanceof IterateEntityIndexerMessage) {
-                $hasSalesChannelIndexerMessage = $hasSalesChannelIndexerMessage ?: $message['message']->getIndexer() === 'sales_channel.indexer';
-                $hasCategoryIndexerMessage = $hasCategoryIndexerMessage ?: $message['message']->getIndexer() === 'category.indexer';
-            }
-        }
+        static::assertCount(1, $messages, 'Expected exactly one dispatched message');
 
-        static::assertTrue($hasSalesChannelIndexerMessage);
-        static::assertFalse($hasCategoryIndexerMessage);
+        $message = $messages[0]['message'];
+        static::assertInstanceOf(FullEntityIndexerMessage::class, $message);
+
+        static::assertContains('category.indexer', $message->getSkip());
+    }
+
+    public function testCacheIndexEndpointWithOnlyParameter(): void
+    {
+        /** @var TraceableMessageBus $bus */
+        $bus = $this->getContainer()->get('messenger.bus.shopware');
+        $bus->reset();
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/index',
+            [],
+            [],
+            [
+                'HTTP_CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode(['only' => ['category.indexer']], \JSON_THROW_ON_ERROR)
+        );
+
+        /** @var JsonResponse $response */
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $messages = $bus->getDispatchedMessages();
+
+        static::assertCount(1, $messages, 'Expected exactly one dispatched message');
+
+        $message = $messages[0]['message'];
+        static::assertInstanceOf(FullEntityIndexerMessage::class, $message);
+
+        static::assertContains('category.indexer', $message->getOnly());
     }
 
     public function testCacheIndexEndpointNoPermissions(): void

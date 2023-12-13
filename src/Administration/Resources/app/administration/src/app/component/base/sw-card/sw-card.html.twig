@@ -88,7 +88,8 @@
             {% block sw_card_content %}
             <div
                 class="sw-card__content"
-                :class="{'no--padding': !contentPadding}">
+                :class="{'no--padding': !contentPadding}"
+            >
                 <div
                     v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
                     class="sw-card__context-menu"

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
@@ -44,8 +45,14 @@ class EntityIndexerRegistry
     /**
      * @internal
      */
-    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage $message): void
+    public function __invoke(EntityIndexingMessage|IterateEntityIndexerMessage|FullEntityIndexerMessage $message): void
     {
+        if ($message instanceof FullEntityIndexerMessage) {
+            $this->index(true, $message->getSkip(), $message->getOnly());
+
+            return;
+        }
+
         if ($message instanceof EntityIndexingMessage) {
             $indexer = $this->getIndexer($message->getIndexer());
 
@@ -187,6 +194,15 @@ class EntityIndexerRegistry
 
             $this->messageBus->dispatch(new IterateEntityIndexerMessage($name, null, $skip));
         }
+    }
+
+    /**
+     * @param list<string> $skip
+     * @param list<string> $only
+     */
+    public function sendFullIndexingMessage(array $skip = [], array $only = []): void
+    {
+        $this->messageBus->dispatch(new FullEntityIndexerMessage($skip, $only));
     }
 
     public function has(string $name): bool

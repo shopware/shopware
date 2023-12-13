@@ -19,7 +19,13 @@
       "indexesHeadline": "Indexes",
       "indexesText": "All indexes are updated asynchronously. Keep track of the progress by monitoring the notifications.",
       "indexesButton": "Update indexes",
-      "indexesSkipSelectPlaceholder": "Skip indexers and/or updaters"
+      "indexingModeLabel": "Method",
+      "indexingModeOptionSkipLabel": "Update all, but skip selected",
+      "indexingModeOptionOnlyLabel": "Only update selected",
+      "indexesSkipSelectLabel": "Indexers and/or updaters to skip",
+      "indexesOnlySelectLabel": "Indexers and/or updaters",
+      "indexesSkipSelectPlaceholder": "Select indexers and/or updaters to skip",
+      "indexesOnlySelectPlaceholder": "Select indexers and/or updaters"
     },
     "notifications": {
       "clearCache": {

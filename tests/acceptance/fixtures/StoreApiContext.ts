@@ -52,16 +52,16 @@ export class StoreApiContext {
             },
         });
 
-        const responseData = await loginResponse.json();
+        const responseHeaders = loginResponse.headers();
 
-        if (!responseData.contextToken) {
-            throw new Error(`Failed to login with user ${storeUser.email} | ${JSON.stringify(responseData)}`);
+        if (!responseHeaders['sw-context-token']) {
+            throw new Error(`Failed to login with user ${storeUser.email} | ${JSON.stringify(loginResponse)}`);
         }
 
-        this.options['sw-context-token'] = responseData.contextToken;
+        this.options['sw-context-token'] = responseHeaders['sw-context-token'];
         this.context = await StoreApiContext.createContext(this.options);
 
-        return responseData;
+        return responseHeaders;
     }
 
     async delete<PAYLOAD>(url: string, options?: PAYLOAD): Promise<APIResponse> {

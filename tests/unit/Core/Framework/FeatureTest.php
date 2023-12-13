@@ -160,9 +160,7 @@ class FeatureTest extends TestCase
         restore_error_handler();
     }
 
-    /**
-     * @dataProvider deprecatedMethodMessageProvider
-     */
+    #[DataProvider('deprecatedMethodMessageProvider')]
     public function testDeprecatedMethodMessage(string $expectedMessage, string $className, string $methodName): void
     {
         $message = Feature::deprecatedMethodMessage($className, $methodName, 'v6.7.0.0');

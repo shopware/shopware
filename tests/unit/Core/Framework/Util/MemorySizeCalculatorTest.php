@@ -77,9 +77,7 @@ class MemorySizeCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider maxUploadSizeProvider
-     */
+    #[DataProvider('maxUploadSizeProvider')]
     public function testGetMaxUploadSize(
         string $uploadMaxFilesize,
         string $postMaxSize,

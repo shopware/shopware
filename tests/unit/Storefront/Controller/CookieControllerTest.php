@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
@@ -14,9 +15,8 @@ use Shopware\Storefront\Framework\Cookie\CookieProvider;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\CookieController
  */
+#[CoversClass(CookieController::class)]
 class CookieControllerTest extends TestCase
 {
     public function testResponseDoesNotIncludeGoogleAnalyticsCookieByDefault(): void

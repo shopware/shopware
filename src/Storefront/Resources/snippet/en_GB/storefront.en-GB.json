@@ -640,7 +640,7 @@
   "cookie": {
     "message": "This website uses cookies to ensure the best experience possible. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
     "messageText": "This website uses cookies to ensure the best experience possible. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
-    "deny": "Deny",
+    "deny": "Only technically required",
     "configure": "Configure",
     "configuration": "Settings",
     "save": "Save",

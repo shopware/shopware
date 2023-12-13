@@ -109,4 +109,8 @@ export class AdminApiContext {
     async head<PAYLOAD>(url: string, options?: Options<PAYLOAD>): Promise<APIResponse> {
         return this.context.head(url, options);
     }
+
+    async patch<PAYLOAD>(url: string, options?: Options<PAYLOAD>): Promise<APIResponse> {
+        return this.context.patch(url, options);
+    }
 }

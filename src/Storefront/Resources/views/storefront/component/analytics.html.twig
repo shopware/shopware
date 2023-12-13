@@ -1,7 +1,7 @@
 {% block component_head_analytics %}
     {% block component_head_analytics_gtag %}
-        {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() %}
-            {% set trackingId = context.salesChannel.analytics.getTrackingId() %}
+        {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+            {% set trackingId = storefrontAnalytics.getTrackingId() %}
 
             <script>
                 {% block component_head_analytics_gtag_config %}
@@ -9,11 +9,11 @@
                     window.gtagURL = 'https://www.googletagmanager.com/gtag/js?id={{ trackingId }}';
                     window.controllerName = '{{ controllerName|lower }}';
                     window.actionName = '{{ controllerAction|lower }}';
-                    window.trackOrders = '{{ context.salesChannel.analytics.isTrackOrders() }}';
+                    window.trackOrders = '{{ storefrontAnalytics.isTrackOrders() }}';
                     window.gtagTrackingId = '{{ trackingId }}';
                     window.dataLayer = window.dataLayer || [];
                     window.gtagConfig = {
-                        'anonymize_ip': '{{ context.salesChannel.analytics.isAnonymizeIp() }}',
+                        'anonymize_ip': '{{ storefrontAnalytics.isAnonymizeIp() }}',
                         'cookie_domain': 'none',
                         'cookie_prefix': '_swag_ga',
                     };

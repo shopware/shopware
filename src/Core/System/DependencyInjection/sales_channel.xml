@@ -195,6 +195,12 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelAnalyticsLoader">
+            <argument type="service" id="sales_channel_analytics.repository"/>
+
+            <tag name="kernel.event_listener" event="Shopware\Storefront\Event\StorefrontRenderEvent" method="loadAnalytics" priority="2000" />
+        </service>
+
         <service id="Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.reset" method="reset"/>

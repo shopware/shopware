@@ -136,6 +136,7 @@
         <service id="Shopware\Storefront\Controller\CookieController">
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="sales_channel_analytics.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

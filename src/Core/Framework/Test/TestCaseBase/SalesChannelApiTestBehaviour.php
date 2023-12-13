@@ -181,7 +181,7 @@ trait SalesChannelApiTestBehaviour
             $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
         }
 
-        $salesChannel = array_merge([
+        $salesChannel = array_replace_recursive([
             'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'API Test case sales channel',
@@ -225,7 +225,7 @@ trait SalesChannelApiTestBehaviour
             $email = Uuid::randomHex() . '@example.com';
         }
 
-        $customer = array_merge([
+        $customer = array_replace_recursive([
             'id' => $customerId,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [

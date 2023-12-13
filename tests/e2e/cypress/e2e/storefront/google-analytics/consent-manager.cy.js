@@ -1,5 +1,5 @@
 describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () => {
-    it.skip('@cookies: There is a new analytics cookie in the manager if it is activated for the saleschannel', { tags: ['ct-storefront'] }, () => {
+    it('@cookies: There is a new analytics cookie in the manager if it is activated for the saleschannel', { tags: ['ct-storefront'] }, () => {
         cy.setAnalyticsFixtureToSalesChannel(true);
 
         cy.visit('/');
@@ -25,7 +25,7 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
         cy.get('.offcanvas-cookie-group').should('not.contain', 'Statistic');
     });
 
-    it.skip('@cookies: Google Analytics cookies will be set and removed again', { tags: ['ct-storefront'] }, () => {
+    it('@cookies: Google Analytics cookies will be set and removed again', { tags: ['ct-storefront'] }, () => {
         cy.setAnalyticsFixtureToSalesChannel(true);
 
         cy.intercept({

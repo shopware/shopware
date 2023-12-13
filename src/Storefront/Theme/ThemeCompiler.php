@@ -221,9 +221,10 @@ class ThemeCompiler implements ThemeCompilerInterface
     private function getScriptDistFiles(string $path): ?Finder
     {
         try {
-            $finder = (new Finder())->files()->in($path)->exclude('js');
+            $finder = (new Finder())->files()->in($this->projectDir . \DIRECTORY_SEPARATOR . $path)->exclude('js');
         } catch (DirectoryNotFoundException $e) {
             $this->logger->error($e->getMessage());
+            throw $e;
         }
 
         return $finder ?? null;

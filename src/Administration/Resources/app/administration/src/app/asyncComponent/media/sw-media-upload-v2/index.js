@@ -1,11 +1,9 @@
 import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
-import fileValidationService from '../../../service/file-validation.service';
 
 const { Mixin, Context } = Shopware;
 const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
-const { checkByExtension, checkByType } = fileValidationService();
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
 
@@ -32,6 +30,7 @@ export default {
         'mediaService',
         'configService',
         'feature',
+        'fileValidationService',
     ],
 
     mixins: [
@@ -500,11 +499,11 @@ export default {
         checkFileType(file) {
             const isValidFile = () => {
                 if (this.extensionAccept) {
-                    return checkByExtension(file, this.extensionAccept);
+                    return this.fileValidationService.checkByExtension(file, this.extensionAccept);
                 }
 
                 if (this.fileAccept) {
-                    return checkByType(file, this.fileAccept);
+                    return this.fileValidationService.checkByType(file, this.fileAccept);
                 }
 
                 return false;

@@ -192,6 +192,7 @@
                         @media-upload-finish="successfulUpload"
                     />
                     <sw-media-compact-upload-v2
+                        v-if="productDownloadFolderId"
                         :button-label="$tc('sw-product.variations.configuratorModal.uploadAllButton')"
                         :remove-button-label="$tc('sw-product.variations.configuratorModal.removeAllButton')"
                         upload-tag="upload_all"
@@ -199,7 +200,7 @@
                         :source-multiselect="downloadFilesForAllVariants.length > 0 ? downloadFilesForAllVariants : null"
                         allow-multi-select
                         add-files-on-multiselect
-                        default-folder="product_download"
+                        :target-folder-id="productDownloadFolderId"
                         file-accept="*/*"
                         @delete-item="(file) => removeFileForAllVariants(file)"
                     />
@@ -265,13 +266,14 @@
                             @media-upload-finish="(event) => successfulUpload(event, item)"
                         />
                         <sw-media-compact-upload-v2
+                            v-if="productDownloadFolderId"
                             :upload-tag="item.productNumber"
                             :disabled="item.productStates.length === 0"
                             private-filesystem
                             allow-multi-select
                             add-files-on-multiselect
                             :source-multiselect="item.downloads.length > 0 ? item.downloads : null"
-                            default-folder="product_download"
+                            :target-folder-id="productDownloadFolderId"
                             file-accept="*/*"
                             @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
                         />

@@ -29,21 +29,24 @@ return static function (array &$context) {
     $env = $input->getParameterOption(['--env', '-e'], $context['APP_ENV'] ?? 'prod', true);
     $debug = ($context['APP_DEBUG'] ?? ($env !== 'prod')) && !$input->hasParameterOption('--no-debug', true);
 
-    $pluginLoader = new ComposerPluginLoader($classLoader, null);
-
     if ($input->getFirstArgument() === 'system:install') {
         $context['INSTALL'] = true;
     }
 
     $_SERVER['DATABASE_URL'] = 'mysql://_placeholder.test';
 
-    $kernel = KernelFactory::create($env, $debug, $classLoader, $pluginLoader);
+    $kernel = KernelFactory::create(
+        environment: $env,
+        debug: $debug,
+        classLoader: $classLoader,
+        pluginLoader: new ComposerPluginLoader($classLoader, null),
+    );
 
-    $application = new Application($kernel->getKernel());
-    $kernel->getKernel()->boot();
+    $application = new Application($kernel);
+    $kernel->boot();
 
     $application->setName('Shopware');
-    $application->setVersion($kernel->getKernel()->getContainer()->getParameter('kernel.shopware_version'));
+    $application->setVersion($kernel->getContainer()->getParameter('kernel.shopware_version'));
 
     return $application;
 };

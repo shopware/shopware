@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get Composer Cache Directory
         id: composer-cache
@@ -111,14 +111,14 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v3
         with:
           node-version: 18
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: node-cache
         with:
           path: src/Administration/Resources/app/administration/node_modules
@@ -155,14 +155,14 @@ jobs:
 
     steps:
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - uses: actions/setup-node@v3
         with:
           node-version: 18
 
       - name: Retrieve the cached "node_modules" directory (if present)
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: node-cache
         with:
           path: src/Storefront/Resources/app/storefront/node_modules

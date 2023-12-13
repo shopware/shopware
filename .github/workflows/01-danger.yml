@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Danger
         uses: docker://ghcr.io/shyim/danger-php:latest

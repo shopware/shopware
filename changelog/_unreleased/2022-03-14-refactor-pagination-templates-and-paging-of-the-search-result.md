@@ -1,6 +1,6 @@
 ---
 title: Refactor pagination templates and paging of the search result
-issue: NEXT-00000
+issue: NEXT-32337
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

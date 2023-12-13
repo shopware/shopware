@@ -14,7 +14,10 @@ const { mapState } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'mediaService',
+    ],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -60,6 +63,7 @@ export default {
             downloadFilesForAllVariants: [],
             usageOfFiles: {},
             idToIndex: {},
+            productDownloadFolderId: null,
         };
     },
 
@@ -114,7 +118,7 @@ export default {
 
         isGenerateButtonDisabled() {
             return this.variantGenerationQueue.createQueue.some((item) => {
-                return item.downloads.length === 0 && item.productStates.includes('is-download');
+                return item.downloads.length === 0 && item.productStates?.includes('is-download');
             });
         },
 
@@ -133,6 +137,10 @@ export default {
 
     methods: {
         createdComponent() {
+            this.mediaService.getDefaultFolderId('product_download').then((folderId) => {
+                this.productDownloadFolderId = folderId;
+            });
+
             this.variantsGenerator = new VariantsGenerator();
             this.term = '';
 

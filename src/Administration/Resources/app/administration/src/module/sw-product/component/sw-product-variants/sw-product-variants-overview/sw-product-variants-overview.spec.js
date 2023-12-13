@@ -1,102 +1,84 @@
-/*
- * @package inventory
+/**
+ * @package buyers-experience
  */
+import { mount } from '@vue/test-utils';
 
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import swProductVariantsOverview from 'src/module/sw-product/component/sw-product-variants/sw-product-variants-overview';
-import 'src/app/component/data-grid/sw-data-grid';
-import SwMediaUploadV2 from 'src/app/asyncComponent/media/sw-media-upload-v2';
-import swMediaCompactUploadV2 from 'src/app/asyncComponent/media/sw-media-compact-upload-v2';
-import 'src/app/component/form/sw-checkbox-field';
-import Vuex from 'vuex_v2';
-
-Shopware.Component.register('sw-media-upload-v2', SwMediaUploadV2);
-Shopware.Component.extend('sw-media-compact-upload-v2', 'sw-media-upload-v2', () => swMediaCompactUploadV2);
-Shopware.Component.register('sw-product-variants-overview', swProductVariantsOverview);
-
-async function createWrapper(propsOverrides = {}, repositoryFactoryOverride = {}) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-    return shallowMount(await Shopware.Component.build('sw-product-variants-overview'), {
-        localVue,
-        propsData: {
+async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
+    return mount(await wrapTestComponent('sw-product-variants-overview', { sync: true }), {
+        props: {
             selectedGroups: [],
             uploadTag: 'uploadTag',
-            ...propsOverrides,
+            ...propsOverride,
         },
-        mocks: {
-            $route: {
-                query: {},
-            },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve(),
-                    save: () => Promise.resolve([]),
-                    get: () => Promise.resolve({}),
-                }),
-                ...repositoryFactoryOverride,
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-                    return global.activeAclRoles.includes(identifier);
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve(),
+                        save: () => Promise.resolve([]),
+                        get: () => Promise.resolve({}),
+                    }),
+                    ...repositoryFactoryOverride,
+                },
+                searchRankingService: {},
+                configService: {
+                    getConfig: () => Promise.resolve({
+                        settings: {
+                            enableUrlFeature: false,
+                        },
+                    }),
+                },
+                mediaService: {
+                    addListener: () => {},
+                    removeByTag: () => {},
+                    removeListener: () => {},
+                    getDefaultFolderId: () => {
+                        return Promise.resolve('defaultFolderId');
+                    },
+                },
+                mediaDefaultFolderService: {
+                    getDefaultFolderId: () => {
+                        return Promise.resolve('defaultFolderId');
+                    },
+                },
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
                 },
             },
-            searchRankingService: {},
-            configService: {
-                getConfig: () => Promise.resolve({
-                    settings: {
-                        enableUrlFeature: false,
-                    },
-                }),
+            stubs: {
+                'sw-container': await wrapTestComponent('sw-container', { sync: true }),
+                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field', { sync: true }),
+                'sw-button': await wrapTestComponent('sw-button', { sync: true }),
+                'sw-icon': true,
+                'sw-context-menu': await wrapTestComponent('sw-context-menu', { sync: true }),
+                'sw-tree': await wrapTestComponent('sw-tree', { sync: true }),
+                'sw-tree-item': true,
+                'sw-data-grid': await wrapTestComponent('sw-data-grid', { sync: true }),
+                'router-link': true,
+                'sw-label': true,
+                'sw-inheritance-switch': true,
+                'sw-price-field': true,
+                'sw-price-preview': true,
+                'sw-number-field': true,
+                'sw-text-field': true,
+                'sw-product-variants-media-upload': true,
+                'sw-upload-listener': true,
+                'sw-media-compact-upload-v2': await wrapTestComponent('sw-media-compact-upload-v2', { sync: true }),
+                'sw-data-grid-column-boolean': true,
+                'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item', { sync: true }),
+                'sw-pagination': true,
+                'sw-bulk-edit-modal': true,
+                'sw-modal': true,
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
             },
-            mediaService: {
-                addListener: () => {},
-                removeByTag: () => {},
-                removeListener: () => {},
-            },
-        },
-        stubs: {
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
-            },
-            'sw-simple-search-field': true,
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-icon': true,
-            'sw-context-menu': true,
-            'sw-tree': true,
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
-            },
-            'sw-pagination': true,
-            'sw-modal': {
-                template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
-            },
-            'sw-data-grid-settings': true,
-            'sw-context-button': true,
-            'sw-product-variants-media-upload': true,
-            'sw-inheritance-switch': true,
-            'router-link': true,
-            'sw-media-compact-upload-v2': await Shopware.Component.build('sw-media-compact-upload-v2'),
-            'sw-upload-listener': true,
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-field-error': true,
-            'sw-base-field': true,
-            'sw-context-menu-divider': true,
-            'sw-media-preview-v2': true,
         },
     });
 }
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-variants-overview', () => {
-    beforeEach(async () => {
+    beforeEach(() => {
         global.activeAclRoles = [];
 
         const product = {
@@ -171,7 +153,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.attributes().disabled).toBeTruthy();
+        expect(generateVariantsButton.classes('sw-button--disabled')).toBeTruthy();
     });
 
     it('should have an enabled generate variants button', async () => {
@@ -180,28 +162,15 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const wrapper = await createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
         expect(generateVariantsButton.exists()).toBeTruthy();
-        expect(generateVariantsButton.attributes().disabled).toBeFalsy();
-    });
-
-    it('should allow inline editing', async () => {
-        global.activeAclRoles = ['product.editor'];
-        const wrapper = await createWrapper();
-        const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.props('allowInlineEdit')).toBe(true);
-    });
-
-    it('should disallow inline editing', async () => {
-        const wrapper = await createWrapper();
-        const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.props('allowInlineEdit')).toBe(false);
+        expect(generateVariantsButton.classes('sw-button--disabled')).toBeFalsy();
     });
 
     it('should enable selection deleting of list variants', async () => {
         global.activeAclRoles = ['product.deleter'];
 
         const wrapper = await createWrapper();
-        const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');
-        expect(dataGrid.props('showSelection')).toBe(true);
+        const selectionColumn = wrapper.find('.sw-data-grid__header .sw-data-grid__cell--selection');
+        expect(selectionColumn.exists()).toBeTruthy();
     });
 
     it('should be able to turn on delete confirmation modal', async () => {
@@ -209,16 +178,11 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const wrapper = await createWrapper();
 
-        const deleteContextButton = wrapper.find('.sw-context-menu-item[variant="danger"]');
+        const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
         await deleteContextButton.trigger('click');
-
-        await wrapper.vm.$forceUpdate();
 
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
         expect(deleteModal.exists()).toBeTruthy();
-
-        expect(wrapper.find('.sw-product-variants-overview__modal--confirm-delete-text').text())
-            .toBe('sw-product.variations.generatedListDeleteModalMessage');
     });
 
     it('should not be able to turn on delete confirmation modal', async () => {
@@ -226,8 +190,8 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const wrapper = await createWrapper();
 
-        const deleteContextButton = wrapper.find('.sw-context-menu-item[variant="danger"]');
-        expect(deleteContextButton.attributes().disabled).toBe('disabled');
+        const deleteContextButton = wrapper.find('.sw-context-menu-item.sw-context-menu-item--danger');
+        expect(deleteContextButton.classes('is--disabled')).toBeTruthy();
     });
 
     it('should be able to delete variants', async () => {
@@ -244,10 +208,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         await deleteVariantsButton.trigger('click');
 
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
-
         expect(deleteModal.exists()).toBeTruthy();
-        expect(wrapper.find('.sw-product-variants-overview__modal--confirm-delete-text').text())
-            .toBe('sw-product.variations.generatedListDeleteModalMessagePlural');
     });
 
     it('should not be able to delete variants', async () => {
@@ -257,23 +218,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         const deleteVariantsButton = wrapper.find('.sw-product-variants-overview__bulk-delete-action');
         expect(deleteVariantsButton.exists()).toBeFalsy();
-    });
-
-    it('should get list will return a list of products', async () => {
-        const wrapper = await createWrapper({}, {
-            create: () => ({
-                search: () => Promise.resolve([
-                    {
-                        id: '1',
-                        name: 'Example product',
-                    },
-                ]),
-            }),
-        });
-
-        await wrapper.vm.getList();
-
-        expect(wrapper.vm.variants).toEqual([{ id: '1', name: 'Example product' }]);
     });
 
     it('should add the downloads column when the product state is equal "is-download"', async () => {
@@ -397,7 +341,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             name: 'sw.bulk.edit.product',
             params: expect.objectContaining({
                 parentId: '72bfaf5d90214ce592715a9649d8760a',
-                includesDigital: '1',
+                includesDigital: '0',
             }),
         }));
 

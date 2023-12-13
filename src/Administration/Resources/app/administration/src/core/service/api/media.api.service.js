@@ -9,6 +9,8 @@ const UploadEvents = {
     UPLOAD_CANCELED: 'media-upload-cancel',
 };
 
+const { Criteria } = Shopware.Data;
+
 /**
  * Gateway for the API end point "media"
  * @class
@@ -20,6 +22,7 @@ class MediaApiService extends ApiService {
         this.name = 'mediaService';
         this.uploads = [];
         this.$listeners = {};
+        this.cacheDefaultFolder = {};
     }
 
     hasListeners(uploadTag) {
@@ -279,6 +282,30 @@ class MediaApiService extends ApiService {
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
+    }
+
+    async getDefaultFolderId(entity) {
+        if (this.cacheDefaultFolder[entity]) {
+            return this.cacheDefaultFolder[entity];
+        }
+
+        const defaultFolderRepository = Shopware.Service('repositoryFactory').create('media_default_folder');
+
+        const criteria = new Criteria(1, 1)
+            .addFilter(Criteria.equals('entity', entity));
+
+        const items = await defaultFolderRepository.search(criteria);
+        if (items.length !== 1) {
+            return null;
+        }
+        const defaultFolder = items[0];
+
+        if (defaultFolder.folder?.id) {
+            this.cacheDefaultFolder[entity] = defaultFolder.folder.id;
+            return defaultFolder.folder.id;
+        }
+
+        return null;
     }
 }
 

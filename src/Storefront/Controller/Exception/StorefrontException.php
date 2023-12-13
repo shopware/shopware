@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,6 +57,16 @@ class StorefrontException extends HttpException
      */
     public static function cannotRenderView(string $view, string $message, array $parameters): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(
+                self::class,
+                __FUNCTION__,
+                'v6.7.0.0',
+                'Use StorefrontException::renderViewException instead.'
+            )
+        );
+
         return self::renderViewException($view, new TwigError($message), $parameters);
     }
 

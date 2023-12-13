@@ -1,12 +1,11 @@
 ---
 title: Improve storefront render exception
-issue: NEXT-00000
+issue: NEXT-32331
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw
 ---
 # Core
-* Changed `renderView` function call parameters in `StorefrontController`
+* Changed `renderView` function call parameters in `StorefrontController` to call `renderViewException` instead of `cannotRenderView`
 * Added `renderViewException` function in `StorefrontException`
-* Changed `cannotRenderView` in `StorefrontException` to `deprecated`
-* Added `testRenderViewException` in `StorefrontExceptionTest` to match the changes from `StorefrontException`
+* Deprecated `cannotRenderView` in `StorefrontException`

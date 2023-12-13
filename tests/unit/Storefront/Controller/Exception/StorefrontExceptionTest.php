@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Twig\Error\Error as TwigError;
 use Twig\Source;
@@ -35,6 +36,7 @@ class StorefrontExceptionTest extends TestCase
         static::assertEquals('test.html.twig', $res->getFile());
     }
 
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testCannotRenderView(): void
     {
         $parameters = [

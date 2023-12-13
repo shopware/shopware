@@ -137,7 +137,9 @@ jobs:
         run: composer install
 
       - name: Generate Schema
-        run: bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
+        run: |
+          composer run framework:schema:dump
+          composer run npm:admin run unit-setup
 
       - name: Run Jest Admin
         run: npm --prefix src/Administration/Resources/app/administration run unit -- --silent

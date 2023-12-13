@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Tax;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -11,14 +13,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Tax\TaxCalculator
  */
+#[CoversClass(TaxCalculator::class)]
 class TaxCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider netPricesToGross
-     */
+    #[DataProvider('netPricesToGross')]
     public function testCalculateGrossPriceOfNetPrice(float $expected, int $precision, TaxRule $taxRule, float $net): void
     {
         $calculator = new TaxCalculator();

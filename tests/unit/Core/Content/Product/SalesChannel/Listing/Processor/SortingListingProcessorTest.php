@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductException;
@@ -19,16 +21,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\SortingListingProcessor
  */
+#[CoversClass(SortingListingProcessor::class)]
 class SortingListingProcessorTest extends TestCase
 {
     /**
-     * @dataProvider prepareProvider
-     *
      * @param FieldSorting[] $expected
      */
+    #[DataProvider('prepareProvider')]
     public function testPrepare(string $sorting, bool $testWithDefaultSortings, array $expected): void
     {
         $processor = new SortingListingProcessor(
@@ -45,9 +45,7 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $criteria->getSorting());
     }
 
-    /**
-     * @dataProvider processProvider
-     */
+    #[DataProvider('processProvider')]
     public function testProcess(string $requested, null|string $expected): void
     {
         $sortings = $this->buildSortings();
@@ -71,9 +69,7 @@ class SortingListingProcessorTest extends TestCase
         static::assertEquals($expected, $result->getSorting());
     }
 
-    /**
-     * @dataProvider wrongSortingTypeProvider
-     */
+    #[DataProvider('wrongSortingTypeProvider')]
     public function testWrongSortingTypeThrowsException(mixed $requested): void
     {
         $this->expectException(ProductException::class);

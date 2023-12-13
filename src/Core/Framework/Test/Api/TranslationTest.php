@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,9 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

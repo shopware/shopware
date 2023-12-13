@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaFieldsResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -20,9 +22,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaFieldsResolver
  */
+#[CoversClass(CriteriaFieldsResolver::class)]
 class CriteriaFieldsResolverTest extends TestCase
 {
     private StaticDefinitionInstanceRegistry $registry;
@@ -40,10 +41,9 @@ class CriteriaFieldsResolverTest extends TestCase
     }
 
     /**
-     * @dataProvider resolveFieldsProvider
-     *
      * @param array<int, mixed> $expected
      */
+    #[DataProvider('resolveFieldsProvider')]
     public function testResolveFields(Criteria $criteria, array $expected): void
     {
         $resolver = new CriteriaFieldsResolver();

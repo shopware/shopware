@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Framework\Log\Package;
@@ -36,9 +37,8 @@ class PromotionHandlingTest extends TestCase
     /**
      * This test verifies that our promotions are not added
      * if our cart is empty and has no products yet.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionNotAddedWithoutProduct(): void
     {
         $productId = Uuid::randomHex();
@@ -58,9 +58,8 @@ class PromotionHandlingTest extends TestCase
     /**
      * This test verifies that our promotions are correctly
      * removed when also removing the last product
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPromotionsRemovedWithProduct(): void
     {
         $productId = Uuid::randomHex();

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer
  */
+#[CoversClass(PromotionAdminSearchIndexer::class)]
 class PromotionAdminSearchIndexerTest extends TestCase
 {
     private PromotionAdminSearchIndexer $searchIndexer;

@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -20,11 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule
  */
+#[CoversClass(OrderDeliveryStatusRule::class)]
+#[Group('rules')]
 class OrderDeliveryStatusRuleTest extends TestCase
 {
     private OrderDeliveryStatusRule $rule;
@@ -51,10 +52,9 @@ class OrderDeliveryStatusRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchingValues
-     *
      * @param list<string> $selectedOrderStateIds
      */
+    #[DataProvider('getMatchingValues')]
     public function testOrderDeliveryStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
         $orderDeliveryCollection = new OrderDeliveryCollection();

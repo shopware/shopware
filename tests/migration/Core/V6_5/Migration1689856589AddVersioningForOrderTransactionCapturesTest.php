@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Column;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundDefinition;
@@ -15,9 +16,8 @@ use Shopware\Core\Migration\V6_5\Migration1689856589AddVersioningForOrderTransac
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1689856589AddVersioningForOrderTransactionCaptures
  */
+#[CoversClass(Migration1689856589AddVersioningForOrderTransactionCaptures::class)]
 class Migration1689856589AddVersioningForOrderTransactionCapturesTest extends TestCase
 {
     use KernelTestBehaviour;

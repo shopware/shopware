@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Strategy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
@@ -9,14 +11,11 @@ use Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy
  */
+#[CoversClass(IdPathStrategy::class)]
 class IdPathStrategyTest extends TestCase
 {
-    /**
-     * @dataProvider strategyProvider
-     */
+    #[DataProvider('strategyProvider')]
     public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, ?string $expected): void
     {
         $strategy = new IdPathStrategy();

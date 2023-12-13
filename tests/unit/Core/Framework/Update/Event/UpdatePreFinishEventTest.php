@@ -2,16 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Update\Event\UpdateEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent
- * @covers \Shopware\Core\Framework\Update\Event\UpdateEvent
  */
+#[CoversClass(UpdatePreFinishEvent::class)]
+#[CoversClass(UpdateEvent::class)]
 class UpdatePreFinishEventTest extends TestCase
 {
     public function testGetters(): void

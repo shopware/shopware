@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Processing\Reader;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -9,10 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader
  */
 #[Package('services-settings')]
+#[CoversClass(CsvReader::class)]
 class CsvReaderTest extends TestCase
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
@@ -101,9 +102,7 @@ class CsvReaderTest extends TestCase
         yield 'unix' => ["\n"];
     }
 
-    /**
-     * @dataProvider eolProvider
-     */
+    #[DataProvider('eolProvider')]
     public function testDifferentEOL(string $eol): void
     {
         $content = 'foo;bar' . $eol;

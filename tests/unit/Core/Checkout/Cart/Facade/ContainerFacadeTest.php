@@ -2,12 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Facade\CartFacadeHelper;
 use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
 use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
 use Shopware\Core\Checkout\Cart\Facade\ScriptPriceStubs;
+use Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait;
+use Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
@@ -19,11 +22,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\ContainerFacade
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\DiscountTrait
- * @covers \Shopware\Core\Checkout\Cart\Facade\Traits\SurchargeTrait
  */
+#[CoversClass(ContainerFacade::class)]
+#[CoversClass(DiscountTrait::class)]
+#[CoversClass(SurchargeTrait::class)]
 class ContainerFacadeTest extends TestCase
 {
     public function testPublicApiAvailable(): void

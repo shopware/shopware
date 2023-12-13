@@ -2,24 +2,24 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupPackagerNotFoundException::class)]
 class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
 {
     /**
      * This test verifies that our provided code is correctly
      * visible in the resulting exception message.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testCodeInMessage(): void
     {
         $exception = new LineItemGroupPackagerNotFoundException('COUNT');
@@ -29,9 +29,8 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
 
     /**
      * This test verifies that our error code is correct
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testErrorCode(): void
     {
         $exception = new LineItemGroupPackagerNotFoundException('');
@@ -41,9 +40,8 @@ class LineItemGroupPackagerNotFoundExceptionTest extends TestCase
 
     /**
      * This test verifies that our error code is correct
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testStatusCode(): void
     {
         $exception = new LineItemGroupPackagerNotFoundException('');

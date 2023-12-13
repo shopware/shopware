@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Store\Services;
 
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -12,10 +13,9 @@ use Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Services\VerifyResponseSignatureMiddleware
  */
 #[Package('services-settings')]
+#[CoversClass(VerifyResponseSignatureMiddleware::class)]
 class VerifyResponseSignatureMiddlewareTest extends TestCase
 {
     public function testReturnsResponseWithRewoundBody(): void

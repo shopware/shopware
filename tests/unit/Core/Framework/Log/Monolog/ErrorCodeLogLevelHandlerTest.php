@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 use Monolog\Handler\FingersCrossedHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use Shopware\Core\Content\Product\ProductException;
@@ -13,16 +15,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler
  */
+#[CoversClass(ErrorCodeLogLevelHandler::class)]
 class ErrorCodeLogLevelHandlerTest extends TestCase
 {
     /**
      * @param array<string, value-of<Level::NAMES>|LogLevel::*|'Debug'|'Info'|'Notice'|'Warning'|'Error'|'Critical'|'Alert'|'Emergency'> $errorCodeLogLevelMapping
-     *
-     * @dataProvider cases
      */
+    #[DataProvider('cases')]
     public function testHandler(LogRecord $record, array $errorCodeLogLevelMapping, Level $expectedLogLevel): void
     {
         $innerHandler = $this->createMock(FingersCrossedHandler::class);

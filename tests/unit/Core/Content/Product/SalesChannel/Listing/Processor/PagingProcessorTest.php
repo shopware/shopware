@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor;
@@ -14,14 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\PagingListingProcessor
  */
+#[CoversClass(PagingListingProcessor::class)]
 class PagingProcessorTest extends TestCase
 {
-    /**
-     * @dataProvider prepareProvider
-     */
+    #[DataProvider('prepareProvider')]
     public function testPrepare(Request $request, Criteria $expected, string $method = Request::METHOD_GET): void
     {
         $request->setMethod($method);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -13,9 +14,8 @@ use Symfony\Component\RateLimiter\Storage\StorageInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\RateLimiter\RateLimiterFactory
  */
+#[CoversClass(RateLimiterFactory::class)]
 class RateLimiterFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

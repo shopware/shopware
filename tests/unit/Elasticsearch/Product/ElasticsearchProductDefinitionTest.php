@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
@@ -29,9 +30,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\ElasticsearchProductDefinition
  */
+#[CoversClass(ElasticsearchProductDefinition::class)]
 class ElasticsearchProductDefinitionTest extends TestCase
 {
     private const TRANSLATABLE_SEARCHABLE_MAPPING = [

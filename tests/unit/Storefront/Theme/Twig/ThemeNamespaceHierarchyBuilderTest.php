@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\SalesChannelRequest;
@@ -17,9 +19,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder
  */
+#[CoversClass(ThemeNamespaceHierarchyBuilder::class)]
 class ThemeNamespaceHierarchyBuilderTest extends TestCase
 {
     private ThemeNamespaceHierarchyBuilder $builder;
@@ -64,11 +65,10 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider onRenderingDocumentProvider
-     *
      * @param array<string, mixed> $parameters
      * @param array<string, bool> $expectedThemes
      */
+    #[DataProvider('onRenderingDocumentProvider')]
     public function testOnRenderingDocument(array $parameters, array $expectedThemes, ?string $usingTheme): void
     {
         $request = Request::createFromGlobals();

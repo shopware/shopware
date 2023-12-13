@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -25,9 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber
  */
+#[CoversClass(CustomerFlowEventsSubscriber::class)]
 class CustomerFlowEventsSubscriberTest extends TestCase
 {
     private MockObject&EventDispatcherInterface $dispatcher;

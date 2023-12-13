@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\StockDataCollection
  */
+#[CoversClass(StockDataCollection::class)]
 class StockDataCollectionTest extends TestCase
 {
     public function testEmptyCollection(): void

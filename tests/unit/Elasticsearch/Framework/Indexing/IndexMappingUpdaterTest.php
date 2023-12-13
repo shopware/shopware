@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -14,9 +15,8 @@ use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\IndexMappingUpdater
  */
+#[CoversClass(IndexMappingUpdater::class)]
 class IndexMappingUpdaterTest extends TestCase
 {
     public function testUpdate(): void

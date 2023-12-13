@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStateRule;
 use Shopware\Core\Framework\Context;
@@ -17,11 +19,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\ShippingStateRule
  */
+#[CoversClass(ShippingStateRule::class)]
+#[Group('rules')]
 class ShippingStateRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

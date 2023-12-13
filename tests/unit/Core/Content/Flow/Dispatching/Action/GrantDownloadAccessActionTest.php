@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -22,9 +24,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\GrantDownloadAccessAction
  */
+#[CoversClass(GrantDownloadAccessAction::class)]
 class GrantDownloadAccessActionTest extends TestCase
 {
     private GrantDownloadAccessAction $action;
@@ -61,9 +62,8 @@ class GrantDownloadAccessActionTest extends TestCase
 
     /**
      * @param array<int, array<string, mixed>> $expectedPayload
-     *
-     * @dataProvider orderProvider
      */
+    #[DataProvider('orderProvider')]
     public function testSetAccessHandleFlow(?OrderEntity $orderEntity, array $expectedPayload, bool $value = true): void
     {
         if ($orderEntity instanceof OrderEntity) {

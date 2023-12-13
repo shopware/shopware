@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Persister;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
@@ -21,9 +22,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\Persister\ShippingMethodPersister
  */
+#[CoversClass(ShippingMethodPersister::class)]
 class ShippingMethodPersisterTest extends TestCase
 {
     private const ICON_URL = __DIR__ . '/Icons/TestIcon.png';

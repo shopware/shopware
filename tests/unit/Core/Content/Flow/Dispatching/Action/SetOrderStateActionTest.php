@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -19,9 +21,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction
  */
+#[CoversClass(SetOrderStateAction::class)]
 class SetOrderStateActionTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -59,9 +60,8 @@ class SetOrderStateActionTest extends TestCase
     /**
      * @param array<string, mixed> $config
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionProvider
      */
+    #[DataProvider('actionProvider')]
     public function testAction(
         array $config,
         int $expectsTimes,

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -33,9 +34,7 @@ trait SalesChannelApiTestBehaviour
 
     private ?KernelBrowser $salesChannelApiBrowser = null;
 
-    /**
-     * @after
-     */
+    #[After]
     public function resetSalesChannelApiTestCaseTrait(): void
     {
         if (!$this->salesChannelApiBrowser) {

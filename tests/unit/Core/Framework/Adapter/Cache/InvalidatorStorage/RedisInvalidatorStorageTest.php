@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage;
 use Shopware\Core\Test\Stub\Redis\RedisStub;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\RedisInvalidatorStorage
  */
+#[CoversClass(RedisInvalidatorStorage::class)]
 class RedisInvalidatorStorageTest extends TestCase
 {
     public function testStorage(): void

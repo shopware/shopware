@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Test\Snippet\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -55,9 +56,7 @@ class CustomFieldSubscriberTest extends TestCase
         $this->connection = $this->getContainer()->get(Connection::class);
     }
 
-    /**
-     * @dataProvider dataProvider
-     */
+    #[DataProvider('dataProvider')]
     public function testCustomFieldWrittenWithProvider($snippetSets, $customFieldSets, $expectedSnippets, $expectedCount): void
     {
         foreach ($snippetSets as $set) {

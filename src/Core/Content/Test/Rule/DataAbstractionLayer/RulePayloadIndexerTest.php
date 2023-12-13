@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
@@ -435,9 +436,7 @@ class RulePayloadIndexerTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider dataProviderForTestPostEventNullsPayload
-     */
+    #[DataProvider('dataProviderForTestPostEventNullsPayload')]
     public function testPostEventNullsPayload(PluginLifecycleEvent $event): void
     {
         $payload = serialize(new AndRule());

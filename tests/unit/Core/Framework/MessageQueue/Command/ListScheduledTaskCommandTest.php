@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Command\ListScheduledTaskCommand;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Registry\TaskRegistry;
@@ -12,9 +13,8 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\Command\ListScheduledTaskCommand
  */
+#[CoversClass(ListScheduledTaskCommand::class)]
 class ListScheduledTaskCommandTest extends TestCase
 {
     public function testListTasks(): void

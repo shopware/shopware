@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\ScheduledTask;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
@@ -17,14 +19,11 @@ use Shopware\Core\Test\CollectingMessageBus;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler
  */
+#[CoversClass(ProductExportGenerateTaskHandler::class)]
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
-    /**
-     * @dataProvider shouldBeRunDataProvider
-     */
+    #[DataProvider('shouldBeRunDataProvider')]
     public function testShouldBeRun(ProductExportEntity $productExportEntity, bool $expectedResult): void
     {
         $salesChannelRepositoryMock = $this->getSalesChannelRepositoryMock();

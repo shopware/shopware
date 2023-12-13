@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\CustomEntity\Xml\Config;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -23,10 +24,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class CmsAwareAndAdminUiTest extends TestCase
 {
     use KernelTestBehaviour;

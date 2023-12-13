@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
@@ -43,10 +44,9 @@ class PromotionControllerTest extends TestCase
      * create a new promotion with the minimum-required
      * data with our API.
      *
-     * @group promotions
-     *
      * @throws InconsistentCriteriaIdsException
      */
+    #[Group('promotions')]
     public function testCreatePromotion(): void
     {
         $promotionId = Uuid::randomHex();
@@ -76,9 +76,8 @@ class PromotionControllerTest extends TestCase
     /**
      * This test verifies that we can read the details of our
      * promotion using the API
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testReadPromotion(): void
     {
         $promotionId = Uuid::randomHex();
@@ -105,9 +104,8 @@ class PromotionControllerTest extends TestCase
     /**
      * This test verifies that we can read the list data of our
      * promotions using the API
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testReadPromotionList(): void
     {
         $promotionId = Uuid::randomHex();
@@ -138,9 +136,8 @@ class PromotionControllerTest extends TestCase
      * This test verifies that we can update our promotion
      * with the API. In this test we update the name
      * and verify if the new values is stored in the database.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPatchPromotion(): void
     {
         $promotionId = Uuid::randomHex();
@@ -170,9 +167,8 @@ class PromotionControllerTest extends TestCase
      * with the API. So we delete a discount from a promotion
      * that only has 1 discount. then we load it from the database and
      * check if no more discounts exist.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDeletePromotionDiscount(): void
     {
         $promotionId = Uuid::randomHex();
@@ -199,10 +195,9 @@ class PromotionControllerTest extends TestCase
      * new values. We change the type and value and then load it from
      * the database and see if it has been correctly updated.
      *
-     * @group promotions
-     *
      * @throws InconsistentCriteriaIdsException
      */
+    #[Group('promotions')]
     public function testPatchDiscount(): void
     {
         $promotionId = Uuid::randomHex();
@@ -233,9 +228,8 @@ class PromotionControllerTest extends TestCase
      * with the API. We add 1 promotion in the database, then delete it
      * using our client, and finally verify if no more promotions exist
      * in the database for this ID.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testDeletePromotion(): void
     {
         $promotionId = Uuid::randomHex();

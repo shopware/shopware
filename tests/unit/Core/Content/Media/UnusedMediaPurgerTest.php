@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -38,10 +39,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\UnusedMediaPurger
  */
 #[Package('buyers-experience')]
+#[CoversClass(UnusedMediaPurger::class)]
 class UnusedMediaPurgerTest extends TestCase
 {
     public function testGetNotUsedMediaOnlyAppliesValidAssociationsToCriteria(): void

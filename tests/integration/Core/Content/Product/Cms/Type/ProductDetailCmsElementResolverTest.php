@@ -2,9 +2,9 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Cms\Type;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
@@ -26,15 +26,6 @@ class ProductDetailCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private MockObject&AbstractProductDetailCmsElementResolver $dummyResolver;
-
-    protected function setUp(): void
-    {
-        $resolverMock = $this->getMockBuilder(AbstractProductDetailCmsElementResolver::class)->onlyMethods(['getType'])->getMockForAbstractClass();
-        $resolverMock->method('getType')->willReturn('dummy-type');
-        $this->dummyResolver = $resolverMock;
-    }
-
     public function testCollectWithStaticConfig(): void
     {
         $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
@@ -47,7 +38,7 @@ class ProductDetailCmsElementResolverTest extends TestCase
         $slot->setType('dummy-type');
         $slot->setFieldConfig($fieldConfig);
 
-        $criteriaCollection = $this->dummyResolver->collect($slot, $resolverContext);
+        $criteriaCollection = (new ProductDetailCmsElementResolver())->collect($slot, $resolverContext);
 
         static::assertNotNull($criteriaCollection);
         static::assertCount(1, $criteriaCollection->all());
@@ -77,7 +68,7 @@ class ProductDetailCmsElementResolverTest extends TestCase
         $slot->setType('dummy-type');
         $slot->setFieldConfig($fieldConfig);
 
-        $criteriaCollection = $this->dummyResolver->collect($slot, $resolverContext);
+        $criteriaCollection = (new ProductDetailCmsElementResolver())->collect($slot, $resolverContext);
 
         static::assertNull($criteriaCollection);
     }
@@ -94,7 +85,7 @@ class ProductDetailCmsElementResolverTest extends TestCase
         $slot->setType('dummy-type');
         $slot->setFieldConfig($fieldConfig);
 
-        $criteriaCollection = $this->dummyResolver->collect($slot, $resolverContext);
+        $criteriaCollection = (new ProductDetailCmsElementResolver())->collect($slot, $resolverContext);
 
         static::assertNull($criteriaCollection);
     }
@@ -117,11 +108,27 @@ class ProductDetailCmsElementResolverTest extends TestCase
         $slot->setType('dummy-type');
         $slot->setFieldConfig($fieldConfig);
 
-        $criteriaCollection = $this->dummyResolver->collect($slot, $entityResolverContext);
+        $criteriaCollection = (new ProductDetailCmsElementResolver())->collect($slot, $entityResolverContext);
 
         static::assertNull($criteriaCollection);
         static::assertInstanceOf(FieldConfig::class, $productConfig = $fieldConfig->get('product'));
         static::assertEquals(FieldConfig::SOURCE_MAPPED, $productConfig->getSource());
         static::assertEquals($product->getId(), $productConfig->getValue());
+    }
+}
+
+/**
+ * @internal
+ */
+class ProductDetailCmsElementResolver extends AbstractProductDetailCmsElementResolver
+{
+    public function getType(): string
+    {
+        return 'dummy-type';
+    }
+
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
+    {
+        // TODO: Implement enrich() method.
     }
 }

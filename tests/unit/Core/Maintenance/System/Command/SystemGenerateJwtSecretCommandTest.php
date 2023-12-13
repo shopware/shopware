@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand;
@@ -12,9 +13,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand
  */
+#[CoversClass(SystemGenerateJwtSecretCommand::class)]
 class SystemGenerateJwtSecretCommandTest extends TestCase
 {
     public function testMissingPassphrase(): void

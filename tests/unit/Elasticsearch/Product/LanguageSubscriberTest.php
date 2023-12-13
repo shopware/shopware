@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -18,9 +19,8 @@ use Shopware\Elasticsearch\Product\LanguageSubscriber;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\LanguageSubscriber
  */
+#[CoversClass(LanguageSubscriber::class)]
 class LanguageSubscriberTest extends TestCase
 {
     public function testSubscribedEvents(): void

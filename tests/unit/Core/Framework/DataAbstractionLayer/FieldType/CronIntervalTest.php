@@ -3,16 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\FieldType;
 
 use Cron\CronExpression;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldType\CronInterval;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\FieldType\CronInterval
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(CronInterval::class)]
 class CronIntervalTest extends TestCase
 {
     public function testEquals(): void

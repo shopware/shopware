@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\CreateCustomAppsDir;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Services\CreateCustomAppsDir
  */
+#[CoversClass(CreateCustomAppsDir::class)]
 class CreateCustomAppsDirTest extends TestCase
 {
     public function testSubscribedEvents(): void

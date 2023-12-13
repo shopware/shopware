@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,10 +24,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @internal
  *
- * @group skip-paratest
- *
  * @package system-settings
  */
+#[Group('skip-paratest')]
 class CustomFieldUpdaterTest extends TestCase
 {
     use ElasticsearchTestTestBehaviour;
@@ -63,9 +64,7 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
     }
 
-    /**
-     * @depends testCreateIndices
-     */
+    #[Depends('testCreateIndices')]
     public function testCreateCustomFields(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');
@@ -110,9 +109,7 @@ class CustomFieldUpdaterTest extends TestCase
         static::assertSame('text', $properties['test_newly_created_field_text']['type']);
     }
 
-    /**
-     * @depends testCreateCustomFields
-     */
+    #[Depends('testCreateCustomFields')]
     public function testRelationWillBeSetLaterOn(): void
     {
         $customFieldRepository = $this->getContainer()->get('custom_field_set.repository');

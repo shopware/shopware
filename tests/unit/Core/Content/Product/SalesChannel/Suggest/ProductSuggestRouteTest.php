@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Suggest;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Events\ProductSuggestCriteriaEvent;
@@ -24,9 +25,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute
  */
+#[CoversClass(ProductSuggestRoute::class)]
 class ProductSuggestRouteTest extends TestCase
 {
     private EventDispatcher $eventDispatcher;

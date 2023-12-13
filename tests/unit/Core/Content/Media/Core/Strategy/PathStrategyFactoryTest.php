@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Strategy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy;
 use Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy;
@@ -12,13 +13,12 @@ use Shopware\Core\Content\Media\MediaException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Strategy\PathStrategyFactory
- * @covers \Shopware\Core\Content\Media\Core\Strategy\IdPathStrategy
- * @covers \Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy
- * @covers \Shopware\Core\Content\Media\Core\Strategy\PhysicalFilenamePathStrategy
- * @covers \Shopware\Core\Content\Media\Core\Strategy\PlainPathStrategy
  */
+#[CoversClass(PathStrategyFactory::class)]
+#[CoversClass(IdPathStrategy::class)]
+#[CoversClass(FilenamePathStrategy::class)]
+#[CoversClass(PhysicalFilenamePathStrategy::class)]
+#[CoversClass(PlainPathStrategy::class)]
 class PathStrategyFactoryTest extends TestCase
 {
     public function testRegistry(): void

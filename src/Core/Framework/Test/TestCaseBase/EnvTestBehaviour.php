@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use PHPUnit\Framework\Attributes\After;
+
 trait EnvTestBehaviour
 {
     /**
@@ -23,9 +25,7 @@ trait EnvTestBehaviour
         }
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function resetEnvVars(): void
     {
         if ($this->originalEnvVars) {

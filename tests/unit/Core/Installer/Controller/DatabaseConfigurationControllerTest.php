@@ -3,9 +3,11 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
+use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
@@ -24,10 +26,9 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Controller\DatabaseConfigurationController
- * @covers \Shopware\Core\Installer\Controller\InstallerController
  */
+#[CoversClass(DatabaseConfigurationController::class)]
+#[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;

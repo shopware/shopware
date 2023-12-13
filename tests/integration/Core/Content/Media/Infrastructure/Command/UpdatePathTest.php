@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Command;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
@@ -21,21 +23,19 @@ use Symfony\Component\Console\Output\NullOutput;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand
  */
+#[CoversClass(UpdatePathCommand::class)]
 class UpdatePathTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider commandProvider
-     *
      * @param array<mixed> $media
      * @param array<mixed> $thumbnail
      * @param array<string, string> $expected
      */
+    #[DataProvider('commandProvider')]
     public function testCommand(array $media, array $thumbnail, ArrayInput $input, array $expected): void
     {
         $ids = new IdsCollection();

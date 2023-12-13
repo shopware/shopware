@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\RuleMatcher;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher;
@@ -22,10 +24,9 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher
- *
  * @internal
  */
+#[CoversClass(AnyRuleMatcher::class)]
 class AnyRuleMatcherTest extends TestCase
 {
     use LineItemGroupTestFixtureBehaviour;
@@ -49,9 +50,8 @@ class AnyRuleMatcherTest extends TestCase
      * We create a group with a rule for minimum item price of 50.
      * This means, that only line items with 50 or higher, are matched
      * with a positive result.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testMatchesForSingleRule(): void
     {
         $rules = new AndRule(
@@ -94,9 +94,8 @@ class AnyRuleMatcherTest extends TestCase
      * We have 4 combinations within our products. The multi rules work with a OR condition, so we
      * should get 3 out of our 4 products that match. Only the product with neither quantity nor price condition
      * should not match our group rules.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testMatchesForMultipleRules(): void
     {
         $minPrice = 50;

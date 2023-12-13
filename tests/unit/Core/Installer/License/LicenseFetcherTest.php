@@ -4,15 +4,16 @@ namespace Shopware\Tests\Unit\Core\Installer\License;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\License\LicenseFetcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\License\LicenseFetcher
  */
+#[CoversClass(LicenseFetcher::class)]
 class LicenseFetcherTest extends TestCase
 {
     private const DATA = [
@@ -20,9 +21,7 @@ class LicenseFetcherTest extends TestCase
         'https://tos.en' => '<h1>English</h1>',
     ];
 
-    /**
-     * @dataProvider licenseDataProvider
-     */
+    #[DataProvider('licenseDataProvider')]
     public function testFetch(string $locale, string $expectedUrl, string $expectedContent): void
     {
         $guzzle = $this->createMock(Client::class);

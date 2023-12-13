@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -22,9 +24,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser
  */
+#[CoversClass(SqlQueryParser::class)]
 class SqlQueryParserTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -80,9 +81,7 @@ class SqlQueryParserTest extends TestCase
         static::assertEquals($productsWithoutCategory, $result->getIds());
     }
 
-    /**
-     * @dataProvider whenToUseNullSafeOperatorProvider
-     */
+    #[DataProvider('whenToUseNullSafeOperatorProvider')]
     public function testWhenToUseNullSafeOperator(Filter $filter, bool $expected): void
     {
         $parser = $this->getContainer()->get(SqlQueryParser::class);

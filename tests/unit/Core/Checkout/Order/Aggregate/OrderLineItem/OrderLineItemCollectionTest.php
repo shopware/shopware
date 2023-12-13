@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Aggregate\OrderLineItem;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -9,9 +10,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
  */
+#[CoversClass(OrderLineItemCollection::class)]
 class OrderLineItemCollectionTest extends TestCase
 {
     public function testFilterGoodsFlat(): void

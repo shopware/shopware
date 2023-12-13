@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\MemorySizeCalculator
  */
+#[CoversClass(MemorySizeCalculator::class)]
 class MemorySizeCalculatorTest extends TestCase
 {
     public static function setUpBeforeClass(): void
@@ -18,9 +19,7 @@ class MemorySizeCalculatorTest extends TestCase
         IniMock::register(MemorySizeCalculator::class);
     }
 
-    /**
-     * @dataProvider memorySizeDataProvider
-     */
+    #[DataProvider('memorySizeDataProvider')]
     public function testBytesConversion(string $limit, int $bytes): void
     {
         static::assertEquals($bytes, MemorySizeCalculator::convertToBytes($limit));
@@ -55,9 +54,7 @@ class MemorySizeCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider bytesProvider
-     */
+    #[DataProvider('bytesProvider')]
     public function testFormatBytes(int $bytes, string $formatted): void
     {
         static::assertEquals($formatted, MemorySizeCalculator::formatToBytes($bytes));
@@ -80,9 +77,7 @@ class MemorySizeCalculatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider maxUploadSizeProvider
-     */
+    #[DataProvider('maxUploadSizeProvider')]
     public function testGetMaxUploadSize(
         string $uploadMaxFilesize,
         string $postMaxSize,

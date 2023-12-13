@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -34,9 +36,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
  * @phpstan-import-type RangeFilterType from QueryStringParser
  * @phpstan-import-type EqualsAnyFilterType from QueryStringParser
  * @phpstan-import-type Query from QueryStringParser
- *
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
  */
+#[CoversClass(QueryStringParser::class)]
 class QueryStringParserTest extends TestCase
 {
     public function testWithUnsupportedFormat(): void
@@ -52,10 +53,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider parserProvider
-     *
      * @param Query $payload
      */
+    #[DataProvider('parserProvider')]
     public function testParser(array $payload, Filter $expected): void
     {
         $result = QueryStringParser::fromArray(
@@ -96,10 +96,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider equalsFilterDataProvider
-     *
      * @param EqualsFilterType $filter
      */
+    #[DataProvider('equalsFilterDataProvider')]
     public function testEqualsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
@@ -134,10 +133,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider containsFilterDataProvider
-     *
      * @param ContainsFilterType $filter
      */
+    #[DataProvider('containsFilterDataProvider')]
     public function testContainsFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
@@ -168,10 +166,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider prefixFilterDataProvider
-     *
      * @param PrefixFilterType $filter
      */
+    #[DataProvider('prefixFilterDataProvider')]
     public function testPrefixFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
@@ -202,10 +199,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider suffixFilterDataProvider
-     *
      * @param SuffixFilterType $filter
      */
+    #[DataProvider('suffixFilterDataProvider')]
     public function testSuffixFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
@@ -236,10 +232,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider equalsAnyFilterDataProvider
-     *
      * @param EqualsAnyFilterType $filter
      */
+    #[DataProvider('equalsAnyFilterDataProvider')]
     public function testEqualsAnyFilter(array $filter, bool $expectException): void
     {
         if ($expectException) {
@@ -283,10 +278,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider equalsAllFilterDataProvider
-     *
      * @param EqualsAnyFilterType $filter
      */
+    #[DataProvider('equalsAllFilterDataProvider')]
     public function testEqualsAllFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
     {
         if ($expectException) {
@@ -350,10 +344,9 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
-     * @dataProvider relativeTimeToDateFilterDataProvider
-     *
      * @param RangeFilterType $filter
      */
+    #[DataProvider('relativeTimeToDateFilterDataProvider')]
     public function testRelativeTimeToDateFilters(
         array $filter,
         bool $expectException,

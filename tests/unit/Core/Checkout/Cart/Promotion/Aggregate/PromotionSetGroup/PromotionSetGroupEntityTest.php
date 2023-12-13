@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionSetGroup;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -9,9 +11,8 @@ use Shopware\Core\Content\Rule\RuleEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity
  */
+#[CoversClass(PromotionSetGroupEntity::class)]
 class PromotionSetGroupEntityTest extends TestCase
 {
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';
@@ -19,9 +20,8 @@ class PromotionSetGroupEntityTest extends TestCase
     /**
      * This test verifies that our assignment and
      * getter work correctly for the property.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPropertyPackagerKey(): void
     {
         $group = new PromotionSetGroupEntity();
@@ -36,9 +36,8 @@ class PromotionSetGroupEntityTest extends TestCase
     /**
      * This test verifies that our assignment and
      * getter work correctly for the property.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPropertyValue(): void
     {
         $group = new PromotionSetGroupEntity();
@@ -53,9 +52,8 @@ class PromotionSetGroupEntityTest extends TestCase
     /**
      * This test verifies that our assignment and
      * getter work correctly for the property.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPropertySorterKey(): void
     {
         $group = new PromotionSetGroupEntity();
@@ -70,9 +68,8 @@ class PromotionSetGroupEntityTest extends TestCase
     /**
      * This test verifies that our assignment and
      * getter work correctly for the property.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPropertyRules(): void
     {
         $ruleEntity = new RuleEntity();

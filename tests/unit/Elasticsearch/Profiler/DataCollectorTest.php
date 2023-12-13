@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
 use OpenSearch\Namespaces\CatNamespace;
 use OpenSearch\Namespaces\ClusterNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Profiler\DataCollector;
@@ -12,9 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Profiler\DataCollector
  */
+#[CoversClass(DataCollector::class)]
 class DataCollectorTest extends TestCase
 {
     public function testCollect(): void

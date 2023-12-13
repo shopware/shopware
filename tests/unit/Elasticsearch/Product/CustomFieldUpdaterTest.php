@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Elasticsearch\Product;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,9 +24,8 @@ use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\CustomFieldUpdater
  */
+#[CoversClass(CustomFieldUpdater::class)]
 class CustomFieldUpdaterTest extends TestCase
 {
     public function testSubscribedEvents(): void
@@ -234,10 +235,9 @@ class CustomFieldUpdaterTest extends TestCase
     }
 
     /**
-     * @dataProvider providerMapping
-     *
      * @param array<mixed> $mapping
      */
+    #[DataProvider('providerMapping')]
     public function testMapping(string $type, array $mapping): void
     {
         static::assertSame($mapping, CustomFieldUpdater::getTypeFromCustomFieldType($type));

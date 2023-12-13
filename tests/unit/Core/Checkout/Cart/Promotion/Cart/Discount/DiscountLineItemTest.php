@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Discount;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -9,9 +11,8 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem
  */
+#[CoversClass(DiscountLineItem::class)]
 class DiscountLineItemTest extends TestCase
 {
     private DiscountLineItem $discount;
@@ -37,9 +38,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testLabel(): void
     {
         static::assertEquals('Black Friday', $this->discount->getLabel());
@@ -48,9 +48,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testScope(): void
     {
         static::assertEquals('cart', $this->discount->getScope());
@@ -59,9 +58,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testType(): void
     {
         static::assertEquals('absolute', $this->discount->getType());
@@ -70,9 +68,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testCode(): void
     {
         static::assertEquals('bf', $this->discount->getCode());
@@ -81,9 +78,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPriceDefinition(): void
     {
         static::assertInstanceOf(QuantityPriceDefinition::class, $this->discount->getPriceDefinition());
@@ -92,9 +88,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testSorterApplierKey(): void
     {
         static::assertEquals('PRICE_ASC', $this->discount->getFilterSorterKey());
@@ -103,9 +98,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testFilterApplierKey(): void
     {
         static::assertEquals('ALL', $this->discount->getFilterApplierKey());
@@ -114,9 +108,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testUsageApplierKey(): void
     {
         static::assertEquals('UNLIMITED', $this->discount->getFilterUsageKey());
@@ -125,9 +118,8 @@ class DiscountLineItemTest extends TestCase
     /**
      * This test verifies that the property is correctly
      * assigned as well as returned in the getter function.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testPayloads(): void
     {
         $expected = [

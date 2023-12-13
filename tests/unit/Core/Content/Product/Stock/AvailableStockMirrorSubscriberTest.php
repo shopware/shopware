@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber;
@@ -19,9 +20,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber
  */
+#[CoversClass(AvailableStockMirrorSubscriber::class)]
 class AvailableStockMirrorSubscriberTest extends TestCase
 {
     private IdsCollection $ids;

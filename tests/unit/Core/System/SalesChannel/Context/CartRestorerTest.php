@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
@@ -16,10 +17,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Context\CartRestorer
  */
 #[Package('buyers-experience')]
+#[CoversClass(CartRestorer::class)]
 class CartRestorerTest extends TestCase
 {
     private MockObject&SalesChannelContextFactory $salesChannelContextFactory;

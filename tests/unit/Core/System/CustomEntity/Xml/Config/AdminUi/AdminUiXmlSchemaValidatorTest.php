@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator;
@@ -15,10 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchemaValidator
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException
  */
+#[CoversClass(AdminUiXmlSchemaValidator::class)]
+#[CoversClass(CustomEntityConfigurationException::class)]
 class AdminUiXmlSchemaValidatorTest extends TestCase
 {
     public function testThatNoExceptionIsThrown(): void

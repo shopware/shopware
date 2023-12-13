@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Rule;
 
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -57,9 +58,7 @@ class RuleTest extends TestCase
         return new CartRuleScope($this->createCart($lineItemCollection), $context);
     }
 
-    /**
-     * @depends testScope
-     */
+    #[Depends('testScope')]
     public function testRulesMatchWithEmptyOperator(CartRuleScope $scope): void
     {
         /** @var Rule $rule */

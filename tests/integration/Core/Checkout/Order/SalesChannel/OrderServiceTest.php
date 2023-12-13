@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -40,10 +41,9 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * @internal
- *
- * @group slow
  */
 #[Package('checkout')]
+#[Group('slow')]
 class OrderServiceTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -39,9 +40,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\CartLineItemController
  */
+#[CoversClass(CartLineItemController::class)]
 class CartLineItemControllerTest extends TestCase
 {
     private CartLineItemController $controller;
@@ -180,7 +180,7 @@ class CartLineItemControllerTest extends TestCase
                     $expectedLineItemData,
                     $expectedLineItemData2
                 ) {
-                    match ($matcher->getInvocationCount()) {
+                    match ($matcher->numberOfInvocations()) {
                         default => static::fail('to many calls of create'),
                         2 => static::assertEquals($expectedLineItemData2, $lineItemDataPar),
                         1 => static::assertEquals($expectedLineItemData, $lineItemDataPar),

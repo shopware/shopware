@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\TypeDetector;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -12,10 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\TypeDetector\SpatialObjectTypeDetector
  */
 #[Package('buyers-experience')]
+#[CoversClass(SpatialObjectTypeDetector::class)]
 class SpatialObjectTypeDetectorTest extends TestCase
 {
     /**

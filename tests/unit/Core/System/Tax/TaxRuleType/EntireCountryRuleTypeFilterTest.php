@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Tax\TaxRuleType;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\System\Country\CountryEntity;
@@ -11,9 +12,8 @@ use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter
  */
+#[CoversClass(EntireCountryRuleTypeFilter::class)]
 class EntireCountryRuleTypeFilterTest extends TestCase
 {
     public function testMatchesNotWithWrongType(): void

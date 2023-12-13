@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Cache\Script;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -19,10 +20,9 @@ class ScriptCacheInvalidationSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @dataProvider invalidationCasesProvider
-     *
      * @param callable(ContainerInterface): void $closure
      */
+    #[DataProvider('invalidationCasesProvider')]
     public function testCacheInvalidation(string $tagName, callable $closure, bool $shouldBeInvalidated, IdsCollection $ids): void
     {
         $this->createProducts($ids);

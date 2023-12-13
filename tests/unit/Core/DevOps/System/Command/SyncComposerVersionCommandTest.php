@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\DevOps\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand;
 use Symfony\Component\Console\Command\Command;
@@ -10,9 +11,8 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\DevOps\System\Command\SyncComposerVersionCommand
  */
+#[CoversClass(SyncComposerVersionCommand::class)]
 class SyncComposerVersionCommandTest extends TestCase
 {
     private string $projectDir = '';

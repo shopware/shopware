@@ -2,14 +2,14 @@
 
 namespace Shopware\WebInstaller\Tests\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Services\ProjectComposerJsonUpdater;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Services\ProjectComposerJsonUpdater
  */
+#[CoversClass(ProjectComposerJsonUpdater::class)]
 class ProjectComposerJsonUpdaterTest extends TestCase
 {
     private string $json;

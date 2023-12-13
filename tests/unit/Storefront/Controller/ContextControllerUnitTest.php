@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
@@ -23,9 +24,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\ContextController
  */
+#[CoversClass(ContextController::class)]
 class ContextControllerUnitTest extends TestCase
 {
     public function testSwitchLangNoArgument(): void

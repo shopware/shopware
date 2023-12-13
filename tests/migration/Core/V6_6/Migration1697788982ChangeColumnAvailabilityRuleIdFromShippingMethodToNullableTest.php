@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable;
@@ -12,9 +13,8 @@ use Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRule
  * @package core
  *
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_6\Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable
  */
+#[CoversClass(Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullable::class)]
 class Migration1697788982ChangeColumnAvailabilityRuleIdFromShippingMethodToNullableTest extends TestCase
 {
     private Connection $connection;

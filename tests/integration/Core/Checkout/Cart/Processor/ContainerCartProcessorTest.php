@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Processor;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -32,9 +33,7 @@ class ContainerCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @dataProvider calculationProvider
-     */
+    #[DataProvider('calculationProvider')]
     public function testCalculation(LineItem $item, ?CalculatedPrice $expected): void
     {
         $processor = $this->getContainer()->get(ContainerCartProcessor::class);

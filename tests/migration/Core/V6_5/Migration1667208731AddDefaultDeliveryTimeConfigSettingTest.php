@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -12,9 +13,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1667208731AddDefaultDeliveryTimeConfigSetting
  */
+#[CoversClass(Migration1667208731AddDefaultDeliveryTimeConfigSetting::class)]
 class Migration1667208731AddDefaultDeliveryTimeConfigSettingTest extends TestCase
 {
     use MigrationTestTrait;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Test\RateLimiter;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -12,9 +13,8 @@ use Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel\CustomerTestT
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class RateLimiterTest extends TestCase
 {
     use AdminApiTestBehaviour;

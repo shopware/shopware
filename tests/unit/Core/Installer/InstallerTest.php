@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Installer\Installer;
 use Symfony\Bundle\FrameworkBundle\DependencyInjection\FrameworkExtension;
@@ -9,9 +10,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Installer
  */
+#[CoversClass(Installer::class)]
 class InstallerTest extends TestCase
 {
     public function testBuild(): void

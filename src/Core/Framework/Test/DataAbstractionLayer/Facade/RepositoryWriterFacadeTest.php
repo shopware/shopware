@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Facade;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
@@ -45,9 +46,8 @@ class RepositoryWriterFacadeTest extends TestCase
     /**
      * @param array<int, mixed> $payload
      * @param callable(Context, ContainerInterface): void  $expectation
-     *
-     * @dataProvider testCases
      */
+    #[DataProvider('testCases')]
     public function testFacade(array $payload, string $method, IdsCollection $ids, callable $expectation): void
     {
         $this->ids = $ids;
@@ -172,9 +172,8 @@ class RepositoryWriterFacadeTest extends TestCase
 
     /**
      * @param array<int, mixed> $arguments
-     *
-     * @dataProvider withoutPermissionsCases
      */
+    #[DataProvider('withoutPermissionsCases')]
     public function testWithoutPermission(array $arguments, string $method, IdsCollection $ids): void
     {
         $this->ids = $ids;

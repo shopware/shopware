@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -11,10 +12,9 @@ use Shopware\Core\Migration\V6_5\Migration1695778183UpdateStreetOfTableCustomerA
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1695778183UpdateStreetOfTableCustomerAddressToNotNull
  */
 #[Package('checkout')]
+#[CoversClass(Migration1695778183UpdateStreetOfTableCustomerAddressToNotNull::class)]
 class Migration1695778183UpdateStreetOfTableOrderAddressToNotNullTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -19,9 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction
  */
+#[CoversClass(SetOrderCustomFieldAction::class)]
 class SetOrderCustomFieldActionTest extends TestCase
 {
     private Connection&MockObject $connection;
@@ -61,9 +62,8 @@ class SetOrderCustomFieldActionTest extends TestCase
      * @param array<string, mixed> $config
      * @param array<string, mixed> $existsData
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testExecutedAction(array $config, array $existsData, array $expected): void
     {
         $order = new OrderEntity();

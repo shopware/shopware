@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ProductExport\ProductExportException
  */
+#[CoversClass(ProductExportException::class)]
 class ProductExportExceptionTest extends TestCase
 {
     public function testTemplateBodyNotSet(): void

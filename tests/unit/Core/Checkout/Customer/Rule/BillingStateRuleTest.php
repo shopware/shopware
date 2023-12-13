@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -19,11 +22,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\BillingStateRule
  */
+#[CoversClass(BillingStateRule::class)]
+#[Group('rules')]
 class BillingStateRuleTest extends TestCase
 {
     private BillingStateRule $rule;
@@ -49,9 +50,7 @@ class BillingStateRuleTest extends TestCase
         static::assertEquals([new NotBlank(), new ArrayOfUuid()], $constraints['stateIds']);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $stateId): void
     {
         $countryIds = ['kyln123', 'kyln456'];

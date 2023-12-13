@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\FileEmptyException;
@@ -50,9 +51,7 @@ class MappingServiceTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider templateProfileProvider
-     */
+    #[DataProvider('templateProfileProvider')]
     public function testCreateTemplateFromProfileMapping($profile): void
     {
         if ($profile === null) {
@@ -89,9 +88,7 @@ class MappingServiceTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider mappingInputProvider
-     */
+    #[DataProvider('mappingInputProvider')]
     public function testGetMappingFromTemplate($data): void
     {
         // prepare profile for lookup

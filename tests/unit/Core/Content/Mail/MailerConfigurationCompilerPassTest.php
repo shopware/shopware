@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Mail;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Content\Mail\Service\MailerTransportLoader;
@@ -11,9 +12,8 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Mail\MailerConfigurationCompilerPass
  */
+#[CoversClass(MailerConfigurationCompilerPass::class)]
 class MailerConfigurationCompilerPassTest extends TestCase
 {
     public function testProcess(): void

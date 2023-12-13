@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -20,10 +21,9 @@ use Shopware\Tests\Unit\Common\Stubs\SystemConfigService\StaticSystemConfigServi
  * @internal
  *
  * @phpstan-import-type FeatureFlagConfig from Feature
- *
- * @covers \Shopware\Core\System\SystemConfig\Service\ConfigurationService
  */
 #[Package('system-settings')]
+#[CoversClass(ConfigurationService::class)]
 class ConfigurationServiceTest extends TestCase
 {
     /**

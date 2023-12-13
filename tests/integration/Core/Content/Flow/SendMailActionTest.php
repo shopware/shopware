@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Flow;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -54,11 +55,10 @@ class SendMailActionTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @dataProvider sendMailProvider
-     *
      * @param array<string>|null $documentTypeIds
      * @param array<string, mixed> $recipients
      */
+    #[DataProvider('sendMailProvider')]
     public function testEmailSend(array $recipients, ?array $documentTypeIds = [], ?bool $hasOrderSettingAttachment = true): void
     {
         $documentRepository = $this->getContainer()->get('document.repository');
@@ -290,9 +290,7 @@ class SendMailActionTest extends TestCase
         static::assertEquals(1, $mailService->calls);
     }
 
-    /**
-     * @dataProvider sendMailContactFormProvider
-     */
+    #[DataProvider('sendMailContactFormProvider')]
     public function testSendContactFormMail(bool $hasEmail, bool $hasFname, bool $hasLname): void
     {
         $criteria = new Criteria();
@@ -504,9 +502,7 @@ class SendMailActionTest extends TestCase
         static::assertEquals(1, $mailService->calls);
     }
 
-    /**
-     * @dataProvider updateTemplateDataProvider
-     */
+    #[DataProvider('updateTemplateDataProvider')]
     public function testUpdateTemplateData(bool $shouldUpdate): void
     {
         $criteria = new Criteria();

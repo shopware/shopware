@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\ScheduledTask;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
@@ -11,10 +12,9 @@ use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticEntityRepository
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler
  */
 #[Package('data-services')]
+#[CoversClass(CollectEntityDataTaskHandler::class)]
 class CollectEntityDataTaskHandlerTest extends TestCase
 {
     public function testItStartsCollectingData(): void

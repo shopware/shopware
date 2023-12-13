@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass;
@@ -11,9 +13,8 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\DemodataCompilerPass
  */
+#[CoversClass(DemodataCompilerPass::class)]
 class DemodataCompilerPassTest extends TestCase
 {
     private ContainerBuilder $builder;
@@ -25,9 +26,7 @@ class DemodataCompilerPassTest extends TestCase
         $this->builder->addCompilerPass(new DemodataCompilerPass());
     }
 
-    /**
-     * @dataProvider definitionProvider
-     */
+    #[DataProvider('definitionProvider')]
     public function test(?string $name, ?int $default, ?string $description): void
     {
         $definition = new Definition(\ArrayObject::class);

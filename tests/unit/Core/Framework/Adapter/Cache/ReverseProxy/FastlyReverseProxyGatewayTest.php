@@ -9,16 +9,19 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @covers \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway
+ * @deprecated tag:v6.6.0 - Move to core
  *
  * @internal
  */
+#[CoversClass(FastlyReverseProxyGateway::class)]
 class FastlyReverseProxyGatewayTest extends TestCase
 {
     private Client $client;
@@ -73,9 +76,8 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
     /**
      * @param string[] $tags
-     *
-     * @dataProvider providerTags
      */
+    #[DataProvider('providerTags')]
     public function testInvalidate(array $tags, string $prefix = ''): void
     {
         $this->mockHandler->append(new GuzzleResponse(200, []));
@@ -169,9 +171,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
         static::assertSame(['key'], $lastRequest->getHeader('Fastly-Key'));
     }
 
-    /**
-     * @dataProvider providerExceptions
-     */
+    #[DataProvider('providerExceptions')]
     public function testFastlyNotAvailable(\Throwable $e, string $message): void
     {
         $this->mockHandler->append($e);

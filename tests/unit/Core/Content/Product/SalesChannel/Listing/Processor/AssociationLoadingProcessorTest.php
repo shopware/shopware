@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Processor;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AssociationLoadingListingProcessor;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,9 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Processor\AssociationLoadingListingProcessor
  */
+#[CoversClass(AssociationLoadingListingProcessor::class)]
 class AssociationLoadingProcessorTest extends TestCase
 {
     public function testPrepare(): void

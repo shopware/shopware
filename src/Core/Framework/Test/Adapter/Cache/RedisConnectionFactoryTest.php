@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Cache;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
@@ -11,9 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
  */
 class RedisConnectionFactoryTest extends TestCase
 {
-    /**
-     * @dataProvider prefixProvider
-     */
+    #[DataProvider('prefixProvider')]
     public function testPrefix(?string $aPrefix, ?string $bPrefix, bool $equals): void
     {
         /** @var string $url */

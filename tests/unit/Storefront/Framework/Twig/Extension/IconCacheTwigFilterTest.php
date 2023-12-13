@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
@@ -32,17 +34,15 @@ use Twig\Loader\FilesystemLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter
- * @covers \Shopware\Storefront\Framework\Twig\IconExtension
  */
+#[CoversClass(IconCacheTwigFilter::class)]
+#[CoversClass(IconExtension::class)]
 class IconCacheTwigFilterTest extends TestCase
 {
     /**
      * NEXT-26125
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testStorefrontRenderIconCacheEnabled(): void
     {
         $twig = $this->createFinder([
@@ -77,9 +77,8 @@ class IconCacheTwigFilterTest extends TestCase
 
     /**
      * NEXT-26125
-     *
-     * @group quarantined
      */
+    #[Group('quarantined')]
     public function testStorefrontRenderIconCacheDisabled(): void
     {
         $twig = $this->createFinder([

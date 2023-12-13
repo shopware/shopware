@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Category\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -63,9 +64,7 @@ class CategoryUrlGeneratorTest extends TestCase
         static::assertSame('frontend.home.page', $this->urlGenerator->generate($category, $this->salesChannel));
     }
 
-    /**
-     * @dataProvider dataProviderLinkTypes
-     */
+    #[DataProvider('dataProviderLinkTypes')]
     public function testLinkType(?string $type, string $route): void
     {
         $category = new CategoryEntity();

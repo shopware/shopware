@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Product;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -14,16 +16,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Product\ProductSearchBuilder
  */
+#[CoversClass(ProductSearchBuilder::class)]
 class ProductSearchBuilderTest extends TestCase
 {
     /**
-     * @dataProvider providerQueries
-     *
      * @param array<string>|string $query
      */
+    #[DataProvider('providerQueries')]
     public function testArraySearchTerm(array|string $query, string $expected): void
     {
         $criteria = new Criteria();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -87,12 +88,11 @@ class CreditNoteRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider creditNoteRendererDataProvider
-     *
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
      * @param array<string, int> $additionalConfig
      */
+    #[DataProvider('creditNoteRendererDataProvider')]
     public function testRender(
         array $possibleTaxes,
         array $creditPrices,
@@ -320,11 +320,10 @@ class CreditNoteRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider creditNoteRendererCustomerGroupDataProvider
-     *
      * @param array<int, int> $possibleTaxes
      * @param array<int, int> $creditPrices
      */
+    #[DataProvider('creditNoteRendererCustomerGroupDataProvider')]
     public function testGenerateCreditNoteWithCustomerGroup(
         bool $groupNet,
         array $possibleTaxes,

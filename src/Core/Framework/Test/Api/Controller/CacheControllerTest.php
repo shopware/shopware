@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
@@ -14,10 +15,9 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
 #[Package('system-settings')]
+#[Group('skip-paratest')]
 class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -31,9 +31,7 @@ class CacheControllerTest extends TestCase
         $this->cache = $this->getContainer()->get('cache.object');
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testClearCacheEndpoint(): void
     {
         $this->cache = $this->getContainer()->get('cache.object');

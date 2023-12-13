@@ -242,6 +242,7 @@ class FileSaverTest extends TestCase
         $this->getPublicFilesystem()->writeStream($pathName, $resource);
 
         static::assertIsString($png->getFileName());
+        static::assertNotEmpty($png->getFileName());
 
         try {
             $this->fileSaver->persistFileToMedia(

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\ConfigLoader;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -20,10 +21,9 @@ use Shopware\Storefront\Theme\ThemeEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider
  */
 #[Package('storefront')]
+#[CoversClass(DatabaseAvailableThemeProvider::class)]
 class DatabaseAvailableThemeProviderTest extends TestCase
 {
     public function testThemeProviderThrowsOnGetDecorated(): void

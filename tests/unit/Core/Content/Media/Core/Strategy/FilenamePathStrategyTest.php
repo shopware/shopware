@@ -2,22 +2,22 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Strategy;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy;
 use Shopware\Core\Content\Media\Core\Params\MediaLocationStruct;
 use Shopware\Core\Content\Media\Core\Params\ThumbnailLocationStruct;
 use Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Strategy\FilenamePathStrategy
- * @covers \Shopware\Core\Content\Media\Core\Application\AbstractMediaPathStrategy
  */
+#[CoversClass(FilenamePathStrategy::class)]
+#[CoversClass(AbstractMediaPathStrategy::class)]
 class FilenamePathStrategyTest extends TestCase
 {
-    /**
-     * @dataProvider strategyProvider
-     */
+    #[DataProvider('strategyProvider')]
     public function testStrategy(MediaLocationStruct|ThumbnailLocationStruct $struct, ?string $expected): void
     {
         $strategy = new FilenamePathStrategy();

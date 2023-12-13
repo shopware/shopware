@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -32,9 +33,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
     }
 
-    /**
-     * @dataProvider allowedStatus
-     */
+    #[DataProvider('allowedStatus')]
     public function testHandle(string $status): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');
@@ -181,9 +180,7 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertFalse($handler->wasCalled());
     }
 
-    /**
-     * @dataProvider notAllowedStatus
-     */
+    #[DataProvider('notAllowedStatus')]
     public function testHandleIgnoresWhenTaskIsNotAllowedForExecution(string $status): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Installer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -13,9 +14,8 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\InstallerKernel
  */
+#[CoversClass(InstallerKernel::class)]
 class InstallerKernelTest extends TestCase
 {
     use EnvTestBehaviour;

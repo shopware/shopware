@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 use Monolog\Handler\AbstractHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor;
 use Shopware\Core\Framework\Log\Package;
@@ -20,11 +21,10 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 /**
- * @covers \Shopware\Core\Framework\Log\Monolog\AnnotatePackageProcessor
- *
  * @internal
  */
 #[Package('cause')]
+#[CoversClass(AnnotatePackageProcessor::class)]
 class AnnotatePackageProcessorTest extends TestCase
 {
     public function testOnlyController(): void

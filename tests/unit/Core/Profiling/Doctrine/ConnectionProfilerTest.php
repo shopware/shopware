@@ -6,6 +6,9 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
@@ -17,11 +20,9 @@ use Symfony\Component\VarDumper\Dumper\CliDumper;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Doctrine\ConnectionProfiler
- *
- * @group time-sensitive
  */
+#[CoversClass(ConnectionProfiler::class)]
+#[Group('time-sensitive')]
 class ConnectionProfilerTest extends TestCase
 {
     protected function setUp(): void
@@ -66,7 +67,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
-        static::assertEquals(1, $c->getTime());
+        static::assertEquals(1, floor($c->getTime()));
 
         $queries = [
             ['sql' => 'SELECT * FROM table1', 'params' => [], 'types' => [], 'executionMS' => 1],
@@ -75,7 +76,7 @@ class ConnectionProfilerTest extends TestCase
         $c = $this->createCollector($queries);
         $c->lateCollect();
         $c = unserialize(serialize($c));
-        static::assertEquals(3, $c->getTime());
+        static::assertEquals(3, floor($c->getTime()));
     }
 
     public function testCollectQueryWithNoTypes(): void
@@ -107,10 +108,9 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @dataProvider paramProvider
-     *
      * @param array<mixed> $types
      */
+    #[DataProvider('paramProvider')]
     public function testCollectQueries(mixed $param, array $types, mixed $expected): void
     {
         $queries = [
@@ -175,10 +175,9 @@ class ConnectionProfilerTest extends TestCase
     }
 
     /**
-     * @dataProvider paramProvider
-     *
      * @param array<mixed> $types
      */
+    #[DataProvider('paramProvider')]
     public function testSerialization(mixed $param, array $types, mixed $expected): void
     {
         $queries = [

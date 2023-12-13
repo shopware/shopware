@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Listener;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\WebInstaller\Listener\PhpConfigForcerListener;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,9 +16,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Listener\PhpConfigForcerListener
  */
+#[CoversClass(PhpConfigForcerListener::class)]
 class PhpConfigForcerListenerTest extends TestCase
 {
     public function testCallOnConfigurePageDoesNotCreateALoop(): void

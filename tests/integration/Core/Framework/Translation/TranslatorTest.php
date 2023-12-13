@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Translation;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
@@ -22,7 +23,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\SalesChannelThemeLoader;
 use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
-use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\SnippetFile_UnitTest;
+use Shopware\Tests\Integration\Core\Framework\Translation\Fixtures\UnitTest_SnippetFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Translation\MessageCatalogueInterface;
@@ -53,7 +54,7 @@ class TranslatorTest extends TestCase
 
     public function testPassthru(): void
     {
-        $snippetFile = new SnippetFile_UnitTest();
+        $snippetFile = new UnitTest_SnippetFile();
         $this->getContainer()->get(SnippetFileCollection::class)->add($snippetFile);
 
         $stack = $this->getContainer()->get(RequestStack::class);
@@ -378,9 +379,7 @@ class TranslatorTest extends TestCase
         static::assertEquals('Service date equivalent to invoice date', $translator->trans('document.serviceDateNotice'));
     }
 
-    /**
-     * @dataProvider pluralTranslationProvider
-     */
+    #[DataProvider('pluralTranslationProvider')]
     public function testPluralRules(string $expected, string $id, int $number, string $locale): void
     {
         static::assertEquals($expected, $this->translator->trans($id, ['%count%' => (string) $number], null, $locale));

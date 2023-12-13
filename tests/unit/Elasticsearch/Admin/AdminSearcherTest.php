@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -19,9 +20,8 @@ use Shopware\Elasticsearch\ElasticsearchException;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\AdminSearcher
  */
+#[CoversClass(AdminSearcher::class)]
 class AdminSearcherTest extends TestCase
 {
     private Client&MockObject $client;

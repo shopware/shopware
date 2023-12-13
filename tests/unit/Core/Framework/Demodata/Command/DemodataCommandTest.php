@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Demodata\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -30,9 +31,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Demodata\Command\DemodataCommand
  */
+#[CoversClass(DemodataCommand::class)]
 class DemodataCommandTest extends TestCase
 {
     private const DEFAULT_DEFINITIONS = [
@@ -65,7 +65,7 @@ class DemodataCommandTest extends TestCase
         $this->command = new DemodataCommand(
             $this->createMock(DemodataService::class),
             $this->dispatcher,
-            $this->getName() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
+            $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
         );
     }
 

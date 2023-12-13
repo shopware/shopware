@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
@@ -52,9 +53,7 @@ class VersionTest extends TestCase
         static::assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);
     }
 
-    /**
-     * @dataProvider protectedRoutesDataProvider
-     */
+    #[DataProvider('protectedRoutesDataProvider')]
     public function testRoutesAreProtected(string $method, string $url): void
     {
         $this->unauthorizedClient->request($method, $url);

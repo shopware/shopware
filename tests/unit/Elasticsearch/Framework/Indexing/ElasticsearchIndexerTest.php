@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -27,9 +28,8 @@ use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer
  */
+#[CoversClass(ElasticsearchIndexer::class)]
 class ElasticsearchIndexerTest extends TestCase
 {
     private Connection&MockObject $connection;

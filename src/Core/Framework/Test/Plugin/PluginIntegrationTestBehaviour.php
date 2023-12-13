@@ -4,12 +4,14 @@ namespace Shopware\Core\Framework\Test\Plugin;
 
 use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
-use SwagTest\SwagTest;
+use SwagTestPlugin\SwagTestPlugin;
 use SwagTestSkipRebuild\SwagTestSkipRebuild;
 use SwagTestWithBundle\SwagTestWithBundle;
 
@@ -25,9 +27,7 @@ trait PluginIntegrationTestBehaviour
      */
     protected $connection;
 
-    /**
-     * @before
-     */
+    #[Before]
     public function pluginIntegrationSetUp(): void
     {
         $this->connection = Kernel::getConnection();
@@ -39,9 +39,7 @@ trait PluginIntegrationTestBehaviour
         $this->classLoader->register();
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function pluginIntegrationTearDown(): void
     {
         $this->classLoader->unregister();
@@ -77,12 +75,12 @@ trait PluginIntegrationTestBehaviour
         $plugin = new PluginEntity();
         $plugin->assign([
             'id' => Uuid::randomHex(),
-            'name' => 'SwagTest',
-            'baseClass' => SwagTest::class,
+            'name' => 'SwagTestPlugin',
+            'baseClass' => SwagTestPlugin::class,
             'version' => '1.0.1',
             'active' => false,
-            'path' => __DIR__ . '/_fixture/plugins/SwagTest',
-            'autoload' => ['psr-4' => ['SwagTest\\' => 'src/']],
+            'path' => __DIR__ . '/_fixture/plugins/SwagTestPlugin',
+            'autoload' => ['psr-4' => ['SwagTestPlugin\\' => 'src/']],
             'createdAt' => new \DateTimeImmutable('2019-01-01'),
             'managedByComposer' => false,
         ]);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use PHPUnit\Framework\Attributes\After;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
@@ -12,9 +13,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 trait SessionTestBehaviour
 {
-    /**
-     * @after
-     */
+    #[After]
     public function clearSession(): void
     {
         $session = $this->getSession();

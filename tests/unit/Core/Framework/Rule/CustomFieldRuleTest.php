@@ -2,18 +2,19 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\CustomFieldRule;
 
 /**
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Framework\Rule\CustomFieldRule
  */
 #[Package('business-ops')]
+#[CoversClass(CustomFieldRule::class)]
+#[Group('rules')]
 class CustomFieldRuleTest extends TestCase
 {
     private const CUSTOM_FIELD_NAME = 'custom_test';
@@ -37,12 +38,11 @@ class CustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider customFieldRuleData
-     *
      * @param array<string, mixed> $customFields
      * @param array<string>|bool|string|int|null $renderedFieldValue
      * @param array<string, string> $config
      */
+    #[DataProvider('customFieldRuleData')]
     public function testMatch(
         array $customFields,
         array|bool|string|null|int $renderedFieldValue,

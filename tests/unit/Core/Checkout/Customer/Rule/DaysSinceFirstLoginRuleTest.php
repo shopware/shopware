@@ -2,10 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule;
+use Shopware\Core\Framework\Rule\Container\DaysSinceRule;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -14,12 +18,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\DaysSinceFirstLoginRule
- * @covers \Shopware\Core\Framework\Rule\Container\DaysSinceRule
  */
+#[CoversClass(DaysSinceFirstLoginRule::class)]
+#[CoversClass(DaysSinceRule::class)]
+#[Group('rules')]
 class DaysSinceFirstLoginRuleTest extends TestCase
 {
     protected DaysSinceFirstLoginRule $rule;
@@ -49,9 +51,7 @@ class DaysSinceFirstLoginRuleTest extends TestCase
         $this->rule->match(new CheckoutRuleScope($salesChannelContext));
     }
 
-    /**
-     * @dataProvider getCaseTestMatchValues
-     */
+    #[DataProvider('getCaseTestMatchValues')]
     public function testIfMatchesCorrect(
         string $operator,
         bool $isMatching,

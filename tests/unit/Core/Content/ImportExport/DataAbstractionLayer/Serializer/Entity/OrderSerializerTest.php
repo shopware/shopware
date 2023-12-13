@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -22,10 +24,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer
  */
 #[Package('system-settings')]
+#[CoversClass(OrderSerializer::class)]
 class OrderSerializerTest extends TestCase
 {
     private OrderSerializer $serializer;
@@ -43,11 +44,10 @@ class OrderSerializerTest extends TestCase
     }
 
     /**
-     * @dataProvider serializeDataProvider
-     *
      * @param array<mixed>|Struct|null $entity
      * @param array<mixed> $expected
      */
+    #[DataProvider('serializeDataProvider')]
     public function testSerialize($entity, array $expected): void
     {
         $logEntity = new ImportExportLogEntity();

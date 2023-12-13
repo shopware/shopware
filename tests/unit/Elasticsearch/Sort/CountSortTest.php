@@ -3,14 +3,14 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Sort;
 
 use OpenSearchDSL\Sort\FieldSort;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Sort\CountSort;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Sort\CountSort
  */
+#[CoversClass(CountSort::class)]
 class CountSortTest extends TestCase
 {
     public function testSerialize(): void

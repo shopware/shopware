@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -33,10 +34,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\CmsController
  */
 #[Package('buyers-experience')]
+#[CoversClass(CmsController::class)]
 class CmsControllerTest extends TestCase
 {
     private MockObject&CmsRoute $cmsRouteMock;

@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -22,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,10 +32,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Seo\SeoUrlGenerator
  */
 #[Package('buyers-experience')]
+#[CoversClass(SeoUrlGenerator::class)]
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -81,9 +81,8 @@ class SeoUrlGeneratorTest extends TestCase
     /**
      * Checks whether the amount of generated URLs is correct. Empty SEO-URL
      * templates should lead to no SEO-URL being generated.
-     *
-     * @dataProvider templateDataProvider
      */
+    #[DataProvider('templateDataProvider')]
     public function testGenerateUrlCount(string $template, int $count, string $pathInfo): void
     {
         $id = $this->getValidCategoryId();
@@ -106,9 +105,8 @@ class SeoUrlGeneratorTest extends TestCase
 
     /**
      * Checks whether the SEO-URL path generated fits the expected template.
-     *
-     * @dataProvider templateDataProvider
      */
+    #[DataProvider('templateDataProvider')]
     public function testGenerateSeoPathInfo(string $template, int $count, string $pathInfo): void
     {
         $id = $this->getValidCategoryId();
@@ -132,7 +130,9 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertIsIterable($urls);
 
         foreach ($urls as $url) {
-            static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
+            if (!empty($pathInfo)) {
+                static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
+            }
         }
     }
 
@@ -141,10 +141,6 @@ class SeoUrlGeneratorTest extends TestCase
      */
     public static function templateDataProvider(): array
     {
-        $connection = KernelLifecycleManager::getConnection();
-
-        $categoryId = Uuid::fromBytesToHex((string) $connection->fetchOne('SELECT id FROM category'));
-
         return [
             [
                 'template' => '{{ id }}',

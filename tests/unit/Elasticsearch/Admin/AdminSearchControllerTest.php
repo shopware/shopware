@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
@@ -19,9 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\AdminSearchController
  */
+#[CoversClass(AdminSearchController::class)]
 class AdminSearchControllerTest extends TestCase
 {
     private AdminSearcher $searcher;

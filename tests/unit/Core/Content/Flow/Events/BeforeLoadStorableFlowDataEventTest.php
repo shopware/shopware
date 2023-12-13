@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Events;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
 use Shopware\Core\Framework\Context;
@@ -10,10 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent
  */
 #[Package('business-ops')]
+#[CoversClass(BeforeLoadStorableFlowDataEvent::class)]
 class BeforeLoadStorableFlowDataEventTest extends TestCase
 {
     public function testGetters(): void

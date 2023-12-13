@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearchDSL\Aggregation\Bucketing\CompositeAggregation;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
@@ -38,9 +40,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser
  */
+#[CoversClass(CriteriaParser::class)]
 class CriteriaParserTest extends TestCase
 {
     private const SECOND_LANGUAGE = 'd5da80fc94874ea988eac8abdea44e0a';
@@ -113,10 +114,9 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @dataProvider parseFilterDataProvider
-     *
      * @param array<mixed> $expectedEsFilter
      */
+    #[DataProvider('parseFilterDataProvider')]
     public function testParseFilter(Filter $filter, array $expectedEsFilter): void
     {
         $definition = $this->getDefinition();
@@ -148,9 +148,7 @@ class CriteriaParserTest extends TestCase
         $parser->parseFilter(new CustomFilter(), $definition, ProductDefinition::ENTITY_NAME, Context::createDefaultContext());
     }
 
-    /**
-     * @dataProvider accessorContextProvider
-     */
+    #[DataProvider('accessorContextProvider')]
     public function testBuildAccessor(string $field, Context $context, string $expectedAccessor): void
     {
         $definition = $this->getDefinition();
@@ -537,20 +535,18 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @dataProvider providerCheapestPrice
-     *
      * @param array<mixed> $expectedQuery
      */
+    #[DataProvider('providerCheapestPrice')]
     public function testCheapestPriceSorting(FieldSorting $sorting, array $expectedQuery, Context $context): void
     {
         $this->executeCheapestPriceTest($sorting, $expectedQuery, $context, true);
     }
 
     /**
-     * @dataProvider providerTranslatedField
-     *
      * @param array<mixed> $expectedQuery
      */
+    #[DataProvider('providerTranslatedField')]
     public function testTranslatedFieldSorting(FieldSorting $sorting, array $expectedQuery, bool $scriptSorting = true, ?Field $customField = null): void
     {
         $definition = $this->getDefinition();
@@ -878,10 +874,9 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @dataProvider providerFilter
-     *
      * @param array<mixed> $expectedFilter
      */
+    #[DataProvider('providerFilter')]
     public function testFilterParsing(Filter $filter, array $expectedFilter): void
     {
         $context = Context::createDefaultContext();
@@ -1075,10 +1070,9 @@ class CriteriaParserTest extends TestCase
     }
 
     /**
-     * @dataProvider providerCheapestPrice
-     *
      * @param array<mixed> $expectedQuery
      */
+    #[DataProvider('providerCheapestPrice')]
     public function testCheapestPriceSortingSourceExists(
         FieldSorting $sorting,
         array $expectedQuery,

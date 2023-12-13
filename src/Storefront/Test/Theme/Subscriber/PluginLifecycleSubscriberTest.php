@@ -21,7 +21,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\PluginLifecycleSubscriber;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
-use SwagTest\SwagTest;
+use SwagTestPlugin\SwagTestPlugin;
 
 /**
  * @internal
@@ -35,8 +35,8 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         parent::setUp();
         $this->addTestPluginToKernel(
-            __DIR__ . '/../../../../Core/Framework/Test/Plugin/_fixture/plugins/SwagTest',
-            'SwagTest'
+            __DIR__ . '/../../../../Core/Framework/Test/Plugin/_fixture/plugins/SwagTestPlugin',
+            'SwagTestPlugin'
         );
     }
 
@@ -185,8 +185,8 @@ class PluginLifecycleSubscriberTest extends TestCase
     {
         return (new PluginEntity())
             ->assign([
-                'path' => (new \ReflectionClass(SwagTest::class))->getFileName(),
-                'baseClass' => SwagTest::class,
+                'path' => (new \ReflectionClass(SwagTestPlugin::class))->getFileName(),
+                'baseClass' => SwagTestPlugin::class,
             ]);
     }
 }

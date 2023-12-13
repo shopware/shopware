@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ContactForm\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory;
@@ -27,10 +29,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(ContactFormRoute::class)]
 class ContactFormRouteTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
@@ -44,9 +45,8 @@ class ContactFormRouteTest extends TestCase
      * @param array<string, string> $data
      * @param array<string, string> $properties
      * @param array<int, mixed> $constraints
-     *
-     * @dataProvider validatorDataProvider
      */
+    #[DataProvider('validatorDataProvider')]
     public function testSubscribeWithValidation(array $data, array $properties, array $constraints): void
     {
         $requestData = new RequestDataBag();

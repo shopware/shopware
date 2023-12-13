@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessage;
 use Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessageHandler;
@@ -9,9 +10,8 @@ use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\CollectEntityDataMessageHandler
  */
+#[CoversClass(CollectEntityDataMessageHandler::class)]
 class CollectEntityDataMessageHandlerTest extends TestCase
 {
     public function testInvoke(): void

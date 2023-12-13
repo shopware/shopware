@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Cms\DataResolver\Element;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -13,10 +14,9 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection
  */
 #[Package('buyers-experience')]
+#[CoversClass(ElementDataCollection::class)]
 class ElementDataCollectionTest extends TestCase
 {
     public function testItIterates(): void

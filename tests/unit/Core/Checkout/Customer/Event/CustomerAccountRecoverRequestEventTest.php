@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
@@ -13,9 +14,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent
  */
+#[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 class CustomerAccountRecoverRequestEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void

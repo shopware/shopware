@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -91,10 +92,9 @@ class InvoiceRendererTest extends TestCase
     }
 
     /**
-     * @dataProvider invoiceDataProvider
-     *
      * @param array<int|string, int> $possibleTaxes
      */
+    #[DataProvider('invoiceDataProvider')]
     public function testRender(array $possibleTaxes, ?\Closure $beforeRenderHook, \Closure $assertionCallback): void
     {
         $cart = $this->generateDemoCart($possibleTaxes);

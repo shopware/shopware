@@ -3,11 +3,14 @@ declare(strict_types=1);
 
 namespace Shopware\WebInstaller\Tests\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Shopware\WebInstaller\Controller\UpdateController;
 use Shopware\WebInstaller\Services\FlexMigrator;
+use Shopware\WebInstaller\Services\ProjectComposerJsonUpdater;
 use Shopware\WebInstaller\Services\RecoveryManager;
 use Shopware\WebInstaller\Services\ReleaseInfoProvider;
 use Shopware\WebInstaller\Services\StreamedCommandResponseGenerator;
@@ -23,10 +26,9 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\WebInstaller\Controller\UpdateController
- * @covers \Shopware\WebInstaller\Services\ProjectComposerJsonUpdater
  */
+#[CoversClass(UpdateController::class)]
+#[CoversClass(ProjectComposerJsonUpdater::class)]
 class UpdateControllerTest extends TestCase
 {
     public function testRedirectWhenNotInstalled(): void
@@ -214,9 +216,7 @@ class UpdateControllerTest extends TestCase
         static::assertInstanceOf(StreamedResponse::class, $response);
     }
 
-    /**
-     * @dataProvider provideVersions
-     */
+    #[DataProvider('provideVersions')]
     public function testUpdateChangesComposerJSON(string $shopwareVersion): void
     {
         $recoveryManager = $this->createMock(RecoveryManager::class);

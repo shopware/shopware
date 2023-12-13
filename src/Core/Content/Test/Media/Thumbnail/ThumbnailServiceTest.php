@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\Test\Media\Thumbnail;
 
 use League\Flysystem\UnableToReadFile;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
@@ -28,9 +30,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -512,9 +513,7 @@ class ThumbnailServiceTest extends TestCase
         return [[true], [false]];
     }
 
-    /**
-     * @dataProvider strictModeConditionsProvider
-     */
+    #[DataProvider('strictModeConditionsProvider')]
     public function testUpdateThumbnailStrictMode(bool $strict): void
     {
         $this->setFixtureContext($this->context);

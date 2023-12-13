@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Facade\StatesFacade;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Facade\StatesFacade
  */
+#[CoversClass(StatesFacade::class)]
 class StatesFacadeTest extends TestCase
 {
     public function testPublicApi(): void

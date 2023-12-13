@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -20,9 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder
  */
+#[CoversClass(FlowRuleScopeBuilder::class)]
 class FlowRuleScopeBuilderTest extends TestCase
 {
     private MockObject&OrderConverter $orderConverter;

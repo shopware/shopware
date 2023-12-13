@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching\Action;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
@@ -15,9 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction
  */
+#[CoversClass(AddOrderTagAction::class)]
 class AddOrderTagActionTest extends TestCase
 {
     private MockObject&EntityRepository $repository;
@@ -50,9 +51,8 @@ class AddOrderTagActionTest extends TestCase
     /**
      * @param array<string, mixed> $config
      * @param array<string, mixed> $expected
-     *
-     * @dataProvider actionExecutedProvider
      */
+    #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, array $expected): void
     {
         $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());

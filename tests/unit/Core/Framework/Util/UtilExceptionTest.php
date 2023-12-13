@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\UtilException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\UtilException
  */
+#[CoversClass(UtilException::class)]
 class UtilExceptionTest extends TestCase
 {
     public function testInvalidJson(): void

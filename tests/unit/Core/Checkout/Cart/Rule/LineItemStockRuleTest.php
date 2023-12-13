@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
@@ -23,9 +25,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemStockRule
  */
+#[CoversClass(LineItemStockRule::class)]
 class LineItemStockRuleTest extends TestCase
 {
     public function testItReturnsTheCorrectName(): void
@@ -79,9 +80,7 @@ class LineItemStockRuleTest extends TestCase
         yield 'GTE: less stock' => [Rule::OPERATOR_GTE, 4, false];
     }
 
-    /**
-     * @dataProvider provideLineItemTestCases
-     */
+    #[DataProvider('provideLineItemTestCases')]
     public function testMatchWithLineItemScope(string $operator, int $lineItemStock, bool $matches): void
     {
         $ruleScope = new LineItemScope(
@@ -94,9 +93,7 @@ class LineItemStockRuleTest extends TestCase
         static::assertEquals($matches, $rule->match($ruleScope));
     }
 
-    /**
-     * @dataProvider provideLineItemTestCases
-     */
+    #[DataProvider('provideLineItemTestCases')]
     public function testMatchWithCartRuleScopeWithOneItem(string $operator, int $lineItemStock, bool $matches): void
     {
         $cart = new Cart('test-token');

@@ -352,7 +352,7 @@ PHP unit per area:
     coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
     parallel:
       matrix:
-        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "data-services", "services-settings", "storefront", "system-settings", "unknown"]
+        - PRODUCT_AREA: ["administration", "buyers-experience", "checkout", "content", "core", "inventory", "data-services", "services-settings", "storefront", "system-settings"]
     artifacts:
       when: always
       paths:

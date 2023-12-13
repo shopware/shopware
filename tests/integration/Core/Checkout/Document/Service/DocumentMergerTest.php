@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use setasign\Fpdi\Tcpdf\Fpdi;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
@@ -29,11 +31,10 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @group slow
- *
  * @internal
  */
 #[Package('checkout')]
+#[Group('slow')]
 class DocumentMergerTest extends TestCase
 {
     use DocumentTrait;
@@ -162,9 +163,7 @@ class DocumentMergerTest extends TestCase
         static::assertNull($mergeResult);
     }
 
-    /**
-     * @dataProvider documentMergeDataProvider
-     */
+    #[DataProvider('documentMergeDataProvider')]
     public function testMerge(int $numDocs, bool $static, bool $withMedia, \Closure $assertionCallback): void
     {
         $docIds = [];

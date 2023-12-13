@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -10,11 +11,10 @@ use Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @covers \Shopware\Core\Checkout\Payment\Cart\SyncPaymentTransactionStruct
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(SyncPaymentTransactionStruct::class)]
 class SyncPaymentTransactionStructTest extends TestCase
 {
     public function testGetters(): void

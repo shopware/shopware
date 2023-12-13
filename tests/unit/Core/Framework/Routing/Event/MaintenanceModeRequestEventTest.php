@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Routing\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent
  */
+#[CoversClass(MaintenanceModeRequestEvent::class)]
 class MaintenanceModeRequestEventTest extends TestCase
 {
     public function testIsClientAllowed(): void

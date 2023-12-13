@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
@@ -32,10 +34,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(NewsletterSubscribeRoute::class)]
 class NewsletterSubscribeRouteTest extends TestCase
 {
     private SalesChannelContext $salesChannelContext;
@@ -143,9 +144,8 @@ class NewsletterSubscribeRouteTest extends TestCase
      * @param array<string, string> $data
      * @param array<string, string> $properties
      * @param array<int, mixed> $constraints
-     *
-     * @dataProvider validatorDataProvider
      */
+    #[DataProvider('validatorDataProvider')]
     public function testSubscribeWithValidation(array $data, array $properties, array $constraints): void
     {
         $requestData = new RequestDataBag();

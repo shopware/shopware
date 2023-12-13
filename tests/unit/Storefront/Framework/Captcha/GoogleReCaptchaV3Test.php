@@ -9,6 +9,8 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -17,9 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3
  */
+#[CoversClass(GoogleReCaptchaV3::class)]
 class GoogleReCaptchaV3Test extends TestCase
 {
     private const IS_VALID = true;
@@ -37,9 +38,7 @@ class GoogleReCaptchaV3Test extends TestCase
         $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', []);
     }
 
-    /**
-     * @dataProvider requestDataSupportProvider
-     */
+    #[DataProvider('requestDataSupportProvider')]
     public function testIsSupported(string $method, bool $isActive, bool $isSupported): void
     {
         $request = self::getRequest();
@@ -59,9 +58,7 @@ class GoogleReCaptchaV3Test extends TestCase
         static::assertSame($captcha->supports($request, $activeCaptchaConfig[$captcha->getName()]), $isSupported);
     }
 
-    /**
-     * @dataProvider requestDataIsValidProvider
-     */
+    #[DataProvider('requestDataIsValidProvider')]
     public function testIsValid(Request $request, MockHandler $mockHandler, bool $shouldBeValid, ?string $secretKey = null, ?string $configThreshold = null): void
     {
         $this->systemConfigService->set('core.basicInformation.activeCaptchasV2', [

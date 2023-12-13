@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Maintenance\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePrePrepareEvent;
@@ -12,9 +13,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand
  */
+#[CoversClass(SystemUpdatePrepareCommand::class)]
 class SystemUpdatePrepareCommandTest extends TestCase
 {
     public function testExecute(): void

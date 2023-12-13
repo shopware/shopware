@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\Core\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Event\UpdateMediaPathEvent
  */
+#[CoversClass(UpdateMediaPathEvent::class)]
 class UpdateMediaPathEventTest extends TestCase
 {
     public function testGetIterator(): void

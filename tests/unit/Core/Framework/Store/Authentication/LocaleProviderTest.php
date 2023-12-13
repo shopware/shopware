@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Authentication;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -18,10 +19,9 @@ use Shopware\Core\System\User\UserEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Authentication\LocaleProvider
  */
 #[Package('services-settings')]
+#[CoversClass(LocaleProvider::class)]
 class LocaleProviderTest extends TestCase
 {
     public function testGetLocaleFromContextReturnsEnGbInSystemSource(): void

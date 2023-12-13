@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\TypeDetector;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\ImageType;
@@ -10,9 +11,8 @@ use Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\TypeDetector\VideoTypeDetector
  */
+#[CoversClass(VideoTypeDetector::class)]
 class VideoTypeDetectorTest extends TestCase
 {
     public function testDetectGif(): void

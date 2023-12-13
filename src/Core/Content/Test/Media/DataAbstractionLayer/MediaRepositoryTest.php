@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\Media\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -33,10 +34,9 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @group slow
- * @group skip-paratest
  */
+#[Group('slow')]
+#[Group('skip-paratest')]
 class MediaRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;

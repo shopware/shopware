@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Administration\Controller;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
@@ -11,9 +12,8 @@ use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @group slow
  */
+#[Group('slow')]
 class AdminProductStreamControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

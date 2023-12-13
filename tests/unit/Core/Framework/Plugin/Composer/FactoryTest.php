@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Composer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Composer\Factory
  */
+#[CoversClass(Factory::class)]
 class FactoryTest extends TestCase
 {
     public function testCreateComposer(): void

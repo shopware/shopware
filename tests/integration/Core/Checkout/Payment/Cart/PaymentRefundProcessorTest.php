@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Payment\Cart;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStateHandler;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCaptureRefund\OrderTransactionCaptureRefundStates;
@@ -109,9 +110,7 @@ class PaymentRefundProcessorTest extends TestCase
         $this->paymentRefundProcessor->processRefund($this->ids->get('refund'), Context::createDefaultContext());
     }
 
-    /**
-     * @dataProvider getInvalidStatesForTransitions
-     */
+    #[DataProvider('getInvalidStatesForTransitions')]
     public function testItThrowsIfRefundIsInWrongState(string $stateMachineState): void
     {
         $refund = (new OrderTransactionCaptureRefundBuilder(

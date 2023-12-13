@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Newsletter\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\NewsletterEvents;
@@ -15,10 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Newsletter\Subscriber\NewsletterRecipientSalutationSubscriber
  */
 #[Package('buyers-experience')]
+#[CoversClass(NewsletterRecipientSalutationSubscriber::class)]
 class NewsletterRecipientSalutationSubscriberTest extends TestCase
 {
     private MockObject&Connection $connection;

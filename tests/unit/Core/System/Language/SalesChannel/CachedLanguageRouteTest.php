@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Language\SalesChannel;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
@@ -35,10 +36,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute
  */
 #[Package('buyers-experience')]
+#[CoversClass(CachedLanguageRoute::class)]
 class CachedLanguageRouteTest extends TestCase
 {
     private MockObject&AbstractLanguageRoute $decorated;

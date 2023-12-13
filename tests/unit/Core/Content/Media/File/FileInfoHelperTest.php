@@ -2,16 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileInfoHelper;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\File\FileInfoHelper
  */
 #[Package('buyers-experience')]
+#[CoversClass(FileInfoHelper::class)]
 class FileInfoHelperTest extends TestCase
 {
     public function testGetMimeTypeWithDetectableTypeByFileContentWillDetectByContent(): void

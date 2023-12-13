@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Theme;
 
 use Doctrine\DBAL\Exception;
 use League\Flysystem\Filesystem;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -48,9 +49,8 @@ use Symfony\Component\Messenger\MessageBus;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\ThemeCompiler
  */
+#[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
     use AppSystemTestBehaviour;

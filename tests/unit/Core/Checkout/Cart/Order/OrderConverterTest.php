@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -75,9 +77,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Order\OrderConverter
  */
+#[CoversClass(OrderConverter::class)]
 class OrderConverterTest extends TestCase
 {
     private EventDispatcher $eventDispatcher;
@@ -94,10 +95,9 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @dataProvider assembleSalesChannelContextData
-     *
      * @psalm-param class-string<\Throwable> $exceptionClass
      */
+    #[DataProvider('assembleSalesChannelContextData')]
     public function testAssembleSalesChannelContext(string $exceptionClass, string $manipulateOrder = ''): void
     {
         if ($exceptionClass !== '') {
@@ -238,10 +238,9 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @dataProvider convertToOrderExceptionsData
-     *
      * @psalm-param class-string<\Throwable> $exceptionClass
      */
+    #[DataProvider('convertToOrderExceptionsData')]
     public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
         if ($exceptionClass !== '') {
@@ -358,9 +357,7 @@ class OrderConverterTest extends TestCase
         static::assertEquals($expected, $result);
     }
 
-    /**
-     * @dataProvider convertToCartManipulatedOrderData
-     */
+    #[DataProvider('convertToCartManipulatedOrderData')]
     public function testConvertToCartManipulatedOrder(string $manipulateOrder = ''): void
     {
         $order = $this->getOrder($manipulateOrder);
@@ -414,9 +411,7 @@ class OrderConverterTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider convertToCartExceptionsData
-     */
+    #[DataProvider('convertToCartExceptionsData')]
     public function testConvertToCartExceptions(string $manipulateOrder): void
     {
         $this->expectException(OrderException::class);
@@ -926,7 +921,6 @@ class OrderConverterTest extends TestCase
     }
 
     // Expectations
-
     /**
      * @return array<string, mixed>
      */

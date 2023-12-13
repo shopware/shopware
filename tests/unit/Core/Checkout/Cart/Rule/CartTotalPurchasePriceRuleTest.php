@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -22,9 +24,8 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule
  */
+#[CoversClass(CartTotalPurchasePriceRule::class)]
 class CartTotalPurchasePriceRuleTest extends TestCase
 {
     public function testItReturnsTheCorrectName(): void
@@ -41,9 +42,8 @@ class CartTotalPurchasePriceRuleTest extends TestCase
 
     /**
      * @param float[] $prices
-     *
-     * @dataProvider provideLineItemTestCases
      */
+    #[DataProvider('provideLineItemTestCases')]
     public function testMatchWithCartRuleScope(string $operator, array $prices, float $total, bool $matches): void
     {
         $cart = new Cart('test-token');

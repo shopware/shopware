@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\Error;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Test\TestSessionStorage;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
+use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Event\StorefrontRedirectEvent;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Tests\Unit\Storefront\Controller\fixtures\TestStorefrontController;
@@ -38,11 +40,10 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 
 /**
- * @covers \Shopware\Storefront\Controller\StorefrontController
- *
  * @internal
  */
 #[Package('storefront')]
+#[CoversClass(StorefrontController::class)]
 class StorefrontControllerTest extends TestCase
 {
     private readonly TestStorefrontController $controller;
@@ -235,6 +236,15 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
+        $requestContext = static::createMock(RequestContext::class);
+        $requestContext
+            ->method('getMethod')
+            ->willReturn('POST');
+
+        $router
+            ->method('getContext')
+            ->willReturn($requestContext);
+
         $router
             ->method('match')
             ->with('/foo/generated')
@@ -294,9 +304,14 @@ class StorefrontControllerTest extends TestCase
             ->with('foo', ['foo' => 'bar'], Router::PATH_INFO)
             ->willReturn('/foo/generated');
 
+        $requestContext = static::createMock(RequestContext::class);
+        $requestContext
+            ->method('getMethod')
+            ->willReturn('POST');
+
         $router
             ->method('getContext')
-            ->willReturn(new RequestContext(method: Request::METHOD_POST));
+            ->willReturn($requestContext);
 
         $router
             ->expects(static::once())

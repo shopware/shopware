@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Api\Sync\SyncOperation
  */
+#[CoversClass(SyncOperation::class)]
 class SyncOperationTest extends TestCase
 {
     public function testWithValidOperation(): void
@@ -72,10 +73,9 @@ class SyncOperationTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidOperationProvider
-     *
      * @param array<mixed> $payload
      */
+    #[DataProvider('invalidOperationProvider')]
     public function testWithInvalidOperation(string $key, string $entity, string $action, array $payload, string $actor): void
     {
         $operation = new SyncOperation($key, $entity, $action, $payload);

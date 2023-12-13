@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -20,11 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemPropertyValueRule
  */
+#[CoversClass(LineItemPropertyValueRule::class)]
+#[Group('rules')]
 class LineItemPropertyValueRuleTest extends TestCase
 {
     private LineItemPropertyValueRule $rule;
@@ -51,11 +52,10 @@ class LineItemPropertyValueRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param list<string> $identifiers
      * @param list<string> $itemPropertyIds
      */
+    #[DataProvider('getMatchValues')]
     public function testCartScopeMatching(bool $expected, array $itemPropertyIds, array $identifiers, string $operator): void
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
@@ -77,11 +77,10 @@ class LineItemPropertyValueRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getMatchValues
-     *
      * @param list<string> $identifiers
      * @param list<string> $itemPropertyIds
      */
+    #[DataProvider('getMatchValues')]
     public function testLineItemScopeMatching(bool $expected, array $itemPropertyIds, array $identifiers, string $operator): void
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);

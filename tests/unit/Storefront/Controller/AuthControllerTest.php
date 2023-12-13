@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -30,9 +31,8 @@ use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Controller\AuthController
  */
+#[CoversClass(AuthController::class)]
 class AuthControllerTest extends TestCase
 {
     private AuthControllerTestClass $controller;

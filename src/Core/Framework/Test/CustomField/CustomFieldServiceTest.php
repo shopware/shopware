@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\CustomField;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -54,9 +55,7 @@ class CustomFieldServiceTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider attributeFieldTestProvider
-     */
+    #[DataProvider('attributeFieldTestProvider')]
     public function testGetCustomFieldField(string $attributeType, string $expectedFieldClass): void
     {
         $attribute = [

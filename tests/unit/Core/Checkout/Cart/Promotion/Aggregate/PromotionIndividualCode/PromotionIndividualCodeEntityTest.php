@@ -2,15 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Aggregate\PromotionIndividualCode;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity
  */
+#[CoversClass(PromotionIndividualCodeEntity::class)]
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**
@@ -18,9 +19,8 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * correctly built when setting the code as "redeemed".
      * We need this data as "soft" reference to the order,
      * line item and everything that might be important.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testRedeemedPayload(): void
     {
         $entity = new PromotionIndividualCodeEntity();
@@ -41,9 +41,8 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * an individual code as redeemed more than once.
      * We set our code redeemed twice and verify that we get
      * our expected exception.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAlreadyRedeemedThrowsException(): void
     {
         $this->expectException(PromotionException::class);
@@ -59,9 +58,8 @@ class PromotionIndividualCodeEntityTest extends TestCase
      * the exactly same data is used again.
      * This avoids any troubles when re-applying or re-saving
      * data in a workflow with multiple iterations.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAlreadyRedeemedIsOkWithSameData(): void
     {
         $entity = new PromotionIndividualCodeEntity();

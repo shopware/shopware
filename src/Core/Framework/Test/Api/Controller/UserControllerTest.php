@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -27,9 +28,7 @@ class UserControllerTest extends TestCase
         $this->resetBrowser();
     }
 
-    /**
-     * @group slow
-     */
+    #[Group('slow')]
     public function testMe(): void
     {
         $url = '/api/_info/me';

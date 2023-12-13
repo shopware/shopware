@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\DataAbstractionLayer\FieldSerializer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Aggregate\FlowTemplate\FlowTemplateDefinition;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
@@ -23,9 +24,8 @@ use Symfony\Component\Validator\Validation;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\DataAbstractionLayer\FieldSerializer\FlowTemplateConfigFieldSerializer
  */
+#[CoversClass(FlowTemplateConfigFieldSerializer::class)]
 class FlowTemplateConfigFieldSerializerTest extends TestCase
 {
     private FlowTemplateConfigFieldSerializer $serializer;

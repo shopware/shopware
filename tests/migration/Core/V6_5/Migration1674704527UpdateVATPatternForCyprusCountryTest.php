@@ -3,16 +3,17 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\V6_5\Migration1674704527UpdateVATPatternForCyprusCountry;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1674704527UpdateVATPatternForCyprusCountry
  */
 #[Package('checkout')]
+#[CoversClass(Migration1674704527UpdateVATPatternForCyprusCountry::class)]
 class Migration1674704527UpdateVATPatternForCyprusCountryTest extends TestCase
 {
     private Connection $connection;

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SearchKeyword;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
@@ -13,9 +15,8 @@ use Shopware\Core\System\Tag\TagEntity;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer
  */
+#[CoversClass(ProductSearchKeywordAnalyzer::class)]
 class ProductSearchKeywordAnalyzerTest extends TestCase
 {
     private Context $context;
@@ -26,12 +27,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
     }
 
     /**
-     * @dataProvider analyzeCases
-     *
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
      * @param array<int, string> $expected
      */
+    #[DataProvider('analyzeCases')]
     public function testAnalyze(array $productData, array $configFields, array $expected): void
     {
         $product = new ProductEntity();
@@ -55,12 +55,11 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
      * The old implementation relied on the error_reporting level, to also report notices as errors.
      * This test ensures that the new implementation does not rely on the error_reporting level.
      *
-     * @dataProvider analyzeCases
-     *
      * @param array<string, mixed> $productData
      * @param array<int, array{field: string, tokenize: bool, ranking: int}> $configFields
      * @param array<int, string> $expected
      */
+    #[DataProvider('analyzeCases')]
     public function testAnalyzeWithIgnoredErrorNoticeReporting(array $productData, array $configFields, array $expected): void
     {
         $oldLevel = error_reporting(\E_ERROR);

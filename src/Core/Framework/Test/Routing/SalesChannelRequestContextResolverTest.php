@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Routing;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Defaults;
@@ -78,9 +79,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
-    /**
-     * @dataProvider domainData
-     */
+    #[DataProvider('domainData')]
     public function testContextCurrency(string $url, string $currencyCode, string $expectedCode): void
     {
         $this->createTestSalesChannel();
@@ -114,10 +113,9 @@ class SalesChannelRequestContextResolverTest extends TestCase
     }
 
     /**
-     * @dataProvider loginRequiredAnnotationData
-     *
      * @param array<string, bool> $attributes
      */
+    #[DataProvider('loginRequiredAnnotationData')]
     public function testLoginRequiredAnnotation(bool $doLogin, bool $isGuest, array $attributes, bool $pass): void
     {
         $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);

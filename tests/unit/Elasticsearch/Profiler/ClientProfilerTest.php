@@ -4,23 +4,23 @@ namespace Shopware\Tests\Unit\Elasticsearch\Profiler;
 
 use GuzzleHttp\Ring\Future\FutureArray;
 use OpenSearch\ClientBuilder;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 
 use function React\Promise\resolve;
 
 /**
- * @covers \Shopware\Elasticsearch\Profiler\ClientProfiler
- *
  * @internal
  */
+#[CoversClass(ClientProfiler::class)]
 class ClientProfilerTest extends TestCase
 {
     /**
-     * @dataProvider providerQueries
-     *
      * @param string|array<string> $index
      */
+    #[DataProvider('providerQueries')]
     public function testProfiling(string|array $index, string $expectedUrl): void
     {
         $builder = new ClientBuilder();

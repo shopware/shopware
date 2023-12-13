@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
@@ -16,9 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class DeleteCascadeAppsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;

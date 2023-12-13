@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearch\Client;
 use OpenSearch\Common\Exceptions\NoNodesAvailableException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -19,9 +20,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher
  */
+#[CoversClass(ElasticsearchEntitySearcher::class)]
 class ElasticsearchEntitySearcherTest extends TestCase
 {
     public function testWithCriteriaLimitOfZero(): void

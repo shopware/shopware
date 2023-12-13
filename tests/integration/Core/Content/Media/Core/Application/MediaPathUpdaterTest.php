@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Core\Application;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Core\Application\MediaLocationBuilder;
 use Shopware\Core\Content\Media\Core\Application\MediaPathStorage;
@@ -16,9 +17,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\Core\Application\MediaPathUpdater
  */
+#[CoversClass(MediaPathUpdater::class)]
 class MediaPathUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;

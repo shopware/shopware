@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\Locale;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Locale\LocaleException;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\Locale\LocaleException
  */
 #[Package('buyers-experience')]
+#[CoversClass(LocaleException::class)]
 class LocaleExceptionTest extends TestCase
 {
     public function testLocaleDoesNotExist(): void

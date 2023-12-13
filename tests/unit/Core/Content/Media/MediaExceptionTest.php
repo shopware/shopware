@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Media;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Media\MediaException
  */
 #[Package('buyers-experience')]
+#[CoversClass(MediaException::class)]
 class MediaExceptionTest extends TestCase
 {
     public function testInvalidContentLength(): void

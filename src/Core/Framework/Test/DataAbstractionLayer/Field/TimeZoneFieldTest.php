@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\TimeZoneFieldSerializer;
@@ -19,9 +20,7 @@ class TimeZoneFieldTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @dataProvider validTimeZones
-     */
+    #[DataProvider('validTimeZones')]
     public function testTimeZoneSerializerTest(string $timeZone): void
     {
         $serializer = $this->getContainer()->get(TimeZoneFieldSerializer::class);
@@ -41,9 +40,7 @@ class TimeZoneFieldTest extends TestCase
         static::assertSame($timeZone, $array[$name]);
     }
 
-    /**
-     * @dataProvider inValidTimeZones
-     */
+    #[DataProvider('inValidTimeZones')]
     public function testInvalidTimeZone(string $timeZone): void
     {
         $serializer = $this->getContainer()->get(TimeZoneFieldSerializer::class);

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Facade;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -55,9 +56,7 @@ class CartFacadeTest extends TestCase
         $this->script = new Script('test', '', new \DateTimeImmutable());
     }
 
-    /**
-     * @dataProvider addProductProvider
-     */
+    #[DataProvider('addProductProvider')]
     public function testAddProduct(string $input, ?string $expected): void
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
@@ -147,10 +146,9 @@ class CartFacadeTest extends TestCase
     }
 
     /**
-     * @dataProvider scriptProvider
-     *
      * @param array<string, ExpectedPrice|null> $expectations
      */
+    #[DataProvider('scriptProvider')]
     public function testScripts(string $hook, array $expectations, ?\Closure $closure = null): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');

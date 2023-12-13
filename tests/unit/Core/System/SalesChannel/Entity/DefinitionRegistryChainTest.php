@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Entity;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -14,10 +15,9 @@ use Shopware\Core\System\SalesChannel\Exception\SalesChannelRepositoryNotFoundEx
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain
  */
 #[Package('core')]
+#[CoversClass(DefinitionRegistryChain::class)]
 class DefinitionRegistryChainTest extends TestCase
 {
     private DefinitionInstanceRegistry&MockObject $definitionInstanceRegistry;

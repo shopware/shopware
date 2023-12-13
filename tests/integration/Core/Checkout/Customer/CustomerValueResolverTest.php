@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerValueResolver;
@@ -61,9 +62,7 @@ class CustomerValueResolverTest extends TestCase
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
-    /**
-     * @dataProvider loginRequiredAnnotationData
-     */
+    #[DataProvider('loginRequiredAnnotationData')]
     public function testCustomerResolver(bool $loginRequired, bool $context, bool $pass): void
     {
         $resolver = $this->getContainer()->get(CustomerValueResolver::class);

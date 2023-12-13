@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use OpenSearch\Client;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -15,9 +16,8 @@ use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\ElasticsearchHelper
  */
+#[CoversClass(ElasticsearchHelper::class)]
 class ElasticsearchHelperTest extends TestCase
 {
     public function testLogAndThrowException(): void

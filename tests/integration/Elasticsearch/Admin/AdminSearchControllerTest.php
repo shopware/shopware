@@ -3,6 +3,9 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,9 +21,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @package system-settings
  *
  * @internal
- *
- * @group skip-paratest
  */
+#[Group('skip-paratest')]
 class AdminSearchControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -61,13 +63,11 @@ class AdminSearchControllerTest extends TestCase
     }
 
     /**
-     * @depends testIndexing
-     *
-     * @dataProvider providerSearchCases
-     *
      * @param array<string, string> $data
      * @param array<string> $expectedPromotions
      */
+    #[Depends('testIndexing')]
+    #[DataProvider('providerSearchCases')]
     public function testElasticSearch(array $data, array $expectedPromotions, IdsCollection $ids): void
     {
         $this->getBrowser()->request('POST', '/api/_admin/es-search', [], [], [], json_encode($data, \JSON_THROW_ON_ERROR) ?: null);

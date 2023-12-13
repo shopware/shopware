@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Dispatching;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -26,9 +28,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Dispatching\FlowDispatcher
  */
+#[CoversClass(FlowDispatcher::class)]
 class FlowDispatcherTest extends TestCase
 {
     private TestDataCollection $ids;
@@ -188,9 +189,8 @@ class FlowDispatcherTest extends TestCase
 
     /**
      * @param array<string, mixed> $flows
-     *
-     * @dataProvider flowsData
      */
+    #[DataProvider('flowsData')]
     public function testDispatch(array $flows): void
     {
         $context = Context::createDefaultContext();

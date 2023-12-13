@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Update\Services\ApiClient;
 use Symfony\Component\Filesystem\Filesystem;
@@ -11,9 +12,8 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Update\Services\ApiClient
  */
+#[CoversClass(ApiClient::class)]
 class ApiClientTest extends TestCase
 {
     public function testCheckForUpdatesDisabled(): void

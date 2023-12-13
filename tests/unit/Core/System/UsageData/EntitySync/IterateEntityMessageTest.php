@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage;
@@ -9,10 +10,9 @@ use Shopware\Core\System\UsageData\EntitySync\Operation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\EntitySync\IterateEntityMessage
  */
 #[Package('data-services')]
+#[CoversClass(IterateEntityMessage::class)]
 class IterateEntityMessageTest extends TestCase
 {
     public function testGetters(): void

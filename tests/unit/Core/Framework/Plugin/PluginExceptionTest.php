@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\PluginException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginException
  */
+#[CoversClass(PluginException::class)]
 class PluginExceptionTest extends TestCase
 {
     public function testCannotDeleteManaged(): void

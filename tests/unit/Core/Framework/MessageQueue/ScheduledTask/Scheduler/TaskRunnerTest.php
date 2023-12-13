@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
@@ -15,9 +16,8 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskRunner
  */
+#[CoversClass(TaskRunner::class)]
 class TaskRunnerTest extends TestCase
 {
     public function testNonExistingTask(): void

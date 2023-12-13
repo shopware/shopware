@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -9,9 +10,8 @@ use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguage
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent
  */
+#[CoversClass(ElasticsearchIndexerLanguageCriteriaEvent::class)]
 class ElasticsearchIndexerLanguageCriteriaEventTest extends TestCase
 {
     public function testEvent(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Events;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
@@ -14,9 +15,8 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent
  */
+#[CoversClass(FlowSendMailActionEvent::class)]
 class FlowSendMailActionEventTest extends TestCase
 {
     public function testGetContextWithFlowEvent(): void

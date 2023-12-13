@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
@@ -25,11 +26,10 @@ class StringFieldTest extends TestCase
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider stringFieldDataProvider
-     *
      * @param bool|string|null $input
      * @param Flag[]           $flags
      */
+    #[DataProvider('stringFieldDataProvider')]
     public function testStringFieldSerializer(string $type, $input, ?string $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(StringFieldSerializer::class);

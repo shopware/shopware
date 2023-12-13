@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -18,12 +21,10 @@ use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Content\Flow\Rule\OrderTrackingCodeRule
  */
 #[Package('business-ops')]
+#[CoversClass(OrderTrackingCodeRule::class)]
+#[Group('rules')]
 class OrderTrackingCodeRuleTest extends TestCase
 {
     private OrderTrackingCodeRule $rule;
@@ -34,10 +35,9 @@ class OrderTrackingCodeRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider getRuleTestData
-     *
      * @param list<string> $trackingCodeData
      */
+    #[DataProvider('getRuleTestData')]
     public function testIfMatches(
         OrderTrackingCodeRule $rule,
         array $trackingCodeData,

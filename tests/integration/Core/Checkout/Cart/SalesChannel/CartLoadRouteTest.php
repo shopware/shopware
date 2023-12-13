@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -24,10 +26,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class CartLoadRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -77,10 +78,9 @@ class CartLoadRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProviderPaymentMethodRule
-     *
      * @param array<string, string|array<string, string>>|null $ruleConditions
      */
+    #[DataProvider('dataProviderPaymentMethodRule')]
     public function testFilledCart(?array $ruleConditions, int $errorCount): void
     {
         $this->productRepository->create([

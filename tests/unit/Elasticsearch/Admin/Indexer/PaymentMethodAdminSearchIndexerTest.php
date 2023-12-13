@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -20,9 +21,8 @@ use Shopware\Elasticsearch\Admin\Indexer\PaymentMethodAdminSearchIndexer;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Admin\Indexer\PaymentMethodAdminSearchIndexer
  */
+#[CoversClass(PaymentMethodAdminSearchIndexer::class)]
 class PaymentMethodAdminSearchIndexerTest extends TestCase
 {
     private PaymentMethodAdminSearchIndexer $searchIndexer;

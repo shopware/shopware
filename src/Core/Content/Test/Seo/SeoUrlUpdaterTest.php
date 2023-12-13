@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Seo;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -101,10 +102,10 @@ class SeoUrlUpdaterTest extends TestCase
     /**
      * Checks whether the seo url updater is using the correct language for translations.
      *
-     * @dataProvider seoLanguageDataProvider
-     *
      * @param list<string> $translations
+     * @param non-empty-string $pathInfo
      */
+    #[DataProvider('seoLanguageDataProvider')]
     public function testSeoLanguageInheritance(array $translations, string $pathInfo): void
     {
         $this->getContainer()->get(Connection::class)->insert('seo_url_template', [
@@ -165,7 +166,7 @@ class SeoUrlUpdaterTest extends TestCase
     }
 
     /**
-     * @return list<array{translations: list<string>, pathInfo: string}>
+     * @return list<array{translations: list<string>, pathInfo: non-empty-string}>
      */
     public static function seoLanguageDataProvider(): array
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Api;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Api\AppJWTGenerateRoute;
 use Shopware\Core\Framework\App\AppException;
@@ -11,9 +12,8 @@ use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Api\AppJWTGenerateRoute
  */
+#[CoversClass(AppJWTGenerateRoute::class)]
 class AppJWTGenerateRouteTest extends TestCase
 {
     public function testNotLoggedIn(): void

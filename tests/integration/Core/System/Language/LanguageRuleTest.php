@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\System\Language;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Defaults;
@@ -180,9 +181,7 @@ class LanguageRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $languageIds[1]);
     }
 
-    /**
-     * @dataProvider getMatchValues
-     */
+    #[DataProvider('getMatchValues')]
     public function testRuleMatching(string $operator, bool $isMatching, string $languageId): void
     {
         $languageIds = ['kyln123', 'kyln456'];

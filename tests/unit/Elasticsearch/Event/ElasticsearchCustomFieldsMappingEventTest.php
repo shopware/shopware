@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
@@ -9,9 +10,8 @@ use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent
  */
+#[CoversClass(ElasticsearchCustomFieldsMappingEvent::class)]
 class ElasticsearchCustomFieldsMappingEventTest extends TestCase
 {
     public function testEvent(): void

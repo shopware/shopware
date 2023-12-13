@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Packager;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
@@ -12,11 +14,10 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager
- *
  * @internal
  */
 #[Package('checkout')]
+#[CoversClass(LineItemGroupCountPackager::class)]
 class LineItemGroupCountPackagerTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
@@ -39,9 +40,8 @@ class LineItemGroupCountPackagerTest extends TestCase
      * Please keep in mind, if you change the identifier, there might still
      * be old keys in the SetGroup entities in the database of shops, that
      * try to execute a packager that does not exist anymore with this key.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testKey(): void
     {
         static::assertEquals('COUNT', $this->packager->getKey());
@@ -50,9 +50,8 @@ class LineItemGroupCountPackagerTest extends TestCase
     /**
      * This test verifies that our packaging does correctly
      * return 2 items if we request that, and if more than 2 items exist.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testPackageDoneWhenCountReached(): void
     {
         $p1 = $this->createProductItem(50.0, 0);
@@ -77,9 +76,8 @@ class LineItemGroupCountPackagerTest extends TestCase
     /**
      * This test verifies, that we do not get any results, if not
      * enough items exist, to build a package.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testNoResultsIfNotEnoughtItems(): void
     {
         $items = new LineItemFlatCollection();
@@ -95,9 +93,8 @@ class LineItemGroupCountPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does also work
      * with an empty list of items. We should also get an empty result list.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testNoItemsReturnsEmptyList(): void
     {
         $items = new LineItemFlatCollection();
@@ -110,9 +107,8 @@ class LineItemGroupCountPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does also work
      * with an invalid negative count. In that case we want an empty result list.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testNegativeCountReturnsEmptyList(): void
     {
         $items = new LineItemFlatCollection();
@@ -125,9 +121,8 @@ class LineItemGroupCountPackagerTest extends TestCase
     /**
      * This test verifies, that our packager does also work
      * with an invalid zero count. In that case we want an empty result list.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testZeroCountReturnsEmptyList(): void
     {
         $items = new LineItemFlatCollection();
@@ -142,9 +137,8 @@ class LineItemGroupCountPackagerTest extends TestCase
      * package, if the quantity of the item is high enough.
      * This means we have just 1 single item, but 3 quantities.
      * Our package needs only 2, so we should get 1 package.
-     *
-     * @group lineitemgroup
      */
+    #[Group('lineitemgroup')]
     public function testQuantityHigherAsPackage(): void
     {
         $items = new LineItemFlatCollection();

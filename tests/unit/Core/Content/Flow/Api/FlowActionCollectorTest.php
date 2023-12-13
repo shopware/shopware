@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Flow\Api;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Flow\Api\FlowActionCollectorResponse;
@@ -20,9 +21,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Content\Flow\Api\FlowActionCollector
  */
+#[CoversClass(FlowActionCollector::class)]
 class FlowActionCollectorTest extends TestCase
 {
     public function testCollect(): void

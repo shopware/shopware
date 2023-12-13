@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Facade;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -46,9 +47,8 @@ class RepositoryFacadeTest extends TestCase
     /**
      * @param array<string, array<int, mixed>> $criteria
      * @param callable(EntitySearchResult<EntityCollection<Entity>>): void $expectation
-     *
-     * @dataProvider withoutAppTestCases
      */
+    #[DataProvider('withoutAppTestCases')]
     public function testWithoutApp(array $criteria, string $method, IdsCollection $ids, callable $expectation): void
     {
         $this->ids = $ids;
@@ -210,9 +210,7 @@ class RepositoryFacadeTest extends TestCase
         static::assertEquals(600, $agg->getSum());
     }
 
-    /**
-     * @dataProvider withoutPermissionProvider
-     */
+    #[DataProvider('withoutPermissionProvider')]
     public function testWithAppWithoutNeededPermissions(string $method): void
     {
         $this->ids = new IdsCollection();

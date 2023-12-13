@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand;
@@ -14,9 +15,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * @package system-settings
  *
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Command\ElasticsearchIndexingCommand
  */
+#[CoversClass(ElasticsearchIndexingCommand::class)]
 class ElasticsearchIndexingCommandTest extends TestCase
 {
     #[DisabledFeatures(['v6.5.0.0'])]

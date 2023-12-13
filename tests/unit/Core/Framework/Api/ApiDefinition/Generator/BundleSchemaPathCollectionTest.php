@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -9,10 +10,9 @@ use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\Cus
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * @covers \Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection
- *
  * @internal
  */
+#[CoversClass(BundleSchemaPathCollection::class)]
 class BundleSchemaPathCollectionTest extends TestCase
 {
     private Bundle $bundleWithSchemas;

@@ -2,19 +2,18 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Util\XmlReader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Util\XmlReader
  */
+#[CoversClass(XmlReader::class)]
 class XmlReaderTest extends TestCase
 {
-    /**
-     * @dataProvider phpizeTestCases
-     */
+    #[DataProvider('phpizeTestCases')]
     public function testPhpize(mixed $expected, string $value): void
     {
         static::assertSame($expected, XmlReader::phpize($value));

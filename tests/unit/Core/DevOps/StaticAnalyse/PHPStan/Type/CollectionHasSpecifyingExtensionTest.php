@@ -3,17 +3,17 @@
 namespace Shopware\Tests\Unit\Core\DevOps\StaticAnalyse\PHPStan\Type;
 
 use PHPStan\Testing\TypeInferenceTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
  */
+#[CoversClass(CollectionHasSpecifyingExtension::class)]
 class CollectionHasSpecifyingExtensionTest extends TypeInferenceTestCase
 {
-    /**
-     * @runInSeparateProcess run in separate process to prevent autoloading issues, see https://github.com/phpstan/phpdoc-parser/issues/188
-     */
+    #[RunInSeparateProcess]
     public function testCollectionHas(): void
     {
         foreach (static::gatherAssertTypes(__DIR__ . '/data/collection_has.php') as $args) {

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
@@ -117,9 +118,7 @@ class ImportExportServiceTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider mimeTypeProvider
-     */
+    #[DataProvider('mimeTypeProvider')]
     public function testMimeTypeValidation(string $clientMimeType, string $fileExtension, $expectedMimeType): void
     {
         $criteria = new Criteria();
@@ -223,9 +222,7 @@ class ImportExportServiceTest extends TestCase
         static::assertEquals($expectedMapping, $actualConfig->getMapping());
     }
 
-    /**
-     * @dataProvider profileProvider
-     */
+    #[DataProvider('profileProvider')]
     public function testExportProfileShouldThrowExceptionInImport($profile, $task, $shouldThrowException): void
     {
         $this->profileRepository->create([$profile], Context::createDefaultContext());

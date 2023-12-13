@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler;
@@ -13,9 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Filter\ShippingFreeListingFilterHandler
  */
+#[CoversClass(ShippingFreeListingFilterHandler::class)]
 class ShippingFreeFilterHandlerTest extends TestCase
 {
     public function testFilterCanBeSkipped(): void
@@ -28,9 +29,7 @@ class ShippingFreeFilterHandlerTest extends TestCase
         static::assertNull($result);
     }
 
-    /**
-     * @dataProvider filterProvider
-     */
+    #[DataProvider('filterProvider')]
     public function testFilterCanBeCreated(bool $input): void
     {
         $result = (new ShippingFreeListingFilterHandler())->create(

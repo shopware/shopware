@@ -2,16 +2,17 @@
 
 namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement;
 use Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\Fixture\TestElement;
 
 /**
  * @package content
  *
  * @internal
- *
- * @covers \Shopware\Core\System\CustomEntity\Xml\Config\ConfigXmlElement
  */
+#[CoversClass(ConfigXmlElement::class)]
 class ConfigXmlElementTest extends TestCase
 {
     public function testJsonSerialize(): void

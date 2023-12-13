@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Command;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -71,9 +72,7 @@ class CartMigrateCommandTest extends TestCase
         $persister->load($redisCart->getToken(), $context);
     }
 
-    /**
-     * @dataProvider dataProvider
-     */
+    #[DataProvider('dataProvider')]
     public function testRedisToSql(bool $sqlCompressed, bool $redisCompressed): void
     {
         $url = EnvironmentHelper::getVariable('REDIS_URL');
@@ -113,9 +112,7 @@ class CartMigrateCommandTest extends TestCase
         $persister->load($redisCart->getToken(), $context);
     }
 
-    /**
-     * @dataProvider dataProvider
-     */
+    #[DataProvider('dataProvider')]
     public function testSqlToRedis(bool $sqlCompressed, bool $redisCompressed): void
     {
         $url = EnvironmentHelper::getVariable('REDIS_URL');

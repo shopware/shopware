@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -21,9 +22,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * @package business-ops
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule
  */
+#[CoversClass(LineItemOfTypeRule::class)]
 class LineItemOfTypeRuleTest extends TestCase
 {
     public function testGetName(): void

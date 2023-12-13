@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
@@ -15,10 +16,9 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Consent\ConsentReporter
  */
 #[Package('data-services')]
+#[CoversClass(ConsentReporter::class)]
 class ConsentReporterTest extends TestCase
 {
     public function testReportConsentAddsShopIdHeader(): void

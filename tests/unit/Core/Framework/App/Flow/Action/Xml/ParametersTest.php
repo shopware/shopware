@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Action\Xml;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameter;
 use Shopware\Core\Framework\App\Flow\Action\Xml\Parameters;
@@ -9,9 +10,8 @@ use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Flow\Action\Xml\Parameters
  */
+#[CoversClass(Parameters::class)]
 class ParametersTest extends TestCase
 {
     public function testFromXml(): void

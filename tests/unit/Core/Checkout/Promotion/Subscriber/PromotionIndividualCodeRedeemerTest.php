@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Promotion\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
@@ -16,15 +18,16 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer
  */
+#[Package('buyers-experience')]
+#[CoversClass(PromotionIndividualCodeRedeemer::class)]
 class PromotionIndividualCodeRedeemerTest extends TestCase
 {
     /**
@@ -35,9 +38,8 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
      * when the order is created.
      * This payload data helps us to reference used individual codes
      * with placed orders.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testSubscribeToOrderLineItemWritten(): void
     {
         $expectedEvent = CheckoutOrderPlacedEvent::class;

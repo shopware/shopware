@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Result;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
@@ -17,9 +18,8 @@ use Shopware\Core\Test\Generator;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader
  */
+#[CoversClass(AvailableCombinationLoader::class)]
 class AvailableCombinationLoaderTest extends TestCase
 {
     public function testGetDecoratedThrowsDecorationPatternException(): void

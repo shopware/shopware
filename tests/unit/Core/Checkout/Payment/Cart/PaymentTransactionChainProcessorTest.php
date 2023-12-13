@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Payment\Cart;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
@@ -35,10 +36,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Payment\Cart\PaymentTransactionChainProcessor
  */
 #[Package('checkout')]
+#[CoversClass(PaymentTransactionChainProcessor::class)]
 class PaymentTransactionChainProcessorTest extends TestCase
 {
     private IdsCollection $ids;

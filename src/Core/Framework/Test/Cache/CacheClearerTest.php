@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Cache;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
@@ -18,10 +19,9 @@ use Symfony\Component\Finder\Finder;
 
 /**
  * @internal
- *
- * @group skip-paratest
- * @group slow
  */
+#[Group('skip-paratest')]
+#[Group('slow')]
 class CacheClearerTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

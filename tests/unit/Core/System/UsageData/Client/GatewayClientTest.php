@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Client;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\UsageData\Client\GatewayClient;
@@ -11,10 +12,9 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Client\GatewayClient
  */
 #[Package('data-services')]
+#[CoversClass(GatewayClient::class)]
 class GatewayClientTest extends TestCase
 {
     public function testGatewayAllowsPush(): void

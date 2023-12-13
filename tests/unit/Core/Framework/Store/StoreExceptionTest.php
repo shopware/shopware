@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\StoreException;
@@ -10,10 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\StoreException
  */
 #[Package('services-settings')]
+#[CoversClass(StoreException::class)]
 class StoreExceptionTest extends TestCase
 {
     public function testCannotDeleteManaged(): void

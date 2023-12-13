@@ -2,9 +2,12 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Cms\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
+use Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -19,10 +22,9 @@ use Shopware\Core\Test\TestDefaults;
  * @internal
  *
  * @package content
- *
- * @covers \Shopware\Core\Content\Cms\Subscriber\CmsPageDefaultChangeSubscriber
  */
 #[Package('buyers-experience')]
+#[CoversClass(CmsPageDefaultChangeSubscriber::class)]
 class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,9 +41,7 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }
 
-    /**
-     * @dataProvider validDefaultCmsPageDataProvider
-     */
+    #[DataProvider('validDefaultCmsPageDataProvider')]
     public function testSetDefaultDoesNotThrow(string $validCmsPageId, ?string $salesChannelId): void
     {
         $this->createCmsPage($validCmsPageId);
@@ -52,9 +52,7 @@ class CmsPageBeforeDefaultChangeSubscriberTest extends TestCase
         static::assertTrue(true);
     }
 
-    /**
-     * @dataProvider invalidDefaultCmsPageDataProvider
-     */
+    #[DataProvider('invalidDefaultCmsPageDataProvider')]
     public function testSetInvalidDefaultThrow(string $invalidCmsPageId, string $expectedException, ?string $salesChannelId): void
     {
         /** @var class-string<\Throwable> $expectedException */

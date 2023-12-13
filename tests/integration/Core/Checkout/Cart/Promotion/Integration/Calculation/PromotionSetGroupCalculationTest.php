@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Calculation;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
@@ -58,10 +59,9 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 100% discount on that package, which means the customer has to
      * only pay the 1 product that is left.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testPercentageOnMultipleItemsAndSubsetQuantities(): void
     {
         $container = $this->getContainer();
@@ -98,10 +98,9 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 50 EUR discount on that package, which means the customer has to
      * pay (product 1 + product 2 - 50) + product 2.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testAbsoluteOnMultipleItemsAndSubsetQuantities(): void
     {
         $container = $this->getContainer();
@@ -145,10 +144,9 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 20 EUR fixed count on every product in the group, which means the customer has to
      * pay 20 EUR + 20 EUR + product 2.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testFixedUnitPriceOnMultipleItemsAndSubsetQuantities(): void
     {
         $container = $this->getContainer();
@@ -192,10 +190,9 @@ class PromotionSetGroupCalculationTest extends TestCase
      * We give 50 EUR fixed price for the whole package, which means the customer has to
      * pay 50 EUR + product 2.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testFixedPriceOnMultipleItemsAndSubsetQuantities(): void
     {
         $container = $this->getContainer();

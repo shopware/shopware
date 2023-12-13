@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -15,13 +18,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
- * @covers \Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule
- *
  * @internal
- *
- * @group rules
  */
 #[Package('business-ops')]
+#[CoversClass(LineItemCustomFieldRule::class)]
+#[Group('rules')]
 class LineItemCustomFieldRuleTest extends TestCase
 {
     use CartRuleHelperTrait;
@@ -145,12 +146,11 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider customFieldCartScopeProvider
-     *
      * @param bool|string|null $customFieldValue
      * @param bool|string|null $customFieldValueInLineItem
      * @param array<string, string> $config
      */
+    #[DataProvider('customFieldCartScopeProvider')]
     public function testCustomFieldCartScope(
         $customFieldValue,
         string $type,
@@ -169,12 +169,11 @@ class LineItemCustomFieldRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider customFieldCartScopeProvider
-     *
      * @param bool|string|null $customFieldValue
      * @param bool|string|null $customFieldValueInLineItem
      * @param array<string, string> $config
      */
+    #[DataProvider('customFieldCartScopeProvider')]
     public function testCustomFieldCartScopeNested(
         $customFieldValue,
         string $type,

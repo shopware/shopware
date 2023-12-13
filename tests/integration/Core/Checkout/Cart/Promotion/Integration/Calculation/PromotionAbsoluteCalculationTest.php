@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration\Calculation;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -50,10 +51,9 @@ class PromotionAbsoluteCalculationTest extends TestCase
      * We add a product and also an absolute promotion.
      * Our final price should then be as expected.
      *
-     * @group promotions
-     *
      * @throws CartException
      */
+    #[Group('promotions')]
     public function testAbsoluteDiscount(): void
     {
         $productId = Uuid::randomHex();
@@ -86,9 +86,8 @@ class PromotionAbsoluteCalculationTest extends TestCase
      * We add a product to the cart and apply a code for a promotion with a currency dependent discount.
      * The standard value of discount would be 15, but our currency price value is 30
      * Our cart should have a total value of 70,00 (and not 85 as standard) in the end.
-     *
-     * @group promotions
      */
+    #[Group('promotions')]
     public function testAbsoluteDiscountWithCurrencyPriceValues(): void
     {
         $productId = Uuid::randomHex();

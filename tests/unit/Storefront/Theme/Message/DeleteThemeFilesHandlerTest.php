@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler;
@@ -10,9 +11,8 @@ use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler
  */
+#[CoversClass(DeleteThemeFilesHandler::class)]
 class DeleteThemeFilesHandlerTest extends TestCase
 {
     public function testFilesAreDeletedIfPathIsCurrentlyNotActive(): void

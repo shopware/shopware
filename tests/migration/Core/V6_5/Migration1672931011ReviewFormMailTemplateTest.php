@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
@@ -14,9 +15,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1672931011ReviewFormMailTemplate
  */
+#[CoversClass(Migration1672931011ReviewFormMailTemplate::class)]
 class Migration1672931011ReviewFormMailTemplateTest extends TestCase
 {
     use MigrationTestTrait;

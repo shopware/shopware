@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Acl;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclAnnotationValidator;
@@ -39,11 +40,10 @@ class AclAnnotationValidatorTest extends TestCase
     }
 
     /**
-     * @dataProvider annotationProvider
-     *
      * @param list<string> $privileges
      * @param list<string> $acl
      */
+    #[DataProvider('annotationProvider')]
     public function testValidateRequestAsRouteAttribute(array $privileges, array $acl, bool $pass): void
     {
         $source = new AdminApiSource(null, null);

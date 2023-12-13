@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\Error\BillingAddressSalutationMissingError;
@@ -50,9 +51,7 @@ class StorefrontControllerTest extends TestCase
         $this->cache = new FilesystemCache($this->cacheDir);
     }
 
-    /**
-     * @dataProvider cartProvider
-     */
+    #[DataProvider('cartProvider')]
     public function testAddCartErrorsAddsUrlToSalutationErrors(Cart $cart): void
     {
         $container = static::createStub(ContainerInterface::class);

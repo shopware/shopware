@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\App\Manifest\Xml\PaymentMethod;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\PaymentMethod
  */
+#[CoversClass(PaymentMethod::class)]
 class PaymentMethodTest extends TestCase
 {
     public function testFromXml(): void

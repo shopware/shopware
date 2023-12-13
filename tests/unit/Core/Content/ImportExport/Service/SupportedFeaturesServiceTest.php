@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ImportExport\Service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -9,9 +11,8 @@ use Shopware\Tests\Unit\Common\Stubs\IniMock;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService
  */
+#[CoversClass(SupportedFeaturesService::class)]
 class SupportedFeaturesServiceTest extends TestCase
 {
     public static function setUpBeforeClass(): void
@@ -23,9 +24,8 @@ class SupportedFeaturesServiceTest extends TestCase
      * @param iterable<string> $entities
      * @param iterable<string> $fileTypes
      * @param class-string<\Throwable>|null $expectedException
-     *
-     * @dataProvider constructDataProvider
      */
+    #[DataProvider('constructDataProvider')]
     public function testConstruct(
         iterable $entities,
         iterable $fileTypes,

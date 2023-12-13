@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Services;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
@@ -14,9 +15,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\UsageData\Services\UsageDataAllowListService
  */
+#[CoversClass(UsageDataAllowListService::class)]
 class UsageDataAllowListServiceTest extends TestCase
 {
     public function testGetDefaultUsageDataAllowList(): void

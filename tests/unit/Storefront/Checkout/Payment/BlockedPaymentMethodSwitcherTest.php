@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Storefront\Checkout\Payment;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
@@ -23,9 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher
  */
+#[CoversClass(BlockedPaymentMethodSwitcher::class)]
 class BlockedPaymentMethodSwitcherTest extends TestCase
 {
     private PaymentMethodCollection $paymentMethodCollection;

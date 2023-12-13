@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Rule\NumberOfReviewsRule;
 use Shopware\Core\Framework\Context;
@@ -16,11 +18,9 @@ use Symfony\Component\Validator\Constraints\Type;
  * @package business-ops
  *
  * @internal
- *
- * @group rules
- *
- * @covers \Shopware\Core\Checkout\Customer\Rule\NumberOfReviewsRule
  */
+#[CoversClass(NumberOfReviewsRule::class)]
+#[Group('rules')]
 class NumberOfReviewsRuleTest extends TestCase
 {
     use IntegrationTestBehaviour;

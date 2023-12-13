@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\MessageQueue;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\MessageQueue\MessageQueueException
  */
+#[CoversClass(MessageQueueException::class)]
 class MessageQueueExceptionTest extends TestCase
 {
     public function testValidReceiverNameNotProvided(): void

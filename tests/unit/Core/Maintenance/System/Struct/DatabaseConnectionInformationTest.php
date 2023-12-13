@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Maintenance\System\Exception\DatabaseSetupException;
@@ -9,9 +11,8 @@ use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation
  */
+#[CoversClass(DatabaseConnectionInformation::class)]
 class DatabaseConnectionInformationTest extends TestCase
 {
     use EnvTestBehaviour;
@@ -123,9 +124,7 @@ class DatabaseConnectionInformationTest extends TestCase
         $info->validate();
     }
 
-    /**
-     * @dataProvider dsnProvider
-     */
+    #[DataProvider('dsnProvider')]
     public function testAsDsn(DatabaseConnectionInformation $connectionInformation, bool $withoutDB, string $expectedDsn): void
     {
         $dsn = $connectionInformation->asDsn($withoutDB);
@@ -194,10 +193,9 @@ class DatabaseConnectionInformationTest extends TestCase
     }
 
     /**
-     * @dataProvider validEnvProvider
-     *
      * @param array<string, string|bool> $env
      */
+    #[DataProvider('validEnvProvider')]
     public function testFromEnv(array $env, DatabaseConnectionInformation $expected): void
     {
         $this->setEnvVars($env);
@@ -292,10 +290,9 @@ class DatabaseConnectionInformationTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidEnvProvider
-     *
      * @param array<string, string|bool> $env
      */
+    #[DataProvider('invalidEnvProvider')]
     public function testFromEnvWithInvalidEnv(array $env, string $expectedException): void
     {
         $this->setEnvVars($env);

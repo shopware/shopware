@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Store\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
@@ -9,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Store\Exception\StoreTokenMissingException
  */
 #[Package('services-settings')]
+#[CoversClass(StoreTokenMissingException::class)]
 class StoreTokenMissingExceptionTest extends TestCase
 {
     public function testGetErrorCode(): void

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer;
@@ -11,9 +12,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Order\Transformer\LineItemTransformer
  */
+#[CoversClass(LineItemTransformer::class)]
 class LineItemTransformerTest extends TestCase
 {
     private int $position = 1;

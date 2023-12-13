@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\Rule;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -34,6 +37,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * @internal
  */
 #[Package('services-settings')]
+#[RunTestsInSeparateProcesses]
 class ScriptRuleTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -66,12 +70,9 @@ class ScriptRuleTest extends TestCase
     }
 
     /**
-     * @runInSeparateProcess
-     *
      * @param array<string, string> $values
-     *
-     * @dataProvider scriptProvider
      */
+    #[DataProvider('scriptProvider')]
     public function testRuleScriptExecution(string $path, array $values, bool $expectedTrue): void
     {
         $script = file_get_contents(__DIR__ . $path);
@@ -98,11 +99,7 @@ class ScriptRuleTest extends TestCase
         yield 'simple script return false' => ['/_fixture/scripts/simple.twig', ['test' => 'bar'], false];
     }
 
-    /**
-     * @runInSeparateProcess
-     *
-     * @depends testRuleScriptExecution
-     */
+    #[Depends('testRuleScriptExecution')]
     public function testRuleScriptIsCached(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -120,11 +117,7 @@ class ScriptRuleTest extends TestCase
         static::assertFalse($rule->match($scope));
     }
 
-    /**
-     * @runInSeparateProcess
-     *
-     * @depends testRuleScriptIsCached
-     */
+    #[Depends('testRuleScriptIsCached')]
     public function testCachedRuleScriptIsInvalidated(): void
     {
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -228,9 +221,8 @@ class ScriptRuleTest extends TestCase
 
     /**
      * @param array<string, mixed> $value
-     *
-     * @dataProvider manifestPathProvider
      */
+    #[DataProvider('manifestPathProvider')]
     public function testRuleValidationSucceedsWithArbitraryProperties(string $manifestPath, array $value): void
     {
         $fixturesPath = __DIR__ . '/../../../../../tests/integration/Core/Framework/App/Manifest/_fixtures';

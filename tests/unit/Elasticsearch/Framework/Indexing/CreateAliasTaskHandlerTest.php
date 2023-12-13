@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -14,9 +15,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler
  */
+#[CoversClass(CreateAliasTaskHandler::class)]
 class CreateAliasTaskHandlerTest extends TestCase
 {
     public function testHandleLogsErrors(): void

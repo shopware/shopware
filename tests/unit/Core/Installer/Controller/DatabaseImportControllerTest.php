@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationStep;
@@ -22,9 +24,8 @@ use Twig\Environment;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Installer\Controller\DatabaseImportController
  */
+#[CoversClass(DatabaseImportController::class)]
 class DatabaseImportControllerTest extends TestCase
 {
     use InstallerControllerTestTrait;
@@ -53,9 +54,7 @@ class DatabaseImportControllerTest extends TestCase
         $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
-    /**
-     * @after
-     */
+    #[After]
     public function unsetEnvVars(): void
     {
         unset(

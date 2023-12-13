@@ -6,6 +6,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
 use Composer\Package\Version\VersionParser;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -19,9 +20,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\PluginService
  */
+#[CoversClass(PluginService::class)]
 class PluginServiceTest extends TestCase
 {
     public function testPluginsAddsPlugin(): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing\Filter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler;
@@ -13,14 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\SalesChannel\Listing\Filter\PriceListingFilterHandler
  */
+#[CoversClass(PriceListingFilterHandler::class)]
 class PriceFilterHandlerTest extends TestCase
 {
-    /**
-     * @dataProvider createProvider
-     */
+    #[DataProvider('createProvider')]
     public function testCreate(Request $request, ?Filter $expected, string $method = Request::METHOD_GET): void
     {
         $request->setMethod($method);

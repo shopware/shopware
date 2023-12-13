@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Profiling\Doctrine;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder
  */
+#[CoversClass(BacktraceDebugDataHolder::class)]
 class BacktraceDebugDataHolderTest extends TestCase
 {
     public function testAddAndRetrieveData(): void

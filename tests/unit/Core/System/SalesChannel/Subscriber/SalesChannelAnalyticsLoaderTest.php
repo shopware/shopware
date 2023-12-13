@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Subscriber;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsCollection;
@@ -15,9 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SalesChannel\Subscriber\SalesChannelAnalyticsLoader
  */
+#[CoversClass(SalesChannelAnalyticsLoader::class)]
 class SalesChannelAnalyticsLoaderTest extends TestCase
 {
     public function testSalesChannelDoesNotHaveAnalytics(): void

@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Newsletter;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\Log\Package;
@@ -10,15 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Newsletter\NewsletterException
  */
 #[Package('buyers-experience')]
+#[CoversClass(NewsletterException::class)]
 class NewsletterExceptionTest extends TestCase
 {
-    /**
-     * @dataProvider exceptionDataProvider
-     */
+    #[DataProvider('exceptionDataProvider')]
     public function testItThrowsException(ShopwareHttpException|NewsletterException $exception, int $statusCode, string $errorCode, string $message): void
     {
         try {

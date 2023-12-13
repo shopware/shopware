@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Framework\Log\Package;
@@ -9,18 +11,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\CustomerException
  */
 #[Package('checkout')]
+#[CoversClass(CustomerException::class)]
 class CustomerExceptionTest extends TestCase
 {
     /**
      * @param callable(mixed...): \Throwable $callback
      * @param mixed[] $args
-     *
-     * @dataProvider exceptionDataProvider
      */
+    #[DataProvider('exceptionDataProvider')]
     public function testItThrowsException(callable $callback, array $args, int $statusCode, string $errorCode, string $message): void
     {
         // phpunit data-providers collect data before the test is executed

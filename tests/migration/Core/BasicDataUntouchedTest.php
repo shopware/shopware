@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\Migration\Core;
 
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
 
 /**
  * @internal
- *
- * @coversNothing
  */
+#[CoversNothing]
 class BasicDataUntouchedTest extends TestCase
 {
     public function testBasicDataUntouched(): void

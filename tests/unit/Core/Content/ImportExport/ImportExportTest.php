@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
@@ -28,10 +29,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\ImportExport\ImportExport
  */
 #[Package('system-settings')]
+#[CoversClass(ImportExport::class)]
 class ImportExportTest extends TestCase
 {
     public function testImportWithFinishedProgress(): void

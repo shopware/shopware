@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Cleanup;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
@@ -11,9 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler
  */
+#[CoversClass(CleanupUnusedDownloadMediaTaskHandler::class)]
 class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
 {
     private MockObject&UnusedMediaPurger $purger;

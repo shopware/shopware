@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Test\LandingPage\SalesChannel;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException;
 use Shopware\Core\Defaults;
@@ -13,9 +14,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser as KernelBrowserAlias;
 
 /**
  * @internal
- *
- * @group store-api
  */
+#[Group('store-api')]
 class LandingPageRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

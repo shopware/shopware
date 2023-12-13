@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Cart\Error\ErrorCollection
  */
+#[CoversClass(ErrorCollection::class)]
 class ErrorCollectionTest extends TestCase
 {
     public function testErrorTypes(): void

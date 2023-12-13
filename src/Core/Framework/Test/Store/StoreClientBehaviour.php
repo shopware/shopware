@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\Store;
 
 use GuzzleHttp\Handler\MockHandler;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -39,21 +41,15 @@ trait StoreClientBehaviour
         return $handler;
     }
 
-    /**
-     * @after
-     *
-     * @before
-     */
+    #[After]
+    #[Before]
     public function resetStoreMock(): void
     {
         $this->getStoreRequestHandler()->reset();
     }
 
-    /**
-     * @after
-     *
-     * @before
-     */
+    #[After]
+    #[Before]
     public function resetFrwMock(): void
     {
         $this->getFrwRequestHandler()->reset();

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,10 +15,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\MemoizedSystemConfigLoader
  */
 #[Package('system-settings')]
+#[CoversClass(MemoizedSystemConfigLoader::class)]
 class MemoizedSystemConfigLoaderTest extends TestCase
 {
     public function testMemoizationWithSalesChannelIdWorks(): void

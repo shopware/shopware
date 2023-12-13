@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SystemConfig\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -12,10 +14,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\System\SystemConfig\Command\ConfigSet
  */
 #[Package('system-settings')]
+#[CoversClass(ConfigSet::class)]
 class ConfigSetCommandTest extends TestCase
 {
     private ConfigSet $configSetCommand;
@@ -52,9 +53,8 @@ class ConfigSetCommandTest extends TestCase
 
     /**
      * @param string $expectedValue
-     *
-     * @dataProvider configValueProvider
      */
+    #[DataProvider('configValueProvider')]
     public function testConfigSetValue(string $value, $expectedValue, bool $json = false): void
     {
         $key = 'fake_config_key';

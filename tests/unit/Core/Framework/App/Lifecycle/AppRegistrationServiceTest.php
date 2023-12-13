@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -23,10 +24,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService
  */
 #[Package('core')]
+#[CoversClass(AppRegistrationService::class)]
 class AppRegistrationServiceTest extends TestCase
 {
     public function testDoesNotRegisterAtAppServerIfManifestHasNoSetup(): void

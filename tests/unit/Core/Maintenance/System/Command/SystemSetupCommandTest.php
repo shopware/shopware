@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
@@ -13,9 +14,8 @@ use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Maintenance\System\Command\SystemSetupCommand
  */
+#[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {
     protected function tearDown(): void

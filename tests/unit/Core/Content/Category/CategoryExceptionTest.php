@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -9,9 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Category\CategoryException
  */
+#[CoversClass(CategoryException::class)]
 class CategoryExceptionTest extends TestCase
 {
     public function testCategoryNotFound(): void

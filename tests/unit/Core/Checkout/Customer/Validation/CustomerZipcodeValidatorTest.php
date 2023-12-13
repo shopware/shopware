@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\Validation;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
@@ -22,9 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @package checkout
  *
  * @internal
- *
- * @covers \Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerZipCodeValidator
  */
+#[CoversClass(CustomerZipCodeValidator::class)]
 class CustomerZipcodeValidatorTest extends TestCase
 {
     private CustomerZipCode $constraint;

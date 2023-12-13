@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Migration\Core\V6_5;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -12,9 +13,8 @@ use Shopware\Core\Migration\V6_5\Migration1673426317ImproveStateMachineHistoryQu
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_5\Migration1673426317ImproveStateMachineHistoryQueryPerformance
  */
+#[CoversClass(Migration1673426317ImproveStateMachineHistoryQueryPerformance::class)]
 class Migration1673426317ImproveStateMachineHistoryQueryPerformanceTest extends TestCase
 {
     private Connection $connection;

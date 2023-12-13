@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates
  */
+#[CoversClass(UpdatedStates::class)]
 class UpdatedStatesTest extends TestCase
 {
     public function testUpdatedStates(): void

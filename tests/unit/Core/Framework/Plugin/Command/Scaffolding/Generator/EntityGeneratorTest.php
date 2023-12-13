@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generator;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
@@ -11,9 +13,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator
  */
+#[CoversClass(EntityGenerator::class)]
 class EntityGeneratorTest extends TestCase
 {
     public function testCommandOptions(): void
@@ -27,11 +28,10 @@ class EntityGeneratorTest extends TestCase
 
     /**
      * @param array<int, string>|null $expectedEntities
-     *
-     * @dataProvider addScaffoldConfigProvider
-     * @dataProvider provideEntities
-     * @dataProvider provideEmptyEntities
      */
+    #[DataProvider('addScaffoldConfigProvider')]
+    #[DataProvider('provideEntities')]
+    #[DataProvider('provideEmptyEntities')]
     public function testAddScaffoldConfig(
         mixed $getOptionResponse,
         bool $confirmResponse,
@@ -211,9 +211,8 @@ class EntityGeneratorTest extends TestCase
 
     /**
      * @param array<int, string> $expected
-     *
-     * @dataProvider generateProvider
      */
+    #[DataProvider('generateProvider')]
     public function testGenerate(PluginScaffoldConfiguration $config, array $expected): void
     {
         $stubs = new StubCollection();

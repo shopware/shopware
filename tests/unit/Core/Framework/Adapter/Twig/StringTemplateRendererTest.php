@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Twig;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Adapter\AdapterException;
@@ -14,14 +16,11 @@ use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer
  */
+#[CoversClass(StringTemplateRenderer::class)]
 class StringTemplateRendererTest extends TestCase
 {
-    /**
-     * @dataProvider labelRenderingDataProvider
-     */
+    #[DataProvider('labelRenderingDataProvider')]
     public function testTranslationRendering(string $label, string $expected): void
     {
         $template = <<<'TWIG'

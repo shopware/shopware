@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,9 +22,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @internal
  *
  * @package core
- *
- * @covers \Shopware\Core\System\CustomEntity\CustomEntityRegistrar
  */
+#[CoversClass(CustomEntityRegistrar::class)]
 class CustomEntityRegistrarTest extends TestCase
 {
     public function testSkipsRegistrationIfDbalIsNotConnected(): void

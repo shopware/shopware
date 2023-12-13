@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
@@ -29,10 +31,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @group store-api
  */
 #[Package('checkout')]
+#[Group('store-api')]
 class UpsertAddressRouteTest extends TestCase
 {
     use CustomerTestTrait;
@@ -80,10 +81,9 @@ class UpsertAddressRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider addressDataProvider
-     *
      * @param array<string, string> $data
      */
+    #[DataProvider('addressDataProvider')]
     public function testCreateAddress(array $data): void
     {
         $data['countryId'] = $this->getValidCountryId();

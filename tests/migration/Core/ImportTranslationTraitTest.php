@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Migration\Core;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -14,9 +15,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\Traits\ImportTranslationsTrait
  */
+#[CoversClass(ImportTranslationsTrait::class)]
 class ImportTranslationTraitTest extends TestCase
 {
     use ImportTranslationsTrait;

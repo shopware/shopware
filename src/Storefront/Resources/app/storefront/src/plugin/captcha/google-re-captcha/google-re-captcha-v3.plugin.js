@@ -31,7 +31,7 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
             });
 
             this.grecaptchaInput.value = token;
-            this.formSubmitting = false;
+            this._formSubmitting = false;
 
             this._submitInvisibleForm();
         });

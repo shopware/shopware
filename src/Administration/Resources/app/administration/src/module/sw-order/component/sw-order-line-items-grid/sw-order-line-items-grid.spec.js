@@ -94,6 +94,35 @@ const mockItems = [
         },
         isNew: () => false,
     },
+    {
+        id: '4',
+        type: 'container',
+        label: 'Container item',
+        quantity: 1,
+        payload: [],
+        price: {
+            quantity: 1,
+            totalPrice: -100,
+            unitPrice: -100,
+            calculatedTaxes: [
+                {
+                    price: -100,
+                    tax: -10,
+                    taxRate: 10,
+                },
+            ],
+            taxRules: [
+                {
+                    taxRate: 10,
+                    percentage: 100,
+                },
+            ],
+        },
+        priceDefinition: {
+            price: 100,
+        },
+        isNew: () => false,
+    },
 ];
 
 const mockMultipleTaxesItem = {
@@ -245,6 +274,22 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
+    beforeAll(() => {
+        Shopware.Service().register('cartStoreService', () => {
+            return {
+                getLineItemTypes: () => {
+                    return Object.freeze({
+                        PRODUCT: 'product',
+                        CREDIT: 'credit',
+                        CUSTOM: 'custom',
+                        PROMOTION: 'promotion',
+                        CONTAINER: 'container',
+                    });
+                },
+            };
+        });
+    });
+
     it('the create discounts button should be disabled', async () => {
         global.activeAclRoles = ['orders.create_discounts'];
         const wrapper = await createWrapper();
@@ -794,5 +839,37 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const productLabel = firstRow.find('.sw-data-grid__cell--label');
 
         expect(productLabel.text()).toBe('Product item');
+    });
+
+    it('should render label link', async () => {
+        const wrapper = await createWrapper({});
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+            },
+        });
+
+        const labelLink = wrapper.find('.sw-order-line-items-grid__item-product');
+
+        expect(labelLink.exists()).toBeTruthy();
+    });
+
+    it('should not render label link', async () => {
+        const wrapper = await createWrapper({});
+
+        const newMockItems = mockItems.filter(item => item.type !== 'product' && item.type !== 'container');
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...newMockItems],
+            },
+        });
+
+        const labelLink = wrapper.find('.sw-order-line-items-grid__item-product');
+
+        expect(labelLink.exists()).toBeFalsy();
     });
 });

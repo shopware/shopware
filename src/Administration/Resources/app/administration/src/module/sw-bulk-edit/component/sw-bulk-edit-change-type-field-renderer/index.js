@@ -60,9 +60,7 @@ export default {
         },
 
         onChangeValue(value, fieldName) {
-            if (this.feature.isActive('VUE3')) {
-                this.entity[fieldName] = value;
-            }
+            this.entity[fieldName] = value;
 
             if (!this.bulkEditData[fieldName].isInherited) {
                 this.bulkEditData[fieldName].value = value;

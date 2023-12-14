@@ -10,7 +10,6 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_bulk_edit_save_modal_body %}
     <div class="sw-bulk-edit-save-modal-body">
-        {% if VUE3 %}
         <router-view
             v-slot="{ Component }"
         >
@@ -24,16 +23,6 @@
                 @title-set="setTitle"
             />
         </router-view>
-        {% else %}
-        <router-view
-            :item-total="itemTotal"
-            :bulk-edit-data="bulkEditData"
-            @changes-apply="applyChanges"
-            @buttons-update="updateButtons"
-            @redirect="redirect"
-            @title-set="setTitle"
-        />
-        {% endif %}
     </div>
     {% endblock %}
 

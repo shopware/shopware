@@ -39,11 +39,7 @@
             class="sw-cms-el-config-text__tab-content"
         >
             <sw-cms-mapping-field
-                {% if VUE3 %}
                 v-model:config="element.config.content"
-                {% else %}
-                v-model="element.config.content"
-                {% endif %}
                 :label="$tc('sw-cms.elements.text.config.label.content')"
                 value-types="string"
             >
@@ -74,11 +70,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_cms_el_text_config_settings_vertical_align %}
             <sw-select-field
-                {% if VUE3 %}
                 v-model:value="element.config.verticalAlign.value"
-                {% else %}
-                v-model="element.config.verticalAlign.value"
-                {% endif %}
                 :label="$tc('sw-cms.elements.general.config.label.verticalAlign')"
                 :placeholder="$tc('sw-cms.elements.general.config.label.verticalAlign')"
             >

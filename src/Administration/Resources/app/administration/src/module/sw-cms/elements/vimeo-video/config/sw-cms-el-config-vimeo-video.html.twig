@@ -5,11 +5,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_vimeo_video_config_video_id %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="videoID"
-        {% else %}
-        v-model="videoID"
-        {% endif %}
         class="sw-cms-el-config-vimeo-video__video-id"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
         :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"
@@ -23,11 +19,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_autoplay %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.autoplay.value"
-            {% else %}
-            v-model="element.config.autoplay.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
             :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
         />
@@ -36,11 +28,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_do_not_track %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.doNotTrack.value"
-            {% else %}
-            v-model="element.config.doNotTrack.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
             :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
         />
@@ -49,11 +37,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_loop %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.loop.value"
-            {% else %}
-            v-model="element.config.loop.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')"
         />
         {% endblock %}
@@ -61,11 +45,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_controls %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.controls.value"
-            {% else %}
-            v-model="element.config.controls.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')"
         />
         {% endblock %}
@@ -76,11 +56,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_cms_element_vimeo_video_config_color %}
     <sw-colorpicker
-        {% if VUE3 %}
         v-model:value="element.config.color.value"
-        {% else %}
-        v-model="element.config.color.value"
-        {% endif %}
         class="sw-cms-el-config-vimeo-video__color"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.controlsColor')"
         color-output="hex"
@@ -96,11 +72,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_byline %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.byLine.value"
-            {% else %}
-            v-model="element.config.byLine.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.byLine')"
         />
         {% endblock %}
@@ -108,11 +80,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_portrait %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.portrait.value"
-            {% else %}
-            v-model="element.config.portrait.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showPortrait')"
         />
         {% endblock %}
@@ -120,11 +88,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_cms_element_vimeo_video_config_title %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.title.value"
-            {% else %}
-            v-model="element.config.title.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showTitle')"
         />
         {% endblock %}
@@ -136,11 +100,7 @@
     {% block sw_cms_element_vimeo_video_config_needs_confirmation %}
     <div class="sw-cms-el-config-vimeo-video__confirmation">
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="element.config.needsConfirmation.value"
-            {% else %}
-            v-model="element.config.needsConfirmation.value"
-            {% endif %}
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')"
         />
     </div>
@@ -150,11 +110,7 @@
     {% block sw_cms_element_vimeo_video_config_preview_media %}
     <sw-cms-mapping-field
         v-if="element.config.needsConfirmation.value"
-        {% if VUE3 %}
         v-model:config="element.config.previewMedia"
-        {% else %}
-        v-model="element.config.previewMedia"
-        {% endif %}
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.previewImage')"
         value-types="entity"
         entity="media"

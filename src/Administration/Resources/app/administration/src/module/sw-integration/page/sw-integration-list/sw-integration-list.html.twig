@@ -87,11 +87,7 @@
                         gap="24px"
                     >
                         <sw-text-field
-                            {% if VUE3 %}
                             v-model:value="currentIntegration.label"
-                            {% else %}
-                            v-model="currentIntegration.label"
-                            {% endif %}
                             name="sw-field--currentIntegration-label"
                             :label="$tc('sw-integration.detail.labelFieldLabel')"
                             :disabled="!acl.can('integration.editor')"
@@ -100,11 +96,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
                         <sw-switch-field
-                            {% if VUE3 %}
                             v-model:value="currentIntegration.admin"
-                            {% else %}
-                            v-model="currentIntegration.admin"
-                            {% endif %}
                             name="sw-field--currentIntegration-admin"
                             class="sw-settings-user-detail__grid-is-admin"
                             :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
@@ -117,11 +109,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_acl_roles %}
                     <sw-entity-multi-select
-                        {% if VUE3 %}
                         v-model:entityCollection="currentIntegration.aclRoles"
-                        {% else %}
-                        v-model="currentIntegration.aclRoles"
-                        {% endif %}
                         v-tooltip="{
                             showDelay: 300,
                             message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
@@ -138,11 +126,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_integration_list_detail_modal_inner_field_accesskey %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="currentIntegration.accessKey"
-                        {% else %}
-                        v-model="currentIntegration.accessKey"
-                        {% endif %}
                         name="sw-field--currentIntegration-accessKey"
                         :label="$tc('sw-integration.detail.idFieldLabel')"
                         :disabled="true"
@@ -156,11 +140,7 @@
                     <template v-if="showSecretAccessKey">
                         <sw-text-field
                             v-if="secretAccessKeyFieldTypeIsText"
-                            {% if VUE3 %}
                             v-model:value="currentIntegration.secretAccessKey"
-                            {% else %}
-                            v-model="currentIntegration.secretAccessKey"
-                            {% endif %}
                             name="sw-field--currentIntegration-secretAccessKey"
                             :type="secretAccessKeyFieldType"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"
@@ -172,11 +152,7 @@
 
                         <sw-password-field
                             v-if="secretAccessKeyFieldTypeIsPassword"
-                            {% if VUE3 %}
                             v-model:value="currentIntegration.secretAccessKey"
-                            {% else %}
-                            v-model="currentIntegration.secretAccessKey"
-                            {% endif %}
                             name="sw-field--currentIntegration-secretAccessKey"
                             :type="secretAccessKeyFieldType"
                             :label="$tc('sw-integration.detail.secretFieldLabel')"

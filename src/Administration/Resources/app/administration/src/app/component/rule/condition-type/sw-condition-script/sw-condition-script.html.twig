@@ -9,12 +9,9 @@
     {% block sw_condition_script_fields %}
     <template
         v-for="(field, index) in config"
-        {% if VUE3 %}
         :key="index"
-        {% endif %}
     >
         <sw-form-field-renderer
-            {% if not VUE3 %} :key="index" {% endif %}
             v-bind="getBind(field)"
             :disabled="disabled"
             :value="values[field.name]"

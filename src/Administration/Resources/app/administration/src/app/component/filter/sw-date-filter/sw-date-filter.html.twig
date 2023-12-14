@@ -15,19 +15,11 @@
     {% block sw_date_filter_timeframe %}
     <sw-single-select
         v-if="filter.showTimeframe"
-        {% if VUE3 %}
         v-model:value="dateValue.timeframe"
-        {% else %}
-        v-model="dateValue.timeframe"
-        {% endif %}
         class="sw-date-filter__timeframe"
         placeholder="Select timeframe"
         :options="timeframeOptions"
-        {% if VUE3 %}
         @update:value="onTimeframeSelect"
-        {% else %}
-        @change="onTimeframeSelect"
-        {% endif %}
     />
     {% endblock %}
 
@@ -35,21 +27,13 @@
     {% block sw_date_filter_from_field %}
     <template #from-field>
         <sw-datepicker
-            {% if VUE3 %}
             v-model:value="dateValue.from"
-            {% else %}
-            v-model="dateValue.from"
-            {% endif %}
             v-bind="$attrs"
             class="sw-date-filter__from"
             :date-type="dateType"
             :placeholder="filter.fromPlaceholder"
             :label="fromToFieldLabel('from')"
-            {% if VUE3 %}
             @update:value="resetTimeframe"
-            {% else %}
-            @input="resetTimeframe"
-            {% endif %}
         />
     </template>
     {% endblock %}
@@ -58,21 +42,13 @@
     {% block sw_date_filter_to_field %}
     <template #to-field>
         <sw-datepicker
-            {% if VUE3 %}
             v-model:value="dateValue.to"
-            {% else %}
-            v-model="dateValue.to"
-            {% endif %}
             v-bind="$attrs"
             class="sw-date-filter__to"
             :date-type="dateType"
             :placeholder="filter.toPlaceholder"
             :label="fromToFieldLabel('to')"
-            {% if VUE3 %}
             @update:value="resetTimeframe"
-            {% else %}
-            @input="resetTimeframe"
-            {% endif %}
         />
     </template>
     {% endblock %}

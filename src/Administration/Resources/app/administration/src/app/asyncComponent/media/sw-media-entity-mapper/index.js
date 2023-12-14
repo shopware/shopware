@@ -14,17 +14,8 @@ export default {
             return entityMapping[context.props.item.getEntityName()];
         }
 
-        if (window._features_?.VUE3) {
-            Object.assign(context.data, context.props);
+        Object.assign(context.data, context.props);
 
-            return createElement(
-                mapEntity(),
-                context.data,
-                context.slots().default,
-            );
-        }
-
-        Object.assign(context.data.attrs, context.props);
         return createElement(
             mapEntity(),
             context.data,

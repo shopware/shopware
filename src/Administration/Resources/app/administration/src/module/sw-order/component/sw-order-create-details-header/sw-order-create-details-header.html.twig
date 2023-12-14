@@ -53,11 +53,7 @@
                     :value="customerId"
                     :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
                     show-clearable-button
-                    {% if VUE3 %}
                     @update:value="onSelectExistingCustomer"
-                    {% else %}
-                    @change="onSelectExistingCustomer"
-                    {% endif %}
                 >
 
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

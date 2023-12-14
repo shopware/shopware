@@ -678,31 +678,17 @@ Component.register('sw-data-grid', {
                 return;
             }
 
-            const selection = this.selection;
-
-            if (this.feature.isActive('VUE3')) {
-                const key = item[this.itemIdentifierProperty];
-                if (selected) {
-                    this.selection = {
-                        ...this.selection,
-                        [key]: item,
-                    };
-                } else {
-                    this.selection = Object.fromEntries(
-                        Object.entries(this.selection).filter(([selectionKey]) => selectionKey !== key),
-                    );
-                }
-                this.$emit('select-item', this.selection, item, selected);
-
-                return;
-            }
-
+            const key = item[this.itemIdentifierProperty];
             if (selected) {
-                this.$set(this.selection, item[this.itemIdentifierProperty], item);
-            } else if (!selected && selection[item[this.itemIdentifierProperty]]) {
-                this.$delete(this.selection, item[this.itemIdentifierProperty]);
+                this.selection = {
+                    ...this.selection,
+                    [key]: item,
+                };
+            } else {
+                this.selection = Object.fromEntries(
+                    Object.entries(this.selection).filter(([selectionKey]) => selectionKey !== key),
+                );
             }
-
             this.$emit('select-item', this.selection, item, selected);
         },
 

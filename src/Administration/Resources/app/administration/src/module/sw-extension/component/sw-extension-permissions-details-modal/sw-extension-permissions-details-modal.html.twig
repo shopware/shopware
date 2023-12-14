@@ -36,17 +36,12 @@
             {% block sw_extension_permissions_details_modal_table_permissions %}
             <template
                 v-for="(permissionCategory, category) in permissions"
-                {% if VUE3 %}
                 :key="`permission-${category}`"
-                {% endif %}
             >
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_extension_permissions_details_modal_permissions_category %}
                 <tr
                     :id="`permission-${category}`"
-                    {% if VUE2 %}
-                    :key="`permission-${category}`"
-                    {% endif %}
                     class="sw-extension-permissions-details-modal__category"
                 >
                     <td>{{ categoryLabel(category) }}</td>

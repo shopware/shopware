@@ -81,11 +81,7 @@
             :disabled="isLoading || !acl.can('order.editor')"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            {% if VUE3 %}
             @update:process-success="saveEditsFinish"
-            {% else %}
-            @process-finish="saveEditsFinish"
-            {% endif %}
             @click.prevent="onSaveEdits"
         >
             {{ $tc('global.default.save') }}
@@ -188,7 +184,6 @@
                 :is-editing="isEditing"
                 :is-loading="isLoading"
                 :is-save-successful="isSaveSuccessful"
-                {% if VUE3 %}
                 @identifier-change.native="updateIdentifier"
                 @created-by-id-change.native="updateCreatedById"
                 @loading-change.native="onUpdateLoading"
@@ -199,18 +194,6 @@
                 @save-and-reload.native="onSaveAndReload"
                 @save-edits.native="onSaveEdits"
                 @error.native="onError"
-                {% else %}
-                @identifier-change="updateIdentifier"
-                @created-by-id-change="updateCreatedById"
-                @loading-change="onUpdateLoading"
-                @editing-change="onUpdateEditing"
-                @save-and-recalculate="onSaveAndRecalculate"
-                @recalculate-and-reload="onRecalculateAndReload"
-                @reload-entity-data="reloadEntityData"
-                @save-and-reload="onSaveAndReload"
-                @save-edits="onSaveEdits"
-                @error="onError"
-                {% endif %}
             />
             {% endblock %}
 

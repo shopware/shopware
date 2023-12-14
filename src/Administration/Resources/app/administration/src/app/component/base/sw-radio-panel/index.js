@@ -87,13 +87,7 @@ Component.register('sw-radio-panel', {
 
     methods: {
         toggle() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:modelValue', this.value);
-
-                return;
-            }
-
-            this.$emit('input', this.value);
+            this.$emit('update:modelValue', this.value);
         },
     },
 });

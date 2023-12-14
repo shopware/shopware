@@ -140,11 +140,7 @@
             #column-quantityStart="{ item, itemIndex, compact }"
         >
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="item.quantityStart"
-                {% else %}
-                v-model="item.quantityStart"
-                {% endif %}
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-start`"
                 :number-type="numberFieldType"
@@ -161,11 +157,7 @@
             #column-quantityEnd="{ item, itemIndex, compact }"
         >
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="item.quantityEnd"
-                {% else %}
-                v-model="item.quantityEnd"
-                {% endif %}
                 :disabled="disabled"
                 :name="`sw-field--${item.id}-quantity-end`"
                 :number-type="numberFieldType"
@@ -174,11 +166,7 @@
                 :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                 :min="item.quantityStart"
                 :digits="3"
-                {% if VUE3 %}
                 @update:value="onQuantityEndChange(item)"
-                {% else %}
-                @change="onQuantityEndChange(item)"
-                {% endif %}
             />
         </template>
         {% endblock %}
@@ -186,15 +174,10 @@
         {% block sw_settings_shipping_price_matrix_price_grid_currencies_list %}
         <template
             v-for="currency in currencies"
-            {% if VUE3 %}
             :key="currency.isoCode"
-            {% endif %}
             #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
         >
             <sw-inherit-wrapper
-                {% if VUE2 %}
-                :key="currency.isoCode"
-                {% endif %}
                 class="sw-settings-shipping-price-matrix__price"
                 :value="getPrice(item, currency)"
                 :has-parent="!currency.isSystemDefault"
@@ -213,11 +196,7 @@
                     />
 
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="props.currentValue.gross"
-                        {% else %}
-                        v-model="props.currentValue.gross"
-                        {% endif %}
                         :name="`sw-field--${item.id}-${currency.id}-gross`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
@@ -225,11 +204,7 @@
                         :disabled="props.isInherited || disabled"
                     />
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="props.currentValue.net"
-                        {% else %}
-                        v-model="props.currentValue.net"
-                        {% endif %}
                         :name="`sw-field--${item.id}-${currency.id}-net`"
                         :size="compact ? 'small' : 'default'"
                         class="sw-settings-shipping-price-matrix__price-input"
@@ -285,11 +260,7 @@
                 size="small"
                 show-clearable-button
                 :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')"
-                {% if VUE3 %}
                 @update:value="onCalculationChange"
-                {% else %}
-                @change="onCalculationChange"
-                {% endif %}
             />
             {% endblock %}
 

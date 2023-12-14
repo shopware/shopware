@@ -19,11 +19,7 @@
     {% block sw_condition_line_item_purchase_price_field_amount %}
     <sw-number-field
         v-if="!isEmpty"
-        {% if VUE3 %}
         v-model:value="amount"
-        {% else %}
-        v-model="amount"
-        {% endif %}
         name="sw-field--amount"
         size="medium"
         :min="0"

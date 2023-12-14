@@ -1,139 +1,128 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_card %}
 
-{% if VUE3 %}
 <div class="sw-card-wrapper">
-{% else %}
-    <sw-ignore-class ref="swIgnoreClass">
-{% endif %}
 
-        <sw-extension-component-section
-            v-if="positionIdentifier"
-            :position-identifier="positionIdentifier + '__before'"
-        />
+    <sw-extension-component-section
+        v-if="positionIdentifier"
+        :position-identifier="positionIdentifier + '__before'"
+    />
 
+    <div
+        class="sw-card"
+        :class="cardClasses()"
+        v-bind="$attrs"
+    >
         <div
-            class="sw-card"
-            :class="cardClasses()"
-            {% if VUE3 %}
-            v-bind="$attrs"
-            {% endif %}
+            v-if="showHeader"
+            class="sw-card__header"
         >
             <div
-                v-if="showHeader"
-                class="sw-card__header"
+                v-if="hasAvatar"
+                class="sw-card__avatar"
             >
-                <div
-                    v-if="hasAvatar"
-                    class="sw-card__avatar"
-                >
-                    <slot name="avatar">
-                    </slot>
-                </div>
+                <slot name="avatar">
+                </slot>
+            </div>
 
-                <div class="sw-card__titles">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            <div class="sw-card__titles">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_card_title %}
-                    <slot name="title">
-                        <div
-                            v-if="title"
-                            class="sw-card__title"
-                        >
-                            {{ title }}
+                <slot name="title">
+                    <div
+                        v-if="title"
+                        class="sw-card__title"
+                    >
+                        {{ title }}
 
-                            <sw-ai-copilot-badge v-if="aiBadge" />
-                        </div>
-                    </slot>
+                        <sw-ai-copilot-badge v-if="aiBadge" />
+                    </div>
+                </slot>
                     {% endblock %}
 
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_card_subtitle %}
-                    <slot name="subtitle">
-                        <div
-                            v-if="subtitle"
-                            class="sw-card__subtitle"
-                        >
-                            {{ subtitle }}
-                        </div>
-                    </slot>
+                <slot name="subtitle">
+                    <div
+                        v-if="subtitle"
+                        class="sw-card__subtitle"
+                    >
+                        {{ subtitle }}
+                    </div>
+                </slot>
                     {% endblock %}
-                </div>
-
-                <div class="sw-card__titles-right-slot">
-                    <slot name="header-right"></slot>
-                </div>
-
-                <slot
-                    name="tabs"
-                ></slot>
             </div>
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_card_toolbar %}
-            <div
-                v-if="!!$slots.toolbar"
-                class="sw-card__toolbar"
-            >
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_card_toolbar_inner %}
-                <slot name="toolbar">
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_card_slot_toolbar %}{% endblock %}
-                </slot>
-            {% endblock %}
+            <div class="sw-card__titles-right-slot">
+                <slot name="header-right"></slot>
             </div>
-            {% endblock %}
 
-            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_card_content %}
-            <div
-                class="sw-card__content"
-                :class="{'no--padding': !contentPadding}"
-            >
-                <div
-                    v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
-                    class="sw-card__context-menu"
-                >
-                    <sw-context-button>
-                        <slot name="context-actions">
-                            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_card_slot_context_menu_actions %}{% endblock %}
-                        </slot>
-                    </sw-context-button>
-                </div>
-                <slot>
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_slot_default %}{% endblock %}
-                </slot>
-                <slot
-                    name="grid"
-                    :title="title"
-                >
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_slot_grid %}{% endblock %}
-                </slot>
-                <slot name="footer">
-                    <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                    {% block sw_card_slot_footer %}{% endblock %}
-                </slot>
-
-                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                {% block sw_card_loader %}
-                <sw-loader v-if="isLoading" />
-            {% endblock %}
-            </div>
-        {% endblock %}
+            <slot
+                name="tabs"
+            ></slot>
         </div>
 
-        <sw-extension-component-section
-            v-if="positionIdentifier"
-            :position-identifier="positionIdentifier + '__after'"
-        />
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_card_toolbar %}
+        <div
+            v-if="!!$slots.toolbar"
+            class="sw-card__toolbar"
+        >
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_card_toolbar_inner %}
+            <slot name="toolbar">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_card_slot_toolbar %}{% endblock %}
+            </slot>
+            {% endblock %}
+        </div>
+            {% endblock %}
 
-{% if VUE2 %}
-    </sw-ignore-class>
-{% else %}
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_card_content %}
+        <div
+            class="sw-card__content"
+            :class="{'no--padding': !contentPadding}"
+        ><div
+             v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
+             class="sw-card__context-menu"
+         >
+             <sw-context-button>
+                 <slot name="context-actions">
+                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                            {% block sw_card_slot_context_menu_actions %}{% endblock %}
+                 </slot>
+             </sw-context-button>
+         </div>
+            <slot>
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_card_slot_default %}{% endblock %}
+            </slot>
+            <slot
+                name="grid"
+                :title="title"
+            >
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_card_slot_grid %}{% endblock %}
+            </slot>
+            <slot name="footer">
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                    {% block sw_card_slot_footer %}{% endblock %}
+            </slot>
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_card_loader %}
+            <sw-loader v-if="isLoading" />
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+
+    <sw-extension-component-section
+        v-if="positionIdentifier"
+        :position-identifier="positionIdentifier + '__after'"
+    />
+
 </div>
-{% endif %}
 
 {% endblock %}

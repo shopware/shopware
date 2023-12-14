@@ -14,20 +14,12 @@
         {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
         <sw-select-field
             v-if="isProductComparison"
-            {% if VUE3 %}
             v-model:value="templateName"
-            {% else %}
-            v-model="templateName"
-            {% endif %}
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
             :options="templateOptions"
-            {% if VUE3 %}
             @update:value="$emit('template-selected', arguments[0])"
-            {% else %}
-            @change="$emit('template-selected', arguments[0])"
-            {% endif %}
         >
             <option
                 v-for="option in templateOptions"
@@ -73,11 +65,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_name %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="salesChannel.name"
-            {% else %}
-            v-model="salesChannel.name"
-            {% endif %}
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -94,11 +82,7 @@
             :disabled="!acl.can('user_config:create') || !acl.can('user_config:update') || salesChannel._isNew"
             :label="$tc('sw-sales-channel.detail.favouriteLabel')"
             :value="isFavorite()"
-            {% if VUE3 %}
             @update:value="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
-            {% else %}
-            @change="(isFavorite) => { salesChannelFavoritesService.update(isFavorite, salesChannel.id) }"
-            {% endif %}
         />
         {% endblock %}
 
@@ -132,11 +116,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_sales_channel_detail_base_general_input_navigation_category_depth %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="salesChannel.navigationCategoryDepth"
-                {% else %}
-                v-model="salesChannel.navigationCategoryDepth"
-                {% endif %}
                 number-type="int"
                 :min="1"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -180,11 +160,7 @@
         {% block sw_sales_channel_detail_base_general_input_customer_group %}
         <sw-entity-single-select
             v-if="!isProductComparison"
-            {% if VUE3 %}
             v-model:value="salesChannel.customerGroupId"
-            {% else %}
-            v-model="salesChannel.customerGroupId"
-            {% endif %}
             class="sw-sales-channel-detail__select-customer-group"
             required
             show-clearable-button
@@ -325,11 +301,7 @@
         {% endblock %}
 
         <sw-radio-field
-            {% if VUE3 %}
             v-model:value="salesChannel.taxCalculationType"
-            {% else %}
-            v-model="salesChannel.taxCalculationType"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.labelTaxCalculation')"
             :help-text="helpTextTaxCalculation"
             block
@@ -373,11 +345,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_select %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="productExport.storefrontSalesChannelId"
-            {% else %}
-            v-model="productExport.storefrontSalesChannelId"
-            {% endif %}
             class="sw-sales-channel-detail__product-comparison-storefront"
             :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
             :criteria="storefrontSalesChannelCriteria"
@@ -387,22 +355,14 @@
             entity="sales_channel"
             required
             show-clearable-button
-            {% if VUE3 %}
             @update:value="onStorefrontSelectionChange"
-            {% else %}
-            @change="onStorefrontSelectionChange"
-            {% endif %}
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="productExport.salesChannelDomainId"
-            {% else %}
-            v-model="productExport.salesChannelDomainId"
-            {% endif %}
             class="sw-sales-channel-detail__product-comparison-domain"
             :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
             :criteria="storefrontSalesChannelDomainCriteria"
@@ -413,11 +373,7 @@
             show-clearable-button
             :disabled="(!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId) || !acl.can('sales_channel.editor')"
             :error="productExportSalesChannelDomainIdError"
-            {% if VUE3 %}
             @update:value="onStorefrontDomainSelectionChange"
-            {% else %}
-            @change="onStorefrontDomainSelectionChange"
-            {% endif %}
         />
         {% endblock %}
 
@@ -428,11 +384,7 @@
             class="sw-sales-channel-detail-base__product-comparison-container"
         >
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="productExport.currencyId"
-                {% else %}
-                v-model="productExport.currencyId"
-                {% endif %}
                 :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainCurrency.label')"
                 :criteria="storefrontSalesChannelCurrencyCriteria"
                 label-property="name"
@@ -453,11 +405,7 @@
             class="sw-sales-channel-detail-base__product-comparison-container"
         >
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="productExport.salesChannelDomain.languageId"
-                {% else %}
-                v-model="productExport.salesChannelDomain.languageId"
-                {% endif %}
                 :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomainLanguage.label')"
                 label-property="name"
                 value-property="id"
@@ -478,11 +426,7 @@
         {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group %}
         <div class="sw-sales-channel-detail-base__product-comparison-container">
             <sw-entity-single-select
-                {% if VUE3 %}
                 v-model:value="salesChannel.customerGroupId"
-                {% else %}
-                v-model="salesChannel.customerGroupId"
-                {% endif %}
                 :label="$tc('sw-sales-channel.detail.productComparison.storefrontSalesChannelCustomerGroup.label')"
                 label-property="name"
                 value-property="id"
@@ -511,11 +455,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_filename %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="productExport.fileName"
-            {% else %}
-            v-model="productExport.fileName"
-            {% endif %}
             validation="required"
             required
             :disabled="!acl.can('sales_channel.editor')"
@@ -528,11 +468,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_encoding %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="productExport.encoding"
-            {% else %}
-            v-model="productExport.encoding"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.encoding')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
             :options="getEncodingOptions"
@@ -545,11 +481,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_file_format %}
         <sw-select-field
-            {% if VUE3 %}
             v-model:value="productExport.fileFormat"
-            {% else %}
-            v-model="productExport.fileFormat"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.fileFormat')"
             :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
             :options="getFileFormatOptions"
@@ -562,11 +494,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_include_variants %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="productExport.includeVariants"
-            {% else %}
-            v-model="productExport.includeVariants"
-            {% endif %}
             bordered
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
@@ -576,30 +504,18 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_interval %}
         <sw-select-number-field
-            {% if VUE3 %}
             v-model:value="productExport.interval"
-            {% else %}
-            v-model="productExport.interval"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.interval')"
             :options="getIntervalOptions"
             :disabled="!acl.can('sales_channel.editor')"
-            {% if VUE3 %}
             @update:value="changeInterval"
-            {% else %}
-            @change="changeInterval"
-            {% endif %}
         />
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="productExport.generateByCronjob"
-            {% else %}
-            v-model="productExport.generateByCronjob"
-            {% endif %}
             bordered
             :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
             :disabled="disableGenerateByCronjob || !acl.can('sales_channel.editor')"
@@ -627,11 +543,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="productExport.productStreamId"
-            {% else %}
-            v-model="productExport.productStreamId"
-            {% endif %}
             class="sw-sales-channel-detail__product-comparison-product-stream"
             :label="$tc('sw-sales-channel.detail.productComparison.productStream')"
             label-property="name"
@@ -667,11 +579,7 @@
         {% block sw_sales_channel_detail_base_options_input_access_key %}
         <sw-text-field
             v-if="!isProductComparison"
-            {% if VUE3 %}
             v-model:value="salesChannel.accessKey"
-            {% else %}
-            v-model="salesChannel.accessKey"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.labelAccessKeyField')"
             :disabled="true"
         />
@@ -708,11 +616,7 @@
         {% block sw_sales_channel_detail_base_product_comparison_input_access_key %}
         <sw-text-field
             v-if="isProductComparison"
-            {% if VUE3 %}
             v-model:value="productExport.accessKey"
-            {% else %}
-            v-model="productExport.accessKey"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
             :disabled="true"
             :copyable="true"
@@ -723,11 +627,7 @@
         {% block sw_sales_channel_detail_base_product_comparison_input_access_url %}
         <sw-text-field
             v-if="isProductComparison && productExport.salesChannelDomainId"
-            {% if VUE3 %}
             v-model:value="productComparisonAccessUrl"
-            {% else %}
-            v-model="productComparisonAccessUrl"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.productComparison.accessUrl')"
             :disabled="true"
             :copyable="true"
@@ -771,18 +671,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_status_input_active %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="salesChannel.active"
-            {% else %}
-            v-model="salesChannel.active"
-            {% endif %}
             :label="$tc('sw-sales-channel.detail.labelInputActive')"
             :disabled="!acl.can('sales_channel.editor')"
-            {% if VUE3 %}
             @update:value="onToggleActive"
-            {% else %}
-            @change="onToggleActive"
-            {% endif %}
         />
         {% endblock %}
 
@@ -800,11 +692,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_input_active %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="salesChannel.maintenance"
-            {% else %}
-            v-model="salesChannel.maintenance"
-            {% endif %}
             name="sw-field--salesChannel-maintenance"
             :disabled="!acl.can('sales_channel.editor')"
             :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
@@ -814,16 +702,12 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
         <sw-multi-tag-ip-select
-            {% if VUE3 %}
-            v-model:value="maintenanceIpAllowlist"
-            {% else %}
-            v-model="maintenanceIpAllowlist"
-            {% endif %}
+            v-model:value="maintenanceIpWhitelist"
             :is-loading="isLoading"
             :disabled="!acl.can('sales_channel.editor')"
             class="sw-order-user-card__tag-select"
-            :label="$tc('sw-sales-channel.detail.ipAddressAllowlist')"
-            :help-text="$tc('sw-sales-channel.detail.ipAddressAllowlistHelpText')"
+            :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
+            :help-text="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
             :known-ips="knownIps"
         />
         {% endblock %}

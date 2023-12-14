@@ -57,11 +57,7 @@ Component.register('sw-step-item', {
         },
 
         stepDisplay() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$parent.$parent;
-            }
-
-            return this.$parent;
+            return this.$parent.$parent;
         },
     },
 

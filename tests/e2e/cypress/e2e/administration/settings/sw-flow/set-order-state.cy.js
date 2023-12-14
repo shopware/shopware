@@ -135,6 +135,9 @@ describe('Flow builder: set order status testing', () => {
         cy.get('.sw-flow-sequence-action__selection-action')
             .typeSingleSelect('Assign status', '.sw-flow-sequence-action__selection-action');
         cy.get('.sw-flow-set-order-state-modal').should('be.visible');
+        cy.get('#sw-field--config-order').should('be.visible');
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-skeleton').should('not.exist');
 
         cy.get('#sw-field--config-order').select('Done')
             .should('have.value', 'completed');

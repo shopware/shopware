@@ -58,11 +58,7 @@
             {% block sw_customer_base_metadata_customer_group_editor %}
             <dd v-else>
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customer.groupId"
-                    {% else %}
-                    v-model="customer.groupId"
-                    {% endif %}
                     name="sw-field--customer-groupId"
                     entity="customer_group"
                     size="small"
@@ -98,11 +94,7 @@
             {% block sw_customer_base_metadata_default_payment_editor %}
             <dd v-else>
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customer.defaultPaymentMethodId"
-                    {% else %}
-                    v-model="customer.defaultPaymentMethodId"
-                    {% endif %}
                     name="sw-field--customer-defaultPaymentMethodId"
                     class="sw-customer-base-info__payment-select"
                     entity="payment_method"
@@ -132,7 +124,7 @@
                 v-if="!customerEditMode"
                 class="sw-customer-base__label-is-active"
             >
-                {{ $tc('sw-customer.baseInfo.contentActive', customer.active) }}
+                {{ $tc('sw-customer.baseInfo.contentActive', customer.active ? 1 : 2) }}
             </dd>
             {% endblock %}
 
@@ -140,11 +132,7 @@
             {% block sw_customer_base_metadata_active_editor %}
             <dd v-else>
                 <sw-checkbox-field
-                    {% if VUE3 %}
                     v-model:value="customer.active"
-                    {% else %}
-                    v-model="customer.active"
-                    {% endif %}
                     name="sw-field--customer-active"
                     class="sw-customer-base-info__checkbox-field"
                     :label="$tc('sw-customer.baseInfo.contentActive')"
@@ -179,11 +167,7 @@
             {% block sw_customer_base_metadata_language_editor %}
             <dd v-else>
                 <sw-entity-single-select
-                    {% if VUE3 %}
                     v-model:value="customer.languageId"
-                    {% else %}
-                    v-model="customer.languageId"
-                    {% endif %}
                     name="sw-field--customer-languageId"
                     class="sw-customer-base-info__language-select"
                     entity="language"
@@ -323,11 +307,7 @@
             {% block sw_custoemr_base_metadata_birthday_editor %}
             <dd v-else>
                 <sw-datepicker
-                    {% if VUE3 %}
                     v-model:value="customer.birthday"
-                    {% else %}
-                    v-model="customer.birthday"
-                    {% endif %}
                     name="sw-field--customer-birthday"
                     size="small"
                     date-type="date"

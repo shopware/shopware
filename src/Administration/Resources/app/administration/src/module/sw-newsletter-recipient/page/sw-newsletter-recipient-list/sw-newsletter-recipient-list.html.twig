@@ -81,11 +81,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_first_name %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="item.firstName"
-                        {% else %}
-                        v-model="item.firstName"
-                        {% endif %}
                         class="sw-newsletter-recipient-list__inline-edit-first-name"
                         :size="compact ? 'small' : 'default'"
                     />
@@ -94,11 +90,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_newsletter_recipientlist_list_grid_inline_edit_last_name %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="item.lastName"
-                        {% else %}
-                        v-model="item.lastName"
-                        {% endif %}
                         class="sw-newsletter-recipient-list__inline-edit-last-name"
                         :size="compact ? 'small' : 'default'"
                     />
@@ -347,16 +339,8 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
                         <sw-entity-multi-select
-                            {% if VUE3 %}
                             v-model:entityCollection="tagCollection"
-                            {% else %}
-                            v-model="tagCollection"
-                            {% endif %}
-                            {% if VUE3 %}
                             @update:entity-collection="onChange"
-                            {% else %}
-                            @change="onChange"
-                            {% endif %}
                         />
                         {% endblock %}
                     </template>

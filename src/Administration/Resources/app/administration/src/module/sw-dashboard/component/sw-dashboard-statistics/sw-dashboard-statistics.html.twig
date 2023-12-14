@@ -116,7 +116,7 @@
                                 :variant="getVariantFromOrderState(item)"
                                 appearance="pill"
                             >
-                                {{ item.stateMachineState.translated.name }}
+                                {{ item?.stateMachineState?.translated?.name }}
                             </sw-label>
                         </template>
                         {% endblock %}

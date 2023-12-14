@@ -73,10 +73,7 @@ Component.register('sw-product-variant-info', {
 
     computed: {
         productName() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$slots?.default?.()?.[0]?.children || '';
-            }
-            return this.$slots?.default?.[0]?.text || '';
+            return this.$slots?.default?.()?.[0]?.children || '';
         },
     },
 
@@ -96,10 +93,7 @@ Component.register('sw-product-variant-info', {
         },
 
         getFirstSlot() {
-            if (this.feature.isActive('VUE3')) {
-                return this.$slots?.default?.()?.[0]?.children || '';
-            }
-            return this.$slots?.default?.[0]?.text || '';
+            return this.$slots?.default?.()?.[0]?.children || '';
         },
 
         setHelpText() {

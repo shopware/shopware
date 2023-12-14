@@ -90,13 +90,9 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     watch: {
         value() {
-            if (this.feature.isActive('VUE3')) {
-                this.$nextTick(() => {
-                    this.checkInput(this.value || '');
-                });
-            } else {
+            this.$nextTick(() => {
                 this.checkInput(this.value || '');
-            }
+            });
         },
     },
 
@@ -133,11 +129,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
             } else {
                 this.currentValue = validated;
 
-                if (this.feature.isActive('VUE3')) {
-                    if (this.value !== this.url) {
-                        this.$emit('update:value', this.url);
-                    }
-                    return;
+                if (this.value !== this.url) {
+                    this.$emit('update:value', this.url);
                 }
 
                 this.$emit('input', this.url);
@@ -181,12 +174,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             this.sslActive = !this.sslActive;
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.url);
-                return;
-            }
-
-            this.$emit('input', this.url);
+            this.$emit('update:value', this.url);
         },
 
         getURLInstance(value) {

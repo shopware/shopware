@@ -1,6 +1,6 @@
 import type Bottle from 'bottlejs';
 import type { App } from 'vue';
-import Vue, { reactive } from 'vue';
+import { reactive } from 'vue';
 import type { ContextState } from '../app/state/context.store';
 import type VueAdapter from '../app/adapter/view/vue.adapter';
 /**
@@ -329,7 +329,7 @@ class ApplicationBootstrapper {
             return false;
         }
 
-        return this.view.root as App<Element>;
+        return this.view.root;
     }
 
     setViewAdapter(viewAdapterInstance: VueAdapter): void {
@@ -578,9 +578,13 @@ class ApplicationBootstrapper {
             await this.injectPlugin(plugins['swag-commercial']);
         }
 
+        if (plugins.SwagCommercial) {
+            await this.injectPlugin(plugins.SwagCommercial);
+        }
+
         const injectAllPlugins = Object.entries(plugins).filter(([pluginName]) => {
             // Filter the swag-commercial plugin because it was loaded beforehand
-            return pluginName !== 'swag-commercial';
+            return !['swag-commercial', 'SwagCommercial'].includes(pluginName);
         }).map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
@@ -763,12 +767,7 @@ class ApplicationBootstrapper {
         };
 
         // To keep permissions reactive no matter if empty or not
-        if (window._features_?.vue3) {
-            extension.permissions = permissions ?? reactive({});
-        } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            Vue.set(extension, 'permissions', permissions ?? Vue.observable({}));
-        }
+        extension.permissions = permissions ?? reactive({});
 
         Shopware.State.commit('extensions/addExtension', extension);
     }

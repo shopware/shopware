@@ -1,30 +1,6 @@
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
 
-Upload Component Library:
-    extends: .long-running-no-setup
-    stage: deploy
-    image: python:latest
-    rules:
-        - if: '$CI_COMMIT_BRANCH == "trunk" && $CI_PIPELINE_SOURCE == "schedule"'
-          when: manual
-          allow_failure: true
-    dependencies:
-        - Component Library
-    environment:
-        name: Component Library
-        url: https://component-library.shopware.com
-    script:
-        - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0KAWS-CLI preparation"
-        - pip install awscli
-        - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
-        - cd build/artifacts/component-library
-        - echo -e "\e[0Ksection_start:$(date +%s):aws_sync[collapsed=false]\r\e[0KAWS sync"
-        - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
-        - echo -e "\e[0Ksection_end:`date +%s`:aws_sync\r\e[0K"
-        - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
-    interruptible: false
-
 Publish entity-schema-types NPM package:
     extends: .base-with-node
     stage: deploy

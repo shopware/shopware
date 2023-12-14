@@ -14,11 +14,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_name %}
                 <sw-text-field
-                    {% if VUE3 %}
                     v-model:value="rule.name"
-                    {% else %}
-                    v-model="rule.name"
-                    {% endif %}
                     name="sw-field--rule-name"
                     :label="$tc('sw-settings-rule.detail.labelName')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
@@ -31,11 +27,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_rule_detail_base_content_card_field_priority %}
                 <sw-number-field
-                    {% if VUE3 %}
                     v-model:value="rule.priority"
-                    {% else %}
-                    v-model="rule.priority"
-                    {% endif %}
                     name="sw-field--rule-priority"
                     :label="$tc('sw-settings-rule.detail.labelPriority')"
                     :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
@@ -49,11 +41,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_rule_detail_base_content_card_field_description %}
             <sw-textarea-field
-                {% if VUE3 %}
                 v-model:value="rule.description"
-                {% else %}
-                v-model="rule.description"
-                {% endif %}
                 name="sw-field--rule-description"
                 :label="$tc('sw-settings-rule.detail.labelDescription')"
                 :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
@@ -66,11 +54,7 @@
                 {% block sw_settings_rule_detail_base_content_card_field_type %}
                 <sw-multi-select
                     v-if="rule"
-                    {% if VUE3 %}
                     v-model:value="moduleTypes"
-                    {% else %}
-                    v-model="moduleTypes"
-                    {% endif %}
                     name="sw-field--moduleTypes"
                     class="sw-settings-rule-detail__type-field"
                     value-property="id"
@@ -93,11 +77,7 @@
                 {% block sw_settings_rule_detail_base_content_card_field_tags %}
                 <sw-entity-tag-select
                     v-if="rule"
-                    {% if VUE3 %}
                     v-model:entityCollection="rule.tags"
-                    {% else %}
-                    v-model="rule.tags"
-                    {% endif %}
                     name="sw-field--rule-tags"
                     class="sw-settings-rule-detail__tags-field"
                     :label="$tc('global.sw-tag-field.title')"

@@ -154,7 +154,6 @@
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_bulk_edit_order_save_modal %}
-        {% if VUE3 %}
         <router-view
             v-slot="{ Component }"
         >
@@ -168,16 +167,6 @@
                 @bulk-save="onSave"
             />
         </router-view>
-        {% else %}
-        <router-view
-            :item-total="selectedIds.length"
-            :is-loading="isLoading"
-            :process-status="processStatus"
-            :bulk-edit-data="bulkEditData"
-            @modal-close="closeModal"
-            @bulk-save="onSave"
-        />
-        {% endif %}
         {% endblock %}
     </template>
     {% endblock %}

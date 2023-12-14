@@ -37,11 +37,7 @@
         :is-loading="isRebuildInProgress"
         :disabled="isRebuildInProgress || !acl.can('product_search_config.editor')"
         :process-success="isRebuildSuccess"
-        {% if VUE3 %}
         @update:process-success="buildFinish"
-        {% else %}
-        @process-finish="buildFinish"
-        {% endif %}
         @click="rebuildSearchIndex"
     >
         {{ $tc('sw-settings-search.generalTab.buttonRebuildSearchIndex') }}

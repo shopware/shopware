@@ -72,13 +72,7 @@ Component.register('sw-sales-channel-config', {
                     return;
                 }
 
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:value', configData);
-
-                    return;
-                }
-
-                this.$emit('input', configData);
+                this.$emit('update:value', configData);
             },
             deep: true,
         },

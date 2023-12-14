@@ -240,14 +240,6 @@ export default {
                 this.mailTemplateType = item;
 
                 // Not needed because the autocompletion method is passed as property to editor
-                if (!this.feature.isActive('VUE3')) {
-                    if (this.$refs.htmlEditor) {
-                        this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
-                    }
-                    if (this.$refs.plainEditor) {
-                        this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
-                    }
-                }
             });
         },
 

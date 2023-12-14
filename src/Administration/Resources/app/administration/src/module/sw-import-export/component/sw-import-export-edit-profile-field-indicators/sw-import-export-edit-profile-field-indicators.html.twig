@@ -21,11 +21,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_indicators_separator_field %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="profile.delimiter"
-            {% else %}
-            v-model="profile.delimiter"
-            {% endif %}
             required
             show-clearable-button
             class="sw-import-export-edit-profile-indicators__separator-select"
@@ -39,11 +35,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_indicators_enclosure_field %}
         <sw-single-select
-            {% if VUE3 %}
             v-model:value="profile.enclosure"
-            {% else %}
-            v-model="profile.enclosure"
-            {% endif %}
             required
             show-clearable-button
             class="sw-import-export-edit-profile-indicators__enclosure-select"

@@ -17,7 +17,7 @@ const { Component } = Shopware;
  */
 Component.register('sw-card', {
     template,
-    inheritAttrs: !window._features_.VUE3,
+    inheritAttrs: false,
 
     inject: ['feature'],
 
@@ -87,7 +87,7 @@ Component.register('sw-card', {
 
     methods: {
         cardClasses() {
-            const classes = {
+            return {
                 'sw-card--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
                 'sw-card--grid': !!this.$slots.grid || !!this.$scopedSlots.grid,
                 'sw-card--hero': !!this.hero,
@@ -98,35 +98,6 @@ Component.register('sw-card', {
                 'has--toolbar': !!this.$slots.toolbar || !!this.$scopedSlots.toolbar,
                 'has--tabs': !!this.$slots.tabs || !!this.$scopedSlots.tabs,
             };
-
-            // With Vue 3 there is no sw-ignore-class
-            if (this.feature.isActive('VUE3')) {
-                return classes;
-            }
-
-            if (!this.$refs.swIgnoreClass) {
-                this.$nextTick(() => {
-                    this.$forceUpdate();
-                });
-
-                return classes;
-            }
-
-            const staticClasses = (this.$refs.swIgnoreClass?.$el?._prevClass ?? '').split(' ');
-
-            // add attrs classes to main card
-            staticClasses.forEach((className) => {
-                this.$set(classes, className, true);
-            });
-
-            // remove classes from ignore class
-            this.$nextTick(() => {
-                if (this.$refs.swIgnoreClass?.$el?.className) {
-                    this.$refs.swIgnoreClass.$el.className = '';
-                }
-            });
-
-            return classes;
         },
     },
 });

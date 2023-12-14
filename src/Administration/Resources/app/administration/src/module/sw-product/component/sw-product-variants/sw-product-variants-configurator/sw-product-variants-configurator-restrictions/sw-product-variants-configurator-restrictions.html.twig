@@ -50,14 +50,9 @@
             >
                 <template
                     v-for="restriction in getRestrictionsWithNaming(item.id).values"
-                    {% if VUE3 %}
                     :key="restriction.id"
-                    {% endif %}
                 >
                     <span
-                        {% if VUE2 %}
-                        :key="restriction.id"
-                        {% endif %}
                         class="sw-product-variants-configurator-restrictions__group-name"
                     >
                         {{ restriction.group }}:

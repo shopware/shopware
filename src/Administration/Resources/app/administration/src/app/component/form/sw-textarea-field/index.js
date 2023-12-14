@@ -50,12 +50,7 @@ Component.register('sw-textarea-field', {
 
     methods: {
         onInput(event) {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', event.target.value);
-                return;
-            }
-
-            this.$emit('input', event.target.value);
+            this.$emit('update:value', event.target.value);
         },
 
         onChange(event) {

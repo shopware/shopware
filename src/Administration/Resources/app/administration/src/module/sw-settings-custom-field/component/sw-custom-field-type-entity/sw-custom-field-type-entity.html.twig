@@ -15,41 +15,25 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_entity_type %}
 <sw-single-select
-    {% if VUE3 %}
     v-model:value="currentCustomField.config.entity"
-    {% else %}
-    v-model="currentCustomField.config.entity"
-    {% endif %}
     :disabled="!currentCustomField._isNew"
     :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
     :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
     :options="sortedEntityTypes"
     show-clearable-button
-    {% if VUE3 %}
     @update:value="onChangeEntityType"
-    {% else %}
-    @change="onChangeEntityType"
-    {% endif %}
 />
 {% endblock %}
 
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_custom_field_type_entity_multi %}
 <sw-switch-field
-    {% if VUE3 %}
     v-model:value="multiSelectSwitch"
-    {% else %}
-    v-model="multiSelectSwitch"
-    {% endif %}
     class="sw-custom-field-detail__switch"
     :disabled="!currentCustomField._isNew"
     :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextMultiSelect')"
     :label="$tc('sw-settings-custom-field.customField.detail.labelMultiSelect')"
-    {% if VUE3 %}
     @update:value="onChangeMultiSelectSwitch"
-    {% else %}
-    @change="onChangeMultiSelectSwitch"
-    {% endif %}
 />
     {% endblock %}
 

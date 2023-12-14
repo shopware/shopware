@@ -19,11 +19,7 @@
             gap="0 32px"
         >
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="promotion.name"
-                {% else %}
-                v-model="promotion.name"
-                {% endif %}
                 class="sw-promotion-v2-detail-base__field-name"
                 :label="$tc('sw-promotion-v2.detail.base.general.nameLabel')"
                 :disabled="!acl.can('promotion.editor')"
@@ -33,11 +29,7 @@
             />
 
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="promotion.priority"
-                {% else %}
-                v-model="promotion.priority"
-                {% endif %}
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.general.priorityLabel')"
             />
@@ -54,11 +46,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_general_valid_from %}
             <sw-datepicker
-                {% if VUE3 %}
                 v-model:value="promotion.validFrom"
-                {% else %}
-                v-model="promotion.validFrom"
-                {% endif %}
                 class="sw-promotion-v2-detail-base__field-valid-from"
                 date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validFromLabel')"
@@ -70,11 +58,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_general_valid_until %}
             <sw-datepicker
-                {% if VUE3 %}
                 v-model:value="promotion.validUntil"
-                {% else %}
-                v-model="promotion.validUntil"
-                {% endif %}
                 class="sw-promotion-v2-detail-base__field-valid-until"
                 date-type="datetime"
                 :label="$tc('sw-promotion-v2.detail.base.general.validUntilLabel')"
@@ -97,11 +81,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_general_max_uses_global %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="promotion.maxRedemptionsGlobal"
-                {% else %}
-                v-model="promotion.maxRedemptionsGlobal"
-                {% endif %}
                 class="sw-promotion-v2-detail-base__field-max-uses-global"
                 number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesGlobalLabel')"
@@ -114,11 +94,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_general_max_uses_customer %}
             <sw-number-field
-                {% if VUE3 %}
                 v-model:value="promotion.maxRedemptionsPerCustomer"
-                {% else %}
-                v-model="promotion.maxRedemptionsPerCustomer"
-                {% endif %}
                 class="sw-promotion-v2-detail-base__field-max-uses-per-customer"
                 number-type="int"
                 :label="$tc('sw-promotion-v2.detail.base.general.maxUsesPerCustomerLabel')"
@@ -134,11 +110,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_promotion_v2_detail_base_general_active %}
         <sw-switch-field
-            {% if VUE3 %}
             v-model:value="promotion.active"
-            {% else %}
-            v-model="promotion.active"
-            {% endif %}
             class="sw-promotion-v2-detail-base__field-active"
             :label="$tc('sw-promotion-v2.detail.base.general.activeLabel')"
             :disabled="!acl.can('promotion.editor')"
@@ -166,11 +138,7 @@
             :label="$tc('sw-promotion-v2.detail.base.codes.codeTypeLabel')"
             :disabled="!acl.can('promotion.editor')"
             :value="selectedCodeType"
-            {% if VUE3 %}
             @update:value="onChangeCodeType"
-            {% else %}
-            @change="onChangeCodeType"
-            {% endif %}
         >
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -195,11 +163,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_promotion_v2_detail_base_codes_type_fixed_code %}
             <sw-text-field
-                {% if VUE3 %}
                 v-model:value="promotion.code"
-                {% else %}
-                v-model="promotion.code"
-                {% endif %}
                 class="sw-promotion-v2-detail-base__fixed-field-code"
                 :disabled="!acl.can('promotion.editor')"
                 :label="$tc('sw-promotion-v2.detail.base.codes.fixed.codeLabel')"
@@ -215,11 +179,7 @@
                 :is-loading="isGenerating"
                 :disabled="!acl.can('promotion.editor')"
                 :process-success="isGenerateSuccessful"
-                {% if VUE3 %}
                 @update:process-success="generateFinish"
-                {% else %}
-                @process-finish="generateFinish"
-                {% endif %}
                 @click.prevent="onGenerateCodeFixed"
             >
                 {{ $tc('sw-promotion-v2.detail.base.codes.fixed.generateButton') }}

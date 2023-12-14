@@ -2,7 +2,6 @@ import type CriteriaType from 'src/core/data/criteria.data';
 import type Repository from 'src/core/data/repository.data';
 import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
 import type EntityCollection from '@shopware-ag/admin-extension-sdk/es/data/_internals/EntityCollection';
-import type { MetaInfo } from 'vue-meta';
 import type { PaymentOverviewCard } from '../../state/overview-cards.store';
 import template from './sw-settings-payment-overview.html.twig';
 import './sw-settings-payment-overview.scss';
@@ -47,7 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    metaInfo(): MetaInfo {
+    metaInfo() {
         return {
             title: this.$createTitle(),
         };

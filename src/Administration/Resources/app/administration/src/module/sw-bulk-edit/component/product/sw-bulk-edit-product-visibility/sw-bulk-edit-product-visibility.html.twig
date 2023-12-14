@@ -5,11 +5,7 @@
     {% block sw_bulk_edit_product_visibility_select %}
     <sw-inherit-wrapper
         ref="productVisibilitiesInheritance"
-        {% if VUE3 %}
         v-model:value="product.visibilities"
-        {% else %}
-        v-model="product.visibilities"
-        {% endif %}
         :inherited-value="product.visibilities"
         class="sw-product-category-form__visibility_field"
         :custom-remove-inheritance-function="visibilitiesRemoveInheritanceFunction"

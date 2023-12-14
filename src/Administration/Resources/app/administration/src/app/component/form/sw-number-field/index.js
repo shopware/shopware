@@ -151,13 +151,7 @@ Component.extend('sw-number-field', 'sw-text-field', {
         onChange(event) {
             this.computeValue(event.target.value);
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
-            }
-
-            this.$emit('change', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
 
         onInput(event) {
@@ -181,22 +175,12 @@ Component.extend('sw-number-field', 'sw-text-field', {
 
         increaseNumberByStep() {
             this.computeValue((this.currentValue + this.realStep).toString());
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
-            }
-            this.$emit('change', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
 
         decreaseNumberByStep() {
             this.computeValue((this.currentValue - this.realStep).toString());
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
-            }
-            this.$emit('change', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
 
         computeValue(stringRepresentation) {

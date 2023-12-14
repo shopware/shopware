@@ -5,12 +5,10 @@
 import type { FullState } from 'src/core/factory/state.factory';
 import type { App } from 'vue';
 import type { Router } from 'vue-router';
-import type VueRouterV2 from 'vue-router_v2';
 import type AsyncComponentFactory from 'src/core/factory/async-component.factory';
 import type { ComponentConfig } from 'src/core/factory/async-component.factory';
 import type ApplicationBootstrapper from 'src/core/application';
 import type LocaleFactory from 'src/core/factory/locale.factory';
-import type Vue2 from 'vue_v2';
 
 /**
  * @private
@@ -27,9 +25,9 @@ export default abstract class ViewAdapter {
 
     public localeFactory: typeof LocaleFactory;
 
-    public root: App<Element> | Vue2 | null;
+    public root: App<Element> | null;
 
-    public router: Router | VueRouterV2 | undefined;
+    public router: Router | undefined;
 
     /**
      * @constructor
@@ -65,12 +63,12 @@ export default abstract class ViewAdapter {
      * Returns the component as a Vue component.
      * Includes the full rendered template with all overrides.
      */
-    abstract createComponent(componentName: string): Promise<App<Element> | Vue2>
+    abstract createComponent(componentName: string): Promise<App<Element>>
 
     /**
      * Returns a final Vue component by its name.
      */
-    abstract getComponent(componentName: string): App<Element> | Vue2 | null
+    abstract getComponent(componentName: string): App<Element> | null
 
     /**
      * Returns a final Vue component by its name without defineAsyncComponent
@@ -88,7 +86,7 @@ export default abstract class ViewAdapter {
     /**
      * Returns the adapter wrapper
      */
-    abstract getWrapper(): App<Element> | typeof Vue2 | undefined
+    abstract getWrapper(): App<Element> | undefined
 
     /**
      * Returns the name of the adapter

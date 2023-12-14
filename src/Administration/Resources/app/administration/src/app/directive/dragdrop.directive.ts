@@ -449,110 +449,57 @@ function mergeConfigs(defaultConfig: DragConfig|DropConfig, binding: { value: un
  *
  * See the {DragConfig} for all possible config options.
  */
-Shopware.Directive.register('draggable', window._features_?.vue3
-    ? {
-        mounted(el: DragHTMLElement, binding: { value: unknown }) {
-            const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
-            el.dragConfig = dragConfig;
-            el.boundDragListener = onDrag.bind(this, el, el.dragConfig);
+Shopware.Directive.register('draggable', {
+    mounted(el: DragHTMLElement, binding: { value: unknown }) {
+        const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
+        el.dragConfig = dragConfig;
+        el.boundDragListener = onDrag.bind(this, el, el.dragConfig);
 
+        if (!dragConfig.disabled) {
+            el.classList.add(dragConfig.draggableCls);
+            el.addEventListener('mousedown', el.boundDragListener);
+            el.addEventListener('touchstart', el.boundDragListener);
+        }
+    },
+
+    updated(el: DragHTMLElement, binding: { value: unknown }) {
+        const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
+
+        if (el.dragConfig && el.dragConfig.disabled !== dragConfig.disabled) {
             if (!dragConfig.disabled) {
+                el.classList.remove(el.dragConfig.draggableCls);
                 el.classList.add(dragConfig.draggableCls);
-                el.addEventListener('mousedown', el.boundDragListener);
-                el.addEventListener('touchstart', el.boundDragListener);
-            }
-        },
-
-        updated(el: DragHTMLElement, binding: { value: unknown }) {
-            const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
-
-            if (el.dragConfig && el.dragConfig.disabled !== dragConfig.disabled) {
-                if (!dragConfig.disabled) {
-                    el.classList.remove(el.dragConfig.draggableCls);
-                    el.classList.add(dragConfig.draggableCls);
-                    if (el.boundDragListener) {
-                        el.addEventListener('mousedown', el.boundDragListener);
-                        el.addEventListener('touchstart', el.boundDragListener);
-                    }
-                } else {
-                    el.classList.remove(el.dragConfig.draggableCls);
-                    if (el.boundDragListener) {
-                        el.removeEventListener('mousedown', el.boundDragListener);
-                        el.removeEventListener('touchstart', el.boundDragListener);
-                    }
+                if (el.boundDragListener) {
+                    el.addEventListener('mousedown', el.boundDragListener);
+                    el.addEventListener('touchstart', el.boundDragListener);
+                }
+            } else {
+                el.classList.remove(el.dragConfig.draggableCls);
+                if (el.boundDragListener) {
+                    el.removeEventListener('mousedown', el.boundDragListener);
+                    el.removeEventListener('touchstart', el.boundDragListener);
                 }
             }
+        }
 
-            if (!el.dragConfig) {
-                el.dragConfig = {} as DragConfig;
-            }
+        if (!el.dragConfig) {
+            el.dragConfig = {} as DragConfig;
+        }
 
-            Object.assign(el.dragConfig, dragConfig);
-        },
+        Object.assign(el.dragConfig, dragConfig);
+    },
 
-        unmounted(el: DragHTMLElement, binding: { value: unknown }) {
-            const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
+    unmounted(el: DragHTMLElement, binding: { value: unknown }) {
+        const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
-            el.classList.remove(dragConfig.draggableCls);
+        el.classList.remove(dragConfig.draggableCls);
 
-            if (el.boundDragListener) {
-                el.removeEventListener('mousedown', el.boundDragListener);
-                el.removeEventListener('touchstart', el.boundDragListener);
-            }
-        },
-    }
-    : {
-        // @ts-expect-error
-        inserted(el: DragHTMLElement, binding: { value: unknown }) {
-            const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
-            el.dragConfig = dragConfig;
-            el.boundDragListener = onDrag.bind(this, el, el.dragConfig);
-
-            if (!dragConfig.disabled) {
-                el.classList.add(dragConfig.draggableCls);
-                el.addEventListener('mousedown', el.boundDragListener);
-                el.addEventListener('touchstart', el.boundDragListener);
-            }
-        },
-
-        update(el: DragHTMLElement, binding: { value: unknown }) {
-            const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
-
-            if (el.dragConfig && el.dragConfig.disabled !== dragConfig.disabled) {
-                if (!dragConfig.disabled) {
-                    el.classList.remove(el.dragConfig.draggableCls);
-                    el.classList.add(dragConfig.draggableCls);
-                    if (el.boundDragListener) {
-                        el.addEventListener('mousedown', el.boundDragListener);
-                        el.addEventListener('touchstart', el.boundDragListener);
-                    }
-                } else {
-                    el.classList.remove(el.dragConfig.draggableCls);
-                    if (el.boundDragListener) {
-                        el.removeEventListener('mousedown', el.boundDragListener);
-                        el.removeEventListener('touchstart', el.boundDragListener);
-                    }
-                }
-            }
-
-            if (!el.dragConfig) {
-                el.dragConfig = {} as DragConfig;
-            }
-
-            Object.assign(el.dragConfig, dragConfig);
-        },
-
-        unbind(el: DragHTMLElement, binding: { value: unknown }) {
-            const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
-
-            el.classList.remove(dragConfig.draggableCls);
-
-            if (el.boundDragListener) {
-                el.removeEventListener('mousedown', el.boundDragListener);
-                el.removeEventListener('touchstart', el.boundDragListener);
-            }
-        },
-    });
+        if (el.boundDragListener) {
+            el.removeEventListener('mousedown', el.boundDragListener);
+            el.removeEventListener('touchstart', el.boundDragListener);
+        }
+    },
+});
 
 /**
  * Directive to define an element as a drop zone.
@@ -562,76 +509,40 @@ Shopware.Directive.register('draggable', window._features_?.vue3
  *
  * See the {dropConfig} for all possible config options.
  */
-Shopware.Directive.register('droppable', window._features_?.vue3
-    ? {
-        mounted(el: HTMLElement, binding: { value: unknown }) {
-            const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
+Shopware.Directive.register('droppable', {
+    mounted(el: HTMLElement, binding: { value: unknown }) {
+        const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
-            dropZones.push({ el, dropConfig });
+        dropZones.push({ el, dropConfig });
 
-            el.classList.add(dropConfig.droppableCls);
-            el.addEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
-            el.addEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
-        },
+        el.classList.add(dropConfig.droppableCls);
+        el.addEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
+        el.addEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
+    },
 
-        unmounted(el: HTMLElement, binding: { value: unknown }) {
-            const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
+    unmounted(el: HTMLElement, binding: { value: unknown }) {
+        const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
 
-            dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
+        dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
 
-            el.classList.remove(dropConfig.droppableCls);
-            el.removeEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
-            el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
-        },
+        el.classList.remove(dropConfig.droppableCls);
+        el.removeEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
+        el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
+    },
 
-        updated: (el: HTMLElement, binding: { value: unknown }) => {
-            const dropZone = dropZones.find(zone => zone.el === el);
-            if (!dropZone) {
-                return;
-            }
+    updated: (el: HTMLElement, binding: { value: unknown }) => {
+        const dropZone = dropZones.find(zone => zone.el === el);
+        if (!dropZone) {
+            return;
+        }
 
-            if (types.isObject(binding.value)) {
-                Object.assign(dropZone.dropConfig, binding.value);
-            } else {
-                Object.assign(dropZone.dropConfig, { data: binding.value });
-            }
-        },
-    }
-    : {
-        // @ts-expect-error
-        inserted(el: HTMLElement, binding: { value: unknown }) {
-            const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
-
-            dropZones.push({ el, dropConfig });
-
-            el.classList.add(dropConfig.droppableCls);
-            el.addEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
-            el.addEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
-        },
-
-        unbind(el: HTMLElement, binding: { value: unknown }) {
-            const dropConfig = mergeConfigs(defaultDropConfig, binding) as DropConfig;
-
-            dropZones.splice(dropZones.findIndex(zone => zone.el === el), 1);
-
-            el.classList.remove(dropConfig.droppableCls);
-            el.removeEventListener('mouseenter', enterDropZone.bind(this, el, dropConfig));
-            el.removeEventListener('mouseleave', leaveDropZone.bind(this, el, dropConfig));
-        },
-
-        update: (el: HTMLElement, binding: { value: unknown }) => {
-            const dropZone = dropZones.find(zone => zone.el === el);
-            if (!dropZone) {
-                return;
-            }
-
-            if (types.isObject(binding.value)) {
-                Object.assign(dropZone.dropConfig, binding.value);
-            } else {
-                Object.assign(dropZone.dropConfig, { data: binding.value });
-            }
-        },
-    });
+        if (types.isObject(binding.value)) {
+            Object.assign(dropZone.dropConfig, binding.value);
+        } else {
+            Object.assign(dropZone.dropConfig, { data: binding.value });
+        }
+    },
+});
 
 /**
  * @private

@@ -53,13 +53,7 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
                 this.currentValue = null;
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.currentValue);
-
-                return;
-            }
-
-            this.$emit('change', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
     },
 });

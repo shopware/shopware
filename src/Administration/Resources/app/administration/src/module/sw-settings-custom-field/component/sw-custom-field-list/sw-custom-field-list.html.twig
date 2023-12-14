@@ -142,11 +142,7 @@
                 {% block sw_custom_field_list_grid_column_custom_field_position_edit %}
                 <template #inline-edit>
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="item.config.customFieldPosition"
-                        {% else %}
-                        v-model="item.config.customFieldPosition"
-                        {% endif %}
                         number-type="int"
                     />
                 </template>

@@ -4,22 +4,14 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_shipping_zip_code_field_numeric %}
     <sw-single-select
-        {% if VUE3 %}
         v-model:value="isNumeric"
-        {% else %}
-        v-model="isNumeric"
-        {% endif %}
         name="sw-field--isNumeric"
         :disabled="disabled"
         class="sw-condition-zipcode-type-select"
         size="medium"
         :options="numericOptions"
         required
-        {% if VUE3 %}
         @update:value="onChangeNumeric"
-        {% else %}
-        @change="onChangeNumeric"
-        {% endif %}
     />
     {% endblock %}
 
@@ -35,11 +27,7 @@
     {% block sw_condition_shipping_zip_code_field_zip_codes %}
     <sw-tagged-field
         v-if="!isNumeric && !isEmpty"
-        {% if VUE3 %}
         v-model:value="zipCodes"
-        {% else %}
-        v-model="zipCodes"
-        {% endif %}
         name="sw-field--zipCodes"
         size="medium"
         :placeholder="taggedFieldPlaceholder"
@@ -47,11 +35,7 @@
     />
     <sw-number-field
         v-if="isNumeric && !isEmpty"
-        {% if VUE3 %}
         v-model:value="zipCodes"
-        {% else %}
-        v-model="zipCodes"
-        {% endif %}
         name="sw-field--zipCodes"
         size="medium"
         :disabled="disabled"

@@ -53,7 +53,6 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_first_run_wizard_modal_content_page %}
             <div class="sw-first-run-wizard-modal-content__page">
-                {% if VUE3 %}
                 <router-view
                     v-slot="{ Component }"
                 >
@@ -66,15 +65,6 @@
                         @extension-activated="onExtensionActivated"
                     />
                 </router-view>
-                {% else %}
-                <router-view
-                    @buttons-update="updateButtons"
-                    @frw-redirect="redirect"
-                    @frw-set-title="setTitle"
-                    @frw-finish="finishFRW"
-                    @extension-activated="onExtensionActivated"
-                />
-                {% endif %}
             </div>
             {% endblock %}
 

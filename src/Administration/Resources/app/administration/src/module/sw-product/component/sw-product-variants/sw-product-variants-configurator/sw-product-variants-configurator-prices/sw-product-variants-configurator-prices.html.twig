@@ -78,16 +78,11 @@
                     {% block sw_product_variants_configurator_prices_column_currency %}
                     <template
                         v-for="currency in currenciesList"
-                        {% if VUE3 %}
                         :key="currency.id"
-                        {% endif %}
                         #[`column-currency.${currency.id}`]="{ item, isInlineEdit, compact }"
                     >
 
                         <sw-product-variants-price-field
-                            {% if VUE2 %}
-                            :key="currency.id"
-                            {% endif %}
                             :price="getCurrencyOfOption(item, currency.id)"
                             :tax-rate="product.taxId"
                             :currency="currency"

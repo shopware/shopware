@@ -3,7 +3,7 @@
  */
 
 import Vue from 'vue';
-import type { Module } from 'vuex_v2';
+import type { Module } from 'vuex';
 
 interface SdkLocationState {
     locations: {

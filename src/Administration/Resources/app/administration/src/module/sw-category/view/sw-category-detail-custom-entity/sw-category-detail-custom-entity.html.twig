@@ -15,11 +15,7 @@
                 :criteria="customEntityCriteria"
                 entity="custom_entity"
                 required
-                {% if VUE3 %}
                 @update:value="onEntityChange"
-                {% else %}
-                @change="onEntityChange"
-                {% endif %}
             />
         </sw-card>
 
@@ -33,11 +29,7 @@
             :criteria="sortingCriteria"
             :select-label="$tc('sw-category.base.customEntity.instanceAssignment.label')"
             :placeholder="$tc('sw-category.base.customEntity.instanceAssignment.placeholder')"
-            {% if VUE3 %}
             @update:entity-collection="onAssignmentChange"
-            {% else %}
-            @change="onAssignmentChange"
-            {% endif %}
         >
             <template #prepend-select>
                 <sw-entity-single-select
@@ -49,11 +41,7 @@
                     :criteria="customEntityCriteria"
                     entity="custom_entity"
                     required
-                    {% if VUE3 %}
                     @update:value="onEntityChange"
-                    {% else %}
-                    @change="onEntityChange"
-                    {% endif %}
                 />
             </template>
 

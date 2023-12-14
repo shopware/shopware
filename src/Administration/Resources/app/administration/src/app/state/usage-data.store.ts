@@ -1,4 +1,4 @@
-import type { Module } from 'vuex_v2';
+import type { Module } from 'vuex';
 import type { UsageDataContext } from '../../core/service/api/usage-data.api.service';
 
 type UsageDataModuleState = {

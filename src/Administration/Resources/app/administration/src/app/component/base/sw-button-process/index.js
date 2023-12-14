@@ -55,13 +55,7 @@ Component.register('sw-button-process', {
             }
 
             setTimeout(() => {
-                if (this.feature.isActive('VUE3')) {
-                    this.$emit('update:processSuccess', false);
-
-                    return;
-                }
-
-                this.$emit('process-finish', false);
+                this.$emit('update:processSuccess', false);
             }, this.animationTimeout);
         },
     },

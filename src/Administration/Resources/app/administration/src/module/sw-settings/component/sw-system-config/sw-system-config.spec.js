@@ -186,484 +186,486 @@ async function createWrapper(defaultValues = {}) {
 }
 
 function createConfig() {
+    const firstCardElements = [
+        {
+            name: 'ConfigRenderer.config.textField',
+            type: 'text',
+            config: {
+                required: true,
+                label: {
+                    'en-GB': 'text field',
+                },
+                defaultValue: 'Amazing field',
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: 'Awesome field',
+                childValue: 'I am a child',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.textareaField',
+            type: 'textarea',
+            config: {
+                label: {
+                    'en-GB': 'textarea field',
+                },
+                defaultValue: 'This is a textarea with much content.',
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('textarea').element.value).toBe(domValue);
+                },
+                afterValue: 'We changed the textarea with much content.',
+                childValue: 'I am a child textarea field',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('textarea').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.urlField',
+            type: 'url',
+            config: {
+                defaultValue: 'https://www.shopware.com',
+                label: {
+                    'en-GB': 'url field',
+                },
+            },
+            _test: {
+                defaultValueDom: 'www.shopware.com',
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: 'https://www.shopware.de',
+                afterValueDom: 'www.shopware.de',
+                childValue: 'https://www.child.shopware.com',
+                childValueDom: 'www.child.shopware.com',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input').setValue(afterValue);
+                    await field.find('input').trigger('blur');
+                    await flushPromises();
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.passwordField',
+            type: 'password',
+            config: {
+                defaultValue: 'V3RY_S3CR3T',
+                label: {
+                    'en-GB': 'password field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: 'M0R3-S3CR3T_PA$$W0RD',
+                childValue: 'I-AM-A-CH!LD-VALU3',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.intField',
+            type: 'int',
+            config: {
+                defaultValue: 7,
+                label: {
+                    'en-GB': 'int field',
+                },
+            },
+            _test: {
+                defaultValueDom: '7',
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: 42,
+                afterValueDom: '42',
+                childValue: 987,
+                childValueDom: '987',
+                fallbackValue: '0',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                    await field.find('input[type="text"]').trigger('change');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.floatField',
+            type: 'float',
+            config: {
+                defaultValue: 1.23,
+                label: {
+                    'en-GB': 'float field',
+                },
+            },
+            _test: {
+                defaultValueDom: '1.23',
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: 420.55,
+                afterValueDom: '420.55',
+                childValue: 33.25,
+                childValueDom: '33.25',
+                fallbackValue: '0',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                    await field.find('input[type="text"]').trigger('change');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.boolField',
+            type: 'bool',
+            config: {
+                defaultValue: true,
+                label: {
+                    'en-GB': 'bool field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.checked).toBe(domValue);
+                },
+                afterValue: false,
+                childValue: false,
+                fallbackValue: false,
+                changeValueFunction: async (field) => {
+                    // change input value
+                    await field.find('input[type="checkbox"]').trigger('click');
+                    await field.find('input[type="checkbox"]').trigger('change');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.checkboxField',
+            type: 'checkbox',
+            config: {
+                defaultValue: true,
+                label: {
+                    'en-GB': 'checkbox field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.checked).toBe(domValue);
+                },
+                afterValue: false,
+                childValue: false,
+                fallbackValue: false,
+                changeValueFunction: async (field) => {
+                    // change input value
+                    await field.find('input[type="checkbox"]').trigger('click');
+                    await field.find('input[type="checkbox"]').trigger('change');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.datetimeField',
+            type: 'datetime',
+            config: {
+                defaultValue: '2000-01-01T12:00:00+00:00',
+                label: {
+                    'en-GB': 'datetime field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: '2222-01-01T16:00:00+00:00',
+                childValue: '2233-01-01T16:00:00+00:00',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.dateField',
+            type: 'date',
+            config: {
+                defaultValue: '2000-01-01T00:00:00+00:00',
+                label: {
+                    'en-GB': 'date field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: '2000-12-12T12:00:00+00:00',
+                childValue: '2020-12-12T12:00:00+00:00',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.timeField',
+            type: 'time',
+            config: {
+                defaultValue: '12:00:00+00:00',
+                label: {
+                    'en-GB': 'time field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: '18:00:00+00:00',
+                childValue: '13:00:00+00:00',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.colorpickerField',
+            type: 'colorpicker',
+            config: {
+                defaultValue: '#123abc',
+                label: {
+                    'en-GB': 'colorpicker field',
+                },
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: '#ccc444',
+                childValue: '#789ced',
+                changeValueFunction: async (field, afterValue) => {
+                    // change input value
+                    await field.find('input[type="text"]').setValue(afterValue);
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.singleSelectField',
+            type: 'single-select',
+            config: {
+                defaultValue: 'blue',
+                label: {
+                    'en-GB': 'single-select field',
+                },
+                options: [
+                    {
+                        id: 'yellow',
+                        value: 'yellow',
+                        name: {
+                            'en-GB': 'yellow',
+                        },
+                    },
+                    {
+                        id: 'blue',
+                        value: 'blue',
+                        name: {
+                            'en-GB': 'blue',
+                        },
+                    },
+                    {
+                        id: 'green',
+                        value: 'green',
+                        name: {
+                            'en-GB': 'green',
+                        },
+                    },
+                ],
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(field.find('.sw-single-select__selection-text').text()).toBe(domValue);
+                },
+                afterValue: 'green',
+                childValue: 'yellow',
+                changeValueFunction: async (field, afterValue) => {
+                    // open select field
+                    await field.find('.sw-select__selection').trigger('click');
+                    await flushPromises();
+
+                    // find after value
+                    const optionChoice = field.find(`.sw-select-option--${afterValue}`);
+                    expect(optionChoice.isVisible()).toBe(true);
+
+                    // click on second option
+                    await optionChoice.trigger('click');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.multiSelectField',
+            type: 'multi-select',
+            config: {
+                defaultValue: ['blue'],
+                label: {
+                    'en-GB': 'multi-select field',
+                },
+                options: [
+                    {
+                        id: 'yellow',
+                        name: {
+                            'en-GB': 'yellow',
+                        },
+                    },
+                    {
+                        id: 'blue',
+                        name: {
+                            'en-GB': 'blue',
+                        },
+                    },
+                    {
+                        id: 'green',
+                        name: {
+                            'en-GB': 'green',
+                        },
+                    },
+                ],
+            },
+            _test: {
+                domValueCheck: (field, domValue) => {
+                    expect(Array.isArray(domValue)).toBe(true);
+                    domValue.forEach((value, index) => {
+                        expect(field.find(`.sw-select-selection-list__item-holder--${index}`).text()).toBe(value);
+                    });
+                },
+                afterValue: ['blue', 'green'],
+                childValue: ['blue', 'green'],
+                fallbackValue: [],
+                changeValueFunction: async (field) => {
+                    // open select field
+                    await field.find('.sw-select__selection').trigger('click');
+                    await flushPromises();
+
+                    // find third value
+                    const optionChoice = field.find('.sw-select-option--2');
+                    expect(optionChoice.isVisible()).toBe(true);
+
+                    // click on third option
+                    await optionChoice.trigger('click');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.entitySelectField',
+            config: {
+                defaultValue: uuid.get('pullover'),
+                componentName: 'sw-entity-single-select',
+                entity: 'product',
+                label: {
+                    'en-GB': 'Choose a product',
+                },
+            },
+            _test: {
+                defaultValueDom: 'Pullover',
+                domValueCheck: async (field, domValue) => {
+                    await wrapper.vm.$forceUpdate();
+                    expect(field.find('.sw-entity-single-select__selection-text').text()).toBe(domValue);
+                },
+                afterValue: uuid.get('shirt'),
+                afterValueDom: 'Shirt',
+                childValue: uuid.get('shirt'),
+                childValueDom: 'Shirt',
+                changeValueFunction: async (field) => {
+                    // open select field
+                    await field.find('.sw-select__selection').trigger('click');
+                    await flushPromises();
+
+                    // find second value
+                    const optionChoice = field.find('.sw-select-option--1');
+                    expect(optionChoice.isVisible()).toBe(true);
+
+                    // click on second option
+                    await optionChoice.trigger('click');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.mediaField',
+            config: {
+                defaultValue: uuid.get('funny-image'),
+                componentName: 'sw-media-field',
+                label: {
+                    'en-GB': 'Upload media or choose one from the media manager',
+                },
+            },
+            _test: {
+                defaultValueDom: 'funny-image.jpg',
+                domValueCheck: async (field, domValue) => {
+                    await wrapper.vm.$forceUpdate();
+                    await flushPromises();
+
+                    if (domValue.length > 0) {
+                        // TODO: this is not working
+                        expect(
+                            field.find('.sw-media-base-item__name')
+                                .text(),
+                        ).toBe(domValue);
+                    } else {
+                        expect(field.find('.sw-media-base-item__name').exists()).toBe(false);
+                    }
+                },
+                afterValue: uuid.get('good-image'),
+                afterValueDom: 'good-image.jpg',
+                childValue: uuid.get('good-image'),
+                childValueDom: 'good-image.jpg',
+                changeValueFunction: async (field) => {
+                    await field.find('.sw-media-field__toggle-button').trigger('click');
+                    await flushPromises();
+
+                    await field
+                        .find('.sw-media-field__suggestion-list-entry:first-child .sw-media-base-item')
+                        .trigger('click');
+                },
+            },
+        },
+        {
+            name: 'ConfigRenderer.config.textEditorField',
+            config: {
+                defaultValue: '<p>I am a paragraph</p>',
+                componentName: 'sw-text-editor',
+                label: {
+                    'en-GB': 'Write some nice text with WYSIWYG editor',
+                },
+            },
+            _test: {
+                // defaultValueDom: 'funny-image.jpg',
+                domValueCheck: async (field, domValue) => {
+                    await wrapper.vm.$forceUpdate();
+                    expect(field.find('input').element.value).toBe(domValue);
+                },
+                afterValue: '<p>Fresh and new</p>',
+                childValue: '<p>Children which is fresh and new</p>',
+                changeValueFunction: async (field, afterValue) => {
+                    await field.find('input').setValue(afterValue);
+                },
+            },
+        },
+    ];
+
     return [
         {
             name: null,
             title: { 'en-GB': 'First card' },
-            elements: [
-                {
-                    name: 'ConfigRenderer.config.textField',
-                    type: 'text',
-                    config: {
-                        required: true,
-                        label: {
-                            'en-GB': 'text field',
-                        },
-                        defaultValue: 'Amazing field',
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: 'Awesome field',
-                        childValue: 'I am a child',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.textareaField',
-                    type: 'textarea',
-                    config: {
-                        label: {
-                            'en-GB': 'textarea field',
-                        },
-                        defaultValue: 'This is a textarea with much content.',
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('textarea').element.value).toBe(domValue);
-                        },
-                        afterValue: 'We changed the textarea with much content.',
-                        childValue: 'I am a child textarea field',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('textarea').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.urlField',
-                    type: 'url',
-                    config: {
-                        defaultValue: 'https://www.shopware.com',
-                        label: {
-                            'en-GB': 'url field',
-                        },
-                    },
-                    _test: {
-                        defaultValueDom: 'www.shopware.com',
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: 'https://www.shopware.de',
-                        afterValueDom: 'www.shopware.de',
-                        childValue: 'https://www.child.shopware.com',
-                        childValueDom: 'www.child.shopware.com',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input').setValue(afterValue);
-                            await field.find('input').trigger('blur');
-                            await flushPromises();
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.passwordField',
-                    type: 'password',
-                    config: {
-                        defaultValue: 'V3RY_S3CR3T',
-                        label: {
-                            'en-GB': 'password field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: 'M0R3-S3CR3T_PA$$W0RD',
-                        childValue: 'I-AM-A-CH!LD-VALU3',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.intField',
-                    type: 'int',
-                    config: {
-                        defaultValue: 7,
-                        label: {
-                            'en-GB': 'int field',
-                        },
-                    },
-                    _test: {
-                        defaultValueDom: '7',
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: 42,
-                        afterValueDom: '42',
-                        childValue: 987,
-                        childValueDom: '987',
-                        fallbackValue: '0',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                            await field.find('input[type="text"]').trigger('change');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.floatField',
-                    type: 'float',
-                    config: {
-                        defaultValue: 1.23,
-                        label: {
-                            'en-GB': 'float field',
-                        },
-                    },
-                    _test: {
-                        defaultValueDom: '1.23',
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: 420.55,
-                        afterValueDom: '420.55',
-                        childValue: 33.25,
-                        childValueDom: '33.25',
-                        fallbackValue: '0',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                            await field.find('input[type="text"]').trigger('change');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.boolField',
-                    type: 'bool',
-                    config: {
-                        defaultValue: true,
-                        label: {
-                            'en-GB': 'bool field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.checked).toBe(domValue);
-                        },
-                        afterValue: false,
-                        childValue: false,
-                        fallbackValue: false,
-                        changeValueFunction: async (field) => {
-                            // change input value
-                            await field.find('input[type="checkbox"]').trigger('click');
-                            await field.find('input[type="checkbox"]').trigger('change');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.checkboxField',
-                    type: 'checkbox',
-                    config: {
-                        defaultValue: true,
-                        label: {
-                            'en-GB': 'checkbox field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.checked).toBe(domValue);
-                        },
-                        afterValue: false,
-                        childValue: false,
-                        fallbackValue: false,
-                        changeValueFunction: async (field) => {
-                            // change input value
-                            await field.find('input[type="checkbox"]').trigger('click');
-                            await field.find('input[type="checkbox"]').trigger('change');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.datetimeField',
-                    type: 'datetime',
-                    config: {
-                        defaultValue: '2000-01-01T12:00:00+00:00',
-                        label: {
-                            'en-GB': 'datetime field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: '2222-01-01T16:00:00+00:00',
-                        childValue: '2233-01-01T16:00:00+00:00',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.dateField',
-                    type: 'date',
-                    config: {
-                        defaultValue: '2000-01-01T00:00:00+00:00',
-                        label: {
-                            'en-GB': 'date field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: '2000-12-12T12:00:00+00:00',
-                        childValue: '2020-12-12T12:00:00+00:00',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.timeField',
-                    type: 'time',
-                    config: {
-                        defaultValue: '12:00:00+00:00',
-                        label: {
-                            'en-GB': 'time field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: '18:00:00+00:00',
-                        childValue: '13:00:00+00:00',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.colorpickerField',
-                    type: 'colorpicker',
-                    config: {
-                        defaultValue: '#123abc',
-                        label: {
-                            'en-GB': 'colorpicker field',
-                        },
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: '#ccc444',
-                        childValue: '#789ced',
-                        changeValueFunction: async (field, afterValue) => {
-                            // change input value
-                            await field.find('input[type="text"]').setValue(afterValue);
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.singleSelectField',
-                    type: 'single-select',
-                    config: {
-                        defaultValue: 'blue',
-                        label: {
-                            'en-GB': 'single-select field',
-                        },
-                        options: [
-                            {
-                                id: 'yellow',
-                                value: 'yellow',
-                                name: {
-                                    'en-GB': 'yellow',
-                                },
-                            },
-                            {
-                                id: 'blue',
-                                value: 'blue',
-                                name: {
-                                    'en-GB': 'blue',
-                                },
-                            },
-                            {
-                                id: 'green',
-                                value: 'green',
-                                name: {
-                                    'en-GB': 'green',
-                                },
-                            },
-                        ],
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(field.find('.sw-single-select__selection-text').text()).toBe(domValue);
-                        },
-                        afterValue: 'green',
-                        childValue: 'yellow',
-                        changeValueFunction: async (field, afterValue) => {
-                            // open select field
-                            await field.find('.sw-select__selection').trigger('click');
-                            await flushPromises();
-
-                            // find after value
-                            const optionChoice = field.find(`.sw-select-option--${afterValue}`);
-                            expect(optionChoice.isVisible()).toBe(true);
-
-                            // click on second option
-                            await optionChoice.trigger('click');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.multiSelectField',
-                    type: 'multi-select',
-                    config: {
-                        defaultValue: ['blue'],
-                        label: {
-                            'en-GB': 'multi-select field',
-                        },
-                        options: [
-                            {
-                                id: 'yellow',
-                                name: {
-                                    'en-GB': 'yellow',
-                                },
-                            },
-                            {
-                                id: 'blue',
-                                name: {
-                                    'en-GB': 'blue',
-                                },
-                            },
-                            {
-                                id: 'green',
-                                name: {
-                                    'en-GB': 'green',
-                                },
-                            },
-                        ],
-                    },
-                    _test: {
-                        domValueCheck: (field, domValue) => {
-                            expect(Array.isArray(domValue)).toBe(true);
-                            domValue.forEach((value, index) => {
-                                expect(field.find(`.sw-select-selection-list__item-holder--${index}`).text()).toBe(value);
-                            });
-                        },
-                        afterValue: ['blue', 'green'],
-                        childValue: ['blue', 'green'],
-                        fallbackValue: [],
-                        changeValueFunction: async (field) => {
-                            // open select field
-                            await field.find('.sw-select__selection').trigger('click');
-                            await flushPromises();
-
-                            // find third value
-                            const optionChoice = field.find('.sw-select-option--2');
-                            expect(optionChoice.isVisible()).toBe(true);
-
-                            // click on third option
-                            await optionChoice.trigger('click');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.entitySelectField',
-                    config: {
-                        defaultValue: uuid.get('pullover'),
-                        componentName: 'sw-entity-single-select',
-                        entity: 'product',
-                        label: {
-                            'en-GB': 'Choose a product',
-                        },
-                    },
-                    _test: {
-                        defaultValueDom: 'Pullover',
-                        domValueCheck: async (field, domValue) => {
-                            await wrapper.vm.$forceUpdate();
-                            expect(field.find('.sw-entity-single-select__selection-text').text()).toBe(domValue);
-                        },
-                        afterValue: uuid.get('shirt'),
-                        afterValueDom: 'Shirt',
-                        childValue: uuid.get('shirt'),
-                        childValueDom: 'Shirt',
-                        changeValueFunction: async (field) => {
-                            // open select field
-                            await field.find('.sw-select__selection').trigger('click');
-                            await flushPromises();
-
-                            // find second value
-                            const optionChoice = field.find('.sw-select-option--1');
-                            expect(optionChoice.isVisible()).toBe(true);
-
-                            // click on second option
-                            await optionChoice.trigger('click');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.mediaField',
-                    config: {
-                        defaultValue: uuid.get('funny-image'),
-                        componentName: 'sw-media-field',
-                        label: {
-                            'en-GB': 'Upload media or choose one from the media manager',
-                        },
-                    },
-                    _test: {
-                        defaultValueDom: 'funny-image.jpg',
-                        domValueCheck: async (field, domValue) => {
-                            await wrapper.vm.$forceUpdate();
-                            await flushPromises();
-
-                            if (domValue.length > 0) {
-                                // TODO: this is not working
-                                expect(
-                                    field.find('.sw-media-base-item__name')
-                                        .text(),
-                                ).toBe(domValue);
-                            } else {
-                                expect(field.find('.sw-media-base-item__name').exists()).toBe(false);
-                            }
-                        },
-                        afterValue: uuid.get('good-image'),
-                        afterValueDom: 'good-image.jpg',
-                        childValue: uuid.get('good-image'),
-                        childValueDom: 'good-image.jpg',
-                        changeValueFunction: async (field) => {
-                            await field.find('.sw-media-field__toggle-button').trigger('click');
-                            await flushPromises();
-
-                            await field
-                                .find('.sw-media-field__suggestion-list-entry:first-child .sw-media-base-item')
-                                .trigger('click');
-                        },
-                    },
-                },
-                {
-                    name: 'ConfigRenderer.config.textEditorField',
-                    config: {
-                        defaultValue: '<p>I am a paragraph</p>',
-                        componentName: 'sw-text-editor',
-                        label: {
-                            'en-GB': 'Write some nice text with WYSIWYG editor',
-                        },
-                    },
-                    _test: {
-                        // defaultValueDom: 'funny-image.jpg',
-                        domValueCheck: async (field, domValue) => {
-                            await wrapper.vm.$forceUpdate();
-                            expect(field.find('input').element.value).toBe(domValue);
-                        },
-                        afterValue: '<p>Fresh and new</p>',
-                        childValue: '<p>Children which is fresh and new</p>',
-                        changeValueFunction: async (field, afterValue) => {
-                            await field.find('input').setValue(afterValue);
-                        },
-                    },
-                },
-            ],
+            elements: firstCardElements,
         },
         {
             name: null,
@@ -800,6 +802,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
             // select headless sales channel
             const selectOptionTwo = salesChannelSwitch.find('.sw-select-option--2');
             expect(selectOptionTwo.text()).toBe('Headless');
+
             await selectOptionTwo.trigger('click');
             await flushPromises();
 

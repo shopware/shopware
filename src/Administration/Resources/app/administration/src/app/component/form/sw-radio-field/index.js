@@ -97,13 +97,7 @@ Component.register('sw-radio-field', {
                 console.warn(`Selected index "${this.value}" does not exists in given options`);
             }
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.options[selectedIndex].value);
-
-                return;
-            }
-
-            this.$emit('change', this.options[selectedIndex].value);
+            this.$emit('update:value', this.options[selectedIndex].value);
         },
     },
 });

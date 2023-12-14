@@ -16,11 +16,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_behaviour_condition %}
     <sw-radio-field
-        {% if VUE3 %}
         v-model:value="searchBehaviourConfigs.andLogic"
-        {% else %}
-        v-model="searchBehaviourConfigs.andLogic"
-        {% endif %}
         v-tooltip="{
             message: $tc('sw-privileges.tooltip.warning'),
             disabled: acl.can('product_search_config.editor'),
@@ -37,11 +33,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_settings_search_search_behaviour_search_term_length %}
     <sw-number-field
-        {% if VUE3 %}
         v-model:value="searchBehaviourConfigs.minSearchLength"
-        {% else %}
-        v-model="searchBehaviourConfigs.minSearchLength"
-        {% endif %}
         v-tooltip="{
             message: $tc('sw-privileges.tooltip.warning'),
             disabled: acl.can('product_search_config.editor'),

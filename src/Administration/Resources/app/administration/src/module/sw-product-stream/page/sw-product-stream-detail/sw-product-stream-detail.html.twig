@@ -42,11 +42,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_stream_detail_actions_save %}
             <sw-button-process
-                {% if VUE3 %}
                 v-model:processSuccess="isSaveSuccessful"
-                {% else %}
-                v-model="isSaveSuccessful"
-                {% endif %}
                 v-tooltip.bottom="tooltipSave"
                 class="sw-product-stream-detail__save-action"
                 :is-loading="isLoading"
@@ -132,11 +128,7 @@
                     {% block sw_product_basic_form_name_field %}
                     <sw-text-field
                         v-if="productStream"
-                        {% if VUE3 %}
                         v-model:value="productStream.name"
-                        {% else %}
-                        v-model="productStream.name"
-                        {% endif %}
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         name="sw-field--productStream-name"
                         :label="$tc('sw-product-stream.detail.labelName')"
@@ -152,11 +144,7 @@
                     {% block sw_product_basic_form_description_field %}
                     <sw-textarea-field
                         v-if="productStream"
-                        {% if VUE3 %}
                         v-model:value="productStream.description"
-                        {% else %}
-                        v-model="productStream.description"
-                        {% endif %}
                         v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
                         name="sw-field--productStream-description"
                         :label="$tc('sw-product-stream.detail.labelDescription')"

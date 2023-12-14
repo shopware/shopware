@@ -4,10 +4,6 @@
     v-tooltip="getSelectableTooltip(item)"
     :disabled="!isRecordSelectable(item)"
     :value="isSelected(item[itemIdentifierProperty])"
-    {% if VUE3 %}
     @update:value="selectItem($event, item)"
-    {% else %}
-    @change="selectItem($event, item)"
-    {% endif %}
 />
 {% endblock %}

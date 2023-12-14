@@ -14,11 +14,7 @@
         <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks, vue/attributes-order -->
         {% block sw_country_state_detail_modal_technical_name %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="countryState.name"
-            {% else %}
-            v-model="countryState.name"
-            {% endif %}
             name="sw-field--countryState-name"
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelName')"
@@ -29,11 +25,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_shortcode %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="countryState.shortCode"
-            {% else %}
-            v-model="countryState.shortCode"
-            {% endif %}
             name="sw-field--countryState-shortCode"
             :disabled="!acl.can('country.editor')"
             :label="$tc('sw-country-state-detail.labelShortCode')"
@@ -43,11 +35,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_country_state_detail_modal_position %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="countryState.position"
-            {% else %}
-            v-model="countryState.position"
-            {% endif %}
             name="sw-field--countryState-position"
             :disabled="!acl.can('country.editor')"
             :tooltip-text="$tc('sw-country-state-detail.tooltipPosition')"

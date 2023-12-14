@@ -189,9 +189,6 @@ export default {
     methods: {
         createdComponent() {
             if (this.currencyId) {
-                if (!this.feature.isActive('VUE3')) {
-                    this.currencyId = this.$route.params.id;
-                }
                 return Promise.all([
                     this.loadEntityData(),
                     this.loadCustomFieldSets(),

@@ -31,11 +31,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_payment_method_select %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="transaction.paymentMethodId"
-            {% else %}
-            v-model="transaction.paymentMethodId"
-            {% endif %}
             entity="payment_method"
             label-property="distinguishableName"
             disabled
@@ -78,11 +74,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="delivery.shippingMethodId"
-            {% else %}
-            v-model="delivery.shippingMethodId"
-            {% endif %}
             entity="shipping_method"
             disabled
             :criteria="salesChannelCriteria"
@@ -95,11 +87,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_costs %}
         <sw-number-field
-            {% if VUE3 %}
             v-model:value="shippingCosts"
-            {% else %}
-            v-model="shippingCosts"
-            {% endif %}
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             fill-digits
@@ -114,11 +102,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_date %}
         <sw-datepicker
-            {% if VUE3 %}
             v-model:value="delivery.shippingDateEarliest"
-            {% else %}
-            v-model="delivery.shippingDateEarliest"
-            {% endif %}
             disabled
             :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
         />
@@ -127,21 +111,13 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_shipping_tracking_codes %}
         <sw-multi-tag-select
-            {% if VUE3 %}
             v-model:value="delivery.trackingCodes"
-            {% else %}
-            v-model="delivery.trackingCodes"
-            {% endif %}
             class="sw-order-user-card__tracking-code-select"
             :disabled="!acl.can('order.editor')"
             :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$tc('sw-order.detailBase.labelTrackingCodes')"
             :validate="validateTrackingCode"
-            {% if VUE3 %}
             @update:value="saveAndReload"
-            {% else %}
-            @change="saveAndReload"
-            {% endif %}
         >
             <template #message-add-data>
                 <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
@@ -170,11 +146,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_email %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="order.orderCustomer.email"
-            {% else %}
-            v-model="order.orderCustomer.email"
-            {% endif %}
             class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
@@ -185,11 +157,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_phone_number %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="order.addresses.get(order.billingAddressId).phoneNumber"
-            {% else %}
-            v-model="order.addresses.get(order.billingAddressId).phoneNumber"
-            {% endif %}
             class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
@@ -200,11 +168,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_sales_channel %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="order.salesChannelId"
-            {% else %}
-            v-model="order.salesChannelId"
-            {% endif %}
             entity="sales_channel"
             disabled
             :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
@@ -216,11 +180,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_language %}
         <sw-entity-single-select
-            {% if VUE3 %}
             v-model:value="order.languageId"
-            {% else %}
-            v-model="order.languageId"
-            {% endif %}
             entity="language"
             disabled
             :criteria="salesChannelCriteria"
@@ -233,11 +193,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_affiliate %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="order.affiliateCode"
-            {% else %}
-            v-model="order.affiliateCode"
-            {% endif %}
             class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelAffiliateCode')"
@@ -247,11 +203,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_campaign %}
         <sw-text-field
-            {% if VUE3 %}
             v-model:value="order.campaignCode"
-            {% else %}
-            v-model="order.campaignCode"
-            {% endif %}
             class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCampaignCode')"
@@ -261,11 +213,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_order_detail_details_order_customer_comment %}
         <sw-textarea-field
-            {% if VUE3 %}
             v-model:value="order.customerComment"
-            {% else %}
-            v-model="order.customerComment"
-            {% endif %}
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
             :label="$tc('sw-order.detailBase.labelCustomerComment')"

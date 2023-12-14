@@ -23,7 +23,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 1);
     });
 
-    it.only('@general: Add new domain', { tags: ['pa-sales-channels', 'VUE3_SKIP'] }, () => {
+    it('@general: Add new domain', { tags: ['pa-sales-channels', 'VUE3_SKIP'] }, () => {
         const page = new SalesChannelPageObject();
 
         page.openSalesChannel('Storefront', 1);

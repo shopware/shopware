@@ -59,11 +59,7 @@
 
                 <div class="sw-extension-my-extensions-account__wrapper-content-login-form">
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="form.shopwareId"
-                        {% else %}
-                        v-model="form.shopwareId"
-                        {% endif %}
                         class="sw-extension-my-extensions-account__shopware-id-field"
                         required
                         :label="$tc('sw-extension.my-extensions.account.mailLabel')"
@@ -71,11 +67,7 @@
                     />
 
                     <sw-password-field
-                        {% if VUE3 %}
                         v-model:value="form.password"
-                        {% else %}
-                        v-model="form.password"
-                        {% endif %}
                         class="sw-extension-my-extensions-account__password-field"
                         :label="$tc('sw-extension.my-extensions.account.passwordLabel')"
                         :placeholder="$tc('sw-extension.my-extensions.account.passwordPlaceholder')"

@@ -348,13 +348,7 @@ Component.register('sw-colorpicker', {
         },
 
         debounceEmitColorValue: debounce(function emitValue() {
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.colorValue);
-
-                return;
-            }
-
-            this.$emit('input', this.colorValue);
+            this.$emit('update:value', this.colorValue);
         }, 50),
 
         outsideClick(e) {

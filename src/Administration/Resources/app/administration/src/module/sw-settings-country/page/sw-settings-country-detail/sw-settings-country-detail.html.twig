@@ -35,11 +35,7 @@
             :process-success="isSaveSuccessful"
             :disabled="!country || !allowSave"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-country.detail.buttonSave') }}
@@ -119,7 +115,6 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_country_tabs_content %}
-                {% if VUE3 %}
                 <router-view
                     v-slot="{ Component }"
                 >
@@ -133,16 +128,6 @@
                         @modal-save="onSaveModal"
                     />
                 </router-view>
-                {% else %}
-                <router-view
-                    :country="country"
-                    :country-state-repository="countryStateRepository"
-                    :is-loading="isLoading"
-                    :user-config="userConfig"
-                    :user-config-values="userConfigValues"
-                    @modal-save="onSaveModal"
-                />
-                {% endif %}
                 {% endblock %}
 
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

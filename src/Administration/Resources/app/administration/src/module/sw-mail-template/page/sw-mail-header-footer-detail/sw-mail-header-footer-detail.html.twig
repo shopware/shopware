@@ -35,11 +35,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="!allowSave"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-mail-header-footer.detail.buttonSave') }}
@@ -84,11 +80,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_name_field %}
                     <sw-text-field
-                        {% if VUE3 %}
                         v-model:value="mailHeaderFooter.name"
-                        {% else %}
-                        v-model="mailHeaderFooter.name"
-                        {% endif %}
                         name="sw-field--mailHeaderFooter-name"
                         validation="required"
                         required
@@ -102,11 +94,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_basic_form_description_field %}
                     <sw-textarea-field
-                        {% if VUE3 %}
                         v-model:value="mailHeaderFooter.description"
-                        {% else %}
-                        v-model="mailHeaderFooter.description"
-                        {% endif %}
                         name="sw-field--mailHeaderFooter-description"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelDescription')"
                         :placeholder="placeholder(mailHeaderFooter, 'description', $tc('sw-mail-header-footer.detail.basic.placeholderDescription'))"
@@ -118,11 +106,7 @@
                     {% block sw_mail_header_footer_basic_form_sales_channels_field %}
                     <sw-entity-multi-select
                         id="salesChannels"
-                        {% if VUE3 %}
                         v-model:entityCollection="mailHeaderFooter.salesChannels"
-                        {% else %}
-                        v-model="mailHeaderFooter.salesChannels"
-                        {% endif %}
                         class="sw-mail-header-footer-detail__sales-channel"
                         :label="$tc('sw-mail-header-footer.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-header-footer.detail.basic.placeholderSalesChannels')"

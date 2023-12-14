@@ -49,14 +49,9 @@
                     {% block sw_admin_menu_navigation_main_items %}
                     <template
                         v-for="(entry, index) in mainMenuEntries"
-                        {% if VUE3 %}
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
-                        {% endif %}
                     >
                         <sw-admin-menu-item
-                            {% if VUE2 %}
-                            :key="`${entry.id || entry.path}-${entry.children.length}`"
-                            {% endif %}
                             :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
                             :sidebar-expanded="isExpanded"
                             :entry="entry"
@@ -240,16 +235,11 @@
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
             <template
                 v-for="entry in flyoutEntries"
-                {% if VUE3 %}
                 :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
-                {% endif %}
             >
 
                 <li
                     v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                    {% if VUE2 %}
-                    :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
-                    {% endif %}
                     :style="{ 'border-color': flyoutColor }"
                     class="sw-admin-menu__separator"
                 >

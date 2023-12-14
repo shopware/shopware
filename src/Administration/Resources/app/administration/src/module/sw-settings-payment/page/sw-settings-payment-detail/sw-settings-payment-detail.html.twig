@@ -32,11 +32,7 @@
             :process-success="isSaveSuccessful"
             :disabled="isLoading || !acl.can('payment.editor')"
             variant="primary"
-            {% if VUE3 %}
             @update:process-success="saveFinish"
-            {% else %}
-            @process-finish="saveFinish"
-            {% endif %}
             @click.prevent="onSave"
         >
             {{ $tc('sw-settings-payment.detail.buttonSave') }}
@@ -96,11 +92,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_name %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.name"
-                                {% else %}
-                                v-model="paymentMethod.name"
-                                {% endif %}
                                 name="sw-field--paymentMethod-name"
                                 class="sw-settings-payment-detail__field-name"
                                 required
@@ -114,11 +106,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_technical_name %}
                             <sw-text-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.technicalName"
-                                {% else %}
-                                v-model="paymentMethod.technicalName"
-                                {% endif %}
                                 name="sw-field--paymentMethod-technicalName"
                                 class="sw-settings-payment-detail__field-technical-name"
                                 :required="feature.isActive('v6.7.0.0')"
@@ -133,11 +121,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_position %}
                             <sw-number-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.position"
-                                {% else %}
-                                v-model="paymentMethod.position"
-                                {% endif %}
                                 name="sw-field--paymentMethod-position"
                                 class="sw-settings-payment-detail__field-position"
                                 :disabled="!acl.can('payment.editor')"
@@ -154,11 +138,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_base_content_field_description %}
                             <sw-textarea-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.description"
-                                {% else %}
-                                v-model="paymentMethod.description"
-                                {% endif %}
                                 name="sw-field--paymentMethod-description"
                                 :disabled="!acl.can('payment.editor')"
                                 :value="paymentMethod.description"
@@ -198,11 +178,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_active %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.active"
-                                {% else %}
-                                v-model="paymentMethod.active"
-                                {% endif %}
                                 name="sw-field--paymentMethod-active"
                                 class="sw-settings-payment-detail__field-active"
                                 :disabled="!acl.can('payment.editor')"
@@ -213,11 +189,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_settings_payment_detail_content_field_after_order_enabled %}
                             <sw-switch-field
-                                {% if VUE3 %}
                                 v-model:value="paymentMethod.afterOrderEnabled"
-                                {% else %}
-                                v-model="paymentMethod.afterOrderEnabled"
-                                {% endif %}
                                 name="sw-field--paymentMethod-afterOrderEnabled"
                                 class="sw-settings-payment-detail__field-after-order"
                                 :disabled="!acl.can('payment.editor')"

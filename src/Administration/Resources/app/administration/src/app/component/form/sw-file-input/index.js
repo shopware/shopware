@@ -126,13 +126,7 @@ Component.register('sw-file-input', {
         setSelectedFile(newFile) {
             this.selectedFile = newFile;
 
-            if (this.feature.isActive('VUE3')) {
-                this.$emit('update:value', this.selectedFile);
-
-                return;
-            }
-
-            this.$emit('change', this.selectedFile);
+            this.$emit('update:value', this.selectedFile);
         },
 
         checkFileSize(file) {

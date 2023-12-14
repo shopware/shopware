@@ -241,11 +241,7 @@
                     :popover-classes="['sw-flow-sequence-action__popover']"
                     :error="fieldError"
                     :disabled="isUnknownTrigger"
-                    {% if VUE3 %}
                     @update:value="openDynamicModal"
-                    {% else %}
-                    @change="openDynamicModal"
-                    {% endif %}
                 >
                     <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
                         <sw-select-result

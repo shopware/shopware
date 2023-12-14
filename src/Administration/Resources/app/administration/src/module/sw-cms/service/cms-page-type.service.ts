@@ -1,7 +1,7 @@
 /**
  * @package buyers-experience
  */
-import Vue, { reactive } from 'vue';
+import { reactive } from 'vue';
 
 const { Utils } = Shopware;
 
@@ -21,13 +21,9 @@ export type PageType = {
  */
 export default class CmsPageTypeService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    #state: {pageTypes: PageType[]} = window._features_?.vue3
-        ? reactive({
-            pageTypes: [] as PageType[],
-        })
-        : Vue.observable({
-            pageTypes: [] as PageType[],
-        });
+    #state: {pageTypes: PageType[]} = reactive({
+        pageTypes: [] as PageType[],
+    });
 
     register(newTypeData: { name: string, icon: string, title?: string, class?: string[], hideInList?: boolean }): void {
         if (this.#state.pageTypes.some((type: PageType) => type.name === newTypeData.name)) {

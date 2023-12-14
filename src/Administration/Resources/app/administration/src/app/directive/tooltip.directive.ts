@@ -4,7 +4,7 @@
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import type { VNode } from 'vue';
+import type { VNode, App } from 'vue';
 import Vue from 'vue';
 
 const { Directive } = Shopware;
@@ -55,7 +55,7 @@ class Tooltip {
 
     private _DOMElement: HTMLElement|null;
 
-    private _vue: Vue|null;
+    private _vue: App<Element>|null;
 
     private _parentDOMElementWrapper: HTMLElement|null;
 
@@ -166,6 +166,8 @@ class Tooltip {
             this._vue = new Vue({
                 name: `sw-tooltip-${this._id || 'undefined'}`,
                 el: this._DOMElement!,
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 parent: this._vue?.$parent,
                 template: this._DOMElement?.outerHTML,
             });

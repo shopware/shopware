@@ -27,11 +27,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_user_field %}
     <sw-text-field
-        {% if VUE3 %}
         v-model:value="username"
-        {% else %}
-        v-model="username"
-        {% endif %}
         v-autofocus
         name="sw-field--username"
         :label="$tc('sw-login.index.labelUsername')"
@@ -44,11 +40,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_password_field %}
     <sw-password-field
-        {% if VUE3 %}
         v-model:value="password"
-        {% else %}
-        v-model="password"
-        {% endif %}
         name="sw-field--password"
         :label="$tc('sw-login.index.labelPassword')"
         :placeholder="$tc('sw-login.index.placeholderPassword')"

@@ -1,4 +1,4 @@
-import { mapState } from 'vuex_v2';
+import { mapState } from 'vuex';
 import template from './sw-flow-rule-modal.html.twig';
 import './sw-flow-rule-modal.scss';
 

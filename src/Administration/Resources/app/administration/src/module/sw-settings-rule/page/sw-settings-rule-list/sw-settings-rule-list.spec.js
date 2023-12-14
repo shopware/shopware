@@ -74,7 +74,9 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     beforeEach(() => {
         Shopware.Application.view.router = {
             currentRoute: {
-                query: '',
+                value: {
+                    query: '',
+                },
             },
             push: () => {},
         };

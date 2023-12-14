@@ -38,14 +38,9 @@
         >
             <template
                 v-for="(item) in unitOptions"
-                {% if VUE3 %}
                 :key="item.value"
-                {% endif %}
             >
                 <div
-                    {% if VUE2 %}
-                    :key="item.value"
-                    {% endif %}
                     class="sw-condition-unit-menu__menu-item"
                     role="menuitem"
                     tabindex="0"

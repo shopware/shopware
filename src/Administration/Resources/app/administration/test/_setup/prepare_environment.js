@@ -206,7 +206,7 @@ global.console.warn = () => {};
 beforeEach(() => {
     consoleHasError = false;
     errorArgs = null;
-    global.activeFeatureFlags = ['VUE3'];
+    global.activeFeatureFlags = [];
 });
 
 // eslint-disable-next-line jest/require-top-level-describe
@@ -228,7 +228,4 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // This is here to always get the Vue 3 version of templates
-window._features_ = {
-    VUE3: true,
-    vue3: true,
-};
+window._features_ = {};

@@ -111,11 +111,7 @@
                         :value="showListPrices[priceGroup.ruleId] !== false"
                         no-margin-top
                         :label="$tc('sw-product.prices.settingShowListPrices')"
-                        {% if VUE3 %}
                         @update:value="onChangeShowListPrices($event, priceGroup.ruleId)"
-                        {% else %}
-                        @change="onChangeShowListPrices($event, priceGroup.ruleId)"
-                        {% endif %}
                     />
                     {% endblock %}
                 </template>
@@ -149,11 +145,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="item.quantityStart"
-                        {% else %}
-                        v-model="item.quantityStart"
-                        {% endif %}
                         v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                         validation="required"
@@ -174,11 +166,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_end_field %}
                     <sw-number-field
-                        {% if VUE3 %}
                         v-model:value="item.quantityEnd"
-                        {% else %}
-                        v-model="item.quantityEnd"
-                        {% endif %}
                         :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                         placeholder="∞"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"
@@ -186,11 +174,7 @@
                         :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
                         :size="compact ? 'small' : 'default'"
                         :disabled="!acl.can('product.editor')"
-                        {% if VUE3 %}
                         @update:value="onQuantityEndChange(item, priceGroup)"
-                        {% else %}
-                        @change="onQuantityEndChange(item, priceGroup)"
-                        {% endif %}
                     />
                     {% endblock %}
                 </template>
@@ -200,16 +184,11 @@
                 {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list %}
                 <template
                     v-for="currency in currencies"
-                    {% if VUE3 %}
                     :key="currency.id"
-                    {% endif %}
                     #[`column-price-${currency.isoCode}`]="{ item, column, compact }"
                 >
                     <template v-if="showListPrices[priceGroup.ruleId] === false">
                         <div
-                            {% if VUE2 %}
-                            :key="currency"
-                            {% endif %}
                             class="product-detail-context-prices__price-field-wrapper"
                         >
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -407,11 +386,7 @@
                     :class="{ 'is--inherited': isInherited }"
                 >
                     <sw-switch-field
-                        {% if VUE3 %}
                         v-model:value="isInherited"
-                        {% else %}
-                        v-model="isInherited"
-                        {% endif %}
                         class="sw-product-detail-context-prices__inherit-switch"
                         :disabled="!acl.can('product.editor')"
                     />

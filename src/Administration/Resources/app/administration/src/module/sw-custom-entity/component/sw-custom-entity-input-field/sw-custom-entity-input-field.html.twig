@@ -27,11 +27,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        {% if VUE3 %}
         @update:value="onChange"
-        {% else %}
-        @change="onChange"
-        {% endif %}
     />
 
     <sw-number-field
@@ -43,11 +39,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        {% if VUE3 %}
         @update:value="onChange"
-        {% else %}
-        @change="onChange"
-        {% endif %}
     />
 
     <sw-switch-field
@@ -57,11 +49,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        {% if VUE3 %}
         @update:value="onChange"
-        {% else %}
-        @change="onChange"
-        {% endif %}
     />
 
     <sw-datepicker
@@ -104,11 +92,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        {% if VUE3 %}
         @update:price="onChange"
-        {% else %}
-        @change="onChange"
-        {% endif %}
     />-->
 
     <!-- ToDo NEXT-22874 - Remove after Debug -->

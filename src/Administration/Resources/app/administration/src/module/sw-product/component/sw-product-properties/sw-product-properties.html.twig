@@ -2,11 +2,7 @@
 {% block sw_product_properties %}
 <sw-inherit-wrapper
     v-if="properties"
-    {% if VUE3 %}
     v-model:value="product.properties"
-    {% else %}
-    v-model="product.properties"
-    {% endif %}
     class="sw-product-properties"
     :is-association="isAssociation"
     :disabled="disabled"

@@ -47,11 +47,7 @@
                 :disabled="currentEditElement === item.data.id"
                 :ghost-value="checkedGhost"
                 :value="checked"
-                {% if VUE3 %}
                 @update:value="toggleItemCheck($event, item)"
-                {% else %}
-                @change="toggleItemCheck($event, item)"
-                {% endif %}
             />
         </div>
         {% endblock %}

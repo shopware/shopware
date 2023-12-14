@@ -104,23 +104,19 @@ export default {
 
             this.$nextTick(() => {
                 let foundRow = this.$refs.snippetSetList.$children.find((vueComponent) => {
-                    if (this.feature.isActive('VUE3')) {
-                        if (vueComponent.$options.name === 'AsyncComponentWrapper') {
-                            vueComponent = vueComponent.$children[0];
-                        }
+                    if (vueComponent.$options.name === 'AsyncComponentWrapper') {
+                        vueComponent = vueComponent?.$children[0];
                     }
 
-                    return vueComponent.item !== undefined && vueComponent.item.id === newSnippetSet.id;
+                    return vueComponent?.item !== undefined && vueComponent.item.id === newSnippetSet.id;
                 });
 
                 if (!foundRow) {
                     return false;
                 }
 
-                if (this.feature.isActive('VUE3')) {
-                    if (foundRow.$options.name === 'AsyncComponentWrapper') {
-                        foundRow = foundRow.$children[0];
-                    }
+                if (foundRow.$options.name === 'AsyncComponentWrapper') {
+                    foundRow = foundRow.$children[0];
                 }
 
                 foundRow.isEditingActive = true;

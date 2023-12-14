@@ -179,11 +179,7 @@
             <div class="sw-product-modal-variant-generation__upload-all-container">
                 <sw-switch-field
                     :label="$tc('sw-product.variations.configuratorModal.digitalVariantSwitch')"
-                    {% if VUE3 %}
                     @update:value="onChangeAllVariantValues"
-                    {% else %}
-                    @change="onChangeAllVariantValues"
-                    {% endif %}
                 />
                 <div class="sw-product-modal-variant-generation__upload-all">
                     <sw-upload-listener
@@ -230,15 +226,10 @@
                     <div>
                         <template
                             v-for="(option, index) in item.options"
-                            {% if VUE3 %}
                             :key="index"
-                            {% endif %}
                         >
                             <span
                                 v-if="option.entity"
-                                {% if VUE2 %}
-                                :key="index"
-                                {% endif %}
                             >
                                 {{ option.entity.group.translated?.name || option.entity.group.name }}:
                                 {{ option.entity.translated?.name || option.entity.name }}
@@ -254,11 +245,7 @@
                         <sw-switch-field
                             label="Digital"
                             :value="item.productStates.includes('is-download')"
-                            {% if VUE3 %}
                             @update:value="(event) => onChangeVariantValue(event, item)"
-                            {% else %}
-                            @change="(event) => onChangeVariantValue(event, item)"
-                            {% endif %}
                         />
                         <sw-upload-listener
                             :upload-tag="item.productNumber"

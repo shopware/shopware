@@ -80,10 +80,12 @@ class AccountOrderController extends StorefrontController
     #[Route(path: '/account/order/cancel', name: 'frontend.account.order.cancel', methods: ['POST'])]
     public function cancelOrder(Request $request, SalesChannelContext $context): Response
     {
-        $cancelOrderRequest = new Request();
-        $cancelOrderRequest->request->set('orderId', $request->get('orderId'));
-        $cancelOrderRequest->request->set('transition', 'cancel');
+        $cancelOrderRequestData = [
+            'orderId' => $request->get('orderId'),
+            'transition' => 'cancel',
+        ];
 
+        $cancelOrderRequest = $request->duplicate(null, $cancelOrderRequestData);
         $event = new CancelOrderRouteRequestEvent($request, $cancelOrderRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
@@ -259,20 +261,21 @@ class AccountOrderController extends StorefrontController
 
         $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
-        $setPaymentRequest = new Request();
-        $setPaymentRequest->request->set('orderId', $orderId);
-        $setPaymentRequest->request->add($request->request->all());
+        $setPaymentRequestData = array_merge($request->request->all(), ['orderId' => $orderId]);
+        $setPaymentRequest = $request->duplicate(null, $setPaymentRequestData);
 
         $setPaymentOrderRouteRequestEvent = new SetPaymentOrderRouteRequestEvent($request, $setPaymentRequest, $context);
         $this->eventDispatcher->dispatch($setPaymentOrderRouteRequestEvent);
 
         $this->setPaymentOrderRoute->setPayment($setPaymentOrderRouteRequestEvent->getStoreApiRequest(), $context);
 
-        $handlePaymentRequest = new Request();
-        $handlePaymentRequest->request->set('orderId', $orderId);
-        $handlePaymentRequest->request->set('finishUrl', $finishUrl);
-        $handlePaymentRequest->request->set('errorUrl', $errorUrl);
-        $handlePaymentRequest->request->add($request->request->all());
+        $handlePaymentRequestData = array_merge($request->request->all(), [
+            'orderId' => $orderId,
+            'finishUrl' => $finishUrl,
+            'errorUrl' => $errorUrl,
+        ]);
+
+        $handlePaymentRequest = $request->duplicate(null, $handlePaymentRequestData);
 
         $handlePaymentMethodRouteRequestEvent = new HandlePaymentMethodRouteRequestEvent($request, $handlePaymentRequest, $context);
         $this->eventDispatcher->dispatch($handlePaymentMethodRouteRequestEvent);

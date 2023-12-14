@@ -12,6 +12,7 @@ class StorefrontException extends HttpException
     final public const CAN_NOT_RENDER_VIEW = 'STOREFRONT__CAN_NOT_RENDER_VIEW';
     final public const UN_SUPPORT_STOREFRONT_RESPONSE = 'STOREFRONT__UN_SUPPORT_STOREFRONT_RESPONSE';
     final public const CLASS_DONT_HAVE_TWIG_INJECTED = 'STOREFRONT__CLASS_DONT_HAVE_TWIG_INJECTED';
+    final public const NO_REQUEST_PROVIDED = 'STOREFRONT__NO_REQUEST_PROVIDED';
 
     /**
      * @param array<string, mixed> $parameters
@@ -54,6 +55,15 @@ class StorefrontException extends HttpException
             self::CLASS_DONT_HAVE_TWIG_INJECTED,
             'Class {{ class }} does not have twig injected. Add to your service definition a method call to setTwig with the twig instance',
             ['class' => $class]
+        );
+    }
+
+    public static function noRequestProvided(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::NO_REQUEST_PROVIDED,
+            'No request is available.This controller action require an active request context.'
         );
     }
 }

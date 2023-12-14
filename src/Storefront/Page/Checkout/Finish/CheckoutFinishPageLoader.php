@@ -115,7 +115,7 @@ class CheckoutFinishPageLoader
 
         try {
             $searchResult = $this->orderRoute
-                ->load(new Request(), $salesChannelContext, $criteria)
+                ->load($request->duplicate(), $salesChannelContext, $criteria)
                 ->getOrders();
         } catch (InvalidUuidException) {
             throw OrderException::orderNotFound($orderId);

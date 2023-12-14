@@ -67,15 +67,17 @@ class ProductController extends StorefrontController
         /** @var array<mixed>|null $options */
         $options = json_decode($request->query->get('options', ''), true);
 
+        $variantRequestData = [
+            'switchedGroup' => $switchedGroup,
+            'options' => $options ?? [],
+        ];
+
+        $variantRequest = $request->duplicate($variantRequestData);
+
         try {
             $variantResponse = $this->findVariantRoute->load(
                 $productId,
-                new Request(
-                    [
-                        'switchedGroup' => $switchedGroup,
-                        'options' => $options ?? [],
-                    ]
-                ),
+                $variantRequest,
                 $salesChannelContext
             );
 

@@ -179,6 +179,26 @@ class CmsControllerTest extends TestCase
             ]
         );
     }
+
+    public function testSwitchBuyBoxVariantWithInvalidJsonOptions(): void
+    {
+        $ids = new IdsCollection();
+
+        $request = new Request(
+            [
+                'elementId' => $ids->get('element'),
+                'options' => 'invalidJsonString',
+            ]
+        );
+
+        $response = $this->controller->switchBuyBoxVariant(
+            $ids->get('product'),
+            $request,
+            $this->createMock(SalesChannelContext::class)
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
 }
 
 /**

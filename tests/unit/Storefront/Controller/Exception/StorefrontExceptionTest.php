@@ -44,4 +44,16 @@ class StorefrontExceptionTest extends TestCase
         static::assertEquals('STOREFRONT__CLASS_DONT_HAVE_TWIG_INJECTED', $res->getErrorCode());
         static::assertEquals('Class Example\Class does not have twig injected. Add to your service definition a method call to setTwig with the twig instance', $res->getMessage());
     }
+
+    public function testNoRequestProvided(): void
+    {
+        $res = StorefrontException::noRequestProvided();
+
+        static::assertEquals(500, $res->getStatusCode());
+        static::assertEquals('STOREFRONT__NO_REQUEST_PROVIDED', $res->getErrorCode());
+        static::assertEquals(
+            'No request is available.This controller action require an active request context.',
+            $res->getMessage()
+        );
+    }
 }

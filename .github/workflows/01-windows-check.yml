@@ -16,5 +16,5 @@ jobs:
         run: git config --system core.longpaths true
 
       - name: Clone platform
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 

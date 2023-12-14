@@ -5,7 +5,10 @@ namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
+use Twig\Error\Error as TwigError;
+use Twig\Source;
 
 /**
  * @internal
@@ -13,6 +16,27 @@ use Shopware\Storefront\Controller\Exception\StorefrontException;
 #[CoversClass(StorefrontException::class)]
 class StorefrontExceptionTest extends TestCase
 {
+    public function testRenderViewException(): void
+    {
+        $parameters = [
+            'param' => 'Param',
+            'context' => Context::createDefaultContext(),
+        ];
+
+        $view = 'test.html.twig';
+
+        $twigError = new TwigError('Error message', 5, new Source('<div>ExampleCode</div>', $view, $view));
+
+        $res = StorefrontException::renderViewException($view, $twigError, $parameters);
+
+        static::assertEquals(500, $res->getStatusCode());
+        static::assertEquals('STOREFRONT__CAN_NOT_RENDER_VIEW', $res->getErrorCode());
+        static::assertEquals('Can not render test.html.twig view: Error message with these parameters: {"param":"Param"}', $res->getMessage());
+        static::assertEquals(5, $res->getLine());
+        static::assertEquals('test.html.twig', $res->getFile());
+    }
+
+    #[DisabledFeatures(['v6.7.0.0'])]
     public function testCannotRenderView(): void
     {
         $parameters = [

@@ -269,7 +269,7 @@ abstract class StorefrontController extends AbstractController
             try {
                 return $this->twig->render($view, $parameters);
             } catch (LoaderError|RuntimeError|SyntaxError $e) {
-                throw StorefrontException::cannotRenderView($view, $e->getMessage(), $parameters);
+                throw StorefrontException::renderViewException($view, $e, $parameters);
             }
         }
 

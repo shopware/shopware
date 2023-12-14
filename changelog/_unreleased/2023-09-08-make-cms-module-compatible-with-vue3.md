@@ -1,7 +1,6 @@
 ---
 title: Make CMS module compatible with Vue3
 issue: NEXT-28998
-flag: VUE3
 author: Jannis Leifeld
 author_email: j.leifeld@shopware.com
 author_github: Jannis Leifeld

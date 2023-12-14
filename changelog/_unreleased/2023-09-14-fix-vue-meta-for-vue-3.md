@@ -1,7 +1,6 @@
 ---
 title: Fix vue-meta for Vue 3
 issue: NEXT-30501
-flag: VUE3
 author: Sebastian Seggewiß
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

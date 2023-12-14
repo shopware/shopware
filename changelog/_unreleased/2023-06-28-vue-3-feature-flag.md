@@ -1,7 +1,6 @@
 ---
 title: Vue 3 feature flag
 issue: NEXT-28833
-flag: VUE3
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com
 author_github: Sebastian Seggewiss

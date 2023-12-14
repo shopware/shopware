@@ -1,7 +1,6 @@
 ---
 title: Make settings module compatible with Vue3
 issue: NEXT-29011
-flag: VUE3
 author: Jannis Leifeld
 author_email: j.leifeld@shopware.com
 author_github: Jannis Leifeld

@@ -1,7 +1,6 @@
 ---
 title: Change sw-radio-panel default event
 issue: NEXT-28991
-flag: VUE3
 author: Sebastian Seggewiß
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

@@ -1,7 +1,6 @@
 ---
 title: Fix smalle issued in flow builder
 issue: NEXT-30588
-flag: VUE3
 author: Sebastian Seggewiss
 author_email: s.seggewiss@shopware.com
 author_github: @seggewiss

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -334,22 +335,22 @@ class TestBootstrapper
 
     private function install(): void
     {
-        $installCommand = (new Application($this->getKernel()))->find('system:install');
+        $application = new Application($this->getKernel());
 
-        $returnCode = $installCommand->run(
+        $returnCode = $application->doRun(
             new ArrayInput(
                 [
+                    'command' => 'system:install',
                     '--create-database' => true,
                     '--force' => true,
                     '--drop-database' => true,
                     '--basic-setup' => true,
                     '--no-assign-theme' => true,
-                ],
-                $installCommand->getDefinition()
+                ]
             ),
             $this->getOutput()
         );
-        if ($returnCode !== 0) {
+        if ($returnCode !== Command::SUCCESS) {
             throw new \RuntimeException('system:install failed');
         }
 
@@ -360,28 +361,23 @@ class TestBootstrapper
     private function installPlugins(): void
     {
         $application = new Application($this->getKernel());
-        $refreshCommand = $application->find('plugin:refresh');
-        $refreshCommand->run(new ArrayInput([], $refreshCommand->getDefinition()), $this->getOutput());
+        $application->doRun(new ArrayInput(['command' => 'plugin:refresh']), $this->getOutput());
 
         $kernel = KernelLifecycleManager::bootKernel();
 
         $application = new Application($kernel);
-        $installCommand = $application->find('plugin:install');
-        $definition = $installCommand->getDefinition();
 
         foreach ($this->activePlugins as $activePlugin) {
             $args = [
+                'command' => 'plugin:install',
                 '--activate' => true,
                 '--reinstall' => true,
                 'plugins' => [$activePlugin],
             ];
 
-            $returnCode = $installCommand->run(
-                new ArrayInput($args, $definition),
-                $this->getOutput()
-            );
+            $returnCode = $application->doRun(new ArrayInput($args), $this->getOutput());
 
-            if ($returnCode !== 0) {
+            if ($returnCode !== Command::SUCCESS) {
                 throw new \RuntimeException('system:install failed');
             }
         }

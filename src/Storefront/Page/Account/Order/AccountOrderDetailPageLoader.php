@@ -67,7 +67,7 @@ class AccountOrderDetailPageLoader
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $salesChannelContext, $criteria);
         $this->eventDispatcher->dispatch($event);

@@ -77,7 +77,7 @@ class AccountOrderPageLoader
     private function getOrders(Request $request, SalesChannelContext $context): EntitySearchResult
     {
         $criteria = $this->createCriteria($request);
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         // Add email and zipcode for guest customer verification in order view
         if ($request->get('email', false) && $request->get('zipcode', false)) {

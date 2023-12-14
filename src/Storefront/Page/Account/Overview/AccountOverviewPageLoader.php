@@ -91,7 +91,7 @@ class AccountOverviewPageLoader
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);

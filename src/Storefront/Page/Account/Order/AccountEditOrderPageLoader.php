@@ -93,7 +93,7 @@ class AccountEditOrderPageLoader
     private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponse
     {
         $criteria = $this->createCriteria($request, $context);
-        $apiRequest = new Request();
+        $apiRequest = $request->duplicate();
         $apiRequest->query->set('checkPromotion', 'true');
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
@@ -141,7 +141,7 @@ class AccountEditOrderPageLoader
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
 
-        $routeRequest = new Request();
+        $routeRequest = $request->duplicate();
         $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
         $routeRequest->query->set('onlyAvailable', '1');
 

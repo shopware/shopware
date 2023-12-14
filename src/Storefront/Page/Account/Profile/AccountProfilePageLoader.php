@@ -66,7 +66,7 @@ class AccountProfilePageLoader
 
     private function getSalutations(SalesChannelContext $context, Request $request): SalutationCollection
     {
-        $event = new SalutationRouteRequestEvent($request, new Request(), $context, new Criteria());
+        $event = new SalutationRouteRequestEvent($request, $request->duplicate(), $context, new Criteria());
         $this->eventDispatcher->dispatch($event);
 
         $salutations = $this->salutationRoute

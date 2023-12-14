@@ -126,14 +126,15 @@ class CmsController extends StorefrontController
         /** @var string[]|null $options */
         $options = json_decode($request->query->get('options', ''), true);
 
+        $variantRequestData = [
+            'switchedGroup' => $request->query->get('switched'),
+            'options' => $options ?? [],
+        ];
+        $variantRequest = $request->duplicate($variantRequestData);
+
         $variantResponse = $this->findVariantRoute->load(
             $productId,
-            new Request(
-                [
-                    'switchedGroup' => $request->query->get('switched'),
-                    'options' => $options ?? [],
-                ]
-            ),
+            $variantRequest,
             $context
         );
 

@@ -72,7 +72,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if ($request === null) {
-            $request = new Request();
+            throw StorefrontException::noRequestProvided();
         }
 
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
@@ -164,7 +164,7 @@ abstract class StorefrontController extends AbstractController
         $request = $this->container->get('request_stack')->getCurrentRequest();
 
         if ($request === null) {
-            $request = new Request();
+            throw StorefrontException::noRequestProvided();
         }
 
         $attributes = array_merge(

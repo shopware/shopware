@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -301,11 +300,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->updateTheme($themeId, null, null, $this->context);
     }
@@ -493,11 +488,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
         $this->themeService->resetTheme($themeId, $this->context);
     }
 
@@ -526,11 +517,7 @@ class ThemeServiceTest extends TestCase
         );
 
         $this->expectException(ThemeException::class);
-        if (!Feature::isActive('v6.6.0.0')) {
-            $this->expectExceptionMessage(sprintf('Unable to find the theme "%s"', $themeId));
-        } else {
-            $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
-        }
+        $this->expectExceptionMessage(sprintf('Could not find theme with id "%s"', $themeId));
 
         $this->themeService->getThemeConfiguration($themeId, false, $this->context);
     }

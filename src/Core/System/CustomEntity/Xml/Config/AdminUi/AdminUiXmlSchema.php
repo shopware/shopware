@@ -36,7 +36,7 @@ final class AdminUiXmlSchema
         return new self(AdminUi::fromXml($domItem));
     }
 
-    public function getAdminUi(): ?AdminUi
+    public function getAdminUi(): AdminUi
     {
         return $this->adminUi;
     }

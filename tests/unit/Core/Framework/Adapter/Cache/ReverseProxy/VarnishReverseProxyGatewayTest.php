@@ -18,8 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.6.0 - Move to core
  */
 #[CoversClass(VarnishReverseProxyGateway::class)]
 class VarnishReverseProxyGatewayTest extends TestCase

@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateScopeDetector;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Core\Test\StaticTranslator;
+use Shopware\Core\Test\Stub\Translator\StaticTranslator;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Test\Controller\fixtures\BundleFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;

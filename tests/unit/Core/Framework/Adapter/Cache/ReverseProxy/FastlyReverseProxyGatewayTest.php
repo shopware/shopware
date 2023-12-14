@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.6.0 - Move to core
- *
  * @internal
  */
 #[CoversClass(FastlyReverseProxyGateway::class)]

@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -93,7 +92,7 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     private function setDefaultLayout(Entity $product, ?string $salesChannelId = null): void
     {
-        if (!Feature::isActive('v6.6.0.0') || !$product->has('cmsPageId')) {
+        if (!$product->has('cmsPageId')) {
             return;
         }
 

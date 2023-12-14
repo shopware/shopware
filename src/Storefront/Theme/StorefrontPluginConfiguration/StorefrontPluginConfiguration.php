@@ -32,10 +32,7 @@ class StorefrontPluginConfiguration extends Struct
 
     protected ?string $storefrontEntryFilepath = null;
 
-    /**
-     * @decrecated tag:v6.0.0 will no longer be nullable
-     */
-    protected ?string $basePath = null;
+    protected string $basePath;
 
     /**
      * @var array<int, string>

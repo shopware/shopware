@@ -230,7 +230,6 @@ const missingTests = [
     'src/core/service/api/user-recovery.api.service.js',
     'src/core/service/api/user-validation.api.service.js',
     'src/core/service/api/user.api.service.js',
-    'src/core/service/api.service.ts', // TODO: remove this
     'src/core/service/customer-group-registration-listener.service.js',
     'src/core/service/entity-mapping.service.js',
     'src/core/service/shopware-updates-listener.service.js',

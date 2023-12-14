@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
  * @package checkout
  */
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], props = {}) {
     const shippingMethod = {};
     shippingMethod.technicalName = 'shipping_standard';
     shippingMethod.getEntityName = () => 'shipping_method';
@@ -16,6 +16,7 @@ async function createWrapper(privileges = []) {
     return mount(await wrapTestComponent('sw-settings-shipping-detail', {
         sync: true,
     }), {
+        props,
         global: {
             renderStubDefaultSlot: true,
             provide: {
@@ -170,7 +171,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     });
 
     it('should load customFieldSet on loadEntityData', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([], { shippingMethodId: 'a1b2c3' });
         const spyGetMethod = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
         const spyLoadCustomFieldSets = jest.spyOn(wrapper.vm, 'loadCustomFieldSets');
 
@@ -194,5 +195,23 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         expect(spy).toHaveBeenCalled();
         expect(warningSpy).toHaveBeenCalled();
         expect(wrapper.vm.isProcessLoading).toBe(false);
+    });
+
+    it('should not load without entity id', async () => {
+        const wrapper = await createWrapper();
+        const spy = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
+
+        await flushPromises();
+        wrapper.vm.loadEntityData();
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should load with entity id', async () => {
+        const wrapper = await createWrapper([], { shippingMethodId: 'a1b2c3' });
+        const spy = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
+
+        await flushPromises();
+        wrapper.vm.loadEntityData();
+        expect(spy).toHaveBeenCalled();
     });
 });

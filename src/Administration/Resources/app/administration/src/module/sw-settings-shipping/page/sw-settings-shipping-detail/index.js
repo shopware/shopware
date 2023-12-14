@@ -161,9 +161,7 @@ export default {
 
         shippingMethodId() {
             // We must reset the page if the user clicks his browsers back button and navigates back to create
-            if (this.shippingMethodId === null) {
-                this.createdComponent();
-            }
+            this.createdComponent();
         },
     },
 
@@ -211,6 +209,10 @@ export default {
         },
 
         loadEntityData() {
+            if (!this.shippingMethodId) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.shippingMethodRepository.get(

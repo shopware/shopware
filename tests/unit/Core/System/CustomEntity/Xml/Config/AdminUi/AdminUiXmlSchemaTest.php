@@ -200,10 +200,7 @@ class AdminUiXmlSchemaTest extends TestCase
      */
     private function getEntities(AdminUiXmlSchema $adminUiXmlSchema): array
     {
-        $adminUi = $adminUiXmlSchema->getAdminUi();
-        static::assertInstanceOf(AdminUi::class, $adminUi);
-
-        return $adminUi->getEntities();
+        return $adminUiXmlSchema->getAdminUi()->getEntities();
     }
 
     /**

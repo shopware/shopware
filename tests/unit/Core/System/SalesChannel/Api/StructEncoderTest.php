@@ -30,7 +30,7 @@ use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Entity\DefinitionRegistryChain;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
-use Shopware\Tests\Unit\Common\Stubs\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -149,7 +149,6 @@ class StructEncoderTest extends TestCase
         $encoded = (new StructEncoder($this->createMock(DefinitionRegistryChain::class), $serializer))
             ->encode($cart, new ResponseFields(null));
 
-        static::assertIsArray($encoded);
         static::assertArrayHasKey('lineItems', $encoded);
         static::assertArrayHasKey(0, $encoded['lineItems']);
         static::assertArrayHasKey('payload', $encoded['lineItems'][0]);

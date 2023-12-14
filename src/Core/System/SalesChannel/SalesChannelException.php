@@ -22,11 +22,6 @@ class SalesChannelException extends HttpException
 
     final public const COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION = 'SYSTEM__COUNTRY_STATE_DOES_NOT_EXISTS_EXCEPTION';
 
-    /**
-     * @deprecated tag:v6.6.0 - Will be removed as the name was misleading, use SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION instead
-     */
-    final public const SALES_CHANNEL_NOT_AVAILABLE_EXCEPTION = self::SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION;
-
     final public const SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION = 'SYSTEM__SALES_CHANNEL_LANGUAGE_NOT_AVAILABLE_EXCEPTION';
 
     final public const NO_CONTEXT_DATA_EXCEPTION = 'SYSTEM__NO_CONTEXT_DATA_EXCEPTION';

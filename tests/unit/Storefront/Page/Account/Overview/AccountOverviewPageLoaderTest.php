@@ -17,9 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
-use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -81,7 +80,6 @@ class AccountOverviewPageLoaderTest extends TestCase
         $customer = new CustomerEntity();
         $page = $this->pageLoader->load(new Request(), $this->createMock(SalesChannelContext::class), $customer);
 
-        static::assertInstanceOf(AccountOverviewPage::class, $page);
         static::assertEquals($order, $page->getNewestOrder());
 
         $events = $this->eventDispatcher->getEvents();

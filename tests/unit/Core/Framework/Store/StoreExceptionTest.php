@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\StoreException;
-use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,47 +39,5 @@ class StoreExceptionTest extends TestCase
 
         static::assertEquals('FRAMEWORK__EXTENSION_THEME_STILL_IN_USE', $exception->getErrorCode());
         static::assertEquals(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testExtensionInstallException(): void
-    {
-        $exception = StoreException::extensionInstallException('Extension not found');
-
-        static::assertEquals(
-            'Extension not found',
-            $exception->getMessage()
-        );
-
-        static::assertEquals('FRAMEWORK__EXTENSION_INSTALL_EXCEPTION', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-    }
-
-    #[DisabledFeatures(['v6.6.0.0'])]
-    public function testExtensionUpdateRequiresConsentAffirmationException(): void
-    {
-        $exception = StoreException::extensionUpdateRequiresConsentAffirmationException('test-app', [
-            'permissions' => [
-                'product' => ['read'],
-                'categories' => ['read'],
-            ],
-        ]);
-
-        static::assertEquals(
-            'Updating app "test-app" requires a renewed consent affirmation.',
-            $exception->getMessage()
-        );
-
-        static::assertEquals('FRAMEWORK__EXTENSION_UPDATE_REQUIRES_CONSENT_AFFIRMATION', $exception->getErrorCode());
-        static::assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
-        static::assertEquals([
-            'appName' => 'test-app',
-            'deltas' => [
-                'permissions' => [
-                    'product' => ['read'],
-                    'categories' => ['read'],
-                ],
-            ],
-        ], $exception->getParameters());
     }
 }

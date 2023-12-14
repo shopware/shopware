@@ -1,7 +1,6 @@
 ---
 title: Replace sw-field with real components
 issue: NEXT-31579
-flag: VUE3
 author: Jannis Leifeld
 author_email: j.leifeld@shopware.com
 author_github: Jannis Leifeld

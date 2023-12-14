@@ -100,7 +100,6 @@ class SnippetServiceTest extends TestCase
             $this->snippetCollection,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $container,
             $themeLoader,
@@ -127,7 +126,6 @@ class SnippetServiceTest extends TestCase
             $this->snippetCollection,
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
-            $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $container
         );
@@ -148,7 +146,6 @@ class SnippetServiceTest extends TestCase
         $snippetService = new SnippetService(
             $this->connection,
             $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
@@ -172,7 +169,6 @@ class SnippetServiceTest extends TestCase
         $snippetService = new SnippetService(
             $this->connection,
             $this->snippetCollection,
-            $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),

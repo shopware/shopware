@@ -24,7 +24,6 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -247,40 +246,6 @@ class CartLineItemControllerTest extends TestCase
             ->method('create')
             ->with($lineItemData, $this->createMock(SalesChannelContext::class))
             ->willReturn($expectedLineItem);
-
-        $this->cartService->expects(static::once())
-            ->method('add')
-            ->with($cart, [$expectedLineItem], $context)
-            ->willReturn($cart);
-
-        $this->translatorCallback();
-
-        $this->controller->addLineItems($cart, new RequestDataBag($request->request->all()), $request, $context);
-    }
-
-    public function testAddLineItemsWithoutExistingFactory(): void
-    {
-        Feature::skipTestIfActive('v6.6.0.0', $this);
-
-        $productId = Uuid::randomHex();
-        $lineItemData = [
-            'id' => $productId,
-            'referencedId' => $productId,
-            'type' => 'nonexistenttype',
-            'stackable' => 1,
-            'removable' => 1,
-            'quantity' => 1,
-        ];
-
-        $request = new Request([], ['lineItems' => [$productId => $lineItemData]]);
-        $cart = new Cart(Uuid::randomHex());
-        $context = $this->createMock(SalesChannelContext::class);
-        $expectedLineItem = new LineItem($productId, 'nonexistenttype');
-
-        $this->lineItemRegistryMock->expects(static::once())
-            ->method('create')
-            ->with($lineItemData, $this->createMock(SalesChannelContext::class))
-            ->willThrowException(CartException::lineItemTypeNotSupported('nonexistenttype'));
 
         $this->cartService->expects(static::once())
             ->method('add')

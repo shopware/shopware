@@ -14,7 +14,7 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Test\CollectingMessageBus;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\Messenger\Envelope;
 
 /**

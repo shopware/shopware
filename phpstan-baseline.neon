@@ -8580,16 +8580,6 @@ parameters:
 			path: tests/unit/Core/Content/Product/SalesChannel/FindVariant/FindProductVariantRouteTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\SalesChannel\\\\\\\\NoContentResponse' and Shopware\\\\Core\\\\System\\\\SalesChannel\\\\NoContentResponse will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Product/SalesChannel/Review/ProductReviewSaveRouteTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\IdSearchResult is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/ProductExport/ScheduledTask/ProductExportGenerateTaskHandlerTest.php
-
-		-
 			message: "#^Anonymous variable in a `\\$this\\-\\>cacheInvalidator\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 2
 			path: tests/unit/Core/Framework/Adapter/Translation/TranslatorCacheInvalidateTest.php
@@ -8708,11 +8698,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$c\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 11
 			path: tests/unit/Core/Profiling/Doctrine/ConnectionProfilerTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\CustomEntityConfigurationException' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\CustomEntityConfigurationException will always evaluate to true\\.$#"
-			count: 6
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
@@ -8850,11 +8835,6 @@ parameters:
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/CmsAware/CmsAwareFieldsTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/System/SalesChannel/Api/StructEncoderTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
@@ -8903,11 +8883,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Storefront/Framework/Seo/SeoUrlRoute/ProductPageSeoUrlRouteTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Account\\\\\\\\Overview\\\\\\\\AccountOverviewPage' and Shopware\\\\Storefront\\\\Page\\\\Account\\\\Overview\\\\AccountOverviewPage will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Storefront/Page/Account/Overview/AccountOverviewPageLoaderTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Finish\\\\\\\\CheckoutFinishPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Finish\\\\CheckoutFinishPage will always evaluate to true\\.$#"

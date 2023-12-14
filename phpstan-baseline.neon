@@ -5831,41 +5831,6 @@ parameters:
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/NaturalSortingTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:createData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:createManufacturer\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:fakeHandleRequest\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:getProductsPayload\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 26
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
-			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\DataAbstractionLayer\\\\Search\\\\SearchCriteriaBuilderTest\\:\\:\\$connection is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/DataAbstractionLayer/Search/SearchCriteriaBuilderTest.php
-
-		-
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Term\\\\SearchPattern constructor invoked with 2 parameters, 1 required\\.$#"
 			count: 6
 			path: src/Core/Framework/Test/DataAbstractionLayer/Search/Term/EntityScoreBuilderTest.php

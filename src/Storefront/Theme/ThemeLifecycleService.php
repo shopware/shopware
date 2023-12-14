@@ -31,8 +31,6 @@ class ThemeLifecycleService
      * @param EntityRepository<MediaCollection> $mediaRepository
      *
      * @internal
-     *
-     * @decrecated tag:v6.6.0 argument $pluginConfigurationFactory will be mandatory
      */
     public function __construct(
         private readonly StorefrontPluginRegistryInterface $pluginRegistry,
@@ -46,7 +44,7 @@ class ThemeLifecycleService
         private readonly EntityRepository $languageRepository,
         private readonly EntityRepository $themeChildRepository,
         private readonly Connection $connection,
-        private readonly ?AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
+        private readonly AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory
     ) {
     }
 
@@ -352,7 +350,7 @@ class ThemeLifecycleService
         $themeFolderId = $this->getMediaDefaultFolderId($context);
 
         $installedConfiguration = null;
-        if ($theme && \is_array($theme->getThemeJson()) && $this->pluginConfigurationFactory) {
+        if ($theme && \is_array($theme->getThemeJson())) {
             $installedConfiguration = $this->pluginConfigurationFactory->createFromThemeJson(
                 $theme->getTechnicalName() ?? 'childTheme',
                 $theme->getThemeJson(),

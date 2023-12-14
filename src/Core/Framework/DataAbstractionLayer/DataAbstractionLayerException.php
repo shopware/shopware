@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -12,20 +13,13 @@ use Symfony\Component\HttpFoundation\Response;
 class DataAbstractionLayerException extends HttpException
 {
     public const INVALID_FIELD_SERIALIZER_CODE = 'FRAMEWORK__INVALID_FIELD_SERIALIZER';
-
     public const INVALID_CRON_INTERVAL_CODE = 'FRAMEWORK__INVALID_CRON_INTERVAL_FORMAT';
-
     public const INVALID_DATE_INTERVAL_CODE = 'FRAMEWORK__INVALID_DATE_INTERVAL_FORMAT';
-
     public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
-
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
-
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
-
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
-
-    final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
+    public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
@@ -34,6 +28,7 @@ class DataAbstractionLayerException extends HttpException
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
     public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
+    public const INVALID_SORT_QUERY = 'FRAMEWORK__INVALID_SORT_QUERY';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -106,6 +101,14 @@ class DataAbstractionLayerException extends HttpException
         return new InvalidFilterQueryException(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_FILTER_QUERY,
+            $message,
+            ['path' => $path]
+        );
+    }
+
+    public static function invalidSortQuery(string $message, string $path = ''): self
+    {
+        return new InvalidSortQueryException(
             $message,
             ['path' => $path]
         );

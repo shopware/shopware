@@ -217,7 +217,11 @@ class RequestCriteriaBuilder
     private function parseSorting(EntityDefinition $definition, array $sorting): array
     {
         $sortings = [];
-        foreach ($sorting as $sort) {
+        foreach ($sorting as $i => $sort) {
+            if (!\is_array($sort) || !\is_string($sort['field'] ?? null)) {
+                throw DataAbstractionLayerException::invalidSortQuery('The "sort" array needs to be an associative array at least containing a field name', '/sort/' . $i);
+            }
+
             $order = $sort['order'] ?? 'asc';
             $naturalSorting = $sort['naturalSorting'] ?? false;
             $type = $sort['type'] ?? '';
@@ -248,7 +252,7 @@ class RequestCriteriaBuilder
         $parts = array_filter(explode(',', $query));
 
         if (empty($parts)) {
-            throw new InvalidSortQueryException();
+            throw DataAbstractionLayerException::invalidSortQuery('The "sort" parameter needs to be a sorting array or a comma separated list of fields', '/sort');
         }
 
         $sorting = [];
@@ -447,18 +451,18 @@ class RequestCriteriaBuilder
      */
     private function addSorting(array $payload, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
     {
-        if (\is_array($payload['sort'])) {
-            $sorting = $this->parseSorting($definition, $payload['sort']);
-            $criteria->addSorting(...$sorting);
-
-            return;
-        }
-
         try {
+            if (\is_array($payload['sort'])) {
+                $sorting = $this->parseSorting($definition, $payload['sort']);
+                $criteria->addSorting(...$sorting);
+
+                return;
+            }
+
             $sorting = $this->parseSimpleSorting($definition, $payload['sort']);
             $criteria->addSorting(...$sorting);
         } catch (InvalidSortQueryException $ex) {
-            $searchException->add($ex, '/sort');
+            $searchException->add($ex, $ex->getParameters()['path']);
         }
     }
 

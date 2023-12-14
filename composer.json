@@ -68,7 +68,7 @@
         "doctrine/annotations": "^1.14 || ^2.0",
         "doctrine/dbal": "^3.7",
         "doctrine/inflector": "^2.0",
-        "dompdf/dompdf": "2.0.3",
+        "dompdf/dompdf": "2.0.4",
         "dragonmantank/cron-expression": "^3.3",
         "erusev/parsedown-extra": "0.8.1",
         "ezyang/htmlpurifier": "^4.16",

@@ -31,6 +31,42 @@ if (process.env['ADMIN_URL']) {
     process.env['ADMIN_URL'] = process.env['ADMIN_URL'].replace(/\/+$/, '') + '/';
 }
 
+const projectRoot = path.resolve('./../../');
+const pluginFile = path.resolve(projectRoot, 'var/plugins.json');
+
+if (!fs.existsSync(pluginFile)) {
+    console.warn('No plugins.json file found. Skipping plugin tests.');
+}
+
+interface PluginInfo {
+    basePath: string;
+    technicalName: string;
+}
+
+const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8')) as Record<string, PluginInfo>;
+
+const pluginProjects = Object.entries(pluginDefinition)
+    .map(([, pluginData]) => {
+        const basePath = pluginData.basePath.replace(/\/src\/$/, '');
+        return {
+            basePath: basePath,
+            technicalName: pluginData.technicalName,
+            acceptanceTestsPath: path.resolve(projectRoot, basePath, 'tests/acceptance/tests'),
+        };
+    })
+    .filter((plugin) => {
+        return fs.existsSync(plugin.acceptanceTestsPath);
+    })
+    .map((plugin) => {
+        return {
+            name: plugin.technicalName,
+            use: {
+                ...devices['Desktop Chrome'],
+            },
+            testDir: plugin.acceptanceTestsPath,
+        };
+    });
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -67,53 +103,7 @@ export default defineConfig({
             },
         },
 
-        ...(() => {
-            /**
-             * TODO: only run the tests if the plugin is active on the target system
-             *
-             * We could use an auto fixture to check for plugin availability and use testInfo to skip the test
-             */
-
-            const projectRoot = path.resolve('./../../');
-            const pluginFile = path.resolve(projectRoot, 'var/plugins.json');
-
-            if (!fs.existsSync(pluginFile)) {
-                console.warn('No plugins.json file found. Skipping plugin tests.');
-                return [];
-            }
-
-            const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8')) as Record<
-                string,
-                {
-                    basePath: string;
-                    technicalName: string;
-                }
-            >;
-
-            const pluginProjects = Object.entries(pluginDefinition)
-                .map(([, pluginData]) => {
-                    const basePath = pluginData.basePath.replace(/\/src\/$/, '');
-                    return {
-                        basePath: basePath,
-                        technicalName: pluginData.technicalName,
-                        acceptanceTestsPath: path.resolve(projectRoot, basePath, 'tests/acceptance/tests'),
-                    };
-                })
-                .filter((plugin) => {
-                    return fs.existsSync(plugin.acceptanceTestsPath);
-                })
-                .map((plugin) => {
-                    return {
-                        name: plugin.technicalName,
-                        use: {
-                            ...devices['Desktop Chrome'],
-                        },
-                        testDir: plugin.acceptanceTestsPath,
-                    };
-                });
-
-            return pluginProjects;
-        })(),
+        ...pluginProjects,
 
         /**
          * Uncomment other browsers after prototype!

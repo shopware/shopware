@@ -174,10 +174,11 @@ plugins:
   extends: .downstream-job
   needs: []
   rules:
+    - !reference [ .rules, skip ]
     - !reference [ .rules, scheduled ]
   parallel:
     matrix:
-      - PLUGIN_BRANCH: trunk 
+      - PLUGIN_BRANCH: trunk
         PLUGIN_PROJECT:
         - shopware/6/product/SwagExtensionStore
         - shopware/6/services/swagdynamicaccess

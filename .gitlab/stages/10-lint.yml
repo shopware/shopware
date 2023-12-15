@@ -226,9 +226,8 @@ NPM CI:
         - JS_APP_DIR: "src/Administration/Resources/app/administration/"
           NODE_IMAGE_TAG:
           - "lts-alpine"
-          - "18-alpine"
+          - "20-alpine"
         - JS_APP_DIR: "src/Storefront/Resources/app/storefront/"
           NODE_IMAGE_TAG:
             - "lts-alpine"
-            - "16-alpine"
-            - "18-alpine"
+            - "20-alpine"

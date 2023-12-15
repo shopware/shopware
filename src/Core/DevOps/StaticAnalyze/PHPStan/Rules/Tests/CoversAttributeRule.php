@@ -10,7 +10,6 @@ use PHPStan\Rules\RuleError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\CoversNothing;
-use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -37,26 +36,11 @@ class CoversAttributeRule implements Rule
             return [];
         }
 
-        if ($this->isTestClass($node)) {
+        if (TestRuleHelper::isUnitTestClass($node->getClassReflection())) {
             return ['Test classes must have CoversClass, CoversFunction or CoversNothing  attribute'];
         }
 
         return [];
-    }
-
-    private function isTestClass(InClassNode $node): bool
-    {
-        $namespace = $node->getClassReflection()->getName();
-
-        if (!\str_contains($namespace, 'Shopware\\Tests\\Unit\\') && !\str_contains($namespace, 'Shopware\\Tests\\Migration\\')) {
-            return false;
-        }
-
-        if ($node->getClassReflection()->getParentClass() === null) {
-            return false;
-        }
-
-        return $node->getClassReflection()->getParentClass()->getName() === TestCase::class;
     }
 
     private function hasCovers(InClassNode $class): bool

@@ -1,6 +1,6 @@
 ---
 title: Use file validation service via injection
-issue: NEXT-00000
+issue: NEXT-32361
 author: Elias Lackner
 author_email: lackner.elias@gmail.com
 author_github: @lacknere

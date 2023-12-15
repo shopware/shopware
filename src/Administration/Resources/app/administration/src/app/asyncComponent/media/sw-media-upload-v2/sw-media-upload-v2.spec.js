@@ -2,6 +2,7 @@
  * @package content
  */
 import { mount } from '@vue/test-utils';
+import FileValidationService from 'src/app/service/file-validation.service';
 
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
@@ -32,6 +33,7 @@ async function createWrapper(customOptions = {}) {
                 'sw-popover': true,
             },
             provide: {
+                fileValidationService: new FileValidationService(),
                 validationService: {},
                 repositoryFactory: {
                     create: () => ({

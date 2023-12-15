@@ -345,7 +345,7 @@ class ThumbnailService
         MediaThumbnailSizeEntity $preferredThumbnailSize,
         MediaFolderConfigurationEntity $config
     ): array {
-        if (!$config->getKeepAspectRatio() || $preferredThumbnailSize->getWidth() !== $preferredThumbnailSize->getHeight()) {
+        if (!$config->getKeepAspectRatio()) {
             $calculatedWidth = $preferredThumbnailSize->getWidth();
             $calculatedHeight = $preferredThumbnailSize->getHeight();
 
@@ -361,10 +361,10 @@ class ThumbnailService
         }
 
         if ($imageSize['width'] >= $imageSize['height']) {
-            $aspectRatio = $imageSize['height'] / $imageSize['width'];
+            $factor = $preferredThumbnailSize->getWidth() / $imageSize['width'];
 
             $calculatedWidth = $preferredThumbnailSize->getWidth();
-            $calculatedHeight = (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio);
+            $calculatedHeight = (int) ceil($imageSize['height'] * $factor);
 
             $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
 
@@ -377,9 +377,9 @@ class ThumbnailService
             ];
         }
 
-        $aspectRatio = $imageSize['width'] / $imageSize['height'];
+        $factor = $preferredThumbnailSize->getHeight() / $imageSize['height'];
 
-        $calculatedWidth = (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio);
+        $calculatedWidth = (int) ceil($imageSize['width'] * $factor);
         $calculatedHeight = $preferredThumbnailSize->getHeight();
 
         $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
@@ -482,7 +482,6 @@ class ThumbnailService
         if (!$this->thumbnailsAreGeneratable($media)) {
             return false;
         }
-
         $this->ensureConfigIsLoaded($media, $context);
 
         if ($media->getMediaFolder() === null || $media->getMediaFolder()->getConfiguration() === null) {

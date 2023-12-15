@@ -183,7 +183,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $pathToJsFiles = $path . \DIRECTORY_SEPARATOR . $distRelativePath;
             }
 
-            $files = $this->getScriptDistFiles($pathToJsFiles);
+            $files = $this->getScriptDistFiles($this->themeFileImporter->getRealPath($pathToJsFiles));
             if ($files === null) {
                 continue;
             }
@@ -221,7 +221,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     private function getScriptDistFiles(string $path): ?Finder
     {
         try {
-            $finder = (new Finder())->files()->in($path)->exclude('js');
+            $finder = (new Finder())->files()->followLinks()->in($path)->exclude('js');
         } catch (DirectoryNotFoundException $e) {
             $this->logger->error($e->getMessage());
         }

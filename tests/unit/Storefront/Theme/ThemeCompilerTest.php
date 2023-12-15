@@ -695,6 +695,11 @@ PHP_EOL;
             'V6_6_0_0' => 1,
         ]);
 
+        $themeFileImporterMock = $this->createMock(ThemeFileImporter::class);
+        $themeFileImporterMock->method('getRealPath')->willReturnCallback(function ($filePath) {
+            return $filePath;
+        });
+
         $projectDir = 'tests/unit/Storefront/Theme/fixtures';
         $compiler = new ThemeCompiler(
             $fs,
@@ -702,7 +707,7 @@ PHP_EOL;
             $resolver,
             true,
             $this->createMock(EventDispatcher::class),
-            $this->createMock(ThemeFileImporter::class),
+            $themeFileImporterMock,
             [],
             $this->createMock(CacheInvalidator::class),
             $logger,

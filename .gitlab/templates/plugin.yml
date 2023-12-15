@@ -194,7 +194,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.3.16
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.0
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
@@ -202,6 +202,7 @@ build and validate zip:
     variables:
         SHOPWARE_PROJECT_ROOT: "${CI_PROJECT_DIR}"
         APP_ENV: 'dev'
+        NODE_VERSION: 20
     before_script:
       - *setup_platform_and_plugin_files
     script:

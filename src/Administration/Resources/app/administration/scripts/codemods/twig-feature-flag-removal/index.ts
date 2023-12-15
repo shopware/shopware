@@ -58,7 +58,7 @@ function modifyCode(inputCode: string): string {
          * When line contains '{% endif %}' we should not output the line
          * and set the flag to false
          */
-        if (line.includes('{% endif %}')) {
+        if (line.includes('{% endif %}') && (isVue3Code || isVue2Code)) {
             shouldOutputLine = false;
             isVue3Code = false;
             isVue2Code = false;

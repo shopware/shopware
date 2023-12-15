@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import FileValidationService from 'src/app/service/file-validation.service';
 
 /**
  * @package customer-order
@@ -49,6 +50,7 @@ async function createWrapper() {
                 'sw-icon': true,
             },
             provide: {
+                fileValidationService: new FileValidationService(),
                 numberRangeService: {
                     reserve: () => Promise.resolve({ number: 1000 }),
                 },
@@ -56,6 +58,7 @@ async function createWrapper() {
                     addListener: () => {},
                     removeByTag: () => {},
                     removeListener: () => {},
+                    getDefaultFolderId: () => {},
                 },
                 repositoryFactory: {
                     create: () => ({

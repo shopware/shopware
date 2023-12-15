@@ -14,6 +14,7 @@ enum LineItemType {
     CREDIT = 'credit',
     CUSTOM = 'custom',
     PROMOTION = 'promotion',
+    CONTAINER = 'container',
 }
 
 enum PriceType {

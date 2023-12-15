@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -618,17 +617,8 @@ class ThemeService implements ResetInterface
         return false;
     }
 
-    /**
-     * @experimental stableVersion:v6.6.0 feature:ASYNC_THEME_COMPILATION
-     *
-     *  The way to toggle async compilation is experimental. It may be changed in the future without announcement.
-     */
     private function isAsyncCompilation(Context $context): bool
     {
-        if (!Feature::isActive('ASYNC_THEME_COMPILATION')) {
-            return false;
-        }
-
         return $this->configService->get(self::CONFIG_THEME_COMPILE_ASYNC) && !$context->hasState(self::STATE_NO_QUEUE);
     }
 }

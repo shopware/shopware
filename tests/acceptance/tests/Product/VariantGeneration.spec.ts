@@ -12,8 +12,8 @@ test('Shop administrator should be able to create product variants. @product', a
 
     await shopAdmin.attemptsTo(GenerateVariants());
 
-    await shopAdmin.expects(adminProductDetailPage.page.getByText('Red Medium')).toBeVisible();
-    await shopAdmin.expects(adminProductDetailPage.page.getByText('Red Large')).toBeVisible();
-    await shopAdmin.expects(adminProductDetailPage.page.getByText('Blue Medium')).toBeVisible();
-    await shopAdmin.expects(adminProductDetailPage.page.getByText('Blue Large')).toBeVisible();
+    await shopAdmin.expects(adminProductDetailPage.page.getByRole('link', { name: 'Medium - Red -' })).toBeVisible();
+    await shopAdmin.expects(adminProductDetailPage.page.getByRole('link', { name: 'Large - Red -' })).toBeVisible();
+    await shopAdmin.expects(adminProductDetailPage.page.getByRole('link', { name: 'Medium - Blue -' })).toBeVisible();
+    await shopAdmin.expects(adminProductDetailPage.page.getByRole('link', { name: 'Large - Blue -' })).toBeVisible();
 });

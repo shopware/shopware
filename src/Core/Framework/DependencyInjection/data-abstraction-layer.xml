@@ -697,10 +697,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler">
-            <tag name="messenger.message_handler"/>
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument>%shopware.dal.versioning.expire_days%</argument>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

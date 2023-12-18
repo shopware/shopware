@@ -94,8 +94,6 @@ export default class OffCanvasCartPlugin extends Plugin {
             Iterator.iterate(selects, select => select.addEventListener('change', this._onChangeProductQuantity.bind(this)));
         }
 
-        // Quantity changes will be made with an input field
-        // instead of a select when `selectQuantityThreshold` is reached.
         if (numberInputs) {
             Iterator.iterate(numberInputs, (input) => {
                 input.addEventListener('change', Debouncer.debounce(

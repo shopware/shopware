@@ -6173,21 +6173,6 @@ parameters:
 			path: src/Core/Framework/Test/Rule/TimeRangeRuleTest.php
 
 		-
-			message: "#^Call to an undefined method DateTimeInterface\\:\\:add\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
-
-		-
-			message: "#^Call to an undefined method DateTimeInterface\\:\\:sub\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$script of class Shopware\\\\Core\\\\Framework\\\\Script\\\\Execution\\\\Script constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Script/Execution/ScriptTwigLoaderTest.php
-
-		-
 			message: "#^Cannot call method getIds\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\EntityWrittenEvent\\|null\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Seo/SeoUrl/SeoUrlRepositoryTest.php
@@ -8693,11 +8678,6 @@ parameters:
 			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
 			path: tests/unit/Core/Maintenance/System/Service/AppUrlVerifierTest.php
-
-		-
-			message: "#^Anonymous variable in a `\\$c\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 11
-			path: tests/unit/Core/Profiling/Doctrine/ConnectionProfilerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -27,6 +28,16 @@ class DocumentEntity extends Entity
     protected $orderVersionId;
 
     /**
+     * @var string|null
+     */
+    protected $orderDeliveryId;
+
+    /**
+     * @var string|null
+     */
+    protected $orderDeliveryVersionId;
+
+    /**
      * @var string
      */
     protected $documentTypeId;
@@ -45,6 +56,11 @@ class DocumentEntity extends Entity
      * @var OrderEntity|null
      */
     protected $order;
+
+    /**
+     * @var OrderDeliveryEntity|null
+     */
+    protected $orderDelivery;
 
     /**
      * @var array<string, mixed>
@@ -131,6 +147,36 @@ class DocumentEntity extends Entity
     public function setOrderId(string $orderId): void
     {
         $this->orderId = $orderId;
+    }
+
+    public function getOrderDelivery(): ?OrderDeliveryEntity
+    {
+        return $this->orderDelivery;
+    }
+
+    public function setOrderDelivery(?OrderDeliveryEntity $orderDelivery): void
+    {
+        $this->orderDelivery = $orderDelivery;
+    }
+
+    public function getOrderDeliveryId(): ?string
+    {
+        return $this->orderDeliveryId;
+    }
+
+    public function setOrderDeliveryId(?string $orderDeliveryId): void
+    {
+        $this->orderDeliveryId = $orderDeliveryId;
+    }
+
+    public function getOrderDeliveryVersionId(): ?string
+    {
+        return $this->orderDeliveryVersionId;
+    }
+
+    public function setOrderDeliveryVersionId(?string $orderDeliveryVersionId): void
+    {
+        $this->orderDeliveryVersionId = $orderDeliveryVersionId;
     }
 
     /**

@@ -9,7 +9,7 @@ import swSettingsShippingDetail from 'src/module/sw-settings-shipping/page/sw-se
 Shopware.Component.register('sw-settings-shipping-detail', swSettingsShippingDetail);
 
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], propsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.use(Vuex);
@@ -50,6 +50,7 @@ async function createWrapper(privileges = []) {
                 isActive: () => true,
             },
         },
+        propsData,
         stubs: {
             'sw-page': {
                 template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
@@ -171,7 +172,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
     });
 
     it('should load customFieldSet on loadEntityData', async () => {
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper([], { shippingMethodId: 'a1b2c3' });
         const spyGetMethod = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
         const spyLoadCustomFieldSets = jest.spyOn(wrapper.vm, 'loadCustomFieldSets');
 
@@ -208,5 +209,23 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         expect(spy).toHaveBeenCalled();
         expect(warningSpy).toHaveBeenCalled();
         expect(wrapper.vm.isProcessLoading).toBe(false);
+    });
+
+    it('should not load without entity id', async () => {
+        const wrapper = await createWrapper();
+        const spy = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
+
+        await flushPromises();
+        wrapper.vm.loadEntityData();
+        expect(spy).not.toHaveBeenCalled();
+    });
+
+    it('should load with entity id', async () => {
+        const wrapper = await createWrapper([], { shippingMethodId: 'a1b2c3' });
+        const spy = jest.spyOn(wrapper.vm.shippingMethodRepository, 'get');
+
+        await flushPromises();
+        wrapper.vm.loadEntityData();
+        expect(spy).toHaveBeenCalled();
     });
 });

@@ -8,13 +8,11 @@ import Iterator from 'src/helper/iterator.helper';
 /**
  * this file handles the plugin functionality of shopware
  *
- * to use the PluginManager import:
+ * to use the PluginManager:
  * ```
- *     import PluginManager from 'src/helper/plugin/plugin.manager';
+  *    window.PluginManager.register(.....);
  *
- *     PluginManager.register(.....);
- *
- *     PluginManager.initializePlugins(.....);
+ *     window.PluginManager.initializePlugins(.....);
  * ```
  *
  * to extend from the base plugin import:

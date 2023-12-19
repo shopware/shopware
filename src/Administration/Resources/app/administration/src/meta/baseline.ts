@@ -690,7 +690,6 @@ const missingTests = [
     'src/module/sw-sales-channel/page/sw-sales-channel-create/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/index.js',
-    'src/app/adapter/view/vue.adapter.ts',
     'src/app/asyncComponent/extension/sw-extension-icon/index.ts',
     'src/app/component/app/sw-app-actions/index.js',
     'src/app/component/base/sw-modal/index.js',

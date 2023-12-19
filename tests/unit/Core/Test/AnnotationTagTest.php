@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test;
+namespace Shopware\Tests\Unit\Core\Test;
 
 use Composer\InstalledVersions;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Log\Package;
@@ -14,6 +15,7 @@ use Symfony\Component\Finder\Finder;
  * @internal
  */
 #[Package('core')]
+#[CoversNothing]
 class AnnotationTagTest extends TestCase
 {
     /**
@@ -23,7 +25,6 @@ class AnnotationTagTest extends TestCase
      */
     private array $whiteList = [
         'vendor',
-        'Test/',
         'node_modules/',
         'Common/vendor/',
         'Recovery/vendor',
@@ -40,6 +41,12 @@ class AnnotationTagTest extends TestCase
         'administration/eslint-rules',
         // checks for deprecations too and annotation fails
         'DataAbstractionLayer/DefinitionValidator.php',
+        // Annotation tags of course use @deprecated string a lot
+        'Test/AnnotationTagTest.php',
+        'Test/AnnotationTagTester.php',
+        'Test/AnnotationTagTesterTest.php',
+        // uses @experimental annotation check
+        'Core/ApiRoutesHaveASchemaTest.php',
     ];
 
     private string $rootDir;
@@ -52,17 +59,16 @@ class AnnotationTagTest extends TestCase
     {
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);
-
-        static::markTestSkipped('ToDo: NEXT-31639 - Activate again after first RC release');
     }
 
     public function testSourceFilesForWrongDeprecatedAnnotations(): void
     {
         $finder = new Finder();
-        $finder->in($this->rootDir)
+        $finder->in([$this->rootDir, $this->rootDir . '/../tests'])
             ->files()
             ->name('*.php')
             ->name('*.js')
+            ->name('*.ts')
             ->name('*.scss')
             ->name('*.html.twig')
             ->name('*.xsd')
@@ -82,8 +88,9 @@ class AnnotationTagTest extends TestCase
             try {
                 $this->getDeprecationTagTester()->validateDeprecatedAnnotations($content);
                 $this->getDeprecationTagTester()->validateExperimentalAnnotations($content);
-            } catch (NoDeprecationFoundException|\InvalidArgumentException $error) {
-                $invalidFiles[$filePath] = $error->getMessage();
+            } catch (\InvalidArgumentException $error) {
+                $area = $this->getAreaForContent($content);
+                $invalidFiles[$area ?? 'undefined'][$filePath] = $error->getMessage();
             }
         }
 
@@ -93,7 +100,7 @@ class AnnotationTagTest extends TestCase
     public function testConfigFilesForWrongDeprecatedTags(): void
     {
         $finder = new Finder();
-        $finder->in($this->rootDir)
+        $finder->in([$this->rootDir, $this->rootDir . '/../tests'])
             ->files()
             ->name('*.xml')
             ->exclude('node_modules')
@@ -112,7 +119,7 @@ class AnnotationTagTest extends TestCase
             try {
                 $this->getDeprecationTagTester()->validateDeprecationElements($content);
             } catch (\Throwable $error) {
-                if (!$error instanceof NoDeprecationFoundException) {
+                if ($error->getMessage() !== 'Deprecation tag is not found in the file.') {
                     $invalidFiles[$filePath] = $error->getMessage();
                 }
             }
@@ -216,5 +223,22 @@ class AnnotationTagTest extends TestCase
         }
 
         return $highest;
+    }
+
+    private function getAreaForContent(string $content): ?string
+    {
+        $matches = [];
+        preg_match("/#\[Package\('(?<area>.*)'\)]/", $content, $matches);
+        if (isset($matches['area'])) {
+            return $matches['area'];
+        }
+
+        $matches = [];
+        preg_match("/@package\s*(?<area>\S*)/", $content, $matches);
+        if (isset($matches['area'])) {
+            return $matches['area'];
+        }
+
+        return null;
     }
 }

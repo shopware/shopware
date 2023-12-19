@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test;
+namespace Shopware\Tests\Unit\Core\Test;
 
 use Shopware\Core\Framework\Log\Package;
 
@@ -98,7 +98,7 @@ class AnnotationTagTester
 
         $matches = [];
         if (!preg_match_all($elementPattern, $content, $matches, \PREG_SET_ORDER | \PREG_UNMATCHED_AS_NULL)) {
-            throw new NoDeprecationFoundException('Deprecation tag is not found in the file.');
+            throw new \InvalidArgumentException('Deprecation tag is not found in the file.');
         }
 
         $this->validateMatches($matches, $this->validateDeprecationVersion(...));

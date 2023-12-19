@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import './extension/sw-admin-menu';
 import './acl';

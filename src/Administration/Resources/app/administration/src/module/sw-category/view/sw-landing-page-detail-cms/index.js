@@ -2,7 +2,7 @@ import template from './sw-landing-page-detail-cms.html.twig';
 import './sw-landing-page-detail-cms.scss';
 
 /**
- * @package content
+ * @package inventory
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {

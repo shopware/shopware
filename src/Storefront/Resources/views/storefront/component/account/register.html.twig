@@ -43,7 +43,7 @@
                     {% endblock %}
 
                     {% block component_account_register_personal %}
-                        <div class="register-personal">
+                        <div class="register-personal mb-3">
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
@@ -251,7 +251,7 @@
                     {% endblock %}
 
                     {% block component_account_register_address %}
-                        <div class="register-address">
+                        <div class="register-address mb-5">
                             {% block component_account_register_address_fields %}
                                 {% block component_account_register_address_billing %}
                                     <div class="register-billing">
@@ -274,7 +274,7 @@
                                 {% block component_account_register_address_different_shipping %}
                                     <div>
                                         {% block component_account_register_address_different_shipping_control %}
-                                            <div class="form-check register-different-shipping">
+                                            <div class="form-check register-different-shipping mb-3">
                                                 {% block component_account_register_address_different_shipping_input %}
                                                     <input type="checkbox"
                                                            class="form-check-input js-different-shipping-checkbox"
@@ -298,7 +298,7 @@
                                         {% endblock %}
 
                                         {% block component_account_register_address_shipping %}
-                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none">
+                                            <div class="register-shipping js-form-field-toggle-shipping-address d-none mb-4">
                                                 {% block component_account_register_address_shipping_header %}
                                                     <div class="card-title">
                                                         {{ "account.registerAddressShippingHeader"|trans|sw_sanitize }}

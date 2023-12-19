@@ -19,14 +19,6 @@
     }
 }
 
-.register-guest-control {
-    margin-bottom: $spacer;
-}
-
-.register-login-collapse-toogle {
-    margin-bottom: $spacer;
-}
-
 @include media-breakpoint-up(lg) {
     .is-act-checkoutregisterpage {
         .checkout {

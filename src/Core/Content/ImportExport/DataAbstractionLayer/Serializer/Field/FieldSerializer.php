@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Computed;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -63,6 +64,12 @@ class FieldSerializer extends AbstractFieldSerializer
         }
 
         if ($field->getFlag(Computed::class)) {
+            return;
+        }
+
+        if ($field->getFlag(Inherited::class) && $value === null) {
+            yield $key => null;
+
             return;
         }
 

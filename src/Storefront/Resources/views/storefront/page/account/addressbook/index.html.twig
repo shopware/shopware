@@ -132,9 +132,11 @@
                                 <div class="card-body{% if feature('v6.7.0.0') %} p-3 border{% endif %}">
                                     {# @deprecated tag:v6.7.0 - Block will be removed. Use "page_account_address_billing_headline" instead. #}
                                     {% block page_account_address_shipping_title %}
-                                        <div class="card-title">
-                                            <div>{{ "account.addressesTitleDefaultShippingAddress"|trans|sw_sanitize }}</div>
-                                        </div>
+                                        {% if not feature('v6.7.0.0') %}
+                                            <div class="card-title">
+                                                <div>{{ "account.addressesTitleDefaultShippingAddress"|trans|sw_sanitize }}</div>
+                                            </div>
+                                        {% endif %}
                                     {% endblock %}
 
                                     {% block page_account_address_shipping_body %}

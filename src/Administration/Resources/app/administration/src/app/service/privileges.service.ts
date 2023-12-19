@@ -31,22 +31,13 @@ type PrivilegesState = {
  * @private
  */
 export default class PrivilegesService {
-    /**
-     * @deprecated tag: v6.6.0 - Will be private
-     */
-    public alreadyImportedAdminPrivileges: string[] = [];
+    private alreadyImportedAdminPrivileges: string[] = [];
 
-    /**
-     * @deprecated tag: v6.6.0 - Will be private. Use getPrivilegesMappings instead of direct access
-     */
-    public state = reactive<PrivilegesState>({
+    private state = reactive<PrivilegesState>({
         privilegesMappings: [],
     });
 
-    /**
-     * @deprecated tag: v6.6.0 - Will be private. Use getRequiredMappings instead of direct access
-     */
-    public requiredPrivileges = [
+    private requiredPrivileges = [
         'language:read', // for entityInit and languageSwitch
         'locale:read', // for localeToLanguage service
         'message_queue_stats:read', // for message queue

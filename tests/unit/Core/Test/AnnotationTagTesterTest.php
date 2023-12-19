@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test;
+namespace Shopware\Tests\Unit\Core\Test;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\TestCase;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('core')]
+#[CoversClass(AnnotationTagTester::class)]
 class AnnotationTagTesterTest extends TestCase
 {
     private AnnotationTagTester $annotationTagTester;
@@ -228,7 +230,7 @@ class AnnotationTagTesterTest extends TestCase
 
     public function testIncorrectDeprecationTagFormat(): void
     {
-        static::expectException(NoDeprecationFoundException::class);
+        static::expectException(\InvalidArgumentException::class);
         static::expectExceptionMessage('Deprecation tag is not found in the file.');
         $this->annotationTagTester->validateDeprecationElements('<deprecatedd>tag:v6.5</deprecatedd>');
     }

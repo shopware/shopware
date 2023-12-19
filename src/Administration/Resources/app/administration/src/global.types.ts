@@ -358,7 +358,7 @@ declare module 'bottlejs' { // Use the same module name as the import string
 }
 
 /**
- * @deprecated - will be removed when Vue compat gets removed
+ * @deprecated tag:v6.7.0 - will be removed when Vue compat gets removed
  */
 interface LegacyPublicProperties {
     /* eslint-disable @typescript-eslint/ban-types */

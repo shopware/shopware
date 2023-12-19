@@ -1,5 +1,5 @@
 /**
- * @package system-settings
+ * @package services-settings
  */
 import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
 import swProfileIndex from 'src/module/sw-profile/page/sw-profile-index';

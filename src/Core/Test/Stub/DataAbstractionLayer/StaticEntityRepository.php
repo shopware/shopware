@@ -131,9 +131,6 @@ class StaticEntityRepository extends EntityRepository
         return new IdSearchResult(\count($result), $result, $criteria, $context);
     }
 
-    /**
-     * @experimental
-     */
     public function create(array $data, Context $context): EntityWrittenContainerEvent
     {
         $writeResults = $this->getDummyWriteResults($data, EntityWriteResult::OPERATION_INSERT, $context);
@@ -145,9 +142,6 @@ class StaticEntityRepository extends EntityRepository
         return new EntityWrittenContainerEvent($context, $writeResults, []);
     }
 
-    /**
-     * @experimental
-     */
     public function update(array $data, Context $context): EntityWrittenContainerEvent
     {
         $this->updates[] = $data;
@@ -159,9 +153,6 @@ class StaticEntityRepository extends EntityRepository
         );
     }
 
-    /**
-     * @experimental
-     */
     public function upsert(array $data, Context $context): EntityWrittenContainerEvent
     {
         $writeResults = $this->getDummyWriteResults($data, EntityWriteResult::OPERATION_INSERT, $context);
@@ -173,9 +164,6 @@ class StaticEntityRepository extends EntityRepository
         return new EntityWrittenContainerEvent($context, $writeResults, []);
     }
 
-    /**
-     * @experimental
-     */
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
         $this->deletes[] = $ids;

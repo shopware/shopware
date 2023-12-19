@@ -10,7 +10,7 @@ const EXTENSION_POSTFIX = 'SwCategories';
 
 /**
  * @private
- * @package content
+ * @package inventory
  */
 export default Shopware.Component.wrapComponentConfig({
     template,

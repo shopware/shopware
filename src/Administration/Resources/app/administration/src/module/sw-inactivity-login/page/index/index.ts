@@ -29,6 +29,7 @@ Component.register('sw-inactivity-login', {
         password: string,
         passwordError: null | { detail: string },
         sessionChannel: null | BroadcastChannel,
+        rememberMe: boolean,
         } {
         return {
             isLoading: false,
@@ -36,6 +37,7 @@ Component.register('sw-inactivity-login', {
             password: '',
             passwordError: null,
             sessionChannel: null,
+            rememberMe: false,
         };
     },
 
@@ -124,14 +126,22 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
+            this.handleRememberMe();
+
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
+        },
 
-            // Vue router v4 behaves differently than v3 and does not require a reload
-            return;
+        handleRememberMe() {
+            if (!this.rememberMe) {
+                return;
+            }
 
-            window.location.reload();
+            const duration = new Date();
+            duration.setDate(duration.getDate() + 14);
+
+            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

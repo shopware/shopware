@@ -883,7 +883,6 @@ const missingTests = [
     'src/module/sw-import-export/component/sw-import-export-progress/index.js',
     'src/module/sw-import-export/view/sw-import-export-view-profiles/index.js',
     'src/module/sw-integration/page/sw-integration-list/index.js',
-    'src/module/sw-login/view/sw-login-login/index.js',
     'src/module/sw-login/view/sw-login-recovery/index.js',
     'src/module/sw-login/view/sw-login-recovery-info/index.js',
     'src/module/sw-login/view/sw-login-recovery-recovery/index.js',

@@ -287,9 +287,10 @@ export default function createLoginService(
     }
 
     function shouldConsiderUserActivity(): boolean {
+        const rememberMe = Number(localStorage.getItem('rememberMe') || 0);
         const devEnv = Shopware.Context.app.environment === 'development';
 
-        return !devEnv;
+        return !devEnv && rememberMe < +new Date();
     }
 
     /**

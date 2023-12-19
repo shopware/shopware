@@ -14,7 +14,7 @@ const { Component } = Shopware;
  *     <option value="3">Label #3</option>
  *     <option value="4">Label #4</option>
  *     <option value="5">Label #5</option>
- * </sw-select-numbet-field>
+ * </sw-select-number-field>
  */
 Component.extend('sw-select-number-field', 'sw-select-field', {
 

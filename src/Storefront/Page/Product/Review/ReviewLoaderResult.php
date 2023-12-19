@@ -140,11 +140,14 @@ if (Feature::isActive('v6.7.0.0')) {
 
         public function getProductId(): string
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+
             return $this->productId;
         }
 
         public function setProductId(string $productId): void
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
             $this->productId = $productId;
         }
 
@@ -155,46 +158,60 @@ if (Feature::isActive('v6.7.0.0')) {
          */
         public function getReviews(): StorefrontSearchResult
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+
             return $this->reviews;
         }
 
         public function getMatrix(): RatingMatrix
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+
             return $this->matrix;
         }
 
         public function setMatrix(RatingMatrix $matrix): void
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
             $this->matrix = $matrix;
         }
 
         public function getCustomerReview(): ?ProductReviewEntity
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+
             return $this->customerReview;
         }
 
         public function setCustomerReview(?ProductReviewEntity $customerReview): void
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
             $this->customerReview = $customerReview;
         }
 
         public function getTotalReviews(): int
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+
             return $this->totalReviews;
         }
 
         public function setTotalReviews(int $totalReviews): void
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
             $this->totalReviews = $totalReviews;
         }
 
         public function getParentId(): ?string
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
+
             return $this->parentId;
         }
 
         public function setParentId(?string $parentId): void
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'will extend EntitySearchResult<ProductReviewCollection> instead StorefrontSearchResult<ProductReviewCollection>'));
             $this->parentId = $parentId;
         }
     }

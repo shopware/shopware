@@ -109,6 +109,8 @@ if (Feature::isActive('v6.7.0.0')) {
          */
         public function getSearchResult(): StorefrontSearchResult
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Return type will change to EntitySearchResult<ProductReviewCollection>');
+
             return $this->searchResult;
         }
 

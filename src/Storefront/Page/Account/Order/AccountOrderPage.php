@@ -72,6 +72,8 @@ if (Feature::isActive('v6.7.0.0')) {
          */
         public function getOrders(): StorefrontSearchResult
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Return type will change to EntitySearchResult<OrderCollection>');
+
             return $this->orders;
         }
 
@@ -82,6 +84,7 @@ if (Feature::isActive('v6.7.0.0')) {
          */
         public function setOrders(StorefrontSearchResult $orders): void
         {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Type will change to EntitySearchResult<OrderCollection>');
             $this->orders = $orders;
         }
 

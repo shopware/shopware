@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -12,10 +13,9 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult
- *
  * @internal
  */
+#[CoversClass(EntitySearchResult::class)]
 class EntitySearchResultTest extends TestCase
 {
     #[DataProvider('resultPageCriteriaDataProvider')]

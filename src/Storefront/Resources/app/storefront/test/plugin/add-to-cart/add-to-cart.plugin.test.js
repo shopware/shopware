@@ -6,16 +6,6 @@ const mockOffCanvasInstance = {
     },
 }
 
-// Todo: NEXT-23270 - Remove mock ES module import of PluginManager
-jest.mock('src/plugin-system/plugin.manager', () => ({
-    __esModule: true,
-    default: {
-        getPluginInstances: () => {
-            return [mockOffCanvasInstance];
-        },
-    },
-}));
-
 /**
  * @package checkout
  */
@@ -32,6 +22,10 @@ describe('AddToCartPlugin tests', () => {
                 <button>Add to shopping cart</button>
             </form>
         `;
+
+        window.PluginManager.getPluginInstances = () => {
+            return [mockOffCanvasInstance];
+        }
 
         pluginInstance = new AddToCartPlugin(document.querySelector('form'));
 

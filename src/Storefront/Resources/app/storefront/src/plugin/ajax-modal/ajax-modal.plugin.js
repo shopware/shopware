@@ -1,6 +1,5 @@
 import HttpClient from 'src/service/http-client.service';
 import Plugin from 'src/plugin-system/plugin.class';
-import PluginManager from 'src/plugin-system/plugin.manager';
 import LoadingIndicatorUtil from 'src/utility/loading-indicator/loading-indicator.util';
 import DeviceDetection from 'src/helper/device-detection.helper';
 import DomAccess from 'src/helper/dom-access.helper';
@@ -118,7 +117,7 @@ export default class AjaxModalPlugin extends Plugin {
     _processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
         loadingIndicatorUtil.remove();
         pseudoModalUtil.updateContent(response);
-        PluginManager.initializePlugins();
+        window.PluginManager.initializePlugins();
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
     }
 
@@ -132,7 +131,7 @@ export default class AjaxModalPlugin extends Plugin {
     _onModalOpen(pseudoModalUtil, classes) {
         const modal = pseudoModalUtil.getModal();
         modal.classList.add(...classes);
-        PluginManager.initializePlugins();
+        window.PluginManager.initializePlugins();
         this.$emitter.publish('ajaxModalOpen', { modal });
     }
 }

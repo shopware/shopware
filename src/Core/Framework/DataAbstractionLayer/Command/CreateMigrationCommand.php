@@ -47,7 +47,8 @@ class CreateMigrationCommand extends Command
         $this
             ->addArgument('entities', InputArgument::REQUIRED, 'Entities, comma separated')
             ->addOption('namespace', null, InputArgument::OPTIONAL, 'Namespace (eg. V6_5)')
-            ->addOption('bundle', null, InputArgument::OPTIONAL, 'Bundle name (plugin name)');
+            ->addOption('bundle', null, InputArgument::OPTIONAL, 'Bundle name (plugin name)')
+            ->addOption('package', null, InputArgument::OPTIONAL, 'The package name for the migration');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -56,6 +57,7 @@ class CreateMigrationCommand extends Command
 
         $namespace = $this->getNamespace($input);
         $directory = $this->getDirectory($input);
+        $package = $input->getOption('package') ?? 'core';
 
         $io = new ShopwareStyle($input, $output);
 
@@ -64,7 +66,7 @@ class CreateMigrationCommand extends Command
         $entities = explode(',', $input->getArgument('entities'));
 
         foreach ($entities as $entity) {
-            $this->handleEntity($entity, $timestamp, $namespace, $directory, $io);
+            $this->handleEntity($entity, $timestamp, $namespace, $directory, $package, $io);
         }
 
         return self::SUCCESS;
@@ -122,6 +124,7 @@ class CreateMigrationCommand extends Command
         string $timestamp,
         string $namespace,
         string $directory,
+        string $package,
         ShopwareStyle $io
     ): void {
         $io->info('Processing entity: ' . $entity);
@@ -134,7 +137,7 @@ class CreateMigrationCommand extends Command
             $path = $directory . '/' . MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php';
 
             $className = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);
-            $content = $this->migrationFileRenderer->render($namespace, $className, $timestamp, $queries);
+            $content = $this->migrationFileRenderer->render($namespace, $className, $timestamp, $queries, $package);
 
             $this->filesystem->dumpFile($path, $content);
 

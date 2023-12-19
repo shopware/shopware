@@ -31,6 +31,7 @@ class CreateMigrationCommandTest extends TestCase
     public function testExecute(
         array $entities,
         ?string $namespace,
+        ?string $package,
         ?string $bundle,
         \DateTimeImmutable $now,
         array $expectedNamespaces,
@@ -86,6 +87,10 @@ class CreateMigrationCommandTest extends TestCase
             'entities' => implode(',', $entities),
         ];
 
+        if ($package !== null) {
+            $input['--package'] = $package;
+        }
+
         if ($namespace !== null) {
             $input['--namespace'] = $namespace;
         }
@@ -105,6 +110,7 @@ class CreateMigrationCommandTest extends TestCase
         yield 'without options' => [
             'entities' => ['test_entity'],
             'namespace' => null,
+            'package' => 'core',
             'bundle' => null,
             'now' => $now,
             'expectedNamespaces' => [
@@ -121,6 +127,7 @@ class CreateMigrationCommandTest extends TestCase
         yield 'with namespace' => [
             'entities' => ['test_entity'],
             'namespace' => 'V6_6',
+            'package' => 'system-settings',
             'bundle' => null,
             'now' => $now,
             'expectedNamespaces' => [
@@ -137,6 +144,7 @@ class CreateMigrationCommandTest extends TestCase
         yield 'with bundle' => [
             'entities' => ['test_entity'],
             'namespace' => null,
+            'package' => null,
             'bundle' => 'TestPlugin',
             'now' => $now,
             'expectedNamespaces' => [
@@ -153,6 +161,7 @@ class CreateMigrationCommandTest extends TestCase
         yield 'with namespace and bundle' => [
             'entities' => ['test_entity'],
             'namespace' => 'V6_6',
+            'package' => null,
             'bundle' => 'TestPlugin',
             'now' => $now,
             'expectedNamespaces' => [
@@ -169,6 +178,7 @@ class CreateMigrationCommandTest extends TestCase
         yield 'with multiple entities' => [
             'entities' => ['test_entity', 'another_entity'],
             'namespace' => null,
+            'package' => null,
             'bundle' => null,
             'now' => $now,
             'expectedNamespaces' => [

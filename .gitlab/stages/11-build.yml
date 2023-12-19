@@ -3,6 +3,8 @@
 
 Build:
     extends: .base-with-node
+    variables:
+      SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION: '1'
     stage: lint
     needs: []
     services:

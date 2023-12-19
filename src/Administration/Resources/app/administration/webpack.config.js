@@ -27,6 +27,7 @@ if (process.env.IPV4FIRST) {
 /* eslint-disable */
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
 const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
+const useSourceMap = process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -37,7 +38,7 @@ if (fs.existsSync(flagsPath)) {
 }
 
 const nodeMajor = process.versions.node.split('.')[0];
-const supportedNodeVersions = ['18', '19', '20'];
+const supportedNodeVersions = ['20'];
 if (!supportedNodeVersions.includes(nodeMajor)) {
     console.log();
     console.log(chalk.red(`@Deprecated: You are using an incompatible Node.js version. Supported versions are ` + supportedNodeVersions.join(', ')));
@@ -187,7 +188,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         hints: false,
     },
 
-    devtool: isDev ? 'eval-source-map' : 'source-map',
+    devtool: useSourceMap ? (isDev ? 'eval-source-map' : 'source-map') : false,
 
     optimization: {
         ...(() => {
@@ -198,7 +199,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                             terserOptions: {
                                 warnings: false,
                                 output: 6,
-                                sourceMap: true,
+                                sourceMap: useSourceMap,
                             },
                             parallel: true,
                         }),
@@ -339,7 +340,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher
                         },
                     },
@@ -358,7 +359,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
@@ -377,7 +378,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
@@ -385,7 +386,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'less-loader',
                         options: {
                             javascriptEnabled: true,
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -403,7 +404,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
@@ -411,7 +412,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'sass-loader',
                         options: {
                             indentedSyntax: true,
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -430,14 +431,14 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
                     {
                         loader: 'sass-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -455,14 +456,14 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
                     {
                         loader: 'stylus-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -480,14 +481,14 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
                     {
                         loader: 'stylus-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -798,7 +799,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                     }],
                     options: {
                         absolutePath: true,
-                        sourceMap: true,
+                        sourceMap: useSourceMap,
                         transformer: (path) => {
                             return path.replace('static/', '');
                         },

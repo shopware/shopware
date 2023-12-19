@@ -15,6 +15,11 @@
             @keydown.enter="loginUserWithPassword"
         />
 
+        <sw-checkbox-field
+            v-model:value="rememberMe"
+            :label="$tc('sw-login.index.labelKeepLoggedIn')"
+        />
+
         <template #modal-footer>
             <a
                 role="link"

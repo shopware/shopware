@@ -10,6 +10,7 @@
       "headlineForm": "Melde Dich in Deinem Shopware-Shop an",
       "labelUsername": "Benutzername",
       "labelPassword": "Passwort",
+      "labelKeepLoggedIn": "Angemeldet bleiben",
       "placeholderUsername": "Gib Deinen Benutzernamen ein ...",
       "placeholderPassword": "Gib Dein Passwort ein ...",
       "buttonLogin": "Anmelden",

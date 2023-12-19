@@ -23,6 +23,7 @@ Component.register('sw-login-login', {
         return {
             username: '',
             password: '',
+            rememberMe: false,
             loginAlertMessage: '',
         };
     },
@@ -57,6 +58,8 @@ Component.register('sw-login-login', {
         },
 
         handleLoginSuccess() {
+            this.handleRememberMe();
+
             this.password = '';
 
             this.$emit('login-success');
@@ -81,6 +84,17 @@ Component.register('sw-login-login', {
                     window.location.reload(true);
                 }
             });
+        },
+
+        handleRememberMe() {
+            if (!this.rememberMe) {
+                return;
+            }
+
+            const duration = new Date();
+            duration.setDate(duration.getDate() + 14);
+
+            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

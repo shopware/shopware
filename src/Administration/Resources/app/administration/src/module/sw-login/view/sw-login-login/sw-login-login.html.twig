@@ -49,6 +49,11 @@
     />
     {% endblock %}
 
+    <sw-checkbox-field
+        v-model:value="rememberMe"
+        :label="$tc('sw-login.index.labelKeepLoggedIn')"
+    />
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_submit %}
     <div class="sw-login__submit">

@@ -10,6 +10,7 @@
       "headlineForm": "Log in to your Shopware store",
       "labelUsername": "Username",
       "labelPassword": "Password",
+      "labelKeepLoggedIn": "Stay signed in",
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",

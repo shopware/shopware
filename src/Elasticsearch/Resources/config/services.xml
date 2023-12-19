@@ -296,6 +296,8 @@
             <argument type="service" id="OpenSearch\Client"/>
             <argument type="service" id="logger"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
+
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\LanguageSubscriber">

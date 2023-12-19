@@ -1,46 +1,62 @@
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', () => {
-    function getProductSortingEntity() {
-        return {
-            label: 'Price descending',
-            id: '2e55a50661ce4f42b188996aebbf6117',
-            fields: [
-                {
-                    field: 'product.cheapestPrice',
-                    order: 'desc',
-                    position: 0,
-                    naturalSorting: 0,
-                },
-                {
-                    field: 'product.cheapestPrice',
-                    order: 'desc',
-                    position: 0,
-                    naturalSorting: 0,
-                },
-                {
-                    field: 'my_first_custom_field',
-                    order: 'desc',
-                    position: 0,
-                    naturalSorting: 0,
-                },
-            ],
-        };
+    function getProductSortings() {
+        return [
+            {
+                label: 'Price descending',
+                id: '2e55a50661ce4f42b188996aebbf6117',
+                key: 'price-desc',
+                fields: [
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                    {
+                        field: 'my_first_custom_field',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                ],
+            },
+            {
+                label: 'Price ascending',
+                id: '2e55a50661ce4f42b188996aebbf6118',
+                key: 'price-asc',
+                fields: [
+                    {
+                        field: 'product.cheapestPrice',
+                        order: 'desc',
+                        position: 0,
+                        naturalSorting: 0,
+                    },
+                ],
+            },
+        ];
     }
 
-    function getDefaultSortingKey() {
-        return 'name-desc';
+    function getDefaultSortingId() {
+        return '2e55a50661ce4f42b188996aebbf6117';
     }
 
     function getProductSortingEntityWithoutCriteria() {
-        const productSortingEntity = getProductSortingEntity();
+        const productSortingEntity = getProductSortings()[0];
         productSortingEntity.fields = [];
 
         return productSortingEntity;
     }
 
     function getProductSortingEntityWithoutName() {
-        const productSortingEntity = getProductSortingEntity();
+        const productSortingEntity = getProductSortings()[0];
         productSortingEntity.label = null;
 
         return productSortingEntity;
@@ -64,7 +80,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                 mocks: {
                     $route: {
                         params: {
-                            id: getProductSortingEntity().id,
+                            id: getProductSortings()[0].id,
                         },
                     },
                 },
@@ -78,8 +94,34 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                             }
 
                             return {
-                                get: () => Promise.resolve(getProductSortingEntity()),
-                                search: () => Promise.resolve(),
+                                get: (id) => {
+                                    let response = null;
+
+                                    getProductSortings().forEach(element => {
+                                        if (element.id === id) {
+                                            response = element;
+                                        }
+                                    });
+
+                                    return Promise.resolve(response);
+                                },
+                                search: (param) => {
+                                    let response = null;
+
+                                    getProductSortings().forEach(element => {
+                                        if (element[param.filters[0].field] === param.filters[0].value) {
+                                            response = element;
+                                        }
+                                    });
+
+                                    return Promise.resolve(
+                                        {
+                                            first: () => {
+                                                return response;
+                                            },
+                                        },
+                                    );
+                                },
                                 save: entity => {
                                     if (entity.fail) {
                                         return Promise.reject();
@@ -92,7 +134,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                     },
                     systemConfigApiService: {
                         getValues: () => {
-                            return Promise.resolve(getDefaultSortingKey());
+                            return Promise.resolve(
+                                {
+                                    'core.listing.defaultSorting': getDefaultSortingId(),
+                                },
+                            );
                         },
                     },
                 },
@@ -209,9 +255,25 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
         wrapper.vm.productSortingEntity.fail = true;
 
-        await wrapper.vm.onSave().catch(() => {});
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        await wrapper.vm.onSave();
 
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
         wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should throw an error message when key already exists', async () => {
+        // mock notification function
+        wrapper.vm.createNotificationError = jest.fn();
+
+        wrapper.vm.productSortingEntity.key = 'price-asc';
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should recognize the default sorting', async () => {
+        expect(wrapper.vm.isDefaultSorting).toBeTruthy();
     });
 });

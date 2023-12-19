@@ -8,6 +8,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
             props: {
                 sortingOption: {
                     label: 'Price descending',
+                    key: 'price-desc',
                 },
                 isDefaultSorting: false,
             },
@@ -49,9 +50,27 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
     });
 
     it('should display the correct name', async () => {
-        const textField = wrapper.find('.sw-field--text input');
+        const textField = wrapper.find('.sw-settings-listing-edit__general-input input');
 
         expect(textField.element.value).toBe('Price descending');
+    });
+
+    it('should display name error', async () => {
+        await wrapper.setProps({ labelError: {} });
+
+        expect(wrapper.find('.sw-settings-listing-edit__general-input .sw-field__error').exists()).toBe(true);
+    });
+
+    it('should display the correct technical name', async () => {
+        const textField = wrapper.find('.sw-settings-listing-option-general-info__field-technical-name input');
+
+        expect(textField.element.value).toBe('price-desc');
+    });
+
+    it('should display technical name error', async () => {
+        await wrapper.setProps({ technicalNameError: {} });
+
+        expect(wrapper.find('.sw-settings-listing-option-general-info__field-technical-name .sw-field__error').exists()).toBe(true);
     });
 
     it('should display the correct active state', async () => {

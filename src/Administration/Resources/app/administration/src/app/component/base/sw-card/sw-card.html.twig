@@ -63,7 +63,7 @@
         </div>
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_card_toolbar %}
+        {% block sw_card_toolbar %}
         <div
             v-if="!!$slots.toolbar"
             class="sw-card__toolbar"
@@ -79,21 +79,22 @@
             {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-            {% block sw_card_content %}
+        {% block sw_card_content %}
         <div
             class="sw-card__content"
-            :class="{'no--padding': !contentPadding}"
-        ><div
-             v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
-             class="sw-card__context-menu"
-         >
-             <sw-context-button>
-                 <slot name="context-actions">
-                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
-                            {% block sw_card_slot_context_menu_actions %}{% endblock %}
-                 </slot>
-             </sw-context-button>
-         </div>
+            :class="cardContentClasses"
+        >
+            <div
+                v-if="!!$slots['context-actions'] || !!$scopedSlots['context-actions']"
+                class="sw-card__context-menu"
+            >
+                <sw-context-button>
+                    <slot name="context-actions">
+                        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                        {% block sw_card_slot_context_menu_actions %}{% endblock %}
+                    </slot>
+                </sw-context-button>
+            </div>
             <slot>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_card_slot_default %}{% endblock %}

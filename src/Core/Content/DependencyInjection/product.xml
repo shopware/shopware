@@ -212,6 +212,7 @@
 
         <service id="Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" />
+            <argument type="service" id="product_sorting.repository" />
             <tag name="shopware.cms.data_resolver" />
         </service>
 

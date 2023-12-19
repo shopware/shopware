@@ -2006,11 +2006,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Listing/Filter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingCollection\\:\\:sortByKeyArray\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingCollection.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:createDalSorting\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php

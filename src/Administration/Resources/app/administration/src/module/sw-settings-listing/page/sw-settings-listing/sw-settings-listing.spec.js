@@ -7,7 +7,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             createNotificationSuccess: jest.fn(),
         },
     };
-    const testedSortingKey = 'tested-sorting-key';
+    const testedSortingId = 'cfa9d75ca8124da3ad83fc7a180fcc98';
     let wrapper;
 
     function getProductSortingEntities() {
@@ -201,8 +201,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: testedSortingKey,
-                value: testedSortingKey,
+                key: 'tested-sorting-key',
+                value: 'tested-sorting-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -213,12 +213,12 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         naturalSorting: 0,
                     },
                 ],
-                label: testedSortingKey,
+                label: 'tested-sorting-key',
                 createdAt: '2020-08-10T06:19:44.820+00:00',
                 updatedAt: null,
-                translated: { label: testedSortingKey },
+                translated: { label: 'tested-sorting-key' },
                 apiAlias: null,
-                id: 'cfa9d75ca8124da3ad83fc7a180fcc98',
+                id: testedSortingId,
                 translations: [],
             },
             {
@@ -316,6 +316,44 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         return entities;
     }
 
+    const customFields = [
+        {
+            name: 'custom_health_hic_ut_aspernatur',
+            config: {
+                label: 'custom health hic ut aspernatur',
+            },
+        },
+        {
+            name: 'custom_movies_qui_aperiam_unde',
+            config: {
+                label: 'custom movies qui aperiam unde',
+            },
+        },
+        {
+            name: 'custom_tools_consequatur_omnis_officiis',
+            config: {
+                label: 'custom tools consequatur omnis officiis',
+            },
+        },
+        {
+            name: 'custom_tools_et_vel_nemo',
+            config: {
+                label: 'custom tools et vel nemo',
+            },
+        },
+    ];
+
+    const snippets = {
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name': 'Product name',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price': 'Product price',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.unitsSold': 'Units sold',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.stock': 'Stock',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.releaseDate': 'Release date',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.number': 'Number',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage': 'Rating Average',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.clearanceSale': 'Clearance sale',
+    };
+
     async function createWrapper() {
         return mount(await wrapTestComponent('sw-settings-listing', {
             sync: true,
@@ -338,6 +376,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                                     delete: () => Promise.resolve(),
                                 };
                             }
+                            if (name === 'custom_field') {
+                                return {
+                                    search: () => Promise.resolve(customFields),
+                                };
+                            }
                             return { search: () => Promise.resolve(getProductSortingEntities()) };
                         },
                     },
@@ -347,6 +390,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 },
                 mixins: [
                     notificationMixinMock,
+                    Shopware.Mixin.getByName('sw-inline-snippet'),
                 ],
                 stubs: {
                     'sw-page': {
@@ -467,6 +511,14 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                     },
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                 },
+                mocks: {
+                    $tc: (param) => {
+                        if (snippets[param]) {
+                            return snippets[param];
+                        }
+                        return param;
+                    },
+                },
             },
         });
     }
@@ -475,7 +527,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         wrapper = await createWrapper();
 
         // sets the default sorting option
-        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };
+        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': '4f85a63f8ddd4845a67fd65adba419a2' } };
 
         await flushPromises();
     });
@@ -530,7 +582,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         const productSortings = wrapper.vm.productSortingOptions;
 
         Object.entries(productSortings).forEach(([, productSorting]) => {
-            if (productSorting.key === testedSortingKey) {
+            if (productSorting.id === testedSortingId) {
                 defaultSorting = productSorting;
             }
         });
@@ -539,7 +591,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         expect(defaultSorting.active).toBeFalsy();
 
         // sets the default sorting option
-        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': testedSortingKey } };
+        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': testedSortingId } };
         wrapper.vm.setDefaultSortingActive();
 
         expect(defaultSorting.active).toBeTruthy();
@@ -612,5 +664,12 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         expect(wrapper.vm.$refs.systemConfig.actualConfigData.salesChannelId['core.listing.defaultSorting']).toBeNull();
         expect(defaultSortingInheritWrapper.attributes('class')).toContain('is--inherited');
         expect(defaultSortingInheritWrapper.findAll('.sw-settings-listing-index__default-sorting-select.has--error')).toHaveLength(0);
+    });
+
+    it('should display correct product sorting criteria', async () => {
+        expect(wrapper.find('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria > div > span').text())
+            .toBe('Clearance sale, Product name, Rating Average, Number, Release date, Stock, Units sold, ' +
+                'custom health hic ut aspernatur, custom movies qui aperiam unde, ' +
+                'custom tools consequatur omnis officiis, custom tools et vel nemo');
     });
 });

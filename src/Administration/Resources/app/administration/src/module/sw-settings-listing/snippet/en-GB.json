@@ -71,6 +71,10 @@
       "general": {
         "title": "General",
         "labelName": "Name",
+        "placeholderName": "Enter name...",
+        "labelTechnicalName": "Technical name",
+        "placeholderTechnicalName": "Enter technical name...",
+        "helpTextTechnicalName": "The technical name is used to reference the sorting option. It is unique and required for all sorting options.",
         "labelActive": "Active"
       },
       "notification": {

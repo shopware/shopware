@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -20,8 +21,10 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
     /**
      * @internal
      */
-    public function __construct(private readonly AbstractProductListingRoute $listingRoute)
-    {
+    public function __construct(
+        private readonly AbstractProductListingRoute $listingRoute,
+        private readonly EntityRepository $sortingRepository
+    ) {
     }
 
     public function getType(): string
@@ -46,7 +49,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         if ($this->isCustomSorting($slot)) {
             $this->restrictSortings($request, $slot);
-            $this->addDefaultSorting($request, $slot);
+            $this->addDefaultSorting($request, $slot, $context);
         }
 
         $navigationId = $this->getNavigationId($request, $context);
@@ -87,7 +90,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return false;
     }
 
-    private function addDefaultSorting(Request $request, CmsSlotEntity $slot): void
+    private function addDefaultSorting(Request $request, CmsSlotEntity $slot, SalesChannelContext $context): void
     {
         if ($request->get('order')) {
             return;
@@ -96,7 +99,9 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $config = $slot->getTranslation('config');
 
         if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
-            $request->request->set('order', $config['defaultSorting']['value']);
+            $criteria = new Criteria([$config['defaultSorting']['value']]);
+
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
 
             return;
         }
@@ -106,7 +111,9 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
             $availableSortings = $request->get('availableSortings');
             arsort($availableSortings, \SORT_DESC | \SORT_NUMERIC);
 
-            $request->request->set('order', array_key_first($availableSortings));
+            $criteria = new Criteria([array_key_first($availableSortings)]);
+
+            $request->request->set('order', $this->sortingRepository->search($criteria, $context->getContext())->first()?->get('key'));
         }
     }
 

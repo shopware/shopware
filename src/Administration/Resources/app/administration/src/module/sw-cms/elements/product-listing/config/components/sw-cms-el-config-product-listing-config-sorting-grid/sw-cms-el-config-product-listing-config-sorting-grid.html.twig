@@ -23,7 +23,12 @@
         </template>
 
         <template #column-fields="{ item }">
-            {{ formatProductSortingFields(item.fields) }}
+            <span
+                class="sw-cms-el-config-product-listing-config-sorting-grid__criteria"
+                :title="formatProductSortingFields(item.fields)"
+            >
+                {{ formatProductSortingFields(item.fields) }}
+            </span>
         </template>
 
         <template #pagination>

@@ -314,6 +314,7 @@
             "labelUseCustomSortings": "Eigene Sortierungen verwenden",
             "labelDefaultSorting": "Standard-Sortierung",
             "labelProductSortings": "Produkt-Sortierungen",
+            "placeholderDefaultProductSorting": "Wähle eine Standard-Sortierung ...",
             "placeHolderProductSortings": "Produkt-Sortierungen hinzufügen oder entfernen",
             "helpTextUseCustomSortings": "Sortier-Optionen kannst Du für dieses Produkt-Listing definieren. Aktiviere diese Option um die Sortier-Option für dieses Listing individuell anzupassen.",
             "helpTextDefaultSorting": "Die Standard Sortierung für das Listing, wenn keine andere Sortierung angegeben ist.",

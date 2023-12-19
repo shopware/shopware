@@ -79,6 +79,12 @@ Component.register('sw-card', {
         hasAvatar() {
             return !!this.$slots.avatar || !!this.$scopedSlots.avatar;
         },
+
+        cardContentClasses() {
+            return {
+                'no--padding': !this.contentPadding,
+            };
+        },
     },
 
     compatConfig: {

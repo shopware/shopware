@@ -12,10 +12,12 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -34,7 +36,9 @@ class ProductListingTypeDataResolverTest extends TestCase
             )
         );
 
-        $this->listingResolver = new ProductListingCmsElementResolver($mock);
+        $sortingRepository = new StaticEntityRepository([new ProductSortingCollection()]);
+
+        $this->listingResolver = new ProductListingCmsElementResolver($mock, $sortingRepository);
     }
 
     public function testGetType(): void

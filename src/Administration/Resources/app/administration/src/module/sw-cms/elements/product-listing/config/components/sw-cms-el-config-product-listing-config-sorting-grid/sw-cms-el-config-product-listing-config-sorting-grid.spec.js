@@ -5,26 +5,72 @@ import Vue from 'vue';
 
 Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-grid', swCmsElConfigProductListingConfigSortingGrid);
 
-async function createWrapper(productSortings = []) {
+const customFields = [
+    {
+        name: 'custom_field_0',
+        config: {
+            label: 'custom field 0',
+        },
+    },
+    {
+        name: 'custom_field_1',
+        config: {
+            label: 'custom field 1',
+        },
+    },
+    {
+        name: 'custom_field_2',
+        config: {
+            label: 'custom field 2',
+        },
+    },
+    {
+        name: 'custom_field_3',
+        config: {
+            label: 'custom field 3',
+        },
+    },
+];
+
+const snippets = {
+    'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.name': 'Product name',
+    'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.price': 'Product price',
+};
+
+async function createWrapper(productSortings = [], defaultSorting = {}) {
     return mount(await Shopware.Component.build('sw-cms-el-config-product-listing-config-sorting-grid'), {
         global: {
             provide: {
                 validationService: {},
+                repositoryFactory: {
+                    create: (name) => {
+                        if (name === 'custom_field') {
+                            return {
+                                search: () => Promise.resolve(customFields),
+                                saveAll: () => Promise.resolve(),
+                                delete: () => Promise.resolve(),
+                            };
+                        }
+                        return {};
+                    },
+                },
             },
             stubs: {
                 'sw-data-grid': {
                     props: ['dataSource'],
                     template: `
-<div>
-  <template v-for="item in dataSource">
-      <slot name="actions" v-bind="{ item: item }"></slot>
-      <slot name="column-priority" v-bind="{ item: item }">
-          <div :class="'column-priority_' + item.id">
-              <sw-number-field v-model="item.priority" class="sw-grid-priority"></sw-number-field>
-          </div>
-      </slot>
-  </template>
-</div>`,
+                        <div>
+                          <template v-for="item in dataSource">
+                              <slot name="actions" v-bind="{ item: item }"></slot>
+                              <slot name="column-fields" v-bind="{ item: item }"></slot>
+                              <slot name="column-priority" v-bind="{ item: item }">
+                                  <div :class="'column-priority_' + item.id">
+                                      <sw-number-field v-model="item.priority" class="sw-grid-priority"></sw-number-field>
+                                  </div>
+                              </slot>
+                          </template>
+                        </div>
+                    `,
                 },
                 'sw-context-menu-item': {
                     template: '<div @click="$emit(\'click\')"></div>',
@@ -38,11 +84,22 @@ async function createWrapper(productSortings = []) {
                     },
                 },
             },
+            mocks: {
+                $tc: (param) => {
+                    if (snippets[param]) {
+                        return snippets[param];
+                    }
+                    return param;
+                },
+            },
         },
         props: Vue.observable({
             productSortings: productSortings,
-            defaultSorting: {},
+            defaultSorting: defaultSorting,
         }),
+        mixins: [
+            Shopware.Mixin.getByName('sw-inline-snippet'),
+        ],
     });
 }
 
@@ -119,5 +176,37 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         await wrapper.vm.$forceUpdate();
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(7);
+    });
+
+    it('should display criteria properly', async () => {
+        const productSortings = new EntityCollection('', '', {}, {}, [
+            { id: '1a2b3c', fields: [{ field: 'product.name' }], locked: false, priority: 1 },
+            { id: 'foo', fields: [{ field: 'custom_field_2' }], locked: false, priority: 5 },
+            { id: 'bar', fields: [{ field: 'product.price' }, { field: 'custom_field_0' }], locked: false, priority: 3 },
+        ]);
+
+        const wrapper = await createWrapper(productSortings);
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(0).text()).toBe('Product name');
+        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(1).text()).toBe('custom field 2');
+        expect(wrapper.findAll('.sw-cms-el-config-product-listing-config-sorting-grid__criteria').at(2).text()).toBe('Product price, custom field 0');
+    });
+
+    it('should disable delete button of default sorting', async () => {
+        const productSortings = new EntityCollection('', '', {}, {}, [
+            { id: '1a2b3c', fields: [{ field: 'product.name' }], locked: false, priority: 1 },
+            { id: 'foo', fields: [{ field: 'custom_field_2' }], locked: false, priority: 5 },
+            { id: 'bar', fields: [{ field: 'product.price' }, { field: 'custom_field_0' }], locked: false, priority: 3 },
+        ]);
+
+        const defaultSorting = {
+            id: 'foo',
+        };
+
+        const wrapper = await createWrapper(productSortings, defaultSorting);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_foo').attributes('disabled')).toBe('true');
     });
 });

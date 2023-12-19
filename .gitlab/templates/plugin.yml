@@ -346,7 +346,7 @@ template filled:
     - npm ci --no-audit --prefer-offline
 
 .base e2e:
-    image: shopware/development:8.2-composer-2
+    image: shopware/development:8.2-node-20.10-composer-2
     stage: E2E
     needs: []
     script:

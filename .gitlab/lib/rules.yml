@@ -50,3 +50,5 @@
       if: '$ALLOW_FAILURE == "true" && (
               $CI_MERGE_REQUEST_EVENT_TYPE == null
            || $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train")'
+    scheduled:
+      if: '($CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*run_scheduled*/)'

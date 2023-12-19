@@ -70,7 +70,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             }
 
             $product->setSeoCategory(
-                $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+                $this->breadcrumbBuilder->getProductSeoCategory($product, $context, $request)
             );
 
             $configurator = $this->configuratorLoader->load($product, $context);

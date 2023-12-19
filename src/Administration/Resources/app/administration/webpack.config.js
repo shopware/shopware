@@ -3,15 +3,13 @@
  */
 
 const webpack = require('webpack');
-const webpackMerge = require('webpack-merge');
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
+const { merge } = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
@@ -20,20 +18,13 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
-const crypto = require('crypto');
+const WebpackBar = require('webpackbar');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
 }
 
-/** HACK: OpenSSL 3 does not support md4 anymore,
-* but webpack hardcodes it all over the place: https://github.com/webpack/webpack/issues/13572
-*/
-const cryptoOrigCreateHash = crypto.createHash;
-crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha1' : algorithm);
-
 /* eslint-disable */
-
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
 const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
 
@@ -190,17 +181,7 @@ console.log();
 const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     mode: isDev ? 'development' : 'production',
     bail: !isDev,
-    stats: {
-        all: false,
-        colors: true,
-        modules: true,
-        maxModules: 0,
-        errors: true,
-        warnings: true,
-        entrypoints: true,
-        timings: true,
-        logging: 'warn',
-    },
+    stats: 'minimal',
 
     performance: {
         hints: false,
@@ -209,8 +190,6 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     devtool: isDev ? 'eval-source-map' : 'source-map',
 
     optimization: {
-        moduleIds: 'hashed',
-        chunkIds: 'named',
         ...(() => {
             if (isProd) {
                 return {
@@ -219,12 +198,10 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                             terserOptions: {
                                 warnings: false,
                                 output: 6,
+                                sourceMap: true,
                             },
-                            cache: true,
                             parallel: true,
-                            sourceMap: true,
                         }),
-                        new OptimizeCSSAssetsPlugin(),
                     ],
                 };
             }
@@ -241,6 +218,11 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
                 alias: {
                     scss: path.join(__dirname, 'src/app/assets/scss'),
+                },
+                // Webpack 5 no longer polyfills Node.js core modules automatically.
+                fallback: {
+                    "path": require.resolve("path-browserify"),
+                    "process": "process/browser",
                 },
             },
         };
@@ -323,7 +305,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
                 loader: 'file-loader',
                 options: {
-                    name: 'static/fonts/[name].[hash:7].[ext]'
+                    name: 'static/fonts/[name].[contenthash:7].[ext]'
                 },
             },
             {
@@ -519,6 +501,10 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 NODE_ENV: isDev ? '"development"' : '"production"',
             },
         }),
+        // make process polyfill available in runtime
+        new webpack.ProvidePlugin({
+            process: 'process/browser',
+        }),
 
         ...(() => {
             if (isDev) {
@@ -565,14 +551,15 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
 const coreConfig = {
     ...(() => {
         if (isDev) {
-            const disableDevServerInlineMode = process.env.DISABLE_DEV_SERVER_INLINE_MODE === '1' || process.env.DISABLE_DEV_SERVER_INLINE_MODE === 'true';
-
             return {
                 devServer: {
-                    inline: disableDevServerInlineMode ? false : true,
+                    client: {
+                        overlay: false,
+                        progress: true,
+                    },
                     host: process.env.HOST,
                     port: process.env.PORT,
-                    disableHostCheck: true,
+                    allowedHosts: "all",
                     ...(() => {
                         const config = {};
 
@@ -594,21 +581,29 @@ const coreConfig = {
                             secure: false,
                         },
                     },
-                    contentBase: [
-                        // 3 because it need to match the contentBasePublicPath index
-                        path.resolve(__dirname, 'static'),
-                        path.resolve(__dirname, 'static'),
-                        path.resolve(__dirname, 'static'),
+                    static: [
+                        {
+                            directory: path.resolve(__dirname, 'static'),
+                            publicPath: '/static',
+                        },
+                        {
+                            directory: path.resolve(__dirname, 'static'),
+                            publicPath: '/administration/static',
+                        },
+                        {
+                            directory: path.resolve(__dirname, 'static'),
+                            publicPath: '/bundles/administration/static',
+                        },
                         // the dev server is allowed to access the plugin folders
-                        ...pluginEntries.map(plugin => path.resolve(plugin.path, '../static')),
+                        ...pluginEntries.map((plugin) => {
+                            return {
+                                directory: path.resolve(plugin.path, '../static'),
+                                publicPath: `/bundles/${plugin.technicalFolderName.replace(/-/g, '')}/static`,
+                            };
+                        }),
                     ],
-                    contentBasePublicPath: [
-                        '/static',
-                        '/administration/static',
-                        '/bundles/administration/static',
-                        // the dev server is allowed to access the plugin folders
-                        ...pluginEntries.map((plugin) => `/bundles/${plugin.technicalFolderName.replace(/-/g, '')}/static`),
-                    ],
+                    // HMR is not working with multi-compiler-mode
+                    hot: false,
                 },
                 node: {
                     __filename: true,
@@ -622,13 +617,10 @@ const coreConfig = {
     },
 
     ...(() => {
-        const vueAlias = '@vue/compat/dist/vue.esm-bundler.js';
-
         return {
             resolve: {
                 alias: {
-                    vue$: vueAlias,
-                    vue_v2: 'vue_v2/dist/vue.esm.js',
+                    vue$: '@vue/compat/dist/vue.esm-bundler.js',
                     src: path.join(__dirname, 'src'),
                     assets: path.join(__dirname, 'static'),
                 },
@@ -645,8 +637,8 @@ const coreConfig = {
         filename: isDev ? 'bundles/administration/static/js/[name].js' : 'static/js/[name].js',
         chunkFilename: isDev ? 'bundles/administration/static/js/[chunkhash].js' : 'static/js/[chunkhash].js',
         publicPath: isDev ? '/' : `bundles/administration/`,
-        globalObject: 'this',
-        jsonpFunction: `webpackJsonpAdministration`
+        globalObject: 'window',
+        chunkLoadingGlobal: 'webpackJsonpAdministration',
     },
 
     optimization: {
@@ -671,6 +663,10 @@ const coreConfig = {
             filename: isDev ? 'bundles/administration/static/css/[name].css' : 'static/css/[name].css',
             chunkFilename: isDev ? 'bundles/administration/static/css/[chunkhash].css' : 'static/css/[chunkhash].css',
         }),
+        new WebpackBar({
+            name: 'Shopware 6 Admin',
+            color: '#118cff',
+        }),
 
         ...(() => {
             if (isProd || process.env.DISABLE_ADMIN_COMPILATION_TYPECHECK) {
@@ -683,11 +679,6 @@ const coreConfig = {
                     typescript: {
                         mode: 'readonly',
                     },
-                    logger: {
-                        infrastructure: 'console',
-                        issues: 'console',
-                        devServer: false,
-                    }
                 }),
             ];
         })(),
@@ -716,9 +707,6 @@ const coreConfig = {
 
             if (isDev) {
                 return [
-                    // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
-                    new webpack.HotModuleReplacementPlugin(),
-                    new webpack.NoEmitOnErrorsPlugin(),
                     // https://github.com/ampedandwired/html-webpack-plugin
                     new HtmlWebpackPlugin({
                         filename: 'index.html',
@@ -728,7 +716,6 @@ const coreConfig = {
                         },
                         inject: false,
                     }),
-                    new FriendlyErrorsPlugin(),
                 ];
             }
         })()
@@ -768,7 +755,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
     const htmlFilePath = path.resolve(plugin.path, '../index.html');
     const hasHtmlFile = fs.existsSync(htmlFilePath);
 
-    return webpackMerge([
+    return merge([
         createdBaseConfig,
         {
             entry: {
@@ -795,8 +782,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 // filenames aren´t in static folder when using watcher to match the build environment
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[name].js' : 'static/js/[name].js',
-                globalObject: 'this',
-                jsonpFunction: `webpackJsonpPlugin${plugin.technicalName}`
+                globalObject: 'window',
+                chunkLoadingGlobal: `webpackJsonpPlugin${plugin.technicalName}`
             },
 
             plugins: [
@@ -816,6 +803,11 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                             return path.replace('static/', '');
                         },
                     },
+                }),
+
+                new WebpackBar({
+                    name: plugin.technicalName,
+                    color: 'green',
                 }),
 
                 ...(() => {
@@ -911,7 +903,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
 /**
  * We create the final core configuration by merging the baseConfig with the coreConfig
  */
-const mergedCoreConfig = webpackMerge([baseConfig({
+const mergedCoreConfig = merge([baseConfig({
     pluginPath: path.resolve(__dirname, 'src'),
     pluginFilepath: path.resolve(__dirname, 'src/app/main.js'),
 }), coreConfig]);

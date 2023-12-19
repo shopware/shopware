@@ -1,8 +1,5 @@
 import template from './sw-settings-listing-option-general-info.html.twig';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -22,11 +19,17 @@ export default {
             type: Boolean,
             required: true,
         },
-    },
 
-    computed: {
-        ...mapPropertyErrors('sortingOption', [
-            'label',
-        ]),
+        technicalNameError: {
+            type: Object,
+            required: false,
+            default: {},
+        },
+
+        labelError: {
+            type: Object,
+            required: false,
+            default: {},
+        },
     },
 };

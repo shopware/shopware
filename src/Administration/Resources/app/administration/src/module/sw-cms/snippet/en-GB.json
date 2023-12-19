@@ -314,6 +314,7 @@
             "labelUseCustomSortings": "Use custom sortings",
             "labelDefaultSorting": "Default sorting",
             "labelProductSortings": "Product sortings",
+            "placeholderDefaultProductSorting": "Select a default sorting...",
             "placeHolderProductSortings": "Add or remove product sortings",
             "helpTextUseCustomSortings": "You're able to define custom product sortings for the product listing. To create an individual sorting for this listing enable this switch.",
             "helpTextDefaultSorting": "Default sorting for the listing, if no other sorting is provided.",

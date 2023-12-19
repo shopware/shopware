@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\Cms;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-class ProductListingCMSElementResolverTest extends TestCase
+class ProductListingCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -29,11 +31,22 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
+    private Connection $connection;
+
+    /**
+     * @var array<string|int, mixed>
+     */
+    private array $productSortings;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->productListingCMSElementResolver = $this->getContainer()->get(ProductListingCmsElementResolver::class);
         $this->salesChannelContext = $this->createSalesChannelContext();
+
+        $this->connection = KernelLifecycleManager::getConnection();
+
+        $this->productSortings = $this->getProductSortings();
     }
 
     public function testSortings(): void
@@ -41,8 +54,8 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
-                    'price-desc' => 1,
-                    'name-asc' => 0,
+                    $this->productSortings['price-desc'] => 1,
+                    $this->productSortings['name-asc'] => 0,
                 ],
             ],
             'useCustomSorting' => ['value' => true],
@@ -73,7 +86,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         static::assertSame('name-asc', $listing->getSorting());
 
         foreach ($listing->getAvailableSortings() as $availableSorting) {
-            static::assertArrayHasKey($availableSorting->getKey(), $availableSortings);
+            static::assertArrayHasKey($availableSorting->getId(), $availableSortings);
         }
     }
 
@@ -82,8 +95,8 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
-                    'price-desc' => 1,
-                    'name-asc' => 0,
+                    $this->productSortings['price-desc'] => 1,
+                    $this->productSortings['name-asc'] => 0,
                 ],
             ],
             'useCustomSorting' => ['value' => true],
@@ -111,8 +124,8 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
-                    'price-desc' => 1,
-                    'price-asc' => 0,
+                    $this->productSortings['price-desc'] => 1,
+                    $this->productSortings['price-asc'] => 0,
                 ],
             ],
             'useCustomSorting' => ['value' => true],
@@ -140,7 +153,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         $listing = $data->getListing();
         static::assertInstanceOf(ProductListingResult::class, $listing);
 
-        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getId());
 
         $availableSortings = array_keys($availableSortings);
 
@@ -155,9 +168,9 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
-                    'price-desc' => 1,
-                    'price-asc' => 100,
-                    'name-asc' => 77,
+                    $this->productSortings['price-desc'] => 1,
+                    $this->productSortings['price-asc'] => 100,
+                    $this->productSortings['name-asc'] => 77,
                 ],
             ],
             'useCustomSorting' => ['value' => true],
@@ -185,7 +198,7 @@ class ProductListingCMSElementResolverTest extends TestCase
         $listing = $data->getListing();
         static::assertInstanceOf(ProductListingResult::class, $listing);
 
-        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getKey());
+        $actualSortings = $listing->getAvailableSortings()->map(fn (ProductSortingEntity $actualSorting) => $actualSorting->getId());
 
         $actualSortings = array_values($actualSortings);
 
@@ -200,9 +213,9 @@ class ProductListingCMSElementResolverTest extends TestCase
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
-                    'price-desc' => 1,
-                    'price-asc' => 100,
-                    'name-asc' => 77,
+                    $this->productSortings['price-desc'] => 1,
+                    $this->productSortings['price-asc'] => 100,
+                    $this->productSortings['name-asc'] => 77,
                 ],
             ],
             'useCustomSorting' => ['value' => true],
@@ -230,7 +243,7 @@ class ProductListingCMSElementResolverTest extends TestCase
 
         $sorting = $listing->getSorting();
 
-        static::assertSame($sorting, 'price-asc');
+        static::assertSame('price-asc', $sorting);
     }
 
     /**
@@ -443,5 +456,17 @@ class ProductListingCMSElementResolverTest extends TestCase
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
         return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+    }
+
+    /**
+     * @return array<string|int, mixed>
+     */
+    private function getProductSortings(): array
+    {
+        $sortings = $this->connection->fetchAllKeyValue('SELECT url_key, id FROM product_sorting;');
+
+        $sortings = array_map(fn ($value) => Uuid::fromBytesToHex($value), $sortings);
+
+        return $sortings;
     }
 }

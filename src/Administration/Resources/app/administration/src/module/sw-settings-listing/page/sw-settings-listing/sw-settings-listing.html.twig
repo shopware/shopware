@@ -113,7 +113,7 @@
                                     :options="productSortingOptions"
                                     :error="hasDefaultSortingError ? salesChannelDefaultSortingError : null"
                                     label-property="label"
-                                    value-property="key"
+                                    value-property="id"
                                     @update:value="updateCurrentValue"
                                 />
                             </template>
@@ -219,7 +219,7 @@
                             {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
                             <sw-context-menu-item
                                 variant="danger"
-                                :disabled="item.locked || isItemDefaultSorting(item.key)"
+                                :disabled="item.locked || isItemDefaultSorting(item.id)"
                                 @click="toBeDeletedProductSortingOption = item"
                             >
                                 {{ $tc('global.default.delete') }}

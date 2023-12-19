@@ -83,10 +83,11 @@ async function createWrapper(activeTab = 'sorting') {
                         return { active: activeTab };
                     },
                     template: `
-<div>
-    <slot></slot>
-    <slot name="content" v-bind="{ active }"></slot>
-</div>`,
+                        <div>
+                            <slot></slot>
+                            <slot name="content" v-bind="{ active }"></slot>
+                        </div>
+                    `,
                 },
             },
             provide: {
@@ -197,10 +198,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         await wrapper.setData({
             productSortings: [
                 {
+                    id: 'foo_id',
                     key: 'foo',
                     priority: 2,
                 },
                 {
+                    id: 'bar_id',
                     key: 'bar',
                     priority: 5,
                 },
@@ -208,8 +211,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         });
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({
-            foo: 2,
-            bar: 5,
+            foo_id: 2,
+            bar_id: 5,
         });
     });
 
@@ -252,10 +255,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         const before = [
             {
+                id: 'foo_id',
                 key: 'foo',
                 priority: 2,
             },
             {
+                id: 'bar_id',
                 key: 'bar',
                 priority: 5,
             },
@@ -268,8 +273,8 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const after = wrapper.vm.transformProductSortings();
 
         expect(after).toStrictEqual({
-            bar: 5,
-            foo: 2,
+            bar_id: 5,
+            foo_id: 2,
         });
     });
 

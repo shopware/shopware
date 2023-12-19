@@ -18,8 +18,27 @@
             v-model:value="sortingOption.label"
             class="sw-settings-listing-edit__general-input"
             :label="$tc('sw-settings-listing.base.general.labelName')"
+            :placeholder="$tc('sw-settings-listing.base.general.placeholderName')"
             :required="true"
-            :error="sortingOptionLabelError"
+            :error="labelError"
+        />
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_settings_listing_option_general_info_technical_name %}
+        <sw-text-field
+            {% if VUE3 %}
+            v-model:value="sortingOption.key"
+            {% else %}
+            v-model="sortingOption.key"
+            {% endif %}
+            name="sw-field--listing-option-technicalName"
+            class="sw-settings-listing-option-general-info__field-technical-name"
+            required
+            :label="$tc('sw-settings-listing.base.general.labelTechnicalName')"
+            :placeholder="$tc('sw-settings-listing.base.general.placeholderTechnicalName')"
+            :error="technicalNameError"
+            :help-text="$tc('sw-settings-listing.base.general.helpTextTechnicalName')"
         />
         {% endblock %}
 

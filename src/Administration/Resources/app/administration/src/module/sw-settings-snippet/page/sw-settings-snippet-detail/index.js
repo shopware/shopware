@@ -208,6 +208,8 @@ export default {
                         { key: this.translationKey },
                     ),
                 });
+
+                return;
             }
 
             this.snippets.forEach((snippet) => {
@@ -221,18 +223,9 @@ export default {
                 }
 
                 if (snippet.translationKey !== this.translationKey) {
-                    // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
-                    if (snippet.id !== null) {
-                        responses.push(this.snippetRepository.delete(snippet.id));
-                    }
-
-                    if (snippet.value === null || snippet.value === '') {
-                        return;
-                    }
-
                     snippet.translationKey = this.translationKey;
-                    snippet.id = null;
-
+                    this.$route.params.key = this.translationKey;
+                    this.translationKeyOrigin = this.translationKey;
                     responses.push(this.snippetRepository.save(snippet));
                 } else if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin

@@ -63,6 +63,26 @@ function getSnippets() {
                     value: 'Add address',
                 },
             ],
+            test1: [
+                {
+                    author: 'Shopware',
+                    id: null,
+                    origin: 'foo',
+                    resetTo: 'foo',
+                    setId: 'a2f95068665e4498ae98a2318a7963df',
+                    translationKey: 'test1',
+                    value: 'foo',
+                },
+                {
+                    author: 'Shopware',
+                    id: null,
+                    origin: 'bar',
+                    resetTo: 'bar',
+                    setId: 'e54dba2ba96741868e6b6642504c6932',
+                    translationKey: 'test1',
+                    value: 'bar',
+                },
+            ],
         },
     };
 
@@ -101,6 +121,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         create: () => ({
                             search: () => Promise.resolve(getSnippetSets()),
                             create: () => Promise.resolve(),
+                            save: () => Promise.resolve(),
                         }),
                     },
                     acl: {
@@ -129,22 +150,16 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                     validationService: {},
                 },
                 stubs: {
-                    'sw-page': {
-                        template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
-                    },
-                    'sw-card': {
-                        template: '<div><slot></slot><slot name="grid"></slot></div>',
-                    },
-                    'sw-card-view': {
-                        template: '<div><slot></slot></div>',
-                    },
+                    'sw-page': await wrapTestComponent('sw-page'),
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-card-view': await wrapTestComponent('sw-card-view'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-field-error': await wrapTestComponent('sw-field-error'),
-                    'sw-button-process': true,
-                    'sw-button': true,
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-button': await wrapTestComponent('sw-button'),
                     'sw-skeleton': true,
                 },
             },
@@ -172,6 +187,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         };
         const roles = role.split(', ');
         const wrapper = await createWrapper(roles);
+        await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
@@ -186,9 +202,37 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
 
     it('should have a disabled save button', async () => {
         const wrapper = await createWrapper('snippet.viewer');
+        await flushPromises();
+
         const saveButton = wrapper.find('.sw-snippet-detail__save-action');
 
-        expect(saveButton.attributes('disabled')).toContain('true');
+        expect(saveButton.attributes()).toHaveProperty('disabled');
+    });
+
+    it('should change translationKey while saving', async () => {
+        const wrapper = await createWrapper(['snippet.viewer', 'snippet.editor', 'snippet.creator']);
+        await flushPromises();
+
+        await wrapper.setData({
+            isLoading: false,
+            isAddedSnippet: true,
+        });
+        await flushPromises();
+
+        const translationKeyInput = wrapper.find('input[name="sw-field--translationKey"]');
+        expect(translationKeyInput.attributes()).not.toHaveProperty('disabled');
+        await translationKeyInput.setValue('test1');
+        await translationKeyInput.trigger('update:value');
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-snippet-detail__save-action');
+        expect(saveButton.attributes()).not.toHaveProperty('disabled');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.translationKey).toBe('test1');
+        expect(wrapper.vm.translationKeyOrigin).toBe('test1');
+        expect(wrapper.vm.$route.params.key).toBe('test1');
     });
 
     it('should return a criteria with no limit', async () => {

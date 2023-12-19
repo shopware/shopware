@@ -36,6 +36,7 @@ crypto.createHash = algorithm => cryptoOrigCreateHash(algorithm === 'md4' ? 'sha
 
 const buildOnlyExtensions = process.env.SHOPWARE_ADMIN_BUILD_ONLY_EXTENSIONS === '1';
 const openBrowserForWatch = process.env.DISABLE_DEVSERVER_OPEN !== '1';
+const useSourceMap = process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1';
 
 const flagsPath = path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json');
 let featureFlags = {};
@@ -229,7 +230,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                             },
                             cache: true,
                             parallel: true,
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         }),
                         new OptimizeCSSAssetsPlugin(),
                     ],
@@ -359,7 +360,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher
                         },
                     },
@@ -378,7 +379,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
@@ -397,7 +398,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
@@ -405,7 +406,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'less-loader',
                         options: {
                             javascriptEnabled: true,
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -423,7 +424,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
@@ -431,7 +432,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                         loader: 'sass-loader',
                         options: {
                             indentedSyntax: true,
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -450,14 +451,14 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
                     {
                         loader: 'sass-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -475,14 +476,14 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
                     {
                         loader: 'stylus-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -500,14 +501,14 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     {
                         loader: 'css-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                             url: cssUrlMatcher,
                         },
                     },
                     {
                         loader: 'stylus-loader',
                         options: {
-                            sourceMap: true,
+                            sourceMap: useSourceMap,
                         },
                     },
                 ],
@@ -813,7 +814,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                     }],
                     options: {
                         absolutePath: true,
-                        sourceMap: true,
+                        sourceMap: useSourceMap,
                         transformer: (path) => {
                             return path.replace('static/', '');
                         },

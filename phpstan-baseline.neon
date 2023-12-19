@@ -6160,8 +6160,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Routing/CanonicalRedirectServiceTest.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\DateRangeRuleTest\\:\\:matchDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -6791,8 +6789,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\ProfilerInterface\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Profiling/Integration/ProfilerInterface.php
-
-
 
 		-
 			message: "#^Anonymous variable in a `\\$span\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -7475,6 +7471,11 @@ parameters:
 			path: src/Core/System/Test/NumberRange/Aggregate/NumberRangeSalesChannel/NumberRangeSalesChannelDefinitionTest.php
 
 		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEmpty\\(\\) with array\\{\\} will always evaluate to true\\.$#"
+			count: 1
+			path: src/Core/System/Test/NumberRange/Command/MigrateIncrementStorageCommandTest.php
+
+		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
 			path: src/Core/System/Test/NumberRange/NumberRangeValueGeneratorTest.php
@@ -7751,6 +7752,11 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:matchRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Storefront/Framework/Routing/Router.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between 3 and 0 will always evaluate to false\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Routing/Router.php
 
@@ -8625,32 +8631,32 @@ parameters:
 			path: tests/unit/Core/Framework/DependencyInjection/ConfigurationTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
 			count: 2
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
 			count: 2
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/PackageTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/PackageTest.php
 
@@ -8893,13 +8899,3 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Storefront\\\\\\\\Page\\\\\\\\Checkout\\\\\\\\Offcanvas\\\\\\\\OffcanvasCartPage' and Shopware\\\\Storefront\\\\Page\\\\Checkout\\\\Offcanvas\\\\OffcanvasCartPage will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Storefront/Page/Checkout/Offcanvas/OffcanvasCartPageLoaderTest.php
-
-		-
-			message: "#^Strict comparison using \\=\\=\\= between 3 and 0 will always evaluate to false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEmpty\\(\\) with array\\{\\} will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/System/Test/NumberRange/Command/MigrateIncrementStorageCommandTest.php

@@ -32,11 +32,14 @@ class StringTemplateRendererTest extends TestCase
 
     public function testInitialization(): void
     {
-        static::markTestSkipped('Skipped because of a regression in twig: https://github.com/twigphp/Twig/pull/3903, reenable before merge');
-
         $templateMock = '{{ testDate|format_date(pattern="HH:mm") }}';
         $testDate = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $context = Context::createDefaultContext();
+
+        /** @var CoreExtension $coreExtension */
+        $coreExtension = $this->getContainer()->get('twig')->getExtension(CoreExtension::class);
+        $coreExtension->setTimezone('Europe/London');
+        $this->stringTemplateRenderer->initialize();
         $renderedTime = $this->stringTemplateRenderer->render($templateMock, ['testDate' => $testDate], $context);
 
         /** @var CoreExtension $coreExtension */

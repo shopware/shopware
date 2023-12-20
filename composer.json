@@ -89,7 +89,7 @@
         "psr/http-message": "^1.1 || ^2.0",
         "psr/log": "^3.0.0",
         "ramsey/uuid": "^4.7",
-        "scssphp/scssphp": "^v1.12.0",
+        "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "shopware/conflicts": "*",
         "shyim/opensearch-php-dsl": "^1.0.5",
@@ -144,7 +144,7 @@
         "tecnickcom/tcpdf": "^6.6.1",
         "twig/intl-extra": "^3.4",
         "twig/string-extra": "^3.4",
-        "twig/twig": "^3.4.3",
+        "twig/twig": "^3.8.0",
         "zircote/swagger-php": "^4.5.1"
     },
     "require-dev": {
@@ -383,7 +383,7 @@
             "mv src/WebInstaller/shopware-installer.phar.php shop/public/shopware-installer.phar.php"
         ],
         "e2e:web-update:start": [
-            "@putenv SW_RECOVERY_NEXT_VERSION=6.5.99.9",
+            "@putenv SW_RECOVERY_NEXT_VERSION=6.6.99.9",
             "@putenv SW_RECOVERY_NEXT_BRANCH=dev-trunk",
             "@putenv CYPRESS_SKIP_INIT=1",
             "symfony local:server:stop --dir=shop",

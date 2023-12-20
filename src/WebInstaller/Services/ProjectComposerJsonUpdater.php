@@ -29,6 +29,11 @@ class ProjectComposerJsonUpdater
             unset($composerJson['minimum-stability']);
         }
 
+        // We require symfony runtime now directly in src/Core, so we remove the max version constraint
+        if (isset($composerJson['require']['symfony/runtime'])) {
+            $composerJson['require']['symfony/runtime'] = '>=5';
+        }
+
         foreach ($shopwarePackages as $shopwarePackage) {
             if (!isset($composerJson['require'][$shopwarePackage])) {
                 continue;

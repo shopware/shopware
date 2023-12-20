@@ -101,7 +101,6 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
         $schema = '';
         // we need to insert the sales channel base url between the baseUrl and the infoPath
-        // ToDo use match
         switch ($referenceType) {
             case self::ABSOLUTE_URL:
                 $schema = $this->getContext()->getScheme() . ':';

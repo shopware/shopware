@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Rule;
 
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiEntitySelectField;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFieldTypes\MultiSelectField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
+use Shopware\Core\Framework\Util\ArrayComparator;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\Validator\Constraint;
@@ -66,11 +68,11 @@ class CustomFieldRule
         }
 
         if (self::isFloat($renderedField)) {
-            return self::floatMatch($operator, (float) $actual, (float) $expected);
+            return FloatComparator::compare((float) $actual, (float) $expected, $operator);
         }
 
         if (self::isArray($renderedField)) {
-            return self::arrayMatch($operator, (array) $actual, (array) $expected);
+            return ArrayComparator::compare((array) $actual, (array) $expected, $operator);
         }
 
         return match ($operator) {
@@ -84,30 +86,33 @@ class CustomFieldRule
         };
     }
 
+    /**
+     * @deprecated tag:v6.7.0 - Method will be removed, use FloatComparator::compare instead
+     */
     public static function floatMatch(string $operator, float $actual, float $expected): bool
     {
-        return match ($operator) {
-            Rule::OPERATOR_NEQ => FloatComparator::notEquals($actual, $expected),
-            Rule::OPERATOR_GTE => FloatComparator::greaterThanOrEquals($actual, $expected),
-            Rule::OPERATOR_LTE => FloatComparator::lessThanOrEquals($actual, $expected),
-            Rule::OPERATOR_EQ => FloatComparator::equals($actual, $expected),
-            Rule::OPERATOR_GT => FloatComparator::greaterThan($actual, $expected),
-            Rule::OPERATOR_LT => FloatComparator::lessThan($actual, $expected),
-            default => throw new UnsupportedOperatorException($operator, self::class),
-        };
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'FloatComparator::compare')
+        );
+
+        return FloatComparator::compare($actual, $expected, $operator);
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Method will be removed, use ArrayComparator::compare instead
+     *
      * @param array<string|int|bool|float> $actual
      * @param array<string|int|bool|float> $expected
      */
     public static function arrayMatch(string $operator, array $actual, array $expected): bool
     {
-        return match ($operator) {
-            Rule::OPERATOR_NEQ => \count(array_intersect($actual, $expected)) === 0,
-            Rule::OPERATOR_EQ => \count(array_intersect($actual, $expected)) > 0,
-            default => throw new UnsupportedOperatorException($operator, self::class),
-        };
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedClassMessage(self::class, 'v6.7.0.0', 'ArrayComparator::compare')
+        );
+
+        return ArrayComparator::compare($actual, $expected, $operator);
     }
 
     /**

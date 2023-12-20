@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Util\ArrayComparator;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 
 #[Package('services-settings')]
@@ -89,11 +91,11 @@ class LineItemCustomFieldRule extends Rule
         }
 
         if (CustomFieldRule::isFloat($this->renderedField)) {
-            return CustomFieldRule::floatMatch($this->operator, (float) $actual, (float) $expected);
+            return FloatComparator::compare((float) $actual, (float) $expected, $this->operator);
         }
 
         if (CustomFieldRule::isArray($this->renderedField)) {
-            return CustomFieldRule::arrayMatch($this->operator, (array) $actual, (array) $expected);
+            return ArrayComparator::compare((array) $actual, (array) $expected, $this->operator);
         }
 
         return match ($this->operator) {

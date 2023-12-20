@@ -29,26 +29,24 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     private const CUSTOM_FIELD_NAME = 'custom_test';
 
-    private LineItemCustomFieldRule $rule;
-
     private SalesChannelContext $salesChannelContext;
 
     protected function setUp(): void
     {
-        $this->rule = new LineItemCustomFieldRule();
-
         $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
         $this->salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
     }
 
     public function testGetName(): void
     {
-        static::assertSame('cartLineItemCustomField', $this->rule->getName());
+        $rule = new LineItemCustomFieldRule();
+        static::assertSame('cartLineItemCustomField', $rule->getName());
     }
 
     public function testGetConstraints(): void
     {
-        $ruleConstraints = $this->rule->getConstraints();
+        $rule = new LineItemCustomFieldRule();
+        $ruleConstraints = $rule->getConstraints();
 
         static::assertArrayHasKey('operator', $ruleConstraints, 'Rule Constraint operator is not defined');
         static::assertArrayHasKey('renderedField', $ruleConstraints, 'Rule Constraint renderedField is not defined');
@@ -59,129 +57,138 @@ class LineItemCustomFieldRuleTest extends TestCase
 
     public function testBooleanCustomFieldFalseWithNoValue(): void
     {
-        $this->setupRule(false, 'bool');
+        $rule = self::setupBoolRule(false);
         $scope = new LineItemScope($this->createLineItemWithCustomFields(), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testBooleanCustomFieldFalse(): void
     {
-        $this->setupRule(false, 'bool');
+        $rule = self::setupBoolRule(false);
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => false]), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testBooleanCustomFieldNull(): void
     {
-        $this->setupRule(null, 'bool');
+        $rule = self::setupBoolRule(null);
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => false]), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testBooleanCustomFieldWithNonBooleanData(): void
     {
-        $this->setupRule('true', 'bool');
+        $rule = self::setupBoolRule('true');
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => true]), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testTextCustomFieldUnequalOperator(): void
     {
         // Case: the rule checks for some text but the line item custom field value is null
         // 'testValue' != null -> true
-        $this->setupRule('testValue', 'text');
-        $this->rule->assign(
+        $rule = new LineItemCustomFieldRule();
+        $rule->assign(
             [
                 'operator' => Rule::OPERATOR_NEQ,
+                'renderedField' => [
+                    'type' => 'text',
+                    'name' => self::CUSTOM_FIELD_NAME,
+                ],
+                'renderedFieldValue' => 'testValue',
             ]
         );
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => null]), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testBooleanCustomFieldInvalid(): void
     {
-        $this->setupRule(false, 'bool');
+        $rule = self::setupBoolRule(false);
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => true]), $this->salesChannelContext);
-        static::assertFalse($this->rule->match($scope));
+        static::assertFalse($rule->match($scope));
     }
 
     public function testWithoutCustomField(): void
     {
-        $this->setupRule(false, 'bool');
+        $rule = self::setupBoolRule(false);
         $scope = new LineItemScope($this->createLineItem(), $this->salesChannelContext);
-        static::assertFalse($this->rule->match($scope));
+        static::assertFalse($rule->match($scope));
 
-        $this->rule->assign(['operator' => Rule::OPERATOR_NEQ]);
+        $rule->assign(['operator' => Rule::OPERATOR_NEQ]);
 
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testStringCustomField(): void
     {
-        $this->setupRule('my_test_value', 'string');
+        $rule = self::setupStringRule('my_test_value');
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => 'my_test_value']), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testStringCustomFieldInvalid(): void
     {
-        $this->setupRule('my_test_value', 'string');
+        $rule = self::setupStringRule('my_test_value');
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => 'my_invalid_value']), $this->salesChannelContext);
-        static::assertFalse($this->rule->match($scope));
+        static::assertFalse($rule->match($scope));
     }
 
     public function testMultiSelectCustomField(): void
     {
-        $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
+        $rule = self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']);
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => [1]]), $this->salesChannelContext);
-        static::assertTrue($this->rule->match($scope));
+        static::assertTrue($rule->match($scope));
     }
 
     public function testMultiSelectCustomFieldInvalid(): void
     {
-        $this->setupRule([1, 2], 'select', ['componentName' => 'sw-multi-select']);
+        $rule = self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']);
         $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => [3]]), $this->salesChannelContext);
-        static::assertFalse($this->rule->match($scope));
+        static::assertFalse($rule->match($scope));
+    }
+
+    public function testFloatCustomField(): void
+    {
+        $rule = self::setupFloatRule(1);
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => 1]), $this->salesChannelContext);
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testFloatCustomFieldInvalid(): void
+    {
+        $rule = self::setupFloatRule('empty');
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => 2]), $this->salesChannelContext);
+        static::assertFalse($rule->match($scope));
     }
 
     /**
-     * @param bool|string|null $customFieldValue
      * @param bool|string|null $customFieldValueInLineItem
-     * @param array<string, string> $config
      */
     #[DataProvider('customFieldCartScopeProvider')]
     public function testCustomFieldCartScope(
-        $customFieldValue,
-        string $type,
+        LineItemCustomFieldRule $rule,
         $customFieldValueInLineItem,
-        bool $result,
-        array $config = []
+        bool $result
     ): void {
-        $this->setupRule($customFieldValue, $type, $config);
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
 
         $cart = $this->createCart($lineItemCollection);
         $scope = new CartRuleScope($cart, $this->salesChannelContext);
-        static::assertSame($result, $this->rule->match($scope));
+        static::assertSame($result, $rule->match($scope));
     }
 
     /**
-     * @param bool|string|null $customFieldValue
      * @param bool|string|null $customFieldValueInLineItem
-     * @param array<string, string> $config
      */
     #[DataProvider('customFieldCartScopeProvider')]
     public function testCustomFieldCartScopeNested(
-        $customFieldValue,
-        string $type,
+        LineItemCustomFieldRule $rule,
         $customFieldValueInLineItem,
-        bool $result,
-        array $config = []
+        bool $result
     ): void {
-        $this->setupRule($customFieldValue, $type, $config);
         $lineItemCollection = new LineItemCollection([
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
@@ -190,49 +197,146 @@ class LineItemCustomFieldRuleTest extends TestCase
         $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $scope = new CartRuleScope($cart, $this->salesChannelContext);
-        static::assertSame($result, $this->rule->match($scope));
+        static::assertSame($result, $rule->match($scope));
     }
 
     /**
-     * @return array<string, array<int, array<int|string, int|string>|bool|string|null>>
+     * @return iterable<string, array<string, array<int, int>|LineItemCustomFieldRule|string|bool>>
      */
-    public static function customFieldCartScopeProvider(): array
+    public static function customFieldCartScopeProvider(): iterable
     {
-        return [
-            'testBooleanCustomFieldFalse' => [false, 'bool', false, true],
-            'testBooleanCustomFieldNull' => [null, 'bool', false, true],
-            'testBooleanCustomFieldInvalid' => [false, 'bool', true, false],
-            'testStringCustomField' => ['my_test_value', 'string', 'my_test_value', true],
-            'testStringCustomFieldInvalid' => ['my_test_value', 'string', 'my_invalid_value', false],
-            'testMultiSelectCustomField' => [[1, 2], 'select', [1], true, ['componentName' => 'sw-multi-select']],
-            'testMultiSelectCustomFieldInvalid' => [[1, 2], 'select', [3], false, ['componentName' => 'sw-multi-select']],
+        yield 'testBooleanCustomFieldTrue' => [
+            'rule' => self::setupBoolRule(true),
+            'customFieldValueInCustomer' => true,
+            'result' => true,
+        ];
+        yield 'testBooleanCustomFieldFalse' => [
+            'rule' => self::setupBoolRule(false),
+            'customFieldValueInCustomer' => false,
+            'result' => true,
+        ];
+        yield 'testBooleanCustomFieldNull' => [
+            'rule' => self::setupBoolRule(null),
+            'customFieldValueInCustomer' => false,
+            'result' => true,
+        ];
+        yield 'testBooleanCustomFieldInvalid' => [
+            'rule' => self::setupBoolRule(false),
+            'customFieldValueInCustomer' => true,
+            'result' => false,
+        ];
+        yield 'testStringCustomField' => [
+            'rule' => self::setupStringRule('my_test_value'),
+            'customFieldValueInCustomer' => 'my_test_value',
+            'result' => true,
+        ];
+        yield 'testStringCustomFieldInvalid' => [
+            'rule' => self::setupStringRule('my_test_value'),
+            'customFieldValueInCustomer' => 'my_invalid_value',
+            'result' => false,
+        ];
+        yield 'testMultiSelectCustomField' => [
+            'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
+            'customFieldValueInCustomer' => [1],
+            'result' => true,
+        ];
+        yield 'testMultiSelectCustomFieldInvalid' => [
+            'rule' => self::setupSelectRule([1, 2], ['componentName' => 'sw-multi-select']),
+            'customFieldValueInCustomer' => [3],
+            'result' => false,
+        ];
+        yield 'testMultiSelectCustomFieldNull' => [
+            'rule' => self::setupSelectRule(null, ['componentName' => 'sw-multi-select']),
+            'customFieldValueInCustomer' => [3],
+            'result' => false,
         ];
     }
 
     /**
-     * @param array<string, array<int>|bool|string|null> $customFields
+     * @param array<string, array<int>|bool|int|string|null> $customFields
      */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
         return $this->createLineItem()->setPayloadValue('customFields', $customFields);
     }
 
+    private static function setupFloatRule(string|float $customFieldValue): LineItemCustomFieldRule
+    {
+        $rule = new LineItemCustomFieldRule();
+        $rule->assign(
+            [
+                'operator' => Rule::OPERATOR_EQ,
+                'renderedField' => [
+                    'type' => 'float',
+                    'name' => self::CUSTOM_FIELD_NAME,
+                ],
+                'renderedFieldValue' => $customFieldValue,
+            ]
+        );
+
+        return $rule;
+    }
+
+    /**
+     * @param array<int>|bool|string|null $customFieldValue
+     */
+    private static function setupBoolRule(array|bool|string|null $customFieldValue): LineItemCustomFieldRule
+    {
+        $rule = new LineItemCustomFieldRule();
+        $rule->assign(
+            [
+                'operator' => Rule::OPERATOR_EQ,
+                'renderedField' => [
+                    'type' => 'bool',
+                    'name' => self::CUSTOM_FIELD_NAME,
+                ],
+                'renderedFieldValue' => $customFieldValue,
+            ]
+        );
+
+        return $rule;
+    }
+
+    /**
+     * @param array<int>|bool|string|null $customFieldValue
+     */
+    private static function setupStringRule(array|bool|string|null $customFieldValue): LineItemCustomFieldRule
+    {
+        $rule = new LineItemCustomFieldRule();
+
+        $rule->assign(
+            [
+                'operator' => Rule::OPERATOR_EQ,
+                'renderedField' => [
+                    'type' => 'string',
+                    'name' => self::CUSTOM_FIELD_NAME,
+                ],
+                'renderedFieldValue' => $customFieldValue,
+            ]
+        );
+
+        return $rule;
+    }
+
     /**
      * @param array<int>|bool|string|null $customFieldValue
      * @param array<string, string> $config
      */
-    private function setupRule(array|bool|string|null $customFieldValue, string $type, array $config = []): void
+    private static function setupSelectRule(array|bool|string|null $customFieldValue, array $config = []): LineItemCustomFieldRule
     {
-        $this->rule->assign(
+        $rule = new LineItemCustomFieldRule();
+        $rule->assign(
             [
                 'operator' => Rule::OPERATOR_EQ,
                 'renderedField' => [
-                    'type' => $type,
+                    'type' => 'select',
                     'name' => self::CUSTOM_FIELD_NAME,
                     'config' => $config,
                 ],
                 'renderedFieldValue' => $customFieldValue,
             ]
         );
+
+        return $rule;
     }
 }

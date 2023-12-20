@@ -183,6 +183,7 @@ plugins:
         - shopware/6/product/SwagExtensionStore
         - shopware/6/services/swagdynamicaccess
         - shopware/6/services/swagguidedshopping
+        - shopware/6/services/paypal
       - PLUGIN_BRANCH: master
         PLUGIN_PROJECT:
         - shopware/6/services/migration-assistant
@@ -191,7 +192,6 @@ plugins:
         - shopware/6/services/cms-extensions
         - shopware/6/services/swaglanguagepack
         - shopware/6/services/swagsocialshopping
-        - shopware/6/services/paypal
   trigger:
     project: $PLUGIN_PROJECT
     strategy: depend

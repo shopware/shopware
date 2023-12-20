@@ -1,9 +1,10 @@
-backport:
+backport 6.5.x:
   extends: .base-with-node
   # run after all other stages have succeeded
   stage: .post
   variables:
     GIT_STRATEGY: none
+    BACKPORT_BRANCH: '6.5.x'
   before_script: []
   rules:
     # only run in merge train
@@ -13,8 +14,8 @@ backport:
     # in rare cases it's possible that there are multiple successful runs of the merge train without a merge.
     # In that case the branch already exists, so we don't want to fail the train
       allow_failure: true
-      variables:
-        BACKPORT_BRANCH: '6.5.x'
+    - when: manual
+      allow_failure: true
   script:
     - npm install -g @kie/git-backporting
     - 'MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"'

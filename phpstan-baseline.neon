@@ -7530,8 +7530,6 @@ parameters:
 			count: 1
 			path: src/Core/Framework/Test/Routing/CanonicalRedirectServiceTest.php
 
-
-
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Rule\\\\DateRangeRuleTest\\:\\:matchDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
@@ -8261,8 +8259,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Profiling\\\\Integration\\\\ProfilerInterface\\:\\:start\\(\\) has parameter \\$tags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Profiling/Integration/ProfilerInterface.php
-
-
 
 		-
 			message: "#^Anonymous variable in a `\\$span\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -10630,32 +10626,32 @@ parameters:
 			path: tests/unit/Core/Framework/DependencyInjection/ConfigurationTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
 			count: 2
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
 			count: 2
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/PackageTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
+			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'data\\-services'\\|'innovation'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
 			count: 1
 			path: tests/unit/Core/Framework/Log/PackageTest.php
 

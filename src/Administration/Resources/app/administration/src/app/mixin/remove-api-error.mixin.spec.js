@@ -1,8 +1,8 @@
 import 'src/app/mixin/remove-api-error.mixin';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
-    return shallowMount({
+async function createWrapper(attrs = {}) {
+    return mount({
         template: `
             <div class="sw-mock">
               <slot></slot>
@@ -18,9 +18,8 @@ async function createWrapper() {
             };
         },
     }, {
-        stubs: {},
-        mocks: {},
         attachTo: document.body,
+        attrs,
     });
 }
 
@@ -44,7 +43,7 @@ describe('src/app/mixin/remove-api-error.mixin.ts', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();
@@ -55,15 +54,18 @@ describe('src/app/mixin/remove-api-error.mixin.ts', () => {
     });
 
     it('should dispatch removeApiError on value change', async () => {
+        await wrapper.unmount();
+        wrapper = await createWrapper({
+            error: {
+                selfLink: 'self.link',
+            },
+        });
+        await flushPromises();
+
         // add mock for dispatch
         Object.defineProperty(Shopware.State, 'dispatch', {
             value: jest.fn(),
         });
-
-        // mock error attrs value
-        wrapper.vm.$attrs.error = {
-            selfLink: 'self.link',
-        };
 
         // change value to trigger watcher
         wrapper.vm.value = 'new-value';

@@ -16,7 +16,7 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
         '^php$' => 'PHP does not follow semantic versioning, therefore minor updates include breaks',
     ],
     'strict' => [
-        '^phpstan\/.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
+        '^phpstan\/phpstan.*$' => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
         '^symplify\/phpstan-rules$'  => 'Even patch updates for phpstan may lead to a red CI pipeline, because of new static analysis errors',
         '^dompdf\/dompdf$' => 'Patch updates of dompdf have let to a lot of issues in the past, therefore it is pinned.',
         '^shopware\/conflicts$' => 'The shopware conflicts packages should be required in any version, so use `*` constraint',
@@ -392,6 +392,7 @@ return (new Config())
     // check for composer version operators
     ->useRule(function (Context $context): void {
         $composerFiles = $context->platform->pullRequest->getFiles()->matches('**/composer.json');
+        $composerFiles->add($context->platform->pullRequest->getFiles()->matches('composer.json')->first());
 
         foreach ($composerFiles as $composerFile) {
             if ($composerFile->status === File::STATUS_REMOVED || str_contains($composerFile->name, 'src/WebInstaller')) {

@@ -145,7 +145,7 @@
         "phpunit/php-code-coverage": "^9.2.14",
         "smalot/pdfparser": "^2.2.2",
         "symfony/browser-kit": "~6.3.0",
-        "symfony/phpunit-bridge": "~6.1.0",
+        "symfony/phpunit-bridge": "~7.0",
         "symfony/var-dumper": "~6.3.0",
         "symfony/dom-crawler": "~6.3.0",
         "brianium/paratest": "^7.3",

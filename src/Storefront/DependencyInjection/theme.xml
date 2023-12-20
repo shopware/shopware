@@ -67,6 +67,8 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\SeedingThemePathBuilder"/>
             <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="Psr\Log\LoggerInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">

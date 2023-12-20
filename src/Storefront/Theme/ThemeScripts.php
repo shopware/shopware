@@ -3,11 +3,13 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
 #[Package('storefront')]
@@ -21,7 +23,9 @@ class ThemeScripts
         private readonly ThemeFileResolver $themeFileResolver,
         private readonly EntityRepository $themeRepository,
         private readonly AbstractThemePathBuilder $themePathBuilder,
-        private readonly FilesystemOperator $themeFilesystem
+        private readonly FilesystemOperator $themeFilesystem,
+        private readonly ThemeFileImporterInterface $themeFileImporter,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -40,6 +44,13 @@ class ThemeScripts
 
         /** @var ThemeEntity $theme */
         $theme = $themes->get($themeId);
+
+        // if theme does not have a technical name, it is inherited from parent theme (db themes)
+        if ($theme && $theme->getTechnicalName() === null && $theme->getParentThemeId() !== null) {
+            /** @var ThemeEntity $theme */
+            $theme = $themes->get($theme->getParentThemeId());
+        }
+
         if ($theme === null) {
             return [];
         }
@@ -57,6 +68,10 @@ class ThemeScripts
         }
 
         $subFolders = $this->readThemeSubFolders($themePath);
+        if ($subFolders === null) {
+            return [];
+        }
+
         $resolvedFiles = $this->themeFileResolver->resolveFiles(
             $themeConfig,
             $this->pluginRegistry->getConfigurations(),
@@ -78,13 +93,20 @@ class ThemeScripts
         }
 
         $themePath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
+        $themePath = $this->themeFileImporter->getRealPath($themePath);
 
         return !$this->themeFilesystem->has($themePath) ? null : $themePath;
     }
 
-    private function readThemeSubFolders(string $themePath): Finder
+    private function readThemeSubFolders(string $themePath): ?Finder
     {
-        return (new Finder())->directories()->in($themePath)->exclude(['css', 'js/storefront/js']);
+        try {
+            $finder = (new Finder())->directories()->in($themePath)->exclude(['css', 'js/storefront/js']);
+        } catch (DirectoryNotFoundException $e) {
+            $this->logger->error($e->getMessage());
+        }
+
+        return $finder ?? null;
     }
 
     /**

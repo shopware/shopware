@@ -2,23 +2,25 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/base/sw-collapse';
 import 'src/app/component/sidebar/sw-sidebar-collapse';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-sidebar-collapse'), {
-        stubs: {
-            'sw-icon': {
-                props: [
-                    'name',
-                ],
-                template: '<span class="sw-icon">{{ name }}</span>',
+    return mount(await wrapTestComponent('sw-sidebar-collapse', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': {
+                    props: [
+                        'name',
+                    ],
+                    template: '<span class="sw-icon">{{ name }}</span>',
+                },
+                'sw-collapse': true,
             },
-            'sw-collapse': true,
-        },
-        mocks: {
-            $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
+            mocks: {
+                $tc: (snippetPath, count, values) => snippetPath + count + JSON.stringify(values),
+            },
         },
     });
 }

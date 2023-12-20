@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-purchase-price-field';
 
 // mock data
@@ -44,7 +44,7 @@ const defaultPrice = {
 
 // initial component setup
 const setup = async (propOverride) => {
-    const propsData = {
+    const props = {
         price: [dollarPrice, euroPrice],
         taxRate,
         currency,
@@ -53,9 +53,11 @@ const setup = async (propOverride) => {
         ...propOverride,
     };
 
-    return shallowMount(await Shopware.Component.build('sw-purchase-price-field'), {
-        stubs: ['sw-price-field', 'sw-field', 'sw-icon'],
-        propsData,
+    return mount(await wrapTestComponent('sw-purchase-price-field', { sync: true }), {
+        global: {
+            stubs: ['sw-price-field', 'sw-field', 'sw-icon'],
+        },
+        props,
     });
 };
 

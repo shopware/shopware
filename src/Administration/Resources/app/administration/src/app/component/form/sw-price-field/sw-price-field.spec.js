@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/sw-price-field';
 
 // mock data
@@ -45,7 +45,7 @@ const defaultPrice = {
 
 // initial component setup
 const setup = async (propOverride) => {
-    const propsData = {
+    const props = {
         price: [dollarPrice, euroPrice],
         taxRate,
         currency,
@@ -54,9 +54,11 @@ const setup = async (propOverride) => {
         ...propOverride,
     };
 
-    return shallowMount(await Shopware.Component.build('sw-price-field'), {
-        stubs: ['sw-number-field', 'sw-icon'],
-        propsData,
+    return mount(await wrapTestComponent('sw-price-field', { sync: true }), {
+        global: {
+            stubs: ['sw-number-field', 'sw-icon'],
+        },
+        props,
     });
 };
 
@@ -83,32 +85,38 @@ describe('components/form/sw-price-field', () => {
 
     it('should be a Vue.js component', async () => {
         const wrapper = await setup();
+
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render correctly', async () => {
         const wrapper = await setup();
+
         expect(wrapper.element).toMatchSnapshot();
     });
 
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
+
         expect(wrapper.vm.priceForCurrency.gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.priceForCurrency.net).toEqual(dollarPrice.net);
     });
 
     it('should not be an disabled field', async () => {
         const wrapper = await setup();
+
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeFalsy();
     });
 
     it('should be an disabled field', async () => {
         const wrapper = await setup({ price: [euroPrice] });
+
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
     });
 
     it('should calculate price based on default price', async () => {
         const wrapper = await setup({ price: [euroPrice] });
+
         const dollarPriceConverted = {
             gross: euroPrice.gross * currency.factor,
             net: euroPrice.net * currency.factor,
@@ -120,6 +128,7 @@ describe('components/form/sw-price-field', () => {
 
     it('should remove the inheritance when matching currency price exists', async () => {
         const wrapper = await setup({ price: [euroPrice] });
+
         expect(wrapper.vm.isInherited).toBeTruthy();
         await wrapper.setProps({ price: [dollarPrice, euroPrice] });
         expect(wrapper.vm.isInherited).toBeFalsy();

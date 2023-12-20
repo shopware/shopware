@@ -61,44 +61,10 @@ class ThemeScriptsTest extends TestCase
         $themeId = '018c7c7cfc0f7ab9a30e557310cdbed9';
         $parentThemeId = '018c39effbf273e79ea1a7430854f12f';
 
-        $themesCollection = new ThemeCollection([
-            (new ThemeEntity())->assign(
-                [
-                    'id' => $themeId,
-                    '_uniqueIdentifier' => $themeId,
-                    'salesChannels' => new SalesChannelCollection(),
-                    'technicalName' => 'TestTheme',
-                    'parentThemeId' => $parentThemeId,
-                    'labels' => [
-                        'testlabel',
-                    ],
-                    'helpTexts' => [
-                        'testHelp',
-                    ],
-                    'baseConfig' => [
-                        'configInheritance' => [
-                            '@ParentTheme',
-                        ],
-                        'config' => ThemeFixtures::getThemeJsonConfig(),
-                    ],
-                    'configValues' => [
-                        'test' => ['value' => ['no_test']],
-                    ],
-                ]
-            ),
-            (new ThemeEntity())->assign(
-                [
-                    'id' => $parentThemeId,
-                    'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
-                    '_uniqueIdentifier' => $parentThemeId,
-                ]
-            ),
-        ]);
-
         $searchResult = new EntitySearchResult(
             'theme',
             3,
-            $themesCollection,
+            $this->getThemesCollectionStorefront($themeId, $parentThemeId),
             null,
             new Criteria(),
             Context::createDefaultContext()
@@ -109,29 +75,7 @@ class ThemeScriptsTest extends TestCase
             ->method('search')
             ->willReturn($searchResult);
 
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
-        $themePluginBundle = new TestTheme();
-        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
-        $notFoundPluginBundle = new NotFoundPlugin(
-            true,
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
-        );
-        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
-        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
-
-        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
-        $scripts = new FileCollection();
-        $scripts = $scripts::createFromArray([
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
-        ]);
-        $notFoundPlugin->setScriptFiles($scripts);
-
-        $configCollection = new StorefrontPluginConfigurationCollection();
-        $configCollection->add($testTheme);
-        $configCollection->add($asyncPlugin);
-        $configCollection->add($notFoundPlugin);
-
+        $configCollection = $this->getConfigCollection();
         $storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
         $storefrontPluginRegistryMock->expects(static::exactly(2))
             ->method('getConfigurations')
@@ -186,44 +130,10 @@ class ThemeScriptsTest extends TestCase
         $themeId = '018c7c7cfc0f7ab9a30e557310cdbed9';
         $parentThemeId = '018c39effbf273e79ea1a7430854f12f';
 
-        $themesCollection = new ThemeCollection([
-            (new ThemeEntity())->assign(
-                [
-                    'id' => $themeId,
-                    '_uniqueIdentifier' => $themeId,
-                    'salesChannels' => new SalesChannelCollection(),
-                    'technicalName' => null,
-                    'parentThemeId' => $parentThemeId,
-                    'labels' => [
-                        'testlabel',
-                    ],
-                    'helpTexts' => [
-                        'testHelp',
-                    ],
-                    'baseConfig' => [
-                        'configInheritance' => [
-                            '@ParentTheme',
-                        ],
-                        'config' => ThemeFixtures::getThemeJsonConfig(),
-                    ],
-                    'configValues' => [
-                        'test' => ['value' => ['no_test']],
-                    ],
-                ]
-            ),
-            (new ThemeEntity())->assign(
-                [
-                    'id' => $parentThemeId,
-                    'technicalName' => 'MockStorefront',
-                    '_uniqueIdentifier' => $parentThemeId,
-                ]
-            ),
-        ]);
-
         $searchResult = new EntitySearchResult(
             'theme',
             3,
-            $themesCollection,
+            $this->getThemesCollectionNullAndMockStorefront($themeId, $parentThemeId),
             null,
             new Criteria(),
             Context::createDefaultContext()
@@ -234,32 +144,7 @@ class ThemeScriptsTest extends TestCase
             ->method('search')
             ->willReturn($searchResult);
 
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
-        $storefrontBundle = new MockStorefront();
-        $themePluginBundle = new TestTheme();
-        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
-        $notFoundPluginBundle = new NotFoundPlugin(
-            true,
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
-        );
-        $storefront = $configurationFactory->createFromBundle($storefrontBundle);
-        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
-        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
-
-        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
-        $scripts = new FileCollection();
-        $scripts = $scripts::createFromArray([
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
-        ]);
-        $notFoundPlugin->setScriptFiles($scripts);
-
-        $configCollection = new StorefrontPluginConfigurationCollection();
-        $configCollection->add($storefront);
-        $configCollection->add($testTheme);
-        $configCollection->add($asyncPlugin);
-        $configCollection->add($notFoundPlugin);
-
+        $configCollection = $this->getConfigCollectionWithMockStorefront();
         $storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
         $storefrontPluginRegistryMock->expects(static::exactly(2))
             ->method('getConfigurations')
@@ -314,44 +199,10 @@ class ThemeScriptsTest extends TestCase
         $themeId = '018c7c7cfc0f7ab9a30e557310cdbed9';
         $parentThemeId = '018c39effbf273e79ea1a7430854f12f';
 
-        $themesCollection = new ThemeCollection([
-            (new ThemeEntity())->assign(
-                [
-                    'id' => $themeId,
-                    '_uniqueIdentifier' => $themeId,
-                    'salesChannels' => new SalesChannelCollection(),
-                    'technicalName' => null,
-                    'parentThemeId' => $parentThemeId,
-                    'labels' => [
-                        'testlabel',
-                    ],
-                    'helpTexts' => [
-                        'testHelp',
-                    ],
-                    'baseConfig' => [
-                        'configInheritance' => [
-                            '@ParentTheme',
-                        ],
-                        'config' => ThemeFixtures::getThemeJsonConfig(),
-                    ],
-                    'configValues' => [
-                        'test' => ['value' => ['no_test']],
-                    ],
-                ]
-            ),
-            (new ThemeEntity())->assign(
-                [
-                    'id' => $parentThemeId,
-                    'technicalName' => 'MockStorefront',
-                    '_uniqueIdentifier' => $parentThemeId,
-                ]
-            ),
-        ]);
-
         $searchResult = new EntitySearchResult(
             'theme',
             3,
-            $themesCollection,
+            $this->getThemesCollectionNullAndMockStorefront($themeId, $parentThemeId),
             null,
             new Criteria(),
             Context::createDefaultContext()
@@ -362,32 +213,7 @@ class ThemeScriptsTest extends TestCase
             ->method('search')
             ->willReturn($searchResult);
 
-        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
-        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
-        $storefrontBundle = new MockStorefront();
-        $themePluginBundle = new TestTheme();
-        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
-        $notFoundPluginBundle = new NotFoundPlugin(
-            true,
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
-        );
-        $storefront = $configurationFactory->createFromBundle($storefrontBundle);
-        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
-        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
-
-        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
-        $scripts = new FileCollection();
-        $scripts = $scripts::createFromArray([
-            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
-        ]);
-        $notFoundPlugin->setScriptFiles($scripts);
-
-        $configCollection = new StorefrontPluginConfigurationCollection();
-        $configCollection->add($storefront);
-        $configCollection->add($testTheme);
-        $configCollection->add($asyncPlugin);
-        $configCollection->add($notFoundPlugin);
-
+        $configCollection = $this->getConfigCollectionWithMockStorefront();
         $storefrontPluginRegistryMock = $this->createMock(StorefrontPluginRegistry::class);
         $storefrontPluginRegistryMock->expects(static::once())
             ->method('getConfigurations')
@@ -427,5 +253,138 @@ class ThemeScriptsTest extends TestCase
         );
 
         $themeScripts->getThemeScripts($salesChannelContext, $themeId);
+    }
+
+    private function getThemesCollectionStorefront(string $themeId, string $parentThemeId): ThemeCollection
+    {
+        return new ThemeCollection([
+            (new ThemeEntity())->assign(
+                [
+                    'id' => $themeId,
+                    '_uniqueIdentifier' => $themeId,
+                    'salesChannels' => new SalesChannelCollection(),
+                    'technicalName' => 'TestTheme',
+                    'parentThemeId' => $parentThemeId,
+                    'labels' => [
+                        'testlabel',
+                    ],
+                    'helpTexts' => [
+                        'testHelp',
+                    ],
+                    'baseConfig' => [
+                        'configInheritance' => [
+                            '@ParentTheme',
+                        ],
+                        'config' => ThemeFixtures::getThemeJsonConfig(),
+                    ],
+                    'configValues' => [
+                        'test' => ['value' => ['no_test']],
+                    ],
+                ]
+            ),
+            (new ThemeEntity())->assign(
+                [
+                    'id' => $parentThemeId,
+                    'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+                    '_uniqueIdentifier' => $parentThemeId,
+                ]
+            ),
+        ]);
+    }
+
+    private function getConfigCollection(): StorefrontPluginConfigurationCollection
+    {
+        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
+        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
+        $themePluginBundle = new TestTheme();
+        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
+        $notFoundPluginBundle = new NotFoundPlugin(
+            true,
+            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
+        );
+        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
+        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
+
+        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
+        $scripts = new FileCollection();
+        $scripts = $scripts::createFromArray([
+            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
+        ]);
+        $notFoundPlugin->setScriptFiles($scripts);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($testTheme);
+        $configCollection->add($asyncPlugin);
+        $configCollection->add($notFoundPlugin);
+
+        return $configCollection;
+    }
+
+    private function getThemesCollectionNullAndMockStorefront(string $themeId, string $parentThemeId): ThemeCollection
+    {
+        return new ThemeCollection([
+            (new ThemeEntity())->assign(
+                [
+                    'id' => $themeId,
+                    '_uniqueIdentifier' => $themeId,
+                    'salesChannels' => new SalesChannelCollection(),
+                    'technicalName' => null,
+                    'parentThemeId' => $parentThemeId,
+                    'labels' => [
+                        'testlabel',
+                    ],
+                    'helpTexts' => [
+                        'testHelp',
+                    ],
+                    'baseConfig' => [
+                        'configInheritance' => [
+                            '@ParentTheme',
+                        ],
+                        'config' => ThemeFixtures::getThemeJsonConfig(),
+                    ],
+                    'configValues' => [
+                        'test' => ['value' => ['no_test']],
+                    ],
+                ]
+            ),
+            (new ThemeEntity())->assign(
+                [
+                    'id' => $parentThemeId,
+                    'technicalName' => 'MockStorefront',
+                    '_uniqueIdentifier' => $parentThemeId,
+                ]
+            ),
+        ]);
+    }
+
+    private function getConfigCollectionWithMockStorefront(): StorefrontPluginConfigurationCollection
+    {
+        $projectDir = 'tests/unit/Storefront/Theme/fixtures';
+        $configurationFactory = new StorefrontPluginConfigurationFactory($projectDir);
+        $storefrontBundle = new MockStorefront();
+        $themePluginBundle = new TestTheme();
+        $asyncPluginBundle = new AsyncPlugin(true, $projectDir . 'fixtures/ThemeAndPlugin/AsyncPlugin');
+        $notFoundPluginBundle = new NotFoundPlugin(
+            true,
+            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin'
+        );
+        $storefront = $configurationFactory->createFromBundle($storefrontBundle);
+        $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
+        $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
+
+        $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
+        $scripts = new FileCollection();
+        $scripts = $scripts::createFromArray([
+            $projectDir . 'fixtures/ThemeAndPlugin/NotFoundPlugin/src/Resources/app/storefront/src/plugins/lorem-ipsum/plugin.js',
+        ]);
+        $notFoundPlugin->setScriptFiles($scripts);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($storefront);
+        $configCollection->add($testTheme);
+        $configCollection->add($asyncPlugin);
+        $configCollection->add($notFoundPlugin);
+
+        return $configCollection;
     }
 }

@@ -6,7 +6,8 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Events\ProductListingPreviewCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductListingResolvePreviewEvent;
-use Shopware\Core\Content\Product\Decoration\ResolveListingLoaderIds;
+use Shopware\Core\Content\Product\Extension\ResolveListingExtension;
+use Shopware\Core\Content\Product\Extension\ResolveListingLoaderIdsExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
-use Shopware\Core\Framework\Decoration\Decorator;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,7 +43,7 @@ class ProductListingLoader
         private readonly Connection $connection,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
-        private readonly Decorator $decorator
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -50,6 +51,17 @@ class ProductListingLoader
      * @return EntitySearchResult<ProductCollection>
      */
     public function load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
+    {
+        // allows full service decoration
+        return $this->extensions->publish(
+            extension: new ResolveListingExtension($origin, $context),
+            function: function (ResolveListingExtension $event): EntitySearchResult {
+                return $this->doLoad($event->criteria, $event->context);
+            }
+        );
+    }
+
+    private function doLoad(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
         $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria = clone $origin;
@@ -253,9 +265,9 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        return $this->decorator->decorate(
-            decoration: new ResolveListingLoaderIds($criteria, $context),
-            function: function(ResolveListingLoaderIds $event): IdSearchResult {
+        return $this->extensions->publish(
+            extension: new ResolveListingLoaderIdsExtension($criteria, $context),
+            function: function(ResolveListingLoaderIdsExtension $event): IdSearchResult {
                 $this->addGrouping($event->criteria);
 
                 $this->handleAvailableStock($event->criteria, $event->context);

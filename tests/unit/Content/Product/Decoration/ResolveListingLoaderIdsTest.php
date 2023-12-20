@@ -2,11 +2,11 @@
 
 namespace Shopware\Tests\Unit\Content\Product\Decoration;
 
-use Shopware\Core\Content\Product\Decoration\ResolveListingLoaderIds;
+use Shopware\Core\Content\Product\Extension\ResolveListingLoaderIdsExtension;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Shopware\Core\Content\Product\Decoration\ResolveListingLoaderIds
+ * @covers \Shopware\Core\Content\Product\Extension\ResolveListingLoaderIdsExtension
  */
 class ResolveListingLoaderIdsTest extends TestCase
 {

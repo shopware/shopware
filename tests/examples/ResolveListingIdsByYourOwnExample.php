@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Examples;
 
 use GuzzleHttp\Client;
-use Shopware\Core\Content\Product\Decoration\ResolveListingLoaderIds;
+use Shopware\Core\Content\Product\Extension\ResolveListingLoaderIdsExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
@@ -20,7 +20,7 @@ readonly class ResolveListingIdsByYourOwnExample
         private Client $client
     ) {}
 
-    public function __invoke(ResolveListingLoaderIds $event): void
+    public function __invoke(ResolveListingLoaderIdsExtension $event): void
     {
         $criteria = $event->criteria;
 

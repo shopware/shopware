@@ -25,7 +25,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Decoration\Decorator">
+        <service id="ExtensionDispatcher">
             <argument type="service" id="event_dispatcher"/>
         </service>
     </services>

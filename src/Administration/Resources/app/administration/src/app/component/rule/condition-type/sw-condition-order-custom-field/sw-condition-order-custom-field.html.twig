@@ -47,11 +47,12 @@
     {% block sw_condition_order_custom_field_value %}
     <sw-form-field-renderer
         v-if="renderedField"
-        v-model="renderedFieldValue"
         name="sw-field--renderedFieldValue"
+        size="medium"
+        :value="renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
-        size="medium"
+        @update="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

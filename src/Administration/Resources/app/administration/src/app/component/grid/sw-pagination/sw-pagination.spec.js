@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/grid/sw-pagination';
 
 describe('src/component/grid/sw-pagination', () => {
@@ -13,7 +13,7 @@ describe('src/component/grid/sw-pagination', () => {
     }
 
     function getButtonAtPosition(position) {
-        const allPageButtons = wrapper.findAll('button.sw-pagination__list-button').wrappers;
+        const allPageButtons = wrapper.findAll('button.sw-pagination__list-button');
 
         return allPageButtons[position];
     }
@@ -21,15 +21,10 @@ describe('src/component/grid/sw-pagination', () => {
     function getPositionOfActiveButton() {
         const allPageButtons = wrapper.findAll(
             '.sw-pagination__list-item :not(span.sw-pagination__list-separator)',
-        ).wrappers;
+        );
 
-        const positionOfActivePageButton = allPageButtons.findIndex(currentElement => {
-            const buttonOfCurrentElement = currentElement.find('button');
-
-            return buttonOfCurrentElement.attributes('class').includes('is-active');
-        });
-
-        return positionOfActivePageButton;
+        return allPageButtons
+            .findIndex(currentElement => currentElement.attributes('class').includes('is-active'));
     }
 
     async function checkNextPage(currentPage, direction, arrowButton) {
@@ -61,21 +56,23 @@ describe('src/component/grid/sw-pagination', () => {
     }
 
     async function createWrapper() {
-        return shallowMount(await Shopware.Component.build('sw-pagination'), {
-            propsData: {
+        return mount(await wrapTestComponent('sw-pagination', { sync: true }), {
+            props: {
                 total: 275,
                 limit: 25,
                 page: 1,
                 autoHide: false,
             },
-            stubs: {
-                'sw-icon': {
-                    template: '<div class="icon"></div>',
+            global: {
+                stubs: {
+                    'sw-icon': {
+                        template: '<div class="icon"></div>',
+                    },
+                    'sw-field': {
+                        template: '<div class="field"></div>',
+                    },
+                    'sw-select-field': true,
                 },
-                'sw-field': {
-                    template: '<div class="field"></div>',
-                },
-                'sw-select-field': true,
             },
             attachTo: document.body,
         });
@@ -90,7 +87,7 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should have two arrow icons', async () => {
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
+        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
 
         expect(leftArrow.exists()).toBe(true);
         expect(leftArrow.attributes('name')).toBe('regular-chevron-left-xs');
@@ -137,7 +134,7 @@ describe('src/component/grid/sw-pagination', () => {
     });
 
     it('should navigate to another page via arrows', async () => {
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
+        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
 
         expect(getActivePage().text()).toBe('1');
 
@@ -214,7 +211,7 @@ describe('src/component/grid/sw-pagination', () => {
 
     it('should navigate through complete pagination only with arrows', async () => {
         const startingPoint = wrapper.vm.currentPage;
-        const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
+        const [leftArrow, rightArrow] = wrapper.findAll('div.icon');
 
         await checkNextPage(startingPoint, 'right', rightArrow);
 

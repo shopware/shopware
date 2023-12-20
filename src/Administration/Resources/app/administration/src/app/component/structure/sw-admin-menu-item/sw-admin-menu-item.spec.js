@@ -2,20 +2,20 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
-async function createWrapper({ propsData = {}, privileges = [] } = {}) {
+async function createWrapper({ props = {}, privileges = [] } = {}) {
     const $router = {
-        match: (route) => {
-            let match = propsData.entry;
+        resolve: ({ path }) => {
+            let match = props.entry;
 
-            const path = route.replace(/\//g, '.');
+            const route = path.replace('/', '').replace(/\//g, '.');
 
-            const matchedChild = propsData.entry.children.find(child => {
-                return child.path === path;
+            const matchedChild = props.entry.children.find((child) => {
+                return child.path === route;
             });
 
             if (matchedChild) {
@@ -42,42 +42,49 @@ async function createWrapper({ propsData = {}, privileges = [] } = {}) {
 
     const aclService = new AclService(Shopware.State);
 
-    return shallowMount(await Shopware.Component.build('sw-admin-menu-item'), {
-        propsData: propsData,
-        stubs: {
-            'sw-icon': true,
-            'sw-admin-menu-item': await Shopware.Component.build('sw-admin-menu-item'),
-            'router-link': {
-                template: '<a class="router-link"></a>',
-                props: ['to'],
-            },
-        },
-        mocks: {
-            $route: {
-                meta: { $module: { name: '' } },
-            },
-            $router,
-        },
-        provide: {
-            acl: {
-                can,
-                hasAccessToRoute: (path) => {
-                    const route = path.replace(/\./g, '/');
-                    const match = $router.match(route);
-
-                    if (!match.meta) {
-                        return true;
-                    }
-
-                    return can(match.meta.privilege);
+    return mount(
+        await wrapTestComponent('sw-admin-menu-item', { sync: true }),
+        {
+            props,
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                    'sw-admin-menu-item': await Shopware.Component.build(
+                        'sw-admin-menu-item',
+                    ),
+                    'router-link': {
+                        template: '<a class="router-link"></a>',
+                        props: ['to'],
+                    },
                 },
-                hasActiveSettingModules: aclService.hasActiveSettingModules,
-                state: aclService.state,
+                mocks: {
+                    $route: {
+                        meta: { $module: { name: '' } },
+                    },
+                    $router,
+                },
+                provide: {
+                    acl: {
+                        can,
+                        hasAccessToRoute: (path) => {
+                            const route = path.replace(/\./g, '/');
+                            const match = $router.resolve(route);
+
+                            if (!match.meta) {
+                                return true;
+                            }
+
+                            return can(match.meta.privilege);
+                        },
+                        hasActiveSettingModules:
+                            aclService.hasActiveSettingModules,
+                        state: aclService.state,
+                    },
+                },
             },
         },
-    });
+    );
 }
-
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeAll(() => {
@@ -103,38 +110,55 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
     it('should be a Vue.js component', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 entry: catalogues,
             },
         });
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain all menu entries', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 entry: catalogues,
             },
         });
 
-        const children = wrapper.findAll('.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item');
+        const children = wrapper.findAll(
+            '.sw-admin-menu__sub-navigation-list .sw-admin-menu__navigation-list-item',
+        );
         expect(children).toHaveLength(8);
 
-        expect(wrapper.classes()).toContain('navigation-list-item__sw-catalogue');
-        expect(children.at(0).classes()).toContain('navigation-list-item__sw-product');
-        expect(children.at(1).classes()).toContain('navigation-list-item__sw-review');
-        expect(children.at(2).classes()).toContain('navigation-list-item__sw-category');
-        expect(children.at(3).classes()).toContain('navigation-list-item__sw-product-stream');
-        expect(children.at(4).classes()).toContain('navigation-list-item__sw-property');
-        expect(children.at(5).classes()).toContain('navigation-list-item__sw-manufacturer');
+        expect(wrapper.classes()).toContain(
+            'navigation-list-item__sw-catalogue',
+        );
+        expect(children.at(0).classes()).toContain(
+            'navigation-list-item__sw-product',
+        );
+        expect(children.at(1).classes()).toContain(
+            'navigation-list-item__sw-review',
+        );
+        expect(children.at(2).classes()).toContain(
+            'navigation-list-item__sw-category',
+        );
+        expect(children.at(3).classes()).toContain(
+            'navigation-list-item__sw-product-stream',
+        );
+        expect(children.at(4).classes()).toContain(
+            'navigation-list-item__sw-property',
+        );
+        expect(children.at(5).classes()).toContain(
+            'navigation-list-item__sw-manufacturer',
+        );
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show only one entry without children', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -156,7 +180,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
     it('should show a link when a path is provided', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -172,7 +196,9 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        const routerLink = wrapper.find('.navigation-list-item__sw-product .router-link');
+        const routerLink = wrapper.findComponent(
+            '.navigation-list-item__sw-product .router-link',
+        );
 
         expect(routerLink.props().to).toMatchObject({
             name: 'sw.product.index',
@@ -181,7 +207,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
     it('should not show a link when no path is provided', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 entry: catalogues,
             },
         });
@@ -192,7 +218,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
     it('should not show the menu entry when user has no privilege', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -209,13 +235,13 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(wrapper.html()).toBe('');
+        expect(wrapper.html()).toMatchInlineSnapshot('"<!--v-if-->"');
     });
 
     it('should show the menu entry when user has the privilege', async () => {
         const wrapper = await createWrapper({
             privileges: ['product.viewer'],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -238,7 +264,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     it('should not show a link when the path goes to a route which needs a privilege which is not set', async () => {
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -249,30 +275,33 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     level: 1,
                     moduleType: 'core',
-                    children: [{
-                        id: 'sw-product',
-                        label: 'sw-product.general.mainMenuItemGeneral',
-                        color: '#57D9A3',
-                        path: 'sw.product.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 10,
-                        level: 2,
-                        moduleType: 'core',
-                        privilege: 'product.viewer',
-                        children: [],
-                    }, {
-                        id: 'sw-review',
-                        label: 'sw-review.general.mainMenuItemList',
-                        color: '#57D9A3',
-                        path: 'sw.review.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 20,
-                        level: 2,
-                        moduleType: 'core',
-                        children: [],
-                    }],
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            privilege: 'product.viewer',
+                            children: [],
+                        },
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
                 },
             },
         });
@@ -284,7 +313,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {
         const wrapper = await createWrapper({
             privileges: ['product.viewer'],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -295,38 +324,40 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     level: 1,
                     moduleType: 'core',
-                    children: [{
-                        id: 'sw-product',
-                        label: 'sw-product.general.mainMenuItemGeneral',
-                        color: '#57D9A3',
-                        path: 'sw.product.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 10,
-                        level: 2,
-                        moduleType: 'core',
-                        meta: {
-                            privilege: 'product.viewer',
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            meta: {
+                                privilege: 'product.viewer',
+                            },
+                            children: [],
                         },
-                        children: [],
-                    }, {
-                        id: 'sw-review',
-                        label: 'sw-review.general.mainMenuItemList',
-                        color: '#57D9A3',
-                        path: 'sw.review.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 20,
-                        level: 2,
-                        moduleType: 'core',
-                        children: [],
-                    }],
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
                 },
             },
         });
 
-        const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.element.tagName).not.toBe('SPAN');
+        const navigationLink = wrapper.findComponent('.sw-admin-menu__navigation-link');
         expect(navigationLink.element.tagName).toBe('A');
 
         expect(navigationLink.props().to).toMatchObject({
@@ -338,7 +369,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     it('should not show the menu entry when all children have privileges the user do not have and the main path is also restricted', async () => {
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -349,42 +380,45 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     level: 1,
                     moduleType: 'core',
-                    children: [{
-                        id: 'sw-product',
-                        label: 'sw-product.general.mainMenuItemGeneral',
-                        color: '#57D9A3',
-                        path: 'sw.product.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 10,
-                        level: 2,
-                        moduleType: 'core',
-                        privilege: 'product.viewer',
-                        children: [],
-                    }, {
-                        id: 'sw-review',
-                        label: 'sw-review.general.mainMenuItemList',
-                        color: '#57D9A3',
-                        path: 'sw.review.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        privilege: 'reviewer.viewer',
-                        position: 20,
-                        level: 2,
-                        moduleType: 'core',
-                        children: [],
-                    }],
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            privilege: 'product.viewer',
+                            children: [],
+                        },
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            privilege: 'reviewer.viewer',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
                 },
             },
         });
 
-        expect(wrapper.html()).toBe('');
+        expect(wrapper.html()).toBe('<!--v-if-->');
     });
 
     it('should not show the menu entry when all children have privileges the user do not have', async () => {
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -394,43 +428,46 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     moduleType: 'core',
                     level: 1,
-                    children: [{
-                        id: 'sw-product',
-                        label: 'sw-product.general.mainMenuItemGeneral',
-                        color: '#57D9A3',
-                        path: 'sw.product.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 10,
-                        level: 2,
-                        moduleType: 'core',
-                        privilege: 'product.viewer',
-                        children: [],
-                    }, {
-                        id: 'sw-review',
-                        label: 'sw-review.general.mainMenuItemList',
-                        color: '#57D9A3',
-                        path: 'sw.review.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        privilege: 'reviewer.viewer',
-                        position: 20,
-                        level: 2,
-                        moduleType: 'core',
-                        children: [],
-                    }],
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            privilege: 'product.viewer',
+                            children: [],
+                        },
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            privilege: 'reviewer.viewer',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
                 },
             },
         });
 
-        expect(wrapper.html()).toBe('');
+        expect(wrapper.html()).toMatchInlineSnapshot('"<!--v-if-->"');
     });
 
     // eslint-disable-next-line max-len
     it('should show the menu entry when all children have privileges the user do not have but the main path is allowed', async () => {
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-product',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -441,36 +478,39 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
                     position: 10,
                     moduleType: 'core',
                     level: 1,
-                    children: [{
-                        id: 'sw-product',
-                        label: 'sw-product.general.mainMenuItemGeneral',
-                        color: '#57D9A3',
-                        path: 'sw.product.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        position: 10,
-                        level: 2,
-                        moduleType: 'core',
-                        privilege: 'product.viewer',
-                        children: [],
-                    }, {
-                        id: 'sw-review',
-                        label: 'sw-review.general.mainMenuItemList',
-                        color: '#57D9A3',
-                        path: 'sw.review.index',
-                        icon: 'default-symbol-products',
-                        parent: 'sw-catalogue',
-                        privilege: 'reviewer.viewer',
-                        position: 20,
-                        level: 2,
-                        moduleType: 'core',
-                        children: [],
-                    }],
+                    children: [
+                        {
+                            id: 'sw-product',
+                            label: 'sw-product.general.mainMenuItemGeneral',
+                            color: '#57D9A3',
+                            path: 'sw.product.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            position: 10,
+                            level: 2,
+                            moduleType: 'core',
+                            privilege: 'product.viewer',
+                            children: [],
+                        },
+                        {
+                            id: 'sw-review',
+                            label: 'sw-review.general.mainMenuItemList',
+                            color: '#57D9A3',
+                            path: 'sw.review.index',
+                            icon: 'default-symbol-products',
+                            parent: 'sw-catalogue',
+                            privilege: 'reviewer.viewer',
+                            position: 20,
+                            level: 2,
+                            moduleType: 'core',
+                            children: [],
+                        },
+                    ],
                 },
             },
         });
 
-        const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
+        const navigationLink = wrapper.findComponent('.sw-admin-menu__navigation-link');
         expect(navigationLink.element.tagName).toBe('A');
         expect(navigationLink.props().to).toMatchObject({
             name: 'sw.cms.index',
@@ -484,7 +524,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-settings.index',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -498,9 +538,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(wrapper.html()).toBe('');
+        expect(wrapper.html()).toMatchInlineSnapshot('"<!--v-if-->"');
     });
-
 
     it('settings should be shown if all item is visible', async () => {
         Shopware.State.get('settingsItems').settingsGroups.shop = [
@@ -510,7 +549,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         const wrapper = await createWrapper({
             privileges: ['priv-1', 'priv2'],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-settings.index',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -536,7 +575,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         const wrapper = await createWrapper({
             privileges: ['priv-1'],
-            propsData: {
+            props: {
                 entry: {
                     id: 'sw-settings.index',
                     label: 'sw-product.general.mainMenuItemGeneral',
@@ -557,7 +596,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
     it('get the first plugin menu entry', async () => {
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     path: 'sw.foo.index',
                     label: 'sw-foo.general.mainMenuItemList',
@@ -571,7 +610,12 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeTruthy();
+        expect(
+            wrapper.vm.isFirstPluginInMenuEntries(
+                wrapper.vm.entry,
+                catalogues.children,
+            ),
+        ).toBeTruthy();
 
         await wrapper.setProps({
             entry: {
@@ -586,7 +630,12 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
             },
         });
 
-        expect(wrapper.vm.isFirstPluginInMenuEntries(wrapper.vm.entry, catalogues.children)).toBeFalsy();
+        expect(
+            wrapper.vm.isFirstPluginInMenuEntries(
+                wrapper.vm.entry,
+                catalogues.children,
+            ),
+        ).toBeFalsy();
     });
 
     it('should match route', async () => {
@@ -605,7 +654,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
 
         const wrapper = await createWrapper({
             privileges: [],
-            propsData: {
+            props: {
                 entry: {
                     path: 'sw.foo.index',
                     label: 'sw-foo.general.mainMenuItemList',

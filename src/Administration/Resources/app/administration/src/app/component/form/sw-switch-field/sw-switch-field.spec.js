@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/form/sw-switch-field';
@@ -11,9 +11,9 @@ const createWrapper = async () => {
     const baseComponent = {
         template: `
             <div>
-                <sw-switch-field v-model="checkOne" label="CheckOne" bordered></sw-switch-field>
-                <sw-switch-field v-model="checkTwo" label="CheckTwo" padded></sw-switch-field>
-                <sw-switch-field v-model="checkThree" label="CheckThree" bordered padded></sw-switch-field>
+                <sw-switch-field v-model:value="checkOne" label="CheckOne" bordered name="sw-field--checkOne"></sw-switch-field>
+                <sw-switch-field v-model:value="checkTwo" label="CheckTwo" padded name="sw-field--checkTwo"></sw-switch-field>
+                <sw-switch-field v-model:value="checkThree" label="CheckThree" bordered padded name="sw-field--checkThree"></sw-switch-field>
             </div>
         `,
 
@@ -26,12 +26,14 @@ const createWrapper = async () => {
         },
     };
 
-    return shallowMount(baseComponent, {
-        stubs: {
-            'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-field-error': {
-                template: '<div></div>',
+    return mount(baseComponent, {
+        global: {
+            stubs: {
+                'sw-switch-field': await wrapTestComponent('sw-switch-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': {
+                    template: '<div></div>',
+                },
             },
         },
         attachTo: document.body,
@@ -39,14 +41,9 @@ const createWrapper = async () => {
 };
 
 describe('app/component/form/sw-switch-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render three switch fields', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const switchFields = wrapper.findAll('.sw-field--switch');
 
@@ -55,6 +52,7 @@ describe('app/component/form/sw-switch-field', () => {
 
     it('should render all labels', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const switchFieldLabels = wrapper.findAll('.sw-field__label label');
 
@@ -65,8 +63,9 @@ describe('app/component/form/sw-switch-field', () => {
         expect(switchFieldLabels.at(2).text()).toContain('CheckThree');
     });
 
-    it('should always have a label refering to a corresponding input field', async () => {
+    it('should always have a label referring to a corresponding input field', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const switchFieldLabels = wrapper.findAll('.sw-field__label label');
 
@@ -84,8 +83,9 @@ describe('app/component/form/sw-switch-field', () => {
     });
 
     ['checkOne', 'checkTwo', 'checkThree'].forEach((checkboxId, index) => {
-        it(`should click on the label of switch field "${checkboxId}" and the corresponding data updates`, async () => {
+        it(`should update the value of the "${checkboxId} field when clicking its label"`, async () => {
             const wrapper = await createWrapper();
+            await flushPromises();
 
             expect(wrapper.vm[checkboxId]).toBeFalsy();
             await wrapper.findAll('.sw-field__label label').at(index).trigger('click');
@@ -93,8 +93,9 @@ describe('app/component/form/sw-switch-field', () => {
         });
 
 
-        it(`should click on the input of switch field "${checkboxId}" and the corresponding data updates`, async () => {
+        it(`should update the value of the "${checkboxId} field when clicking on the input"`, async () => {
             const wrapper = await createWrapper();
+            await flushPromises();
 
             expect(wrapper.vm[checkboxId]).toBeFalsy();
             await wrapper.find(`input[name="sw-field--${checkboxId}"]`).setChecked();
@@ -103,42 +104,51 @@ describe('app/component/form/sw-switch-field', () => {
     });
 
     it('should show the label from the property', async () => {
-        const wrapper = shallowMount(await Shopware.Component.build('sw-switch-field'), {
-            propsData: {
+        const wrapper = mount(await wrapTestComponent('sw-switch-field', { sync: true }), {
+            props: {
                 label: 'Label from prop',
             },
-            stubs: {
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': {
-                    template: '<div></div>',
+            global: {
+                stubs: {
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': {
+                        template: '<div></div>',
+                    },
                 },
             },
         });
+
+        await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from prop');
     });
 
     it('should show the value from the label slot', async () => {
-        const wrapper = shallowMount(await Shopware.Component.build('sw-switch-field'), {
-            propsData: {
+        const wrapper = mount(await wrapTestComponent('sw-switch-field', { sync: true }), {
+            props: {
                 label: 'Label from prop',
             },
-            stubs: {
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-field-error': {
-                    template: '<div></div>',
+            global: {
+                stubs: {
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-field-error': {
+                        template: '<div></div>',
+                    },
                 },
             },
-            scopedSlots: {
+            slots: {
                 label: '<template>Label from slot</template>',
             },
         });
+        await flushPromises();
 
         expect(wrapper.find('label').text()).toBe('Label from slot');
     });
 
     it('should always have the corresponding css class, when its styling property has been set', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         const checkboxContentWrappers = wrapper.findAll('.sw-field--switch');
 
         expect(checkboxContentWrappers.at(0).classes()).toContain('sw-field--switch-bordered');

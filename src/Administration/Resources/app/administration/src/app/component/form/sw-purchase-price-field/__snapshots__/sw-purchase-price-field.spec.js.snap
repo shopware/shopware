@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components/form/sw-purchase-price-field should renders correctly 1`] = `
+<sw-price-field-stub
+  class="sw-purchase-price-field"
+  currency="[object Object]"
+  defaultprice="[object Object]"
+  gross-label="sw-product.priceForm.labelPurchasePriceGross"
+  label="true"
+  name="sw-purchase-price-field"
+  net-label="sw-product.priceForm.labelPurchasePriceNet"
+  price="[object Object]"
+  tax-rate="[object Object]"
+/>
+`;

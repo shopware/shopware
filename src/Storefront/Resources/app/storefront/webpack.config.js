@@ -261,9 +261,9 @@ const coreConfig = {
                 return {
                     minimizer: [
                         new TerserPlugin({
+                            minify: TerserPlugin.swcMinify,
                             terserOptions: {
-                                ecma: 5,
-                                warnings: false,
+                                compress: true,
                             },
                             parallel: true,
                         }),

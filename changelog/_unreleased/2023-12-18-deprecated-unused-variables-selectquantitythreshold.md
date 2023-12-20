@@ -1,6 +1,6 @@
 ---
 title: Deprecated unused variables selectQuantityThreshold
-issue: NEXT-0000
+issue: NEXT-32778
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

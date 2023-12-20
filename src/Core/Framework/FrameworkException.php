@@ -14,8 +14,8 @@ class FrameworkException extends HttpException
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
-            'Project directory "{{ dir }}" does not exist.',
             self::PROJECT_DIR_NOT_EXISTS,
+            'Project directory "{{ dir }}" does not exist.',
             ['dir' => $dir],
             $e
         );

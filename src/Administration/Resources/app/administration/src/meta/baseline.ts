@@ -857,7 +857,6 @@ const missingTests = [
     'src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js',
     'src/module/sw-import-export/component/sw-import-export-exporter/index.js',
     'src/module/sw-import-export/component/sw-import-export-importer/index.js',
-    'src/module/sw-import-export/component/sw-import-export-progress/index.js',
     'src/module/sw-import-export/view/sw-import-export-view-profiles/index.js',
     'src/module/sw-integration/page/sw-integration-list/index.js',
     'src/module/sw-login/view/sw-login-recovery/index.js',

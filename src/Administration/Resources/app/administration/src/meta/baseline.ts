@@ -785,7 +785,6 @@ const missingTests = [
     'src/app/mixin/rule-container.mixin.ts',
     'src/app/mixin/salutation.mixin.ts',
     'src/app/mixin/sw-inline-snippet.mixin.ts',
-    'src/app/mixin/user-settings.mixin.ts',
     'src/app/mixin/validation.mixin.ts',
     'src/app/plugin/deprecation.plugin.js',
     'src/app/plugin/shortcut.plugin.js',

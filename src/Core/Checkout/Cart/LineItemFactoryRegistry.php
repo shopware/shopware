@@ -3,11 +3,14 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemQuantityChangedEvent;
+use Shopware\Core\Checkout\Cart\Extension\LineItemFactoryCreateExtension;
+use Shopware\Core\Checkout\Cart\Extension\LineItemFactoryUpdateExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\LineItemFactoryInterface;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -33,7 +36,8 @@ class LineItemFactoryRegistry
     public function __construct(
         private readonly iterable $handlers,
         private readonly DataValidator $validator,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ExtensionDispatcher $dispatcher
     ) {
         $this->validatorDefinition = $this->createValidatorDefinition();
     }
@@ -43,18 +47,26 @@ class LineItemFactoryRegistry
      */
     public function create(array $data, SalesChannelContext $context): LineItem
     {
-        if (!isset($data['id'])) {
-            $data['id'] = Uuid::randomHex();
-        }
+        return $this->dispatcher->publish(
+            extension: new LineItemFactoryCreateExtension($data, $context),
+            function: function(LineItemFactoryCreateExtension $event) {
+                $data = $event->data;
+                $context = $event->context;
 
-        $this->validate($data);
+                if (!isset($data['id'])) {
+                    $data['id'] = Uuid::randomHex();
+                }
 
-        $handler = $this->getHandler($data['type'] ?? '');
+                $this->validate($data);
 
-        $lineItem = $handler->create($data, $context);
-        $lineItem->markModified();
+                $handler = $this->getHandler($data['type'] ?? '');
 
-        return $lineItem;
+                $lineItem = $handler->create($data, $context);
+                $lineItem->markModified();
+
+                return $lineItem;
+            }
+        );
     }
 
     /**
@@ -68,10 +80,21 @@ class LineItemFactoryRegistry
             throw CartException::lineItemNotFound($identifier ?? '');
         }
 
-        $this->updateLineItem($cart, $data, $lineItem, $context);
+        $this->dispatcher->publish(
+            extension: new LineItemFactoryUpdateExtension($cart, $lineItem, $data, $context),
+            function: function (LineItemFactoryUpdateExtension $event) {
+                $this->updateLineItem(
+                    cart: $event->cart,
+                    data: $event->data,
+                    lineItem: $event->lineItem,
+                    context: $event->context
+                );
+            }
+        );
     }
 
     /**
+     * @deprecated tag:v6.7.0 - Becomes internal, use update() instead
      * @param array<string|int, mixed> $data
      */
     public function updateLineItem(Cart $cart, array $data, LineItem $lineItem, SalesChannelContext $context): void

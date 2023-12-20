@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Framework\Webhook;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\WebhookException;
@@ -10,9 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\Webhook\WebhookException
  */
 #[Package('core')]
-#[CoversClass(WebhookException::class)]
 class WebhookExceptionTest extends TestCase
 {
     public function testAppWebhookFailedException(): void

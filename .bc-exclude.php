@@ -30,6 +30,7 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Cache\\\\RedisConnectionFactory#create',
         'Shopware\\\\Core\\\\Framework\\\\Increment\\\\RedisIncrementer#__construct',
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Payment\\\\Payload\\\\Struct\\\\SyncPayPayload#__construct()',
+        'Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\FkReference#__construct\(\)',
 
         // Removed boot method from Bundle
         'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -12,9 +13,8 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
- *
- * @covers \Shopware\Core\Migration\V6_6\Migration1701688920FixDownloadLinkMail
  */
+#[CoversClass(Migration1701688920FixDownloadLinkMail::class)]
 class Migration1701688920FixDownloadLinkMailTest extends TestCase
 {
     use MigrationTestTrait;

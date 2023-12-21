@@ -19,7 +19,7 @@
                     <select id="personalBirthday"
                             name="birthdayDay"
                             class="form-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
-                            required="required">
+                            {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                         {% if not birthday %}
                             <option selected="selected"
                                     value="">
@@ -48,7 +48,7 @@
                 <div class="form-group col-4 col-md-2">
                     <select name="birthdayMonth"
                             class="form-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
-                            required="required">
+                            {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                         {% if not birthmonth %}
                             <option selected="selected"
                                     value="">
@@ -80,7 +80,7 @@
 
                     <select name="birthdayYear"
                             class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
-                            required="required">
+                            {{ config('core.loginRegistration.birthdayFieldRequired') ? 'required="required"' }}>
                         {% if not birthyear %}
                             <option selected="selected"
                                     value="">

@@ -1,5 +1,5 @@
 {% block component_account_login %}
-    <div class="card login-card">
+    <div class="card login-card mb-3">
         <div class="card-body">
             {% block component_account_login_header %}
                 {% if cardTitle %}
@@ -96,7 +96,7 @@
                     {% endblock %}
 
                     {% block component_account_login_password_recover %}
-                        <div class="login-password-recover">
+                        <div class="login-password-recover mb-3">
                             {% block component_account_login_password_recover_link %}
                                 <a href="{{ seoUrl('frontend.account.recover.page') }}">
                                     {{ 'account.loginPasswordRecover'|trans }}

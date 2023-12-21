@@ -126,7 +126,7 @@ abstract class StorefrontController extends AbstractController
 
             $redirectTo = $request->get('redirectTo');
 
-            if ($redirectTo) {
+            if ($redirectTo && \is_string($redirectTo)) {
                 return $this->redirectToRoute($redirectTo, $params);
             }
 

@@ -1,12 +1,9 @@
+import { mount } from '@vue/test-utils';
+import swProfileIndexSearchPreferences from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
+
 /**
  * @package services-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import Vuex from 'vuex_v2';
-import swProfileIndexSearchPreferences from 'src/module/sw-profile/view/sw-profile-index-search-preferences';
-import 'src/app/component/base/sw-card';
-import 'src/app/component/base/sw-container';
-import 'src/app/component/base/sw-button';
 
 Shopware.Component.register('sw-profile-index-search-preferences', swProfileIndexSearchPreferences);
 Shopware.Service().register('shopwareDiscountCampaignService', () => {
@@ -34,53 +31,54 @@ const swProfileStateMock = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
+    return mount(await wrapTestComponent('sw-profile-index-search-preferences', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-ignore-class': true,
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-checkbox-field': true,
+                'sw-loader': true,
+                'sw-extension-component-section': true,
+                'sw-alert': true,
+            },
 
-    return shallowMount(await Shopware.Component.build('sw-profile-index-search-preferences'), {
-        localVue,
-        stubs: {
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-ignore-class': true,
-            'sw-container': await Shopware.Component.build('sw-container'),
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-checkbox-field': true,
-            'sw-loader': true,
-            'sw-extension-component-section': true,
-            'sw-alert': true,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                        search: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+                userConfigService: {
+                    upsert: () => {
                         return Promise.resolve();
                     },
                     search: () => {
                         return Promise.resolve();
                     },
-                }),
-            },
-            userConfigService: {
-                upsert: () => {
-                    return Promise.resolve();
                 },
-                search: () => {
-                    return Promise.resolve();
-                },
-            },
-            searchPreferencesService: {
-                getDefaultSearchPreferences: () => {},
-                getUserSearchPreferences: () => {},
-                processSearchPreferences: () => [],
-                createUserSearchPreferences: () => {
-                    return {
-                        key: 'search.preferences',
-                        userId: 'userId',
-                    };
+                searchPreferencesService: {
+                    getDefaultSearchPreferences: () => {},
+                    getUserSearchPreferences: () => {},
+                    processSearchPreferences: () => [],
+                    createUserSearchPreferences: () => {
+                        return {
+                            key: 'search.preferences',
+                            userId: 'userId',
+                        };
+                    },
                 },
             },
+            attachTo: document.body,
         },
-        attachTo: document.body,
     });
 }
 
@@ -93,14 +91,10 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         Shopware.Application.view.deleteReactive = () => {};
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should get data source once component created', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.getDataSource = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.createdComponent();
@@ -111,6 +105,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should update data source once component created', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.updateDataSource = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.createdComponent();
@@ -121,6 +117,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should add event listeners once component created', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.addEventListeners = jest.fn();
 
         await wrapper.vm.createdComponent();
@@ -131,6 +129,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should remove event listeners before component destroyed', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.removeEventListeners = jest.fn();
 
         await wrapper.vm.beforeDestroyComponent();
@@ -141,6 +141,8 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should get user search preferences once component created', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         wrapper.vm.searchPreferencesService.getUserSearchPreferences = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.createdComponent();

@@ -390,6 +390,79 @@ return (new Config())
             );
         }
     })
+    ->useRule(function (Context $context): void {
+        $addedUnitTests = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('tests/unit/**/*Test.php');
+        $addedSrcFiles = $context->platform->pullRequest->getFiles()->filterStatus(File::STATUS_ADDED)->matches('src/**/*.php');
+        $missingUnitTests = [];
+        $unitTestsName = [];
+
+        foreach ($addedUnitTests as $file) {
+            $content = $file->getContent();
+
+            if (str_contains($content, 'extends TestCase')) {
+                $unitTestsName[] = $file->name;
+            }
+        }
+
+        foreach ($addedSrcFiles as $file) {
+            $content = $file->getContent();
+
+            $fqcn = str_replace('.php', '', $file->name);
+            $className = explode('/', $fqcn);
+            $class = end($className);
+
+            if (\str_contains($content, '* @codeCoverageIgnore')) {
+                continue;
+            }
+
+            if (\str_contains($content, 'abstract class ' . $class)) {
+                continue;
+            }
+
+            if (\str_contains($content, 'interface ' . $class)) {
+                continue;
+            }
+
+            if (\str_contains($content, 'trait ' . $class)) {
+                continue;
+            }
+
+            if (\str_starts_with($class, 'Migration1')) {
+                continue;
+            }
+
+            $ignoreSuffixes = [
+                'Entity',
+                'Collection',
+                'Struct',
+                'Field',
+                'Test',
+                'Definition',
+                'Event',
+            ];
+
+            $ignored = false;
+
+            foreach ($ignoreSuffixes as $ignoreSuffix) {
+                if (\str_ends_with($class, $ignoreSuffix)) {
+                    $ignored = true;
+
+                    break;
+                }
+            }
+
+            if (!$ignored && !\in_array(\str_replace('.php', 'Test.php', $file->name), $unitTestsName, true)) {
+                $missingUnitTests[] = $file->name;
+            }
+        }
+
+        if (\count($missingUnitTests) > 0) {
+            $context->warning(
+                'Please be kind and add unit tests for your new code in these files: <br/>'
+                . implode('<br/>', $missingUnitTests)
+            );
+        }
+    })
     // check for composer version operators
     ->useRule(function (Context $context): void {
         $composerFiles = $context->platform->pullRequest->getFiles()->matches('**/composer.json');

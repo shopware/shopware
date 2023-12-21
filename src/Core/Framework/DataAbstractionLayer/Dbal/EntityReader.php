@@ -33,7 +33,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -679,13 +678,13 @@ class EntityReader implements EntityReaderInterface
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
-            /** @var ArrayEntity $extension */
+            /** @var ArrayStruct<string, mixed> $extension */
             $extension = $struct->getExtension(self::INTERNAL_MAPPING_STORAGE);
 
+            $fks = $extension->get($association->getPropertyName()) ?? [];
+
             // use assign function to avoid setter name building
-            $structData = $data->getList(
-                $extension->get($association->getPropertyName())
-            );
+            $structData = $data->getList($fks);
 
             // if the association is added as extension (for plugins), we have to add the data as extension
             if ($association->is(Extension::class)) {

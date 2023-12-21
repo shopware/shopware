@@ -747,7 +747,6 @@ const missingTests = [
     'src/app/component/utils/sw-shortcut-overview/index.js',
     'src/app/component/utils/sw-shortcut-overview-item/index.js',
     'src/app/component/utils/sw-status/index.js',
-    'src/app/component/utils/sw-time-ago/index.ts',
     'src/app/component/wizard/sw-wizard/index.js',
     'src/app/directive/autofocus.directive.ts',
     'src/app/directive/click-outside.directive.ts',

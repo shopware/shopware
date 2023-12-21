@@ -1,10 +1,10 @@
 import 'src/app/mixin/user-settings.mixin';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 let createRepositoryFactoryMock;
 
 async function createWrapper() {
-    return shallowMount({
+    return mount({
         template: `
             <div class="sw-mock">
               <slot></slot>
@@ -19,15 +19,14 @@ async function createWrapper() {
             };
         },
     }, {
-        stubs: {},
-        mocks: {
-            repositoryFactory: {
-                create: () => createRepositoryFactoryMock,
+        attachTo: document.body,
+        global: {
+            mocks: {
+                repositoryFactory: {
+                    create: () => createRepositoryFactoryMock,
+                },
             },
         },
-        propsData: {},
-        provide: {},
-        attachTo: document.body,
     });
 }
 
@@ -48,7 +47,7 @@ describe('src/app/mixin/user-settings.mixin.ts', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();

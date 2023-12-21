@@ -763,7 +763,6 @@ const missingTests = [
     'src/app/mixin/notification.mixin.ts',
     'src/app/mixin/placeholder.mixin.ts',
     'src/app/mixin/position.mixin.ts',
-    'src/app/mixin/remove-api-error.mixin.ts',
     'src/app/mixin/rule-container.mixin.ts',
     'src/app/mixin/salutation.mixin.ts',
     'src/app/mixin/sw-inline-snippet.mixin.ts',

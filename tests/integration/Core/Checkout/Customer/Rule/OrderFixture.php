@@ -22,13 +22,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\Test\EntityFixturesBase;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 #[Package('business-ops')]
 trait OrderFixture
 {
     use BasicTestDataBehaviour;
-    use ContainerAwareTrait;
     use EntityFixturesBase;
 
     /**

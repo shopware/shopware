@@ -735,7 +735,6 @@ class DocumentGeneratorTest extends TestCase
         $media = $this->context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->getContainer()->get(FileLoader::class)->loadMediaFileStream($mediaId, $context));
 
         static::assertInstanceOf(StreamInterface::class, $media);
-        static::assertNotNull($media->getContents());
     }
 
     public function testReadStaticGeneratedDocument(): void

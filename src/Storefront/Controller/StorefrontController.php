@@ -276,6 +276,20 @@ abstract class StorefrontController extends AbstractController
         throw StorefrontException::dontHaveTwigInjected(static::class);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response
+    {
+        $content = $this->renderView($view, $parameters);
+
+        $response ??= new Response();
+
+        $response->setContent($content);
+
+        return $response;
+    }
+
     protected function getTemplateFinder(): TemplateFinder
     {
         return $this->container->get(TemplateFinder::class);

@@ -149,6 +149,7 @@ class RuleTest extends TestCase
                 continue;
             }
 
+            static::assertIsArray($choiceConstraint->choices);
             static::assertEmpty(array_diff($choiceConstraint->choices, $configOperators), sprintf(
                 'Constraints and config for operator differ in condition %s',
                 $rule->getName()
@@ -193,6 +194,7 @@ class RuleTest extends TestCase
                 continue;
             }
 
+            static::assertIsArray($choiceConstraint->choices);
             // skip if rule does not allow empty operator
             if (!\in_array(Rule::OPERATOR_EMPTY, $choiceConstraint->choices, true)) {
                 continue;

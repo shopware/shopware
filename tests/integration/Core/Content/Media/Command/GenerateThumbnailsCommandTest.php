@@ -16,18 +16,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
 class GenerateThumbnailsCommandTest extends TestCase
 {
-    use CommandTestBehaviour;
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
@@ -66,12 +63,10 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('');
-        $output = new BufferedOutput();
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute([]);
 
-        $this->runCommand($this->thumbnailCommand, $input, $output);
-
-        $string = $output->fetch();
+        $string = $commandTester->getDisplay();
         static::assertMatchesRegularExpression('/.*Generated\s*2.*/', $string);
         static::assertMatchesRegularExpression('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
@@ -94,12 +89,10 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('-b 2');
-        $output = new BufferedOutput();
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute(['-b' => '2']);
 
-        $this->runCommand($this->thumbnailCommand, $input, $output);
-
-        $string = $output->fetch();
+        $string = $commandTester->getDisplay();
         static::assertMatchesRegularExpression('/.*Generated\s*2.*/', $string);
         static::assertMatchesRegularExpression('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
@@ -122,12 +115,10 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createNotSupportedMediaFiles();
 
-        $input = new StringInput('');
-        $output = new BufferedOutput();
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute([]);
 
-        $this->runCommand($this->thumbnailCommand, $input, $output);
-
-        $string = $output->fetch();
+        $string = $commandTester->getDisplay();
         static::assertMatchesRegularExpression('/.*Generated\s*1.*/', $string);
         static::assertMatchesRegularExpression('/.*Skipped\s*' . (\count($this->initialMediaIds) + 1) . '.*/', $string);
 
@@ -152,10 +143,8 @@ class GenerateThumbnailsCommandTest extends TestCase
     {
         $this->createValidMediaFiles();
 
-        $input = new StringInput('--folder-name="test folder"');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->thumbnailCommand, $input, $output);
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute(['--folder-name' => 'test folder']);
 
         $medias = $this->getNewMediaEntities();
         foreach ($medias as $updatedMedia) {
@@ -180,10 +169,8 @@ class GenerateThumbnailsCommandTest extends TestCase
             ],
         ], $this->context);
 
-        $input = new StringInput('--folder-name="folder-to-search"');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->thumbnailCommand, $input, $output);
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute(['--folder-name' => 'folder-to-search']);
 
         $medias = $this->getNewMediaEntities();
         foreach ($medias as $updatedMedia) {
@@ -198,9 +185,8 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Could not find a folder with name "non-existing-folder"');
 
-        $input = new StringInput('--folder-name="non-existing-folder"');
-        $output = new BufferedOutput();
-        $this->runCommand($this->thumbnailCommand, $input, $output);
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute(['--folder-name' => 'non-existing-folder']);
     }
 
     public function testItThrowsExceptionOnNonNumericLimit(): void
@@ -208,19 +194,14 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->expectException(MediaException::class);
         $this->expectExceptionMessage('Provided batch size is invalid.');
 
-        $input = new StringInput('--batch-size "test"');
-        $output = new BufferedOutput();
-
-        $this->runCommand($this->thumbnailCommand, $input, $output);
+        $commandTester = new CommandTester($this->thumbnailCommand);
+        $commandTester->execute(['--batch-size' => 'test']);
     }
 
     public function testItCallsUpdateThumbnailsWithStrictArgument(): void
     {
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
-
-        $input = new StringInput('--strict');
-        $output = new BufferedOutput();
 
         $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
             ->disableOriginalConstructor()->getMock();
@@ -236,16 +217,14 @@ class GenerateThumbnailsCommandTest extends TestCase
             $this->getContainer()->get('messenger.bus.shopware')
         );
 
-        $this->runCommand($command, $input, $output);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--strict' => true]);
     }
 
     public function testItCallsUpdateThumbnailsWithoutStrictArgument(): void
     {
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
-
-        $input = new StringInput('');
-        $output = new BufferedOutput();
 
         $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
             ->disableOriginalConstructor()->getMock();
@@ -261,15 +240,14 @@ class GenerateThumbnailsCommandTest extends TestCase
             $this->getContainer()->get('messenger.bus.shopware')
         );
 
-        $this->runCommand($command, $input, $output);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([]);
     }
 
     public function testItDispatchesUpdateThumbnailsMessageWithCorrectStrictProperty(): void
     {
         $this->createValidMediaFiles();
         $newMedia = $this->getNewMediaEntities();
-
-        $output = new BufferedOutput();
 
         $affectedMediaIds = [...array_combine($this->initialMediaIds, $this->initialMediaIds), ...$newMedia->getIds()];
 
@@ -294,10 +272,11 @@ class GenerateThumbnailsCommandTest extends TestCase
             $messageBusMock,
         );
 
-        $this->runCommand($command, new StringInput('--strict --async'), $output);
-        $this->runCommand($command, new StringInput('--async'), $output);
-        $this->runCommand($command, new StringInput('--async'), $output);
-        $this->runCommand($command, new StringInput('--strict --async'), $output);
+        $commandTester = new CommandTester($command);
+        $commandTester->execute(['--strict' => true, '--async' => true]);
+        $commandTester->execute(['--async' => true]);
+        $commandTester->execute(['--async' => true]);
+        $commandTester->execute(['--strict' => true, '--async' => true]);
 
         $envelopes = $messageBusMock->getMessages();
         static::assertCount(4, $envelopes);

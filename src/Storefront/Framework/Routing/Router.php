@@ -32,7 +32,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * @return array<string, string>
+     * {@inheritDoc}
      */
     public static function getSubscribedServices(): array
     {
@@ -42,11 +42,14 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     /**
      * @return array<string>
      */
-    public function warmUp(string $cacheDir): array
+    public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
-        return $this->decorated->warmUp($cacheDir);
+        return $this->decorated->warmUp($cacheDir, $buildDir);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function matchRequest(Request $request): array
     {
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID)) {
@@ -78,6 +81,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $this->decorated->getRouteCollection();
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
         $basePath = $this->getBasePath();
@@ -93,14 +99,14 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
         $salesChannelBaseUrl = $this->getSalesChannelBaseUrl();
 
+        $schema = '';
         // we need to insert the sales channel base url between the baseUrl and the infoPath
         switch ($referenceType) {
-            case self::NETWORK_PATH:
             case self::ABSOLUTE_URL:
-                $schema = '';
-                if ($referenceType === self::ABSOLUTE_URL) {
-                    $schema = $this->getContext()->getScheme() . ':';
-                }
+                $schema = $this->getContext()->getScheme() . ':';
+                // intentional no break
+                // no break
+            case self::NETWORK_PATH:
                 $schemaAuthority = $schema . '//' . $this->getContext()->getHost();
 
                 if ($this->getContext()->getHttpPort() !== 80) {
@@ -143,6 +149,9 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         return $rewrite;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function match(string $pathinfo): array
     {
         return $this->decorated->match($pathinfo);

@@ -3171,31 +3171,6 @@ parameters:
 			path: src/Core/Content/Test/ProductExport/Api/ProductExportControllerTest.php
 
 		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:createProducts\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:getSalesChannelDomain\\(\\) should return Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Command\\\\ProductExportGenerateCommandTest\\:\\:\\$salesChannelContext is never read, only written\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ProductExport/Command/ProductExportGenerateCommandTest.php
-
-		-
 			message: "#^Cannot call method getFileName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
 			path: src/Core/Content/Test/ProductExport/ProductExportRepositoryTest.php
@@ -3704,101 +3679,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ScopeRepository\\:\\:uniqueScopes\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/OAuth/ScopeRepository.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:convertToStruct\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:convertToStruct\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decodeCollection\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decodeCollection\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decodeCollection\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decodeResource\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decodeResource\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:decodeResource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:getIdentifierHash\\(\\) has parameter \\$resource with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:isCollection\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveIncludes\\(\\) has parameter \\$included with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveIncludes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveRelationship\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveRelationship\\(\\) has parameter \\$resource with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveRelationship\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveRelationshipCollection\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveRelationshipCollection\\(\\) has parameter \\$includes with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:resolveRelationshipCollection\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Serializer\\\\JsonApiDecoder\\:\\:validateResourceIdentifier\\(\\) has parameter \\$resource with no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Serializer/JsonApiDecoder.php
 
 		-
 			message: "#^Anonymous variable in a `\\$relationship\\['tmp'\\]\\['definition'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
@@ -5061,11 +4941,6 @@ parameters:
 			path: src/Core/Framework/Test/Api/Controller/AclControllerTest.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\AuthControllerTest\\:\\:fetchApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/Controller/AuthControllerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Controller\\\\IndexingControllerTest\\:\\:provideOffsets\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Api/Controller/IndexingControllerTest.php
@@ -5124,11 +4999,6 @@ parameters:
 			message: "#^Parameter \\#3 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertSame\\(\\) expects string, string\\|false given\\.$#"
 			count: 3
 			path: src/Core/Framework/Test/Api/Controller/PromotionControllerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\OAuth\\\\ClientRepositoryTest\\:\\:fetchApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Api/OAuth/ClientRepositoryTest.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Api\\\\Serializer\\\\JsonApiDecoderTest\\:\\:emptyInputProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -6111,21 +5981,6 @@ parameters:
 			path: src/Core/Framework/Test/Plugin/Requirement/RequirementsValidatorTest.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\_fixture\\\\bundles\\\\FooBarBundle\\:\\:\\$name has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/_fixture/bundles/FooBarBundle.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Test\\\\Plugin\\\\_fixture\\\\bundles\\\\GizmoBundle\\:\\:\\$name has no type specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Plugin/_fixture/bundles/GizmoBundle.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRequestContextResolverAppTest\\:\\:fetchApp\\(\\) should return Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/Routing/ApiRequestContextResolverAppTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Routing\\\\ApiRouteScopeTest\\:\\:provideAllowedData\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Routing/ApiRouteScopeTest.php
@@ -6834,31 +6689,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\System\\\\CustomField\\\\Aggregate\\\\CustomFieldSet\\\\CustomFieldSetEntity\\:\\:\\$config type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/CustomField/Aggregate/CustomFieldSet/CustomFieldSetEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:formatData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) has parameter \\$baseDefinitions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) has parameter \\$salesChannelDefinitions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of class Symfony\\\\Component\\\\DependencyInjection\\\\Reference constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Locale\\\\Aggregate\\\\LocaleTranslation\\\\LocaleTranslationCollection\\:\\:getLanguageIds\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -7676,11 +7506,6 @@ parameters:
 			path: src/Elasticsearch/Framework/Indexing/IndexingDto.php
 
 		-
-			message: "#^Anonymous variable in a `\\$session\\-\\>getFlashBag\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 3
-			path: src/Storefront/Controller/ErrorController.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/SearchController.php
@@ -7709,26 +7534,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$mimeType of class Shopware\\\\Storefront\\\\Framework\\\\Media\\\\Exception\\\\FileTypeNotAllowedException constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Framework/Media/Validator/StorefrontMediaDocumentValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:generate\\(\\) has parameter \\$parameters with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:match\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\Router\\:\\:matchRequest\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
-
-		-
-			message: "#^Strict comparison using \\=\\=\\= between 3 and 0 will always evaluate to false\\.$#"
-			count: 1
-			path: src/Storefront/Framework/Routing/Router.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Framework\\\\Twig\\\\Extension\\\\IconCacheTwigFilter\\:\\:\\$iconCache type has no value type specified in iterable type array\\.$#"

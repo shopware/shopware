@@ -4,19 +4,19 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../Cart/**/*Controller.php" type="annotation" />
-    <import resource="../../Payment/**/*Controller.php" type="annotation" />
-    <import resource="../../Cart/SalesChannel/**/*Controller.php" type="annotation" />
-    <import resource="../../Customer/SalesChannel/**/*Controller.php" type="annotation" />
-    <import resource="../../Document/**/*Controller.php" type="annotation" />
-    <import resource="../../Promotion/**/*Controller.php" type="annotation" />
-    <import resource="../../Order/Api/**/*Controller.php" type="annotation" />
-    <import resource="../../Customer/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Payment/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Shipping/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Customer/Api/**/*Controller.php" type="annotation" />
-    <import resource="../../Customer/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Order/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Cart/SalesChannel/**/*Route.php" type="annotation" />
-    <import resource="../../Document/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Cart/**/*Controller.php" type="attribute" />
+    <import resource="../../Payment/**/*Controller.php" type="attribute" />
+    <import resource="../../Cart/SalesChannel/**/*Controller.php" type="attribute" />
+    <import resource="../../Customer/SalesChannel/**/*Controller.php" type="attribute" />
+    <import resource="../../Document/**/*Controller.php" type="attribute" />
+    <import resource="../../Promotion/**/*Controller.php" type="attribute" />
+    <import resource="../../Order/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../Customer/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Payment/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Shipping/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Customer/Api/**/*Controller.php" type="attribute" />
+    <import resource="../../Customer/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Order/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Cart/SalesChannel/**/*Route.php" type="attribute" />
+    <import resource="../../Document/SalesChannel/**/*Route.php" type="attribute" />
 </routes>

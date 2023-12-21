@@ -9,5 +9,5 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class FooBarBundle extends Bundle
 {
-    protected $name = 'FancyBundleName';
+    protected string $name = 'FancyBundleName';
 }

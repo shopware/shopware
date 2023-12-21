@@ -119,7 +119,6 @@ class CartServiceTest extends TestCase
             ->method('change')
             ->with(static::callback(function (Request $actualRequest) use ($id) {
                 $items = $actualRequest->request->all('items');
-                static::assertIsArray($items);
                 static::assertCount(1, $items);
                 static::assertEquals($id, $items[0]['id']);
                 static::assertEquals(5, $items[0]['quantity']);

@@ -168,7 +168,6 @@ class FlexMigratorTest extends TestCase
             [
                 'require' => [
                     'symfony/flex' => '^2',
-                    'symfony/runtime' => '^5.0|^6.0',
                 ],
                 'config' => [
                     'allow-plugins' => [

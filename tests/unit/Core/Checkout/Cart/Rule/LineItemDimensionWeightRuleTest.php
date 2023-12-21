@@ -255,6 +255,7 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         static::assertInstanceOf(NotBlank::class, $result['operator'][0]);
         static::assertInstanceOf(Choice::class, $result['operator'][1]);
+        static::assertIsArray($result['operator'][1]->choices);
         static::assertContains('empty', $result['operator'][1]->choices);
     }
 

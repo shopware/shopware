@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -173,7 +174,7 @@ class ApiRequestContextResolverAppTest extends TestCase
             'client_secret' => $secret,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
 
         static::assertIsString($browser->getResponse()->getContent());
         $data = json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -219,13 +220,13 @@ class ApiRequestContextResolverAppTest extends TestCase
 
     private function fetchApp(string $appName): ?AppEntity
     {
-        /** @var EntityRepository $appRepository */
+        /** @var EntityRepository<AppCollection> $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $appName));
 
-        return $appRepository->search($criteria, Context::createDefaultContext())->first();
+        return $appRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
     }
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void

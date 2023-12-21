@@ -158,7 +158,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
             'client_secret' => $secretAccessKey,
         ];
 
-        $browser->request('POST', '/api/oauth/token', $authPayload);
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
         static::assertNotFalse($browser->getResponse()->getContent());
 
         $data = \json_decode($browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);

@@ -23,9 +23,9 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
     /**
      * {@inheritdoc}
      *
-     * @return array<string, mixed>
+     * @return array<string, mixed>|\ArrayObject<string, mixed>|bool|float|int|string|null
      */
-    public function normalize(mixed $object, ?string $format = null, array $context = [])
+    public function normalize(mixed $object, ?string $format = null, array $context = []): float|array|\ArrayObject|bool|int|string|null
     {
         $encoder = new JsonEncode();
 
@@ -46,10 +46,8 @@ class StructNormalizer implements DenormalizerInterface, NormalizerInterface
      * {@inheritdoc}
      *
      * @param array<string, mixed> $context
-     *
-     * @return mixed
      */
-    public function denormalize(mixed $data, ?string $type = null, ?string $format = null, array $context = [])
+    public function denormalize(mixed $data, ?string $type = null, ?string $format = null, array $context = []): mixed
     {
         if (\is_string($data) && $date = $this->createDate($data)) {
             return $date;

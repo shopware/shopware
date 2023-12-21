@@ -396,7 +396,7 @@ return (new Config())
         $composerFiles->add($context->platform->pullRequest->getFiles()->matches('composer.json')->first());
 
         foreach ($composerFiles as $composerFile) {
-            if ($composerFile->status === File::STATUS_REMOVED || str_contains($composerFile->name, 'src/WebInstaller')) {
+            if ($composerFile->status === File::STATUS_REMOVED || str_contains((string)$composerFile->name, 'src/WebInstaller')) {
                 continue;
             }
 

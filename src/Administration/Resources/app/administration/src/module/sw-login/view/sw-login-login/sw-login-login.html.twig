@@ -57,6 +57,15 @@
     />
     {% endblock %}
 
+    <sw-checkbox-field
+        {% if VUE3 %}
+        v-model:value="rememberMe"
+        {% else %}
+        v-model="rememberMe"
+        {% endif %}
+        :label="$tc('sw-login.index.labelKeepLoggedIn')"
+    />
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_login_login_submit %}
     <div class="sw-login__submit">

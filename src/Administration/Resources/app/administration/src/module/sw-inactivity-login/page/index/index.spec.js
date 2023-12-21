@@ -9,6 +9,8 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
+import 'src/app/component/form/sw-field';
+import 'src/app/component/form/sw-checkbox-field';
 import { BroadcastChannel } from 'worker_threads';
 import { shallowMount } from '@vue/test-utils';
 
@@ -25,6 +27,8 @@ async function createWrapper(routerPushImplementation = jest.fn(), loginByUserna
             'sw-block-field': await Shopware.Component.build('sw-block-field'),
             'sw-base-field': await Shopware.Component.build('sw-base-field'),
             'sw-field-error': await Shopware.Component.build('sw-field-error'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
         },
         mocks: {
             $router: {
@@ -189,5 +193,28 @@ describe('src/module/sw-inactivity-login/page/index/index.ts', () => {
         expect(push).toHaveBeenCalledTimes(0);
 
         channel.close();
+    });
+
+    it('should remember user', async () => {
+        const push = jest.fn();
+        sessionStorage.setItem('lastKnownUser', 'max');
+        sessionStorage.setItem('sw-admin-previous-route_foo', '{ "fullPath": "sw.example.route.index" }');
+        const wrapper = await createWrapper(push, jest.fn(() => Promise.resolve()));
+        await flushPromises();
+
+        const rememberMe = wrapper.find('.sw-field--checkbox input');
+        await rememberMe.trigger('click');
+
+        const loginButton = wrapper.find('.sw-button');
+        await loginButton.trigger('click');
+
+        expect(push).toHaveBeenCalledTimes(1);
+        expect(push).toHaveBeenCalledWith('sw.example.route.index');
+
+        const expectedDuration = new Date();
+        expectedDuration.setDate(expectedDuration.getDate() + 14);
+        const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
+        expect(rememberMeDuration).toBeGreaterThan(1600000);
+        expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
     });
 });

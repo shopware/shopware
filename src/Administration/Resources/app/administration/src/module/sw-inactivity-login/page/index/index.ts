@@ -30,6 +30,7 @@ Component.register('sw-inactivity-login', {
         password: string,
         passwordError: null | { detail: string },
         sessionChannel: null | BroadcastChannel,
+        rememberMe: boolean,
         } {
         return {
             isLoading: false,
@@ -37,6 +38,7 @@ Component.register('sw-inactivity-login', {
             password: '',
             passwordError: null,
             sessionChannel: null,
+            rememberMe: false,
         };
     },
 
@@ -129,6 +131,8 @@ Component.register('sw-inactivity-login', {
         },
 
         handleLoginSuccess() {
+            this.handleRememberMe();
+
             this.forwardLogin();
 
             this.sessionChannel?.postMessage({ inactive: false });
@@ -139,6 +143,17 @@ Component.register('sw-inactivity-login', {
             }
 
             window.location.reload();
+        },
+
+        handleRememberMe() {
+            if (!this.rememberMe) {
+                return;
+            }
+
+            const duration = new Date();
+            duration.setDate(duration.getDate() + 14);
+
+            localStorage.setItem('rememberMe', `${+duration}`);
         },
 
         forwardLogin() {

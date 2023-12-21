@@ -6,10 +6,16 @@ import { mount } from '@vue/test-utils';
 
 import 'src/module/sw-login/view/sw-login-login';
 import 'src/app/component/form/sw-text-field';
+import 'src/app/component/form/sw-checkbox-field';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-alert';
+import 'src/app/component/form/sw-field';
+import 'src/app/component/form/field-base/sw-contextual-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-field-error';
 
-async function createWrapper() {
+async function createWrapper(loginSuccessful) {
     return mount(await Shopware.Component.build('sw-login-login'), {
         mocks: {
             $tc: (...args) => JSON.stringify([...args]),
@@ -17,6 +23,10 @@ async function createWrapper() {
         provide: {
             loginService: {
                 loginByUsername: () => {
+                    if (loginSuccessful) {
+                        return Promise.resolve();
+                    }
+
                     return new Promise((resolve, reject) => {
                         const response = {
                             config: {
@@ -55,7 +65,6 @@ async function createWrapper() {
                 },
                 template: '<div><input id="username" :value="value" @input="ev => $emit(`input`, ev.target.value)"></input></div>',
             },
-            'sw-contextual-field': true,
             'sw-password-field': {
                 props: {
                     value: {
@@ -69,6 +78,12 @@ async function createWrapper() {
             'sw-button': await Shopware.Component.build('sw-button'),
             'sw-alert': await Shopware.Component.build('sw-alert'),
             'sw-icon': true,
+            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+            'sw-field': await Shopware.Component.build('sw-field'),
+            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': await Shopware.Component.build('sw-block-field'),
+            'sw-base-field': await Shopware.Component.build('sw-base-field'),
+            'sw-field-error': await Shopware.Component.build('sw-field-error'),
         },
     });
 }
@@ -77,7 +92,7 @@ describe('module/sw-login/login.spec.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(false);
     });
 
     afterEach(() => {
@@ -113,5 +128,29 @@ describe('module/sw-login/login.spec.js', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
+    });
+
+    it('should handle login', async () => {
+        wrapper = await createWrapper(true);
+
+        const username = wrapper.find('#username');
+        await username.setValue('admin');
+
+        const password = wrapper.find('#password');
+        await password.setValue('admin');
+
+        const rememberMeCheckbox = wrapper.find('.sw-field--checkbox input');
+        await rememberMeCheckbox.setChecked(true);
+
+        const button = wrapper.find('button');
+        await button.trigger('submit');
+
+        await flushPromises();
+
+        const expectedDuration = new Date();
+        expectedDuration.setDate(expectedDuration.getDate() + 14);
+        const rememberMeDuration = Number(localStorage.getItem('rememberMe'));
+        expect(rememberMeDuration).toBeGreaterThan(1600000);
+        expect(rememberMeDuration).toBeLessThanOrEqual(+expectedDuration);
     });
 });

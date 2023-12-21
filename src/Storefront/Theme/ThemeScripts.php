@@ -95,7 +95,7 @@ class ThemeScripts
         $themePath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
         $themePath = $this->themeFileImporter->getRealPath($themePath);
 
-        return !$this->themeFilesystem->has($themePath) ? null : $themePath;
+        return !$this->themeFilesystem->directoryExists($themePath) ? null : $themePath;
     }
 
     private function readThemeSubFolders(string $themePath): ?Finder

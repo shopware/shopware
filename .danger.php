@@ -393,7 +393,10 @@ return (new Config())
     // check for composer version operators
     ->useRule(function (Context $context): void {
         $composerFiles = $context->platform->pullRequest->getFiles()->matches('**/composer.json');
-        $composerFiles->add($context->platform->pullRequest->getFiles()->matches('composer.json')->first());
+
+        if ($root = $context->platform->pullRequest->getFiles()->matches('composer.json')->first()) {
+            $composerFiles->add($root);
+        }
 
         foreach ($composerFiles as $composerFile) {
             if ($composerFile->status === File::STATUS_REMOVED || str_contains($composerFile->name, 'src/WebInstaller')) {

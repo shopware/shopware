@@ -227,6 +227,34 @@ class StorefrontControllerTest extends TestCase
         static::assertSame('/', $response->getTargetUrl());
     }
 
+    public function testCreateActionResponseWithArrayRedirectToWillRedirectToHomePage(): void
+    {
+        $router = static::createMock(RouterInterface::class);
+        $router
+            ->expects(static::once())
+            ->method('generate')
+            ->with('frontend.home.page', [], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/');
+
+        $request = new Request(
+            [
+                'redirectTo' => ['some', 'thing'],
+                'redirectParameters' => [],
+            ]
+        );
+
+        $container = new ContainerBuilder();
+        $container->set('router', $router);
+        $container->set('event_dispatcher', static::createMock(EventDispatcherInterface::class));
+
+        $this->controller->setContainer($container);
+
+        $response = $this->controller->testCreateActionResponse($request);
+
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/', $response->getTargetUrl());
+    }
+
     public function testCreateActionResponseWithForwardTo(): void
     {
         $router = static::createMock(RouterInterface::class);

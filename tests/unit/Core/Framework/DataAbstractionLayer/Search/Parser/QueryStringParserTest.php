@@ -346,6 +346,34 @@ class QueryStringParserTest extends TestCase
     /**
      * @param RangeFilterType $filter
      */
+    #[DataProvider('rangeFilterDataProvider')]
+    public function testRangeFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
+    {
+        if ($expectException) {
+            $this->expectException(DataAbstractionLayerException::class);
+        }
+
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
+
+        static::assertEquals($expectedFilter, $result);
+    }
+
+    public static function rangeFilterDataProvider(): \Generator
+    {
+        yield 'With empty value' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['lte' => '']], null, true];
+
+        yield 'With empty parameters' => [['type' => 'range', 'field' => 'foo', 'parameters' => []], null, true];
+
+        yield 'With not suppoerted parameter key' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['foo' => 3]], null, true];
+
+        yield 'With one parameter' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['lte' => 3.0]], new RangeFilter('product.foo', [RangeFilter::LTE => 3.0]), false];
+
+        yield 'With multiple parameter' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['lte' => 3.0, 'gte' => 1.5]], new RangeFilter('product.foo', [RangeFilter::LTE => 3.0, RangeFilter::GTE => 1.5]), false];
+    }
+
+    /**
+     * @param RangeFilterType $filter
+     */
     #[DataProvider('relativeTimeToDateFilterDataProvider')]
     public function testRelativeTimeToDateFilters(
         array $filter,

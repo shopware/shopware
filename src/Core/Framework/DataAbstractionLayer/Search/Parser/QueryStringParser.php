@@ -6,6 +6,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -125,7 +126,16 @@ class QueryStringParser
                 return new SuffixFilter(self::buildFieldName($definition, $query['field']), $query['value']);
 
             case 'range':
-                return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
+                $parameters = $query['parameters'] ?? [];
+                if ($parameters === []) {
+                    throw DataAbstractionLayerException::invalidFilterQuery('Parameter "parameters" for range filter is missing.', $path . '/parameters');
+                }
+
+                try {
+                    return new RangeFilter(self::buildFieldName($definition, $query['field']), $parameters);
+                } catch (InvalidRangeFilterParamException $e) {
+                    throw DataAbstractionLayerException::invalidFilterQuery($e->getMessage(), $path . '/parameters');
+                }
             case 'until':
             case 'since':
                 return self::getFilterByRelativeTime(self::buildFieldName($definition, $query['field']), $query, $path);

@@ -13,12 +13,12 @@ const TerserPlugin = require('terser-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const WebpackDynamicPublicPathPlugin = require('webpack-dynamic-public-path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const WebpackBar = require('webpackbar');
+const { default: InjectPlugin, ENTRY_ORDER } = require('webpack-inject-plugin');
 
 if (process.env.IPV4FIRST) {
     require('dns').setDefaultResultOrder('ipv4first');
@@ -87,6 +87,34 @@ const cssUrlMatcher = (url) => {
     }
 
     return false;
+};
+
+/**
+ * This function generates the loader for the inject plugin.
+ * The loader is necessary to set the correct path for the bundle assets.
+ * The path is dynamically set in the entry file of the bundle.
+ * The import content is base64 encoded instead of generating a separate file
+ * just for the public path setting.
+ *
+ * The reason for this is that our bundles are in separate folders. We get
+ * the information where these files are located from the backend and therefore
+ * can’t define a hard-coded value for their location.
+ * The paths could also contain CDN URLs. To support this we need to set the
+ * webpack public paths dynamically in the runtime. This is needed to load
+ * lazy-loaded files of bundles.
+ *
+ * @dependency https://github.com/adierkens/webpack-inject-plugin/tree/master
+ * @param bundleName
+ * @returns {function(): string}
+ */
+const injectPluginLoaderGenerator = (bundleName) => {
+    return () => {
+        const importContent = btoa(`
+            __webpack_public_path__ = window.__sw__.assetPath + '/bundles/${bundleName}/';
+        `);
+
+        return `import 'data:text/javascript;charset=utf-8;base64,${importContent}';`;
+    }
 };
 
 /**
@@ -700,9 +728,7 @@ const coreConfig = {
                         ],
                     }),
                     // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
-                    new WebpackDynamicPublicPathPlugin({
-                        externalPublicPath: `(window.__sw__.assetPath + '/bundles/administration/')`,
-                    }),
+                    new InjectPlugin(injectPluginLoaderGenerator('administration'), { entryOrder: ENTRY_ORDER.First }),
                 ];
             }
 
@@ -815,9 +841,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                     if (isProd && !hasHtmlFile) {
                         return [
                             // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
-                            new WebpackDynamicPublicPathPlugin({
-                                externalPublicPath: `(window.__sw__.assetPath + '/bundles/${plugin.technicalFolderName}/')`,
-                            }),
+                            new InjectPlugin(injectPluginLoaderGenerator(plugin.technicalFolderName), { entryOrder: ENTRY_ORDER.First }),
 
                             new ESLintPlugin({
                                 context: path.resolve(plugin.path),

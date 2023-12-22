@@ -7955,45 +7955,9 @@ parameters:
 			count: 1
 			path: src/Storefront/Theme/ResolvedConfigLoader.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\:\\:__construct\\(\\) has parameter \\$resolveMapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/File.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\:\\:getResolveMapping\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/File.php
 
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\:\\:setResolveMapping\\(\\) has parameter \\$resolveMapping with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/File.php
 
-		-
-			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\File\\:\\:\\$resolveMapping type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/File.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:createFromArray\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:createFromArray\\(\\) has parameter \\$files with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:getFilepaths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\FileCollection\\:\\:getResolveMappings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/FileCollection.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"

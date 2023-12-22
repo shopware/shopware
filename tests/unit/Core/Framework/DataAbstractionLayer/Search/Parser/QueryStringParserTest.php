@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -33,6 +34,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
  * @phpstan-import-type SuffixFilterType from QueryStringParser
  * @phpstan-import-type RangeFilterType from QueryStringParser
  * @phpstan-import-type EqualsAnyFilterType from QueryStringParser
+ * @phpstan-import-type Query from QueryStringParser
  *
  * @covers \Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
  */
@@ -53,7 +55,7 @@ class QueryStringParserTest extends TestCase
     /**
      * @dataProvider parserProvider
      *
-     * @param array<string, mixed> $payload
+     * @param Query $payload
      */
     public function testParser(array $payload, Filter $expected): void
     {
@@ -109,9 +111,11 @@ class QueryStringParserTest extends TestCase
         $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(EqualsFilter::class, $result);
+        static::assertArrayHasKey('field', $filter);
+        static::assertArrayHasKey('value', $filter);
 
-        static::assertEquals($result->getField(), 'product.' . $filter['field']);
-        static::assertEquals($result->getValue(), $filter['value']);
+        static::assertSame($result->getField(), 'product.' . $filter['field']);
+        static::assertSame($result->getValue(), $filter['value']);
     }
 
     public static function equalsFilterDataProvider(): \Generator
@@ -142,13 +146,14 @@ class QueryStringParserTest extends TestCase
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(ContainsFilter::class, $result);
+        static::assertArrayHasKey('field', $filter);
+        static::assertArrayHasKey('value', $filter);
 
-        static::assertEquals($result->getField(), 'product.' . $filter['field']);
-        static::assertEquals($result->getValue(), $filter['value']);
+        static::assertSame($result->getField(), 'product.' . $filter['field']);
+        static::assertSame($result->getValue(), $filter['value']);
     }
 
     public static function containsFilterDataProvider(): \Generator
@@ -175,13 +180,14 @@ class QueryStringParserTest extends TestCase
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(PrefixFilter::class, $result);
+        static::assertArrayHasKey('field', $filter);
+        static::assertArrayHasKey('value', $filter);
 
-        static::assertEquals($result->getField(), 'product.' . $filter['field']);
-        static::assertEquals($result->getValue(), $filter['value']);
+        static::assertSame($result->getField(), 'product.' . $filter['field']);
+        static::assertSame($result->getValue(), (string) $filter['value']);
     }
 
     public static function prefixFilterDataProvider(): \Generator
@@ -208,13 +214,14 @@ class QueryStringParserTest extends TestCase
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var EqualsFilter $result */
         $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(SuffixFilter::class, $result);
+        static::assertArrayHasKey('field', $filter);
+        static::assertArrayHasKey('value', $filter);
 
-        static::assertEquals($result->getField(), 'product.' . $filter['field']);
-        static::assertEquals($result->getValue(), $filter['value']);
+        static::assertSame($result->getField(), 'product.' . $filter['field']);
+        static::assertSame($result->getValue(), (string) $filter['value']);
     }
 
     public static function suffixFilterDataProvider(): \Generator
@@ -246,6 +253,9 @@ class QueryStringParserTest extends TestCase
 
         static::assertInstanceOf(EqualsAnyFilter::class, $result);
 
+        static::assertArrayHasKey('field', $filter);
+        static::assertArrayHasKey('value', $filter);
+
         $expectedValue = $filter['value'];
         if (\is_string($expectedValue)) {
             $expectedValue = array_filter(explode('|', $expectedValue));
@@ -255,8 +265,8 @@ class QueryStringParserTest extends TestCase
             $expectedValue = [$expectedValue];
         }
 
-        static::assertEquals($result->getField(), 'product.' . $filter['field']);
-        static::assertEquals($result->getValue(), $expectedValue);
+        static::assertSame($result->getField(), 'product.' . $filter['field']);
+        static::assertSame($result->getValue(), $expectedValue);
     }
 
     public static function equalsAnyFilterDataProvider(): \Generator
@@ -343,6 +353,35 @@ class QueryStringParserTest extends TestCase
     }
 
     /**
+     * @dataProvider rangeFilterDataProvider
+     *
+     * @param RangeFilterType $filter
+     */
+    public function testRangeFilter(array $filter, ?Filter $expectedFilter, bool $expectException): void
+    {
+        if ($expectException) {
+            $this->expectException(InvalidFilterQueryException::class);
+        }
+
+        $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
+
+        static::assertEquals($expectedFilter, $result);
+    }
+
+    public static function rangeFilterDataProvider(): \Generator
+    {
+        yield 'With empty value' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['lte' => '']], null, true];
+
+        yield 'With empty parameters' => [['type' => 'range', 'field' => 'foo', 'parameters' => []], null, true];
+
+        yield 'With not suppoerted parameter key' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['foo' => 3]], null, true];
+
+        yield 'With one parameter' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['lte' => 3.0]], new RangeFilter('product.foo', [RangeFilter::LTE => 3.0]), false];
+
+        yield 'With multiple parameter' => [['type' => 'range', 'field' => 'foo', 'parameters' => ['lte' => 3.0, 'gte' => 1.5]], new RangeFilter('product.foo', [RangeFilter::LTE => 3.0, RangeFilter::GTE => 1.5]), false];
+    }
+
+    /**
      * @dataProvider relativeTimeToDateFilterDataProvider
      *
      * @param RangeFilterType $filter
@@ -357,11 +396,11 @@ class QueryStringParserTest extends TestCase
             $this->expectException(InvalidFilterQueryException::class);
         }
 
-        /** @var MultiFilter $result */
         $result = QueryStringParser::fromArray(new ProductDefinition(), $filter, new SearchRequestException());
 
         static::assertInstanceOf(MultiFilter::class, $result);
 
+        static::assertArrayHasKey('parameters', $filter);
         $primaryOperator = $filter['parameters']['operator'];
         $primaryQuery = $result->getQueries()[0];
         if ($primaryOperator === 'neq') {
@@ -372,10 +411,10 @@ class QueryStringParserTest extends TestCase
         static::assertInstanceOf(RangeFilter::class, $primaryQuery);
 
         static::assertInstanceOf(RangeFilter::class, $result->getQueries()[1]);
-
+        static::assertArrayHasKey('field', $filter);
         static::assertCount(2, $result->getFields());
-        static::assertEquals($primaryQuery->getField(), 'product.' . $filter['field']);
-        static::assertEquals($primaryQuery->getField(), 'product.' . $filter['field']);
+        static::assertSame($primaryQuery->getField(), 'product.' . $filter['field']);
+        static::assertSame($primaryQuery->getField(), 'product.' . $filter['field']);
 
         static::assertContains($secondaryRangeOperator, array_keys($result->getQueries()[1]->getParameters()));
 
@@ -393,8 +432,8 @@ class QueryStringParserTest extends TestCase
             $start = $then->add($dateInterval)->setTime(0, 0, 0)->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             $end = $then->add($dateInterval)->setTime(23, 59, 59)->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-            static::assertEquals($start, $primaryQuery->getParameters()[RangeFilter::GTE]);
-            static::assertEquals($end, $primaryQuery->getParameters()[RangeFilter::LTE]);
+            static::assertSame($start, $primaryQuery->getParameters()[RangeFilter::GTE]);
+            static::assertSame($end, $primaryQuery->getParameters()[RangeFilter::LTE]);
 
             return;
         }

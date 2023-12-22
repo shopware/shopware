@@ -2,22 +2,22 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper(additionalSlots = null) {
-    return mount(await wrapTestComponent('sw-modal', { sync: true }), {
+    return shallowMount(await wrapTestComponent('sw-modal', { sync: true }), {
+        attachTo: document.body,
         global: {
-            stubs: {
-                'sw-icon': true,
-            },
             provide: {
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
+                    stubs: {
+                        'sw-icon': true,
+                    },
                 },
             },
         },
-        attachTo: document.body,
         slots: {
             default: `
                 <div class="modal-content-stuff">
@@ -35,6 +35,12 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+
+        await flushPromises();
+    });
+
+    afterEach(async () => {
+        await flushPromises();
     });
 
     it('should be a Vue.js component', () => {
@@ -48,6 +54,17 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
         expect(wrapper.get('.sw-modal__body').text()).toBe('Some content inside modal body');
         expect(wrapper.get('.sw-modal__title').text()).toBe('Cool modal');
+    });
+
+    it('should show console error when using invalid variant', async () => {
+        const swModal = await wrapTestComponent('sw-modal', { sync: true });
+        const validator = swModal.props.variant.validator;
+
+        expect(validator('default')).toBe(true);
+        expect(validator('small')).toBe(true);
+        expect(validator('large')).toBe(true);
+        expect(validator('full')).toBe(true);
+        expect(validator('not-existing')).toBe(false);
     });
 
     it.each([

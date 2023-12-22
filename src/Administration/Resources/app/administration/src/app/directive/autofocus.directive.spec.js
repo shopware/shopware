@@ -1,7 +1,7 @@
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper({ template = '' } = { template: '' }) {
-    return shallowMount(
+    return mount(
         {
             template: template.length > 0 ? template : `
             <div>
@@ -33,10 +33,6 @@ describe('src/app/directive/autofocus.directive.ts', () => {
     });
 
     afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
         await flushPromises();
     });
 

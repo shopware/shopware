@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 let resizeObserverList = [];
 
@@ -28,9 +28,7 @@ global.ResizeObserver = class ResizeObserver {
 };
 
 async function createWrapper(responsiveBindings = {}) {
-    const localVue = createLocalVue();
-
-    return shallowMount({
+    return mount({
         name: 'placeholder-component',
         template: `
 <div class="placeholder-component" v-responsive="responsiveBindings">
@@ -43,10 +41,7 @@ async function createWrapper(responsiveBindings = {}) {
             },
         },
     }, {
-        localVue,
-        stubs: {},
-        mocks: {},
-        propsData: {
+        props: {
             responsiveBindings,
         },
         attachTo: document.body,
@@ -67,10 +62,6 @@ describe('src/app/directive/responsive.directive.ts', () => {
     });
 
     afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
         await flushPromises();
     });
 

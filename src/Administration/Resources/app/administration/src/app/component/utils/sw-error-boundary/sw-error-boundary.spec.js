@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/utils/sw-error-boundary';
 
 describe('src/app/component/utils/sw-error-boundary', () => {
@@ -21,7 +21,7 @@ describe('src/app/component/utils/sw-error-boundary', () => {
     afterEach(async () => {
         await flushPromises();
         global.repositoryFactoryMock.clientMock.resetHistory();
-        if (wrapper) await wrapper.destroy();
+        if (wrapper) await wrapper.unmount();
         if (console.error.mockReset) console.error.mockReset();
     });
 
@@ -38,11 +38,13 @@ describe('src/app/component/utils/sw-error-boundary', () => {
             slots: {
                 default: '<sw-damaged-component></sw-damaged-component>',
             },
-            stubs: {
-                'sw-damaged-component': {
-                    template: '<div class="sw-damaged-component"></div>',
-                    mounted() {
-                        throw new Error('There is gone something wrong');
+            global: {
+                stubs: {
+                    'sw-damaged-component': {
+                        template: '<div class="sw-damaged-component"></div>',
+                        mounted() {
+                            throw new Error('There is gone something wrong');
+                        },
                     },
                 },
             },
@@ -59,11 +61,13 @@ describe('src/app/component/utils/sw-error-boundary', () => {
             slots: {
                 default: '<sw-damaged-component></sw-damaged-component>',
             },
-            stubs: {
-                'sw-damaged-component': {
-                    template: '<div class="sw-damaged-component"></div>',
-                    mounted() {
-                        throw new Error('There is gone something wrong');
+            global: {
+                stubs: {
+                    'sw-damaged-component': {
+                        template: '<div class="sw-damaged-component"></div>',
+                        mounted() {
+                            throw new Error('There is gone something wrong');
+                        },
                     },
                 },
             },

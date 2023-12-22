@@ -2,53 +2,54 @@
  * @package admin
  */
 
-// @ts-nocheck - this file is just still here for the Vue2 test conversion as a reference
-// eslint-disable-next-line import/no-unresolved
-// import VueRouter from 'vue-router_v2';
+import { createRouter as createRouterVue, createWebHistory } from 'vue-router'
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function createRouter() {
-    return new VueRouter({
-        routes: [{
-            name: 'sw.product.detail',
-            path: '/sw/product/detail/:{id}',
-            meta: {
-                $module: {
-                    entity: 'product',
+    return createRouterVue({
+        routes: [
+            {
+                name: 'sw.product.detail',
+                path: '/sw/product/detail/:{id}',
+                meta: {
+                    $module: {
+                        entity: 'product',
+                    },
+                    appSystem: {
+                        view: 'detail',
+                    },
                 },
-                appSystem: {
-                    view: 'detail',
+            }, {
+                name: 'sw.product.list',
+                path: '/sw/product/list',
+                meta: {
+                    $module: {
+                        entity: 'product',
+                    },
+                    appSystem: {
+                        view: 'list',
+                    },
                 },
-            },
-        }, {
-            name: 'sw.product.list',
-            path: '/sw/product/list',
-            meta: {
-                $module: {
-                    entity: 'product',
+            }, {
+                name: 'sw.order.detail',
+                path: '/sw/order/detail',
+                meta: {
+                    $module: {
+                        entity: 'order',
+                    },
+                    appSystem: {
+                        view: 'list',
+                    },
                 },
-                appSystem: {
-                    view: 'list',
+            }, {
+                name: 'sw.settings.index',
+                path: '/sw/setting/index',
+                meta: {
+                    $module: {},
                 },
-            },
-        }, {
-            name: 'sw.order.detail',
-            path: '/sw/order/detail',
-            meta: {
-                $module: {
-                    entity: 'order',
-                },
-                appSystem: {
-                    view: 'list',
-                },
-            },
-        }, {
-            name: 'sw.settings.index',
-            path: '/sw/setting/index',
-            meta: {
-                $module: {},
-            },
-        }],
+            }
+        ],
+        history: createWebHistory(),
     });
 }
 

@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { mount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import { handleFactory, send } from '@shopware-ag/admin-extension-sdk/es/channel';
 import SerializerFactory from '@shopware-ag/admin-extension-sdk/es/_internals/serializer';
 import Entity from 'src/core/data/entity.data';
@@ -49,8 +49,6 @@ describe('core/service/extension-api-data.service.ts', () => {
 
         // Assert after publish
         expect(typeof entity.getDraft).toBe('function');
-
-        wrapper.destroy();
     });
 
     it('should update entity', async () => {
@@ -106,8 +104,6 @@ describe('core/service/extension-api-data.service.ts', () => {
 
         // Assert after publish
         expect(entity.name).toBe('updated');
-
-        wrapper.destroy();
     });
 
     it('should keep functions on collection', async () => {
@@ -139,8 +135,6 @@ describe('core/service/extension-api-data.service.ts', () => {
 
         // Assert after publish
         expect(typeof collection.getIds).toBe('function');
-
-        wrapper.destroy();
     });
 
     it('should update collection', async () => {
@@ -210,8 +204,6 @@ describe('core/service/extension-api-data.service.ts', () => {
         // Assert after publish
         expect(collection[0].name).toBe('jest1updated');
         expect(collection[1].name).toBe('jest2');
-
-        wrapper.destroy();
     });
 
     it('should update scalar value', async () => {
@@ -250,8 +242,6 @@ describe('core/service/extension-api-data.service.ts', () => {
 
         // Assert after publish
         expect(wrapper.vm.count).toBe(1337);
-
-        wrapper.destroy();
     });
 
     it('should update nested scalar value', async () => {
@@ -294,8 +284,6 @@ describe('core/service/extension-api-data.service.ts', () => {
 
         // Assert after publish
         expect(wrapper.vm.jest.nest.count).toBe(1337);
-
-        wrapper.destroy();
     });
 
     it('should be able to publish multiple times for same component', async () => {
@@ -323,8 +311,6 @@ describe('core/service/extension-api-data.service.ts', () => {
         });
 
         expect(console.error).toHaveBeenCalledTimes(0);
-
-        wrapper.destroy();
     });
 
     it('should fail to publish registered set different components', async () => {
@@ -363,8 +349,6 @@ describe('core/service/extension-api-data.service.ts', () => {
         });
 
         expect(console.error).toHaveBeenCalledTimes(1);
-
-        wrapper1.destroy();
     });
 
     it('should return published datasets', async () => {
@@ -387,8 +371,6 @@ describe('core/service/extension-api-data.service.ts', () => {
         expect(publishedDataSets).toHaveLength(1);
         expect(publishedDataSets[0].id).toBe('jest');
         expect(publishedDataSets[0].data).toBe(42);
-
-        wrapper.destroy();
     });
 
     it('should ignore updates for wrong published paths', async () => {
@@ -421,8 +403,6 @@ describe('core/service/extension-api-data.service.ts', () => {
         });
 
         expect(wrapper.vm.count).toBe(42);
-
-        wrapper.destroy();
     });
 
     it('should add to collection', async () => {
@@ -499,7 +479,5 @@ describe('core/service/extension-api-data.service.ts', () => {
         expect(collection[1].name).toBe('jest2');
         expect(typeof collection[1].getDraft).toBe('function');
         expect(collection[2].name).toBe('jest3');
-
-        wrapper.destroy();
     });
 });

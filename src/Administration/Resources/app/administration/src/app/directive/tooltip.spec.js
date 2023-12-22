@@ -2,17 +2,17 @@
  * @package admin
  */
 
-import Vue from 'vue';
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import { shallowMount } from '@vue/test-utils';
 
 import 'src/app/directive/tooltip.directive';
 
 jest.useFakeTimers();
 
-const createWrapper = async (message) => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', Shopware.Directive.getByName('tooltip'));
-
+const createWrapper = async (message, {
+    components = {},
+} = {
+    components: {},
+}) => {
     const div = document.createElement('div');
     div.id = 'root';
     document.body.appendChild(div);
@@ -38,8 +38,10 @@ const createWrapper = async (message) => {
     };
 
     return shallowMount(tooltipComponent, {
-        localVue,
         attachTo: '#root',
+        global: {
+            components,
+        },
     });
 };
 
@@ -60,54 +62,6 @@ describe('directives/tooltip', () => {
         tooltips = document.body.getElementsByClassName('sw-tooltip');
         // Tooltip gets rendered
         expect(tooltips).toHaveLength(0);
-
-        wrapper.destroy();
-    });
-
-    it('should render vue components', async () => {
-        // register component globally,
-        // so that new vue instances created from the tooltip can access it
-        Vue.component('sw-test', {
-            template: '<div class="sw-test"/>',
-        });
-
-        const wrapper = await createWrapper('This is a <sw-test></sw-test>');
-
-        await wrapper.trigger('mouseenter');
-        jest.runAllTimers();
-
-        const tooltips = document.body.getElementsByClassName('sw-tooltip');
-        // Tooltip gets rendered
-        expect(tooltips).toHaveLength(1);
-
-        // custom element gets rendered inside tooltip
-        expect(tooltips.item(0).getElementsByClassName('sw-test')).toHaveLength(1);
-
-        wrapper.destroy();
-    });
-
-    it('should render vue components on template updates', async () => {
-        // register component globally,
-        // so that new vue instances created from the tooltip can access it
-        Vue.component('sw-test', {
-            template: '<div class="sw-test"/>',
-        });
-
-        const wrapper = await createWrapper('a tooltip');
-        wrapper.vm.updateMessage('This is a <sw-test></sw-test>');
-        await wrapper.vm.$nextTick();
-
-        await wrapper.trigger('mouseenter');
-        jest.runAllTimers();
-
-        const tooltips = document.body.getElementsByClassName('sw-tooltip');
-        // Tooltip gets rendered
-        expect(tooltips).toHaveLength(1);
-
-        // custom element gets rendered inside tooltip
-        expect(tooltips.item(0).getElementsByClassName('sw-test')).toHaveLength(1);
-
-        wrapper.destroy();
     });
 
     it('should not be created when target element gets deleted before creation of tooltip', async () => {
@@ -117,7 +71,7 @@ describe('directives/tooltip', () => {
         await wrapper.trigger('mouseenter');
 
         // delete wrapper
-        wrapper.destroy();
+        wrapper.unmount();
 
         jest.runAllTimers();
 

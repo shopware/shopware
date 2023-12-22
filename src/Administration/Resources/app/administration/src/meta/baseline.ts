@@ -736,7 +736,6 @@ const missingTests = [
     'src/app/component/structure/sw-search-bar/index.js',
     'src/app/component/structure/sw-search-bar-item/index.js',
     'src/app/component/usage-data/sw-settings-usage-data-intro/index.ts',
-    'src/app/component/utils/sw-external-link/index.js',
     'src/app/component/utils/sw-help-center/index.ts',
     'src/app/component/utils/sw-internal-link/index.js',
     'src/app/component/utils/sw-loader/index.js',

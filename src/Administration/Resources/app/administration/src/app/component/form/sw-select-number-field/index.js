@@ -8,13 +8,13 @@ const { Component } = Shopware;
  * @status ready
  * @example-type static
  * @component-example
- * <sw-number-select-field placeholder="placeholder goes here..." label="label">
+ * <sw-select-number-field placeholder="placeholder goes here..." label="label">
  *     <option value="1">Label #1</option>
  *     <option value="2">Label #2</option>
  *     <option value="3">Label #3</option>
  *     <option value="4">Label #4</option>
  *     <option value="5">Label #5</option>
- * </sw-number-select-field>
+ * </sw-select-number-field>
  */
 Component.extend('sw-select-number-field', 'sw-select-field', {
 

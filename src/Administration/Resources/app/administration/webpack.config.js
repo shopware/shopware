@@ -224,9 +224,9 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 return {
                     minimizer: [
                         new TerserPlugin({
+                            minify: TerserPlugin.swcMinify,
                             terserOptions: {
-                                warnings: false,
-                                output: 6,
+                                compress: true,
                                 sourceMap: useSourceMap,
                             },
                             parallel: true,
@@ -282,7 +282,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
             },
             {
                 test: /\.(js|ts|tsx?|vue)$/,
-                loader: 'babel-loader',
+                loader: 'swc-loader',
                 include: [
                     /**
                      * Only needed for unit tests in plugins. It throws an ESLint error
@@ -293,19 +293,12 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                     path.resolve(pluginPath, '..', 'test'),
                 ],
                 options: {
-                    compact: true,
-                    cacheDirectory: true,
-                    presets: [
-                        [
-                            '@babel/preset-env', {
-                                modules: false,
-                                targets: {
-                                    browsers: ['last 2 versions', 'edge >= 17'],
-                                },
-                            },
-                        ],
-                        '@babel/preset-typescript'
-                    ],
+                    jsc: {
+                        parser: {
+                            syntax: 'typescript',
+                        },
+                        target: 'es2022',
+                    },
                 },
             },
             {

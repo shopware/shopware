@@ -41,6 +41,8 @@ export interface LoginService {
     getStorage: () => CookieStorage,
 }
 
+let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createLoginService(
     httpClient: InitContainer['httpClient'],
@@ -252,7 +254,6 @@ export default function createLoginService(
     /**
      * Refresh token in half of expiry time
      */
-    let autoRefreshTokenTimeoutId: ReturnType<typeof setTimeout> | undefined;
     function autoRefreshToken(expiryTimestamp: number):void {
         if (autoRefreshTokenTimeoutId) {
             clearTimeout(autoRefreshTokenTimeoutId);

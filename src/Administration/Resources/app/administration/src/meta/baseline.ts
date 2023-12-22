@@ -802,7 +802,6 @@ const missingTests = [
     'src/module/sw-flow/component/sw-flow-sequence-selector/index.js',
     'src/module/sw-flow/component/sw-flow-trigger/index.js',
     'src/module/sw-flow/page/sw-flow-detail/index.js',
-    'src/module/sw-flow/page/sw-flow-index/index.ts',
     'src/module/sw-flow/service/flow-builder.service.js',
     'src/module/sw-flow/view/detail/sw-flow-detail-flow/index.js',
     'src/module/sw-flow/view/detail/sw-flow-detail-general/index.js',

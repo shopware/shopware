@@ -1,9 +1,7 @@
 import popover from 'src/app/directive/popover.directive';
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 const createWrapper = () => {
-    const localVue = createLocalVue();
-
     const div = document.createElement('div');
     div.id = 'root';
     document.body.appendChild(div);
@@ -28,8 +26,7 @@ const createWrapper = () => {
         },
     };
 
-    return shallowMount(dragdropComponent, {
-        localVue,
+    return mount(dragdropComponent, {
         attachTo: '#root',
     });
 };

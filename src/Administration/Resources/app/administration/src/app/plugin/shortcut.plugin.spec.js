@@ -2,12 +2,11 @@
  * @package admin
  */
 
-import { mount, createLocalVue } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';
-import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -25,10 +24,7 @@ Shopware.Utils.debounce = function debounce(fn) {
     };
 };
 
-const localVue = createLocalVue();
-localVue.use(shortcutPlugin);
-
-const createWrapper = async (componentOverride) => {
+const createWrapper = async (componentOverride = {}) => {
     const baseComponent = {
         name: 'base-component',
         template: '<div></div>',
@@ -42,7 +38,9 @@ const createWrapper = async (componentOverride) => {
 
     return mount(baseComponent, {
         attachTo: element,
-        localVue,
+        global: {
+            plugins: [shortcutPlugin],
+        },
     });
 };
 
@@ -64,10 +62,6 @@ function defineJsdomProperties() {
 
 describe('app/plugins/shortcut.plugin', () => {
     let wrapper;
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
 
     it('should test with a Vue.js component', async () => {
         wrapper = await createWrapper();
@@ -325,7 +319,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         Shopware.Component.register('base-component', {
             name: 'base-component',
-            template: '<div><sw-text-editor v-model="description"></sw-text-editor></div>',
+            template: `
+              <div>
+                <sw-text-editor
+                    :value="description"
+                    @update:modelValue="onUpdateModelValue"
+                ></sw-text-editor>
+              </div>
+            `,
             shortcuts: {
                 'SYSTEMKEY+S': 'onSave',
             },
@@ -335,6 +336,9 @@ describe('app/plugins/shortcut.plugin', () => {
                 };
             },
             methods: {
+                onUpdateModelValue(value) {
+                    this.description = value;
+                },
                 onSave() {
                     onSaveMock();
                     testString = this.description;
@@ -346,29 +350,31 @@ describe('app/plugins/shortcut.plugin', () => {
             document.body.appendChild(element);
         }
 
-        wrapper = await mount(await Shopware.Component.build('base-component'), {
+        wrapper = mount(await Shopware.Component.build('base-component'), {
             attachTo: element,
-            localVue,
-            stubs: {
-                'sw-text-editor': await Shopware.Component.build('sw-text-editor'),
-                'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
-                'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
-                'sw-icon': { template: '<div class="sw-icon"></div>' },
-                'sw-field': await Shopware.Component.build('sw-field'),
-                'sw-text-field': await Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-                'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
-                'sw-field-error': true,
-                'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
-                'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
-                'sw-container': await Shopware.Component.build('sw-container'),
-                'sw-button': await Shopware.Component.build('sw-button'),
+            global: {
+                plugins: [shortcutPlugin],
+                stubs: {
+                    'sw-text-editor': await Shopware.Component.build('sw-text-editor'),
+                    'sw-text-editor-toolbar': await Shopware.Component.build('sw-text-editor-toolbar'),
+                    'sw-text-editor-toolbar-button': await Shopware.Component.build('sw-text-editor-toolbar-button'),
+                    'sw-icon': { template: '<div class="sw-icon"></div>' },
+                    'sw-text-field': await Shopware.Component.build('sw-text-field'),
+                    'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
+                    'sw-block-field': await Shopware.Component.build('sw-block-field'),
+                    'sw-base-field': await Shopware.Component.build('sw-base-field'),
+                    'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
+                    'sw-switch-field': await Shopware.Component.build('sw-switch-field'),
+                    'sw-field-error': true,
+                    'sw-compact-colorpicker': await Shopware.Component.build('sw-compact-colorpicker'),
+                    'sw-colorpicker': await Shopware.Component.build('sw-colorpicker'),
+                    'sw-container': await Shopware.Component.build('sw-container'),
+                    'sw-button': await Shopware.Component.build('sw-button'),
+                },
             },
-            shouldProxy: true,
         });
+
+        await flushPromises();
 
         expect(onSaveMock).not.toHaveBeenCalled();
         expect(testString).toBe('foo');
@@ -385,6 +391,7 @@ describe('app/plugins/shortcut.plugin', () => {
         contentEditor.element.innerHTML = 'foobar';
 
         await contentEditor.trigger('input');
+        await flushPromises();
 
         await contentEditor.trigger('keydown', {
             key: 's',

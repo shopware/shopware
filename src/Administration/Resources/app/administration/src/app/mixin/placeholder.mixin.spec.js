@@ -1,5 +1,5 @@
 import 'src/app/mixin/placeholder.mixin';
-import { shallowMount } from '@vue/test-utils_v2';
+import { shallowMount } from '@vue/test-utils';
 
 async function createWrapper() {
     return shallowMount({
@@ -17,8 +17,6 @@ async function createWrapper() {
             };
         },
     }, {
-        stubs: {},
-        mocks: {},
         attachTo: document.body,
     });
 }
@@ -38,10 +36,6 @@ describe('src/app/mixin/placeholder.mixin.ts', () => {
     });
 
     afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
         await flushPromises();
     });
 

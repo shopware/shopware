@@ -1,7 +1,7 @@
 /**
  * @package admin
  */
-import { shallowMount } from '@vue/test-utils_v2';
+import { shallowMount } from '@vue/test-utils';
 
 // Mock Component
 Shopware.Component.register('sw-mock', {
@@ -39,15 +39,17 @@ describe('app/mixin/generic-condition', () => {
 
     beforeEach(async () => {
         wrapper = shallowMount(await Shopware.Component.build('sw-mock'), {
-            mixins: [
-                Shopware.Mixin.getByName('generic-condition'),
-            ],
-            mocks: {
-                condition: {
-                    type: 'cartLineItemDimensionWeight',
-                    value: null,
+            global: {
+                mixins: [
+                    Shopware.Mixin.getByName('generic-condition'),
+                ],
+                mocks: {
+                    condition: {
+                        type: 'cartLineItemDimensionWeight',
+                        value: null,
+                    },
+                    ensureValueExist: () => {},
                 },
-                ensureValueExist: () => {},
             },
         });
 

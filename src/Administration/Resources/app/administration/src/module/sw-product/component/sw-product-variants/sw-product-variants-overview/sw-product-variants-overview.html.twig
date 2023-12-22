@@ -349,6 +349,7 @@
             />
 
             <sw-media-compact-upload-v2
+                v-if="productDownloadFolderId"
                 :upload-tag="item.productNumber"
                 :disabled="!isInlineEdit"
                 private-filesystem
@@ -359,7 +360,7 @@
                     helpText: $tc('sw-product.list.columnDownloadsTooltip')
                 }"
                 :source-multiselect="getDownloadsSource(item)"
-                default-folder="product_download"
+                :target-folder-id="productDownloadFolderId"
                 file-accept="*/*"
                 @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
             />
@@ -572,6 +573,7 @@
                     />
 
                     <sw-media-compact-upload-v2
+                        v-if="productDownloadFolderId"
                         :upload-tag="item.productNumber"
                         :disabled="!isInlineEdit"
                         private-filesystem
@@ -582,7 +584,7 @@
                         }"
                         :add-files-on-multiselect="true"
                         :source-multiselect="getDownloadsSource(item)"
-                        default-folder="product_download"
+                        :target-folder-id="productDownloadFolderId"
                         file-accept="*/*"
                         @delete-item="(file) => removeFile(`${file.fileName}.${file.fileExtension}`, item)"
                     />

@@ -5,7 +5,6 @@ import fileValidationService from '../../../service/file-validation.service';
 const { Mixin, Context } = Shopware;
 const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
-const { Criteria } = Shopware.Data;
 const { checkByExtension, checkByType } = fileValidationService();
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
@@ -478,20 +477,7 @@ export default {
         },
 
         async getDefaultFolderId() {
-            const criteria = new Criteria(1, 1)
-                .addFilter(Criteria.equals('entity', this.defaultFolder));
-
-            const items = await this.defaultFolderRepository.search(criteria, Context.api);
-            if (items.length !== 1) {
-                return null;
-            }
-            const defaultFolder = items[0];
-
-            if (defaultFolder.folder?.id) {
-                return defaultFolder.folder.id;
-            }
-
-            return null;
+            return this.mediaService.getDefaultFolderId(this.defaultFolder);
         },
 
         handleMediaServiceUploadEvent({ action }) {

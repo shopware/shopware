@@ -206,7 +206,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const button = media.findAll('sw-context-button-stub .sw-context-menu-item').at(0);
 
         await button.trigger('click');
-        expect(cover.attributes().source).toBe('mediaId1');
+        expect(cover.attributes().source).toBe('media1');
     });
 
     it('should remove media correctly.', async () => {

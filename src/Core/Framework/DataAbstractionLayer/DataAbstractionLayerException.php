@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidRangeFilterParamException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\HttpException;
@@ -28,6 +29,7 @@ class DataAbstractionLayerException extends HttpException
     public const FIELD_TYPE_NOT_FOUND = 'FRAMEWORK__FIELD_TYPE_NOT_FOUND';
     public const PLUGIN_NOT_FOUND = 'FRAMEWORK__PLUGIN_NOT_FOUND';
     public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
+    public const INVALID_RANGE_FILTER_PARAMS = 'FRAMEWORK__INVALID_RANGE_FILTER_PARAMS';
     public const INVALID_SORT_QUERY = 'FRAMEWORK__INVALID_SORT_QUERY';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
@@ -103,6 +105,15 @@ class DataAbstractionLayerException extends HttpException
             self::INVALID_FILTER_QUERY,
             $message,
             ['path' => $path]
+        );
+    }
+
+    public static function invalidRangeFilterParams(string $message): self
+    {
+        return new InvalidRangeFilterParamException(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_RANGE_FILTER_PARAMS,
+            $message,
         );
     }
 

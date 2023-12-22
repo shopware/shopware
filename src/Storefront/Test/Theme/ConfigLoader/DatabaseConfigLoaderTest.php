@@ -3,8 +3,8 @@
 namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -30,6 +30,8 @@ class DatabaseConfigLoaderTest extends TestCase
 
     private EntityRepository $mediaRepository;
 
+    private MediaPathUpdater $mediaPathUpdater;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,6 +39,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $this->themeRepository = $this->getContainer()->get('theme.repository');
         $this->mediaRepository = $this->getContainer()->get('media.repository');
+        $this->mediaPathUpdater = $this->getContainer()->get(MediaPathUpdater::class);
     }
 
     public function setUpMedia(): void
@@ -51,12 +54,10 @@ class DatabaseConfigLoaderTest extends TestCase
         ];
 
         $this->mediaRepository->create([$data], Context::createDefaultContext());
+
+        $this->mediaPathUpdater->updateMedia($this->ids->all());
     }
 
-    /**
-     * NEXT-20034
-     */
-    #[Group('quarantined')]
     public function testMediaConfigurationLoading(): void
     {
         $this->setUpMedia();
@@ -98,7 +99,13 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = EnvironmentHelper::getVariable('APP_URL') . '/media/fd/01/0e/testImage.png';
 
-        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value'], 'If This Failes, please update NEXT-20034 and inform s.sluiter directly!');
+        $entityUrlWithoutQueryString = substr(
+            $themeConfig['fields']['media-field']['value'],
+            0,
+            strrpos($themeConfig['fields']['media-field']['value'], '?') ?: null
+        );
+
+        static::assertEquals($mediaURL, $entityUrlWithoutQueryString);
     }
 
     public function testEmptyMediaConfigurationLoading(): void

@@ -43,24 +43,28 @@ class ThemeFileResolver
 
                     // add source file at the beginning if no other theme is included first
                     if ($addSourceFile
-                        && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
                         && $configuration->getStorefrontEntryFilepath()
+                        && ($scriptFiles->count() === 0 || !$scriptFiles->first() || !$this->isInclude($scriptFiles->first()->getFilepath()))
                     ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
                     }
                     foreach ($scriptFiles as $scriptFile) {
-                        if (!$this->isInclude($scriptFile->getFilepath()) && $onlySourceFiles) {
+                        if ($onlySourceFiles && !$this->isInclude($scriptFile->getFilepath())) {
                             continue;
                         }
                         $fileCollection->add($scriptFile);
                     }
                     if ($addSourceFile
+                        && $configuration->getStorefrontEntryFilepath()
                         && $scriptFiles->count() > 0
                         && $scriptFiles->first()
                         && $this->isInclude($scriptFiles->first()->getFilepath())
-                        && $configuration->getStorefrontEntryFilepath()
                     ) {
                         $fileCollection->add(new File($configuration->getStorefrontEntryFilepath()));
+                    }
+
+                    foreach ($fileCollection as $file) {
+                        $file->assetName = $configuration->getAssetName();
                     }
 
                     return $fileCollection;

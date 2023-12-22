@@ -130,7 +130,7 @@ class ThemeFileResolverTest extends TestCase
         );
 
         $scriptFiles = $resolvedFiles['script'];
-        $pluginScriptFile = 'SimplePlugin/Resources/app/storefront/dist/storefront/js/main.js';
+        $pluginScriptFile = 'SimplePlugin/Resources/app/storefront/dist/storefront/js/simple-plugin/simple-plugin.js';
         $pluginScriptIncluded = false;
 
         foreach ($scriptFiles->getFilepaths() as $path) {

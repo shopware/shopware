@@ -50,13 +50,11 @@ class ConfigExtension extends AbstractExtension
     }
 
     /**
-     * @param array<string, SalesChannelContext|string> $context
-     *
      * @return array<int, string> $items
      */
-    public function scripts(array $context): array
+    public function scripts(): array
     {
-        return $this->config->scripts($this->getContext($context), $this->getThemeId($context));
+        return $this->config->scripts();
     }
 
     /**

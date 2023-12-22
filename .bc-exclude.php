@@ -48,6 +48,8 @@ return [
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#add\(\) changed from no type to void',
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#set\(\) changed from no type to void',
 
+        'Shopware\\\\Storefront\\\\Theme\\\\ThemeScripts was marked "@internal"',
+
         'An enum expression .* is not supported in .*' // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
     ],
 ];

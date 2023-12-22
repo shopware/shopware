@@ -54,6 +54,10 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         max-width: 500px;
     }
 
+    &--has-sidebar {
+        z-index: $z-index-help-sidebar + 1;
+    }
+
     @media screen and (max-width: 500px) {
         padding: 0;
         overflow-y: hidden;

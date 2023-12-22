@@ -85,6 +85,7 @@ import type DiscardDetailPageChangesMixin from './app/mixin/discard-detail-page-
 import type PrivilegesService from './app/service/privileges.service';
 import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
+import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
 
 // trick to make it an "external module" to support global type extension
 
@@ -301,6 +302,7 @@ declare global {
         shopwareApps: ShopwareAppsState,
         sdkLocation: SdkLocationState,
         usageData: UsageDataModuleState
+        adminHelpCenter: AdminHelpCenterState,
     }
 
     /**

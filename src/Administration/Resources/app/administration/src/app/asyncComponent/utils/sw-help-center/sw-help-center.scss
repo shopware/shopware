@@ -1,0 +1,8 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+.sw-help-center {
+    &__button {
+        @include reset-button;
+    }
+}

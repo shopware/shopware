@@ -142,3 +142,17 @@ Publish SBP staging platform release:
   before_script: []
   script:
     - .gitlab/bin/sbp_release.sh publish "$CI_COMMIT_TAG"
+
+Publish Github platform release:
+  extends: .base-no-setup
+  stage: deploy
+  environment:
+    name: 'Github'
+    url: 'https://github.com/shopware'
+  needs: [ "Draft Github platform release", "push split repositories (github)" ]
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+      when: manual
+  before_script: []
+  script:
+    - .gitlab/bin/create_github_release.sh publish "$CI_COMMIT_TAG"

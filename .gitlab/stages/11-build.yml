@@ -125,3 +125,16 @@ Prepare SBP staging platform release:
   before_script: []
   script:
     - .gitlab/bin/sbp_release.sh create "$CI_COMMIT_TAG"
+
+Draft Github platform release:
+  extends: .base-no-setup
+  stage: lint
+  environment:
+    name: 'Github'
+    url: 'https://github.com/shopware'
+  needs: []
+  rules:
+    - if: '$CI_COMMIT_TAG && $CI_COMMIT_REF_PROTECTED == "true"'
+  before_script: []
+  script:
+    - .gitlab/bin/create_github_release.sh draft "$CI_COMMIT_TAG"

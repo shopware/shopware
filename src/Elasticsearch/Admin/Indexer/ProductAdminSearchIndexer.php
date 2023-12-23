@@ -92,9 +92,9 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(product.id)) as id,
-                   GROUP_CONCAT(DISTINCT translation.name) as name,
+                   GROUP_CONCAT(DISTINCT translation.name SEPARATOR " ") as name,
                    CONCAT("[", GROUP_CONCAT(translation.custom_search_keywords), "]") as custom_search_keywords,
-                   GROUP_CONCAT(DISTINCT tag.name) as tags,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags,
                    product.product_number,
                    product.ean,
                    product.manufacturer_number

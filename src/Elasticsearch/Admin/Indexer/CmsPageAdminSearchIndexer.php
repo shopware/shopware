@@ -63,7 +63,7 @@ final class CmsPageAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(cms_page.id)) as id,
-                   GROUP_CONCAT(DISTINCT cms_page_translation.name) as name
+                   GROUP_CONCAT(DISTINCT cms_page_translation.name SEPARATOR " ") as name
             FROM cms_page
                 INNER JOIN cms_page_translation
                     ON cms_page_translation.cms_page_id = cms_page.id

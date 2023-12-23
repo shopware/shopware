@@ -66,7 +66,7 @@ class PromotionAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(promotion.id)) as id,
-                   GROUP_CONCAT(DISTINCT promotion_translation.name) as name
+                   GROUP_CONCAT(DISTINCT promotion_translation.name SEPARATOR " ") as name
             FROM promotion
                 INNER JOIN promotion_translation
                     ON promotion.id = promotion_translation.promotion_id

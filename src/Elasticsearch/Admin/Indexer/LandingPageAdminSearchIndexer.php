@@ -78,8 +78,8 @@ final class LandingPageAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(landing_page.id)) as id,
-                   GROUP_CONCAT(DISTINCT landing_page_translation.name) as name,
-                   GROUP_CONCAT(DISTINCT tag.name) as tags
+                   GROUP_CONCAT(DISTINCT landing_page_translation.name SEPARATOR " ") as name,
+                   GROUP_CONCAT(DISTINCT tag.name SEPARATOR " ") as tags
             FROM landing_page
                 INNER JOIN landing_page_translation
                     ON landing_page.id = landing_page_translation.landing_page_id

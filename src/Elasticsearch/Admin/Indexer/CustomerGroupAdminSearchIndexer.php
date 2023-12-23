@@ -78,7 +78,7 @@ final class CustomerGroupAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(customer_group.id)) as id,
-                   GROUP_CONCAT(DISTINCT customer_group_translation.name) as name
+                   GROUP_CONCAT(DISTINCT customer_group_translation.name SEPARATOR " ") as name
             FROM customer_group
                 INNER JOIN customer_group_translation
                     ON customer_group.id = customer_group_translation.customer_group_id

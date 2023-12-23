@@ -78,7 +78,7 @@ final class PaymentMethodAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(payment_method.id)) as id,
-                   GROUP_CONCAT(DISTINCT payment_method_translation.name) as name
+                   GROUP_CONCAT(DISTINCT payment_method_translation.name SEPARATOR " ") as name
             FROM payment_method
                 INNER JOIN payment_method_translation
                     ON payment_method.id = payment_method_translation.payment_method_id

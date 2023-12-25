@@ -10,13 +10,16 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -50,14 +53,24 @@ class SendMailActionTest extends TestCase
     private EntityRepository $mailTemplateRepository;
 
     /**
+     * @var EntityRepository&MockObject
+     */
+    private EntityRepository $mailTemplateTypeRepository;
+
+    /**
+     * @var LoggerInterface&MockObject
+     */
+    private LoggerInterface $logger;
+
+    /**
      * @var LanguageLocaleCodeProvider&MockObject
      */
     private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     /**
-     * @var Translator&MockObject
+     * @var AbstractTranslator&MockObject
      */
-    private Translator $translator;
+    private AbstractTranslator $translator;
 
     /**
      * @var EntitySearchResult<MailTemplateCollection>&MockObject
@@ -74,13 +87,15 @@ class SendMailActionTest extends TestCase
         $this->languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
         $this->translator = $this->createMock(Translator::class);
         $this->entitySearchResult = $this->createMock(EntitySearchResult::class);
+        $this->mailTemplateTypeRepository = $this->createMock(EntityRepository::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->action = new SendMailAction(
             $this->mailService,
             $this->mailTemplateRepository,
-            $this->createMock(LoggerInterface::class),
+            $this->logger,
             $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(EntityRepository::class),
+            $this->mailTemplateTypeRepository,
             $this->translator,
             $this->createMock(Connection::class),
             $this->languageLocaleProvider,
@@ -99,6 +114,125 @@ class SendMailActionTest extends TestCase
     public function testName(): void
     {
         static::assertSame('action.mail.send', SendMailAction::getName());
+    }
+
+    #[DataProvider('mailTemplateTypeProvider')]
+    public function testUpdateMailTemplateType(MailTemplateTypeUpdateProvider $provider): void
+    {
+        $context = Context::createDefaultContext();
+
+        $connection = $this->createMock(Connection::class);
+
+        $action = new SendMailAction(
+            $this->mailService,
+            $this->mailTemplateRepository,
+            $this->logger,
+            $this->createMock(EventDispatcherInterface::class),
+            $this->mailTemplateTypeRepository,
+            $this->translator,
+            $connection,
+            $this->languageLocaleProvider,
+            $provider->updateMailTemplateTypeParam
+        );
+
+        $mailTemplateId = Uuid::randomHex();
+        $this->mailTemplate->setId($mailTemplateId);
+        $this->mailTemplate->setSenderName('Phuoc');
+        $config = array_filter([
+            'mailTemplateId' => $mailTemplateId,
+            'recipient' => ['type' => 'customer'],
+            'documentTypeIds' => null,
+            'replyTo' => 'foo@example.com',
+        ]);
+
+        $this->mailTemplate->setMailTemplateTypeId($provider->mailTemplateTypeId);
+
+        $expected = [
+            'data' => [
+                'recipients' => [
+                    'email' => 'firstName lastName',
+                ],
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'templateId' => $mailTemplateId,
+            ],
+            'context' => $context,
+        ];
+
+        $templateData = new MailRecipientStruct($expected['data']['recipients']);
+
+        $flow = new StorableFlow(
+            '',
+            $expected['context'],
+            []
+        );
+        $state = new FlowState();
+        $state->currentSequence = new Sequence();
+        $state->currentSequence->sequenceId = Uuid::randomHex();
+        $state->currentSequence->flowId = Uuid::randomHex();
+        $state->flowId = $state->currentSequence->flowId;
+        $flow->setFlowState($state);
+        $flow->setData(MailAware::MAIL_STRUCT, $templateData);
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+
+        $flow->setConfig($config);
+
+        $this->entitySearchResult->expects(static::once())
+            ->method('first')
+            ->willReturn($this->mailTemplate);
+
+        $this->mailTemplateRepository->expects(static::once())
+            ->method('search')
+            ->willReturn($this->entitySearchResult);
+
+        if (!$provider->updateMailTemplateTypeParam) {
+            $connection->expects(static::never())->method('fetchOne');
+            $this->logger->expects(static::never())->method('warning');
+            $action->handleFlow($flow);
+
+            return;
+        }
+
+        if (!$provider->mailTemplateTypeId) {
+            $connection->expects(static::never())->method('fetchOne');
+            $this->logger->expects(static::never())->method('warning');
+            $action->handleFlow($flow);
+
+            return;
+        }
+
+        if (!$provider->mailTemplateTypeTranslationExists) {
+            $connection->expects(static::once())->method('fetchOne')->willReturn(false);
+
+            $this->logger->expects(static::once())->method('warning')->with(
+                "Could not update mail template type, because translation for this language does not exits:\n"
+                . 'Flow id: ' . $flow->getFlowState()->flowId . "\n"
+                . 'Sequence id: ' . $flow->getFlowState()->getSequenceId()
+            );
+            $action->handleFlow($flow);
+
+            return;
+        }
+
+        if ($provider->expectUpdateMailTemplateType) {
+            $connection->expects(static::once())
+                ->method('fetchOne')
+                ->willReturn(true);
+
+            $this->mailTemplateTypeRepository->expects(static::once())->method('update')->with([
+                [
+                    'id' => $provider->mailTemplateTypeId,
+                    'templateData' => [
+                        'mailStruct' => $templateData,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    ],
+                ],
+            ], $context);
+            $this->logger->expects(static::never())->method('warning');
+        } else {
+            $this->mailTemplateTypeRepository->expects(static::never())->method('update');
+        }
+
+        $action->handleFlow($flow);
     }
 
     /**
@@ -205,6 +339,40 @@ class SendMailActionTest extends TestCase
             );
 
         $this->action->handleFlow($flow);
+    }
+
+    /**
+     * @return iterable<string, array<MailTemplateTypeUpdateProvider>>
+     */
+    public static function mailTemplateTypeProvider(): iterable
+    {
+        yield 'mailTemplateTypeUpdate param is false' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: false,
+            mailTemplateTypeId: Uuid::randomHex(),
+            mailTemplateTypeTranslationExists: false,
+            expectUpdateMailTemplateType: false
+        )];
+
+        yield 'no mail template type id' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: null,
+            mailTemplateTypeTranslationExists: true,
+            expectUpdateMailTemplateType: false
+        )];
+
+        yield 'no mail template translation exists' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: Uuid::randomHex(),
+            mailTemplateTypeTranslationExists: false,
+            expectUpdateMailTemplateType: false
+        )];
+
+        yield 'mail template translation exists' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: Uuid::randomHex(),
+            mailTemplateTypeTranslationExists: true,
+            expectUpdateMailTemplateType: true
+        )];
     }
 
     public static function replyToProvider(): \Generator
@@ -342,5 +510,22 @@ class SendMailActionTest extends TestCase
             );
 
         $this->action->handleFlow($flow);
+    }
+}
+
+/**
+ * @internal
+ */
+class MailTemplateTypeUpdateProvider
+{
+    /**
+     * @internal
+     */
+    public function __construct(
+        public readonly bool $updateMailTemplateTypeParam,
+        public readonly ?string $mailTemplateTypeId,
+        public readonly bool $mailTemplateTypeTranslationExists,
+        public readonly bool $expectUpdateMailTemplateType
+    ) {
     }
 }

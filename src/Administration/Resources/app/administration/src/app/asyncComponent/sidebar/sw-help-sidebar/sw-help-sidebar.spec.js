@@ -6,6 +6,9 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-help-sidebar', { sync: true }), {
         global: {
+            stubs: {
+                'sw-extension-component-section': true,
+            },
             provide: {
                 shortcutService: {
                     startEventListener: () => {},

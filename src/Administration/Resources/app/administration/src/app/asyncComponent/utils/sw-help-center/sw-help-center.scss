@@ -4,5 +4,34 @@
 .sw-help-center {
     &__button {
         @include reset-button;
+
+        position: relative;
+    }
+
+    &__badge {
+        @include flex-centering;
+        @include circle(18px);
+
+        position: absolute;
+        z-index: 1;
+        top: -55%;
+        right: -45%;
+        overflow: hidden;
+
+        * {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    &__badge .sw-card {
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    &__badge .sw-card__content {
+        padding: 0;
+        background: transparent;
     }
 }

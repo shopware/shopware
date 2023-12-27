@@ -1,6 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import 'src/module/sw-extension-sdk/page/sw-extension-sdk-module';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 
 const module = {
     heading: 'jest',
@@ -11,20 +9,26 @@ const module = {
 };
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-
-    return shallowMount(await Shopware.Component.build('sw-extension-sdk-module'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-extension-sdk-module', { sync: true }), {
+        props: {
             id: Shopware.Utils.format.md5(JSON.stringify(module)),
         },
-        stubs: {
-            'sw-page': true,
-            'sw-loader': true,
-            'sw-my-apps-error-page': true,
-            'sw-iframe-renderer': true,
-            'sw-language-switch': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
+        global: {
+            stubs: {
+                'sw-page': await wrapTestComponent('sw-page'),
+                'sw-loader': true,
+                'sw-my-apps-error-page': true,
+                'sw-iframe-renderer': true,
+                'sw-language-switch': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {},
+                    },
+                },
+            },
         },
     });
 }
@@ -37,10 +41,6 @@ describe('src/module/sw-extension-sdk/page/sw-extension-sdk-module', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
     });
 
     it('should be a Vue.JS component', async () => {

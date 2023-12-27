@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
@@ -871,7 +871,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.register('test-component', components.A());
                 ComponentFactory.extend('extended-component', 'test-component', components.B());
 
-                const component = shallowMount(await ComponentFactory.build('extended-component'));
+                const component = mount(await ComponentFactory.build('extended-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(component.vm.testMethod()).toBe('This is an override. This is a test method.');
@@ -903,7 +903,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.register('test-component', components.A());
                 ComponentFactory.override('test-component', components.B());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(component.vm.testMethod()).toBe('This is an override. This is a test method.');
@@ -945,7 +945,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('test-component', components.B());
                 ComponentFactory.override('test-component', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(component.vm.testMethod())
@@ -989,7 +989,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('test-component', components.B());
                 ComponentFactory.extend('extended-test-component', 'test-component', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('extended-test-component'));
+                const component = mount(await ComponentFactory.build('extended-test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(component.vm.testMethod())
@@ -1054,7 +1054,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.extend('extended-test-component', 'test-component', components.D());
                 ComponentFactory.extend('extended-extended-test-component', 'extended-test-component', components.E());
 
-                const extensionComponent = shallowMount(await ComponentFactory.build('extended-extended-test-component'));
+                const extensionComponent = mount(await ComponentFactory.build('extended-extended-test-component'));
 
                 expect(extensionComponent.vm).toBeTruthy();
                 expect(extensionComponent.vm.testMethod())
@@ -1102,7 +1102,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.extend('extension-1', 'test-component', components.B());
                 ComponentFactory.extend('extension-2', 'extension-1', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('extension-2'));
+                const component = mount(await ComponentFactory.build('extension-2'));
 
                 expect(component.vm).toBeTruthy();
                 expect(component.vm.testMethod())
@@ -1179,7 +1179,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.extend('extension-1', 'test-component', components.B());
                 ComponentFactory.extend('extension-2', 'extension-1', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('extension-2'));
+                const component = mount(await ComponentFactory.build('extension-2'));
 
                 expect(component.vm).toBeTruthy();
                 expect(typeof component.vm.fooBar).toBe('string');
@@ -1258,7 +1258,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('test-component', components.B());
                 ComponentFactory.override('test-component', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(typeof component.vm.fooBar).toBe('string');
@@ -1299,7 +1299,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('test-component', components.B());
                 ComponentFactory.override('test-component', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(typeof component.vm.fooBar).toBe('function');
@@ -1342,7 +1342,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.register('test-component', components.A());
                 ComponentFactory.override('test-component', components.B());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(typeof component.vm.fooBar).toBe('function');
@@ -1391,7 +1391,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('test-component', components.B());
                 ComponentFactory.override('test-component', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(await component.vm.fooBar()).toBe('fooBarBazBuz');
@@ -1439,7 +1439,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('test-component', components.B());
                 ComponentFactory.override('test-component', components.C());
 
-                const component = shallowMount(await ComponentFactory.build('test-component'));
+                const component = mount(await ComponentFactory.build('test-component'));
 
                 expect(component.vm).toBeTruthy();
                 expect(await component.vm.fooBar()).toBe('fooBarBazBuz');
@@ -1913,7 +1913,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.extend('parent-component', 'grandparent-component', components.B());
                 ComponentFactory.extend('child-component', 'parent-component', components.C());
 
-                const childComponent = shallowMount(await ComponentFactory.build('child-component'));
+                const childComponent = mount(await ComponentFactory.build('child-component'));
 
                 expect(childComponent.vm.fooBar()).toBe('called');
             });
@@ -1947,7 +1947,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.extend('parent-component', 'grandparent-component', components.B());
                 ComponentFactory.extend('child-component', 'parent-component', components.C());
 
-                const childComponent = shallowMount(await ComponentFactory.build('child-component'));
+                const childComponent = mount(await ComponentFactory.build('child-component'));
 
                 expect(childComponent.vm.fooBar()).toBe('called');
             });
@@ -1985,7 +1985,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.extend('parent-component', 'grandparent-component', components.C());
                 ComponentFactory.extend('child-component', 'parent-component', components.D());
 
-                const childComponent = shallowMount(await ComponentFactory.build('child-component'));
+                const childComponent = mount(await ComponentFactory.build('child-component'));
 
                 expect(childComponent.vm.fooBar()).toBe('called');
             });
@@ -2039,7 +2039,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('root-component', components.B(createdData));
                 ComponentFactory.override('root-component', components.C());
 
-                shallowMount(await ComponentFactory.build('root-component'));
+                mount(await ComponentFactory.build('root-component'));
 
                 expect(createdData).toEqual(['root', 'overridden']);
             });
@@ -2097,7 +2097,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('root-component', components.C());
                 ComponentFactory.override('root-component', components.D());
 
-                shallowMount(await ComponentFactory.build('root-component'));
+                mount(await ComponentFactory.build('root-component'));
 
                 expect(createdData).toEqual(['root', 'overridden']);
             });
@@ -2151,7 +2151,7 @@ describe('core/factory/async-component.factory.ts', () => {
                 ComponentFactory.override('root-component', components.C());
                 ComponentFactory.override('root-component', components.D());
 
-                shallowMount(await ComponentFactory.build('root-component'));
+                mount(await ComponentFactory.build('root-component'));
 
                 const expected = cloneDeep(ComponentFactory.getOverrideRegistry().get('root-component'));
 
@@ -2383,16 +2383,18 @@ describe('core/factory/async-component.factory.ts', () => {
 
                 const buildConfig = await ComponentFactory.build(componentName);
 
-                const wrapper = await shallowMount(buildConfig, {
-                    provide: {
-                        someService() { return 'foo'; },
-                        anotherService() { return 'bar'; },
+                const wrapper = await mount(buildConfig, {
+                    global: {
+                        provide: {
+                            someService() { return 'foo'; },
+                            anotherService() { return 'bar'; },
+                        },
                     },
                 });
 
-                expect(wrapper.html()).toBe('<div class="base-component"> bar foo</div>');
+                expect(wrapper.html()).toBe('<div class="base-component">bar foo</div>');
 
-                wrapper.destroy();
+                wrapper.unmount();
             });
         });
     });
@@ -2445,8 +2447,8 @@ describe('core/factory/async-component.factory.ts', () => {
         const componentA = await ComponentFactory.build('component-a');
         const componentB = await ComponentFactory.build('component-b');
 
-        expect(shallowMount(componentA).html()).toBe('<h1>Hello from component A</h1>');
-        expect(shallowMount(componentB).html()).toBe('<h1>Hello from component B</h1>');
+        expect(mount(componentA).html()).toBe('<h1>Hello from component A</h1>');
+        expect(mount(componentB).html()).toBe('<h1>Hello from component B</h1>');
     });
 
     it('should use the default property by module import when extend a component', async () => {
@@ -2470,9 +2472,9 @@ describe('core/factory/async-component.factory.ts', () => {
         const componentB = await ComponentFactory.build('component-b');
         const componentC = await ComponentFactory.build('component-c');
 
-        expect(shallowMount(componentA).html()).toBe('<h1>Hello from component A</h1>');
-        expect(shallowMount(componentB).html()).toBe('<h1>Hello from component B</h1>');
-        expect(shallowMount(componentC).html()).toBe('<h1>Hello from component C</h1>');
+        expect(mount(componentA).html()).toBe('<h1>Hello from component A</h1>');
+        expect(mount(componentB).html()).toBe('<h1>Hello from component B</h1>');
+        expect(mount(componentC).html()).toBe('<h1>Hello from component C</h1>');
     });
 
     it('should use the default property by module import when override a component', async () => {
@@ -2490,7 +2492,7 @@ describe('core/factory/async-component.factory.ts', () => {
 
         const componentA = await ComponentFactory.build('component-a');
 
-        expect(shallowMount(componentA).html()).toBe('<h1>Hello from the override</h1>');
+        expect(mount(componentA).html()).toBe('<h1>Hello from the override</h1>');
     });
 
     it('should register and execute component helper', async () => {

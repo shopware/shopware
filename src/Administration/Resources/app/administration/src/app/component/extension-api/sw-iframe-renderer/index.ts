@@ -1,5 +1,6 @@
-import template from './sw-iframe-renderer.html.twig';
 import type { Extension } from '../../../state/extensions.store';
+import template from './sw-iframe-renderer.html.twig';
+import './sw-iframe-renderer.scss';
 
 /**
  * @package admin

@@ -150,14 +150,14 @@ class CustomFieldsSerializer extends JsonFieldSerializer
                 $parameters->getPath()
             );
 
-            $identifier = WriteCommandQueue::decodeCommandPrimary(
+            $identifier = WriteCommandQueue::hashedPrimary(
                 $this->definitionRegistry,
                 $jsonUpdateCommand,
             );
 
             $parameters->getCommandQueue()->add(
                 $jsonUpdateCommand->getDefinition()->getEntityName(),
-                md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                $identifier,
                 $jsonUpdateCommand
             );
         }

@@ -10,13 +10,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\EmptyEntityExistence;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -48,8 +48,8 @@ class EntityWriteResultFactoryTest extends TestCase
 
         // add all commands to queue, use the identifier system of DAL
         foreach ($commands as $command) {
-            $identifier = WriteCommandQueue::decodeCommandPrimary($registry, $command);
-            $queue->add($command->getEntityName(), md5((string) json_encode($identifier)), $command);
+            $identifier = WriteCommandQueue::hashedPrimary($registry, $command);
+            $queue->add($command->getEntityName(), $identifier, $command);
         }
 
         $result = $factory->build($queue);
@@ -189,16 +189,5 @@ class UpdateCommandStub extends UpdateCommand
             existence: new EmptyEntityExistence(),
             path: '/' . Uuid::randomHex()
         );
-    }
-}
-
-/**
- * @internal
- */
-class EmptyEntityExistence extends EntityExistence
-{
-    public function __construct()
-    {
-        parent::__construct('', [], true, false, false, []);
     }
 }

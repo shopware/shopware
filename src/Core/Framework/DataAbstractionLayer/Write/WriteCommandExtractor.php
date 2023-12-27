@@ -422,11 +422,11 @@ class WriteCommandExtractor
             $command = new InsertCommand($definition, array_merge($pkData, $data), $pkData, $existence, $parameterBag->getPath());
         }
 
-        $identifier = WriteCommandQueue::decodeCommandPrimary($this->registry, $command);
+        $identifier = WriteCommandQueue::hashedPrimary($this->registry, $command);
 
         $queue->add(
             $definition->getEntityName(),
-            md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+            $identifier,
             $command
         );
     }

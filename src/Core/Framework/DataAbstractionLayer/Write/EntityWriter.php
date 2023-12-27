@@ -262,14 +262,9 @@ class EntityWriter implements EntityWriterInterface
 
                 $command = new UpdateCommand($affectedDefinition, [], $primary, $existence, '');
 
-                $identifier = WriteCommandQueue::decodeCommandPrimary(
-                    $this->registry,
-                    $command
-                );
-
                 $queue->add(
                     $affectedDefinition->getEntityName(),
-                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    WriteCommandQueue::hashedPrimary($this->registry, $command),
                     $command
                 );
             }
@@ -300,14 +295,14 @@ class EntityWriter implements EntityWriterInterface
 
                 $command = new CascadeDeleteCommand($affectedDefinition, $primary, $existence);
 
-                $identifier = WriteCommandQueue::decodeCommandPrimary(
+                $identifier = WriteCommandQueue::hashedPrimary(
                     $this->registry,
                     $command
                 );
 
                 $queue->add(
                     $affectedDefinition->getEntityName(),
-                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $identifier,
                     $command
                 );
             }
@@ -354,11 +349,11 @@ class EntityWriter implements EntityWriterInterface
 
                 $command = new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, '', $isEnforced);
 
-                $identifier = WriteCommandQueue::decodeCommandPrimary($this->registry, $command);
+                $identifier = WriteCommandQueue::hashedPrimary($this->registry, $command);
 
                 $queue->add(
                     $affectedDefinition->getEntityName(),
-                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $identifier,
                     $command
                 );
             }
@@ -455,11 +450,11 @@ class EntityWriter implements EntityWriterInterface
             if ($existence->exists()) {
                 $command = new DeleteCommand($definition, $mappedBytes, $existence);
 
-                $identifier = WriteCommandQueue::decodeCommandPrimary($this->registry, $command);
+                $identifier = WriteCommandQueue::hashedPrimary($this->registry, $command);
 
                 $commandQueue->add(
                     $definition->getEntityName(),
-                    md5(json_encode($identifier, \JSON_THROW_ON_ERROR)),
+                    $identifier,
                     $command
                 );
 

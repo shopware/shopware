@@ -37,31 +37,13 @@ class WriteCommandQueue
         $this->entityCommands[$hash][] = $command;
     }
 
-    /**
-     * @return array<int, mixed>
-     */
-    public static function decodeCommandPrimary(DefinitionInstanceRegistry $registry, WriteCommand $command): array
+    public static function hashedPrimary(DefinitionInstanceRegistry $registry, WriteCommand $command): string
     {
-        $primaryKey = $command->getPrimaryKey();
+        $decoded = self::decodeCommandPrimary($registry, $command);
 
-        sort($primaryKey);
+        $string = json_encode($decoded, \JSON_THROW_ON_ERROR);
 
-        // don't access definition of command directly, goal is to get rid of definition inside DTOs
-        $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
-
-        $decoded = [];
-        foreach ($primaryKey as $fieldValue) {
-            /** @var string|false $fieldName */
-            $fieldName = array_search($fieldValue, $command->getPrimaryKey(), true);
-            /** @var Field|null $field */
-            $field = null;
-            if ($fieldName) {
-                $field = $definition->getFields()->get($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
-            }
-            $decoded[] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
-        }
-
-        return $decoded;
+        return md5($string);
     }
 
     /**
@@ -173,6 +155,33 @@ class WriteCommandQueue
         $hash = $definition->getEntityName() . ':' . md5(json_encode($decodedPrimaryKey, \JSON_THROW_ON_ERROR));
 
         return $this->entityCommands[$hash] ?? [];
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private static function decodeCommandPrimary(DefinitionInstanceRegistry $registry, WriteCommand $command): array
+    {
+        $primaryKey = $command->getPrimaryKey();
+
+        sort($primaryKey);
+
+        // don't access definition of command directly, goal is to get rid of definition inside DTOs
+        $definition = $registry->getByEntityName($command->getDefinition()->getEntityName());
+
+        $decoded = [];
+        foreach ($primaryKey as $fieldValue) {
+            /** @var string|false $fieldName */
+            $fieldName = array_search($fieldValue, $command->getPrimaryKey(), true);
+            /** @var Field|null $field */
+            $field = null;
+            if ($fieldName) {
+                $field = $definition->getFields()->get($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
+            }
+            $decoded[] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
+        }
+
+        return $decoded;
     }
 
     /**

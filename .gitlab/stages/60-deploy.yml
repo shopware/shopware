@@ -99,6 +99,9 @@ deploy to cloud staging:
     stage: deploy
     rules:
       - !reference [ .rules, skip ]
+      - if: '$CI_COMMIT_BRANCH =~ /^6\.*/ && ($CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*run_scheduled*/)'
+        variables:
+          CUSTOM_VERSION: 'shopware/platform:${CI_COMMIT_BRANCH}-dev as 6.6.x-dev;swag/saas-rufus:dev-trunk;shopware/commercial:dev-trunk;'
       - !reference [ .rules, scheduled ]
     variables:
       VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'

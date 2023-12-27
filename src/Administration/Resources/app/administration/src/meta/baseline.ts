@@ -721,7 +721,6 @@ const missingTests = [
     'src/app/component/form/sw-form-field-renderer/index.js',
     'src/app/component/form/sw-snippet-field/index.js',
     'src/app/component/form/sw-snippet-field-edit-modal/index.js',
-    'src/app/component/form/sw-text-editor/index.js',
     'src/app/component/form/sw-text-editor/sw-text-editor-link-menu/index.ts',
     'src/app/component/modal/sw-confirm-modal/index.js',
     'src/app/component/modal/sw-image-preview-modal/index.js',

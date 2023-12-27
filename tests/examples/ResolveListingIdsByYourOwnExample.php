@@ -7,12 +7,14 @@ use Shopware\Core\Content\Product\Extension\ResolveListingLoaderIdsExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
+/**
+ * @title Example how you control the listing product ids
+ * @description This example shows how you can control the listing product ids. It allows you to resolve the listing ids by your own over an API call or an own storage
+ */
 #[AsEventListener(
     event: 'listing-loader.resolve-listing-ids.pre',
     method: '__invoke'
 )]
-#[Title('Example how you control the listing product ids')]
-#[Description('This example shows how you can control the listing product ids. It allows you to resolve the listing ids by your own over an API call or an own storage')]
 readonly class ResolveListingIdsByYourOwnExample
 {
     public function __construct(

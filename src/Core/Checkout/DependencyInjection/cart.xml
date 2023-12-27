@@ -338,6 +338,7 @@
             <argument type="tagged" tag="shopware.cart.line_item.factory"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\Extensions\ExtensionDispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory">

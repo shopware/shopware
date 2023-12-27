@@ -7,4 +7,4 @@ author_github:      @alessandroaussems
 ---
 
 # Storefront
-*  Updated `views/storefront/page/account/profile/personal.html.twig` to use `config('core.loginRegistration.birthdayFieldRequired')` like it's used in `views/storefront/component/address/address-personal.html.twig` to make sure the setting is also taking into consideration the 'My Account' section
+* Changed `views/storefront/page/account/profile/personal.html.twig` to use `config('core.loginRegistration.birthdayFieldRequired')` like it's used in `views/storefront/component/address/address-personal.html.twig` to make sure the setting is also taking into consideration the 'My Account' section

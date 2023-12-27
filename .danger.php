@@ -400,7 +400,11 @@ return (new Config())
             $content = $file->getContent();
 
             if (str_contains($content, 'extends TestCase')) {
-                $unitTestsName[] = $file->name;
+                $fqcn = str_replace('.php', '', $file->name);
+                $className = explode('/', $fqcn);
+                $testClass = end($className);
+
+                $unitTestsName[] = $testClass;
             }
         }
 
@@ -451,7 +455,7 @@ return (new Config())
                 }
             }
 
-            if (!$ignored && !\in_array(\str_replace('.php', 'Test.php', $file->name), $unitTestsName, true)) {
+            if (!$ignored && !\in_array($class . 'Test', $unitTestsName, true)) {
                 $missingUnitTests[] = $file->name;
             }
         }

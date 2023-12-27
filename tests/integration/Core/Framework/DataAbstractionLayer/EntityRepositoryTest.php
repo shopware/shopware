@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -28,11 +29,197 @@ class EntityRepositoryTest extends TestCase
         $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
     }
 
+    #[DataProvider('productPropertiesQueryProvider')]
+    public function testProductPropertiesQueries(array $products, Criteria $criteria, array $expected)
+    {
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        $found = $this->getContainer()
+            ->get('product.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertCount(count($expected), $found->getIds());
+
+        foreach ($expected as $id) {
+            static::assertContains($id, $found->getIds());
+        }
+    }
+
+    public static function productPropertiesQueryProvider(): \Generator
+    {
+        $ids = new IdsCollection();
+        yield 'Test matching single property' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color']),
+                self::product($ids, 'p.2', ['green' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new EqualsFilter('properties.id', $ids->get('red'))),
+            [$ids->get('p.1')]
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test matching multiple properties of same group' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color', 'green' => 'color']),
+                self::product($ids, 'p.2', ['green' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new EqualsFilter('properties.id', $ids->get('red')))
+                ->addFilter(new EqualsFilter('properties.id', $ids->get('green'))),
+            [$ids->get('p.1')]
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test matching multiple properties of same group, not fit' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color']),
+                self::product($ids, 'p.2', ['green' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new EqualsFilter('properties.id', $ids->get('red')))
+                ->addFilter(new EqualsFilter('properties.id', $ids->get('green'))),
+            []
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test match property and group id' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color']),
+                self::product($ids, 'p.2', ['green' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new AndFilter([
+                    new EqualsFilter('properties.id', $ids->get('red')),
+                    new EqualsFilter('properties.groupId', $ids->get('color'))
+                ])),
+            [$ids->get('p.1')]
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test match property and group id, not fit' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color']),
+                self::product($ids, 'p.2', ['green' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new AndFilter([
+                    new EqualsFilter('properties.id', $ids->get('red')),
+                    new EqualsFilter('properties.groupId', $ids->get('size'))
+                ])),
+            []
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test match property and group id using association, matches' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color']),
+                self::product($ids, 'p.2', ['green' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new AndFilter([
+                    new EqualsFilter('properties.id', $ids->get('red')),
+                    new EqualsFilter('properties.group.id', $ids->get('color'))
+                ])),
+            [$ids->get('p.1')]
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test match property and group id using association, not matches' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color', 'xl' => 'size']),
+                self::product($ids, 'p.2', ['green' => 'size', 'red' => 'color']),
+            ],
+            (new Criteria())
+                ->addFilter(new AndFilter([
+                    new EqualsFilter('properties.id', $ids->get('red')),
+                    new EqualsFilter('properties.group.id', $ids->get('size'))
+                ])),
+            []
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test for jonas' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color', 'xl' => 'size']),
+                self::product($ids, 'p.2', ['green' => 'color', 'l' => 'size']),
+            ],
+            (new Criteria())
+                ->addFilter(
+                    new AndFilter([
+                        new EqualsFilter('properties.id', $ids->get('red')),
+                        new EqualsFilter('properties.group.id', $ids->get('size'))
+                    ]),
+                ),
+            []
+        ];
+
+
+        $ids = new IdsCollection();
+        yield 'Works with no nested association' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color', 'xl' => 'size']),
+                self::product($ids, 'p.2', ['green' => 'color', 'l' => 'size']),
+            ],
+            (new Criteria())
+                ->addFilter(
+                    new OrFilter([
+                        new AndFilter([
+                            new EqualsFilter('properties.id', $ids->get('red')),
+                            new EqualsFilter('properties.groupId', $ids->get('size'))
+                        ]),
+                        new EqualsFilter('properties.id', $ids->get('blue')),
+                    ])
+                ),
+            []
+        ];
+
+
+        $ids = new IdsCollection();
+        yield 'Works with nested association and or filter' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color', 'xl' => 'size']),
+                self::product($ids, 'p.2', ['green' => 'color', 'l' => 'size']),
+            ],
+            (new Criteria())
+                ->addFilter(
+                    new OrFilter([
+                        new AndFilter([
+                            new EqualsFilter('properties.id', $ids->get('red')),
+                            new EqualsFilter('properties.group.id', $ids->get('size'))
+                        ]),
+                        new EqualsFilter('active', true)
+                    ])
+                ),
+            []
+        ];
+
+        $ids = new IdsCollection();
+        yield 'Test not product fits the multi or filter and nested and filter' => [
+            [
+                self::product($ids, 'p.1', ['red' => 'color', 'xl' => 'size']),
+                self::product($ids, 'p.2', ['green' => 'color', 'l' => 'size']),
+            ],
+            (new Criteria())
+                ->addFilter(
+                    new OrFilter([
+                        new AndFilter([
+                            new EqualsFilter('properties.id', $ids->get('red')),
+                            new EqualsFilter('properties.group.id', $ids->get('size'))
+                        ]),
+                        new EqualsFilter('properties.id', $ids->get('blue')),
+                    ])
+                ),
+            []
+        ];
+    }
+
     /**
      * @param array<array{payment: string, state:string}> $transactions
      */
-    #[DataProvider('oneToManyFilterProvider')]
-    public function testOneToManyFilter(array $transactions, Criteria $criteria, bool $match)
+    #[DataProvider('orderTransactionsProvider')]
+    public function testOrderTransactionsQueries(array $transactions, Criteria $criteria, bool $match)
     {
         $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=0;');
 
@@ -55,10 +242,12 @@ class EntityRepositoryTest extends TestCase
             ->get('order.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertCount($match ? 1 : 0, $found->getIds());
+        $found = !empty($found->getIds());
+
+        static::assertEquals($match, $found);
     }
 
-    public static function oneToManyFilterProvider()
+    public static function orderTransactionsProvider(): \Generator
     {
         $ids = new IdsCollection();
 
@@ -80,7 +269,7 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                    new EqualsFilter('transactions.amount', 100)
+                    new EqualsFilter('transactions.amount.unitPrice', 100)
                 ])),
             true
         ];
@@ -93,11 +282,10 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                    new EqualsFilter('transactions.amount', 101)
+                    new EqualsFilter('transactions.amount.unitPrice', 110)
                 ])),
             false
         ];
-
 
         yield 'Match exact state of payment method' => [
             [
@@ -163,6 +351,22 @@ class EntityRepositoryTest extends TestCase
     }
 
     /**
+     * @param array<string, string> $properties
+     * @return array<string, mixed>
+     */
+    private static function product(IdsCollection $ids, string $key, array $properties): array
+    {
+        $builder = new ProductBuilder($ids, $key);
+        $builder->price(100);
+        foreach ($properties as $value => $group) {
+            $builder->property($value, $group);
+        }
+        $builder->active(false);
+
+        return $builder->build();
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private static function order(string $id): array
@@ -204,7 +408,7 @@ class EntityRepositoryTest extends TestCase
             'order_id' => Uuid::fromHexToBytes($orderId),
             'payment_method_id' => Uuid::fromHexToBytes($payment),
             'state_id' => $stateId,
-            'amount' => 100,
+            'amount' => json_encode(['unitPrice' => 100]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }

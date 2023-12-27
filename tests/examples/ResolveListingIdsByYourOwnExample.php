@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
  * @description This example shows how you can control the listing product ids. It allows you to resolve the listing ids by your own over an API call or an own storage
  */
 #[AsEventListener(
-    event: 'listing-loader.resolve-listing-ids.pre',
+    event: ResolveListingLoaderIdsExtension::PRE,
     method: '__invoke'
 )]
 readonly class ResolveListingIdsByYourOwnExample
@@ -26,14 +26,14 @@ readonly class ResolveListingIdsByYourOwnExample
     {
         $criteria = $event->criteria;
 
+        // building a json aware array for the API call
         $context = [
             'salesChannelId' => $event->context->getSalesChannelId(),
             'currencyId' => $event->context->getCurrency(),
             'languageId' => $event->context->getLanguageId(),
         ];
 
-        // use this client to do get request against: https://your-api.com/listing-ids?criteria=...&context=...
-
+        // do an api call against your own server or another storage, or whatever you want
         $ids = $this->client->get('https://your-api.com/listing-ids', [
             'query' => [
                 'criteria' => json_encode($criteria),
@@ -43,6 +43,7 @@ readonly class ResolveListingIdsByYourOwnExample
 
         $data = json_decode($ids->getBody()->getContents());
 
+        // create the expected result
         $result = IdSearchResult::fromIds(
             $data['ids'],
             $event->criteria,
@@ -51,5 +52,8 @@ readonly class ResolveListingIdsByYourOwnExample
         );
 
         $event->result = $result;
+
+        // stop the event propagation, so the default behaviour will not be executed
+        $event->stopPropagation();
     }
 }

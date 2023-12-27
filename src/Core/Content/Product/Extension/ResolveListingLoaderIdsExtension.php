@@ -16,6 +16,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  */
 final class ResolveListingLoaderIdsExtension extends Extension
 {
+    public CONST PRE = 'listing-loader.resolve-listing-ids.pre';
+    public CONST POST = 'listing-loader.resolve-listing-ids.post';
+
     /**
      * {@inheritdoc}
      */

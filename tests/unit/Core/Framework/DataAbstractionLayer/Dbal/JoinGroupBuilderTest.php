@@ -70,7 +70,7 @@ class JoinGroupBuilderTest extends TestCase
      * @param array<CriteriaPartInterface> $expected
      */
     #[DataProvider('nestedGroupingProvider')]
-    public function testNestedGrouping(array $filters, array $expected)
+    public function testNestedGrouping(array $filters, array $expected): void
     {
         $registry = new StaticDefinitionInstanceRegistry(
             [
@@ -95,25 +95,25 @@ class JoinGroupBuilderTest extends TestCase
     {
         yield 'Call empty' => [
             [],
-            []
+            [],
         ];
 
         yield 'Single filter, no grouping' => [
             [new EqualsFilter('transactions.paymentMethodId', 'paypal')],
-            [new EqualsFilter('transactions.paymentMethodId', 'paypal')]
+            [new EqualsFilter('transactions.paymentMethodId', 'paypal')],
         ];
 
         yield 'Multiple filters, no grouping' => [
             [
                 new EqualsFilter('currencyFactor', 1),
                 new EqualsFilter('source', 'foo'),
-                new EqualsFilter('shippingTotal', 2.0)
+                new EqualsFilter('shippingTotal', 2.0),
             ],
             [
                 new EqualsFilter('currencyFactor', 1),
                 new EqualsFilter('source', 'foo'),
-                new EqualsFilter('shippingTotal', 2.0)
-            ]
+                new EqualsFilter('shippingTotal', 2.0),
+            ],
         ];
 
         yield 'Multiple filters, single many filter, no grouping' => [
@@ -122,13 +122,13 @@ class JoinGroupBuilderTest extends TestCase
                 new MultiFilter(MultiFilter::CONNECTION_AND, [
                     new EqualsFilter('transactions.paymentMethodId', 'paypal'),
                     new EqualsFilter('transactions.amount', 1.0),
-                ])
+                ]),
             ],
             [
                 new EqualsFilter('currencyFactor', 1),
                 new EqualsFilter('transactions.paymentMethodId', 'paypal'),
                 new EqualsFilter('transactions.amount', 1.0),
-            ]
+            ],
         ];
 
         yield 'Multiple filters, multiple many filter, no grouping' => [
@@ -141,7 +141,7 @@ class JoinGroupBuilderTest extends TestCase
                 new MultiFilter(MultiFilter::CONNECTION_OR, [
                     new EqualsFilter('transactions.paymentMethodId', 'paypal'),
                     new EqualsFilter('transactions.amount', 4.0),
-                ])
+                ]),
             ],
             [
                 new EqualsFilter('currencyFactor', 1),
@@ -153,7 +153,7 @@ class JoinGroupBuilderTest extends TestCase
                     new EqualsFilter('transactions.paymentMethodId', 'paypal'),
                     new EqualsFilter('transactions.amount', 4.0),
                 ], 'order.transactions', '_2', MultiFilter::CONNECTION_OR),
-            ]
+            ],
         ];
 
         yield 'Reported issue scenario' => [
@@ -161,20 +161,20 @@ class JoinGroupBuilderTest extends TestCase
                 new OrFilter([
                     new AndFilter([
                         new EqualsFilter('transactions.paymentMethodId', 'paypal'),
-                        new EqualsFilter('transactions.stateMachineState.technicalName', 'open')
+                        new EqualsFilter('transactions.stateMachineState.technicalName', 'open'),
                     ]),
-                    new EqualsFilter('transactions.stateMachineState.technicalName', 'paid')
+                    new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
                 ]),
             ],
             [
                 new JoinGroup([
                     new EqualsFilter('transactions.paymentMethodId', 'paypal'),
-                    new EqualsFilter('transactions.stateMachineState.technicalName', 'open')
+                    new EqualsFilter('transactions.stateMachineState.technicalName', 'open'),
                 ], 'order.transactions', '_1', MultiFilter::CONNECTION_AND),
                 new JoinGroup([
-                    new EqualsFilter('transactions.stateMachineState.technicalName', 'paid')
+                    new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
                 ], 'order.transactions', '_2', MultiFilter::CONNECTION_OR),
-            ]
+            ],
         ];
 
         yield 'Multiple many filters, but different path' => [
@@ -187,7 +187,7 @@ class JoinGroupBuilderTest extends TestCase
                 new AndFilter([
                     new EqualsFilter('lineItems.type', 'product'),
                     new EqualsFilter('lineItems.label', 'foo'),
-                ])
+                ]),
             ],
             [
                 new EqualsFilter('transactions.paymentMethodId', 'paypal'),
@@ -195,7 +195,7 @@ class JoinGroupBuilderTest extends TestCase
                 new EqualsFilter('transactions.stateMachineState.technicalName', 'foo'),
                 new EqualsFilter('lineItems.type', 'product'),
                 new EqualsFilter('lineItems.label', 'foo'),
-            ]
+            ],
         ];
     }
 }

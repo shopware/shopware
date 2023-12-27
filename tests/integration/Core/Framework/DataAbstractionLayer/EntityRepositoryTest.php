@@ -1,14 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -18,6 +20,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
+/**
+ * @internal
+ */
+#[CoversClass(EntityRepository::class)]
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -29,8 +35,12 @@ class EntityRepositoryTest extends TestCase
         $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=1;');
     }
 
+    /**
+     * @param array<string, mixed> $products
+     * @param array<string> $expected
+     */
     #[DataProvider('productPropertiesQueryProvider')]
-    public function testProductPropertiesQueries(array $products, Criteria $criteria, array $expected)
+    public function testProductPropertiesQueries(array $products, Criteria $criteria, array $expected): void
     {
         $this->getContainer()->get('product.repository')
             ->create($products, Context::createDefaultContext());
@@ -39,7 +49,7 @@ class EntityRepositoryTest extends TestCase
             ->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertCount(count($expected), $found->getIds());
+        static::assertCount(\count($expected), $found->getIds());
 
         foreach ($expected as $id) {
             static::assertContains($id, $found->getIds());
@@ -56,7 +66,7 @@ class EntityRepositoryTest extends TestCase
             ],
             (new Criteria())
                 ->addFilter(new EqualsFilter('properties.id', $ids->get('red'))),
-            [$ids->get('p.1')]
+            [$ids->get('p.1')],
         ];
 
         $ids = new IdsCollection();
@@ -68,7 +78,7 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new EqualsFilter('properties.id', $ids->get('red')))
                 ->addFilter(new EqualsFilter('properties.id', $ids->get('green'))),
-            [$ids->get('p.1')]
+            [$ids->get('p.1')],
         ];
 
         $ids = new IdsCollection();
@@ -80,7 +90,7 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new EqualsFilter('properties.id', $ids->get('red')))
                 ->addFilter(new EqualsFilter('properties.id', $ids->get('green'))),
-            []
+            [],
         ];
 
         $ids = new IdsCollection();
@@ -92,9 +102,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('properties.id', $ids->get('red')),
-                    new EqualsFilter('properties.groupId', $ids->get('color'))
+                    new EqualsFilter('properties.groupId', $ids->get('color')),
                 ])),
-            [$ids->get('p.1')]
+            [$ids->get('p.1')],
         ];
 
         $ids = new IdsCollection();
@@ -106,9 +116,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('properties.id', $ids->get('red')),
-                    new EqualsFilter('properties.groupId', $ids->get('size'))
+                    new EqualsFilter('properties.groupId', $ids->get('size')),
                 ])),
-            []
+            [],
         ];
 
         $ids = new IdsCollection();
@@ -120,9 +130,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('properties.id', $ids->get('red')),
-                    new EqualsFilter('properties.group.id', $ids->get('color'))
+                    new EqualsFilter('properties.group.id', $ids->get('color')),
                 ])),
-            [$ids->get('p.1')]
+            [$ids->get('p.1')],
         ];
 
         $ids = new IdsCollection();
@@ -134,9 +144,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('properties.id', $ids->get('red')),
-                    new EqualsFilter('properties.group.id', $ids->get('size'))
+                    new EqualsFilter('properties.group.id', $ids->get('size')),
                 ])),
-            []
+            [],
         ];
 
         $ids = new IdsCollection();
@@ -149,12 +159,11 @@ class EntityRepositoryTest extends TestCase
                 ->addFilter(
                     new AndFilter([
                         new EqualsFilter('properties.id', $ids->get('red')),
-                        new EqualsFilter('properties.group.id', $ids->get('size'))
+                        new EqualsFilter('properties.group.id', $ids->get('size')),
                     ]),
                 ),
-            []
+            [],
         ];
-
 
         $ids = new IdsCollection();
         yield 'Works with no nested association' => [
@@ -167,14 +176,13 @@ class EntityRepositoryTest extends TestCase
                     new OrFilter([
                         new AndFilter([
                             new EqualsFilter('properties.id', $ids->get('red')),
-                            new EqualsFilter('properties.groupId', $ids->get('size'))
+                            new EqualsFilter('properties.groupId', $ids->get('size')),
                         ]),
                         new EqualsFilter('properties.id', $ids->get('blue')),
                     ])
                 ),
-            []
+            [],
         ];
-
 
         $ids = new IdsCollection();
         yield 'Works with nested association and or filter' => [
@@ -187,12 +195,12 @@ class EntityRepositoryTest extends TestCase
                     new OrFilter([
                         new AndFilter([
                             new EqualsFilter('properties.id', $ids->get('red')),
-                            new EqualsFilter('properties.group.id', $ids->get('size'))
+                            new EqualsFilter('properties.group.id', $ids->get('size')),
                         ]),
-                        new EqualsFilter('active', true)
+                        new EqualsFilter('active', true),
                     ])
                 ),
-            []
+            [],
         ];
 
         $ids = new IdsCollection();
@@ -206,12 +214,12 @@ class EntityRepositoryTest extends TestCase
                     new OrFilter([
                         new AndFilter([
                             new EqualsFilter('properties.id', $ids->get('red')),
-                            new EqualsFilter('properties.group.id', $ids->get('size'))
+                            new EqualsFilter('properties.group.id', $ids->get('size')),
                         ]),
                         new EqualsFilter('properties.id', $ids->get('blue')),
                     ])
                 ),
-            []
+            [],
         ];
     }
 
@@ -219,7 +227,7 @@ class EntityRepositoryTest extends TestCase
      * @param array<array{payment: string, state:string}> $transactions
      */
     #[DataProvider('orderTransactionsProvider')]
-    public function testOrderTransactionsQueries(array $transactions, Criteria $criteria, bool $match)
+    public function testOrderTransactionsQueries(array $transactions, Criteria $criteria, bool $match): void
     {
         $this->getContainer()->get(Connection::class)->executeQuery('SET FOREIGN_KEY_CHECKS=0;');
 
@@ -258,7 +266,7 @@ class EntityRepositoryTest extends TestCase
             ],
             (new Criteria())
                 ->addFilter(new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal'))),
-            true
+            true,
         ];
 
         yield 'Multi filter on transactions works, matches' => [
@@ -269,9 +277,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                    new EqualsFilter('transactions.amount.unitPrice', 100)
+                    new EqualsFilter('transactions.amount.unitPrice', 100),
                 ])),
-            true
+            true,
         ];
 
         yield 'Multi filter on transactions works, not matches' => [
@@ -282,9 +290,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                    new EqualsFilter('transactions.amount.unitPrice', 110)
+                    new EqualsFilter('transactions.amount.unitPrice', 110),
                 ])),
-            false
+            false,
         ];
 
         yield 'Match exact state of payment method' => [
@@ -295,9 +303,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                    new EqualsFilter('transactions.stateMachineState.technicalName', 'open')
+                    new EqualsFilter('transactions.stateMachineState.technicalName', 'open'),
                 ])),
-            true
+            true,
         ];
 
         yield 'Payment method exists but state is not matching' => [
@@ -308,9 +316,9 @@ class EntityRepositoryTest extends TestCase
             (new Criteria())
                 ->addFilter(new AndFilter([
                     new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                    new EqualsFilter('transactions.stateMachineState.technicalName', 'paid')
+                    new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
                 ])),
-            false
+            false,
         ];
 
         yield 'Has open paypal or another paid transaction, matches' => [
@@ -323,12 +331,12 @@ class EntityRepositoryTest extends TestCase
                     new OrFilter([
                         new AndFilter([
                             new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                            new EqualsFilter('transactions.stateMachineState.technicalName', 'open')
+                            new EqualsFilter('transactions.stateMachineState.technicalName', 'open'),
                         ]),
-                        new EqualsFilter('transactions.stateMachineState.technicalName', 'paid')
+                        new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
                     ]),
                 ),
-            true
+            true,
         ];
 
         yield 'Has open paypal or another paid transaction, does not match' => [
@@ -341,17 +349,18 @@ class EntityRepositoryTest extends TestCase
                     new OrFilter([
                         new AndFilter([
                             new EqualsFilter('transactions.paymentMethodId', $ids->get('paypal')),
-                            new EqualsFilter('transactions.stateMachineState.technicalName', 'open')
+                            new EqualsFilter('transactions.stateMachineState.technicalName', 'open'),
                         ]),
-                        new EqualsFilter('transactions.stateMachineState.technicalName', 'paid')
+                        new EqualsFilter('transactions.stateMachineState.technicalName', 'paid'),
                     ]),
                 ),
-            false
+            false,
         ];
     }
 
     /**
      * @param array<string, string> $properties
+     *
      * @return array<string, mixed>
      */
     private static function product(IdsCollection $ids, string $key, array $properties): array
@@ -393,6 +402,9 @@ class EntityRepositoryTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function transaction(string $orderId, string $payment, string $state): array
     {
         $machineId = $this->getContainer()->get(Connection::class)
@@ -412,5 +424,4 @@ class EntityRepositoryTest extends TestCase
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
     }
-
 }

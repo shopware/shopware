@@ -2,27 +2,20 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
-import Vuex from 'vuex_v2';
-import 'src/app/component/structure/sw-language-switch';
+import { mount } from '@vue/test-utils';
 
 describe('src/app/component/structure/sw-language-switch', () => {
     let wrapper = null;
 
-    beforeAll(() => {});
-
     beforeEach(async () => {
-        const localVue = createLocalVue();
-        localVue.use(Vuex);
-
         Shopware.State.commit('context/setApiLanguageId', '123456789');
 
-        wrapper = shallowMount(await Shopware.Component.build('sw-language-switch'), {
-            localVue,
-            stubs: {
-                'sw-entity-single-select': true,
-                'sw-modal': {
-                    template: `
+        wrapper = mount(await wrapTestComponent('sw-language-switch', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-entity-single-select': true,
+                    'sw-modal': {
+                        template: `
                         <div class="sw-modal-stub">
                             <slot></slot>
 
@@ -31,14 +24,11 @@ describe('src/app/component/structure/sw-language-switch', () => {
                             </div>
                         </div>
                     `,
+                    },
+                    'sw-button': true,
                 },
-                'sw-button': true,
             },
         });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -90,7 +80,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
             oldLanguageId: '123456789',
         });
 
-        const revertButton = wrapper.find('#sw-language-switch-revert-changes-button');
+        const revertButton = wrapper.findComponent('#sw-language-switch-revert-changes-button');
         revertButton.vm.$emit('click');
 
         expect(Shopware.State.get('context').api.languageId).toBe('456');
@@ -111,7 +101,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         expect(saveChangesMock).not.toHaveBeenCalled();
 
-        const revertButton = wrapper.find('#sw-language-switch-save-changes-button');
+        const revertButton = wrapper.findComponent('#sw-language-switch-save-changes-button');
         await revertButton.vm.$emit('click');
 
         expect(saveChangesMock).toHaveBeenCalled();

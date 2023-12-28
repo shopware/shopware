@@ -89,16 +89,16 @@ class StaticDefinitionInstanceRegistry extends DefinitionInstanceRegistry
                 new CustomFieldService(new FakeConnection([['foo', 'int']]))
             ),
             ManyToManyAssociationFieldSerializer::class => new ManyToManyAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
             ManyToOneAssociationFieldSerializer::class => new ManyToOneAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
             OneToManyAssociationFieldSerializer::class => new OneToManyAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
             OneToOneAssociationFieldSerializer::class => new OneToOneAssociationFieldSerializer(
-                new WriteCommandExtractor($this->entityWriteGateway),
+                new WriteCommandExtractor($this->entityWriteGateway, $this),
             ),
         ];
     }

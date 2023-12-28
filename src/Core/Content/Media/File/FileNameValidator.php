@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Media\File;
 
+use League\Flysystem\CorruptedPathDetected;
+use League\Flysystem\WhitespacePathNormalizer;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Log\Package;
 
@@ -29,6 +31,13 @@ class FileNameValidator
 
     private const MAX_FILE_NAME_LENGTH = 255;
 
+    private readonly WhitespacePathNormalizer $whitespacePathNormalizer;
+
+    public function __construct()
+    {
+        $this->whitespacePathNormalizer = new WhitespacePathNormalizer();
+    }
+
     /**
      * @throws MediaException
      */
@@ -43,6 +52,16 @@ class FileNameValidator
         $this->validateFileNameDoesNotContainForbiddenCharacter($fileName);
         $this->validateFileNameDoesNotContainC0Character($fileName);
         $this->validateFileNameIsLessOrEqualThanMaxLength($fileName);
+        $this->validateFileNameDoesNotContainFunkyWhiteSpace($fileName);
+    }
+
+    private function validateFileNameDoesNotContainFunkyWhiteSpace(string $fileName): void
+    {
+        try {
+            $this->whitespacePathNormalizer->normalizePath($fileName);
+        } catch (CorruptedPathDetected) {
+            throw MediaException::illegalFileName($fileName, 'Filename must not contain funky whitespace');
+        }
     }
 
     private function validateFileNameDoesNotEndOrStartWithDot(string $fileName): void

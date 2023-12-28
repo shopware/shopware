@@ -2,105 +2,121 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue, config } from '@vue/test-utils_v2';
-import VueRouter from 'vue-router_v2';
-import 'src/app/component/structure/sw-desktop';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
-const routes = [{
-    name: 'sw.product.index',
-    path: '/sw/product/index',
-    meta: {
-        $module: {
-            entity: 'product',
-            icon: 'default-symbol-products',
-            color: '#57D9A3',
-            title: 'sw-product.general.mainMenuItemGeneral',
-            name: 'product',
-            routes: { index: { name: 'sw.product.index' } },
+const routes = [
+    {
+        name: 'sw.dashboard.index',
+        path: '/sw/dashboard/index',
+        meta: {
+            $module: {
+                name: 'dashboard',
+            },
         },
     },
-}, {
-    name: 'sw.product.create.base',
-    path: '/sw/product/create/base',
-    meta: {
-        $module: {
-            entity: 'product',
-            icon: 'default-symbol-products',
-            color: '#57D9A3',
-            title: 'sw-product.general.mainMenuItemGeneral',
-            name: 'product',
-            routes: {
-                index: { name: 'sw.product.index' },
-                create: {
-                    children: [{
-                        name: 'sw.product.create.base',
-                    }],
-                    name: 'sw.product.create',
-                },
-                detail: {
-                    name: 'sw.product.detail',
-                    children: [{
-                        name: 'sw.product.detail.base',
-                    }],
+    {
+        name: 'sw.product.index',
+        path: '/sw/product/index',
+        meta: {
+            $module: {
+                entity: 'product',
+                icon: 'default-symbol-products',
+                color: '#57D9A3',
+                title: 'sw-product.general.mainMenuItemGeneral',
+                name: 'product',
+                routes: { index: { name: 'sw.product.index' } },
+            },
+        },
+    },
+    {
+        name: 'sw.product.create.base',
+        path: '/sw/product/create/base',
+        meta: {
+            $module: {
+                entity: 'product',
+                icon: 'default-symbol-products',
+                color: '#57D9A3',
+                title: 'sw-product.general.mainMenuItemGeneral',
+                name: 'product',
+                routes: {
+                    index: { name: 'sw.product.index' },
+                    create: {
+                        children: [{
+                            name: 'sw.product.create.base',
+                        }],
+                        name: 'sw.product.create',
+                    },
+                    detail: {
+                        name: 'sw.product.detail',
+                        children: [{
+                            name: 'sw.product.detail.base',
+                        }],
+                    },
                 },
             },
         },
     },
-}, {
-    name: 'sw.product.detail.base',
-    path: '/sw/product/detail/a34943fe8fe040cd9ce25742a7cf77b2/base',
-    meta: {
-        $module: {
-            entity: 'product',
-            icon: 'default-symbol-products',
-            color: '#57D9A3',
-            title: 'sw-product.general.mainMenuItemGeneral',
-            name: 'product',
-            routes: {
-                index: { name: 'sw.product.index' },
-                create: {
-                    children: [{
-                        name: 'sw.product.create.base',
-                    }],
-                    name: 'sw.product.create',
-                },
-                detail: {
-                    name: 'sw.product.detail',
-                    children: [{
-                        name: 'sw.product.detail.base',
-                    }],
+    {
+        name: 'sw.product.detail.base',
+        path: '/sw/product/detail/a34943fe8fe040cd9ce25742a7cf77b2/base',
+        meta: {
+            $module: {
+                entity: 'product',
+                icon: 'default-symbol-products',
+                color: '#57D9A3',
+                title: 'sw-product.general.mainMenuItemGeneral',
+                name: 'product',
+                routes: {
+                    index: { name: 'sw.product.index' },
+                    create: {
+                        children: [{
+                            name: 'sw.product.create.base',
+                        }],
+                        name: 'sw.product.create',
+                    },
+                    detail: {
+                        name: 'sw.product.detail',
+                        children: [{
+                            name: 'sw.product.detail.base',
+                        }],
+                    },
                 },
             },
         },
     },
-}];
+];
+
+const router = createRouter({
+    routes,
+    history: createWebHashHistory(),
+});
 
 async function createWrapper() {
-    delete config.mocks.$router;
-    delete config.mocks.$route;
+    // delete global $router and $routes mocks
+    delete config.global.mocks.$router;
+    delete config.global.mocks.$route;
 
-    const localVue = createLocalVue();
-    localVue.use(VueRouter);
+    await router.push({ name: 'sw.dashboard.index' });
 
-    const router = new VueRouter({
-        routes,
-    });
-
-    return shallowMount(await Shopware.Component.build('sw-desktop'), {
-        localVue,
-        router,
-        stubs: {
-            'sw-admin-menu': true,
-            'router-view': true,
-            'sw-app-app-url-changed-modal': true,
-            'sw-error-boundary': true,
-        },
-        provide: {
-            appUrlChangeService: {
-                getUrlDiff: jest.fn(() => Promise.resolve()),
+    return mount(await wrapTestComponent('sw-desktop', { sync: true }), {
+        global: {
+            plugins: [
+                router,
+            ],
+            stubs: {
+                'sw-admin-menu': true,
+                'router-view': true,
+                'sw-app-app-url-changed-modal': true,
+                'sw-error-boundary': true,
             },
-            userActivityApiService: {
-                increment: jest.fn(() => Promise.resolve()),
+            provide: {
+                appUrlChangeService: {
+                    getUrlDiff: jest.fn(() => Promise.resolve()),
+                },
+                userActivityApiService: {
+                    increment: jest.fn(() => Promise.resolve()),
+                },
             },
         },
     });
@@ -174,7 +190,7 @@ describe('src/app/component/structure/sw-desktop', () => {
         const onUpdateSearchFrequently = jest.spyOn(wrapper.vm, 'onUpdateSearchFrequently');
         const getModuleMetadata = jest.spyOn(wrapper.vm, 'getModuleMetadata');
 
-        await wrapper.vm.$router.push({
+        await router.push({
             name: 'sw.product.detail.base',
             params: { id: 'a34943fe8fe040cd9ce25742a7cf77b2' },
         });

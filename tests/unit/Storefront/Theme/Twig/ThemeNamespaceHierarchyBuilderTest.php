@@ -2,13 +2,15 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme\Twig;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Generator;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 use Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,8 +29,10 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $themeLoader = $this->createMock(SalesChannelThemeLoader::class);
-        $this->builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $themeLoader);
+        $connectionMock = $this->createMock(Connection::class);
+        $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
+
+        $this->builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $cachedThemeLoader);
     }
 
     public function testThemeNamespaceHierarchyBuilderSubscribesToRequestAndExceptionEvents(): void
@@ -73,20 +77,25 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
     {
         $request = Request::createFromGlobals();
         $event = new DocumentTemplateRendererParameterEvent($parameters);
-        $themeLoader = $this->createMock(SalesChannelThemeLoader::class);
 
-        $themeLoader->method('load')->willReturn([
+        $expectedDB = [
             'themeName' => $usingTheme,
             'parentThemeName' => null,
-        ]);
+            'themeId' => Uuid::randomHex(),
+        ];
+        $connectionMock = $this->createMock(Connection::class);
+        if (\array_key_exists('context', $parameters)) {
+            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+        }
+        $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
 
-        $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $themeLoader);
+        $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $cachedThemeLoader);
 
         $builder->onDocumentRendering($event);
 
         $this->assertThemes($expectedThemes, $builder);
 
-        $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $themeLoader);
+        $builder = new ThemeNamespaceHierarchyBuilder(new TestInheritanceBuilder(), $cachedThemeLoader);
 
         $builder->requestEvent(new ExceptionEvent($this->createMock(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, new \RuntimeException()));
 

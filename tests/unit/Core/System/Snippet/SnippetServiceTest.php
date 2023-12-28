@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterFactory;
 use Shopware\Core\System\Snippet\SnippetService;
-use Shopware\Storefront\Theme\SalesChannelThemeLoader;
+use Shopware\Storefront\Theme\DatabaseSalesChannelThemeLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -84,11 +84,16 @@ class SnippetServiceTest extends TestCase
             $container->expects(static::exactly(1))->method('get')->with(StorefrontPluginRegistry::class)->willReturn($themeRegistry);
         }
 
+        $cachedThemeLoader = null;
         if ($salesChannelId !== null) {
-            $themeLoader = $this->createMock(SalesChannelThemeLoader::class);
-            $themeLoader->expects(static::once())->method('load')->with($salesChannelId)->willReturn([
+            $expectedDB = [
                 'themeName' => $usedTheme ?? 'Storefront',
-            ]);
+                'parentThemeName' => null,
+                'themeId' => Uuid::randomHex(),
+            ];
+            $connectionMock = $this->createMock(Connection::class);
+            $connectionMock->expects(static::exactly(1))->method('fetchAssociative')->willReturn($expectedDB);
+            $cachedThemeLoader = new DatabaseSalesChannelThemeLoader($connectionMock);
         }
 
         if ($databaseSnippets !== null && $databaseSnippets !== []) {
@@ -102,7 +107,7 @@ class SnippetServiceTest extends TestCase
             $this->createMock(EntityRepository::class),
             $this->createMock(SnippetFilterFactory::class),
             $container,
-            $themeLoader,
+            $cachedThemeLoader,
         );
 
         $catalog = new MessageCatalogue((string) $fetchLocaleResult, ['messages' => $catalogMessages]);

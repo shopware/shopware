@@ -59,14 +59,14 @@ class RemoteAddressFieldTest extends TestCase
         $serializer = $this->getSerializer();
         $data = new KeyValuePair('remoteAddress', '127.0.0.1', false);
 
-        $serializer->encode(
+        $curr = $serializer->encode(
             $this->getRemoteAddressField(),
             EntityExistence::createEmpty(),
             $data,
             $this->getWriteParameterBagMock()
         )->current();
 
-        $this->expectNotToPerformAssertions();
+        static::assertNotNull($curr);
     }
 
     public function testRemoteAddressSerializerAnonymize(): void

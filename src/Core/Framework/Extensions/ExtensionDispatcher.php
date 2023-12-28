@@ -19,7 +19,7 @@ final class ExtensionDispatcher
         $this->dispatcher->dispatch($extension, $extension::pre());
 
         if (!$extension->isPropagationStopped()) {
-            $extension->result = $function($extension);
+            $extension->result = $function(...$extension->getParams());
         }
 
         $extension->resetPropagation();

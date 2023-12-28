@@ -20,15 +20,16 @@ class LineItemFactoryUpdateExtension extends Extension
         public Cart $cart,
 
         /**
-         * @description The line item which is requested to be updated.
-         */
-        public LineItem $lineItem,
-
-        /**
          * @public
          * @description contains the request data which was sent by the client to update this line item
          */
         public array $data,
+
+        /**
+         * @description The line item which is requested to be updated.
+         */
+        public LineItem $lineItem,
+
 
         /**
          * @public

@@ -27,6 +27,15 @@ abstract class Extension implements StoppableEventInterface
 
     private bool $propagationStopped = false;
 
+    public function getParams(): array
+    {
+        $data = get_object_vars($this);
+        unset($data['result']);
+        unset($data['propagationStopped']);
+
+        return $data;
+    }
+
     /**
      * {@inheritdoc}
      */

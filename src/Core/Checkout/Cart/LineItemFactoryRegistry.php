@@ -49,24 +49,24 @@ class LineItemFactoryRegistry
     {
         return $this->dispatcher->publish(
             extension: new LineItemFactoryCreateExtension($data, $context),
-            function: function(LineItemFactoryCreateExtension $event) {
-                $data = $event->data;
-                $context = $event->context;
-
-                if (!isset($data['id'])) {
-                    $data['id'] = Uuid::randomHex();
-                }
-
-                $this->validate($data);
-
-                $handler = $this->getHandler($data['type'] ?? '');
-
-                $lineItem = $handler->create($data, $context);
-                $lineItem->markModified();
-
-                return $lineItem;
-            }
+            function: $this->_create(...)
         );
+    }
+
+    private function _create(array $data, SalesChannelContext $context): LineItem
+    {
+        if (!isset($data['id'])) {
+            $data['id'] = Uuid::randomHex();
+        }
+
+        $this->validate($data);
+
+        $handler = $this->getHandler($data['type'] ?? '');
+
+        $lineItem = $handler->create($data, $context);
+        $lineItem->markModified();
+
+        return $lineItem;
     }
 
     /**
@@ -81,15 +81,8 @@ class LineItemFactoryRegistry
         }
 
         $this->dispatcher->publish(
-            extension: new LineItemFactoryUpdateExtension($cart, $lineItem, $data, $context),
-            function: function (LineItemFactoryUpdateExtension $event) {
-                $this->updateLineItem(
-                    cart: $event->cart,
-                    data: $event->data,
-                    lineItem: $event->lineItem,
-                    context: $event->context
-                );
-            }
+            extension: new LineItemFactoryUpdateExtension($cart, $data, $lineItem, $context),
+            function: $this->updateLineItem(...)
         );
     }
 

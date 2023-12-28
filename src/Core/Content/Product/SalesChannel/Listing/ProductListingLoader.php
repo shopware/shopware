@@ -55,18 +55,19 @@ class ProductListingLoader
         // allows full service decoration
         return $this->extensions->publish(
             extension: new ResolveListingExtension($origin, $context),
-            function: function (ResolveListingExtension $event): EntitySearchResult {
-                return $this->doLoad($event->criteria, $event->context);
-            }
+            function: $this->_load(...)
         );
     }
 
-    private function doLoad(Criteria $origin, SalesChannelContext $context): EntitySearchResult
+    private function _load(Criteria $origin, SalesChannelContext $context): EntitySearchResult
     {
         $origin->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria = clone $origin;
 
-        $ids = $this->resolveIds($criteria, $context);
+        $ids = $this->extensions->publish(
+            extension: new ResolveListingLoaderIdsExtension($criteria, $context),
+            function: $this->resolveIds(...)
+        );
 
         $aggregations = $this->resolveAggregations($criteria, $context);
 
@@ -265,16 +266,11 @@ class ProductListingLoader
 
     private function resolveIds(Criteria $criteria, SalesChannelContext $context): IdSearchResult
     {
-        return $this->extensions->publish(
-            extension: new ResolveListingLoaderIdsExtension($criteria, $context),
-            function: function(ResolveListingLoaderIdsExtension $event): IdSearchResult {
-                $this->addGrouping($event->criteria);
+        $this->addGrouping($criteria);
 
-                $this->handleAvailableStock($event->criteria, $event->context);
+        $this->handleAvailableStock($criteria, $context);
 
-                return $this->productRepository->searchIds($event->criteria, $event->context);
-            }
-        );
+        return $this->productRepository->searchIds($criteria, $context);
     }
 
     private function resolveAggregations(Criteria $criteria, SalesChannelContext $context): AggregationResultCollection

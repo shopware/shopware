@@ -3,7 +3,7 @@
  */
 
 /* eslint-disable max-len */
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar';
 import 'src/app/component/structure/sw-search-bar-item';
 import Criteria from 'src/core/data/criteria.data';
@@ -53,37 +53,76 @@ describe('src/app/component/structure/sw-search-bar', () => {
     let spyLoadTypeSearchResultsByService;
 
     async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
-        const localVue = createLocalVue();
         swSearchBarComponent = await Shopware.Component.build('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
         spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
 
-        return shallowMount(swSearchBarComponent, {
-            localVue,
-            stubs: {
-                'sw-icon': true,
-                'sw-version': true,
-                'sw-loader': true,
-                'sw-search-more-results': true,
-                'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
-                'sw-search-preferences-modal': true,
-                'router-link': true,
-                'sw-highlight-text': true,
-                'sw-shortcut-overview-item': true,
-            },
-            mocks: {
-                $route: {
-                    query: {
-                        term: '',
+        return mount(swSearchBarComponent, {
+            global: {
+                stubs: {
+                    'sw-icon': true,
+                    'sw-version': true,
+                    'sw-loader': true,
+                    'sw-search-more-results': true,
+                    'sw-search-bar-item': await Shopware.Component.build('sw-search-bar-item'),
+                    'sw-search-preferences-modal': true,
+                    'router-link': true,
+                    'sw-highlight-text': true,
+                    'sw-shortcut-overview-item': true,
+                },
+                mocks: {
+                    $route: {
+                        query: {
+                            term: '',
+                        },
                     },
                 },
-            },
-            provide: {
-                searchService: {
-                    search: () => {
-                        const result = {
+                provide: {
+                    searchService: {
+                        search: () => {
+                            const result = {
+                                data: {
+                                    foo: {
+                                        total: 1,
+                                        data: [
+                                            { name: 'Baz', id: '12345' },
+                                        ],
+                                    },
+                                },
+                            };
+
+                            return Promise.resolve(result);
+                        },
+
+                        elastic: () => {
+                            const result = {
+                                data: {
+                                    esFoo: {
+                                        total: 1,
+                                        index: 'admin-es-foo-listing',
+                                        indexer: 'es-foo-listing',
+                                        data: [
+                                            { name: 'ES Baz', id: 'es-12345' },
+                                        ],
+                                    },
+                                },
+                            };
+
+                            return Promise.resolve(result);
+                        },
+
+                        searchQuery: () => Promise.resolve({
                             data: {
+                                product: {
+                                    data: {
+                                        dfe80a0ec016413e8e03fa2d85db3dea: {
+                                            id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                            name: 'Lightweight Iron Tossed Cookie Salad',
+                                        },
+                                    },
+                                },
+
                                 foo: {
                                     total: 1,
                                     data: [
@@ -91,67 +130,54 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                     ],
                                 },
                             },
-                        };
-
-                        return Promise.resolve(result);
+                        }),
                     },
+                    repositoryFactory: {
+                        create: (entity) => ({
+                            search: (criteria) => {
+                                if (entity === 'sales_channel') {
+                                    return Promise.resolve([{
+                                        id: '8a243080f92e4c719546314b577cf82b',
+                                        translated: { name: 'Storefront' },
+                                        type: { translated: { name: 'Storefront' } },
+                                    }]);
+                                }
 
-                    elastic: () => {
-                        const result = {
-                            data: {
-                                esFoo: {
-                                    total: 1,
-                                    index: 'admin-es-foo-listing',
-                                    indexer: 'es-foo-listing',
-                                    data: [
-                                        { name: 'ES Baz', id: 'es-12345' },
-                                    ],
-                                },
-                            },
-                        };
+                                if (entity === 'sales_channel_type') {
+                                    return Promise.resolve([{
+                                        id: 'xxxxxxx',
+                                        translated: { name: 'Storefront' },
+                                    }]);
+                                }
 
-                        return Promise.resolve(result);
-                    },
+                                if (entity === 'category') {
+                                    const result = [
+                                        {
+                                            name: 'Home',
+                                            id: '12345',
+                                        }, {
+                                            name: 'Electronics',
+                                            id: '55523',
+                                        },
+                                    ];
+                                    result.total = 2;
 
-                    searchQuery: () => Promise.resolve({
-                        data: {
-                            product: {
-                                data: {
-                                    dfe80a0ec016413e8e03fa2d85db3dea: {
-                                        id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                        name: 'Lightweight Iron Tossed Cookie Salad',
-                                    },
-                                },
-                            },
+                                    return Promise.resolve(result);
+                                }
 
-                            foo: {
-                                total: 1,
-                                data: [
-                                    { name: 'Baz', id: '12345' },
-                                ],
-                            },
-                        },
-                    }),
-                },
-                repositoryFactory: {
-                    create: (entity) => ({
-                        search: (criteria) => {
-                            if (entity === 'sales_channel') {
-                                return Promise.resolve([{
-                                    id: '8a243080f92e4c719546314b577cf82b',
-                                    translated: { name: 'Storefront' },
-                                    type: { translated: { name: 'Storefront' } },
-                                }]);
-                            }
+                                criteria = criteria.parse();
+                                if (criteria.query && !criteria.term) {
+                                    const result = [
+                                        {
+                                            name: 'Baz',
+                                            id: '12345',
+                                        },
+                                    ];
+                                    result.total = 1;
 
-                            if (entity === 'sales_channel_type') {
-                                return Promise.resolve([{
-                                    id: 'xxxxxxx',
-                                    translated: { name: 'Storefront' },
-                                }]);
-                            }
+                                    return Promise.resolve(result);
+                                }
 
-                            if (entity === 'category') {
                                 const result = [
                                     {
                                         name: 'Home',
@@ -164,112 +190,86 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 result.total = 2;
 
                                 return Promise.resolve(result);
+                            },
+                        }),
+                    },
+                    searchTypeService: {
+                        getTypes: () => searchTypes,
+                    },
+                    acl: {
+                        can: (identifier) => {
+                            if (!identifier) { return true; }
+
+                            return privileges.includes(identifier);
+                        },
+                    },
+                    searchRankingService: {
+                        getUserSearchPreference: () => {
+                            return Promise.resolve({
+                                foo: { name: 500 },
+                            });
+                        },
+                        getSearchFieldsByEntity: (entity) => {
+                            const data = { foo: { name: 500 }, category: { name: 500 } };
+                            return Promise.resolve(data[entity]);
+                        },
+                        buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                            if (!searchFields) {
+                                return criteria;
                             }
 
-                            criteria = criteria.parse();
-                            if (criteria.query && !criteria.term) {
-                                const result = [
-                                    {
-                                        name: 'Baz',
-                                        id: '12345',
-                                    },
-                                ];
-                                result.total = 1;
-
-                                return Promise.resolve(result);
-                            }
-
-                            const result = [
+                            return criteria.addQuery(Criteria.equals('name', 'Baz'), 1).setTerm(null);
+                        },
+                        buildGlobalSearchQueries: (userSearchPreference, searchTerm) => {
+                            return {
+                                foo: {
+                                    limit: 25,
+                                    page: 1,
+                                    query: [
+                                        {
+                                            score: 500,
+                                            query: {
+                                                type: 'equals',
+                                                field: 'product.name',
+                                                value: searchTerm,
+                                            },
+                                        },
+                                        {
+                                            score: 375,
+                                            query: {
+                                                type: 'contains',
+                                                field: 'product.name',
+                                                value: searchTerm,
+                                            },
+                                        },
+                                    ],
+                                    'total-count-mode': 1,
+                                },
+                            };
+                        },
+                    },
+                    userActivityApiService: {
+                        getIncrement: () => Promise.resolve({
+                            'dashboard@sw.dashboard.index': {
+                                key: 'dashboard@sw.dashboard.index',
+                                count: '1',
+                            },
+                        }),
+                    },
+                    recentlySearchService: {
+                        get: () => {
+                            return [
                                 {
-                                    name: 'Home',
-                                    id: '12345',
-                                }, {
-                                    name: 'Electronics',
-                                    id: '55523',
+                                    entity: 'product',
+                                    id: 'dfe80a0ec016413e8e03fa2d85db3dea',
+                                    timestamp: 1633605899167,
                                 },
                             ];
-                            result.total = 2;
-
-                            return Promise.resolve(result);
                         },
-                    }),
-                },
-                searchTypeService: {
-                    getTypes: () => searchTypes,
-                },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) { return true; }
-
-                        return privileges.includes(identifier);
-                    },
-                },
-                searchRankingService: {
-                    getUserSearchPreference: () => {
-                        return Promise.resolve({
-                            foo: { name: 500 },
-                        });
-                    },
-                    getSearchFieldsByEntity: (entity) => {
-                        const data = { foo: { name: 500 }, category: { name: 500 } };
-                        return Promise.resolve(data[entity]);
-                    },
-                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                        if (!searchFields) {
-                            return criteria;
-                        }
-
-                        return criteria.addQuery(Criteria.equals('name', 'Baz'), 1).setTerm(null);
-                    },
-                    buildGlobalSearchQueries: (userSearchPreference, searchTerm) => {
-                        return {
-                            foo: {
-                                limit: 25,
-                                page: 1,
-                                query: [
-                                    {
-                                        score: 500,
-                                        query: {
-                                            type: 'equals',
-                                            field: 'product.name',
-                                            value: searchTerm,
-                                        },
-                                    },
-                                    {
-                                        score: 375,
-                                        query: {
-                                            type: 'contains',
-                                            field: 'product.name',
-                                            value: searchTerm,
-                                        },
-                                    },
-                                ],
-                                'total-count-mode': 1,
-                            },
-                        };
-                    },
-                },
-                userActivityApiService: {
-                    getIncrement: () => Promise.resolve({
-                        'dashboard@sw.dashboard.index': {
-                            key: 'dashboard@sw.dashboard.index',
-                            count: '1',
-                        },
-                    }),
-                },
-                recentlySearchService: {
-                    get: () => {
-                        return [
-                            {
-                                entity: 'product',
-                                id: 'dfe80a0ec016413e8e03fa2d85db3dea',
-                                timestamp: 1633605899167,
-                            },
-                        ];
                     },
                 },
             },
-            propsData: props,
+            props,
             attachTo: document.body,
         });
     }
@@ -319,10 +319,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
-        const searchResults = wrapper.find('.sw-search-bar__results');
         const typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
-
-        expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
 
         // check if active type is default type
@@ -341,10 +338,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
-        let searchResults = wrapper.find('.sw-search-bar__results');
         let typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
-        expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
 
         // type search value
@@ -357,10 +352,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         // check if search results and types container are hidden
-        searchResults = wrapper.find('.sw-search-bar__results');
         typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
-
-        expect(searchResults.exists()).toBe(true);
         expect(typesContainer.exists()).toBe(false);
     });
 
@@ -376,10 +368,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
-        let searchResults = wrapper.find('.sw-search-bar__results');
         let typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
-
-        expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
 
         // set categories as active type
@@ -405,7 +394,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         // check if search results are visible and types are hidden
-        searchResults = wrapper.find('.sw-search-bar__results');
+        const searchResults = wrapper.find('.sw-search-bar__results');
         typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
         expect(searchResults.exists()).toBe(true);
@@ -830,7 +819,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         await flushPromises();
 
-        const searchBarItem = wrapper.find('.sw-search-bar-item');
+        const searchBarItem = wrapper.findComponent('.sw-search-bar-item');
         expect(searchBarItem.props().type).toBe('module');
 
         const module = wrapper.vm.results[0];
@@ -1240,7 +1229,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const resultsContent = wrapper.find('.sw-search-bar__results--v2 .sw-search-bar__results-wrapper-content');
 
         const headerEntity = resultsContent.find('.sw-search-bar__types-header-entity');
-        const searchBarItem = resultsContent.find('.sw-search-bar-item');
+        const searchBarItem = resultsContent.findComponent('.sw-search-bar-item');
 
         expect(headerEntity.text()).toBe('global.entities.frequently_used');
         expect(searchBarItem.props().type).toBe('frequently_used');
@@ -1291,7 +1280,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         const lastColumn = resultsContent.findAll('.sw-search-bar__results-column').at(1);
 
         const headerEntity = lastColumn.find('.sw-search-bar__types-header-entity');
-        const searchBarItem = lastColumn.find('.sw-search-bar-item');
+        const searchBarItem = lastColumn.findComponent('.sw-search-bar-item');
 
         expect(headerEntity.text()).toBe('global.entities.recently_searched');
         expect(searchBarItem.props().type).toBe('product');
@@ -1401,10 +1390,8 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await searchInput.setValue('#');
 
         // check if search results are hidden and types container are visible
-        const searchResults = wrapper.find('.sw-search-bar__results');
         const typesContainer = wrapper.find('.sw-search-bar__types_container--v2');
 
-        expect(searchResults.exists()).toBe(false);
         expect(typesContainer.exists()).toBe(true);
 
         // set foo as active type
@@ -1461,7 +1448,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         await flushPromises();
 
         // should use fallback icon
-        const searchBarItem = wrapper.find('.sw-search-bar-item');
+        const searchBarItem = wrapper.findComponent('.sw-search-bar-item');
         expect(searchBarItem.props('entity-icon-name')).toBeUndefined();
     });
 

@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -43,7 +43,7 @@ class CartRuleLoader implements ResetInterface
         private readonly LoggerInterface $logger,
         private readonly CacheInterface $cache,
         private readonly AbstractRuleLoader $ruleLoader,
-        private readonly TaxDetector $taxDetector,
+        private readonly AbstractTaxDetector $taxDetector,
         private readonly Connection $connection,
         private readonly CartFactory $cartFactory,
     ) {

@@ -13,8 +13,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufactu
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
@@ -242,7 +242,7 @@ class WriterTest extends TestCase
 
     public function testRequiresAllPrimaryKeyValuesForDelete(): void
     {
-        $this->expectException(IncompletePrimaryKeyException::class);
+        $this->expectException(DataAbstractionLayerException::class);
 
         $productId = Uuid::randomHex();
 

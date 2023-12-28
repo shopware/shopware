@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
-use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
 use Shopware\Core\Framework\Api\Exception\InvalidSyncOperationException;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -140,7 +140,6 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @throws IncompletePrimaryKeyException
      * @throws RestrictDeleteViolationException
      */
     public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult
@@ -373,15 +372,7 @@ class EntityWriter implements EntityWriterInterface
                     continue;
                 }
 
-                $fieldKeys = $fields
-                    ->filter(
-                        fn (Field $field) => !$field instanceof VersionField && !$field instanceof ReferenceVersionField
-                    )
-                    ->map(
-                        fn (Field $field) => $field->getPropertyName()
-                    );
-
-                throw new IncompletePrimaryKeyException($fieldKeys);
+                throw DataAbstractionLayerException::inconsistentPrimaryKey($definition->getEntityName(), $property);
             }
 
             $resolved[] = $mapped;

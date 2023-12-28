@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Exception\IncompletePrimaryKeyException;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -204,7 +204,7 @@ class EntityWriteResultFactory
         // find foreign key field for parent definition (product_price.product_id in case of product_price provided)
         $fkField = $fkField->first();
         if (!$fkField instanceof FkField) {
-            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getEntityName()));
+            throw DataAbstractionLayerException::missingParentForeignKey($parent->getEntityName());
         }
 
         $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $ids, $fkField);
@@ -399,7 +399,10 @@ class EntityWriteResultFactory
                 $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
 
                 if (!$field instanceof Field) {
-                    throw new \RuntimeException(sprintf('Field by storage name %s not found', $command->getStorageName()));
+                    throw DataAbstractionLayerException::fieldByStorageNameNotFound(
+                        $command->getDefinition()->getEntityName(),
+                        $command->getStorageName()
+                    );
                 }
 
                 $decodedPayload = $field->getSerializer()->decode(
@@ -485,12 +488,9 @@ class EntityWriteResultFactory
             }
 
             if (!\array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Primary key field %s::%s not found in payload or command primary key',
-                        $command->getDefinition()->getEntityName(),
-                        $primaryKey->getStorageName()
-                    )
+                throw DataAbstractionLayerException::inconsistentPrimaryKey(
+                    $command->getDefinition()->getEntityName(),
+                    $primaryKey->getStorageName()
                 );
             }
 
@@ -513,12 +513,9 @@ class EntityWriteResultFactory
 
         $referenceField = $parent->getFields()->getByStorageName($fkField->getReferenceField());
         if (!$referenceField) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Can not detect reference field with storage name %s in definition %s',
-                    $fkField->getReferenceField(),
-                    $parent->getEntityName()
-                )
+            throw DataAbstractionLayerException::referenceFieldByStorageNameNotFound(
+                $parent->getEntityName(),
+                $fkField->getReferenceField()
             );
         }
 
@@ -547,6 +544,7 @@ class EntityWriteResultFactory
         );
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
+        $reporting = [];
         foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
             $property = $primaryKey->getPropertyName();
 
@@ -555,9 +553,10 @@ class EntityWriteResultFactory
             }
 
             if (!isset($rawData[$property])) {
-                $required = $definition->getPrimaryKeys()->filter(fn (Field $field) => !$field instanceof ReferenceVersionField && !$field instanceof VersionField);
-
-                throw new IncompletePrimaryKeyException($required->getKeys());
+                throw DataAbstractionLayerException::inconsistentPrimaryKey(
+                    $definition->getEntityName(),
+                    $property
+                );
             }
             if (!$primaryKey instanceof StorageAware) {
                 continue;
@@ -569,12 +568,14 @@ class EntityWriteResultFactory
             );
 
             $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
+
+            $reporting[] = $property . ':' . $rawData[$property];
         }
 
         $fk = $query->executeQuery()->fetchOne();
 
         if (!$fk) {
-            throw new \RuntimeException('Fk can not be detected');
+            throw DataAbstractionLayerException::unableToFetchForeignKey($definition->getEntityName(), $reporting);
         }
 
         return (string) $fk;

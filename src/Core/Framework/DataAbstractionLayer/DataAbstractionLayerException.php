@@ -31,6 +31,11 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_FILTER_QUERY = 'FRAMEWORK__INVALID_FILTER_QUERY';
     public const INVALID_RANGE_FILTER_PARAMS = 'FRAMEWORK__INVALID_RANGE_FILTER_PARAMS';
     public const INVALID_SORT_QUERY = 'FRAMEWORK__INVALID_SORT_QUERY';
+    public const UNABLE_TO_FETCH_FOREIGN_KEY = 'FRAMEWORK__UNABLE_TO_FETCH_FOREIGN_KEY';
+    public const REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND';
+    public const INCONSISTENT_PRIMARY_KEY = 'FRAMEWORK__INCONSISTENT_PRIMARY_KEY';
+    public const FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__FIELD_BY_STORAGE_NAME_NOT_FOUND';
+    public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -211,6 +216,55 @@ class DataAbstractionLayerException extends HttpException
             self::PLUGIN_NOT_FOUND,
             'Plugin {{ fieldName }} not be found',
             ['pluginName' => $pluginName]
+        );
+    }
+
+    /**
+     * @param array<string> $primaryKey
+     */
+    public static function unableToFetchForeignKey(string $entity, array $primaryKey): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::UNABLE_TO_FETCH_FOREIGN_KEY,
+            'Unable to fetch foreign key for {{ entity }} with primary key {{ primaryKey }}',
+            ['entity' => $entity, 'primaryKey' => implode(', ', $primaryKey)]
+        );
+    }
+
+    public static function missingParentForeignKey(string $entity): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MISSING_PARENT_FOREIGN_KEY,
+            sprintf('Can not detect foreign key for parent definition %s', $entity)
+        );
+    }
+
+    public static function fieldByStorageNameNotFound(string $entity, string $storageName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Field by storage name %s not found in entity %s', $storageName, $entity)
+        );
+    }
+
+    public static function inconsistentPrimaryKey(string $entity, string $primaryKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INCONSISTENT_PRIMARY_KEY,
+            sprintf('Inconsistent primary key %s for entity %s', $primaryKey, $entity)
+        );
+    }
+
+    public static function referenceFieldByStorageNameNotFound(string $entity, string $storageName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
+            sprintf('Can not detect reference field with storage name %s in definition %s', $storageName, $entity)
         );
     }
 }

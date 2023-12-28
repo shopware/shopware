@@ -1,8 +1,8 @@
 import 'src/app/mixin/position.mixin';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount({
+    return mount({
         template: `
             <div class="sw-mock">
               <slot></slot>
@@ -17,8 +17,6 @@ async function createWrapper() {
             };
         },
     }, {
-        stubs: {},
-        mocks: {},
         attachTo: document.body,
     });
 }
@@ -34,7 +32,7 @@ describe('src/app/mixin/position.mixin.ts', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();

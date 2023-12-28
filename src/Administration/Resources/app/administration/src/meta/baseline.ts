@@ -740,7 +740,6 @@ const missingTests = [
     'src/app/mixin/discard-detail-page-changes.mixin.ts',
     'src/app/mixin/listing.mixin.ts',
     'src/app/mixin/notification.mixin.ts',
-    'src/app/mixin/position.mixin.ts',
     'src/app/mixin/rule-container.mixin.ts',
     'src/app/mixin/salutation.mixin.ts',
     'src/app/mixin/validation.mixin.ts',

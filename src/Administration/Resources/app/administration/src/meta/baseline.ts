@@ -729,7 +729,6 @@ const missingTests = [
     'src/app/component/structure/sw-card-view/index.js',
     'src/app/component/structure/sw-desktop/index.js',
     'src/app/component/structure/sw-language-info/index.js',
-    'src/app/component/structure/sw-language-switch/index.js',
     'src/app/component/structure/sw-search-bar/index.js',
     'src/app/component/structure/sw-search-bar-item/index.js',
     'src/app/component/usage-data/sw-settings-usage-data-intro/index.ts',

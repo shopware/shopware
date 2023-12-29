@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`core/helper/sanitizer.helper.js should sanitize untrusted HTML in a component 1`] = `
+<div
+  class="sw-empty-state sw-empty-state--absolute"
+>
+  <div
+    class="sw-empty-state__element"
+  >
+    <div
+      class="sw-empty-state__icon"
+    >
+      
+      <sw-icon-stub
+        size="60px"
+      />
+      
+    </div>
+     
+    <div
+      class="sw-empty-state__title"
+      role="alert"
+    >
+      Foo bar
+    </div>
+     
+    <div
+      class="sw-empty-state__description"
+    >
+      
+      <div
+        class="sw-empty-state__description-content"
+      >
+        <x
+          oncut="alert()"
+        >
+          x
+        </x>
+      </div>
+      
+    </div>
+     
+    <!--v-if-->
+  </div>
+</div>
+`;

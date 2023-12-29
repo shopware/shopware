@@ -2,10 +2,7 @@
  * @package admin
  */
 
-import { config, shallowMount } from '@vue/test-utils_v2';
-
-import 'src/module/sw-login/view/sw-login-recovery-info';
-import 'src/app/component/base/sw-alert';
+import { config, mount } from '@vue/test-utils';
 
 function hasNormalWarningAlert(wrapper) {
     const alerts = wrapper.findAll('.sw-alert');
@@ -17,19 +14,21 @@ function hasNormalWarningAlert(wrapper) {
 
 async function createWrapper(routeParams) {
     // delete global $router and $routes mocks
-    delete config.mocks.$router;
-    delete config.mocks.$route;
+    delete config.global.mocks.$router;
+    delete config.global.mocks.$route;
 
-    return shallowMount(await Shopware.Component.build('sw-login-recovery-info'), {
-        mocks: {
-            $tc: (...args) => JSON.stringify([...args]),
-            $route: { params: routeParams },
-        },
-        stubs: {
-            'router-view': true,
-            'router-link': true,
-            'sw-alert': await Shopware.Component.build('sw-alert'),
-            'sw-icon': true,
+    return mount(await wrapTestComponent('sw-login-recovery-info', { sync: true }), {
+        global: {
+            mocks: {
+                $tc: (...args) => JSON.stringify([...args]),
+                $route: { params: routeParams },
+            },
+            stubs: {
+                'router-view': true,
+                'router-link': true,
+                'sw-alert': await wrapTestComponent('sw-alert'),
+                'sw-icon': true,
+            },
         },
     });
 }
@@ -43,12 +42,14 @@ describe('module/sw-login/recovery-info.spec.js', () => {
 
     it('should display the normal info', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
 
         hasNormalWarningAlert(wrapper);
 
         const timeWrapper = await createWrapper();
+        await flushPromises();
 
         expect(timeWrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
 
@@ -59,6 +60,7 @@ describe('module/sw-login/recovery-info.spec.js', () => {
         const wrapper = await createWrapper({
             waitTime: 1,
         });
+        await flushPromises();
 
         expect(wrapper.get('.sw-login__form-headline').text()).toBe('["sw-login.recovery.info.headline"]');
 

@@ -525,12 +525,15 @@ class EntityWriteResultFactory
         $primaryKeys = [];
         foreach ($rawData as $row) {
             if (\array_key_exists($fkField->getPropertyName(), $row)) {
-                $fk = $row[$fkField->getPropertyName()];
-            } else {
-                $fk = $this->fetchForeignKey($definition, $row, $fkField);
+                $primaryKeys[] = $row[$fkField->getPropertyName()];
+
+                continue;
             }
 
-            $primaryKeys[] = $fk;
+            $fk = $this->fetchForeignKey($definition, $row, $fkField);
+            if ($fk !== null) {
+                $primaryKeys[] = $fk;
+            }
         }
 
         return $primaryKeys;
@@ -539,7 +542,7 @@ class EntityWriteResultFactory
     /**
      * @param array<string, string> $rawData
      */
-    private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): string
+    private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): ?string
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(
@@ -573,10 +576,6 @@ class EntityWriteResultFactory
 
         $fk = $query->executeQuery()->fetchOne();
 
-        if (!$fk) {
-            throw new \RuntimeException('Fk can not be detected');
-        }
-
-        return (string) $fk;
+        return $fk === false ? null : $fk;
     }
 }

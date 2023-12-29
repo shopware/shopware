@@ -13,6 +13,10 @@ shopware:
       - name: VUE3
         default: false
         major: true
+      - name: join_filter
+        default: false
+        major: true
+        description: "Fixes a behavior of the DAL where multiple filters on the same many association (and nested association) are not grouped correctly. This leads to wrong results in some cases but is a break in the existing behavior and will be implemented by default in next major."
       - name: media_path
         default: false
         major: true

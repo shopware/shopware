@@ -527,12 +527,15 @@ class EntityWriteResultFactory
         $primaryKeys = [];
         foreach ($rawData as $row) {
             if (\array_key_exists($fkField->getPropertyName(), $row)) {
-                $fk = $row[$fkField->getPropertyName()];
-            } else {
-                $fk = $this->fetchForeignKey($definition, $row, $fkField);
+                $primaryKeys[] = $row[$fkField->getPropertyName()];
+
+                continue;
             }
 
-            $primaryKeys[] = $fk;
+            $fk = $this->fetchForeignKey($definition, $row, $fkField);
+            if ($fk !== null) {
+                $primaryKeys[] = $fk;
+            }
         }
 
         return $primaryKeys;
@@ -541,7 +544,7 @@ class EntityWriteResultFactory
     /**
      * @param array<string, string> $rawData
      */
-    private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): string
+    private function fetchForeignKey(EntityDefinition $definition, array $rawData, FkField $fkField): ?string
     {
         $query = $this->connection->createQueryBuilder();
         $query->select(
@@ -549,7 +552,6 @@ class EntityWriteResultFactory
         );
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
-        $reporting = [];
         foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
             $property = $primaryKey->getPropertyName();
 
@@ -573,16 +575,10 @@ class EntityWriteResultFactory
             );
 
             $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
-
-            $reporting[] = $property . ':' . $rawData[$property];
         }
 
         $fk = $query->executeQuery()->fetchOne();
 
-        if (!$fk) {
-            throw DataAbstractionLayerException::unableToFetchForeignKey($definition->getEntityName(), $reporting);
-        }
-
-        return (string) $fk;
+        return $fk === false ? null : $fk;
     }
 }

@@ -82,9 +82,9 @@ class SyncOperation extends Struct
             );
         }
 
-        if (empty($this->payload)) {
+        if (empty($this->payload) && empty($this->criteria)) {
             $errors[] = sprintf(
-                'Missing "payload" argument for operation with key "%s". It needs to be a non-empty array.',
+                'Missing "payload"|"criteria" argument for operation with key "%s". It needs to be a non-empty array.',
                 $this->key
             );
         }

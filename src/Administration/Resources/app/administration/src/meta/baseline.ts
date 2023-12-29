@@ -748,7 +748,6 @@ const missingTests = [
     'src/app/plugin/deprecation.plugin.js',
     'src/app/service/app-cms.service.js',
     'src/app/service/filter.service.js',
-    'src/core/helper/sanitizer.helper.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.js',

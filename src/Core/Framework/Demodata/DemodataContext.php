@@ -28,7 +28,7 @@ class DemodataContext
     /**
      * @var array<string, array{definition: string, items: int, time: float}>
      */
-    private array $timings;
+    private array $timings = [];
 
     public function __construct(
         private readonly Context $context,

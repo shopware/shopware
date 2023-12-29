@@ -791,7 +791,6 @@ const missingTests = [
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js',
-    'src/module/sw-first-run-wizard/view/sw-first-run-wizard-welcome/index.js',
     'src/module/sw-flow/component/modals/sw-flow-affiliate-and-campaign-code-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-app-action-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal/index.js',

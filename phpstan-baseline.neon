@@ -2466,26 +2466,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:createDalSorting\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:getFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:setFields\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\SalesChannel\\\\Sorting\\\\ProductSortingEntity\\:\\:\\$fields type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Sorting/ProductSortingEntity.php
-
-		-
 			message: "#^Parameter \\#2 \\$matches of method Shopware\\\\Core\\\\Content\\\\Product\\\\SearchKeyword\\\\ProductSearchTermInterpreter\\:\\:score\\(\\) expects list\\<string\\>, array given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SearchKeyword/ProductSearchTermInterpreter.php

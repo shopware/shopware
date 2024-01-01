@@ -159,6 +159,36 @@ class ProductReviewSaveRouteTest extends TestCase
         static::assertSame('VIOLATION::ENTITY_DOES_NOT_EXISTS', $content['errors'][0]['code']);
     }
 
+    public function testCanOnlyCreateOneReviewPerCustomer(): void
+    {
+        $this->login($this->browser);
+
+        $this->assertReviewCount(0);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ]);
+
+        $response = $this->browser->getResponse();
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $this->assertReviewCount(1);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ]);
+
+        $response = $this->browser->getResponse();
+        static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('VIOLATION::ENTITY_EXISTS', $content['errors'][0]['code']);
+
+        $this->assertReviewCount(1);
+    }
+
     public function testMailIsSent(): void
     {
         $customerId = $this->createCustomer();

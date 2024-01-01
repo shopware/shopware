@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
 use Shopware\Core\Framework\Context;
@@ -52,39 +51,28 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     #[Route(path: '/store-api/product/{productId}/review', name: 'store-api.product-review.save', methods: ['POST'], defaults: ['_loginRequired' => true])]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
-        $this->checkReviewsActive($context);
+        $salesChannelId = $context->getSalesChannelId();
+        if ($this->config->getBool('core.listing.showReview', $salesChannelId) === false) {
+            throw new ReviewNotActiveExeption();
+        }
 
-        /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
 
-        $languageId = $context->getContext()->getLanguageId();
-        $salesChannelId = $context->getSalesChannel()->getId();
+        // Should always be valid, as the route requires login
+        \assert($customer !== null);
 
-        $customerId = $customer->getId();
-
-        if (!$data->has('name')) {
-            $data->set('name', $customer->getFirstName());
-        }
-
-        if (!$data->has('lastName')) {
-            $data->set('lastName', $customer->getLastName());
-        }
-
-        if (!$data->has('email')) {
-            $data->set('email', $customer->getEmail());
-        }
-
-        $data->set('customerId', $customerId);
+        $data->set('customerId', $customer->getId());
         $data->set('productId', $productId);
+
         $this->validate($data, $context->getContext());
 
         $review = [
             'productId' => $productId,
-            'customerId' => $customerId,
+            'customerId' => $customer->getId(),
             'salesChannelId' => $salesChannelId,
-            'languageId' => $languageId,
-            'externalUser' => $data->get('name'),
-            'externalEmail' => $data->get('email'),
+            'languageId' => $context->getContext()->getLanguageId(),
+            'externalUser' => $customer->getFirstName(),
+            'externalEmail' => $customer->getEmail(),
             'title' => $data->get('title'),
             'content' => $data->get('content'),
             'points' => $data->get('points'),
@@ -97,15 +85,14 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
         $this->repository->upsert([$review], $context->getContext());
 
-        $mail = $this->config->get('core.basicInformation.email', $context->getSalesChannel()->getId());
-        $mail = \is_string($mail) ? $mail : '';
+        $mail = $this->config->getString('core.basicInformation.email', $salesChannelId);
         $event = new ReviewFormEvent(
             $context->getContext(),
-            $context->getSalesChannel()->getId(),
+            $salesChannelId,
             new MailRecipientStruct([$mail => $mail]),
             $data,
             $productId,
-            $customerId
+            $customer->getId()
         );
 
         $this->eventDispatcher->dispatch(
@@ -120,54 +107,38 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     {
         $definition = new DataValidationDefinition('product.create_rating');
 
-        $definition->add('name', new NotBlank());
         $definition->add('title', new NotBlank(), new Length(['min' => 5]));
         $definition->add('content', new NotBlank(), new Length(['min' => 40]));
 
         $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
 
+        $reviewValidationCriteria = new Criteria();
         if ($data->get('id')) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));
-            $criteria->addFilter(new EqualsFilter('id', $data->get('id')));
+            $reviewValidationCriteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));
 
             $definition->add('id', new EntityExists([
                 'entity' => 'product_review',
                 'context' => $context,
-                'criteria' => $criteria,
+                'criteria' => $reviewValidationCriteria,
             ]));
         } else {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('customerId', $data->get('customerId')));
-            $criteria->addFilter(new EqualsFilter('productId', $data->get('productId')));
+            $reviewValidationCriteria->addFilter(new EqualsFilter('productId', $data->get('productId')));
 
             $definition->add('customerId', new EntityNotExists([
                 'entity' => 'product_review',
                 'context' => $context,
-                'criteria' => $criteria,
+                'criteria' => $reviewValidationCriteria,
+                'primaryProperty' => 'customerId',
             ]));
         }
 
         $this->validator->validate($data->all(), $definition);
 
         $violations = $this->validator->getViolations($data->all(), $definition);
-
         if (!$violations->count()) {
             return;
         }
 
         throw new ConstraintViolationException($violations, $data->all());
-    }
-
-    /**
-     * @throws ReviewNotActiveExeption
-     */
-    private function checkReviewsActive(SalesChannelContext $context): void
-    {
-        $showReview = $this->config->get('core.listing.showReview', $context->getSalesChannel()->getId());
-
-        if (!$showReview) {
-            throw new ReviewNotActiveExeption();
-        }
     }
 }

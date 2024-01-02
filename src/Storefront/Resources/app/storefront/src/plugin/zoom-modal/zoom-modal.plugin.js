@@ -250,15 +250,17 @@ export default class ZoomModalPlugin extends Plugin {
             keyboard: false,
         });
 
-        const listener = () => {
-            this._initSlider(modal);
-            this._registerImageZoom();
+        if (!this._showModalListener) {
+            this._showModalListener = () => {
+                this._initSlider(modal);
+                this._registerImageZoom();
 
-            this.$emitter.publish('modalShow', { modal });
-        };
+                this.$emitter.publish('modalShow', { modal });
+            };
+        }
 
-        modal.removeEventListener('shown.bs.modal', listener);
-        modal.addEventListener('shown.bs.modal', listener);
+        modal.removeEventListener('shown.bs.modal', this._showModalListener);
+        modal.addEventListener('shown.bs.modal', this._showModalListener);
 
         bootstrapModal.show();
     }

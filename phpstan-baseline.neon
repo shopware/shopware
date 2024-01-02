@@ -7796,11 +7796,6 @@ parameters:
 			path: src/Core/Framework/Test/Validation/HappyPathValidatorTest.php
 
 		-
-			message: "#^Cannot call method getDeliveryStatus\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Test/Webhook/Handler/WebhookEventMessageHandlerTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Webhook\\\\Hookable\\\\HookableBusinessEventTest\\:\\:getEventsWithPermissions\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Webhook/Hookable/HookableBusinessEventTest.php

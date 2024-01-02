@@ -735,7 +735,6 @@ const missingTests = [
     'src/app/component/utils/sw-status/index.js',
     'src/app/init/tabs.init.ts',
     'src/app/mixin/discard-detail-page-changes.mixin.ts',
-    'src/app/mixin/listing.mixin.ts',
     'src/app/mixin/notification.mixin.ts',
     'src/app/mixin/salutation.mixin.ts',
     'src/app/mixin/validation.mixin.ts',

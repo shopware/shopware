@@ -116,6 +116,7 @@
         "symfony/monolog-bridge": "~7.0.0",
         "symfony/monolog-bundle": "~3.10.0",
         "symfony/options-resolver": "~7.0.0",
+        "symfony/polyfill-php83": "~1.28.0",
         "symfony/process": "~7.0.0",
         "symfony/property-access": "~7.0.0",
         "symfony/property-info": "~7.0.0",

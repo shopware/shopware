@@ -7,4 +7,4 @@ author_github:      @niro08
 ---
 
 # Core
-*  `wishlists` variable type changed from `Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection` to `Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection` in `ProductEntity` class in order to comply with the `ProductDefinition` and prevent TypeError when trying to load a product with the `wishlists` association
+* Changed `wishlists` variable type from `Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection` to `Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductCollection` in `ProductEntity` class in order to comply with the `ProductDefinition` and prevent TypeError when trying to load a product with the `wishlists` association

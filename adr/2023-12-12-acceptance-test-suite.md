@@ -1,6 +1,7 @@
 ---
 title: New acceptance test suite
 date: 2023-12-12
+area: quality
 tags: [testing, acceptance testing, E2E, playwright]
 ---
 

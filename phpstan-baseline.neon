@@ -8361,31 +8361,6 @@ parameters:
 			path: src/Core/System/DeliveryTime/Aggregate/DeliveryTimeTranslation/DeliveryTimeTranslationCollection.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:formatData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) has parameter \\$baseDefinitions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) has parameter \\$salesChannelDefinitions with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of class Symfony\\\\Component\\\\DependencyInjection\\\\Reference constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection\\:\\:getLocaleIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageCollection.php

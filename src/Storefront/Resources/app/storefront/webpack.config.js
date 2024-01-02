@@ -4,7 +4,6 @@
 const chalk = require('chalk');
 
 const { merge } = require('webpack-merge');
-const babelrc = require('./.babelrc');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
@@ -165,10 +164,18 @@ const coreConfig = {
                 exclude: /(node_modules|bower_components|vendors)\/(?!(are-you-es5|fs-extra|query-string|split-on-first)\/).*/,
                 use: [
                     {
-                        loader: 'babel-loader',
+                        loader: 'swc-loader',
                         options: {
-                            ...babelrc,
-                            cacheDirectory: true,
+                            env: {
+                                mode: 'entry',
+                                coreJs: '3.34.0',
+                                targets: 'defaults',
+                            },
+                            jsc: {
+                                parser: {
+                                    syntax: 'typescript',
+                                },
+                            },
                         },
                     },
                 ],

@@ -68,7 +68,7 @@ class CustomFieldGenerator implements DemodataGeneratorInterface
             $console->comment('\nSet attributes for ' . $count . ' ' . $relation . ' entities');
 
             $rndSet = $this->getRandomSet();
-            $this->generateCustomFields($relation, $count, $rndSet['attributes'], $context);
+            $this->generateCustomFields($relation, $count, $rndSet['customFields'], $context);
 
             $console->progressAdvance($count);
         }

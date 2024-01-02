@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`src/module/sw-login/view/sw-login-recovery-recovery should be a Vue.js component 1`] = `
+<div
+  class="sw-login-recovery-recovery"
+>
+  <h2
+    class="sw-login__form-headline"
+  >
+    <router-link-stub
+      class="sw-login__back"
+      to="[object Object]"
+    />
+     sw-login.recovery.recovery.headline
+  </h2>
+   
+  <form>
+    <sw-password-field-stub
+      label="sw-login.recovery.recovery.newPasswordField.label"
+      value=""
+    />
+     
+    <sw-password-field-stub
+      label="sw-login.recovery.recovery.passwordConfirmField.label"
+      value=""
+    />
+     
+    <div
+      class="sw-login__submit"
+    >
+      <sw-button-stub
+        disabled="true"
+        variant="primary"
+      />
+    </div>
+  </form>
+</div>
+`;

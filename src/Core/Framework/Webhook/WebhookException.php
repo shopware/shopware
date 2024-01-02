@@ -9,8 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('core')]
 class WebhookException extends HttpException
 {
-    private const WEBHOOK_FAILED = 'FRAMEWORK__WEBHOOK_FAILED';
-    private const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
+    public const WEBHOOK_FAILED = 'FRAMEWORK__WEBHOOK_FAILED';
+    public const APP_WEBHOOK_FAILED = 'FRAMEWORK__APP_WEBHOOK_FAILED';
 
     public static function webhookFailedException(string $webhookId, \Throwable $e): self
     {

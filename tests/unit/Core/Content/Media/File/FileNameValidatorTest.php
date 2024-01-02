@@ -177,6 +177,19 @@ class FileNameValidatorTest extends TestCase
         $validator->validateFileName($name);
     }
 
+    public function testFilenameContainFunkyWhiteSpace(): void
+    {
+        $filename = 'pexels-jan-kopÅiva-3354648.jpg';
+
+        $this->expectException(MediaException::class);
+        $this->expectExceptionMessage(
+            "Provided filename \"$filename\" is not permitted: Filename must not contain funky whitespace"
+        );
+
+        $validator = new FileNameValidator();
+        $validator->validateFileName($filename);
+    }
+
     /**
      * @doesNotPerformAssertions
      */

@@ -34,7 +34,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
     {
         parent::setUp();
 
-        $validator = Validation::createValidatorBuilder()->enableAnnotationMapping()->getValidator();
+        $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
         $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
 
         $this->serializer = new FlowTemplateConfigFieldSerializer($validator, $definitionRegistry);

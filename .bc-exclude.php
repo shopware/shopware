@@ -35,6 +35,7 @@ return [
         'Shopware\\\\Core\\\\Framework\\\\Bundle#boot',
 
         // Internal flag added
+
         'The number of required arguments for Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator#generate\(\) increased from 3 to 4',
         'Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\StoreApiGenerator was marked \"@internal\"',
         'Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Storefront',
@@ -46,6 +47,17 @@ return [
         // Will be typed in Symfony 7
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#add\(\) changed from no type to void',
         'Symfony\\\\Component\\\\HttpFoundation\\\\ParameterBag#set\(\) changed from no type to void',
+
+        'Symfony\\\\Component\\\\DependencyInjection\\\\ContainerAwareTrait#setContainer\(\) changed from no type to void',
+        'Symfony\\\\Component\\\\DependencyInjection\\\\ContainerAwareTrait#setContainer\(\) increased from 0 to 1',
+
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Plugin have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Bundle have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\StaticKernelPluginLoader have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\DbalKernelPluginLoader have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\KernelPluginLoader have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Plugin\\\\KernelPluginLoader\\\\ComposerPluginLoader have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
+        'These ancestors of Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Filesystem have been removed\: \["Symfony\\\\\\\\Component\\\\\\\\DependencyInjection\\\\\\\\ContainerAwareInterface"\]',
 
         'An enum expression .* is not supported in .*' // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
     ],

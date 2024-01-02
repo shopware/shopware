@@ -1,24 +1,10 @@
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/entity/sw-entity-listing';
-import 'src/app/component/base/sw-modal';
 import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/context-menu/sw-context-button';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/grid/sw-grid';
-import 'src/app/component/grid/sw-grid-row';
-import 'src/app/component/grid/sw-grid-column';
-import 'src/app/component/base/sw-card';
-import swImportExportActivity from 'src/module/sw-import-export/component/sw-import-export-activity';
-import swImportExportActivityResultModal from 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
-import swImportExportActivityLogInfoModal from 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
-
-Shopware.Component.register('sw-import-export-activity', swImportExportActivity);
-Shopware.Component.register('sw-import-export-activity-result-modal', swImportExportActivityResultModal);
-Shopware.Component.register('sw-import-export-activity-log-info-modal', swImportExportActivityLogInfoModal);
 
 describe('module/sw-import-export/components/sw-import-export-activity', () => {
     function getLogData() {
@@ -80,95 +66,97 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
 
     const createWrapper = async (options = {}) => {
         const defaultOptions = {
-            stubs: {
-                'sw-entity-listing': await Shopware.Component.build('sw-entity-listing'),
-                'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
-                'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
-                'sw-context-button': await Shopware.Component.build('sw-context-button'),
-                'sw-import-export-activity-result-modal': await Shopware.Component.build('sw-import-export-activity-result-modal'),
-                'sw-import-export-edit-profile-modal': {
-                    template: '<div></div>',
-                },
-                'sw-import-export-activity-log-info-modal': await Shopware.Component.build('sw-import-export-activity-log-info-modal'),
-                'sw-modal': await Shopware.Component.build('sw-modal'),
-                'sw-grid': await Shopware.Component.build('sw-grid'),
-                'sw-grid-row': await Shopware.Component.build('sw-grid-row'),
-                'sw-grid-column': await Shopware.Component.build('sw-grid-column'),
-                'sw-card': await Shopware.Component.build('sw-card'),
-                'sw-ignore-class': true,
-                'sw-popover': {
-                    template: '<div><slot></slot></div>',
-                },
-                'sw-icon': true,
-                'sw-description-list': true,
-                'sw-color-badge': true,
-                'sw-button': true,
-                'sw-data-grid-settings': true,
-                'sw-data-grid-skeleton': true,
-                'sw-pagination': true,
-                'sw-help-text': true,
-                'sw-loader': true,
-                'sw-extension-component-section': true,
-            },
-            mocks: {
-                $tc: (key) => {
-                    switch (key) {
-                        case 'sw-import-export.activity.status.progress': {
-                            return 'Progress';
-                        }
-
-                        case 'sw-import-export.activity.status.merging_files': {
-                            return 'Merging files';
-                        }
-
-                        case 'sw-import-export.activity.status.succeeded': {
-                            return 'Succeeded';
-                        }
-
-                        case 'sw-import-export.activity.status.failed': {
-                            return 'Failed';
-                        }
-
-                        case 'sw-import-export.activity.status.aborted': {
-                            return 'Aborted';
-                        }
-
-                        default: {
-                            return key;
-                        }
-                    }
-                },
-                $te: (key) => {
-                    return [
-                        'sw-import-export.activity.status.progress',
-                        'sw-import-export.activity.status.merging_files',
-                        'sw-import-export.activity.status.succeeded',
-                        'sw-import-export.activity.status.failed',
-                        'sw-import-export.activity.status.aborted',
-                    ].includes(key);
-                },
-                date: (date) => date,
-            },
-            provide: {
-                importExport: new ImportExportService(),
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => {
-                                return new EntityCollection(null, null, null, new Criteria(1, 25), options.logData);
-                            },
-                        };
+            global: {
+                stubs: {
+                    'sw-entity-listing': await wrapTestComponent('sw-entity-listing'),
+                    'sw-context-menu': await Shopware.Component.build('sw-context-menu'),
+                    'sw-context-menu-item': await Shopware.Component.build('sw-context-menu-item'),
+                    'sw-context-button': await Shopware.Component.build('sw-context-button'),
+                    'sw-import-export-activity-result-modal': await wrapTestComponent('sw-import-export-activity-result-modal', { sync: true }),
+                    'sw-import-export-edit-profile-modal': {
+                        template: '<div></div>',
                     },
+                    'sw-import-export-activity-log-info-modal': await wrapTestComponent('sw-import-export-activity-log-info-modal', { sync: true }),
+                    'sw-modal': await wrapTestComponent('sw-modal'),
+                    'sw-grid': await wrapTestComponent('sw-grid'),
+                    'sw-grid-row': await wrapTestComponent('sw-grid-row'),
+                    'sw-grid-column': await wrapTestComponent('sw-grid-column'),
+                    'sw-card': await wrapTestComponent('sw-card'),
+                    'sw-ignore-class': true,
+                    'sw-popover': {
+                        template: '<div><slot></slot></div>',
+                    },
+                    'sw-icon': true,
+                    'sw-description-list': true,
+                    'sw-color-badge': true,
+                    'sw-button': true,
+                    'sw-data-grid-settings': true,
+                    'sw-data-grid-skeleton': true,
+                    'sw-pagination': true,
+                    'sw-help-text': true,
+                    'sw-loader': true,
+                    'sw-extension-component-section': true,
                 },
-                shortcutService: {
-                    startEventListener: () => {},
-                    stopEventListener: () => {},
+                mocks: {
+                    $tc: (key) => {
+                        switch (key) {
+                            case 'sw-import-export.activity.status.progress': {
+                                return 'Progress';
+                            }
+
+                            case 'sw-import-export.activity.status.merging_files': {
+                                return 'Merging files';
+                            }
+
+                            case 'sw-import-export.activity.status.succeeded': {
+                                return 'Succeeded';
+                            }
+
+                            case 'sw-import-export.activity.status.failed': {
+                                return 'Failed';
+                            }
+
+                            case 'sw-import-export.activity.status.aborted': {
+                                return 'Aborted';
+                            }
+
+                            default: {
+                                return key;
+                            }
+                        }
+                    },
+                    $te: (key) => {
+                        return [
+                            'sw-import-export.activity.status.progress',
+                            'sw-import-export.activity.status.merging_files',
+                            'sw-import-export.activity.status.succeeded',
+                            'sw-import-export.activity.status.failed',
+                            'sw-import-export.activity.status.aborted',
+                        ].includes(key);
+                    },
+                    date: (date) => date,
+                },
+                provide: {
+                    importExport: new ImportExportService(),
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => {
+                                    return new EntityCollection(null, null, null, new Criteria(1, 25), options.logData);
+                                },
+                            };
+                        },
+                    },
+                    shortcutService: {
+                        startEventListener: () => {},
+                        stopEventListener: () => {},
+                    },
                 },
             },
         };
 
-        const wrapper = shallowMount(
-            await Shopware.Component.build('sw-import-export-activity'),
+        const wrapper = mount(
+            await wrapTestComponent('sw-import-export-activity', { sync: true }),
             Object.assign(defaultOptions, options),
         );
 
@@ -201,8 +189,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         };
 
         await wrapper.setData({ selectedLog: logEntity, showDetailModal: true });
+        await flushPromises();
 
-        const detailModal = wrapper.find('.sw-import-export-activity-log-info-modal');
+        const detailModal = wrapper.getComponent('.sw-import-export-activity-log-info-modal');
 
         expect(wrapper.vm).toBeTruthy();
         expect(detailModal.vm).toBeTruthy();
@@ -274,9 +263,10 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 },
             },
         };
-
         await wrapper.vm.onShowResult(logEntity);
-        const resultModal = wrapper.find('.sw-import-export-activity-result-modal');
+        await flushPromises();
+
+        const resultModal = wrapper.getComponent('.sw-import-export-activity-result-modal');
 
         expect(wrapper.vm).toBeTruthy();
         expect(resultModal.vm).toBeTruthy();

@@ -1,45 +1,53 @@
 import 'src/app/mixin/rule-container.mixin';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 
 const onAddPlaceholderMock = jest.fn();
 
 async function createWrapper(propsData = {}) {
-    return shallowMount({
-        template: `
+    return mount(
+        {
+            template: `
             <div class="sw-mock">
               <slot></slot>
             </div>
         `,
-        mixins: [
-            Shopware.Mixin.getByName('ruleContainer'),
-        ],
-        data() {
-            return {
-                name: 'sw-mock-field',
-            };
-        },
-        methods: {
-            onAddPlaceholder() {
-                onAddPlaceholderMock();
+            mixins: [
+                Shopware.Mixin.getByName('ruleContainer'),
+            ],
+            data() {
+                return {
+                    name: 'sw-mock-field',
+                };
+            },
+            methods: {
+                onAddPlaceholder() {
+                    onAddPlaceholderMock();
+                },
             },
         },
-    }, {
-        stubs: {},
-        mocks: {},
-        propsData: {
-            condition: {},
-            level: 0,
-            ...propsData,
+        {
+            props: {
+                condition: {},
+                level: 0,
+                ...propsData,
+            },
+            global: {
+                stubs: {},
+                mocks: {},
+                provide: {
+                    conditionDataProviderService: {},
+                    createCondition: () => {
+                    },
+                    insertNodeIntoTree: () => {
+                    },
+                    removeNodeFromTree: () => {
+                    },
+                    childAssociationField: 'childAssociationField',
+                },
+                attachTo: document.body,
+            },
         },
-        provide: {
-            conditionDataProviderService: {},
-            createCondition: () => {},
-            insertNodeIntoTree: () => {},
-            removeNodeFromTree: () => {},
-            childAssociationField: 'childAssociationField',
-        },
-        attachTo: document.body,
-    });
+    );
 }
 
 describe('src/app/mixin/rule-container.mixin.ts', () => {
@@ -54,7 +62,7 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
 
     afterEach(async () => {
         if (wrapper) {
-            await wrapper.destroy();
+            await wrapper.unmount();
         }
 
         await flushPromises();

@@ -234,7 +234,6 @@ class Kernel extends HttpKernel
 
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        $container->setParameter('.container.dumper.inline_class_loader', $this->environment !== 'test');
         $container->setParameter('.container.dumper.inline_factories', $this->environment !== 'test');
 
         $confDir = $this->getProjectDir() . '/config';

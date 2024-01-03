@@ -1,7 +1,7 @@
 import { expect, test as base } from '@playwright/test';
 import { FixtureTypes } from '@fixtures/FixtureTypes';
 import type { Task } from '@fixtures/Task';
-import { createPNGImage } from '@fixtures/Helper';
+import { createRandomImage } from '@fixtures/Helper';
 import fs from 'fs';
 
 export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
@@ -14,9 +14,17 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
 
                 imageFilePath = `./tmp/${imageName}.png`;
 
-                // Create PNGImage
-                const imageBuffer = createPNGImage(imageId, imageName);
-                fs.writeFileSync(imageFilePath, imageBuffer);
+                if (!fs.existsSync('./tmp/')) {
+                    try {
+                        fs.mkdirSync('./tmp/');
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+
+                // Create Image
+                const image = createRandomImage();
+                fs.writeFileSync(imageFilePath, image.toBuffer());
 
                 const fileChooserPromise = adminProductDetailPage.page.waitForEvent('filechooser');
                 await adminProductDetailPage.uploadMediaButton.click();
@@ -41,7 +49,7 @@ export const UploadImage = base.extend<{ UploadImage: Task }, FixtureTypes>({
         }
         await use(task);
 
-        // Delete image from storage
+        // Delete image from dir
         fs.unlink(imageFilePath, (err) => {
             if (err) {
                 throw err;

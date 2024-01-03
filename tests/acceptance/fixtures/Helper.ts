@@ -1,24 +1,13 @@
-import { createCanvas } from 'canvas';
+import { Image } from 'image-js';
 
-export function createPNGImage(id: string, imageName: string) : Uint8Array {
+export function createRandomImage(width = 800, height = 600) {
 
-    const image = {
-        id: id,
-        name: imageName,
-        width: 1200,
-        height: 627,
-        color: '#189eff',
-        mimeType: 'image/png',
+    const buffer = Buffer.alloc(width * height * 4);
+
+    let i = 0;
+    while (i < buffer.length) {
+        buffer[i++] = Math.floor(Math.random() * 256);
     }
 
-    // Instantiate the canvas object
-    const canvas = createCanvas(image.width, image.height);
-    const context = canvas.getContext('2d');
-
-    // Fill the rectangle with a color
-    context.fillStyle = image.color;
-    context.fillRect(0, 0, image.width, image.height);
-
-    // Write the image file to a buffer
-    return canvas.toBuffer(image.mimeType);
+    return new Image(width, height, buffer);
 }

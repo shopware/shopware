@@ -58,9 +58,9 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         $jsonValueExpr = sprintf(
-            'JSON_EXTRACT(`%s`.`%s`, %s)',
-            $root,
-            $field->getStorageName(),
+            'JSON_EXTRACT(%s.%s, %s)',
+            EntityDefinitionQueryHelper::escape($root),
+            EntityDefinitionQueryHelper::escape($field->getStorageName()),
             (string) $this->connection->quote('$' . $jsonPath)
         );
 
@@ -76,6 +76,9 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
         return sprintf('IF(JSON_TYPE(%s) != "NULL", %s, NULL)', $jsonValueExpr, $accessor);
     }
 
+    /**
+     * @param Field[] $fields
+     */
     private function getField(string $path, array $fields): ?Field
     {
         /** @var string $fieldName */

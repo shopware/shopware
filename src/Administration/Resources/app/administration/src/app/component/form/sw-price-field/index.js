@@ -306,7 +306,7 @@ Component.register('sw-price-field', {
                 this.$emit('price-calculate', true);
                 this.$emit('price-net-change', value);
                 this.$emit('update:price', this.priceForCurrency);
-                this.convertGrossToNet(value);
+                this.convertNetToGross(value);
             }
         },
 

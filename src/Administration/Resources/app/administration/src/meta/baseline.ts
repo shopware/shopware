@@ -829,7 +829,6 @@ const missingTests = [
     'src/module/sw-flow/component/modals/sw-flow-set-order-state-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-tag-modal/index.js',
     'src/module/sw-flow/component/sw-flow-sequence/index.js',
-    'src/module/sw-flow/component/sw-flow-sequence-action/index.js',
     'src/module/sw-flow/component/sw-flow-sequence-action-error/index.js',
     'src/module/sw-flow/component/sw-flow-sequence-condition/index.js',
     'src/module/sw-flow/component/sw-flow-sequence-selector/index.js',

@@ -36,6 +36,7 @@
                                     {% block component_address_form_company_name_input %}
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                               autocomplete="organization"
                                                id="{{ idPrefix ~ prefix }}company"
                                                placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                                name="{{ prefix }}[company]"
@@ -122,6 +123,7 @@
                     {% block component_address_form_street_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                               autocomplete="{% if prefix == "shippingAddress" %}shipping {% elseif prefix == "billingAddress" %}billing {% endif %}address-line1"
                                id="{{ idPrefix ~ prefix }}AddressStreet"
                                placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[street]"
@@ -160,6 +162,7 @@
                     {% block component_address_form_zipcode_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                               autocomplete="{% if prefix == "shippingAddress" %}shipping {% elseif prefix == "billingAddress" %}billing {% endif %}postal-code"
                                id="{{ idPrefix ~ prefix }}AddressZipcode"
                                placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
@@ -195,6 +198,7 @@
                     {% block component_address_form_city_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
+                               autocomplete="{% if prefix == "shippingAddress" %}shipping {% elseif prefix == "billingAddress" %}billing {% endif %}address-level2"
                                id="{{ idPrefix ~ prefix }}AddressCity"
                                placeholder="{{ "address.cityPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[city]"
@@ -239,6 +243,7 @@
                         {% block component_address_form_additional_field1_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
+                                   autocomplete="{% if prefix == "shippingAddress" %}shipping {% elseif prefix == "billingAddress" %}billing {% endif %}address-line2"
                                    id="{{ idPrefix ~ prefix }}AdditionalField1"
                                    placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
@@ -273,6 +278,7 @@
                         {% block component_address_form_additional_field2_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
+                                   autocomplete="{% if prefix == "shippingAddress" %}shipping {% elseif prefix == "billingAddress" %}billing {% endif %}address-line3"
                                    id="{{ idPrefix ~ prefix }}AdditionalField2"
                                    placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
@@ -410,8 +416,9 @@
                         {% endblock %}
 
                         {% block component_address_form_phone_number_input %}
-                            <input type="text"
+                            <input type="tel"
                                    class="form-control"
+                                   autocomplete="{% if prefix == "shippingAddress" %}shipping {% elseif prefix == "billingAddress" %}billing {% endif %}tel"
                                    id="{{ idPrefix ~ prefix }}AddressPhoneNumber"
                                    placeholder="{{ "address.phoneNumberPlaceholder"|trans|striptags }}"
                                    name="{{ prefix }}[phoneNumber]"

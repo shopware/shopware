@@ -102,16 +102,7 @@ export default Shopware.Mixin.register('listing', defineComponent({
         if (Shopware.Utils.types.isEmpty(actualQueryParameters)) {
             this.resetListing();
         } else {
-            // When we get the parameters on the route, true and false will be a string so we should convert to boolean
-            Object.keys(actualQueryParameters).forEach((key) => {
-                if (actualQueryParameters[key] === 'true') {
-                    // @ts-expect-error
-                    actualQueryParameters[key] = true;
-                } else if (actualQueryParameters[key] === 'false') {
-                    // @ts-expect-error
-                    actualQueryParameters[key] = false;
-                }
-            });
+            this.parseBooleanQueryParams(actualQueryParameters);
 
             // otherwise update local data and fetch from server
             this.updateData(actualQueryParameters);
@@ -131,6 +122,8 @@ export default Shopware.Mixin.register('listing', defineComponent({
             if (Shopware.Utils.types.isEmpty(query)) {
                 this.resetListing();
             }
+
+            this.parseBooleanQueryParams(query);
 
             // Update data information from the url
             this.updateData(query);
@@ -376,6 +369,22 @@ export default Shopware.Mixin.register('listing', defineComponent({
                 term,
                 originalCriteria,
             );
+        },
+
+        /**
+         * Parses all string representations of boolean values to actual boolean values.
+         * Only works on root level of the query object.
+         */
+        parseBooleanQueryParams(query: LocationQuery) {
+            Object.keys(query).forEach((key) => {
+                if (String(query[key]).toLowerCase() === 'true') {
+                    // @ts-expect-error
+                    query[key] = true;
+                } else if (String(query[key]).toLowerCase() === 'false') {
+                    // @ts-expect-error
+                    query[key] = false;
+                }
+            });
         },
     },
 }));

@@ -13,7 +13,7 @@ Thumbs.db
 # PhpStorm-Project
 /.idea/
 /.fleet/
-/*.http
+*.http
 /.run/
 
 # Composer
@@ -135,6 +135,8 @@ docker-compose.override.yaml
 vendor-bin/**/vendor
 vendor-bin/**/composer.lock
 .uniqueid.txt
+
+http-client.private.env.json
 
 # nix
 .direnv/

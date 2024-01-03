@@ -30,7 +30,7 @@ use Shopware\Core\Framework\Log\Package;
 class ProductCrossSellingDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'product_cross_selling';
-    final public const SORT_BY_PRICE = 'price';
+    final public const SORT_BY_PRICE = 'cheapestPrice';
     final public const SORT_BY_RELEASE_DATE = 'releaseDate';
     final public const SORT_BY_NAME = 'name';
     final public const TYPE_PRODUCT_STREAM = 'productStream';

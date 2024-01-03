@@ -729,7 +729,6 @@ const missingTests = [
     'src/app/component/usage-data/sw-settings-usage-data-intro/index.ts',
     'src/app/component/utils/sw-help-center/index.ts',
     'src/app/component/utils/sw-internal-link/index.js',
-    'src/app/component/utils/sw-loader/index.js',
     'src/app/component/utils/sw-shortcut-overview/index.js',
     'src/app/component/utils/sw-shortcut-overview-item/index.js',
     'src/app/component/utils/sw-status/index.js',

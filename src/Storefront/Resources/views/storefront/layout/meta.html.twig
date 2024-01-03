@@ -188,19 +188,23 @@
 
         {% block layout_head_javascript_hmr_mode %}
             {% if isHMRMode %}
-                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>
-                <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js" defer></script>
-                <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js" defer></script>
-                <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js" defer></script>
-                {# The storefront entry is a combined entry point which contains all plugins & themes #}
-                <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
+                {% block layout_head_javascript_hmr_dev %}
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-node.js" defer></script>
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/vendor-shared.js" defer></script>
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/runtime.js" defer></script>
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/app.js" defer></script>
+                    {# The storefront entry is a combined entry point which contains all plugins & themes #}
+                    <script type="text/javascript" src="/_webpack_hot_proxy_/js/storefront.js" defer></script>
+                {% endblock %}
             {% else %}
-                <script>
-                    window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
-                </script>
-                {% for script in theme_scripts() %}
-                    <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
-                {% endfor %}
+                {% block layout_head_javascript_prod %}
+                    <script>
+                        window.themeJsPublicPath = '{{ asset('js/', 'theme') }}';
+                    </script>
+                    {% for script in theme_scripts() %}
+                        <script type="text/javascript" src="{{ asset(script, 'theme') }}" defer></script>
+                    {% endfor %}
+                {% endblock %}
             {% endif %}
         {% endblock %}
     </head>

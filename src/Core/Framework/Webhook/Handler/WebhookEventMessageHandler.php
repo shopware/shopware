@@ -116,10 +116,14 @@ final class WebhookEventMessageHandler
 
             if ($e instanceof RequestException && $e->getResponse() !== null) {
                 $response = $e->getResponse();
+                $body = $response->getBody()->getContents();
+                if (json_validate($body)) {
+                    $body = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+                }
                 $payload = array_merge($payload, [
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
-                        'body' => \json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR),
+                        'body' => $body,
                     ],
                     'responseStatusCode' => $response->getStatusCode(),
                     'responseReasonPhrase' => $response->getReasonPhrase(),

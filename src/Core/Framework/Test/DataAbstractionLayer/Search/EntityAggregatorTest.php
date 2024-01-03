@@ -1326,6 +1326,18 @@ class EntityAggregatorTest extends TestCase
         $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
+    public function testAggregationWithBacktickInName(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+        $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
+
+        static::expectException(\InvalidArgumentException::class);
+        static::expectExceptionMessage('Backtick not allowed in identifier');
+        $this->aggregator->aggregate($this->getContainer()->get(TaxDefinition::class), $criteria, $context);
+    }
+
     private function insertData(): void
     {
         $repository = $this->getContainer()->get('product.repository');

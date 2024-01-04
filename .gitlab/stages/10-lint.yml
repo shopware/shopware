@@ -34,10 +34,10 @@ ESLint (Administration):
     after_script:
         - grep 'failure message' eslint.junit.xml
 
-Lint Acceptance:
+ESLint (Acceptance Test Suite):
     extends: .base-no-setup
     stage: lint
-    image: node:lts-bookworm # ℹ️ Debian-based image so we can use the prebuilt binaries from node-canvas (https://github.com/Automattic/node-canvas/wiki/Installation%3A-Prebuilt)
+    image: node:lts-alpine
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -46,7 +46,7 @@ Lint Acceptance:
     script:
         - cd tests/acceptance
         - npm clean-install
-        - npx eslint .
+        - npm run lint
 
 Check eslint parser (Administration):
     extends: .base-with-node

@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Write;
+namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -42,7 +43,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
 /**
  * @internal
  */
-class WriterTest extends TestCase
+#[CoversClass(EntityWriter::class)]
+class EntityWriterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

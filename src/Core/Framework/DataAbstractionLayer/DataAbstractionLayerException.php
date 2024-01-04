@@ -36,6 +36,7 @@ class DataAbstractionLayerException extends HttpException
     public const INCONSISTENT_PRIMARY_KEY = 'FRAMEWORK__INCONSISTENT_PRIMARY_KEY';
     public const FIELD_BY_STORAGE_NAME_NOT_FOUND = 'FRAMEWORK__FIELD_BY_STORAGE_NAME_NOT_FOUND';
     public const MISSING_PARENT_FOREIGN_KEY = 'FRAMEWORK__MISSING_PARENT_FOREIGN_KEY';
+    public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -265,6 +266,15 @@ class DataAbstractionLayerException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::REFERENCE_FIELD_BY_STORAGE_NAME_NOT_FOUND,
             sprintf('Can not detect reference field with storage name %s in definition %s', $storageName, $entity)
+        );
+    }
+
+    public static function invalidWriteInput(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_WRITE_INPUT,
+            $message,
         );
     }
 }

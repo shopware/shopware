@@ -24,13 +24,13 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
  *
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('cause')]
 class AnnotatePackageProcessorTest extends TestCase
 {
     public function testOnlyController(): void
     {
         $requestStack = new RequestStack();
-        $inner = $this->createMock(AbstractHandler::class);
         $container = $this->createMock(ContainerInterface::class);
         $handler = new AnnotatePackageProcessor($requestStack, $container);
 
@@ -298,6 +298,7 @@ class AnnotatePackageProcessorTest extends TestCase
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('controller')]
 class TestController
 {
@@ -321,6 +322,7 @@ class TestControllerNoPackage
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('exception')]
 class TestException extends ShopwareHttpException
 {
@@ -344,6 +346,7 @@ class TestExceptionNoPackage extends ShopwareHttpException
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('command')]
 class TestCommand extends Command
 {
@@ -359,6 +362,7 @@ class TestCommand extends Command
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('command')]
 class TestNestedCommand extends Command
 {
@@ -374,6 +378,7 @@ class TestNestedCommand extends Command
 /**
  * @internal
  */
+// @phpstan-ignore-next-line
 #[Package('cause')]
 class TestCause extends Command
 {

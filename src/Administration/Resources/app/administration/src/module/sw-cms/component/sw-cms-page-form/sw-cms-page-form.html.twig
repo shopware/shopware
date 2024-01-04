@@ -150,6 +150,7 @@
                         <component
                             :is="cmsElements[element.type].configComponent"
                             :element="element"
+                            :element-data="cmsElements[element.type]"
                             @element-update="elementUpdate"
                         />
                         {% endblock %}

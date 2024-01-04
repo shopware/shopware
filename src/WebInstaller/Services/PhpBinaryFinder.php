@@ -16,7 +16,7 @@ use Symfony\Component\Process\Process;
 #[Package('core')]
 class PhpBinaryFinder
 {
-    private const PHP_BINARY_NAMES = ['php8.2', 'php8.1', 'php'];
+    private const PHP_BINARY_NAMES = ['php8.3', 'php8.2', 'php8.1', 'php'];
 
     private const PHP_KNOWN_LOCATIONS = [
         '/opt/plesk/php/{major}.{minor}/bin/php',

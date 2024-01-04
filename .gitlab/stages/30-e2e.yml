@@ -277,3 +277,45 @@ E2E auto update:
       --browser chrome
       --spec "cypress/e2e/recovery/updater/auto-update.cy.js"
       --headless
+
+acceptance:
+  extends:
+    - .long-running
+  image: gitlab.shopware.com:5005/infrastructure/docker-base/ci-e2e:latest
+  needs: [ Build ]
+  stage: E2E
+  dependencies: [ Build ]
+  services:
+    - name: mariadb:10.4
+      alias: database
+  variables:
+    APP_ENV: prod
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
+  before_script:
+    - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
+    - cp public/.htaccess.dist public/.htaccess
+    - !reference [ .scripts, init, composer ]
+    - touch install.lock
+    - mkdir -p config/jwt custom/plugins || true
+    # workaround - replace with just the depencies and move it into the ci-e2e image
+    - apk add chromium
+    - npm --prefix tests/acceptance ci
+    - '(cd tests/acceptance && npx playwright install)'
+    - >
+      if [[ -r var/database.sql ]]; then
+          mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
+          mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
+          bin/console system:generate-jwt || true
+      else
+          composer run setup
+      fi
+    - bin/console assets:install
+    - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
+    - 'rm -Rf /var/www/html/public || true'
+    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
+    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
+  script:
+    - bin/console framework:integration:create AcceptanceTest --admin >> tests/acceptance/.env
+    - cd tests/acceptance
+    - npx playwright test --workers=2

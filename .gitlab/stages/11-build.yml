@@ -62,6 +62,7 @@ Build:
             - src/Storefront/Resources/app/storefront/dist
             - src/Storefront/Resources/app/storefront/vendor
             - var/database.sql
+            - var/plugins.json
             - custom/plugins/TestPlugin
             - public/theme/
 

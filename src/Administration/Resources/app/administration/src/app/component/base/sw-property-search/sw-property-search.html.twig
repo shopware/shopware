@@ -153,6 +153,7 @@
                         data-index="name"
                         :title="item.translated.name"
                     >
+                        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                         <label :for="`sw-field--${item.id}`">{{ item.translated.name }}</label>
                     </sw-grid-column>
                     {% endblock %}

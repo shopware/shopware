@@ -169,11 +169,19 @@ const coreConfig = {
                             env: {
                                 mode: 'entry',
                                 coreJs: '3.34.0',
-                                targets: 'defaults',
+                                // .browserlistrc is not found by swc-loader, so we load it manually: https://github.com/swc-project/swc/issues/3365
+                                targets: require('browserslist').loadConfig({
+                                    path: './',
+                                }),
                             },
                             jsc: {
                                 parser: {
                                     syntax: 'typescript',
+                                },
+                                transform: {
+                                    // NEXT-30535 - Restore babel option to not use defineProperty for class fields.
+                                    // Previously (in v6.5.x) this was done by `@babel/preset-typescript` automatically.
+                                    useDefineForClassFields: false,
                                 },
                             },
                         },

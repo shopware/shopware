@@ -8,6 +8,7 @@
         <!-- Api -->
         <service id="Shopware\Core\System\UsageData\Api\ConsentController" public="true">
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\BannerService"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -18,9 +19,12 @@
         <service id="Shopware\Core\System\UsageData\Consent\ConsentService">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="system_config.repository"/>
-            <argument type="service" id="user_config.repository"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentReporter"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="clock"/>
+        </service>
+
+        <service id="Shopware\Core\System\UsageData\Consent\BannerService">
+            <argument type="service" id="user_config.repository"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Subscriber\UsageDataApprovalSubscriber">
@@ -105,6 +109,8 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="string">%env(APP_URL)%</argument>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\UsageDataAllowListService"/>

@@ -1,18 +1,8 @@
 /**
  * @package services-settings
  */
-
-import { shallowMount } from '@vue/test-utils_v2';
-import swMailTemplateDetail from 'src/module/sw-mail-template/page/sw-mail-template-detail';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-icon';
-import 'src/app/component/tree/sw-tree';
-import 'src/app/component/tree/sw-tree-item';
-import 'src/app/component/tree/sw-tree-input-field';
-import 'src/app/component/structure/sw-language-info';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-
-Shopware.Component.register('sw-mail-template-detail', swMailTemplateDetail);
 
 const mailTemplateTypeMock = {
     id: '6666673yd1ssd299si1d837dy1ud628',
@@ -94,15 +84,9 @@ class SyntaxValidationTemplateError extends Error {
     };
 }
 
-describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
-    let wrapper;
-    let component;
-    let spyOnCopyVariable;
-    let spyIsToManyAssociationVariable;
-    let spyMailPreviewContent;
-
-    const createWrapper = async (privileges = []) => {
-        return shallowMount(component, {
+async function createWrapper(privileges = []) {
+    return mount(await wrapTestComponent('sw-mail-template-detail', { sync: true }), {
+        global: {
             provide: {
                 repositoryFactory: {
                     create: () => repositoryMockFactory(),
@@ -144,7 +128,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
-                'sw-button': await Shopware.Component.build('sw-button'),
+                'sw-button': await wrapTestComponent('sw-button'),
                 'sw-button-process': true,
                 'sw-language-info': true,
                 'sw-entity-single-select': true,
@@ -164,13 +148,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 },
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
-                'sw-icon': await Shopware.Component.build('sw-icon'),
+                'sw-icon': await wrapTestComponent('sw-icon'),
                 'icons-regular-products-s': {
                     template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>',
                 },
-                'sw-tree': await Shopware.Component.build('sw-tree'),
-                'sw-tree-item': await Shopware.Component.build('sw-tree-item'),
-                'sw-tree-input-field': await Shopware.Component.build('sw-tree-input-field'),
+                'sw-tree': await wrapTestComponent('sw-tree'),
+                'sw-tree-item': await wrapTestComponent('sw-tree-item'),
+                'sw-tree-input-field': await wrapTestComponent('sw-tree-input-field'),
                 'sw-confirm-field': true,
                 'sw-loader': true,
                 'sw-vnode-renderer': true,
@@ -194,28 +178,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
                 },
                 'sw-skeleton': true,
             },
-            attachTo: document.body,
-        });
-    };
-
-    beforeAll(async () => {
-        component = await Shopware.Component.build('sw-mail-template-detail');
-        spyOnCopyVariable = jest.spyOn(component.methods, 'onCopyVariable');
-        spyIsToManyAssociationVariable = jest.spyOn(component.methods, 'isToManyAssociationVariable');
-        spyMailPreviewContent = jest.spyOn(component.methods, 'mailPreviewContent');
+        },
     });
+}
+
+describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
+    let wrapper;
 
     afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-        }
-
         jest.clearAllMocks();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to add an item to the attachment', async () => {
@@ -228,7 +199,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should be unable to add an item to the attachment exist this item', async () => {
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -275,7 +245,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should be able to delete media', async () => {
         wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
         await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock],
             mailTemplate: {
@@ -311,7 +280,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('all fields should be disabled without edit permission', async () => {
         wrapper = await createWrapper();
-        await flushPromises();
         await wrapper.setData({
             isLoading: false,
             mailTemplateMedia: [mailTemplateMediaMock],
@@ -319,15 +287,15 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         [
             { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: 'true' },
-            { selector: wrapper.findAll('sw-field-stub'), attribute: 'disabled', expect: 'true' },
-            { selector: wrapper.findAll('.sw-code-editor'), attribute: 'disabled', expect: 'disabled' },
-            { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: { wrappers: wrapper.findAll('sw-textarea-field-stub') }, attribute: 'disabled', expect: 'true' },
+            { selector: { wrappers: wrapper.findAll('.sw-code-editor') }, attribute: 'disabled', expect: '' },
+            { selector: { wrappers: wrapper.findAll('sw-context-menu-item-stub') }, attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: 'true' },
-            { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: { wrappers: wrapper.findAll('sw-text-field-stub') }, attribute: 'disabled', expect: 'true' },
             {
                 selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
-                attribute: 'showselection',
+                attribute: 'show-selection',
                 expect: undefined,
             },
         ].forEach(element => {
@@ -357,12 +325,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         [
             { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: undefined },
-            { selector: wrapper.findAll('sw-field-stub'), attribute: 'disabled', expect: undefined },
-            { selector: wrapper.findAll('.sw-code-editor'), attribute: 'disabled', expect: undefined },
-            { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: undefined },
+            { selector: { wrappers: wrapper.findAll('sw-textarea-field-stub') }, attribute: 'disabled', expect: undefined },
+            { selector: { wrappers: wrapper.findAll('.sw-code-editor') }, attribute: 'disabled', expect: undefined },
+            { selector: { wrappers: wrapper.findAll('sw-context-menu-item-stub') }, attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: undefined },
-            { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: undefined },
+            { selector: { wrappers: wrapper.findAll('sw-text-field-stub') }, attribute: 'disabled', expect: undefined },
             {
                 selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
                 attribute: 'show-selection',
@@ -405,7 +373,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             isLoading: false,
         });
 
-        const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
+        const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.props().disabled).toBe(true);
     });
@@ -427,7 +395,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testMailSalesChannelId: '1a2b3c',
         });
 
-        const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
+        const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.props().disabled).toBe(false);
 
@@ -465,7 +433,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testMailSalesChannelId: '1a2b3c',
         });
 
-        const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
+        const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.props().disabled).toBe(false);
 
@@ -489,6 +457,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const clipboardSpy = jest.spyOn(navigator.clipboard, 'writeText');
 
         wrapper = await createWrapper();
+
+        const spyOnCopyVariable = jest.spyOn(wrapper.vm, 'onCopyVariable');
+
         wrapper.vm.addVariables([
             {
                 id: 'order',
@@ -507,15 +478,22 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         ]);
 
         wrapper.vm.mailTemplateType = {
-            templateData: true,
+            availableEntities: true,
+            templateData: {
+                order: {
+                    deleveries: {
+                        trackingCodes: {},
+                    },
+                },
+            },
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const icon = await wrapper.find('.sw-mail-template-detail__copy_icon');
         await icon.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(spyOnCopyVariable).toHaveBeenCalled();
         expect(clipboardSpy).toHaveBeenCalled();
@@ -523,6 +501,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should have schema in variables', async () => {
         wrapper = await createWrapper();
+
+        const spyIsToManyAssociationVariable = jest.spyOn(wrapper.vm, 'isToManyAssociationVariable');
+
         wrapper.vm.addVariables([
             {
                 id: 'order',
@@ -545,7 +526,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             },
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const icon = await wrapper.find('.icon--regular-chevron-right-xxs');
         await icon.trigger('click');
 
@@ -554,6 +535,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
     it('should replace variables in html content when send mail test', async () => {
         wrapper = await createWrapper();
+
+        const spyMailPreviewContent = jest.spyOn(wrapper.vm, 'mailPreviewContent');
+
         await wrapper.setData({
             mailTemplate: {
                 ...mailTemplateTypeMock,
@@ -607,7 +591,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const previewSidebarButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar');
 
-        expect(previewSidebarButton.attributes().disabled).toBe('disabled');
+        expect(previewSidebarButton.attributes().disabled).toBe('true');
         await previewSidebarButton.trigger('click');
 
         await flushPromises();
@@ -644,7 +628,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         const previewSidebarButton = wrapper.find('.sw-mail-template-detail__show-preview-sidebar');
 
-        expect(previewSidebarButton.attributes().disabled).toBe('disabled');
+        expect(previewSidebarButton.attributes().disabled).toBe('true');
         await previewSidebarButton.trigger('click');
 
         await flushPromises();
@@ -674,7 +658,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             testMailSalesChannelId: '1a2b3c',
         });
 
-        const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
+        const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
 
         expect(sendTestMail.props().disabled).toBe(false);
         wrapper.vm.mailService.testMailTemplate = jest.fn(() => Promise.resolve({ size: 0 }));

@@ -81,6 +81,12 @@ describe('components/form/sw-price-field', () => {
                 },
             };
         };
+
+        jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
     it('should be a Vue.js component', async () => {
@@ -199,5 +205,33 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.find('.sw-price-field__gross').attributes()['help-text']).toBe('help for gross price');
         expect(wrapper.find('.sw-price-field__net').attributes()['help-text']).toBe('help for net price');
+    });
+
+    it('should set gross value when the net value is updated', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
+        await wrapper.setProps({
+            price: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceNetInputChange(euroPrice.net);
+        jest.runAllTimers();
+
+        expect(convertNetToGross).toHaveBeenCalled();
+    });
+
+    it('should set net value when the gross value is updated', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
+        await wrapper.setProps({
+            price: [euroPrice],
+            inherited: false,
+        });
+
+        wrapper.vm.onPriceGrossInputChange(euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(convertGrossToNet).toHaveBeenCalled();
     });
 });

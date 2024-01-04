@@ -30,12 +30,32 @@ global.ResizeObserver = class ResizeObserver {
     }
 };
 
+const defaultPage = {
+    sections: [
+        {
+            blocks: [
+                {
+                    name: 'BLOCK NAME',
+                    slots: [
+                        {
+                            type: 'text',
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            blocks: [],
+        },
+    ],
+};
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-page-form', {
         sync: true,
     }), {
         props: {
-            page: createPageProp(),
+            page: defaultPage,
         },
         global: {
             stubs: {
@@ -47,7 +67,8 @@ async function createWrapper() {
                     props: ['title'],
                 },
                 'sw-cms-el-config-text': {
-                    template: '<div class="config-element">Config element</div>',
+                    template: '<div class="sw-cms-el-config-text">Config element</div>',
+                    props: ['element', 'elementData'],
                 },
                 'sw-extension-component-section': true,
             },
@@ -69,37 +90,9 @@ async function createWrapper() {
     });
 }
 
-function createPageProp() {
-    return {
-        sections: [
-            {
-                blocks: [
-                    {
-                        name: 'BLOCK NAME',
-                        slots: [
-                            {
-                                type: 'text',
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                blocks: [],
-            },
-        ],
-    };
-}
-
 describe('module/sw-cms/component/sw-cms-page-form', () => {
     beforeEach(() => {
         resizeObserverList = [];
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have only one empty state \'card\'', async () => {
@@ -120,9 +113,17 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('should have an cms section with a text element', async () => {
         const wrapper = await createWrapper();
-        const configElement = wrapper.find('.config-element');
+        const configElement = wrapper.getComponent('.sw-cms-el-config-text');
 
         expect(configElement.text()).toBe('Config element');
+        expect(configElement.props()).toEqual({
+            element: {
+                type: 'text',
+            },
+            elementData: {
+                configComponent: 'sw-cms-el-config-text',
+            },
+        });
     });
 
     it('display the block name', async () => {

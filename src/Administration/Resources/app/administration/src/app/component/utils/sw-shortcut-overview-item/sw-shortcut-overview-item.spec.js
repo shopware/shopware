@@ -1,19 +1,18 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import 'src/app/component/utils/sw-shortcut-overview-item';
+import { mount } from '@vue/test-utils';
 
 async function wrapperFactory({ propsData, privileges = [] }) {
-    return shallowMount(await Shopware.Component.build('sw-shortcut-overview-item'), {
-        propsData: { ...propsData },
-        stubs: {},
-        mocks: {},
-        provide: {
-            acl: {
-                can: (key) => {
-                    if (!key) {
-                        return true;
-                    }
+    return mount(await wrapTestComponent('sw-shortcut-overview-item', { sync: true }), {
+        props: { ...propsData },
+        global: {
+            provide: {
+                acl: {
+                    can: (key) => {
+                        if (!key) {
+                            return true;
+                        }
 
-                    return privileges.includes(key);
+                        return privileges.includes(key);
+                    },
                 },
             },
         },

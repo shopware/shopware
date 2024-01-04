@@ -1,10 +1,11 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import 'src/app/component/utils/sw-status';
+import { mount } from '@vue/test-utils';
 
 async function createWrapper(customOptions = {}) {
-    return shallowMount(await Shopware.Component.build('sw-status'), {
-        stubs: {
-            'sw-color-badge': true,
+    return mount(await wrapTestComponent('sw-status', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-color-badge': true,
+            },
         },
         ...customOptions,
     });
@@ -14,10 +15,6 @@ describe('src/app/component/utils/sw-status', () => {
     /** @type Wrapper */
     let wrapper;
 
-    afterEach(async () => {
-        if (wrapper) await wrapper.destroy();
-    });
-
     it('should be a Vue.JS component', async () => {
         wrapper = await createWrapper();
 
@@ -26,7 +23,7 @@ describe('src/app/component/utils/sw-status', () => {
 
     it('should render the color green', async () => {
         wrapper = await createWrapper({
-            propsData: { color: 'green' },
+            props: { color: 'green' },
         });
 
         expect(wrapper.classes()).toContain('sw-status--green');
@@ -34,7 +31,7 @@ describe('src/app/component/utils/sw-status', () => {
 
     it('should render the color red', async () => {
         wrapper = await createWrapper({
-            propsData: { color: 'red' },
+            props: { color: 'red' },
         });
 
         expect(wrapper.classes()).toContain('sw-status--red');
@@ -52,7 +49,7 @@ describe('src/app/component/utils/sw-status', () => {
 
     it('should render the color badge', async () => {
         wrapper = await createWrapper({
-            propsData: { color: 'red' },
+            props: { color: 'red' },
         });
 
         const colorBadge = await wrapper.find('sw-color-badge-stub');

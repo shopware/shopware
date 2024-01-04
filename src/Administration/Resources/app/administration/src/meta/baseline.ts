@@ -731,7 +731,6 @@ const missingTests = [
     'src/app/component/utils/sw-internal-link/index.js',
     'src/app/component/utils/sw-shortcut-overview/index.js',
     'src/app/component/utils/sw-shortcut-overview-item/index.js',
-    'src/app/component/utils/sw-status/index.js',
     'src/app/init/tabs.init.ts',
     'src/app/mixin/discard-detail-page-changes.mixin.ts',
     'src/app/plugin/deprecation.plugin.js',

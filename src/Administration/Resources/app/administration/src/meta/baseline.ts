@@ -803,7 +803,6 @@ const missingTests = [
     'src/module/sw-import-export/component/sw-import-export-edit-profile-general/index.js',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-modal/index.js',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/index.js',
-    'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping/index.js',
     'src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js',
     'src/module/sw-import-export/component/sw-import-export-exporter/index.js',
     'src/module/sw-import-export/component/sw-import-export-importer/index.js',

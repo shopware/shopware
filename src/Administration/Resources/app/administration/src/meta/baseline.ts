@@ -836,7 +836,6 @@ const missingTests = [
     'src/module/sw-product/view/sw-product-detail-seo/index.js',
     'src/module/sw-product/view/sw-product-detail-specifications/index.js',
     'src/module/sw-product/view/sw-product-detail-variants/index.js',
-    'src/module/sw-profile/page/sw-profile-index/index.js',
     'src/module/sw-profile/view/sw-profile-index-general/index.js',
     'src/module/sw-review/page/sw-review-detail/index.js',
     'src/module/sw-review/page/sw-review-list/index.js',

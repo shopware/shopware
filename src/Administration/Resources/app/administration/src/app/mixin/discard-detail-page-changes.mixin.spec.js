@@ -1,8 +1,24 @@
 import 'src/app/mixin/discard-detail-page-changes.mixin';
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount, config } from '@vue/test-utils';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 async function createWrapper(...entityNames) {
-    return shallowMount({
+    delete config.global.mocks.$route;
+    delete config.global.mocks.$router;
+
+    const router = createRouter({
+        history: createWebHashHistory(),
+        routes: [
+            {
+                name: 'sw.jest.index',
+                path: '/jest/:id',
+            },
+        ],
+    });
+
+    await router.push({ name: 'sw.jest.index', params: { id: '1' } });
+
+    return mount({
         template: `
             <div class="sw-mock">
               <slot></slot>
@@ -25,13 +41,10 @@ async function createWrapper(...entityNames) {
             };
         },
     }, {
-        stubs: {},
-        mocks: {
-            $route: {
-                params: {
-                    id: '1',
-                },
-            },
+        global: {
+            plugins: [
+                router,
+            ],
         },
         attachTo: document.body,
     });
@@ -46,14 +59,6 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
         await flushPromises();
     });
 
-    afterEach(async () => {
-        if (wrapper) {
-            await wrapper.destroy();
-        }
-
-        await flushPromises();
-    });
-
     it('should be a Vue.js component', () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -62,14 +67,13 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
         expect(wrapper.vm.product.discardChanges).not.toHaveBeenCalled();
 
         // simulate route id change
-        wrapper.vm.$route.params.id = '2';
-        await flushPromises();
+        await wrapper.vm.$router.push({ name: 'sw.jest.index', params: { id: '2' } });
 
         expect(wrapper.vm.product.discardChanges).toHaveBeenCalledWith();
     });
 
     it('should call the entity discardChanges function on every given name', async () => {
-        await wrapper.destroy();
+        await wrapper.unmount();
         wrapper = await createWrapper('product', ['category', 'property']);
 
         expect(wrapper.vm.product.discardChanges).not.toHaveBeenCalled();
@@ -77,8 +81,7 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
         expect(wrapper.vm.property.discardChanges).not.toHaveBeenCalled();
 
         // simulate route id change
-        wrapper.vm.$route.params.id = '2';
-        await flushPromises();
+        await wrapper.vm.$router.push({ name: 'sw.jest.index', params: { id: '2' } });
 
         expect(wrapper.vm.product.discardChanges).toHaveBeenCalledWith();
         expect(wrapper.vm.category.discardChanges).toHaveBeenCalledWith();
@@ -86,7 +89,7 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
     });
 
     it('should throw an error if no entity name is given', async () => {
-        await wrapper.destroy();
+        await wrapper.unmount();
 
         await expect(createWrapper())
             .rejects
@@ -94,15 +97,14 @@ describe('src/app/mixin/discard-detail-page-changes.mixin.ts', () => {
     });
 
     it('should log a warning when not entity with the name has a discard method was found', async () => {
-        await wrapper.destroy();
+        await wrapper.unmount();
 
         wrapper = await createWrapper('manufacturer');
 
         jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementationOnce(() => {});
 
         // simulate route id change
-        wrapper.vm.$route.params.id = '2';
-        await flushPromises();
+        await wrapper.vm.$router.push({ name: 'sw.jest.index', params: { id: '2' } });
 
         expect(Shopware.Utils.debug.warn).toHaveBeenCalledWith(
             'Discard-detail-page-changes Mixin',

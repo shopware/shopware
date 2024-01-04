@@ -1,9 +1,4 @@
-import { shallowMount } from '@vue/test-utils_v2';
-
-import 'src/app/component/entity/sw-bulk-edit-modal';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/base/sw-modal';
-import 'src/app/component/grid/sw-pagination';
+import { mount } from '@vue/test-utils';
 
 const responses = global.repositoryFactoryMock.responses;
 
@@ -26,12 +21,10 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     };
 
     const modal = async () => {
-        return shallowMount(await Shopware.Component.build('sw-bulk-edit-modal'), {
-            stubs: stubs,
-            data() {
-                return {};
-            },
-            propsData: {
+        return mount(await wrapTestComponent('sw-bulk-edit-modal', {
+            sync: true,
+        }), {
+            props: {
                 selection: {
                     uuid1: { id: 'uuid1', manufacturer: 'Wordify', name: 'Portia Jobson' },
                     uuid2: { id: 'uuid2', manufacturer: 'Twitternation', name: 'Baxy Eardley' },
@@ -40,11 +33,17 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
                 bulkGridEditColumns: [],
                 currencies: [],
             },
-            provide: {
-                shortcutService: {
-                    startEventListener: () => {
-                    },
-                    stopEventListener: () => {
+            global: {
+                stubs: stubs,
+                data() {
+                    return {};
+                },
+                provide: {
+                    shortcutService: {
+                        startEventListener: () => {
+                        },
+                        stopEventListener: () => {
+                        },
                     },
                 },
             },
@@ -53,9 +52,9 @@ describe('src/app/component/entity/sw-bulk-edit-modal', () => {
 
     beforeAll(async () => {
         stubs = {
-            'sw-modal': await Shopware.Component.build('sw-modal'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-pagination': await Shopware.Component.build('sw-pagination'),
+            'sw-modal': await wrapTestComponent('sw-modal'),
+            'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+            'sw-pagination': await wrapTestComponent('sw-pagination'),
             'sw-checkbox-field': {
                 template: '<div class="sw-checkbox-field"></div>',
             },

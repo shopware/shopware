@@ -764,7 +764,6 @@ const missingTests = [
     'src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/index.js',
     'src/module/sw-flow/component/sw-flow-sequence/index.js',
-    'src/module/sw-flow/component/sw-flow-sequence-condition/index.js',
     'src/module/sw-flow/component/sw-flow-sequence-selector/index.js',
     'src/module/sw-flow/component/sw-flow-trigger/index.js',
     'src/module/sw-flow/page/sw-flow-detail/index.js',

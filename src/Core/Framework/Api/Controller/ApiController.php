@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -276,12 +277,28 @@ class ApiController extends AbstractController
 
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
+        try {
+            return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
+        } catch (DataAbstractionLayerException $exception) {
+            if ($exception->getErrorCode() === DataAbstractionLayerException::INVALID_WRITE_INPUT) {
+                throw ApiException::badRequest('Invalid payload. Should be associative array');
+            }
+
+            throw $exception;
+        }
     }
 
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
+        try {
+            return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
+        } catch (DataAbstractionLayerException $exception) {
+            if ($exception->getErrorCode() === DataAbstractionLayerException::INVALID_WRITE_INPUT) {
+                throw ApiException::badRequest('Invalid payload. Should be associative array');
+            }
+
+            throw $exception;
+        }
     }
 
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response

@@ -30,7 +30,7 @@ class SalesChannelValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inserts
-     * @param array<string> $valids
+     * @param array<int, array<string, mixed>> $valids
      * @param array<string> $invalids
      */
     #[DataProvider('getInsertValidationProvider')]
@@ -59,9 +59,7 @@ class SalesChannelValidatorTest extends TestCase
         if (!$invalids) {
             static::assertNull($exception);
 
-            $this->getSalesChannelRepository()->delete([
-                $valids,
-            ], Context::createDefaultContext());
+            $this->getSalesChannelRepository()->delete($valids, Context::createDefaultContext());
 
             return;
         }
@@ -74,9 +72,7 @@ class SalesChannelValidatorTest extends TestCase
             static::assertStringContainsString($expectedError, $message);
         }
 
-        $this->getSalesChannelRepository()->delete([
-            $valids,
-        ], Context::createDefaultContext());
+        $this->getSalesChannelRepository()->delete($valids, Context::createDefaultContext());
     }
 
     public static function getInsertValidationProvider(): \Generator

@@ -77,7 +77,7 @@ class EntityWriter implements EntityWriterInterface
 
             $definition = $this->registry->getByEntityName($operation->getEntity());
 
-            $this->validateWriteInput($operation->getPayload());
+            WriteInputValidator::validate($operation->getPayload());
 
             if ($operation->getAction() === SyncOperation::ACTION_DELETE) {
                 $deletes[] = $this->factory->resolveDelete($definition, $operation->getPayload());
@@ -142,17 +142,17 @@ class EntityWriter implements EntityWriterInterface
     /**
      * @throws RestrictDeleteViolationException
      */
-    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult
+    public function delete(EntityDefinition $definition, array $rawData, WriteContext $writeContext): WriteResult
     {
-        $this->validateWriteInput($ids);
+        WriteInputValidator::validate($rawData);
 
         $parents = [];
         if (!$writeContext->hasState('merge-scope')) {
-            $parents = $this->factory->resolveDelete($definition, $ids);
+            $parents = $this->factory->resolveDelete($definition, $rawData);
         }
 
         $commandQueue = new WriteCommandQueue();
-        $notFound = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
+        $notFound = $this->extractDeleteCommands($definition, $rawData, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
         $this->gateway->execute($commandQueue->getCommandsInOrder($this->registry), $writeContext);
@@ -171,7 +171,7 @@ class EntityWriter implements EntityWriterInterface
      */
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
     {
-        $this->validateWriteInput($rawData);
+        WriteInputValidator::validate($rawData);
 
         if (!$rawData) {
             return [];
@@ -211,20 +211,6 @@ class EntityWriter implements EntityWriterInterface
         );
 
         return $this->factory->addParentResults($result, $parents);
-    }
-
-    /**
-     * @param array<mixed> $data
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function validateWriteInput(array $data): void
-    {
-        $valid = array_is_list($data) || $data === [];
-
-        if (!$valid) {
-            throw new \InvalidArgumentException('Expected input to be non associative array.');
-        }
     }
 
     /**

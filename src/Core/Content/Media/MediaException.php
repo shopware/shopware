@@ -25,6 +25,7 @@ class MediaException extends HttpException
     public const MEDIA_EMPTY_FILE_NAME = 'CONTENT__MEDIA_EMPTY_FILE_NAME';
     public const MEDIA_FOLDER_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NOT_FOUND';
     public const MEDIA_FOLDER_NAME_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND';
+    public const MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND = 'CONTENT__MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND';
     public const MEDIA_FILE_TYPE_NOT_SUPPORTED = 'CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED';
     public const MEDIA_COULD_NOT_RENAME_FILE = 'CONTENT__MEDIA_COULD_NOT_RENAME_FILE';
     public const MEDIA_EMPTY_ID = 'CONTENT__MEDIA_EMPTY_ID';
@@ -208,6 +209,16 @@ class MediaException extends HttpException
             self::MEDIA_FOLDER_NAME_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'a folder', 'field' => 'name', 'value' => $folderName]
+        );
+    }
+
+    public static function defaultMediaFolderWithEntityNotFound(string $entity): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND,
+            self::$couldNotFindMessage,
+            ['entity' => 'a default folder', 'field' => 'entity', 'value' => $entity]
         );
     }
 

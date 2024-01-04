@@ -204,6 +204,7 @@
         <!-- Services -->
         <service id="Shopware\Core\Content\Media\UnusedMediaPurger">
             <argument type="service" id="media.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="event_dispatcher"/>
         </service>
 

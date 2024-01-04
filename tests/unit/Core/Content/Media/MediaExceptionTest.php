@@ -206,6 +206,18 @@ class MediaExceptionTest extends TestCase
         static::assertSame($folderName, $exception->getParameters()['value']);
     }
 
+    public function testDefaultMediaFolderWithEntityNotFound(): void
+    {
+        $entity = 'product';
+
+        $exception = MediaException::defaultMediaFolderWithEntityNotFound($entity);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $exception->getStatusCode());
+        static::assertSame(MediaException::MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND, $exception->getErrorCode());
+        static::assertSame('Could not find a default folder with entity "product"', $exception->getMessage());
+        static::assertSame($entity, $exception->getParameters()['value']);
+    }
+
     public function testFileExtensionNotSupported(): void
     {
         $mediaId = 'media-id';

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
@@ -41,6 +42,7 @@ class UnusedMediaPurgerTest extends TestCase
 
         $this->unusedMediaPurger = new UnusedMediaPurger(
             $this->mediaRepo,
+            $this->createMock(Connection::class),
             new EventDispatcher()
         );
     }

@@ -6,6 +6,26 @@ import swCmsPageForm from 'src/module/sw-cms/component/sw-cms-page-form';
 
 Shopware.Component.register('sw-cms-page-form', swCmsPageForm);
 
+const defaultPage = {
+    sections: [
+        {
+            blocks: [
+                {
+                    name: 'BLOCK NAME',
+                    slots: [
+                        {
+                            type: 'text',
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            blocks: [],
+        },
+    ],
+};
+
 async function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('responsive', {});
@@ -13,7 +33,7 @@ async function createWrapper() {
     return shallowMount(await Shopware.Component.build('sw-cms-page-form'), {
         localVue,
         propsData: {
-            page: createPageProp(),
+            page: defaultPage,
         },
         stubs: {
             'sw-icon': {
@@ -24,7 +44,8 @@ async function createWrapper() {
                 props: ['title'],
             },
             'sw-cms-el-config-text': {
-                template: '<div class="config-element">Config element</div>',
+                template: '<div class="sw-cms-el-config-text">Config element</div>',
+                props: ['element', 'elementData'],
             },
             'sw-extension-component-section': true,
         },
@@ -45,35 +66,7 @@ async function createWrapper() {
     });
 }
 
-function createPageProp() {
-    return {
-        sections: [
-            {
-                blocks: [
-                    {
-                        name: 'BLOCK NAME',
-                        slots: [
-                            {
-                                type: 'text',
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                blocks: [],
-            },
-        ],
-    };
-}
-
 describe('module/sw-cms/component/sw-cms-page-form', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have only one empty state \'card\'', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -92,9 +85,17 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
 
     it('should have an cms section with a text element', async () => {
         const wrapper = await createWrapper();
-        const configElement = wrapper.find('.config-element');
+        const configElement = wrapper.getComponent('.sw-cms-el-config-text');
 
         expect(configElement.text()).toBe('Config element');
+        expect(configElement.props()).toEqual({
+            element: {
+                type: 'text',
+            },
+            elementData: {
+                configComponent: 'sw-cms-el-config-text',
+            },
+        });
     });
 
     it('display the block name', async () => {

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\System\StateMachine;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;

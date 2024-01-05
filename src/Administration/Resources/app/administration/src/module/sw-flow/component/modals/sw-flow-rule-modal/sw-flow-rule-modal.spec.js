@@ -1,7 +1,5 @@
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import swFlowRuleModal from 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
 Shopware.Component.register('sw-flow-rule-modal', swFlowRuleModal);
@@ -19,61 +17,62 @@ function createRuleMock(isNew) {
 }
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-flow-rule-modal'), {
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        create: () => {
-                            return createRuleMock(true);
-                        },
-                        get: () => Promise.resolve(createRuleMock(false)),
-                        save: () => Promise.resolve(),
-                        search: () => Promise.resolve([]),
-                    };
+    return mount(await wrapTestComponent('sw-flow-rule-modal', {
+        sync: true,
+    }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            create: () => {
+                                return createRuleMock(true);
+                            },
+                            get: () => Promise.resolve(createRuleMock(false)),
+                            save: () => Promise.resolve(),
+                            search: () => Promise.resolve([]),
+                        };
+                    },
+                },
+
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {
+                    },
+                    getAwarenessConfigurationByAssignmentName: () => ({}),
+                },
+
+                ruleConditionsConfigApiService: {
+                    load: () => Promise.resolve(),
                 },
             },
 
-            ruleConditionDataProviderService: {
-                getModuleTypes: () => [],
-                addScriptConditions: () => {},
-                getAwarenessConfigurationByAssignmentName: () => ({}),
-            },
-
-            ruleConditionsConfigApiService: {
-                load: () => Promise.resolve(),
-            },
-        },
-
-        propsData: {
-            sequence: {},
-        },
-
-        stubs: {
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-modal': {
-                template: `
+            stubs: {
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
+                'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                'sw-number-field': await wrapTestComponent('sw-number-field'),
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-modal': {
+                    template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
+                },
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-button-process': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-icon': true,
+                'sw-condition-tree': true,
             },
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-button-process': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-icon': true,
-            'sw-condition-tree': true,
-            'sw-container': true,
-            'sw-multi-select': true,
-            'sw-textarea-field': true,
-            'sw-number-field': true,
-            'sw-text-field': true,
         },
     });
 }

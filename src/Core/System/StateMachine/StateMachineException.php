@@ -3,8 +3,10 @@
 namespace Shopware\Core\System\StateMachine;
 
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
@@ -114,5 +116,13 @@ class StateMachineException extends HttpException
     public static function unnecessaryTransition(string $transition): UnnecessaryTransitionException
     {
         return new UnnecessaryTransitionException($transition);
+    }
+
+    /**
+     * @param string[] $permissions
+     */
+    public static function missingPrivileges(array $permissions): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($permissions);
     }
 }

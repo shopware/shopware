@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\StateMachine\Api;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -9,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
+use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,6 +26,8 @@ class StateMachineActionController extends AbstractController
 {
     /**
      * @var StateMachineRegistry
+     *
+     * @deprecated tag:v6.7.0 - will be private and typed
      */
     protected $stateMachineRegistry;
 
@@ -43,6 +48,7 @@ class StateMachineActionController extends AbstractController
         string $entityName,
         string $entityId
     ): JsonResponse {
+        $this->validatePrivilege($entityName, AclRoleDefinition::PRIVILEGE_READ, $context);
         $stateFieldName = (string) $request->query->get('stateFieldName', 'stateId');
 
         $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions(
@@ -84,6 +90,8 @@ class StateMachineActionController extends AbstractController
         string $entityId,
         string $transition
     ): Response {
+        $this->validatePrivilege($entityName, AclRoleDefinition::PRIVILEGE_UPDATE, $context);
+
         $stateFieldName = (string) $request->query->get('stateFieldName', 'stateId');
         $stateMachineStateCollection = $this->stateMachineRegistry->transition(
             new Transition(
@@ -102,5 +110,13 @@ class StateMachineActionController extends AbstractController
             $request,
             $context
         );
+    }
+
+    private function validatePrivilege(string $entityName, string $privilege, Context $context): void
+    {
+        $permission = $entityName . ':' . $privilege;
+        if (!$context->isAllowed($permission)) {
+            throw StateMachineException::missingPrivileges([$permission]);
+        }
     }
 }

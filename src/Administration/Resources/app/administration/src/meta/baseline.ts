@@ -691,7 +691,6 @@ const missingTests = [
     'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-single-products/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-products-assignment-modal/index.js',
     'src/app/asyncComponent/extension/sw-extension-icon/index.ts',
-    'src/app/component/entity/sw-bulk-edit-modal/index.js',
     'src/app/component/entity/sw-product-stream-grid-preview/index.js',
     'src/app/component/filter/sw-base-filter/index.js',
     'src/app/component/filter/sw-boolean-filter/index.js',

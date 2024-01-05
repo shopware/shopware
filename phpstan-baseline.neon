@@ -8731,26 +8731,6 @@ parameters:
 			path: src/Core/System/Snippet/SnippetValidatorInterface.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateTranslationCollection\\:\\:getLanguageIds\\(\\) should return list\\<string\\> but returns array\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Aggregation/StateMachineState/StateMachineStateTranslationCollection.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
-
-		-
-			message: "#^Parameter \\#2 \\$entity of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Response\\\\ResponseFactoryInterface\\:\\:createDetailResponse\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity, Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Loader\\\\InitialStateIdLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Loader/InitialStateIdLoader.php

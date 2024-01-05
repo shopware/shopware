@@ -61,11 +61,11 @@ class StateMachineActionController extends AbstractController
         /** @var StateMachineTransitionEntity $transition */
         foreach ($availableTransitions as $transition) {
             $transitionsJson[] = [
-                'name' => $transition->getToStateMachineState()->getName(),
-                'technicalName' => $transition->getToStateMachineState()->getTechnicalName(),
+                'name' => $transition->getToStateMachineState()?->getName(),
+                'technicalName' => $transition->getToStateMachineState()?->getTechnicalName(),
                 'actionName' => $transition->getActionName(),
-                'fromStateName' => $transition->getFromStateMachineState()->getTechnicalName(),
-                'toStateName' => $transition->getToStateMachineState()->getTechnicalName(),
+                'fromStateName' => $transition->getFromStateMachineState()?->getTechnicalName(),
+                'toStateName' => $transition->getToStateMachineState()?->getTechnicalName(),
                 'url' => $this->generateUrl('api.state_machine.transition_state', [
                     'entityName' => $entityName,
                     'entityId' => $entityId,
@@ -102,9 +102,14 @@ class StateMachineActionController extends AbstractController
             $context
         );
 
+        $toPlace = $stateMachineStateCollection->get('toPlace');
+        if ($toPlace === null) {
+            throw StateMachineException::stateMachineStateNotFound($entityName, $transition);
+        }
+
         return $responseFactory->createDetailResponse(
             new Criteria(),
-            $stateMachineStateCollection->get('toPlace'),
+            $toPlace,
             $this->definitionInstanceRegistry->get(StateMachineStateDefinition::class),
             $request,
             $context

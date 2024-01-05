@@ -835,7 +835,11 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                         return [
                             // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
                             new InjectPlugin(injectPluginLoaderGenerator(plugin.technicalFolderName), { entryOrder: ENTRY_ORDER.First }),
+                        ];
+                    }
 
+                    if (isDev) {
+                        return [
                             new ESLintPlugin({
                                 context: path.resolve(plugin.path),
                                 useEslintrc: false,

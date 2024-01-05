@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\System\Test\StateMachine\Api;
+namespace Shopware\Tests\Integration\Core\System\StateMachine\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -46,20 +46,11 @@ class StateMachineActionControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var EntityRepository
-     */
-    private $orderRepository;
+    private EntityRepository $orderRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $customerRepository;
+    private EntityRepository $customerRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $stateMachineHistoryRepository;
+    private EntityRepository $stateMachineHistoryRepository;
 
     protected function setUp(): void
     {
@@ -102,7 +93,6 @@ class StateMachineActionControllerTest extends TestCase
 
     public function testTransitionToAllowedState(): void
     {
-        // TODO
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);

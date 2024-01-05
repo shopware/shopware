@@ -724,7 +724,6 @@ const missingTests = [
     'src/app/component/rule/condition-type/sw-condition-line-item-custom-field/index.js',
     'src/app/component/rule/condition-type/sw-condition-order-custom-field/index.js',
     'src/app/component/structure/sw-card-view/index.js',
-    'src/app/component/usage-data/sw-settings-usage-data-intro/index.ts',
     'src/app/component/utils/sw-help-center/index.ts',
     'src/app/component/utils/sw-internal-link/index.js',
     'src/app/init/tabs.init.ts',

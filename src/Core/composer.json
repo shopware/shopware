@@ -125,6 +125,7 @@
         "symfony/rate-limiter": "~7.0.0",
         "symfony/routing": "~7.0.0",
         "symfony/runtime": "~7.0.0",
+        "symfony/scheduler": "~7.0.0",
         "symfony/security-core": "~7.0.0",
         "symfony/serializer": "~7.0.0",
         "symfony/service-contracts": "~3.3.0",

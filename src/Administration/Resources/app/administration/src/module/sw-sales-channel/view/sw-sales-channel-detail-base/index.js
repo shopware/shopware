@@ -555,7 +555,7 @@ export default {
         },
 
         copyToClipboard() {
-            domUtils.copyToClipboard(this.salesChannel.accessKey);
+            domUtils.copyStringToClipboard(this.salesChannel.accessKey);
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {

@@ -132,10 +132,12 @@ export default {
 
         copyLinkToClipboard() {
             if (this.item) {
-                dom.copyToClipboard(this.item.url);
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-media.general.notification.urlCopied.message'),
-                });
+                dom.copyStringToClipboard(this.item.url)
+                    .then(() => {
+                        this.createNotificationSuccess({
+                            message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                        });
+                    });
             }
         },
 

@@ -431,7 +431,7 @@ export default {
             }
 
             // non-https polyfill
-            dom.copyToClipboard(variable);
+            dom.copyStringToClipboard(variable);
         },
 
         async onChangeType(id) {

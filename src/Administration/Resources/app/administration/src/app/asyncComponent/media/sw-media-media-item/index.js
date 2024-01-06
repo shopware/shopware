@@ -149,10 +149,12 @@ export default {
         },
 
         copyItemLink(item) {
-            dom.copyToClipboard(item.url);
-            this.createNotificationSuccess({
-                message: this.$tc('sw-media.general.notification.urlCopied.message'),
-            });
+            dom.copyStringToClipboard(item.url)
+                .then(() => {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                    });
+                });
         },
 
         openModalDelete() {

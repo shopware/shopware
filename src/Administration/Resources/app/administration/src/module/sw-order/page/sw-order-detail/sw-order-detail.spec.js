@@ -1,11 +1,10 @@
 import { mount } from '@vue/test-utils';
-import swOrderDetailState from 'src/module/sw-order/state/order-detail.store';
 
 /**
  * @package customer-order
  */
 
-async function createWrapper() {
+async function createWrapper(order = {}) {
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
         global: {
             mocks: {
@@ -67,7 +66,7 @@ async function createWrapper() {
                         hasChanges: () => false,
                         deleteVersion: () => Promise.resolve([]),
                         createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
-                        get: () => Promise.resolve({}),
+                        get: () => Promise.resolve(order),
                         save: () => Promise.resolve({}),
                     }),
                 },
@@ -83,23 +82,13 @@ async function createWrapper() {
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-
-        Shopware.State.unregisterModule('swOrderDetail');
-        Shopware.State.registerModule('swOrderDetail', {
-            ...swOrderDetailState,
-        });
-
-        // versionId needed
-        await wrapper.vm.createdComponent();
-    });
-
     it('should be a Vue.js component', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should remove version id when beforeunload event is triggered', async () => {
+        wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
 
         window.dispatchEvent(new Event('beforeunload'));
@@ -108,10 +97,12 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should not contain manual label', async () => {
+        wrapper = await createWrapper();
         expect(wrapper.find('.sw-order-detail__manual-order-label').exists()).toBeFalsy();
     });
 
     it('should contain manual label', async () => {
+        wrapper = await createWrapper();
         await wrapper.setData({ identifier: '1', createdById: '2' });
 
         await Shopware.State.commit('swOrderDetail/setOrder', { orderNumber: 1 });
@@ -120,6 +111,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should created a new version when component was created', async () => {
+        wrapper = await createWrapper();
         const createNewVersionIdSpy = jest.spyOn(wrapper.vm, 'createNewVersionId');
 
         await wrapper.vm.createdComponent();
@@ -129,6 +121,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should clean up unsaved version when component gets destroyed', async () => {
+        wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
 
@@ -138,6 +131,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should remove version context immediately when cancelling', async () => {
+        wrapper = await createWrapper();
         const oldVersionId = wrapper.vm.versionContext.versionId;
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => {
             expect(wrapper.vm.versionContext.versionId).not.toBe(oldVersionId);
@@ -150,7 +144,8 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
     });
 
-    it('should reload entity data with orderCriteria', () => {
+    it('should reload entity data with orderCriteria', async () => {
+        wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
 
         expect(criteria.getLimit()).toBe(25);
@@ -170,10 +165,51 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should add associations no longer autoload in the orderCriteria', async () => {
+        wrapper = await createWrapper();
         const criteria = wrapper.vm.orderCriteria;
 
         expect(criteria.hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('deliveries').hasAssociation('stateMachineState')).toBe(true);
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
+    });
+
+    it('should convert product line items that are missing', async () => {
+        const lineItemWithExistingProduct = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+        const lineItemWithMissingProduct = {
+            ...lineItemWithExistingProduct,
+            productId: null,
+        };
+        const previouslyConvertedLineItem = {
+            ...lineItemWithMissingProduct,
+            referencedId: null,
+            type: 'custom',
+            payload: { isConvertedProductLineItem: true },
+        };
+
+        wrapper = await createWrapper({
+            lineItems: [
+                lineItemWithMissingProduct,
+                lineItemWithExistingProduct,
+                previouslyConvertedLineItem,
+            ],
+        });
+        await flushPromises();
+
+        const missingProductLineItems = wrapper.vm.missingProductLineItems;
+        expect(missingProductLineItems).toHaveLength(1);
+        expect(missingProductLineItems).toContainEqual(lineItemWithMissingProduct);
+        expect(lineItemWithMissingProduct.referencedId).toBeNull();
+        expect(lineItemWithMissingProduct.type).toBe('custom');
+
+        const convertedProductLineItems = wrapper.vm.convertedProductLineItems;
+        expect(convertedProductLineItems).toHaveLength(1);
+        expect(convertedProductLineItems).toContainEqual(previouslyConvertedLineItem);
     });
 });

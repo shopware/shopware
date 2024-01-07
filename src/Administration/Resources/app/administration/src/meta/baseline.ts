@@ -757,7 +757,6 @@ const missingTests = [
     'src/module/sw-customer/component/sw-customer-default-addresses/index.js',
     'src/module/sw-customer/page/sw-customer-create/index.js',
     'src/module/sw-customer/page/sw-customer-detail/index.js',
-    'src/module/sw-customer/page/sw-customer-list/index.js',
     'src/module/sw-customer/view/sw-customer-detail-addresses/index.js',
     'src/module/sw-customer/view/sw-customer-detail-base/index.js',
     'src/module/sw-customer/view/sw-customer-detail-order/index.js',

@@ -193,4 +193,25 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
 
         expect(wrapper.vm.item.priceDefinition.price).toBe(110);
     });
+
+    it('has correct criteria filters', async () => {
+        const wrapper = await createWrapper();
+        const criteria = wrapper.vm.productCriteria;
+
+        expect(criteria.filters[0].type).toBe('multi');
+        expect(criteria.filters[0].operator).toBe('OR');
+        expect(criteria.filters[0].queries[0].type).toBe('equals');
+        expect(criteria.filters[0].queries[0].field).toBe('childCount');
+        expect(criteria.filters[0].queries[0].value).toBe(0);
+        expect(criteria.filters[0].queries[1].type).toBe('equals');
+        expect(criteria.filters[0].queries[1].field).toBe('childCount');
+        expect(criteria.filters[0].queries[1].value).toBeNull();
+
+        expect(criteria.filters[1].type).toBe('equals');
+        expect(criteria.filters[1].field).toBe('visibilities.salesChannelId');
+        expect(criteria.filters[1].value).toBe('1');
+        expect(criteria.filters[2].type).toBe('equals');
+        expect(criteria.filters[2].field).toBe('active');
+        expect(criteria.filters[2].value).toBe(true);
+    });
 });

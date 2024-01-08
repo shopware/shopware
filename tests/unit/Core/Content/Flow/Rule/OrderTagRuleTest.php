@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
-use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
@@ -53,7 +52,7 @@ class OrderTagRuleTest extends TestCase
                 'isMatchAny' => 1,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [
@@ -101,7 +100,12 @@ class OrderTagRuleTest extends TestCase
         }
         $order->setTags($tagCollection);
 
-        $scope = $this->createScope($order);
+        $scope = new FlowRuleScope(
+            $order,
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
+
         $this->rule->assign(['identifiers' => $ruleIdentifiers, 'operator' => $operator]);
 
         $match = $this->rule->match($scope);
@@ -128,13 +132,5 @@ class OrderTagRuleTest extends TestCase
         $scope = $this->createMock(CartRuleScope::class);
 
         static::assertFalse($this->rule->match($scope));
-    }
-
-    private function createScope(OrderEntity $order): CheckoutRuleScope
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $cart = new Cart('token');
-
-        return new FlowRuleScope($order, $cart, $context);
     }
 }

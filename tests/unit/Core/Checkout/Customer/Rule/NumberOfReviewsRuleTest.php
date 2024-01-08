@@ -37,7 +37,7 @@ class NumberOfReviewsRuleTest extends TestCase
         $config = (new NumberOfReviewsRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'count' => [
                     'name' => 'count',
                     'type' => 'int',
                     'config' => [],

@@ -226,11 +226,11 @@ class LineItemStockRuleTest extends TestCase
 
         static::assertArrayHasKey('fields', $configData);
         static::assertCount(1, $configData['fields']);
-        static::assertEquals([[
+        static::assertEquals([
             'name' => 'stock',
             'type' => 'int',
             'config' => [],
-        ]], $configData['fields']);
+        ], $configData['fields']['stock']);
     }
 
     private function createLineItem(int $stock, string $id = 'line-item-id'): LineItem

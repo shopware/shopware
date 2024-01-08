@@ -705,7 +705,6 @@ const missingTests = [
     'src/app/component/form/select/base/sw-multi-tag-ip-select/index.js',
     'src/app/component/form/select/base/sw-multi-tag-select/index.js',
     'src/app/component/form/select/base/sw-select-base/index.js',
-    'src/app/component/form/select/base/sw-select-result/index.js',
     'src/app/component/form/select/base/sw-single-select/index.js',
     'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index.js',
     'src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index.js',

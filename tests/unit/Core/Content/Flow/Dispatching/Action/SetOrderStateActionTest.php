@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,8 +30,6 @@ class SetOrderStateActionTest extends TestCase
 
     private MockObject&OrderService $orderService;
 
-    private MockObject&StorableFlow $flow;
-
     private SetOrderStateAction $action;
 
     protected function setUp(): void
@@ -40,8 +39,6 @@ class SetOrderStateActionTest extends TestCase
         $this->orderService = $this->createMock(OrderService::class);
 
         $this->action = new SetOrderStateAction($this->connection, $log, $this->orderService);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -62,42 +59,34 @@ class SetOrderStateActionTest extends TestCase
      * @param array<string, mixed> $expected
      */
     #[DataProvider('actionProvider')]
-    public function testAction(
-        array $config,
-        int $expectsTimes,
-        array $expected
-    ): void {
+    public function testAction(array $config, int $expectsTimes, array $expected): void
+    {
         $ids = new TestDataCollection();
 
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
+        $orderId = Uuid::randomHex();
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $orderId,
+        ]);
+        $flow->setConfig($config);
 
-        if ($expectsTimes !== 0) {
-            $this->connection->expects(static::exactly($expectsTimes))
-                ->method('fetchOne')
-                ->willReturnOnConsecutiveCalls(
-                    Uuid::randomHex(),
-                    Uuid::randomHex(),
-                    Uuid::randomHex(),
-                    $expected['order'],
-                    $ids->get('orderDeliveryId'),
-                    Uuid::randomHex(),
-                    Uuid::randomHex(),
-                    Uuid::randomHex(),
-                    $expected['orderDelivery'],
-                    $ids->get('orderTransactionId'),
-                    Uuid::randomHex(),
-                    Uuid::randomHex(),
-                    Uuid::randomHex(),
-                    $expected['orderTransaction'],
-                );
-            $orderId = $this->flow->getData('orderId');
-        } else {
-            $this->connection->expects(static::never())
-                ->method('fetchOne');
-            $orderId = null;
-        }
+        $this->connection->expects(static::exactly($expectsTimes))
+            ->method('fetchOne')
+            ->willReturnOnConsecutiveCalls(
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                $expected['order'],
+                $ids->get('orderDeliveryId'),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                $expected['orderDelivery'],
+                $ids->get('orderTransactionId'),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                Uuid::randomHex(),
+                $expected['orderTransaction'],
+            );
 
         if ($expected['order']) {
             $this->orderService->expects(static::once())
@@ -126,13 +115,12 @@ class SetOrderStateActionTest extends TestCase
                 ->method('orderTransactionStateTransition');
         }
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
+        $flow = new StorableFlow('foo', Context::createDefaultContext());
 
         $this->orderService->expects(static::never())
             ->method('orderStateTransition');
@@ -141,14 +129,14 @@ class SetOrderStateActionTest extends TestCase
         $this->orderService->expects(static::never())
             ->method('orderTransactionStateTransition');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::exactly(1))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => Uuid::randomHex(),
+        ]);
 
         $this->orderService->expects(static::never())
             ->method('orderStateTransition');
@@ -157,14 +145,15 @@ class SetOrderStateActionTest extends TestCase
         $this->orderService->expects(static::never())
             ->method('orderTransactionStateTransition');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testThrowExceptionWhenEntityNotFoundAndInsideATransactionWithoutSavepointNesting(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => Uuid::randomHex(),
+        ]);
+        $flow->setConfig([
             'order' => 'fake_state',
             'order_delivery' => '',
             'force_transition' => false,
@@ -195,7 +184,7 @@ class SetOrderStateActionTest extends TestCase
         static::expectException(StateMachineException::class);
         static::expectExceptionMessage($e->getMessage());
 
-        $action->handleFlow($this->flow);
+        $action->handleFlow($flow);
     }
 
     public static function actionProvider(): \Generator

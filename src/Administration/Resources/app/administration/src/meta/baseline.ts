@@ -774,7 +774,6 @@ const missingTests = [
     'src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal/index.js',
-    'src/module/sw-flow/component/modals/sw-flow-generate-document-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/index.js',

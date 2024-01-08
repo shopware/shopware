@@ -1,19 +1,6 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import swFlowGenerateDocumentModal from 'src/module/sw-flow/component/modals/sw-flow-generate-document-modal';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/form/select/base/sw-multi-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/base/sw-highlight-text';
+import { mount } from '@vue/test-utils';
 
-import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
-
-Shopware.Component.register('sw-flow-generate-document-modal', swFlowGenerateDocumentModal);
 
 const documentTypeMock = [
     {
@@ -39,57 +26,52 @@ const documentTypeMock = [
 ];
 
 async function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-generate-document-modal'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(documentTypeMock),
-                    };
+    return mount(await wrapTestComponent('sw-flow-generate-document-modal', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(documentTypeMock),
+                        };
+                    },
                 },
             },
-        },
-
-        propsData: {
-            sequence: {},
-        },
-
-        data() {
-            return {
-                documentTypesSelected: [],
-                fieldError: null,
-            };
-        },
-
-        stubs: {
-            'sw-modal': {
-                template: `
+            data() {
+                return {
+                    documentTypesSelected: [],
+                    fieldError: null,
+                };
+            },
+            stubs: {
+                'sw-modal': {
+                    template: `
                     <div class="sw-modal">
                       <slot name="modal-header"></slot>
                       <slot></slot>
                       <slot name="modal-footer"></slot>
                     </div>
                 `,
+                },
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                },
+                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-highlight-text': true,
+                'sw-label': true,
+                'sw-icon': true,
+                'sw-field-error': true,
             },
-            'sw-button': {
-                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
-            },
-            'sw-multi-select': await Shopware.Component.build('sw-multi-select'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-highlight-text': true,
-            'sw-label': true,
-            'sw-icon': true,
-            'sw-field-error': true,
+        },
+        props: {
+            sequence: {},
         },
     });
 }
@@ -107,16 +89,20 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
 
     it('should show validation if document multiple type field is empty', async () => {
         const wrapper = await createWrapper();
+
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
+        await flushPromises();
 
         const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
         expect(documentTypeSelect.classes()).toContain('has--error');
+
         await wrapper.setData({
             documentTypesSelected: ['invoice'],
         });
 
         await saveButton.trigger('click');
+
         expect(documentTypeSelect.classes()).not.toContain('has--error');
     });
 
@@ -125,8 +111,11 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         await wrapper.setData({
             documentTypesSelected: ['invoice', 'delivery_note'],
         });
+
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
+        await flushPromises();
+
         expect(wrapper.emitted()['process-finish'][0]).toEqual([{
             config: {
                 documentTypes: [

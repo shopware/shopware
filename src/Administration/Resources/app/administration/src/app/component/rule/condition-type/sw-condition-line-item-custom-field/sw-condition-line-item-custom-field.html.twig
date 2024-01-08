@@ -38,6 +38,7 @@
         </template>
     </sw-entity-single-select>
     {% endblock %}
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_custom_field_operator %}
     <sw-condition-operator-select
@@ -48,15 +49,17 @@
         :disabled="disabled"
     />
     {% endblock %}
+
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_condition_line_item_custom_field_value %}
     <sw-form-field-renderer
         v-if="renderedField"
-        v-model="renderedFieldValue"
         name="sw-field--renderedFieldValue"
+        size="medium"
+        :value="renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
-        size="medium"
+        @update="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

@@ -114,7 +114,6 @@ Component.extend('sw-condition-order-custom-field', 'sw-condition-base', {
     },
 
     methods: {
-
         /**
          * Clear any further field's values if no custom field has been selected
          * @param id

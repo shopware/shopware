@@ -103,11 +103,13 @@ $custom-control-indicator-active-bg: $sw-color-brand-primary !default;
 $pagination-color: $sw-text-color !default;
 $pagination-hover-color: $sw-text-color !default;
 $pagination-border-width: 0 !default;
-$pagination-padding-y: 0.595rem;
-$pagination-padding-x: 0.75rem;
+$pagination-padding-y: 0.595rem !default;
+$pagination-padding-x: 0.75rem !default;
 $pagination-border-color: $sw-border-color !default;
 $pagination-hover-border-color: $sw-border-color !default;
 $pagination-focus-border-color: $sw-border-color !default;
+$pagination-disabled-color: $gray-600 !default;
+$pagination-disabled-bg: transparent !default;
 
 // Dropdown
 $dropdown-border-color: $sw-border-color !default;

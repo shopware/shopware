@@ -709,7 +709,6 @@ const missingTests = [
     'src/app/component/form/sw-colorpicker/index.js',
     'src/app/component/form/sw-custom-field-set-renderer/index.js',
     'src/app/component/form/sw-snippet-field-edit-modal/index.js',
-    'src/app/component/modal/sw-confirm-modal/index.js',
     'src/app/component/structure/sw-card-view/index.js',
     'src/app/service/app-cms.service.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js',

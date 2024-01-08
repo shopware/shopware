@@ -24,8 +24,7 @@
                             <input type="hidden"
                                    name="redirectParameters"
                                    data-redirect-parameters="true"
-                                   {# ludtwig-ignore html-string-quotation #}
-                                   value='{"productId": "{{ product.id }}"}'>
+                                   value="{{ {productId: id}|json_encode }}">
                         {% endblock %}
 
                         {% block page_product_detail_buy_product_buy_info %}

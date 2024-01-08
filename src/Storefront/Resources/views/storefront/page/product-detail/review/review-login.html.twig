@@ -17,14 +17,13 @@
 {% endblock %}
 
 {% block component_account_login_form_redirect %}
-	<input type="hidden"
+    <input type="hidden"
            name="redirectTo"
            value="frontend.detail.page">
 
     <input type="hidden"
            name="redirectParameters"
-           {# ludtwig-ignore html-string-quotation #}
-           value='{"productId": "{{ reviews.productId }}"}'>
+           value="{{ {productId: reviews.productId}|json_encode }}">
 {% endblock %}
 
 {% block component_account_login_submit %}

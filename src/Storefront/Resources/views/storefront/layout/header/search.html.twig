@@ -10,8 +10,7 @@
                 <form action="{{ path('frontend.search.page') }}"
                       method="get"
                       data-search-widget="true"
-                      {# ludtwig-ignore html-string-quotation #}
-                      data-search-widget-options='{{ searchWidgetOptions|json_encode }}'
+                      data-search-widget-options="{{ searchWidgetOptions|json_encode }}"
                       data-url="{{ path('frontend.search.suggest') }}?search="
                       class="header-search-form">
                     {% block layout_header_search_input_group %}

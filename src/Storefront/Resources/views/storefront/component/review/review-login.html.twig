@@ -23,11 +23,7 @@
 
     <input type="hidden"
            name="redirectParameters"
-           {# ludtwig-ignore html-string-quotation #}
-           value='{
-            "productId": "{{ reviews.productId }}",
-            "id": "{{ cmsPage.id }}",
-            "navigationId": "{{ page.header.navigation.active.id }}"}'>
+           value="{{ {productId: reviews.productId, id: cmsPage.id, navigationId: page.header.navigation.active.id}|json_encode }}">
 {% endblock %}
 
 {% block component_account_login_submit %}

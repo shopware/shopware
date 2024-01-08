@@ -210,8 +210,7 @@
               data-form-preserver="true"
               data-form-submit-loader="true"
               data-form-add-history="true"
-              {# ludtwig-ignore html-string-quotation #}
-              data-form-add-history-options='{{ formAddHistoryOptions|json_encode }}'
+              data-form-add-history-options="{{ formAddHistoryOptions|json_encode }}"
               method="post">
             {% block page_checkout_confirm_form_submit %}
                 <div class="d-grid">

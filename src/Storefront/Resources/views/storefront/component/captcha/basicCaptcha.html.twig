@@ -15,8 +15,7 @@
 
     <div class="row g-2 basic-captcha"
          data-basic-captcha="true"
-         {# ludtwig-ignore html-string-quotation #}
-         data-basic-captcha-options='{{ basicCaptchaOptions|json_encode }}'>
+         data-basic-captcha-options="{{ basicCaptchaOptions|json_encode }}">
         <div class="form-group {% if additionalClass %} {{ additionalClass }}{% else %}col-md-6{% endif %} basic-captcha-content">
             {% block component_basic_captcha_image %}
                 <div class="basic-captcha-content-code">

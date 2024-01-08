@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
@@ -93,6 +95,10 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                     $config->merge([
                         'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
                         'documentNumber' => $number,
+                        'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
+                            $operation->getConfig(),
+                            $order->getDeliveries()?->first()
+                        ),
                         'custom' => [
                             'invoiceNumber' => $number,
                         ],
@@ -162,5 +168,29 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
             $order->getSalesChannelId(),
             $operation->isPreview()
         );
+    }
+
+    private function isAllowIntraCommunityDelivery(array $config, OrderDeliveryEntity|null $orderDelivery = null): bool
+    {
+        if (empty($config['displayAdditionalNoteDelivery']) || empty($config['deliveryCountries'])) {
+            return false;
+        }
+
+        if (!$orderDelivery) {
+            return false;
+        }
+
+        /** @var OrderAddressEntity $shippingAddress */
+        $shippingAddress = $orderDelivery->getShippingOrderAddress();
+
+        $country = $shippingAddress->getCountry();
+
+        if (!$country) {
+            return false;
+        }
+
+        $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
+
+        return $isCompanyTaxFree && \in_array($country->getId(), $config['deliveryCountries'], true);
     }
 }

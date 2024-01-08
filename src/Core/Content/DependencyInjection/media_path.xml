@@ -63,7 +63,8 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="Shopware\Core\Content\Media\Core\Application\MediaPathUpdater"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.entity_indexer"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
+            <tag name="messenger.bus.shopware"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\Infrastructure\Command\UpdatePathCommand">

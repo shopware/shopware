@@ -5,8 +5,10 @@ namespace Shopware\Core\Content\Media\Infrastructure\Path;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Core\Application\MediaPathUpdater;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\PostUpdateIndexer;
 use Shopware\Core\Framework\Log\Package;
@@ -22,7 +24,8 @@ class MediaPathPostUpdater extends PostUpdateIndexer
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
         private readonly MediaPathUpdater $updater,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly EntityIndexerRegistry $indexerRegistry
     ) {
     }
 
@@ -55,6 +58,12 @@ class MediaPathPostUpdater extends PostUpdateIndexer
         );
 
         $this->updater->updateThumbnails($thumbnails);
+
+        // Because the thumbnails are changed we need to trigger the media indexer as well,
+        // because the thumbnail struct is denormalized into the media table
+        $mediaMessage = new MediaIndexingMessage($message->getData(), $message->getOffset(), $message->getContext());
+        $mediaMessage->setIndexer('media.indexer');
+        $this->indexerRegistry->__invoke($mediaMessage);
     }
 
     public function getTotal(): int

@@ -14,6 +14,9 @@ async function createWrapper() {
             stubs: {
                 'sw-icon': true,
             },
+            directives: {
+                tooltip: Shopware.Directive.getByName('tooltip'),
+            },
         },
     });
 }

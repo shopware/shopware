@@ -8,16 +8,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-search-preferences-modal', { sync: true }), {
         global: {
             stubs: {
-                'sw-modal': {
-                    template: `
-                    <div class="sw-modal">
-                        <slot name="modal-header"></slot>
-                        <slot></slot>
-                        <slot name="body"></slot>
-                        <slot name="modal-footer"></slot>
-                    </div>
-`,
-                },
                 'sw-button': await wrapTestComponent('sw-button'),
                 'sw-loader': true,
                 'sw-data-grid': true,

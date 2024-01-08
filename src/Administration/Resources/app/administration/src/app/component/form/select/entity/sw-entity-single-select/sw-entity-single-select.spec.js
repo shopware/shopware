@@ -1,17 +1,6 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import utils from 'src/core/service/util.service';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/utils/sw-loader';
-import 'src/app/component/base/sw-product-variant-info';
 
 const fixture = [
     {
@@ -80,74 +69,72 @@ function getPropertyCollection() {
     );
 }
 
-async function createEntitySingleSelect(customOptions) {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-    localVue.directive('tooltip', {
-        bind(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-            el.setAttribute('tooltip-disabled', binding.value.disabled);
-        },
-        inserted(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-            el.setAttribute('tooltip-disabled', binding.value.disabled);
-        },
-        update(el, binding) {
-            el.setAttribute('tooltip-message', binding.value.message);
-            el.setAttribute('tooltip-disabled', binding.value.disabled);
-        },
-    });
-
+async function createEntitySingleSelect(customOptions = {
+    global: {},
+    props: {},
+    slots: {},
+}) {
     const options = {
-        localVue,
-        stubs: {
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-icon': {
-                template: '<div @click="$emit(\'click\', $event)"></div>',
-                props: ['size', 'color', 'name'],
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-icon': {
+                    template: '<div @click="$emit(\'click\', $event)"></div>',
+                    props: ['size', 'color', 'name'],
+                },
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list', {
+                    sync: true,
+                }),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text', {
+                    sync: true,
+                }),
+                'sw-loader': await wrapTestComponent('sw-loader'),
+                'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),
             },
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-loader': await Shopware.Component.build('sw-loader'),
-            'sw-product-variant-info': await Shopware.Component.build('sw-product-variant-info'),
-        },
-        propsData: {
-            value: null,
-            entity: 'test',
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: (value) => Promise.resolve({ id: value, name: value }),
-                    };
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: (value) => Promise.resolve({ id: value, name: value }),
+                            search: () => Promise.resolve([]),
+                        };
+                    },
                 },
             },
+            ...customOptions.global,
+        },
+        props: {
+            value: null,
+            entity: 'test',
+            ...customOptions.props,
+        },
+        slots: {
+            ...customOptions.slots,
         },
     };
 
-    return shallowMount(await Shopware.Component.build('sw-entity-single-select'), {
+    return mount(await wrapTestComponent('sw-entity-single-select', {
+        sync: true,
+    }), {
         ...options,
-        ...customOptions,
     });
 }
 
 describe('components/sw-entity-single-select', () => {
     it('should be a Vue.js component', async () => {
-        const swEntitySingleSelect = await createEntitySingleSelect();
+        const wrapper = await createEntitySingleSelect();
         await flushPromises();
 
-        expect(swEntitySingleSelect.vm).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have no reset option when it is not defined', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'test',
             },
@@ -161,17 +148,19 @@ describe('components/sw-entity-single-select', () => {
 
     it('should have disabled state results according to function', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'test',
                 selectionDisablingMethod: item => item.name === 'second entry',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -179,7 +168,7 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
         expect(wrapper.find('.sw-select-option--1').classes()).toContain('is--disabled');
@@ -188,16 +177,18 @@ describe('components/sw-entity-single-select', () => {
 
     it('should have no tooltip and enabled results with no disabling function', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'test',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -205,28 +196,30 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const firstEntry = wrapper.find('.sw-select-option--0');
-        expect(firstEntry.attributes('tooltip-message')).toBeFalsy();
-        expect(firstEntry.attributes('tooltip-disabled')).toBe('true');
+        expect(firstEntry.attributes('tooltip-mock-message')).toBeFalsy();
+        expect(firstEntry.attributes('tooltip-mock-disabled')).toBe('true');
         expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
     });
 
     it('should show disabled selection tooltip when appropriate', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'test',
                 selectionDisablingMethod: item => item.name === 'second entry',
                 disabledSelectionTooltip: { message: 'test message' },
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -234,29 +227,31 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const firstEntry = wrapper.find('.sw-select-option--0');
-        expect(firstEntry.attributes('tooltip-message')).toBe('test message');
-        expect(firstEntry.attributes('tooltip-disabled')).toBe('true');
+        expect(firstEntry.attributes('tooltip-mock-message')).toBe('test message');
+        expect(firstEntry.attributes('tooltip-mock-disabled')).toBe('true');
         const secondEntry = wrapper.find('.sw-select-option--1');
-        expect(secondEntry.attributes('tooltip-message')).toBe('test message');
-        expect(secondEntry.attributes('tooltip-disabled')).toBe('false');
+        expect(secondEntry.attributes('tooltip-mock-message')).toBe('test message');
+        expect(secondEntry.attributes('tooltip-mock-disabled')).toBe('false');
     });
 
     it('should show active state of options if enabled', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'test',
                 shouldShowActiveState: false,
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -264,7 +259,7 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         let activeStateIcons = wrapper.findAll('.sw-entity-single-select__selection-active');
 
@@ -273,9 +268,9 @@ describe('components/sw-entity-single-select', () => {
         await wrapper.setProps({
             shouldShowActiveState: true,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        activeStateIcons = wrapper.findAll('.sw-entity-single-select__selection-active');
+        activeStateIcons = wrapper.findAllComponents('.sw-entity-single-select__selection-active');
 
         const activeIconProps = {
             color: '#37d046',
@@ -297,7 +292,7 @@ describe('components/sw-entity-single-select', () => {
         await wrapper.setProps({
             shouldShowActiveState: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         activeStateIcons = wrapper.findAll('.sw-select-option .sw-entity-single-select__selection-active');
 
@@ -306,7 +301,7 @@ describe('components/sw-entity-single-select', () => {
 
     it('should have a reset option when it is defined an the value is null', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'test',
                 resetOption: 'reset',
@@ -323,7 +318,7 @@ describe('components/sw-entity-single-select', () => {
 
     it('should have no reset option when it is defined but the value is not null', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: 'uuid',
                 entity: 'test',
                 resetOption: 'reset',
@@ -342,17 +337,19 @@ describe('components/sw-entity-single-select', () => {
 
     it('should have prepend reset option to resultCollection when resetOption is given', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: '',
                 entity: 'test',
                 resetOption: 'reset',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -372,24 +369,26 @@ describe('components/sw-entity-single-select', () => {
         const secondItemId = `${fixture[2].id}`;
 
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: secondItemId,
                 entity: 'test',
                 resetOption: 'reset',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                            get: (id) => {
-                                if (id === secondItemId) {
-                                    return Promise.resolve(fixture[2]);
-                                }
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                                get: (id) => {
+                                    if (id === secondItemId) {
+                                        return Promise.resolve(fixture[2]);
+                                    }
 
-                                return Promise.reject();
-                            },
-                        };
+                                    return Promise.reject();
+                                },
+                            };
+                        },
                     },
                 },
             },
@@ -397,7 +396,7 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-select-option--0').text()).toBe('reset');
         expect(wrapper.find('.sw-select-option--1').text()).toBe('first entry');
@@ -407,17 +406,19 @@ describe('components/sw-entity-single-select', () => {
 
     it('should not emit the paginate event when user does not scroll to the end of list', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: '',
                 entity: 'test',
                 resetOption: 'reset',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -425,9 +426,11 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const selectResultList = wrapper.find('.sw-select-result-list');
+        const selectResultList = wrapper.findComponent({
+            ref: 'resultsList',
+        });
         const listContent = wrapper.find('.sw-select-result-list__content');
 
         Object.defineProperty(listContent.element, 'scrollHeight', { value: 1050 });
@@ -441,17 +444,19 @@ describe('components/sw-entity-single-select', () => {
 
     it('should emit the paginate event when user scroll to the end of list', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: '',
                 entity: 'test',
                 resetOption: 'reset',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -459,9 +464,11 @@ describe('components/sw-entity-single-select', () => {
         await flushPromises();
 
         await wrapper.find('input').trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        const selectResultList = wrapper.find('.sw-select-result-list');
+        const selectResultList = wrapper.findComponent({
+            ref: 'resultsList',
+        });
         const listContent = wrapper.find('.sw-select-result-list__content');
 
         Object.defineProperty(listContent.element, 'scrollHeight', { value: 1050 });
@@ -477,16 +484,18 @@ describe('components/sw-entity-single-select', () => {
 
     it('should emit the correct search term', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: null,
                 entity: 'property_group_option',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getPropertyCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getPropertyCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -515,18 +524,20 @@ describe('components/sw-entity-single-select', () => {
 
     it('should display variations', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: fixture[0].id,
                 entity: 'test',
                 displayVariants: true,
                 resetOption: 'reset',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(fixture[0]),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(fixture[0]),
+                            };
+                        },
                     },
                 },
             },
@@ -553,18 +564,20 @@ describe('components/sw-entity-single-select', () => {
 
     it('should display label provided by callback', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: fixture[0].id,
                 entity: 'test',
                 labelCallback: () => 'test',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(fixture[0]),
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(fixture[0]),
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
@@ -584,10 +597,11 @@ describe('components/sw-entity-single-select', () => {
 
     it('should show the clearable icon in the single select', async () => {
         const wrapper = await createEntitySingleSelect({
-            attrs: {
+            props: {
                 showClearableButton: true,
             },
         });
+        await flushPromises();
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
         expect(clearableIcon.isVisible()).toBe(true);
@@ -595,29 +609,28 @@ describe('components/sw-entity-single-select', () => {
 
     it('should clear the selection when clicking on clear icon', async () => {
         const wrapper = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: fixture[0].id,
                 entity: 'test',
                 labelCallback: () => 'test',
+                showClearableButton: true,
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            get: () => Promise.resolve(fixture[0]),
-                            search: () => Promise.resolve(getCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                get: () => Promise.resolve(fixture[0]),
+                                search: () => Promise.resolve(getCollection()),
+                            };
+                        },
                     },
                 },
             },
-            attrs: {
-                showClearableButton: true,
-            },
         });
-        await flushPromises();
 
         // wait until fetched data gets rendered
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // expect test value selected
         let selectionText = wrapper.find('.sw-entity-single-select__selection-text');
@@ -632,7 +645,7 @@ describe('components/sw-entity-single-select', () => {
         await clearableIcon.trigger('click');
 
         // expect emitting resetting value
-        const emittedChangeValue = wrapper.emitted('change')[0];
+        const emittedChangeValue = wrapper.emitted('update:value')[0];
         expect(emittedChangeValue).toEqual([null]);
 
         // emulate v-model change
@@ -646,41 +659,43 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should show description line in results list', async () => {
-        const swEntitySingleSelect = await createEntitySingleSelect({
-            scopedSlots: {
-                'result-label-property': `<template>
-                        {{ props.item.name }}
-                    </template>`,
-                'result-description-property': `<template>
-                        {{ props.item.group.name }}
-                    </template>`,
+        const wrapper = await createEntitySingleSelect({
+            slots: {
+                'result-label-property': `<span>
+                        {{ params.item.name }}
+                    </span>`,
+                'result-description-property': `<span>
+                        {{ params.item.group.name }}
+                    </span>`,
             },
-            propsData: {
+            props: {
                 value: null,
                 entity: 'property_group_option',
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => {
-                        return {
-                            search: () => Promise.resolve(getPropertyCollection()),
-                        };
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () => Promise.resolve(getPropertyCollection()),
+                            };
+                        },
                     },
                 },
             },
         });
         await flushPromises();
 
-        swEntitySingleSelect.vm.loadData();
+        wrapper.vm.loadData();
         await flushPromises();
 
-        await swEntitySingleSelect.find('.sw-select__selection').trigger('click');
-        await swEntitySingleSelect.find('input').trigger('change');
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('input').trigger('change');
         await flushPromises();
 
-        const firstListEntry = swEntitySingleSelect.findAll('.sw-select-result-list__item-list li').at(0);
+        const firstListEntry = wrapper.findAll('.sw-select-result-list__item-list li').at(0);
 
-        expect(firstListEntry.find('.sw-select-result').classes()).toContain('has--description');
+        expect(firstListEntry.classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
     });
@@ -708,69 +723,68 @@ describe('components/sw-entity-single-select', () => {
             1,
         );
 
-        const swOriginEntitySingleSelect = await Shopware.Component.build('sw-entity-single-select');
-        const createableWrapper = shallowMount(swOriginEntitySingleSelect, {
-            stubs: {
-                'sw-select-base': await Shopware.Component.build('sw-select-base'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': true,
-                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-                'sw-popover': true,
-                'sw-field-error': true,
-                'sw-loader': true,
-                'sw-icon': true,
-            },
-            propsData: {
+        const swOriginEntitySingleSelect = await wrapTestComponent('sw-entity-single-select', {
+            sync: true,
+        });
+        const wrapper = mount(swOriginEntitySingleSelect, {
+            props: {
                 value: 'asdf555',
                 entity: 'product_manufacturer',
                 allowEntityCreation: true,
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: (context) => {
-                            // Should return no manufacturer when component searches for "Cars"
-                            if (context.term === 'Cars') {
-                                return Promise.resolve(nonExistingEntityMock);
-                            }
-
-                            // Should return one manufacturer when component searches for "Bikes"
-                            if (context.term === 'Bikes') {
-                                return Promise.resolve(existingEntityMock);
-                            }
-
-                            return Promise.resolve(new EntityCollection(
-                                '',
-                                '',
-                                Shopware.Context.api,
-                                null,
-                                [],
-                                0,
-                            ));
-                        },
-                        get: () => Promise.resolve({
-                            id: 'manufacturerId',
-                            name: 'ThisIsMyEntity',
-                            product: [],
-                        }),
-                        create: () => Promise.resolve({}),
+            global: {
+                stubs: {
+                    'sw-select-base': await wrapTestComponent('sw-select-base'),
+                    'sw-block-field': await wrapTestComponent('sw-block-field'),
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text', {
+                        sync: true,
                     }),
+                    'sw-field-error': true,
+                    'sw-loader': true,
+                    'sw-icon': true,
                 },
-            },
-            computed: {
-                searchCriteria() {
-                    return {};
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: (context) => {
+                                // Should return no manufacturer when component searches for "Cars"
+                                if (context.term === 'Cars') {
+                                    return Promise.resolve(nonExistingEntityMock);
+                                }
+
+                                // Should return one manufacturer when component searches for "Bikes"
+                                if (context.term === 'Bikes') {
+                                    return Promise.resolve(existingEntityMock);
+                                }
+
+                                return Promise.resolve(new EntityCollection(
+                                    '',
+                                    '',
+                                    Shopware.Context.api,
+                                    null,
+                                    [],
+                                    0,
+                                ));
+                            },
+                            get: () => Promise.resolve({
+                                id: 'manufacturerId',
+                                name: 'ThisIsMyEntity',
+                                product: [],
+                            }),
+                            create: () => Promise.resolve({}),
+                        }),
+                    },
                 },
             },
         });
         await flushPromises();
 
-        const displaySearchSpy = jest.spyOn(createableWrapper.vm, 'displaySearch');
-        const input = createableWrapper.find('.sw-entity-single-select__selection-input');
+        const displaySearchSpy = jest.spyOn(wrapper.vm, 'displaySearch');
+        const input = wrapper.find('.sw-entity-single-select__selection-input');
 
-        await createableWrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('.sw-select__selection').trigger('click');
 
         // Enter a new search term
         await input.setValue('Cars');
@@ -780,16 +794,16 @@ describe('components/sw-entity-single-select', () => {
         await select.flush();
 
         // Wait for rendering
-        await createableWrapper.vm.$nextTick();
+        await flushPromises();
         // Ensure manufacturer does not exist
-        expect(createableWrapper.vm.entityExists).toBe(false);
+        expect(wrapper.vm.entityExists).toBe(false);
 
         // Ensure non-existing manufacturer is offered to be created by a new select result item
-        expect(createableWrapper.vm.newEntityName).toBe('Cars');
+        expect(wrapper.vm.newEntityName).toBe('Cars');
         expect(displaySearchSpy).toHaveBeenCalled();
 
-        await createableWrapper.vm.$nextTick();
-        const resultItem = createableWrapper.find('.sw-select-result-list__item-list').find('.sw-highlight-text');
+        await flushPromises();
+        const resultItem = wrapper.find('.sw-select-result-list__item-list').findComponent('.sw-highlight-text');
 
         expect(resultItem.text()).toBe('global.sw-single-select.labelEntityAdd');
         expect(resultItem.props().searchTerm).toBe('Cars');
@@ -797,7 +811,7 @@ describe('components/sw-entity-single-select', () => {
 
     it('should reset selected item if it is invalid value', async () => {
         const swEntitySingleSelect = await createEntitySingleSelect({
-            propsData: {
+            props: {
                 value: fixture[0].id,
                 entity: 'test',
             },

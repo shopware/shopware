@@ -725,7 +725,6 @@ const missingTests = [
     'src/app/component/structure/sw-card-view/index.js',
     'src/app/component/utils/sw-help-center/index.ts',
     'src/app/init/tabs.init.ts',
-    'src/app/plugin/deprecation.plugin.js',
     'src/app/service/app-cms.service.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js',

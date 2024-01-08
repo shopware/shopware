@@ -104,7 +104,7 @@ class PaymentMethodRuleTest extends TestCase
                 'isMatchAny' => true,
             ],
             'fields' => [
-                [
+                'paymentMethodIds' => [
                     'name' => 'paymentMethodIds',
                     'type' => 'multi-entity-id-select',
                     'config' => [

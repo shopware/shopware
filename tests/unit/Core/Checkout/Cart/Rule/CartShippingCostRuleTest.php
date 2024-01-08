@@ -198,7 +198,7 @@ class CartShippingCostRuleTest extends TestCase
         $config = (new CartShippingCostRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'cartShippingCost' => [
                     'name' => 'cartShippingCost',
                     'type' => 'float',
                     'config' => [],

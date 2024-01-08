@@ -47,7 +47,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         $config = $rule->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'shouldCustomerBeCreatedByAdmin' => [
                     'name' => 'shouldCustomerBeCreatedByAdmin',
                     'type' => 'bool',
                     'config' => [],

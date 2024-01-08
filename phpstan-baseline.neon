@@ -8241,11 +8241,6 @@ parameters:
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Rule/OrderCreatedByAdminRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
 			path: tests/unit/Core/Content/Flow/Rule/OrderDeliveryStatusRuleTest.php
 
@@ -8253,16 +8248,6 @@ parameters:
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
 			path: tests/unit/Core/Content/Flow/Rule/OrderStatusRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Rule/OrderTagRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Rule/OrderTrackingCodeRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"

@@ -46,7 +46,7 @@ class CustomerLoggedInRuleTest extends TestCase
         $config = $rule->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'isLoggedIn' => [
                     'name' => 'isLoggedIn',
                     'type' => 'bool',
                     'config' => [],

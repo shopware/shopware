@@ -191,6 +191,6 @@ class CartAmountRuleTest extends TestCase
         $data = (new CartAmountRule())->getConfig()->getData();
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $data['operatorSet']['operators']);
-        static::assertSame('amount', $data['fields'][0]['name']);
+        static::assertSame('amount', $data['fields']['amount']['name']);
     }
 }

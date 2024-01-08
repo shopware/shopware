@@ -261,6 +261,6 @@ class LineItemDimensionHeightRuleTest extends TestCase
         $result = $lineItemDimensionHeightRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('dimension', $result['fields'][0]['config']['unit']);
+        static::assertSame('dimension', $result['fields']['amount']['config']['unit']);
     }
 }

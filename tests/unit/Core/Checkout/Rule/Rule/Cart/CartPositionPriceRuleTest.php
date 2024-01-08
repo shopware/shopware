@@ -201,6 +201,6 @@ class CartPositionPriceRuleTest extends TestCase
         $data = (new CartPositionPriceRule())->getConfig()->getData();
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $data['operatorSet']['operators']);
-        static::assertSame('amount', $data['fields'][0]['name']);
+        static::assertSame('amount', $data['fields']['amount']['name']);
     }
 }

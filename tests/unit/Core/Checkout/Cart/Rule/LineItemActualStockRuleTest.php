@@ -221,7 +221,7 @@ class LineItemActualStockRuleTest extends TestCase
         $result = $cartVolumeRule->getConfig()->getData();
 
         static::assertIsArray($result['operatorSet']['operators']);
-        static::assertSame('stock', $result['fields'][0]['name']);
+        static::assertSame('stock', $result['fields']['stock']['name']);
     }
 
     private function createLineItemWithStock(int $stock): LineItem

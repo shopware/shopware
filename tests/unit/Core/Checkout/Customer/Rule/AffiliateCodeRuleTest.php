@@ -46,7 +46,7 @@ class AffiliateCodeRuleTest extends TestCase
         $config = (new AffiliateCodeRule())->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'affiliateCode' => [
                     'name' => 'affiliateCode',
                     'type' => 'string',
                     'config' => [],

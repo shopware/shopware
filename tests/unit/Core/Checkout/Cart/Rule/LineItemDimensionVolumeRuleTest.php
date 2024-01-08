@@ -248,7 +248,7 @@ class LineItemDimensionVolumeRuleTest extends TestCase
         $result = $lineItemDimensionVolumeRule->getConfig();
 
         static::assertSame(RuleConfig::OPERATOR_SET_NUMBER, $result->getData()['operatorSet']['operators']);
-        static::assertSame(RuleConfig::UNIT_VOLUME, $result->getData()['fields'][0]['config']['unit']);
+        static::assertSame(RuleConfig::UNIT_VOLUME, $result->getData()['fields']['amount']['config']['unit']);
     }
 
     private function createLineItemWithVolume(float $volume): LineItem

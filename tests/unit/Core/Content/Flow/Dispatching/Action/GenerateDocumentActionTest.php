@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -26,8 +27,6 @@ class GenerateDocumentActionTest extends TestCase
 {
     private MockObject&DocumentGenerator $documentGenerator;
 
-    private MockObject&StorableFlow $flow;
-
     private GenerateDocumentAction $action;
 
     protected function setUp(): void
@@ -38,8 +37,6 @@ class GenerateDocumentActionTest extends TestCase
             $this->documentGenerator,
             $this->createMock(LoggerInterface::class),
         );
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -61,14 +58,14 @@ class GenerateDocumentActionTest extends TestCase
     #[DataProvider('actionExecutedProvider')]
     public function testActionExecuted(array $config, int $expected): void
     {
-        $this->flow->expects(static::exactly(2))->method('hasData')->willReturn(true);
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::exactly(1))->method('getContext')->willReturn(Context::createDefaultContext());
-
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
+        $orderId = Uuid::randomHex();
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            OrderAware::ORDER_ID => $orderId,
+            MailAware::SALES_CHANNEL_ID => Uuid::randomHex(),
+        ]);
+        $flow->setConfig($config);
 
         $documentType = $config['documentTypes'][0]['documentType'] ?? $config['documentType'] ?? null;
-        $orderId = $this->flow->getData(OrderAware::ORDER_ID);
         $fileType = $config['documentTypes'][0]['fileType'] ?? $config['fileType'] ?? FileTypes::PDF;
         $conf = $config['documentTypes'][0]['config'] ?? $config['config'] ?? [];
         $static = $config['documentTypes'][0]['static'] ?? $config['static'] ?? false;
@@ -79,7 +76,7 @@ class GenerateDocumentActionTest extends TestCase
             ->method('generate')
             ->with($documentType, [$orderId => $operation], Context::createDefaultContext());
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public static function actionExecutedProvider(): \Generator

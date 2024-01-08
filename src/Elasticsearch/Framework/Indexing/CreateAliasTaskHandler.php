@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
@@ -30,6 +31,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
+        LoggerInterface $logger,
         private readonly Client $client,
         private readonly Connection $connection,
         private readonly ElasticsearchHelper $elasticsearchHelper,
@@ -37,7 +39,7 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractKeyValueStorage $keyValueStorage
     ) {
-        parent::__construct($scheduledTaskRepository);
+        parent::__construct($scheduledTaskRepository, $logger);
     }
 
     public function run(): void

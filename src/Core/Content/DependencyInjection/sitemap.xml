@@ -97,6 +97,7 @@
 
         <service id="Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="messenger.bus.shopware"/>

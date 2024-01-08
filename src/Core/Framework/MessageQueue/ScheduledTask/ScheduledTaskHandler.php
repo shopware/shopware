@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,11 +17,10 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 #[Package('core')]
 abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
-    protected EntityRepository $scheduledTaskRepository;
-
-    public function __construct(EntityRepository $scheduledTaskRepository)
-    {
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
+    public function __construct(
+        protected readonly EntityRepository $scheduledTaskRepository,
+        protected readonly LoggerInterface $logger
+    ) {
     }
 
     public function __invoke(ScheduledTask $task): void
@@ -48,6 +48,20 @@ abstract class ScheduledTaskHandler implements MessageSubscriberInterface
         try {
             $this->run();
         } catch (\Throwable $e) {
+            if ($task->shouldRescheduleOnFailure()) {
+                $this->logger->error(
+                    'Scheduled task failed with: ' . $e->getMessage(),
+                    [
+                        'error' => $e,
+                        'scheduledTask' => $task->getTaskName(),
+                    ]
+                );
+
+                $this->rescheduleTask($task, $taskEntity);
+
+                return;
+            }
+
             $this->markTaskFailed($task);
 
             throw $e;

@@ -2,25 +2,26 @@
  * @package admin
  */
 
-import { shallowMount, RouterLinkStub } from '@vue/test-utils_v2';
-import 'src/app/component/utils/sw-internal-link';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 
 // initial component setup
 const setup = async (propOverride) => {
-    const propsData = {
+    const props = {
         routerLink: { name: 'sw.product.index' },
         ...propOverride,
     };
 
-    return shallowMount(await Shopware.Component.build('sw-internal-link'), {
-        stubs: {
-            'sw-icon': true,
-            RouterLink: RouterLinkStub,
+    return mount(await wrapTestComponent('sw-internal-link', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': true,
+                RouterLink: RouterLinkStub,
+            },
         },
         slots: {
             default: 'test internal link',
         },
-        propsData,
+        props,
     });
 };
 
@@ -75,6 +76,6 @@ describe('components/utils/sw-internal-link', () => {
 
         await wrapper.find('a').trigger('click');
 
-        expect(wrapper.emitted('click')).toEqual([[]]);
+        expect(wrapper.emitted('click')[0]).toEqual([]);
     });
 });

@@ -50,11 +50,11 @@ export default {
         },
 
         secretAccessKeyFieldTypeIsText() {
-            return this.secretAccessKeyFieldType === 'text';
+            return this.showSecretAccessKey;
         },
 
         secretAccessKeyFieldTypeIsPassword() {
-            return this.secretAccessKeyFieldType === 'password';
+            return !this.showSecretAccessKey;
         },
 
         integrationColumns() {

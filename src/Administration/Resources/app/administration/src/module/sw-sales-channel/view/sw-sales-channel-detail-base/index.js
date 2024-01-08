@@ -554,8 +554,18 @@ export default {
             });
         },
 
-        copyToClipboard() {
-            domUtils.copyToClipboard(this.salesChannel.accessKey);
+        async copyToClipboard() {
+            try {
+                await domUtils.copyStringToClipboard(this.salesChannel.accessKey);
+                this.createNotificationSuccess({
+                    message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
+                });
+            } catch (err) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                });
+            }
         },
 
         onStorefrontSelectionChange(storefrontSalesChannelId) {

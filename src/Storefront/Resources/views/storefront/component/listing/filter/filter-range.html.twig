@@ -49,8 +49,7 @@
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
          data-filter-range="true"
-         {# ludtwig-ignore html-string-quotation #}
-         data-filter-range-options='{{ filterRangeOptions|json_encode }}'>
+         data-filter-range-options="{{ filterRangeOptions|json_encode }}">
 
         {% block component_filter_range_toggle %}
             <button class="filter-panel-item-toggle btn"

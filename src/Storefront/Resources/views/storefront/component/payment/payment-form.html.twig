@@ -1,5 +1,4 @@
 {% block page_checkout_change_payment_form %}
-
     {% set formAjaxSubmitOptions = {
         changeTriggerSelectors: ['.payment-method-input']
     } %}
@@ -9,8 +8,7 @@
               name="changePaymentForm"
               action="{{ actionPath }}"
               data-form-auto-submit="true"
-              {# ludtwig-ignore html-string-quotation #}
-              data-form-auto-submit-options='{{ formAjaxSubmitOptions|json_encode }}'
+              data-form-auto-submit-options="{{ formAjaxSubmitOptions|json_encode }}"
               method="post">
 
             {% block page_checkout_change_payment_form_redirect %}

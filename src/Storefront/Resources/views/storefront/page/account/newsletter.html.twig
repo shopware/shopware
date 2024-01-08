@@ -19,8 +19,7 @@
               method="post"
               action="{{ path("frontend.account.newsletter") }}"
               data-form-auto-submit="true"
-              {# ludtwig-ignore html-string-quotation #}
-              data-form-auto-submit-options='{{ formAutoSubmitOptions|json_encode }}'>
+              data-form-auto-submit-options="{{ formAutoSubmitOptions|json_encode }}">
 
             {% block page_account_overview_newsletter_content_form_check_control %}
                 <div class="form-check">

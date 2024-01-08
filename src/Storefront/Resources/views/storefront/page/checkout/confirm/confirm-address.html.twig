@@ -54,8 +54,7 @@
                                                title="{{ "account.overviewChangeShipping"|trans|striptags }}"
                                                class="btn btn-light"
                                                data-address-editor="true"
-                                               {# ludtwig-ignore html-string-quotation #}
-                                               data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
+                                               data-address-editor-options="{{ addressEditorOptions|json_encode }}">
                                                 {{ "account.overviewChangeShipping"|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
@@ -105,8 +104,7 @@
                                            title="{{ "account.overviewChangeBilling"|trans|striptags }}"
                                            class="btn btn-light"
                                            data-address-editor="true"
-                                           {# ludtwig-ignore html-string-quotation #}
-                                           data-address-editor-options='{{ addressEditorOptions|json_encode }}'>
+                                           data-address-editor-options="{{ addressEditorOptions|json_encode }}">
                                             {{ "account.overviewChangeBilling"|trans|sw_sanitize }}
                                         </a>
                                     {% endblock %}

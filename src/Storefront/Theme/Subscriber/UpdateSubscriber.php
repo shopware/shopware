@@ -48,11 +48,12 @@ class UpdateSubscriber implements EventSubscriberInterface
     public function updateFinished(UpdatePostFinishEvent $event): void
     {
         $context = $event->getContext();
-        $this->themeLifecycleService->refreshThemes($context);
 
         if ($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING)) {
             return;
         }
+
+        $this->themeLifecycleService->refreshThemes($context);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('active', true));

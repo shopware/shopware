@@ -9486,11 +9486,6 @@ parameters:
 			path: src/Storefront/Test/Theme/Subscriber/AppLifecycleSubscriberTest.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Test\\\\Theme\\\\Subscriber\\\\UpdateSubscriberTest\\:\\:setupThemes\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Storefront/Test/Theme/Subscriber/UpdateSubscriberTest.php
-
-		-
 			message: "#^Cannot call method isActive\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\ThemeEntity\\|null\\.$#"
 			count: 3
 			path: src/Storefront/Test/Theme/ThemeAppLifecycleHandlerTest.php

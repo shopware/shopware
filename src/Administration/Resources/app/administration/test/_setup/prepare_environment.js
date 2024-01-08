@@ -29,6 +29,32 @@ global.Vue = Vue;
 // Add all directives
 const directiveRegistry = Shopware.Directive.getDirectiveRegistry();
 directiveRegistry.forEach((value, key) => {
+    if (key === 'tooltip') {
+        global.Vue.directive('tooltip', {
+            bind(el, binding) {
+                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
+                el.setAttribute('tooltip-mock-message', binding.value.message);
+                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
+            },
+            inserted(el, binding) {
+                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
+                el.setAttribute('tooltip-mock-message', binding.value.message);
+                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
+            },
+            update(el, binding) {
+                el.setAttribute('tooltip-mock-id', 'RANDOM_ID');
+                el.setAttribute('tooltip-mock-message', binding.value.message);
+                el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
+            },
+        });
+        return;
+    }
+
+    if (key === 'popover') {
+        global.Vue.directive('popover', {});
+        return;
+    }
+
     global.Vue.directive(key, value);
 });
 
@@ -117,6 +143,24 @@ config.global.mocks = {
         params: {},
     },
     $store: Shopware.State._store,
+};
+
+config.global.stubs = {
+    'sw-modal': {
+        template: `
+        <div class="sw-modal">
+            <slot name="modal-header">
+                <slot name="modal-title"></slot>
+            </slot>
+            <slot name="modal-body">
+                 <slot></slot>
+            </slot>
+            <slot name="modal-footer">
+            </slot>
+        </div>
+    `,
+    },
+    ...config.global.stubs,
 };
 
 global.allowedErrors = [

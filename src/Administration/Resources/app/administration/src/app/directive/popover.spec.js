@@ -28,6 +28,11 @@ const createWrapper = () => {
 
     return mount(dragdropComponent, {
         attachTo: '#root',
+        global: {
+            directives: {
+                popover: Shopware.Directive.getByName('popover'),
+            },
+        },
     });
 };
 

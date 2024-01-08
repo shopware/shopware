@@ -736,7 +736,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
             },
         ];
 
-        const wrapper = await await createWrapper({}, appFlowResponse, 'appFlowAction');
+        const wrapper = await createWrapper({}, appFlowResponse, 'appFlowAction');
         await flushPromises();
 
         const actionSelect = wrapper.find('.sw-single-select__selection');
@@ -744,7 +744,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         await flushPromises();
 
         const disabledAction = wrapper.find('.sw-flow-sequence-action__disabled');
-        expect(disabledAction.attributes()['tooltip-id']).toBeTruthy();
+        expect(disabledAction.attributes()['tooltip-mock-message']).toBeTruthy();
     });
 
     it('should correct actions label', async () => {

@@ -48,6 +48,9 @@ const repositoryMockFactory = () => {
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-import-export-importer', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getByName('popover'),
+            },
             stubs: {
                 'sw-import-export-importer': await wrapTestComponent('sw-import-export-importer', { sync: true }),
                 'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),

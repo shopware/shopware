@@ -41,6 +41,9 @@ const createWrapper = async (message, {
         attachTo: '#root',
         global: {
             components,
+            directives: {
+                tooltip: Shopware.Directive.getByName('tooltip'),
+            },
         },
     });
 };

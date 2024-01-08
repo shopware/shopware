@@ -712,7 +712,6 @@ const missingTests = [
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/app/component/form/select/entity/sw-entity-multi-id-select/index.js',
     'src/app/component/form/select/entity/sw-entity-multi-select/index.js',
-    'src/app/component/form/select/entity/sw-entity-single-select/index.js',
     'src/app/component/form/sw-colorpicker/index.js',
     'src/app/component/form/sw-custom-field-set-renderer/index.js',
     'src/app/component/form/sw-form-field-renderer/index.js',

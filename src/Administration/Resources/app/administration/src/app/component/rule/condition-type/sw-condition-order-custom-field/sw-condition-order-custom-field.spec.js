@@ -49,6 +49,9 @@ const mockCustomFields = new EntityCollection(
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-condition-order-custom-field', { sync: true }), {
         global: {
+            directives: {
+                popover: Shopware.Directive.getByName('popover'),
+            },
             stubs: {
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-block-field': await wrapTestComponent('sw-block-field'),

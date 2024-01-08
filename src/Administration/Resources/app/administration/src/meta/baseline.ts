@@ -732,7 +732,6 @@ const missingTests = [
     'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-grant-download-access-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js',
-    'src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/index.js',
     'src/module/sw-flow/component/sw-flow-sequence/index.js',
     'src/module/sw-flow/component/sw-flow-sequence-selector/index.js',
     'src/module/sw-flow/component/sw-flow-trigger/index.js',

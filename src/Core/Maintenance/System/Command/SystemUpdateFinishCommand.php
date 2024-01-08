@@ -40,6 +40,12 @@ class SystemUpdateFinishCommand extends Command
     {
         $this
             ->addOption(
+                'skip-migrations',
+                null,
+                InputOption::VALUE_NONE,
+                'Use this option to skip migrations'
+            )
+            ->addOption(
                 'skip-asset-build',
                 null,
                 InputOption::VALUE_NONE,
@@ -74,13 +80,18 @@ class SystemUpdateFinishCommand extends Command
 
         $eventDispatcher->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $this->shopwareVersion));
 
-        $this->runMigrations($output);
+        if (!$input->getOption('skip-migrations')) {
+            $this->runMigrations($output);
+        }
 
         $updateEvent = new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion);
         $eventDispatcher->dispatch($updateEvent);
+
         $output->writeln($updateEvent->getPostUpdateMessage());
 
-        $this->installAssets($output);
+        if (!$input->getOption('skip-asset-build')) {
+            $this->installAssets($output);
+        }
 
         $output->writeln('');
 

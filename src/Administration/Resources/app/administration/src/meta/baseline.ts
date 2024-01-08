@@ -706,7 +706,6 @@ const missingTests = [
     'src/app/service/app-cms.service.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js',
-    'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js',
     'src/module/sw-bulk-edit/page/sw-bulk-edit-product/index.js',
     'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js',

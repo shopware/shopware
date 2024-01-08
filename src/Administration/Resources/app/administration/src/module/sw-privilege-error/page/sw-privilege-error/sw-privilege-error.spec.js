@@ -1,23 +1,18 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
-import swPrivilegeError from 'src/module/sw-privilege-error/page/sw-privilege-error';
-
-Shopware.Component.register('sw-privilege-error', swPrivilegeError);
+import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
     let wrapper;
 
     beforeEach(async () => {
-        const localVue = createLocalVue();
-        localVue.filter('asset', value => value);
-
-        wrapper = shallowMount(await Shopware.Component.build('sw-privilege-error'), {
-            localVue,
-            stubs: {
-                'sw-page': {
-                    template: '<div><slot name="content"></slot></div>',
-                },
-                'sw-button': {
-                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+        wrapper = mount(await wrapTestComponent('sw-privilege-error', { sync: true }), {
+            global: {
+                stubs: {
+                    'sw-page': {
+                        template: '<div><slot name="content"></slot></div>',
+                    },
+                    'sw-button': {
+                        template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
+                    },
                 },
             },
         });

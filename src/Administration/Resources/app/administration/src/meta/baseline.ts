@@ -244,7 +244,6 @@ const missingTests = [
     'src/module/index.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/index.js',
-    'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-download-documents/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error/index.js',
     'src/module/sw-bulk-edit/index.js',

@@ -1,19 +1,16 @@
 /**
  * @package system-settings
  */
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import swBulkEditState from 'src/module/sw-bulk-edit/state/sw-bulk-edit.state';
-import swBulkEditOrderDocumentsGenerateInvoice from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice';
-import swBulkEditOrderDocumentsGenerateCreditNode from 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-credit-note';
-
-Shopware.Component.register('sw-bulk-edit-order-documents-generate-invoice', swBulkEditOrderDocumentsGenerateInvoice);
-Shopware.Component.extend('sw-bulk-edit-order-documents-generate-credit-note', 'sw-bulk-edit-order-documents-generate-invoice', swBulkEditOrderDocumentsGenerateCreditNode);
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-bulk-edit-order-documents-generate-credit-note'), {
-        stubs: {
-            'sw-datepicker': true,
-            'sw-textarea-field': true,
+    return mount(await wrapTestComponent('sw-bulk-edit-order-documents-generate-credit-note', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-datepicker': true,
+                'sw-textarea-field': true,
+            },
         },
     });
 }
@@ -27,10 +24,6 @@ describe('sw-bulk-edit-order-documents-generate-credit-note', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

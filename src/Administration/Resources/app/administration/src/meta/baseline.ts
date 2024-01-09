@@ -735,7 +735,6 @@ const missingTests = [
     'src/module/sw-flow/view/detail/sw-flow-detail-general/index.js',
     'src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/index.js',
-    'src/module/sw-mail-template/page/sw-mail-header-footer-detail/index.js',
     'src/module/sw-mail-template/page/sw-mail-template-index/index.js',
     'src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js',
     'src/module/sw-manufacturer/page/sw-manufacturer-list/index.js',

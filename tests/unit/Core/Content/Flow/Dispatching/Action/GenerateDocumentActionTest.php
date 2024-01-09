@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -61,7 +60,6 @@ class GenerateDocumentActionTest extends TestCase
         $orderId = Uuid::randomHex();
         $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
             OrderAware::ORDER_ID => $orderId,
-            MailAware::SALES_CHANNEL_ID => Uuid::randomHex(),
         ]);
         $flow->setConfig($config);
 

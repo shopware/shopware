@@ -2,43 +2,29 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
-import 'src/app/component/form/select/base/sw-multi-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/base/sw-label';
-import 'src/app/component/base/sw-button';
+import { mount } from '@vue/test-utils';
 
 const createMultiSelect = async (customOptions) => {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-
     const options = {
-        localVue,
-        stubs: {
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-icon': {
-                template: '<div></div>',
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-icon': {
+                    template: '<div></div>',
+                },
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                'sw-label': await wrapTestComponent('sw-label'),
+                'sw-button': await wrapTestComponent('sw-button'),
             },
-            'sw-field-error': await Shopware.Component.build('sw-field-error'),
-            'sw-select-selection-list': await Shopware.Component.build('sw-select-selection-list'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': await Shopware.Component.build('sw-popover'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            'sw-label': await Shopware.Component.build('sw-label'),
-            'sw-button': await Shopware.Component.build('sw-button'),
         },
-        propsData: {
+        props: {
             value: [],
             options: [
                 {
@@ -57,10 +43,16 @@ const createMultiSelect = async (customOptions) => {
         },
     };
 
-    return shallowMount(await Shopware.Component.build('sw-multi-select'), {
+    const wrapper = mount(await wrapTestComponent('sw-multi-select', {
+        sync: true,
+    }), {
         ...options,
         ...customOptions,
     });
+
+    await flushPromises();
+
+    return wrapper;
 };
 
 describe('components/sw-multi-select', () => {
@@ -73,6 +65,7 @@ describe('components/sw-multi-select', () => {
     it('should open the result list on click on .sw-select__selection', async () => {
         const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const resultList = swMultiSelect.find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
@@ -81,6 +74,7 @@ describe('components/sw-multi-select', () => {
     it('should show the result items', async () => {
         const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const entryOne = swMultiSelect.find('.sw-select-option--0');
         expect(entryOne.text()).toBe('Entry 1');
@@ -93,71 +87,65 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should emit the first option', async () => {
-        const changeSpy = jest.fn();
-
-        const swMultiSelect = await createMultiSelect({
-            listeners: {
-                change: changeSpy,
-            },
-        });
+        const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const entryOne = swMultiSelect.find('.sw-select-option--0');
         expect(entryOne.text()).toBe('Entry 1');
 
         await entryOne.trigger('click');
-        expect(changeSpy).toHaveBeenCalledWith(['entryOneValue']);
+        await flushPromises();
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue']]]);
     });
 
     it('should emit the second option', async () => {
-        const changeSpy = jest.fn();
-
-        const swMultiSelect = await createMultiSelect({
-            listeners: {
-                change: changeSpy,
-            },
-        });
+        const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const entryTwo = swMultiSelect.find('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
         await entryTwo.trigger('click');
-        expect(changeSpy).toHaveBeenCalledWith(['entryTwoValue']);
+        await flushPromises();
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryTwoValue']]]);
     });
 
     it('should emit two options', async () => {
-        const changeSpy = jest.fn();
-
-        const swMultiSelect = await createMultiSelect({
-            listeners: {
-                change: changeSpy,
-            },
-        });
+        const swMultiSelect = await createMultiSelect();
+        await flushPromises();
 
         await swMultiSelect.setProps({
             value: ['entryOneValue'],
         });
+        await flushPromises();
 
         await swMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         const entryTwo = swMultiSelect.find('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
         await entryTwo.trigger('click');
+        await flushPromises();
 
-        expect(changeSpy).toHaveBeenLastCalledWith(['entryOneValue', 'entryTwoValue']);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue', 'entryTwoValue']]]);
     });
 
     it('should not close the result list after clicking an item', async () => {
         const swMultiSelect = await createMultiSelect();
 
         await swMultiSelect.find('.sw-select__selection').trigger('click');
+        await flushPromises();
 
         await swMultiSelect.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
         await swMultiSelect.setProps({
             value: ['entryOneValue'],
         });
+        await flushPromises();
 
         const resultList = swMultiSelect.find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeTruthy();
@@ -165,7 +153,7 @@ describe('components/sw-multi-select', () => {
 
     it('should show the label for the selected value property', async () => {
         const swMultiSelect = await createMultiSelect({
-            propsData: {
+            props: {
                 value: ['entryOneValue'],
                 options: [
                     {
@@ -190,7 +178,7 @@ describe('components/sw-multi-select', () => {
 
     it('should show multiple labels for the selected values properties', async () => {
         const swMultiSelect = await createMultiSelect({
-            propsData: {
+            props: {
                 value: ['entryOneValue', 'entryThreeValue'],
                 options: [
                     {

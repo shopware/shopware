@@ -46,7 +46,7 @@ export const test = base.extend<NonNullable<unknown>, WorkerFixtures>({
     idProvider: [
         // eslint-disable-next-line no-empty-pattern
         async ({}, use, workerInfo) => {
-            const idProvider = new IdProvider(workerInfo.workerIndex, process.env.SHOPWARE_ACCESS_KEY_ID);
+            const idProvider = new IdProvider(workerInfo.workerIndex, process.env.SHOPWARE_ACCESS_KEY_ID || process.env.SHOPWARE_ADMIN_PASSWORD);
 
             await use(idProvider);
         },

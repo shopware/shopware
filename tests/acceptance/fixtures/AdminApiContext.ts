@@ -5,6 +5,8 @@ export interface AppAuthOptions {
     client_id?: string;
     client_secret?: string;
     access_token?: string;
+    admin_username?: string;
+    admin_password?: string;
     ignoreHTTPSErrors?: boolean;
 }
 
@@ -29,8 +31,28 @@ export class AdminApiContext {
         withDefaults.app_url = withDefaults.app_url || process.env['APP_URL'];
         withDefaults.client_id = withDefaults.client_id || process.env['SHOPWARE_ACCESS_KEY_ID'];
         withDefaults.client_secret = withDefaults.client_secret || process.env['SHOPWARE_SECRET_ACCESS_KEY'];
+        withDefaults.admin_username = withDefaults.admin_username || process.env['SHOPWARE_ADMIN_USERNAME'];
+        withDefaults.admin_password = withDefaults.admin_password || process.env['SHOPWARE_ADMIN_PASSWORD'];
         withDefaults.ignoreHTTPSErrors = true;
-        withDefaults.access_token = await this.authenticate(withDefaults);
+
+        if (!withDefaults.client_id) {
+            withDefaults.access_token = await this.authenticateWithPassword(withDefaults);
+            const tmpContext = new AdminApiContext(await this.createContext(withDefaults), withDefaults);
+            const accessKeyData = await (await tmpContext.get('./_action/access-key/intergration')).json() as { accessKey: string, secretAccessKey: string};
+
+            const integrationData = {
+                admin: true,
+                label: 'Playwright acceptance test suite',
+                ...accessKeyData,
+            };
+            await tmpContext.post('./integration', {
+                data: integrationData,
+            });
+            withDefaults.client_id = accessKeyData.accessKey;
+            withDefaults.client_secret = accessKeyData.secretAccessKey;
+        }
+
+        withDefaults.access_token = await this.authenticateWithClientCredentials(withDefaults);
 
         return new AdminApiContext(await this.createContext(withDefaults), withDefaults);
     }
@@ -51,7 +73,39 @@ export class AdminApiContext {
         });
     }
 
-    static async authenticate(options: AppAuthOptions): Promise<string> {
+    static async authenticateWithPassword(options: AppAuthOptions): Promise<string> {
+        const authResponse: APIResponse = await (
+            await this.createContext(options)
+        ).post('./oauth/token', {
+            data: {
+                client_id: 'administration',
+                grant_type: 'password',
+                username: options.admin_username,
+                password: options.admin_password,
+                scope: ['write'],
+            },
+        });
+
+        const authData = (await authResponse.json()) as { access_token?: string };
+
+        if (!authData['access_token']) {
+            throw new Error(
+                'Failed to authenticate with SHOPWARE_ADMIN_USERNAME' +
+                    options.client_id +
+                    'Request: ' +
+                    JSON.stringify({
+                        grant_type: 'administration',
+                        username: options.admin_username,
+                    }) +
+                    'Error: ' +
+                    JSON.stringify(authData)
+            );
+        }
+
+        return authData['access_token'];
+    }
+
+    static async authenticateWithClientCredentials(options: AppAuthOptions): Promise<string> {
         const authResponse: APIResponse = await (
             await this.createContext(options)
         ).post('./oauth/token', {
@@ -63,11 +117,11 @@ export class AdminApiContext {
             },
         });
 
-        const authData = (await authResponse.json()) as { access_token?: string };
+        const authData = (await authResponse.json()) as { access_token?: string }; 
 
         if (!authData['access_token']) {
             throw new Error(
-                'Failed to authenticate with client_id ' +
+                'Failed to authenticate with client_id' +
                     options.client_id +
                     'Request: ' +
                     JSON.stringify({

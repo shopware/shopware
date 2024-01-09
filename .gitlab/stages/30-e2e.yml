@@ -1,3 +1,15 @@
+include:
+  - component: gitlab.shopware.com/infrastructure/ci-component-library/kaniko-amd64@trunk
+    inputs:
+      job-suffix: ""
+      stage: E2E
+      context: tar://${CI_PROJECT_DIR}/context.tar.gz
+      destination-image: "${CI_REGISTRY_IMAGE}/foo/ci-test"
+      destination-tag: "$CI_PIPELINE_ID"
+      dockerfile: .gitlab/Dockerfile
+      enable-scan: "false"
+      cache: "false"
+
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
 
@@ -278,44 +290,44 @@ E2E auto update:
       --spec "cypress/e2e/recovery/updater/auto-update.cy.js"
       --headless
 
+build image:
+  extends:
+    - .long-running
+  needs: [Build]
+  variables:
+    GIT_STRATEGY: none
+
 acceptance:
   extends:
     - .long-running
-  image: gitlab.shopware.com:5005/infrastructure/docker-base/ci-e2e:latest
-  needs: [ Build ]
+  image: mcr.microsoft.com/playwright:v1.41.1-jammy
+  needs: [build image]
   stage: E2E
-  dependencies: [ Build ]
   services:
-    - name: mariadb:10.4
+    - name: mysql:8
       alias: database
+      entrypoint: [ "sh", "-c", "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON" ]
+    - name: redis:7.0
+      alias: redis
+    - name: "${CI_REGISTRY_IMAGE}/foo/ci-test:$CI_PIPELINE_ID"
+      alias: shopware
   variables:
     APP_ENV: prod
     SHOPWARE_HTTP_CACHE_ENABLED: 0
     SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
+    PROJECT_ROOT: /var/www/html
+    DATABASE_URL: mysql://root:app@database:3306/root
+    APP_URL: http://shopware:8000
   before_script:
-    - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
-    - cp public/.htaccess.dist public/.htaccess
-    - !reference [ .scripts, init, composer ]
-    - touch install.lock
-    - mkdir -p config/jwt custom/plugins || true
-    # workaround - replace with just the depencies and move it into the ci-e2e image
-    - apk add chromium
-    - npm --prefix tests/acceptance ci
-    - '(cd tests/acceptance && npx playwright install)'
-    - >
-      if [[ -r var/database.sql ]]; then
-          mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
-          mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
-          bin/console system:generate-jwt || true
-      else
-          composer run setup
-      fi
-    - bin/console assets:install
-    - echo -e "\e[0Ksection_end:`date +%s`:init\r\e[0K"
-    - 'rm -Rf /var/www/html/public || true'
-    - ln -s $WEB_DOCUMENT_ROOT /var/www/html/public
-    - /usr/bin/supervisord -c /etc/supervisord.conf > /dev/null 2>&1 &
-  script:
-    - bin/console framework:integration:create AcceptanceTest --admin >> tests/acceptance/.env
     - cd tests/acceptance
-    - npx playwright test --workers=2
+    - npm ci
+    - npx playwright install --with-deps
+  script:
+    - npx playwright test --workers=1
+  after_script: []
+  artifacts:
+    expire_in: 1 day
+    when: always
+    paths:
+      - $CI_PROJECT_DIR/tests/acceptance/test-results/*
+      - $CI_PROJECT_DIR/tests/acceptance/test-results/playwright-report/*

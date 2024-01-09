@@ -55,16 +55,13 @@ Build:
       - bin/console theme:change --all Storefront
       - echo -e "\e[0Ksection_end:`date +%s`:theme\r\e[0K"
       - 'mysqldump -uroot -papp -hdatabase root > var/database.sql'
+      - chown -R www-data:www-data .
+      - tar -cz --exclude .git -f /tmp/context.tar.gz .
+      - mv /tmp/context.tar.gz ${CI_PROJECT_DIR}/
     artifacts:
-        paths:
-            - src/Administration/Resources/public
-            - src/Storefront/Resources/public
-            - src/Storefront/Resources/app/storefront/dist
-            - src/Storefront/Resources/app/storefront/vendor
-            - var/database.sql
-            - var/plugins.json
-            - custom/plugins/TestPlugin
-            - public/theme/
+      paths:
+        - context.tar.gz
+      expire_in: 4 hours
 
 Prepare commercial release:
   extends: .base-no-setup

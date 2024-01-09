@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 // Read from default ".env" file.
 dotenv.config();
 
-const missingEnvVars = ['APP_URL', 'SHOPWARE_ACCESS_KEY_ID', 'SHOPWARE_SECRET_ACCESS_KEY'].filter((envVar) => {
+const missingEnvVars = ['APP_URL'].filter((envVar) => {
     return process.env[envVar] === undefined;
 });
 
@@ -16,14 +16,11 @@ if (missingEnvVars.length > 0) {
     process.stdout.write(`Please provide the following env vars (loaded env: ${envPath}):\n`);
     process.stdout.write('- ' + missingEnvVars.join('\n- ') + '\n');
 
-    if (missingEnvVars.includes('SHOPWARE_ACCESS_KEY_ID') || missingEnvVars.includes('SHOPWARE_SECRET_ACCESS_KEY')) {
-        process.stdout.write(
-            '\nTo generate the integration you can use `bin/console framework:integration:create AcceptanceTestSuite --admin`'
-        );
-    }
-
     process.exit(1);
 }
+
+process.env['SHOPWARE_ADMIN_USERNAME'] = process.env['SHOPWARE_ADMIN_USERNAME'] || 'admin';
+process.env['SHOPWARE_ADMIN_PASSWORD'] = process.env['SHOPWARE_ADMIN_PASSWORD'] || 'shopware';
 
 // make sure APP_URL ends with a slash
 process.env['APP_URL'] = process.env['APP_URL'].replace(/\/+$/, '') + '/';
@@ -34,38 +31,44 @@ if (process.env['ADMIN_URL']) {
 const projectRoot = path.resolve('./../../');
 const pluginFile = path.resolve(projectRoot, 'var/plugins.json');
 
-if (!fs.existsSync(pluginFile)) {
-    console.warn('No plugins.json file found. Skipping plugin tests.');
-}
+
 
 interface PluginInfo {
     basePath: string;
     technicalName: string;
 }
 
-const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8')) as Record<string, PluginInfo>;
+function getPluginProjects() {
+    if (!fs.existsSync(pluginFile)) {
+        console.warn('No plugins.json file found. Skipping plugin tests.');
+        return [];
+    } 
 
-const pluginProjects = Object.entries(pluginDefinition)
-    .map(([, pluginData]) => {
-        const basePath = pluginData.basePath.replace(/\/src\/$/, '');
-        return {
-            basePath: basePath,
-            technicalName: pluginData.technicalName,
-            acceptanceTestsPath: path.resolve(projectRoot, basePath, 'tests/acceptance/tests'),
-        };
-    })
-    .filter((plugin) => {
-        return fs.existsSync(plugin.acceptanceTestsPath);
-    })
-    .map((plugin) => {
-        return {
-            name: plugin.technicalName,
-            use: {
-                ...devices['Desktop Chrome'],
-            },
-            testDir: plugin.acceptanceTestsPath,
-        };
-    });
+    const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8')) as Record<string, PluginInfo>;
+
+    return Object.entries(pluginDefinition)
+        .map(([, pluginData]) => {
+            const basePath = pluginData.basePath.replace(/\/src\/$/, '');
+            return {
+                basePath: basePath,
+                technicalName: pluginData.technicalName,
+                acceptanceTestsPath: path.resolve(projectRoot, basePath, 'tests/acceptance/tests'),
+            };
+        })
+        .filter((plugin) => {
+            return fs.existsSync(plugin.acceptanceTestsPath);
+        })
+        .map((plugin) => {
+            return {
+                name: plugin.technicalName,
+                use: {
+                    ...devices['Desktop Chrome'],
+                },
+                testDir: plugin.acceptanceTestsPath,
+            };
+        });
+}
+
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -103,7 +106,7 @@ export default defineConfig({
             },
         },
 
-        ...pluginProjects,
+        ...getPluginProjects(),
 
         /**
          * Uncomment other browsers after prototype!

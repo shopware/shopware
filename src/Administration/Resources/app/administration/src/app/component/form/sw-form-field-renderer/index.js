@@ -225,6 +225,15 @@ Component.register('sw-form-field-renderer', {
 
     watch: {
         currentValue(value) {
+            if (
+                Array.isArray(value) &&
+                Array.isArray(this.value) &&
+                value.length === this.value.length &&
+                value.every((val, index) => val === this.value[index])
+            ) {
+                return;
+            }
+
             if (value !== this.value) {
                 this.$emit('input', value);
             }

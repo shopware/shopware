@@ -107,7 +107,7 @@
                     :options="getVariableOptions(seoUrlTemplate.id)"
                     :placeholder="$tc('sw-seo-url-template-card.general.placeholderSelectVariables')"
                     :label="$tc('sw-seo-url-template-card.general.labelPossibleValues')"
-                    @change="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
+                    @update:value="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
                 />
                 {% endblock %}
             </sw-container>

@@ -2,35 +2,37 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-import 'src/app/component/form/sw-form-field-renderer';
 
 async function createWrapper(additionalOptions = {}) {
-    return shallowMount(await Shopware.Component.build('sw-form-field-renderer'), {
-        stubs: {
-            'sw-field': {
-                template: '<div class="sw-field"><slot name="label"></slot><slot></slot></div>',
-            },
-            'sw-text-field': true,
-            'sw-contextual-field': true,
-            'sw-block-field': true,
-            'sw-base-field': true,
-            'sw-field-error': true,
-        },
-        propsData: {
+    return mount(await wrapTestComponent('sw-form-field-renderer', {
+        sync: true,
+    }), {
+        props: {
             config: { name: 'field2', type: 'text', config: { label: 'field2Label' } },
             value: 'data value',
         },
-        provide: {
-            validationService: {},
-            repositoryFactory: {
-                create() {
-                    return {
-                        get() {
-                            return Promise.resolve({});
-                        },
-                    };
+        global: {
+            stubs: {
+                'sw-text-field': {
+                    template: '<div class="sw-text-field"><slot name="label"></slot><slot></slot></div>',
+                },
+                'sw-contextual-field': true,
+                'sw-block-field': true,
+                'sw-base-field': true,
+                'sw-field-error': true,
+            },
+            provide: {
+                validationService: {},
+                repositoryFactory: {
+                    create() {
+                        return {
+                            get() {
+                                return Promise.resolve({});
+                            },
+                        };
+                    },
                 },
             },
         },
@@ -50,10 +52,11 @@ describe('components/form/sw-form-field-renderer', () => {
 
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
-            scopedSlots: {
+            slots: {
                 label: '<template>Label from slot</template>',
             },
         });
+        await flushPromises();
         const contentWrapper = wrapper.find('.sw-form-field-renderer');
         expect(contentWrapper.text()).toBe('Label from slot');
     });

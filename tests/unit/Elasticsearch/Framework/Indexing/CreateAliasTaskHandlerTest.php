@@ -7,6 +7,7 @@ use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTask;
@@ -48,6 +49,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $this->createMock(Client::class),
             $connection,
             $elasticsearchHelper,
@@ -72,6 +74,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
@@ -149,6 +152,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
@@ -223,6 +227,7 @@ class CreateAliasTaskHandlerTest extends TestCase
 
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),

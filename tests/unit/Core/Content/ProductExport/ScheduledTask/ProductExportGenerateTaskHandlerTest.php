@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Framework\Context;
@@ -35,6 +36,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
             $this->createMock(EntityRepository::class),
+            $this->createMock(LoggerInterface::class),
             $salesChannelContextFactoryMock,
             $salesChannelRepositoryMock,
             $productExportRepositoryMock,

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler;
@@ -25,6 +26,7 @@ class CollectEntityDataTaskHandlerTest extends TestCase
 
         $taskHandler = new CollectEntityDataTaskHandler(
             new StaticEntityRepository([], new ScheduledTaskDefinition()),
+            $this->createMock(LoggerInterface::class),
             $entityDispatchService
         );
 

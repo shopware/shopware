@@ -728,7 +728,6 @@ const missingTests = [
     'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/index.js',
-    'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js',
     'src/module/sw-bulk-edit/page/sw-bulk-edit-customer/index.js',

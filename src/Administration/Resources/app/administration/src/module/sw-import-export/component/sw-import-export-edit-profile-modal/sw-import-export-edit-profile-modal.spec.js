@@ -1,10 +1,7 @@
 /**
  * @package services-settings
  */
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import swImportExportEditProfileModal from 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal';
-
-Shopware.Component.register('sw-import-export-edit-profile-modal', swImportExportEditProfileModal);
+import { mount } from '@vue/test-utils';
 
 function getMockParentProfiles(total = 1) {
     let mockParentProfiles = [];
@@ -28,34 +25,24 @@ function getMockParentProfiles(total = 1) {
     return mockParentProfiles;
 }
 
-describe('module/sw-import-export/components/sw-import-export-edit-profile-modal', () => {
-    let wrapper;
-    let localVue;
-    let missingRequiredFieldsLength;
-    const systemRequiredFields = {};
-    let parentProfileTotal = 1;
-    let searchError = false;
-
-    const mockProfile = {
-        sourceEntity: 'product',
-        mapping: [
-            {
-                id: 'b36961c5f32c4f4d9e17ed9718f5fca2',
-                key: 'productNumber',
-                mappedKey: 'product_number',
-            },
-        ],
-        config: {
-            createEntities: true,
-            updateEntities: true,
+const mockProfile = {
+    sourceEntity: 'product',
+    mapping: [
+        {
+            id: 'b36961c5f32c4f4d9e17ed9718f5fca2',
+            key: 'productNumber',
+            mappedKey: 'product_number',
         },
-    };
+    ],
+    config: {
+        createEntities: true,
+        updateEntities: true,
+    },
+};
 
-    beforeEach(async () => {
-        localVue = createLocalVue();
-
-        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-edit-profile-modal'), {
-            localVue,
+async function createWrapper(params = { searchError: false, parentProfileTotal: 1, missingRequiredFieldsLength: 0, systemRequiredFields: {} }) {
+    return mount(await wrapTestComponent('sw-import-export-edit-profile-modal', { sync: true }), {
+        global: {
             stubs: {
                 'sw-select-base': true,
                 'sw-button': true,
@@ -68,11 +55,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     create: () => {
                         return {
                             search: () => {
-                                if (searchError) {
+                                if (params.searchError) {
                                     return Promise.reject();
                                 }
 
-                                return Promise.resolve(getMockParentProfiles(parentProfileTotal));
+                                return Promise.resolve(getMockParentProfiles(params.parentProfileTotal));
                             },
                         };
                     },
@@ -81,12 +68,12 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     validate: () => {
                         return {
                             missingRequiredFields: {
-                                length: missingRequiredFieldsLength,
+                                length: params.missingRequiredFieldsLength,
                             },
                         };
                     },
                     getSystemRequiredFields: () => {
-                        return systemRequiredFields;
+                        return params.systemRequiredFields;
                     },
                 },
                 importExportUpdateByMapping: {
@@ -94,31 +81,25 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                     },
                 },
             },
-        });
+        },
     });
+}
 
-    afterEach(() => {
-        localVue = null;
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
+describe('module/sw-import-export/components/sw-import-export-edit-profile-modal', () => {
+    let wrapper;
 
     it('should be save profile success', async () => {
-        missingRequiredFieldsLength = 0;
-
+        wrapper = await createWrapper();
         await wrapper.setProps({ profile: mockProfile });
 
         await wrapper.vm.saveProfile();
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.emitted('profile-save')).toBeTruthy();
     });
 
     it('should be get parent of profile', async () => {
+        wrapper = await createWrapper();
         await wrapper.setProps({ profile: mockProfile });
 
         const mockParentProfiles = getMockParentProfiles();
@@ -127,23 +108,21 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     });
 
     it('should be null of parentProfile', async () => {
-        parentProfileTotal = 0;
-
+        wrapper = await createWrapper({ searchError: false, parentProfileTotal: 0, missingRequiredFieldsLength: 0, systemRequiredFields: {} });
         await wrapper.setProps({ profile: mockProfile });
 
         expect((await wrapper.vm.getParentProfileSelected())).toBeNull();
     });
 
     it('should be null of parentProfile when search was error', async () => {
-        searchError = true;
+        wrapper = await createWrapper({ searchError: true, parentProfileTotal: 1, missingRequiredFieldsLength: 0, systemRequiredFields: {} });
 
         wrapper.vm.createNotificationError = jest.fn();
 
         await wrapper.setProps({ profile: mockProfile });
 
         await wrapper.vm.getParentProfileSelected();
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-import-export.profile.messageSearchParentProfileError',
@@ -153,14 +132,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     });
 
     it('should be save profile fail with missing required fields', async () => {
-        missingRequiredFieldsLength = 1;
-        searchError = false;
-
+        wrapper = await createWrapper({ searchError: false, parentProfileTotal: 1, missingRequiredFieldsLength: 1, systemRequiredFields: {} });
         await wrapper.setProps({ profile: mockProfile });
 
         await wrapper.vm.saveProfile();
-
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.missingRequiredFields).toHaveLength(1);
     });
@@ -171,12 +147,14 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     });
 
     it('should be isNew for profile when profile data is empty', async () => {
+        wrapper = await createWrapper();
         await wrapper.setProps({ profile: { isNew: () => {} } });
 
         expect(wrapper.vm.profile.isNew).toBeTruthy();
     });
 
     it('should set the updateEntities and createEntities config options', async () => {
+        wrapper = await createWrapper();
         await wrapper.setProps({ profile: mockProfile });
         // create and update should be true from the mockProfile inside the component
         expect(wrapper.vm.profile.config.createEntities).toBeTruthy();

@@ -139,7 +139,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_manufacturer_detail_base_info_field_description %}
                     <sw-text-editor
-                        v-model="manufacturer.description"
+                        v-model:value="manufacturer.description"
                         :label="$tc('sw-manufacturer.detail.labelDescription')"
                         :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                         name="description"

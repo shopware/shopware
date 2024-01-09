@@ -158,7 +158,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_settings_customer_group_detail_content_registration_card_introduction %}
                     <sw-text-editor
-                        v-model="customerGroup.registrationIntroduction"
+                        v-model:value="customerGroup.registrationIntroduction"
                         :label="$tc('sw-settings-customer-group.registration.introduction')"
                         :placeholder="placeholder(customerGroup, 'registrationIntroduction', $tc('sw-settings-customer-group.registration.placeholderIntroduction'))"
                         :disabled="!acl.can('customer_groups.editor')"

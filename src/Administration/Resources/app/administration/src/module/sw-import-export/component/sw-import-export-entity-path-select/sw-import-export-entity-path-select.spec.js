@@ -1,20 +1,43 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils_v2';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import swImportExportEntityPathSelect from 'src/module/sw-import-export/component/sw-import-export-entity-path-select';
-
-Shopware.Component.register('sw-import-export-entity-path-select', swImportExportEntityPathSelect);
+import { mount } from '@vue/test-utils';
 
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
+
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-import-export-entity-path-select', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-icon': {
+                    template: '<div></div>',
+                },
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+            },
+        },
+        props: {
+            value: null,
+            entityType: 'product',
+            customFieldSets: [
+                {
+                    relations: [{ entityName: 'product' }],
+                    customFields: [{ name: 'custom_field_product_1' }, { name: 'custom_field_product_2' }],
+                },
+                {
+                    relations: [{ entityName: 'product_manufacturer' }],
+                    customFields: [{ name: 'custom_field_manufacturer_1' }, { name: 'custom_field_manufacturer_2' }],
+                },
+            ],
+        },
+    });
+}
 
 describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
     let wrapper;
@@ -150,43 +173,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
         });
 
-        wrapper = shallowMount(await Shopware.Component.build('sw-import-export-entity-path-select'), {
-            stubs: {
-                'sw-select-base': await Shopware.Component.build('sw-select-base'),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
-                'sw-field-error': await Shopware.Component.build('sw-field-error'),
-                'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-                'sw-popover': await Shopware.Component.build('sw-popover'),
-                'sw-select-result': await Shopware.Component.build('sw-select-result'),
-                'sw-highlight-text': await Shopware.Component.build('sw-highlight-text'),
-            },
-            propsData: {
-                value: null,
-                entityType: 'product',
-                customFieldSets: [
-                    {
-                        relations: [{ entityName: 'product' }],
-                        customFields: [{ name: 'custom_field_product_1' }, { name: 'custom_field_product_2' }],
-                    },
-                    {
-                        relations: [{ entityName: 'product_manufacturer' }],
-                        customFields: [{ name: 'custom_field_manufacturer_1' }, { name: 'custom_field_manufacturer_2' }],
-                    },
-                ],
-            },
-        });
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
+        wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('should return array when calling `actualPathParts` computed property', async () => {

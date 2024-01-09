@@ -781,7 +781,6 @@ const missingTests = [
     'src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-modal/index.js',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-identifiers/index.js',
-    'src/module/sw-import-export/component/sw-import-export-entity-path-select/index.js',
     'src/module/sw-import-export/component/sw-import-export-exporter/index.js',
     'src/module/sw-import-export/view/sw-import-export-view-profiles/index.js',
     'src/module/sw-integration/page/sw-integration-list/index.js',

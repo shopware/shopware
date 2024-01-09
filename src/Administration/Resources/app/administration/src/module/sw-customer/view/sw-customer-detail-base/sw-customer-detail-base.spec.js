@@ -1,16 +1,8 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import swCustomerDetailBase from 'src/module/sw-customer/view/sw-customer-detail-base';
-import 'src/app/component/form/sw-custom-field-set-renderer';
-import 'src/app/component/form/sw-form-field-renderer';
-import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/base/sw-tabs';
-import 'src/app/component/base/sw-tabs-item';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
-
-Shopware.Component.register('sw-customer-detail-base', swCustomerDetailBase);
 
 const customFields = [
     {
@@ -57,39 +49,41 @@ const customFields = [
 
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-customer-detail-base'), {
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve(customFields),
-                        get: () => Promise.resolve({ id: '' }),
-                    };
+    return mount(await wrapTestComponent('sw-customer-detail-base', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(customFields),
+                            get: () => Promise.resolve({ id: '' }),
+                        };
+                    },
                 },
+
             },
 
+            stubs: {
+                'sw-card': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-customer-card': {
+                    template: '<div></div>',
+                },
+                'sw-custom-field-set-renderer': await wrapTestComponent('sw-custom-field-set-renderer', { sync: true }),
+                'sw-tabs': await wrapTestComponent('sw-tabs'),
+                'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer', { sync: true }),
+                'sw-field': {
+                    template: '<div></div>',
+                },
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+            },
         },
 
-        propsData: {
+        props: {
             customerEditMode: false,
             customer: {},
-        },
-
-        stubs: {
-            'sw-card': {
-                template: '<div><slot></slot></div>',
-            },
-            'sw-customer-card': {
-                template: '<div></div>',
-            },
-            'sw-custom-field-set-renderer': await Shopware.Component.build('sw-custom-field-set-renderer'),
-            'sw-tabs': await Shopware.Component.build('sw-tabs'),
-            'sw-tabs-item': await Shopware.Component.build('sw-tabs-item'),
-            'sw-form-field-renderer': await Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': {
-                template: '<div></div>',
-            },
-            'sw-inherit-wrapper': await Shopware.Component.build('sw-inherit-wrapper'),
         },
     });
 }
@@ -101,10 +95,6 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
         wrapper = await createWrapper();
     });
 
-    afterEach(async () => {
-        await wrapper.destroy();
-    });
-
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -114,7 +104,7 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
 
         expect(formFields).toHaveLength(6);
 
-        const [first, second, third, fourth, fifth, sixth] = formFields.wrappers;
+        const [first, second, third, fourth, fifth, sixth] = formFields;
 
         expect(first.attributes('customfieldposition')).toBe('1');
         expect(second.attributes('customfieldposition')).toBe('4');

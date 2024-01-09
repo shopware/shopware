@@ -3,6 +3,7 @@
 namespace Shopware\Core\Installer\Finish;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -35,8 +36,8 @@ class Notifier
         ];
 
         try {
-            $this->client->postAsync($this->apiEndPoint . '/swplatform/tracking/events', ['json' => $payload]);
-        } catch (\Exception) {
+            $this->client->post($this->apiEndPoint . '/swplatform/tracking/events', ['json' => $payload]);
+        } catch (GuzzleException) {
             // ignore
         }
     }

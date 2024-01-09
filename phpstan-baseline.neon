@@ -8401,11 +8401,6 @@ parameters:
 
 		-
 			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Installer/Finish/NotifierTest.php
-
-		-
-			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
 			path: tests/unit/Core/Installer/License/LicenseFetcherTest.php
 

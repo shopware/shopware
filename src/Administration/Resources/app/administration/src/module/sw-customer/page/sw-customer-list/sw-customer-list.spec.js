@@ -1,91 +1,90 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import swCustomerList from 'src/module/sw-customer/page/sw-customer-list';
+import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 
-Shopware.Component.register('sw-customer-list', swCustomerList);
-
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-customer-list'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await wrapTestComponent('sw-customer-list', { sync: true }), {
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: (entity) => ({
-                    create: () => {
-                        return Promise.resolve(entity === 'customer' ? [{
-                            id: '1a2b3c',
-                            entity: 'customer',
-                            customerId: 'd4c3b2a1',
-                            productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1',
-                        }] : []);
-                    },
-                    search: () => {
-                        return Promise.resolve(entity === 'customer' ? [{
-                            id: '1a2b3c',
-                            entity: 'customer',
-                            customerId: 'd4c3b2a1',
-                            productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1',
-                            sourceEntitiy: 'customer',
-                            createdById: '123213132',
-                        }] : []);
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
+            provide: {
+                repositoryFactory: {
+                    create: (entity) => ({
+                        create: () => {
+                            return Promise.resolve(entity === 'customer' ? [{
+                                id: '1a2b3c',
+                                entity: 'customer',
+                                customerId: 'd4c3b2a1',
+                                productId: 'd4c3b2a1',
+                                salesChannelId: 'd4c3b2a1',
+                            }] : []);
+                        },
+                        search: () => {
+                            return Promise.resolve(entity === 'customer' ? [{
+                                id: '1a2b3c',
+                                entity: 'customer',
+                                customerId: 'd4c3b2a1',
+                                productId: 'd4c3b2a1',
+                                salesChannelId: 'd4c3b2a1',
+                                sourceEntitiy: 'customer',
+                                createdById: '123213132',
+                            }] : []);
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                filterFactory: {},
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return Promise.resolve({
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING,
+                        });
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
+                    },
                 },
             },
-            filterFactory: {},
-            searchRankingService: {
-                getSearchFieldsByEntity: () => {
-                    return Promise.resolve({
-                        name: searchRankingPoint.HIGH_SEARCH_RANKING,
-                    });
-                },
-                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
-                    return criteria;
-                },
-            },
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
+                },
+                'sw-button': true,
+                'sw-icon': true,
+                'sw-search-bar': true,
+                'sw-entity-listing': {
+                    props: ['items'],
+                    template: `
+                        <div>
+                            <template v-for="item in items">
+                                <slot name="actions" v-bind="{ item }"></slot>
+                            </template>
+                        </div>`,
+                },
+                'sw-language-switch': true,
+                'sw-empty-state': true,
+                'sw-context-menu-item': true,
+                'router-link': true,
             },
-            'sw-button': true,
-            'sw-icon': true,
-            'sw-search-bar': true,
-            'sw-entity-listing': {
-                props: ['items'],
-                template: `
-                    <div>
-                        <template v-for="item in items">
-                            <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
-                    </div>`,
-            },
-            'sw-language-switch': true,
-            'sw-empty-state': true,
-            'sw-context-menu-item': true,
-            'router-link': true,
         },
     });
 }
@@ -99,14 +98,14 @@ Shopware.Service().register('filterService', () => {
 describe('module/sw-customer/page/sw-customer-list', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new customer', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-customer-list__button-create');
 
@@ -117,7 +116,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const wrapper = await createWrapper([
             'customer.creator',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-customer-list__button-create');
 
@@ -126,8 +125,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-customer-list-grid');
 
@@ -139,8 +137,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const wrapper = await createWrapper([
             'customer.editor',
         ]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-customer-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -149,8 +146,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-customer-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -160,8 +156,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const wrapper = await createWrapper([
             'customer.deleter',
         ]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-customer-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -169,8 +164,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-customer-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -180,8 +174,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         const wrapper = await createWrapper([
             'customer.editor',
         ]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-customer-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -192,7 +185,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -212,7 +205,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -236,7 +229,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -259,7 +252,7 @@ describe('module/sw-customer/page/sw-customer-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

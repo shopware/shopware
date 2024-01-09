@@ -52,19 +52,20 @@ Component.register('sw-field-copyable', {
                 return;
             }
 
-            try {
-                domUtils.copyToClipboard(this.copyableText);
-                if (this.tooltip) {
-                    this.tooltipSuccess();
-                } else {
-                    this.notificationSuccess();
-                }
-            } catch (err) {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+            domUtils.copyStringToClipboard(this.copyableText)
+                .then(() => {
+                    if (this.tooltip) {
+                        this.tooltipSuccess();
+                    } else {
+                        this.notificationSuccess();
+                    }
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                    });
                 });
-            }
         },
 
         tooltipSuccess() {

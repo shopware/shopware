@@ -786,7 +786,6 @@ const missingTests = [
     'src/module/sw-import-export/component/sw-import-export-exporter/index.js',
     'src/module/sw-import-export/view/sw-import-export-view-profiles/index.js',
     'src/module/sw-integration/page/sw-integration-list/index.js',
-    'src/module/sw-mail-template/component/sw-mail-header-footer-list/index.js',
     'src/module/sw-mail-template/component/sw-mail-template-list/index.js',
     'src/module/sw-mail-template/page/sw-mail-header-footer-detail/index.js',
     'src/module/sw-mail-template/page/sw-mail-template-detail/index.js',

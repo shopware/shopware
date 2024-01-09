@@ -123,6 +123,13 @@ config.global.mocks = {
     $t: v => v,
     $te: () => true,
     $sanitize: key => key,
+    $i18n: {
+        locale: 'en-GB',
+        fallbackLocale: 'en-GB',
+        messages: {
+            'en-GB': {},
+        },
+    },
     $device: {
         onResize: jest.fn(),
         removeResizeListener: jest.fn(),

@@ -89,7 +89,7 @@
         <sw-category-tree-field
             v-else-if="linkCategory === 'navigation'"
             :label="$tc('sw-text-editor-toolbar.link.linkTo')"
-            :criteria="entityFilter"
+            :category-criteria="entityFilter"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholderCategory')"
             :categories-collection="categoryCollection"
             single-select

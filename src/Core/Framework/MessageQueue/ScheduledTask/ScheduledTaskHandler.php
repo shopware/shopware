@@ -7,6 +7,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
@@ -17,10 +18,16 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 #[Package('core')]
 abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
+    /**
+     * @deprecated tag:v6.7.0 - logger will be required
+     */
     public function __construct(
         protected readonly EntityRepository $scheduledTaskRepository,
-        protected readonly LoggerInterface $logger
+        protected readonly ?LoggerInterface $logger = null
     ) {
+        if ($logger === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument logger is required.');
+        }
     }
 
     public function __invoke(ScheduledTask $task): void
@@ -49,7 +56,7 @@ abstract class ScheduledTaskHandler implements MessageSubscriberInterface
             $this->run();
         } catch (\Throwable $e) {
             if ($task->shouldRescheduleOnFailure()) {
-                $this->logger->error(
+                $this->logger?->error(
                     'Scheduled task failed with: ' . $e->getMessage(),
                     [
                         'error' => $e,

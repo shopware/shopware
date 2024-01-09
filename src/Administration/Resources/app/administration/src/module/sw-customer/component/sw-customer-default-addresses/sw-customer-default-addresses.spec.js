@@ -1,36 +1,30 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import SwCustomerDefaultAddresses from 'src/module/sw-customer/component/sw-customer-default-addresses/index';
-import 'src/app/component/base/sw-address';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
  */
 
-Shopware.Component.register('sw-customer-default-addresses', SwCustomerDefaultAddresses);
-
 async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {
-    return shallowMount(await Shopware.Component.build('sw-customer-default-addresses'), {
-        propsData: {
+    return mount(await wrapTestComponent('sw-customer-default-addresses', { sync: true }), {
+        props: {
             customer: {
                 defaultShippingAddress,
                 defaultBillingAddress,
             },
         },
-        stubs: {
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>',
+        global: {
+            stubs: {
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-card-section': await wrapTestComponent('sw-card-section'),
+                'sw-address': await wrapTestComponent('sw-address', { sync: true }),
             },
-            'sw-card-section': {
-                template: '<div class="sw-card-section"><slot></slot></div>',
-            },
-            'sw-address': await Shopware.Component.build('sw-address'),
-        },
-        provide: {
-            customSnippetApiService: {
-                render() {
-                    return Promise.resolve({
-                        rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
-                    });
+            provide: {
+                customSnippetApiService: {
+                    render() {
+                        return Promise.resolve({
+                            rendered: 'Christa Stracke<br/> \\n \\n Philip Inlet<br/> \\n \\n \\n \\n 22005-3637 New Marilyneside<br/> \\n \\n Moldova (Republic of)<br/><br/>',
+                        });
+                    },
                 },
             },
         },

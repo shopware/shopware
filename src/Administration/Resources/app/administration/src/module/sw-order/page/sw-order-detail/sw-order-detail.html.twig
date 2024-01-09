@@ -107,11 +107,50 @@
 
             <sw-alert
                 v-if="isOrderEditing"
-                class="sw-order-detail__unsaved-warning"
+                class="sw-order-detail__alert"
                 variant="warning"
             >
                 {{ $tc('sw-order.detail.textUnsavedOrderWarning') }}
             </sw-alert>
+
+            <sw-alert
+                v-if="missingProductLineItems.length > 0"
+                class="sw-order-detail__alert"
+                variant="warning"
+            >
+                {{ $tc('sw-order.detailBase.textMissingProductLineItems') }}
+
+                <ul class="sw_order_detail_base__missing_products_alert-list">
+                    <li
+                        v-for="lineItem in missingProductLineItems"
+                        :key="lineItem.id"
+                    >
+                        {{ lineItem.label }}
+                    </li>
+                </ul>
+
+                {{ $tc('sw-order.detailBase.textMissingProductLineItemsDescription') }}
+            </sw-alert>
+
+            <sw-alert
+                v-if="convertedProductLineItems.length > 0"
+                class="sw-order-detail__alert"
+                variant="info"
+            >
+                {{ $tc('sw-order.detailBase.textConvertedProductLineItems') }}
+
+                <ul class="sw_order_detail_base__converted_products_alert-list">
+                    <li
+                        v-for="lineItem in convertedProductLineItems"
+                        :key="lineItem.id"
+                    >
+                        {{ lineItem.label }}
+                    </li>
+                </ul>
+
+                {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
+            </sw-alert>
+
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_content_tabs %}
             <sw-tabs

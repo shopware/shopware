@@ -45,6 +45,7 @@ export default {
             nextRoute: null,
             hasNewVersionId: false,
             hasOrderDeepEdit: false,
+            missingProductLineItems: [],
         };
     },
 
@@ -133,6 +134,14 @@ export default {
             criteria.addAssociation('billingAddress');
 
             return criteria;
+        },
+
+        convertedProductLineItems() {
+            return this.order?.lineItems?.filter((lineItem) => {
+                return lineItem.payload?.isConvertedProductLineItem
+                    && lineItem.type === 'custom'
+                    && !this.missingProductLineItems.includes(lineItem);
+            }) || [];
         },
     },
 
@@ -251,9 +260,7 @@ export default {
                     State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
 
                     return this.createNewVersionId().then(() => {
-                        State.commit('swOrderDetail/setLoading', ['order', false]);
                         State.commit('swOrderDetail/setSavedSuccessful', true);
-                        this.isLoading = false;
                     });
                 });
 
@@ -279,7 +286,6 @@ export default {
                 this.onError('error', error);
             }).finally(() => {
                 this.missingProductLineItems = [];
-                this.convertedProductLineItems = [];
 
                 return this.createNewVersionId().then(() => {
                     State.commit('swOrderDetail/setLoading', ['order', false]);
@@ -368,23 +374,20 @@ export default {
             });
         },
 
-        reloadEntityData() {
+        reloadEntityData(isSaved = true) {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
             return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
-                if (this.$route.name !== 'sw.order.detail.documents') {
+                if (this.$route.name !== 'sw.order.detail.documents' && isSaved) {
                     this.hasOrderDeepEdit = true;
                 }
 
                 State.commit('swOrderDetail/setOrder', response);
-                State.commit('swOrderDetail/setLoading', ['order', false]);
-                this.isLoading = false;
 
                 return Promise.resolve();
-            }).catch(() => {
+            }).finally(() => {
                 Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                return Promise.reject();
+                this.isLoading = false;
             });
         },
 
@@ -394,17 +397,9 @@ export default {
 
                 State.commit('swOrderDetail/setVersionContext', newContext);
 
-                this.orderRepository.get(this.orderId, newContext, this.orderCriteria).then((response) => {
-                    State.commit('swOrderDetail/setOrder', response);
-                    State.commit('swOrderDetail/setLoading', ['order', false]);
-                    this.isLoading = false;
-
-                    return Promise.resolve();
-                }).catch(() => {
-                    Shopware.State.commit('swOrderDetail/setLoading', ['order', false]);
-
-                    return Promise.reject();
-                });
+                return this.reloadEntityData(false);
+            }).then(() => {
+                return this.convertMissingProductLineItems();
             });
         },
 
@@ -421,6 +416,25 @@ export default {
 
         updateEditing(value) {
             State.commit('swOrderDetail/setEditing', value);
+        },
+
+        convertMissingProductLineItems() {
+            this.missingProductLineItems = this.order?.lineItems?.filter((lineItem) => {
+                return (lineItem.productId === null && lineItem.type === 'product');
+            }) || [];
+
+            if (this.missingProductLineItems.length === 0) {
+                return Promise.resolve();
+            }
+
+            this.missingProductLineItems.forEach((lineItem) => {
+                lineItem.type = 'custom';
+                lineItem.productId = null;
+                lineItem.referencedId = null;
+                lineItem.payload.isConvertedProductLineItem = true;
+            });
+
+            return this.orderRepository.save(this.order, this.versionContext);
         },
     },
 };

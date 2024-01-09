@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import VueRouter from 'vue-router_v2';
+import { createRouter, createWebHistory } from 'vue-router';
 import initTabs from 'src/app/init/tabs.init';
 import { ui } from '@shopware-ag/admin-extension-sdk';
 
@@ -19,7 +19,8 @@ describe('src/app/init/tabs.init', () => {
         Shopware.Application.view.getComponent = () => ({});
 
         // Mock for router
-        routerMock = new VueRouter({
+        routerMock = createRouter({
+            history: createWebHistory(),
             routes: [
                 {
                     name: 'sw.category.index',
@@ -71,22 +72,14 @@ describe('src/app/init/tabs.init', () => {
         await Shopware.Application._resolveViewInitialized();
 
         // Visit the route and expect that the interceptor redirects the route
-
-        await expect((async () => {
-            await routerMock.push('/sw/category/index/eXaMpLeId/route-example-component-section-id');
-        })()).rejects.toEqual(new Error('Redirected when going from "/sw/category/index/eXaMpLeId" to "/sw/category/index/eXaMpLeId/route-example-component-section-id" via a navigation guard.'));
-
+        await routerMock.push('/sw/category/index/eXaMpLeId/route-example-component-section-id');
 
         // Check if route was created correctly
         expect(
-            routerMock.match('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1],
+            routerMock.resolve('/sw/category/index/eXaMpLeId/route-example-component-section-id').matched[1],
         ).toEqual(expect.objectContaining({
             name: 'sw.category.index.route-example-component-section-id',
             path: '/sw/category/index/:id?/route-example-component-section-id',
-            parent: expect.objectContaining({
-                name: 'sw.category.index',
-                path: '/sw/category/index/:id',
-            }),
         }));
     });
 });

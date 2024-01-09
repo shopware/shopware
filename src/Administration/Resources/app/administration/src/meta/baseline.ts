@@ -718,7 +718,6 @@ const missingTests = [
     'src/app/service/app-cms.service.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media/index.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js',
-    'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-visibility/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/index.js',

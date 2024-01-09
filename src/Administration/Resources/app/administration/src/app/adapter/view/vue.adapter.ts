@@ -465,9 +465,8 @@ export default class VueAdapter extends ViewAdapter {
 
         store.subscribe(({ type }, state) => {
             if (type === 'setAdminLocale') {
-                // @ts-expect-error - locale is set in the store
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                i18n.locale = state.session.currentLocale!;
+                i18n.global.locale = state.session.currentLocale!;
             }
         });
 

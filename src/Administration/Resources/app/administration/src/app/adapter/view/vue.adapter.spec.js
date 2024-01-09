@@ -69,6 +69,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         Shopware.State.get('system').locales = ['en-GB', 'de-DE'];
 
+        Shopware.State.commit('setAdminLocale', {
+            locales: ['en-GB', 'de-DE'],
+            locale: 'en-GB',
+            languageId: '12345678',
+        });
+
         // create vue adapter
         vueAdapter = new VueAdapter(application);
 
@@ -641,6 +647,25 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         it('should return the adapter name', async () => {
             expect(vueAdapter.getName()).toBe('Vue.js');
+        });
+
+        it('should update the i18n global locale to update the locale in UI when the locale in the session store changes', async () => {
+            // Init Vue so that i18n is available
+            vueAdapter.initVue(
+                '#app',
+                {},
+                {},
+            );
+
+            const expectedLocale = 'de-DE';
+
+            Shopware.State.commit('setAdminLocale', {
+                locales: ['en-GB', 'de-DE'],
+                locale: expectedLocale,
+                languageId: '12345678',
+            });
+
+            expect(vueAdapter.i18n.global.locale).toEqual(expectedLocale);
         });
     });
 });

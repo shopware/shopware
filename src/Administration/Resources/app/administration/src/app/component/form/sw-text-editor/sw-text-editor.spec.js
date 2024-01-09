@@ -238,7 +238,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(contentEditor.element.innerHTML).toEqual(expectedValue);
 
         // check if content value was emitted right
-        const emittedValue = wrapper.emitted('update:modelValue')[1];
+        const emittedValue = wrapper.emitted('update:value')[1];
         expect(emittedValue[0]).toEqual(expectedValue);
     });
 
@@ -289,7 +289,7 @@ describe('src/app/component/form/sw-text-editor', () => {
             expect(contentEditor.element.innerHTML).toEqual(expectedValue);
 
             // check if content value was emitted right
-            const emittedValue = wrapper.emitted('update:modelValue')[1];
+            const emittedValue = wrapper.emitted('update:value')[1];
             expect(emittedValue[0]).toEqual(expectedValue);
         });
     });
@@ -319,7 +319,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(contentEditor.element.innerHTML).toBe(expectedTextContent);
 
         // check emitted events
-        const event = wrapper.emitted('update:modelValue')[1];
+        const event = wrapper.emitted('update:value')[1];
         expect(event[0]).toBe(expectedTextContent);
     });
 

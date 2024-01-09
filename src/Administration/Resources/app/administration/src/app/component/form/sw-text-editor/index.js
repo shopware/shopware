@@ -901,12 +901,12 @@ Component.register('sw-text-editor', {
         },
 
         emitContent() {
-            this.$emit('update:modelValue', this.getContentValue());
+            this.$emit('update:value', this.getContentValue());
         },
 
         emitHtmlContent(value) {
             this.content = value;
-            this.$emit('update:modelValue', value);
+            this.$emit('update:value', value);
 
             this.isEmpty = this.emptyCheck(this.content);
             this.placeholderVisible = this.isEmpty;

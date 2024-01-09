@@ -323,7 +323,7 @@ describe('app/plugins/shortcut.plugin', () => {
               <div>
                 <sw-text-editor
                     :value="description"
-                    @update:modelValue="onUpdateModelValue"
+                    @update:value="onUpdateModelValue"
                 ></sw-text-editor>
               </div>
             `,

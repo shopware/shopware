@@ -125,11 +125,7 @@ export default {
             const input = event.target.value;
 
             if (input !== item.fileName) {
-                return;
-            }
-
-            if (!input || !input.trim()) {
-                this.rejectRenaming(item, 'empty-name', endInlineEdit);
+                this.onChangeName(input, item, endInlineEdit);
                 return;
             }
 

@@ -136,12 +136,9 @@ export default {
 
         onBlur(event, item, endInlineEdit) {
             const input = event.target.value;
-            if (input !== item.name) {
-                return;
-            }
 
-            if (!input || !input.trim()) {
-                this.rejectRenaming(item, 'empty-name', endInlineEdit);
+            if (input !== item.name) {
+                this.onChangeName(input, item, endInlineEdit);
                 return;
             }
 

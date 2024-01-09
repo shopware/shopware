@@ -235,4 +235,41 @@ describe('components/media/sw-media-folder-item', () => {
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
         expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
     });
+
+    it('onBlur doesnt update the entity if the value did not change', async () => {
+        const wrapper = await createWrapper();
+        const item = wrapper.vm.mediaFolder;
+        const event = { target: { value: item.name } };
+
+        wrapper.vm.onChangeName = jest.fn();
+
+        wrapper.vm.onBlur(event, item, () => {});
+        expect(wrapper.vm.onChangeName).not.toHaveBeenCalled();
+    });
+
+    it('change handler is called if the folder name has changed on blur', async () => {
+        const wrapper = await createWrapper();
+        const item = wrapper.vm.mediaFolder;
+        const event = { target: { value: `${item.name} Test` } };
+
+        wrapper.vm.onChangeName = jest.fn();
+
+        wrapper.vm.onBlur(event, item, () => {});
+        expect(wrapper.vm.onChangeName).toHaveBeenCalled();
+    });
+
+    it('onChangeName rejects invalid names', async () => {
+        const wrapper = await createWrapper();
+        const item = wrapper.vm.mediaFolder;
+
+        wrapper.vm.rejectRenaming = jest.fn();
+
+        const emptyName = { target: { value: '' } };
+        wrapper.vm.onBlur(emptyName, item, () => {});
+        expect(wrapper.vm.rejectRenaming).toHaveBeenCalledWith(item, 'empty-name', expect.any(Function));
+
+        const invalidName = { target: { value: 'Test <' } };
+        wrapper.vm.onBlur(invalidName, item, () => {});
+        expect(wrapper.vm.rejectRenaming).toHaveBeenCalledWith(item, 'invalid-name', expect.any(Function));
+    });
 });

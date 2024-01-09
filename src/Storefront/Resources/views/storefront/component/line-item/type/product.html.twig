@@ -34,7 +34,7 @@
                                     <div class="line-item-img-container">
                                         {% block component_line_item_type_product_image_inner %}
                                             {% sw_include '@Storefront/storefront/component/line-item/element/image.html.twig' with {
-                                                lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                                lineItemLink: displayMode !== 'order' || lineItem.productId ? seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) : null,
                                                 lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
                                             } %}
                                         {% endblock %}
@@ -48,7 +48,7 @@
                                 <div class="line-item-details-container">
                                     {% block component_line_item_type_product_label %}
                                         {% sw_include '@Storefront/storefront/component/line-item/element/label.html.twig' with {
-                                            lineItemLink: seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }),
+                                            lineItemLink: displayMode !== 'order' || lineItem.productId ? seoUrl('frontend.detail.page', { 'productId': lineItem.referencedId }) : null,
                                             lineItemModalLink: showLineItemModal ? path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) : false,
                                         } %}
                                     {% endblock %}

@@ -1,34 +1,28 @@
 /**
  * @package services-settings
  */
-import { shallowMount } from '@vue/test-utils_v2';
-import swImportExportActivityLogInfoModal from 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
+import { mount } from '@vue/test-utils';
 
-Shopware.Component.register('sw-import-export-activity-log-info-modal', swImportExportActivityLogInfoModal);
+function getLogEntityMock() {
+    return {
+        activity: 'export',
+        state: 'succeeded',
+        records: 1,
+        username: 'admin',
+        createdAt: '2021-11-05T09:08:40.015+00:00',
+        profile: {
+            label: 'Default product',
+        },
+        file: {
+            originalName: 'star-lord.csv',
+            size: 458,
+        },
+    };
+}
 
-describe('module/sw-import-export/components/sw-import-export-activity-log-info-modal', () => {
-    /** @type Wrapper */
-    let wrapper;
-
-    function getLogEntityMock() {
-        return {
-            activity: 'export',
-            state: 'succeeded',
-            records: 1,
-            username: 'admin',
-            createdAt: '2021-11-05T09:08:40.015+00:00',
-            profile: {
-                label: 'Default product',
-            },
-            file: {
-                originalName: 'star-lord.csv',
-                size: 458,
-            },
-        };
-    }
-
-    async function createWrapper(logEntity = getLogEntityMock()) {
-        return shallowMount(await Shopware.Component.build('sw-import-export-activity-log-info-modal'), {
+async function createWrapper(logEntity = getLogEntityMock()) {
+    return mount(await wrapTestComponent('sw-import-export-activity-log-info-modal', { sync: true }), {
+        global: {
             provide: {
                 importExport: {},
             },
@@ -42,23 +36,15 @@ describe('module/sw-import-export/components/sw-import-export-activity-log-info-
                 'sw-button': true,
                 'sw-color-badge': true,
             },
-            propsData: {
-                logEntity,
-            },
-        });
-    }
-
-    afterEach(() => {
-        if (wrapper) {
-            wrapper.destroy();
-            wrapper = null;
-        }
+        },
+        props: {
+            logEntity,
+        },
     });
+}
 
-    it('should be a vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
+describe('module/sw-import-export/components/sw-import-export-activity-log-info-modal', () => {
+    let wrapper;
 
     it.each([
         ['file name', '.sw-import-export-activity-log-info-modal__item-file-name dd', 'star-lord.csv'],

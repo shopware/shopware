@@ -26,10 +26,10 @@
             class="sw-media-base-item__name-field"
             :value="item.fileName"
             name="media-item-name"
-            @change="onChangeName($event, item, endInlineEdit)"
             @blur="onBlur($event, item, endInlineEdit)"
             @keyup.esc="endInlineEdit"
             @click.stop
+            @keydown.enter.stop
         />
         <div
             v-else

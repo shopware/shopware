@@ -24,7 +24,7 @@
                     :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                     :help-text="formField.labelHelpText"
                     :disabled="!!bulkEditData[formField.name].disabled"
-                    @update:value="onChangeValue($event, formField.name)"
+                    @update:value="onChangeToggle($event, formField.name)"
                 />
                 {% endblock %}
 

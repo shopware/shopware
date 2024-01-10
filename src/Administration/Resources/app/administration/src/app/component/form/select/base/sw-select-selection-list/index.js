@@ -88,9 +88,13 @@ Component.register('sw-select-selection-list', {
 
     data() {
         return {
+            /**
+             * @deprecated tag:v6.7.0 - Will be removed
+             */
             tagLimit: true,
         };
     },
+
 
     computed: {
         showPlaceholder() {
@@ -99,14 +103,18 @@ Component.register('sw-select-selection-list', {
                 : '';
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        // eslint-disable-next-line vue/return-in-computed-property
         visibleTags() {
-            return this.tagLimit ? this.selections.slice(0, 5) : this.selections;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        // eslint-disable-next-line vue/return-in-computed-property
         numberOfHiddenTags() {
-            const hiddenTagsLength = this.selections.length - this.visibleTags.length;
-
-            return hiddenTagsLength > 0 ? hiddenTagsLength : 0;
         },
     },
 
@@ -157,8 +165,10 @@ Component.register('sw-select-selection-list', {
             return this.$refs.swSelectInput;
         },
 
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
         removeTagLimit() {
-            this.tagLimit = false;
         },
     },
 });

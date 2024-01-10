@@ -39,6 +39,12 @@ Component.register('sw-multi-tag-select', {
             required: true,
         },
 
+        valueLimit: {
+            type: Number,
+            required: false,
+            default: 5,
+        },
+
         placeholder: {
             type: String,
             required: false,
@@ -80,12 +86,16 @@ Component.register('sw-multi-tag-select', {
         return {
             searchTerm: '',
             hasFocus: false,
+            limit: this.valueLimit,
         };
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.7.0 - Will be removed
+         */
+        // eslint-disable-next-line vue/return-in-computed-property
         objectValues() {
-            return this.value.map((entry) => ({ value: entry }));
         },
 
         errorObject() {
@@ -94,6 +104,31 @@ Component.register('sw-multi-tag-select', {
 
         inputIsValid() {
             return this.validate(this.searchTerm);
+        },
+
+        visibleValues() {
+            if (!this.value || this.value.length <= 0) {
+                return [];
+            }
+
+            return this.value.map((entry) => ({ value: entry })).slice(0, this.limit);
+        },
+
+
+        totalValuesCount() {
+            if (this.value.length) {
+                return this.value.length;
+            }
+
+            return 0;
+        },
+
+        invisibleValueCount() {
+            if (!this.value) {
+                return 0;
+            }
+
+            return Math.max(0, this.totalValuesCount - this.limit);
         },
     },
 
@@ -118,6 +153,15 @@ Component.register('sw-multi-tag-select', {
         },
 
         removeLastItem() {
+            if (!this.value.length) {
+                return;
+            }
+
+            if (this.invisibleValueCount > 0) {
+                this.expandValueLimit();
+                return;
+            }
+
             this.$emit('update:value', this.value.slice(0, -1));
         },
 
@@ -137,6 +181,12 @@ Component.register('sw-multi-tag-select', {
             }
 
             this.addItem();
+        },
+
+        expandValueLimit() {
+            this.$emit('display-values-expand');
+
+            this.limit += this.limit;
         },
     },
 });

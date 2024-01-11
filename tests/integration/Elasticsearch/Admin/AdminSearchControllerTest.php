@@ -153,6 +153,20 @@ class AdminSearchControllerTest extends TestCase
             ],
             ['promotion-5'],
         ];
+        yield 'search by number #1 with concatenated index' => [
+            [
+                'term' => '12345',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-6'],
+        ];
+        yield 'search by number #2 with concatenated index' => [
+            [
+                'term' => '56789',
+                'entities' => ['promotion'],
+            ],
+            ['promotion-6'],
+        ];
     }
 
     protected function getDiContainer(): ContainerInterface
@@ -190,6 +204,15 @@ class AdminSearchControllerTest extends TestCase
             [
                 'id' => $ids->get('promotion-5'),
                 'name' => 'Ausländer',
+                'active' => true,
+                'useIndividualCodes' => true,
+            ],
+            [
+                'id' => $ids->get('promotion-6'),
+                'name' => [
+                    'de-DE' => '12345',
+                    'en-GB' => '56789',
+                ],
                 'active' => true,
                 'useIndividualCodes' => true,
             ],

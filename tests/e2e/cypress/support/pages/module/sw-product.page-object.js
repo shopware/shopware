@@ -71,7 +71,7 @@ export default class ProductPageObject {
     proceedVariantsGeneration(totalCount) {
         // Request we want to wait for later
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
+            url: `${Cypress.env('apiPath')}/_action/sync?indexing-behavior=disable-indexing`,
             method: 'post',
         }).as('productCall');
 

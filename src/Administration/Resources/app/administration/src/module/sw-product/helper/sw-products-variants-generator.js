@@ -3,6 +3,7 @@
  */
 
 import EventEmitter from 'events';
+import RetryHelper from '../../../core/helper/retry.helper';
 
 const { deepCopyObject } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
@@ -13,9 +14,11 @@ export default class VariantsGenerator extends EventEmitter {
         super();
 
         this.product = null;
+        this.productIds = [];
 
         // set dependencies
         this.syncService = Shopware.Service('syncService');
+        this.cacheService = Shopware.Service('cacheApiService');
         this.httpClient = this.syncService.httpClient;
 
         // local data
@@ -45,6 +48,8 @@ export default class VariantsGenerator extends EventEmitter {
                 // send api calls for create
                 this.processQueue('upsert', queues.createQueue, 0, 10, resolve);
             });
+        }).then(() => {
+            this.indexProducts(this.productIds);
         });
     }
 
@@ -402,8 +407,19 @@ export default class VariantsGenerator extends EventEmitter {
         // Send the payload to the server
         const header = { 'single-operation': 1 };
 
-        this.syncService.sync(payload, {}, header).then(() => {
+        RetryHelper.retry(() => {
+            return this.syncService.sync(payload, { 'indexing-behavior': 'disable-indexing' }, header);
+        }).then((response) => {
+            this.productIds.concat(response.data?.product ?? []).concat(response.data?.deleted?.product ?? []);
             this.processQueue(type, queue, offset + limit, limit, resolve);
         });
+    }
+
+    indexProducts(productIds) {
+        if (productIds.length <= 0) {
+            return;
+        }
+
+        this.cacheService.indexProducts(productIds);
     }
 }

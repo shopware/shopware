@@ -44,7 +44,10 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         if ($this->requiresValidation($field, $existence, $value, $parameters)) {
             if ($value !== null) {
                 foreach ($value as &$row) {
-                    unset($row['extensions']);
+                    if (isset($row['extensions'])) {
+                        // unset extensions if we have them, proper validation is done later
+                        unset($row['extensions']);
+                    }
                 }
             }
             $data->setValue($value);

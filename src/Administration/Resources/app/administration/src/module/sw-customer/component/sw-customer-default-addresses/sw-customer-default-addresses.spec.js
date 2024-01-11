@@ -4,7 +4,14 @@ import { mount } from '@vue/test-utils';
  * @package checkout
  */
 
-async function createWrapper(defaultShippingAddress = {}, defaultBillingAddress = {}) {
+const testAddress = {
+    id: 'address1',
+    country: {
+        addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
+    },
+};
+
+async function createWrapper(defaultShippingAddress = testAddress, defaultBillingAddress = testAddress) {
     return mount(await wrapTestComponent('sw-customer-default-addresses', { sync: true }), {
         props: {
             customer: {
@@ -40,21 +47,7 @@ describe('module/sw-customer-default-addresses', () => {
     });
 
     it('should render formatting address for billing address and shipping address', async () => {
-        const shippingAddress = {
-            id: 'address1',
-            country: {
-                addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
-            },
-        };
-
-        const billingAddress = {
-            id: 'address1',
-            country: {
-                addressFormat: [[{ type: 'snippet', value: 'address/company' }]],
-            },
-        };
-
-        wrapper = await createWrapper(shippingAddress, billingAddress);
+        wrapper = await createWrapper();
 
         await wrapper.vm.$nextTick();
 
@@ -65,5 +58,20 @@ describe('module/sw-customer-default-addresses', () => {
 
         expect(shippingSwAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
         expect(billingSwAddress.text()).toBe('Christa Stracke \\n \\n Philip Inlet \\n \\n \\n \\n 22005-3637 New Marilyneside \\n \\n Moldova (Republic of)');
+    });
+
+    it('should reload addresses on customer change', async () => {
+        wrapper = await createWrapper();
+        wrapper.vm.renderFormattingAddress = jest.fn();
+
+        await flushPromises();
+
+        await wrapper.setProps({
+            customer: { defaultShippingAddress: testAddress, defaultBillingAddress: testAddress },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.renderFormattingAddress).toHaveBeenCalledTimes(1);
     });
 });

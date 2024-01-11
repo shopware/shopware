@@ -63,6 +63,12 @@ export default {
         this.createdComponent();
     },
 
+    watch: {
+        customer() {
+            this.createdComponent();
+        },
+    },
+
     methods: {
         createdComponent() {
             this.renderFormattingAddress();

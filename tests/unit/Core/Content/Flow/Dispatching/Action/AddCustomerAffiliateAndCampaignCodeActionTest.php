@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerAffiliateAndCampaignCodeAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -27,15 +28,11 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
 
     private AddCustomerAffiliateAndCampaignCodeAction $action;
 
-    private MockObject&StorableFlow $flow;
-
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
         $this->repository = $this->createMock(EntityRepository::class);
         $this->action = new AddCustomerAffiliateAndCampaignCodeAction($this->connection, $this->repository);
-
-        $this->flow = $this->createMock(StorableFlow::class);
     }
 
     public function testRequirements(): void
@@ -60,36 +57,37 @@ class AddCustomerAffiliateAndCampaignCodeActionTest extends TestCase
     public function testActionWithExpectedUpdate(array $config, array $existedData, array $expected): void
     {
         $this->connection->expects(static::once())->method('fetchAssociative')->willReturn($existedData);
-        $this->flow->expects(static::exactly(2))->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getConfig')->willReturn($config);
 
-        $withData = [[...[
-            'id' => $this->flow->getData('customerId'),
-        ], ...$expected]];
+        $customerId = Uuid::randomHex();
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            CustomerAware::CUSTOMER_ID => $customerId,
+        ]);
+        $flow->setConfig($config);
 
-        $this->repository->expects(static::once())->method('update')->with($withData);
+        $expected['id'] = $customerId;
+        $this->repository->expects(static::once())->method('update')->with([$expected]);
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithNotAware(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(false);
-        $this->flow->expects(static::never())->method('getData');
+        $flow = new StorableFlow('foo', Context::createDefaultContext());
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public function testActionWithEmptyConfig(): void
     {
-        $this->flow->expects(static::once())->method('hasData')->willReturn(true);
-        $this->flow->expects(static::once())->method('getData')->willReturn(Uuid::randomHex());
-        $this->flow->expects(static::once())->method('getConfig')->willReturn([]);
+        $flow = new StorableFlow('foo', Context::createDefaultContext(), [], [
+            CustomerAware::CUSTOMER_ID => Uuid::randomHex(),
+        ]);
+
         $this->repository->expects(static::never())->method('update');
 
-        $this->action->handleFlow($this->flow);
+        $this->action->handleFlow($flow);
     }
 
     public static function actionExecuteProvider(): \Generator

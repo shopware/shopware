@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Installer\License;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -24,11 +25,8 @@ class LicenseFetcherTest extends TestCase
     #[DataProvider('licenseDataProvider')]
     public function testFetch(string $locale, string $expectedUrl, string $expectedContent): void
     {
-        $guzzle = $this->createMock(Client::class);
-        $guzzle->expects(static::once())
-            ->method('get')
-            ->with($expectedUrl)
-            ->willReturn(new Response(200, [], self::DATA[$expectedUrl]));
+        $guzzleHandler = new MockHandler([new Response(200, [], self::DATA[$expectedUrl])]);
+        $guzzle = new Client(['handler' => $guzzleHandler]);
 
         $fetcher = new LicenseFetcher($guzzle, [
             'de' => 'https://tos.de',
@@ -38,6 +36,11 @@ class LicenseFetcherTest extends TestCase
         $license = $fetcher->fetch(new Request([], [], ['_locale' => $locale]));
 
         static::assertSame($expectedContent, $license);
+
+        $request = $guzzleHandler->getLastRequest();
+        static::assertNotNull($request);
+
+        static::assertSame($expectedUrl, (string) $request->getUri());
     }
 
     public static function licenseDataProvider(): \Generator

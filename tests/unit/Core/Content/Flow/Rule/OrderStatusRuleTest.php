@@ -57,10 +57,11 @@ class OrderStatusRuleTest extends TestCase
     {
         $order = new OrderEntity();
         $order->setStateId($orderStateId);
-
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $scope = new FlowRuleScope($order, $cart, $context);
+        $scope = new FlowRuleScope(
+            $order,
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
 
         $this->rule->assign(['stateIds' => $selectedOrderStateIds, 'operator' => $operator]);
         static::assertSame($expected, $this->rule->match($scope));

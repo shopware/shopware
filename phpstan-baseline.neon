@@ -8140,81 +8140,6 @@ parameters:
 			path: tests/unit/Core/Content/Flow/Api/FlowActionCollectorTest.php
 
 		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddCustomerTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddOrderAffiliateAndCampaignCodeActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddOrderTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/AddOrderTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/ChangeCustomerGroupActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/ChangeCustomerStatusActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/GenerateDocumentActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveOrderTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveOrderTagActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/SetOrderStateActionTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Dispatching/Storer/MessageStorerTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\Framework\\\\\\\\Context' and Shopware\\\\Core\\\\Framework\\\\Context will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
@@ -8230,24 +8155,9 @@ parameters:
 			path: tests/unit/Core/Content/Flow/Events/BeforeLoadStorableFlowDataEventTest.php
 
 		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 5
-			path: tests/unit/Core/Content/Flow/Events/FlowSendMailActionEventTest.php
-
-		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 1
 			path: tests/unit/Core/Content/Flow/Rule/OrderCreatedByAdminRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 2
-			path: tests/unit/Core/Content/Flow/Rule/OrderDeliveryStatusRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Rule/OrderStatusRuleTest.php
 
 		-
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
@@ -8258,11 +8168,6 @@ parameters:
 			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
 			path: tests/unit/Core/Content/Flow/Rule/OrderTrackingCodeRuleTest.php
-
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Rule/OrderTransactionStatusRuleTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\Mime\\\\\\\\Email' and Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\Mail will always evaluate to true\\.$#"
@@ -8389,26 +8294,11 @@ parameters:
 			count: 1
 			path: tests/unit/Core/Framework/Util/AfterSortTest.php
 
-		-
-			message: "#^Mocking of Shopware\\\\Core\\\\System\\\\Tax\\\\TaxEntity is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Framework/Webhook/BusinessEventEncoderTest.php
 
 		-
 			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
 			count: 2
 			path: tests/unit/Core/Installer/Finish/NotifierTest.php
-
-		-
-			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Installer/License/LicenseFetcherTest.php
-
-		-
-			message: "#^Mocking of GuzzleHttp\\\\Client is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Maintenance/System/Service/AppUrlVerifierTest.php
-
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
 			count: 1

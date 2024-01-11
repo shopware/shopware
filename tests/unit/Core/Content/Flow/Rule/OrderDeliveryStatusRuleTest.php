@@ -64,10 +64,11 @@ class OrderDeliveryStatusRuleTest extends TestCase
         $orderDeliveryCollection->add($orderDelivery);
         $order = new OrderEntity();
         $order->setDeliveries($orderDeliveryCollection);
-
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $scope = new FlowRuleScope($order, $cart, $context);
+        $scope = new FlowRuleScope(
+            $order,
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
 
         $this->rule->assign(['stateIds' => $selectedOrderStateIds, 'operator' => $operator]);
         static::assertSame($expected, $this->rule->match($scope));
@@ -86,9 +87,11 @@ class OrderDeliveryStatusRuleTest extends TestCase
         $order->setDeliveries(new OrderDeliveryCollection());
         $orderDeliveryCollection = new OrderDeliveryCollection();
         $order->setDeliveries($orderDeliveryCollection);
-        $cart = $this->createMock(Cart::class);
-        $context = $this->createMock(SalesChannelContext::class);
-        $scope = new FlowRuleScope($order, $cart, $context);
+        $scope = new FlowRuleScope(
+            $order,
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
 
         $this->rule->assign(['stateIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($scope));

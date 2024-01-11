@@ -18,8 +18,9 @@ class BusinessEventEncoderTest extends TestCase
 {
     public function testEncodeData(): void
     {
-        $tax = $this->createMock(TaxEntity::class);
-        $tax->expects(static::once())->method('getInternalEntityName')->willReturn('tax');
+        $tax = new TaxEntity();
+        // Needed that the `_entityName` property is set correctly
+        $tax->getApiAlias();
 
         $data = [
             'tax' => $tax,

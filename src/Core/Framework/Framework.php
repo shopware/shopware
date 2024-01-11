@@ -118,7 +118,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new RateLimiterCompilerPass());
         $container->addCompilerPass(new IncrementerGatewayCompilerPass());
         $container->addCompilerPass(new ReverseProxyCompilerPass());
-        $container->addCompilerPass(new RedisPrefixCompilerPass());
+        $container->addCompilerPass(new RedisPrefixCompilerPass(), PassConfig::TYPE_BEFORE_REMOVING, 0);
         $container->addCompilerPass(new AutoconfigureCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new HttpCacheConfigCompilerPass());
 

@@ -1,19 +1,7 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import swFlowSequenceCondition from 'src/module/sw-flow/component/sw-flow-sequence-condition';
-import 'src/app/component/form/select/base/sw-single-select';
-import 'src/app/component/form/select/entity/sw-entity-single-select';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-import Vuex from 'vuex_v2';
 import flowState from 'src/module/sw-flow/state/flow.state';
-
-Shopware.Component.register('sw-flow-sequence-condition', swFlowSequenceCondition);
 
 const sequenceFixture = {
     id: '1',
@@ -61,66 +49,71 @@ Shopware.Service().register('shopwareDiscountCampaignService', () => {
 });
 
 async function createWrapper(propsData = {}) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-flow-sequence-condition'), {
-        stubs: {
-            'sw-icon': {
-                template: '<div class="sw-icon" v-on="$listeners"></div>',
+    return mount(await wrapTestComponent('sw-flow-sequence-condition', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-icon': {
+                    template: '<div class="sw-icon" v-on="$listeners"></div>',
+                },
+                'sw-context-button': {
+                    template: `
+                        <div class="sw-context-button">
+                            <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-context-menu-item': {
+                    template: `
+                        <div class="sw-context-menu-item" v-on="$listeners">
+                          <slot></slot>
+                        </div>
+                    `,
+                },
+                'sw-entity-single-select': await wrapTestComponent('sw-entity-single-select'),
+                'sw-single-select': await wrapTestComponent('sw-single-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-loader': true,
+                'sw-field-error': true,
+                'sw-label': true,
+                'sw-flow-rule-modal': true,
             },
-            'sw-context-button': true,
-            'sw-context-menu-item': {
-                template: `
-                    <div class="sw-context-menu-item" v-on="$listeners">
-                      <slot></slot>
-                    </div>
-                `,
-            },
-            'sw-entity-single-select': await Shopware.Component.build('sw-entity-single-select'),
-            'sw-single-select': await Shopware.Component.build('sw-single-select'),
-            'sw-select-base': await Shopware.Component.build('sw-select-base'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-select-result': await Shopware.Component.build('sw-select-result'),
-            'sw-select-result-list': await Shopware.Component.build('sw-select-result-list'),
-            'sw-popover': true,
-            'sw-loader': true,
-            'sw-field-error': true,
-            'sw-label': true,
-            'sw-flow-rule-modal': true,
-        },
-        propsData: {
-            sequence: sequenceFixture,
-            ...propsData,
-        },
-        provide: {
-            flowBuilderService: {
-                getActionModalName: () => {},
-            },
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: jest.fn(() => {
-                            return Promise.resolve([
-                                {
-                                    id: 'someRestrictedRule',
-                                    name: 'All customers',
-                                },
-                                {
-                                    id: 'allCustomersRule',
-                                    name: 'Restricted rule',
-                                },
-                            ]);
-                        }),
-                        get: (id) => Promise.resolve({
-                            id,
-                            name: 'Rule name',
-                        }),
-                        create: () => { return {}; },
-                    };
+            provide: {
+                flowBuilderService: {
+                    getActionModalName: () => {},
+                },
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: jest.fn(() => {
+                                return Promise.resolve([
+                                    {
+                                        id: 'someRestrictedRule',
+                                        name: 'All customers',
+                                    },
+                                    {
+                                        id: 'allCustomersRule',
+                                        name: 'Restricted rule',
+                                    },
+                                ]);
+                            }),
+                            get: (id) => Promise.resolve({
+                                id,
+                                name: 'Rule name',
+                            }),
+                            create: () => { return {}; },
+                        };
+                    },
                 },
             },
+        },
+        props: {
+            sequence: sequenceFixture,
+            ...propsData,
         },
     });
 }
@@ -266,13 +259,15 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         });
 
         // Show context button
-        const conditionTrueBlock = wrapper.findAll('.sw-flow-sequence-condition__true-action .sw-context-menu-item');
+        const conditionTrueBlock =
+            wrapper.findAll('.sw-flow-sequence-condition__true-action .sw-context-menu-item');
         await conditionTrueBlock.at(0).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState).toHaveLength(2);
 
-        const actionFalseBlock = wrapper.findAll('.sw-flow-sequence-condition__false-action .sw-context-menu-item');
+        const actionFalseBlock =
+            wrapper.findAll('.sw-flow-sequence-condition__false-action .sw-context-menu-item');
         await actionFalseBlock.at(1).trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
@@ -310,11 +305,12 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             },
         });
 
+        await flushPromises();
+
         const actionSelection = wrapper.find('.sw-flow-sequence-condition__selection-rule');
-        expect(actionSelection.attributes('error')).toBeTruthy();
+        expect(actionSelection.attributes('class')).toContain('has--error');
 
         const selectElement = wrapper.find('.sw-select__selection');
-
         await selectElement.trigger('click');
         await flushPromises();
 
@@ -355,7 +351,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         expect(sequencesState).toHaveLength(3);
 
 
-        const deleteRule = wrapper.findAll('.sw-flow-sequence-condition__delete-condition');
+        const deleteRule =
+            wrapper.findAll('.sw-flow-sequence-condition__delete-condition').at(0);
         await deleteRule.trigger('click');
 
         sequencesState = Shopware.State.getters['swFlowState/sequences'];
@@ -481,15 +478,18 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const wrapper = await createWrapper({
             sequence,
         });
+        await flushPromises();
 
         let createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
         expect(createRuleModal.exists()).toBeFalsy();
 
         const selectElement = wrapper.find('.sw-select__selection');
         await selectElement.trigger('click');
+        await flushPromises();
 
         const createRuleButton = wrapper.find('.sw-select-result__create-new-rule');
         await createRuleButton.trigger('click');
+        await flushPromises();
 
         createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
         expect(createRuleModal.exists()).toBeTruthy();
@@ -527,6 +527,8 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
 
     it('should disable the rule if it is restricted', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
+
         await Shopware.State.dispatch('swFlowState/setRestrictedRules', 'someRestrictedRule');
 
         const selectElement = wrapper.find('.sw-select__selection');
@@ -534,20 +536,21 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = wrapper.find('.sw-select-result-list ul:nth-of-type(2) li');
+        const disabledRule = wrapper.find('ul:nth-of-type(2) li');
 
         expect(disabledRule.classes()).toContain('is--disabled');
     });
 
     it('should not disable the rule if it is restricted', async () => {
         const wrapper = await createWrapper();
+        await flushPromises();
 
         const selectElement = wrapper.find('.sw-select__selection');
 
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = wrapper.find('.sw-select-result-list ul:nth-of-type(2) li:nth-of-type(2)');
+        const disabledRule = wrapper.find('ul:nth-of-type(2) li:nth-of-type(2)');
 
         expect(disabledRule.classes()).not.toContain('is--disabled');
     });

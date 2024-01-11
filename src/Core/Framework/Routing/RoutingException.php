@@ -48,7 +48,7 @@ class RoutingException extends HttpException
     public static function appIntegrationNotFound(string $integrationId): self
     {
         return new self(
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_BAD_REQUEST,
             self::APP_INTEGRATION_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'app integration', 'field' => 'id', 'value' => $integrationId]

@@ -215,7 +215,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-v
                     return {};
                 },
                 sync() {
-                    return Promise.resolve();
+                    return Promise.resolve({ data: {} });
                 },
             };
         });

@@ -217,6 +217,8 @@
             <argument type="service" id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper" />
+            <argument>%elasticsearch.product.exclude_source%</argument>
+            <argument>%kernel.environment%</argument>
 
             <tag name="shopware.es.definition"/>
         </service>
@@ -225,12 +227,17 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
+        <service id="Shopware\Elasticsearch\Product\SearchConfigLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder" class="Shopware\Elasticsearch\Product\ProductSearchQueryBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
             <argument type="service" id="Shopware\Elasticsearch\Product\StopwordTokenFilter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer"/>
+            <argument type="service" id="Shopware\Core\System\CustomField\CustomFieldService"/>
+            <argument type="service" id="Shopware\Elasticsearch\Product\SearchConfigLoader"/>
         </service>
 
         <service id="Shopware\Elasticsearch\Product\CustomFieldUpdater">
@@ -294,7 +301,7 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="OpenSearch\Client"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="shopware.elasticsearch.logger" />
             <argument>%elasticsearch.indexing_batch_size%</argument>
 
             <tag name="messenger.message_handler"/>

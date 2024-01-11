@@ -38,14 +38,16 @@ ___
 
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
+use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
+use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 
 class YourElasticsearchDefinition extends AbstractElasticsearchDefinition
 {
     public function getMapping(Context $context): array
     {
-        $languageIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM language');
-        // Fetch all language in system, for eg: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b', '46986b26eadf4bb3929e9fc91821e294] for English and German language
-        // These two language ids will be used in the translated fields mapping below
+        // use ElasticsearchFieldBuilder::translated to build translated fields mapping
+        $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
 
         $mapping = [
             // Non-translated fields are updated as current
@@ -63,94 +65,13 @@ class YourElasticsearchDefinition extends AbstractElasticsearchDefinition
                 ],
             ],
             // Translated text fields mapping need to be updated with the new structure
-            'name' =>[
-                'properties' => [
-                    '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => [
-                                'type' => 'text',
-                            ],
-                            'ngram' => [
-                                'type' => 'text',
-                                'analyzer' => 'sw_ngram_analyzer',
-                            ],
-                        ],
-                    ],
-                    '46986b26eadf4bb3929e9fc91821e294' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                        'fields' => [
-                            'search' => [
-                                'type' => 'text',
-                            ],
-                            'ngram' => [
-                                'type' => 'text',
-                                'analyzer' => 'sw_ngram_analyzer',
-                            ],
-                        ]
-                    ]
-                ]
-            ],
-            // The same applied for customFields in case your entity's custom fields is translatable
-            'customFields' =>[
-                'properties' => [
-                    '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [],
-                    ],
-                    '46986b26eadf4bb3929e9fc91821e294' => [
-                        'type' => 'object',
-                        'dynamic' => true,
-                        'properties' => [],
-                    ]
-                ]
-            ],
-            // nested translated fields needs to be updated too in the same manner
-            'manufacturer' => [
-                'type' => 'nested',
-                'properties' => [
-                    'id' => [
-                        'type' => 'keyword',
-                        'normalizer' => 'sw_lowercase_normalizer',
-                    ],
-                    '_count' => [
-                        'type' => 'long',
-                    ],
-                    'name' => [
-                        'properties' => [
-                            '2fbb5fe2e29a4d70aa5854ce7ce3e20b' => [
-                                'type' => 'keyword',
-                                'normalizer' => 'sw_lowercase_normalizer',
-                                'fields' => [
-                                    'search' => [
-                                        'type' => 'text',
-                                    ],
-                                    'ngram' => [
-                                        'type' => 'text',
-                                        'analyzer' => 'sw_ngram_analyzer',
-                                    ],
-                                ]
-                            ],
-                            '46986b26eadf4bb3929e9fc91821e294' => [
-                                'type' => 'keyword',
-                                'normalizer' => 'sw_lowercase_normalizer',
-                                'fields' => [
-                                    'search' => [
-                                        'type' => 'text',
-                                    ],
-                                    'ngram' => [
-                                        'type' => 'text',
-                                        'analyzer' => 'sw_ngram_analyzer',
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
+            'name' => $languageFields,
+            // use ElasticsearchFieldBuilder::customFields to build translated custom fields mapping
+            'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
+            // nested translated fields needs to be updated too using ElasticsearchFieldBuilder::nested
+            'manufacturer' => ElasticsearchFieldBuilder::nested([
+                'name' => $languageFields,
+            ]),
         ];
 
 
@@ -187,7 +108,8 @@ class YourElasticsearchDefinition extends AbstractElasticsearchDefinition
 
 ## Update your live shops
 
-* After the flag is activated, you must run `bin/console es:index`, then new index mapping will be ready after the es indexing process is finished
+* To migrate the existing data to the new indexes following the  new structure, you must run `bin/console es:index`, then the new index mapping will be ready to use after the es indexing process is finished
+* **optional:** The old indexes is then obsolete and can be removed by running `bin/console es:index:cleanup`
 ___
 # Next Major Version Changes
 

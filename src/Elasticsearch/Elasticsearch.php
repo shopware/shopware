@@ -74,5 +74,9 @@ class Elasticsearch extends Bundle
         \assert(\is_string($env));
 
         $configLoader->load($confDir . '/{packages}/' . $env . '/*' . Kernel::CONFIG_EXTS, 'glob');
+
+        if ($container->getParameter('kernel.environment') === 'dev') {
+            $configLoader->load($confDir . '/{packages}/dev/*' . Kernel::CONFIG_EXTS, 'glob');
+        }
     }
 }

@@ -68,7 +68,7 @@ class ElasticsearchIndexerTest extends TestCase
         $this->helper = $this->createMock(ElasticsearchHelper::class);
         $indexer = $this->getIndexer();
 
-        static::assertNull($indexer->iterate(null), 'Iterate should return null if es is disabled');
+        static::assertNull($indexer->iterate(), 'Iterate should return null if es is disabled');
     }
 
     public function testIterateNullCreatesIndices(): void
@@ -173,8 +173,7 @@ class ElasticsearchIndexerTest extends TestCase
 
     public function testUpdateIndexDoesNotExistsCreatesThem(): void
     {
-        $this
-            ->indexCreator
+        $this->indexCreator
             ->expects(static::once())
             ->method('createIndex');
 
@@ -299,6 +298,68 @@ class ElasticsearchIndexerTest extends TestCase
         $indexer($message);
     }
 
+    public function testIterateWithProductEntity(): void
+    {
+        $indexer = $this->getIndexer();
+
+        $this->connection
+            ->expects(static::once())
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $entities = ['product'];
+
+        $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateWithProductAndCategoryEntities(): void
+    {
+        $this->registry = new ElasticsearchRegistry([
+            $this->createDefinition('product'),
+            $this->createDefinition('category'),
+        ]);
+
+        $indexer = $this->getIndexer();
+
+        $this->connection
+            ->expects(static::exactly(2))
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $entities = ['product', 'category'];
+
+        $indexer->iterate(null, $entities);
+    }
+
+    public function testIterateLogErrorForInvalidEntity(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $indexer = $this->getIndexer($logger);
+
+        $this->connection
+            ->expects(static::once())
+            ->method('insert')
+            ->with('elasticsearch_index_task');
+
+        $this->indexCreator
+            ->method('aliasExists')
+            ->willReturn(true);
+
+        $this->helper->expects(static::once())->method('logAndThrowException')->with(ElasticsearchException::definitionNotFound('category'));
+
+        $entities = ['product', 'category'];
+
+        $indexer->iterate(null, $entities);
+    }
+
     private function getIndexer(?LoggerInterface $logger = null): ElasticsearchIndexer
     {
         $logger ??= new NullLogger();
@@ -311,7 +372,7 @@ class ElasticsearchIndexerTest extends TestCase
             $this->iteratorFactory,
             $this->client,
             $logger,
-            1
+            1,
         );
     }
 

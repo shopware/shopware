@@ -124,16 +124,12 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $connection,
             $this->createMock(AbstractProductSearchQueryBuilder::class),
             $fieldBuilder,
-            $fieldMapper
+            $fieldMapper,
+            false,
+            'dev'
         );
 
         $expectedMapping = [
-            '_source' => [
-                'includes' => [
-                    'id',
-                    'autoIncrement',
-                ],
-            ],
             'properties' => [
                 'id' => [
                     'type' => 'keyword',
@@ -400,7 +396,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ];
 
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
-        static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
     }
 
     public function testMappingCustomFields(): void
@@ -440,7 +435,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $connection,
             $this->createMock(AbstractProductSearchQueryBuilder::class),
             $fieldBuilder,
-            $fieldMapper
+            $fieldMapper,
+            false,
+            'dev'
         );
 
         $mapping = $definition->getMapping(Context::createDefaultContext());
@@ -495,7 +492,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(Connection::class),
             $this->createMock(AbstractProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class)
+            $this->createMock(ElasticsearchFieldMapper::class),
+            false,
+            'dev'
         );
 
         static::assertSame($definition, $esDefinition->getEntityDefinition());
@@ -523,7 +522,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $this->createMock(Connection::class),
             $searchQueryBuilder,
             $fieldBuilder,
-            $fieldMapper
+            $fieldMapper,
+            false,
+            'dev'
         );
 
         $criteria = new Criteria();
@@ -553,7 +554,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $connection,
             $this->createMock(AbstractProductSearchQueryBuilder::class),
             $this->createMock(ElasticsearchFieldBuilder::class),
-            $this->createMock(ElasticsearchFieldMapper::class)
+            $this->createMock(ElasticsearchFieldMapper::class),
+            false,
+            'dev'
         );
 
         $uuid = $this->ids->get('product-1');
@@ -685,7 +688,9 @@ class ElasticsearchProductDefinitionTest extends TestCase
             $connection,
             $this->createMock(AbstractProductSearchQueryBuilder::class),
             $fieldBuilder,
-            $fieldMapper
+            $fieldMapper,
+            false,
+            'dev'
         );
 
         $uuid = $this->ids->get('product-1');

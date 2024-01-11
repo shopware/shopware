@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CronIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateIntervalField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -160,6 +162,8 @@ EOL;
 
                 break;
 
+            case $field instanceof CronIntervalField:
+            case $field instanceof DateIntervalField:
             case $field instanceof RemoteAddressField:
                 $type = 'VARCHAR(255)';
 

@@ -763,7 +763,6 @@ const missingTests = [
     'src/module/sw-flow/page/sw-flow-detail/index.js',
     'src/module/sw-flow/view/detail/sw-flow-detail-flow/index.js',
     'src/module/sw-flow/view/detail/sw-flow-detail-general/index.js',
-    'src/module/sw-flow/view/listing/sw-flow-list/index.js',
     'src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts',
     'src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js',
     'src/module/sw-import-export/component/sw-import-export-edit-profile-modal/index.js',

@@ -1,36 +1,43 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import 'src/app/component/utils/sw-external-link';
-import swDashboardIndex from 'src/module/sw-dashboard/page/sw-dashboard-index';
+import { mount } from '@vue/test-utils';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
 
-Shopware.Component.register('sw-dashboard-index', swDashboardIndex);
+const snippetPathGreeting = 'sw-dashboard.introduction.daytimeHeadline';
 
 async function createWrapper(privileges = []) {
-    return shallowMount(await Shopware.Component.build('sw-dashboard-index'), {
-        stubs: {
-            'sw-page': true,
-            'sw-card-view': true,
-            'sw-external-link': true,
-            'sw-icon': true,
-            'sw-dashboard-statistics': true,
-            'sw-usage-data-consent-banner': true,
-            'sw-help-text': true,
-        },
-        mocks: {
-            $tc: (...args) => JSON.stringify([...args]),
-            $i18n: {
-                locale: 'en-GB',
-                messages: {
-                    'en-GB': dictionary,
+    return mount(await wrapTestComponent('sw-dashboard-index', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': await wrapTestComponent('sw-page'),
+                'sw-card-view': await wrapTestComponent('sw-card-view'),
+                'sw-external-link': true,
+                'sw-icon': true,
+                'sw-dashboard-statistics': true,
+                'sw-usage-data-consent-banner': true,
+                'sw-help-text': true,
+            },
+            mocks: {
+                $tc: jest.fn().mockImplementation((snippetPath, number, placeholders) => {
+                    return `${snippetPathGreeting}, ${placeholders?.greetingName || ''}`;
+                }),
+                $i18n: {
+                    locale: 'en-GB',
+                    messages: {
+                        'en-GB': dictionary,
+                    },
+                },
+                $route: {
+                    meta: {
+                        $module: {},
+                    },
                 },
             },
-        },
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
         },
@@ -61,42 +68,40 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         jest.useFakeTimers('modern');
     });
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     afterAll(() => {
         jest.useRealTimers();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
+    it('shall not print a personal message if firstName is not set', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
 
-    it('should return `null` as greetingName', async () => {
-        expect(wrapper.text()).toContain('{"greetingName":null}');
+        expect(wrapper.find('.sw-dashboard-index__welcome-title').text()).toStrictEqual(snippetPathGreeting);
     });
 
     it('should display users firstName', async () => {
-        Shopware.State.commit('setCurrentUser', {
-            firstName: 'userFirstName',
-        });
-        await wrapper.vm.$nextTick();
+        const firstName = 'John';
+        wrapper = await createWrapper();
+        await flushPromises();
 
-        expect(wrapper.text()).toContain('{"greetingName":"userFirstName"}');
+        Shopware.State.commit('setCurrentUser', {
+            firstName: firstName,
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-dashboard-index__welcome-title').text()).toBe(`${snippetPathGreeting}, ${firstName}`);
     });
 
-    it('should display `null` as greetingName, we only greet by firstName', async () => {
+    it('shall not print a personal message if username but not firstName is set', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
         Shopware.State.commit('setCurrentUser', {
             username: 'username',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        expect(wrapper.text()).toContain('{"greetingName":null}');
+        expect(wrapper.find('.sw-dashboard-index__welcome-title').text()).toStrictEqual(snippetPathGreeting);
     });
 
     [
@@ -140,6 +145,9 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         it(
             `should return datetime aware headline for daytime: ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
             async () => {
+                wrapper = await createWrapper();
+                await flushPromises();
+
                 const greetingType = 'daytimeHeadline';
                 /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
                 /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */
@@ -192,6 +200,9 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
             `should return datetime aware welcoming subline for daytime:\
             ${dateTime.getHours()}h, expected slot: ${expectedTimeSlot}`,
             async () => {
+                wrapper = await createWrapper();
+                await flushPromises();
+
                 const greetingType = 'daytimeWelcomeText';
                 /* as of today there are 4 timeslots: 23 - 4, 5 - 10, 11 - 17, 18 - 22 */
                 /* the first param of `getGreetingTimeKey` must be ' headline' or 'welcomeText' */

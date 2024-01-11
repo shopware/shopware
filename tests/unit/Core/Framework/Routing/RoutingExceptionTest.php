@@ -43,7 +43,7 @@ class RoutingExceptionTest extends TestCase
     {
         $e = RoutingException::appIntegrationNotFound('foo');
 
-        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         static::assertSame(RoutingException::APP_INTEGRATION_NOT_FOUND, $e->getErrorCode());
     }
 }

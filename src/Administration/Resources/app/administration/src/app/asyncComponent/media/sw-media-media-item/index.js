@@ -144,11 +144,18 @@ export default {
             this.removeFromSelection(originalDomEvent);
         },
 
-        copyItemLink(item) {
-            dom.copyToClipboard(item.url);
-            this.createNotificationSuccess({
-                message: this.$tc('sw-media.general.notification.urlCopied.message'),
-            });
+        async copyItemLink(item) {
+            try {
+                await dom.copyStringToClipboard(item.url);
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-media.general.notification.urlCopied.message'),
+                });
+            } catch (err) {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
+                });
+            }
         },
 
         openModalDelete() {

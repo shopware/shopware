@@ -76,6 +76,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="clock"/>
             <argument>%kernel.environment%</argument>
+            <argument type="string"  id="shopware.usage_data.gateway.dispatch_enabled" key="$dispatchEnabled"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder">
@@ -109,6 +110,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="string">%env(APP_URL)%</argument>
+            <argument type="string"  id="shopware.usage_data.gateway.dispatch_enabled" key="$dispatchEnabled"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -126,6 +128,7 @@
         <service id="Shopware\Core\System\UsageData\Client\GatewayClient">
             <argument type="service" id="shopware.usage_data.gateway.client"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
+            <argument type="string"  id="shopware.usage_data.gateway.dispatch_enabled" key="$dispatchEnabled"/>
         </service>
 
         <!-- Scheduled tasks -->

@@ -31,6 +31,7 @@ class EntityDispatcher
         private readonly SystemConfigService $systemConfigService,
         private readonly ClockInterface $clock,
         private readonly string $environment,
+        private readonly bool $dispatchEnabled,
     ) {
     }
 
@@ -43,6 +44,10 @@ class EntityDispatcher
         Operation $operation,
         \DateTimeImmutable $runDate,
     ): void {
+        if (!$this->dispatchEnabled) {
+            return;
+        }
+
         $payload = json_encode([
             'batch_id' => Uuid::randomHex(),
             'dispatch_date' => $this->clock->now()->format(\DateTimeInterface::ATOM),

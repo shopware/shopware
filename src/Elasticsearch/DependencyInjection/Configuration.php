@@ -2,8 +2,6 @@
 
 namespace Shopware\Elasticsearch\DependencyInjection;
 
-use Monolog\Level;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -15,8 +13,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('elasticsearch');
 
-        $debug = EnvironmentHelper::getVariable('APP_ENV', 'prod') !== 'prod';
-
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
@@ -26,7 +22,6 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('hosts')->end()
                 ->scalarNode('index_prefix')->end()
                 ->scalarNode('throw_exception')->end()
-                ->scalarNode('logger_level')->defaultValue($debug ? Level::Debug : Level::Error)->end()
                 ->arrayNode('ssl')
                     ->children()
                         ->scalarNode('cert_path')->end()

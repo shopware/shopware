@@ -32,7 +32,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         private readonly Connection $connection,
         private readonly AbstractProductSearchQueryBuilder $searchQueryBuilder,
         private readonly ElasticsearchFieldBuilder $fieldBuilder,
-        private readonly ElasticsearchFieldMapper $fieldMapper
+        private readonly ElasticsearchFieldMapper $fieldMapper,
+        private bool $excludeSource,
+        private readonly string $environment
     ) {
     }
 
@@ -47,6 +49,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function getMapping(Context $context): array
     {
         $languageFields = $this->fieldBuilder->translated(self::getTextFieldConfig());
+
+        $debug = $this->environment !== 'prod';
 
         $properties = [
             'id' => self::KEYWORD_FIELD,
@@ -111,8 +115,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             'customFields' => $this->fieldBuilder->customFields($this->getEntityDefinition()->getEntityName(), $context),
         ];
 
-        return [
-            '_source' => ['includes' => ['id', 'autoIncrement']],
+        $mapping = [
             'dynamic_templates' => [
                 [
                     'cheapest_price' => [
@@ -135,6 +138,12 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             ],
             'properties' => $properties,
         ];
+
+        if (!$this->excludeSource && !$debug) {
+            $mapping['_source'] = ['includes' => ['id', 'autoIncrement']];
+        }
+
+        return $mapping;
     }
 
     /**

@@ -12,7 +12,7 @@ use Shopware\Core\Migration\V6_6\Migration1701677136RemovePluginChangelogField;
  * @internal
  */
 #[CoversClass(Migration1701677136RemovePluginChangelogField::class)]
-class MigrationMigration1701677136RemovePluginChangelogFieldTest extends TestCase
+class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
 {
     private Connection $connection;
 

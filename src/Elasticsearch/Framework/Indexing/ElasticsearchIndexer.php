@@ -49,14 +49,17 @@ class ElasticsearchIndexer
         $this->handleIndexingMessage($message);
     }
 
-    public function iterate(?IndexerOffset $offset = null): ?ElasticsearchIndexingMessage
+    /**
+     * @param array<string> $entities
+     */
+    public function iterate(?IndexerOffset $offset = null, array $entities = []): ?ElasticsearchIndexingMessage
     {
         if (!$this->helper->allowIndexing()) {
             return null;
         }
 
         if ($offset === null) {
-            $offset = $this->init();
+            $offset = $this->init($entities);
         }
 
         return $this->createIndexingMessage($offset);
@@ -132,7 +135,10 @@ class ElasticsearchIndexer
         return new ElasticsearchIndexingMessage(new IndexingDto(array_values($ids), $index, $entity), $offset, Context::createDefaultContext());
     }
 
-    private function init(): IndexerOffset
+    /**
+     * @param array<string> $entities
+     */
+    private function init(array $entities = []): IndexerOffset
     {
         $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
@@ -142,8 +148,10 @@ class ElasticsearchIndexer
 
         $this->createIndex($timestamp);
 
+        $entitiesToHandle = $this->handleEntities($entities);
+
         return new IndexerOffset(
-            $this->registry->getDefinitionNames(),
+            $entitiesToHandle,
             $timestamp->getTimestamp()
         );
     }
@@ -280,5 +288,34 @@ class ElasticsearchIndexer
 
             throw ElasticsearchException::indexingError($errors);
         }
+    }
+
+    /**
+     * @param array<string> $entities
+     *
+     * @return iterable<string>
+     */
+    private function handleEntities(array $entities = []): iterable
+    {
+        if (empty($entities)) {
+            return $this->registry->getDefinitionNames();
+        }
+
+        $registeredEntities = \is_array($this->registry->getDefinitionNames())
+            ? $this->registry->getDefinitionNames()
+            : iterator_to_array($this->registry->getDefinitionNames());
+
+        $validEntities = array_intersect($entities, $registeredEntities);
+        $unregisteredEntities = array_diff($entities, $registeredEntities);
+
+        if (!empty($unregisteredEntities)) {
+            $unregisteredEntityList = implode(', ', $unregisteredEntities);
+
+            $exception = ElasticsearchException::definitionNotFound($unregisteredEntityList);
+
+            $this->helper->logAndThrowException($exception);
+        }
+
+        return $validEntities;
     }
 }

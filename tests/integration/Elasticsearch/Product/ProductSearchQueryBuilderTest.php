@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
@@ -55,10 +56,18 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private Connection $connection;
 
+    private CustomFieldService $customFieldService;
+
     protected function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->customFieldService = $this->getContainer()->get(CustomFieldService::class);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->customFieldService->reset();
     }
 
     #[BeforeClass]
@@ -164,6 +173,7 @@ class ProductSearchQueryBuilderTest extends TestCase
     #[DataProvider('providerSearchCases')]
     public function testSearch(array $config, string $term, array $expectedProducts, IdsCollection $ids): void
     {
+        $this->registerCustomFieldsMapping();
         $this->setSearchConfiguration(false, $config);
         $this->setSearchScores([]);
 
@@ -280,10 +290,16 @@ class ProductSearchQueryBuilderTest extends TestCase
             ['SW5686779889'],
         ];
 
-        yield 'search for custom field' => [
-            ['name', 'customFields.evolvesTo'],
+        yield 'search for custom field json' => [
+            ['customFields.evolvesTo'],
             'Flareon',
             ['product-10'],
+        ];
+
+        yield 'search for custom field text' => [
+            ['customFields.evolvesText'],
+            'Jolteon',
+            ['product-11'],
         ];
     }
 
@@ -419,6 +435,11 @@ class ProductSearchQueryBuilderTest extends TestCase
                 ->customField('evolvesTo', ['Vaporeon', 'Jolteon', 'Flareon'])
                 ->price(50, 50)
                 ->build(),
+            (new ProductBuilder($ids, 'product-11'))
+                ->name('EeveeCfText')
+                ->customField('evolvesText', 'Jolteon')
+                ->price(50, 50)
+                ->build(),
         ];
 
         $this->productRepository->create($products, Context::createDefaultContext());
@@ -429,7 +450,8 @@ class ProductSearchQueryBuilderTest extends TestCase
         $eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
         $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, function (ElasticsearchCustomFieldsMappingEvent $event): void {
-            $event->setMapping('evolvesTo', CustomFieldTypes::TEXT);
+            $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
+            $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });
 
         $definition = $this->getContainer()->get(ElasticsearchIndexingUtils::class);
@@ -437,5 +459,13 @@ class ProductSearchQueryBuilderTest extends TestCase
         $reflectionProperty = $class->getProperty('customFieldsTypes');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($definition, []);
+
+        $service = new \ReflectionClass($this->customFieldService);
+        $reflectionProperty = $service->getProperty('customFields');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($this->customFieldService, [
+            'evolvesTo' => CustomFieldTypes::SELECT,
+            'evolvesText' => CustomFieldTypes::TEXT,
+        ]);
     }
 }

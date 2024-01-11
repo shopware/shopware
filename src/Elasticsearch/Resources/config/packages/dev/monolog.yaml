@@ -5,5 +5,5 @@ monolog:
             type: rotating_file
             path: "%kernel.logs_dir%/elasticsearch_%kernel.environment%.log"
             max_files: 90
-            level: "error"
+            level: "debug"
             channels: [ "elasticsearch"]

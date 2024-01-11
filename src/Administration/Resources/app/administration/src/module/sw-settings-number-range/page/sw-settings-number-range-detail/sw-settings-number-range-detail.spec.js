@@ -95,6 +95,68 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         global.activeAclRoles = [];
     });
 
+    it('should call to numberRangeService.previewPattern when has numberRange.technicalName when get preview', async () => {
+        const wrapper = await createWrapper();
+
+        const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
+        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+
+
+        await wrapper.setData({
+            numberRange: {
+                type: {
+                    technicalName: 'test',
+                },
+            },
+        });
+
+        await wrapper.vm.getPreview();
+
+        expect(previewPatternMock).toHaveBeenCalled();
+    });
+
+    it('should not call to numberRangeService.previewPattern when has numberRange.technicalName when get preview', async () => {
+        const wrapper = await createWrapper();
+
+        const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
+        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+
+        await wrapper.vm.getPreview();
+
+        expect(previewPatternMock).not.toHaveBeenCalled();
+    });
+
+    it('should call to numberRangeService.previewPattern when has numberRange.technicalName when get state', async () => {
+        const wrapper = await createWrapper();
+
+        const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
+        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+
+
+        await wrapper.setData({
+            numberRange: {
+                type: {
+                    technicalName: 'test',
+                },
+            },
+        });
+
+        await wrapper.vm.getState();
+
+        expect(previewPatternMock).toHaveBeenCalled();
+    });
+
+    it('should not call to numberRangeService.previewPattern when has numberRange.technicalName when get state', async () => {
+        const wrapper = await createWrapper();
+
+        const previewPatternMock = jest.fn(() => Promise.resolve({ number: 42 }));
+        wrapper.vm.numberRangeService.previewPattern = previewPatternMock;
+
+        await wrapper.vm.getState();
+
+        expect(previewPatternMock).not.toHaveBeenCalled();
+    });
+
     it('should not be able to save the number range', async () => {
         const wrapper = await createWrapper();
 

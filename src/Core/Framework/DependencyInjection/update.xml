@@ -52,10 +52,5 @@
             <argument>%kernel.project_dir%/public/.htaccess</argument>
             <tag name="kernel.event_subscriber"/>
         </service>
-
-        <service id="Shopware\Core\Framework\Update\Services\CreateCustomAppsDir">
-            <argument>%kernel.app_dir%</argument>
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>

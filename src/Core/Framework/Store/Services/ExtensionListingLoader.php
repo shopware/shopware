@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Store\Services;
 
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
@@ -13,16 +15,21 @@ use Shopware\Core\Framework\Store\Struct\ExtensionStruct;
  * @internal
  */
 #[Package('services-settings')]
-class ExtensionListingLoader
+readonly class ExtensionListingLoader
 {
-    public function __construct(private readonly StoreClient $client)
+    public function __construct(private StoreClient $client)
     {
     }
 
     public function load(ExtensionCollection $localCollection, Context $context): ExtensionCollection
     {
-        $this->addUpdateInformation($localCollection, $context);
-        $this->addStoreInformation($localCollection, $context);
+        $source = $context->getSource();
+
+        // We can only add store information, when we have a user that can communicate with the store
+        if ($source instanceof SystemSource || ($source instanceof AdminApiSource && $source->getUserId())) {
+            $this->addUpdateInformation($localCollection, $context);
+            $this->addStoreInformation($localCollection, $context);
+        }
 
         return $this->sortCollection($localCollection);
     }

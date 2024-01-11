@@ -729,7 +729,6 @@ const missingTests = [
     'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/index.ts',
     'src/module/sw-custom-entity/page/sw-generic-custom-entity-list/index.ts',
     'src/module/sw-customer/component/sw-customer-base-info/index.js',
-    'src/module/sw-customer/component/sw-customer-card/index.js',
     'src/module/sw-customer/page/sw-customer-detail/index.js',
     'src/module/sw-customer/view/sw-customer-detail-addresses/index.js',
     'src/module/sw-customer/view/sw-customer-detail-order/index.js',

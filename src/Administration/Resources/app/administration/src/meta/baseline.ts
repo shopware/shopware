@@ -736,7 +736,6 @@ const missingTests = [
     'src/module/sw-customer/component/sw-customer-card/index.js',
     'src/module/sw-customer/page/sw-customer-detail/index.js',
     'src/module/sw-customer/view/sw-customer-detail-addresses/index.js',
-    'src/module/sw-customer/view/sw-customer-detail-base/index.js',
     'src/module/sw-customer/view/sw-customer-detail-order/index.js',
     'src/module/sw-dashboard/component/sw-dashboard-statistics/index.ts',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',

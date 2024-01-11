@@ -1,7 +1,4 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import swCustomerCreate from 'src/module/sw-customer/page/sw-customer-create';
-import 'src/app/component/base/sw-button';
-import 'src/app/component/base/sw-button-process';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
@@ -10,62 +7,68 @@ import 'src/app/component/base/sw-button-process';
 const { Context } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
-Shopware.Component.register('sw-customer-create', swCustomerCreate);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-customer-create'), {
-        stubs: {
-            'sw-page': true,
-            'sw-card': true,
-            'sw-language-switch': true,
-            'sw-customer-address-form': true,
-            'sw-customer-base-form': true,
-            'sw-card-view': true,
-            'sw-button': await Shopware.Component.build('sw-button'),
-            'sw-button-process': await Shopware.Component.build('sw-button-process'),
-            'sw-icon': true,
-            'sw-loader': true,
-        },
-        provide: {
-            numberRangeService: {},
-            systemConfigApiService: {
-                getValues: () => Promise.resolve({ 'core.register.minPasswordLength': 8 }),
+    return mount(await wrapTestComponent('sw-customer-create', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-page': {
+                    template: `
+    <div>
+        <slot name="smart-bar-actions"></slot>
+        <slot name="content"></slot>
+    </div>`,
+                },
+                'sw-card': true,
+                'sw-language-switch': true,
+                'sw-customer-address-form': true,
+                'sw-customer-base-form': true,
+                'sw-card-view': true,
+                'sw-button': await wrapTestComponent('sw-button'),
+                'sw-button-process': await wrapTestComponent('sw-button-process'),
+                'sw-icon': true,
+                'sw-loader': true,
             },
-            customerValidationService: {},
-            repositoryFactory: {
-                create: (entity) => {
-                    if (entity === 'customer') {
-                        return {
-                            create: () => {
-                                return {
-                                    id: '63e27affb5804538b5b06cb4e344b130',
-                                    addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
-                                };
-                            },
-                        };
-                    }
+            provide: {
+                numberRangeService: {},
+                systemConfigApiService: {
+                    getValues: () => Promise.resolve({ 'core.register.minPasswordLength': 8 }),
+                },
+                customerValidationService: {},
+                repositoryFactory: {
+                    create: (entity) => {
+                        if (entity === 'customer') {
+                            return {
+                                create: () => {
+                                    return {
+                                        id: '63e27affb5804538b5b06cb4e344b130',
+                                        addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                                    };
+                                },
+                            };
+                        }
 
-                    if (entity === 'language') {
-                        return {
-                            searchIds: () => Promise.resolve({
-                                total: 1,
-                                data: ['1'],
-                            }),
-                        };
-                    }
+                        if (entity === 'language') {
+                            return {
+                                searchIds: () => Promise.resolve({
+                                    total: 1,
+                                    data: ['1'],
+                                }),
+                            };
+                        }
 
-                    if (entity === 'salutation') {
-                        return {
-                            searchIds: () => Promise.resolve({
-                                total: 1,
-                                data: ['salutationId'],
-                            }),
-                        };
-                    }
+                        if (entity === 'salutation') {
+                            return {
+                                searchIds: () => Promise.resolve({
+                                    total: 1,
+                                    data: ['salutationId'],
+                                }),
+                            };
+                        }
 
-                    return {
-                        create: () => Promise.resolve(),
-                    };
+                        return {
+                            create: () => Promise.resolve(),
+                        };
+                    },
                 },
             },
         },

@@ -1,5 +1,4 @@
-import { shallowMount } from '@vue/test-utils_v2';
-import swCustomerDetailAddresses from 'src/module/sw-customer/view/sw-customer-detail-addresses';
+import { mount } from '@vue/test-utils';
 
 /**
  * @package checkout
@@ -7,40 +6,78 @@ import swCustomerDetailAddresses from 'src/module/sw-customer/view/sw-customer-d
 
 const { ShopwareError } = Shopware.Classes;
 
-Shopware.Component.register('sw-customer-detail-addresses', swCustomerDetailAddresses);
-
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-customer-detail-addresses'), {
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        search: () => Promise.resolve([]),
-                        create: () => Promise.resolve({ id: '' }),
-                        clone: jest.fn(() => Promise.resolve({
-                            id: 'clone-address-id',
-                        })),
-                        get: (id) => {
-                            if (id === 'clone-address-id') {
-                                return Promise.resolve({
-                                    id: 'clone-address-id',
-                                    lastName: 'Thu',
-                                    firstName: 'Vo',
-                                    city: 'Berlin',
-                                    street: 'Legiendamm',
-                                    zipcode: '550000',
-                                });
-                            }
-
-                            return Promise.reject();
-                        },
-                    };
+    return mount(await wrapTestComponent('sw-customer-detail-addresses', {
+        sync: true,
+    }), {
+        global: {
+            stubs: {
+                'sw-card': {
+                    template: `<div class="sw-card">
+                    <slot name="toolbar"></slot>
+                    <slot name="grid"></slot>
+                    <slot></slot>
+                </div>`,
                 },
+                'sw-card-filter': {
+                    template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                },
+                'sw-field': true,
+                'sw-button': {
+                    template: '<div class="sw-button" @click="$emit(`click`)"></div>',
+                },
+                'sw-modal': true,
+                'sw-icon': true,
+                'sw-one-to-many-grid': {
+                    props: ['collection'],
+                    template: `
+                    <div>
+                        <tbody>
+                            <td v-for="item in collection">
+                                <slot name="column-lastName" v-bind="{ item }"></slot>
+                                <slot name="actions" v-bind="{ item }"></slot>
+                            </td>
+                        </tbody>
+                    </div>
+                `,
+                },
+                'sw-context-menu-item': {
+                    template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
+                },
+                'sw-customer-address-form': true,
+                'sw-customer-address-form-options': true,
             },
 
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve([]),
+                            create: () => Promise.resolve({ id: '' }),
+                            clone: jest.fn(() => Promise.resolve({
+                                id: 'clone-address-id',
+                            })),
+                            get: (id) => {
+                                if (id === 'clone-address-id') {
+                                    return Promise.resolve({
+                                        id: 'clone-address-id',
+                                        lastName: 'Thu',
+                                        firstName: 'Vo',
+                                        city: 'Berlin',
+                                        street: 'Legiendamm',
+                                        zipcode: '550000',
+                                    });
+                                }
+
+                                return Promise.reject();
+                            },
+                        };
+                    },
+                },
+            },
         },
 
-        propsData: {
+        props: {
             customerEditMode: false,
             customer: {
                 id: '1',
@@ -56,43 +93,6 @@ async function createWrapper() {
                 ],
             },
         },
-
-        stubs: {
-            'sw-card': {
-                template: `<div class="sw-card">
-                    <slot name="toolbar"></slot>
-                    <slot name="grid"></slot>
-                    <slot></slot>
-                </div>`,
-            },
-            'sw-card-filter': {
-                template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
-            },
-            'sw-field': true,
-            'sw-button': {
-                template: '<div class="sw-button" @click="$emit(`click`)"></div>',
-            },
-            'sw-modal': true,
-            'sw-icon': true,
-            'sw-one-to-many-grid': {
-                props: ['collection'],
-                template: `
-                    <div>
-                        <tbody>
-                            <td v-for="item in collection">
-                                <slot name="column-lastName" v-bind="{ item }"></slot>
-                                <slot name="actions" v-bind="{ item }"></slot>
-                            </td>
-                        </tbody>
-                    </div>
-                `,
-            },
-            'sw-context-menu-item': {
-                template: '<div class="sw-context-menu-item" @click="$emit(\'click\')"><slot></slot></div>',
-            },
-            'sw-customer-address-form': true,
-            'sw-customer-address-form-options': true,
-        },
     });
 }
 
@@ -101,10 +101,6 @@ describe('module/sw-customer/view/sw-customer-detail-addresses.spec.js', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {

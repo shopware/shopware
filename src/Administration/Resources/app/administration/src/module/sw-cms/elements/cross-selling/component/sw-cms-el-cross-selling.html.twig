@@ -43,13 +43,15 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_cms_element_cross_selling_products %}
-                <!-- eslint-disable vue/no-use-v-if-with-v-for -->
-                <sw-cms-el-product-box
+                <template
                     v-for="(crossSelling, index) in crossSellingProducts"
-                    v-if="index < sliderBoxLimit"
-                    :key="crossSelling.id"
-                    :element="getProductEl(crossSelling.product)"
-                />
+                    :key="index"
+                >
+                    <sw-cms-el-product-box
+                        v-if="index < sliderBoxLimit"
+                        :element="getProductEl(crossSelling.product)"
+                    />
+                </template>
                 {% endblock %}
             </template>
         </div>

@@ -21,6 +21,7 @@ interface StateMachineHistoryData {
         username: string
     },
     entity: string,
+    referencedId?: string,
 }
 
 interface CombinedStates {
@@ -123,6 +124,10 @@ export default Component.wrapComponentConfig({
                 { property: 'order', label: this.$tc('sw-order.stateHistoryModal.column.order') },
             ];
         },
+
+        hasMultipleTransactions(): boolean {
+            return (this.order?.transactions?.filter((v, idx, a) => a.indexOf(v) === idx)?.length ?? 0) > 1;
+        },
     },
 
     created() {
@@ -184,7 +189,20 @@ export default Component.wrapComponentConfig({
                 entries.push(this.createEntry(states, this.order));
             }
 
+            const knownTransactionIds: string[] = [];
             allEntries.forEach((entry: Entity<'state_machine_history'>) => {
+                if (entry.entityName === 'order_transaction' && !knownTransactionIds.includes(entry.referencedId)) {
+                    if (knownTransactionIds.length > 0) {
+                        entries.push(this.createEntry(
+                            // @ts-expect-error - states exists
+                            { ...states, order_transaction: entry.fromStateMachineState },
+                            { ...entry, user: undefined },
+                        ));
+                    }
+
+                    knownTransactionIds.push(entry.referencedId);
+                }
+
                 // @ts-expect-error - the entityName have to be order, order_transaction or order_delivery
                 states[entry.entityName] = entry.toStateMachineState;
                 // @ts-expect-error - states exists
@@ -205,6 +223,7 @@ export default Component.wrapComponentConfig({
                 createdAt: 'orderDateTime' in entry ? entry.orderDateTime : entry.createdAt,
                 user: 'user' in entry ? entry.user : undefined,
                 entity: 'entityName' in entry ? entry.entityName : 'order',
+                referencedId: 'referencedId' in entry ? entry.referencedId : undefined,
             };
         },
 
@@ -224,6 +243,16 @@ export default Component.wrapComponentConfig({
             this.limit = limit;
 
             void this.loadHistory();
+        },
+
+        enumerateTransaction(item: StateMachineHistoryData): string {
+            if (item.entity !== 'order_transaction' || !this.hasMultipleTransactions) {
+                return '';
+            }
+
+            const idx = this.order.transactions?.findIndex((transaction) => transaction.id === item.referencedId) ?? -1;
+
+            return String(idx >= 0 ? idx + 1 : '');
         },
     },
 });

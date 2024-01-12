@@ -55,6 +55,7 @@ const stateHistoryFixture = [
             username: 'admin',
         },
         createdAt: '2022-10-12T10:01:33.815+00:00',
+        referencedId: '2',
     },
 ];
 
@@ -108,7 +109,7 @@ orderProp.deliveries.first = () => ({
 describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
     let SwOrderStateHistoryModal;
 
-    async function createWrapper(options = {}) {
+    async function createWrapper(options = {}, order = orderProp, stateHistory = stateHistoryFixture) {
         return mount(SwOrderStateHistoryModal, {
             global: {
                 stubs: {
@@ -152,7 +153,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
                                     });
                                 }
 
-                                return Promise.resolve(getCollection('state_machine_history', stateHistoryFixture));
+                                return Promise.resolve(getCollection('state_machine_history', stateHistory));
                             },
                         }),
                     },
@@ -165,7 +166,7 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
             },
             props: {
                 isLoading: false,
-                order: orderProp,
+                order,
             },
         });
     }
@@ -243,5 +244,69 @@ describe('src/module/sw-order/component/sw-order-state-history-modal', () => {
 
         expect(pageButtons.at(1).classes()).toContain('is-active');
         expect(wrapper.vm.page).toBe(2);
+    });
+
+    it('should have multiple transactions', async () => {
+        orderProp.transactions.push(); // add transaction twice
+
+        const wrapper = await createWrapper(
+            {},
+            { ...orderProp, transactions: [...orderProp.transactions, { ...orderProp.transactions[0], id: '4' }] },
+        );
+
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+    });
+
+    it('should enumerate multiple transactions', async () => {
+        // add second transaction
+        const wrapper = await createWrapper(
+            {},
+            { ...orderProp, transactions: [...orderProp.transactions, { ...orderProp.transactions[0], id: '4' }] },
+            [...stateHistoryFixture, { ...stateHistoryFixture[1], referencedId: '4' }],
+        );
+
+        const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
+
+        await flushPromises();
+
+        expect(wrapper.vm.hasMultipleTransactions).toBe(true);
+        expect(spy).toHaveBeenCalledTimes(5);
+
+        const allEntityColumns = await wrapper.findAll('.sw-data-grid__cell--entity > .sw-data-grid__cell-content');
+        expect(allEntityColumns.map((c) => c.text())).toEqual([
+            'global.entities.order',
+            'global.entities.order_delivery',
+            'global.entities.order_transaction 1',
+            'global.entities.order_transaction 2', // New-transaction-started entry
+            'global.entities.order_transaction 2',
+        ]);
+
+
+        const allUserColumns = await wrapper.findAll('.sw-data-grid__cell--user > .sw-data-grid__cell-content');
+        expect(allUserColumns.map((c) => c.text())).toEqual([
+            'sw-order.stateHistoryModal.labelSystemUser',
+            'admin',
+            'admin',
+            'sw-order.stateHistoryModal.labelSystemUser', // New-transaction-started entry
+            'admin',
+        ]);
+    });
+
+    it('should not enumerate single transaction', async () => {
+        const wrapper = await createWrapper();
+
+        const spy = jest.spyOn(wrapper.vm, 'enumerateTransaction');
+
+        await flushPromises();
+
+        expect(wrapper.vm.hasMultipleTransactions).toBe(false);
+        expect(spy).toHaveBeenCalledTimes(3);
+
+        const allEntityColumns = await wrapper.findAll('.sw-data-grid__cell--entity > .sw-data-grid__cell-content');
+        expect(allEntityColumns.map((c) => c.text())).toEqual([
+            'global.entities.order',
+            'global.entities.order_delivery',
+            'global.entities.order_transaction',
+        ]);
     });
 });

@@ -2,15 +2,10 @@
  * @package admin
  */
 
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import utils from 'src/core/service/util.service';
-import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/base/sw-select-base';
-
-const { Component } = Shopware;
 
 const fixture = [
     {
@@ -37,10 +32,8 @@ function getCollection() {
     );
 }
 async function createWrapper() {
-    const localVue = createLocalVue();
-    return shallowMount(await Component.build('sw-entity-multi-id-select'), {
-        localVue,
-        propsData: {
+    return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
+        props: {
             ids: getCollection(),
             repository: {
                 search: () => {
@@ -48,24 +41,26 @@ async function createWrapper() {
                 },
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => {
-                    return {
-                        get: (value) => Promise.resolve({ id: value, name: value }),
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                    };
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: (value) => Promise.resolve({ id: value, name: value }),
+                            search: () => {
+                                return Promise.resolve();
+                            },
+                        };
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-block-field': true,
-            'sw-select-selection-list': true,
-            'sw-icon': true,
-            'sw-select-base': await Component.build('sw-select-base'),
-            'sw-entity-multi-select': await Component.build('sw-entity-multi-select'),
+            stubs: {
+                'sw-block-field': true,
+                'sw-select-selection-list': true,
+                'sw-icon': true,
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+            },
         },
     });
 }

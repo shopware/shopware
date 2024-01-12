@@ -12,7 +12,12 @@ async function createWrapper() {
         },
         global: {
             provide: {
-                repositoryFactory: {},
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => ({ id: 'id' }),
+                        save: () => Promise.resolve({}),
+                    }),
+                },
                 shortcutService: {
                     startEventListener: () => {},
                     stopEventListener: () => {},
@@ -23,7 +28,7 @@ async function createWrapper() {
                 'sw-tabs': true,
                 'sw-tabs-item': true,
                 'sw-product-variants-delivery-order': true,
-                'sw-button': true,
+                'sw-button': await wrapTestComponent('sw-button'),
                 'sw-icon': true,
             },
         },
@@ -47,7 +52,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
         expect(saveButton.exists()).toBeTruthy();
-        expect(saveButton.attributes().disabled).toBeTruthy();
+        expect(saveButton.classes()).toContain('sw-button--disabled');
     });
 
     it('should have an enabled save button', async () => {
@@ -60,6 +65,21 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
         expect(saveButton.exists()).toBeTruthy();
-        expect(saveButton.attributes().disabled).toBeFalsy();
+        expect(saveButton.classes()).not.toContain('sw-button--disabled');
+    });
+
+    it('should be able to allow save storefront presentation modal', async () => {
+        global.activeAclRoles = ['product.editor'];
+        const wrapper = await createWrapper([
+            'product.editor',
+        ]);
+        await flushPromises();
+        const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
+
+        expect(saveButton.exists()).toBeTruthy();
+        expect(saveButton.classes()).not.toContain('sw-button--disabled');
+        await saveButton.trigger('click');
+        const emitted = wrapper.emitted()['configuration-close'];
+        expect(emitted).toBeTruthy();
     });
 });

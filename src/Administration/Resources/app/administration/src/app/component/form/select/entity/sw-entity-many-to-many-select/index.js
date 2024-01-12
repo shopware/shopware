@@ -17,11 +17,6 @@ Component.register('sw-entity-many-to-many-select', {
         'feature',
     ],
 
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
-
     props: {
         labelProperty: {
             type: String,

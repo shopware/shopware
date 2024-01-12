@@ -19,11 +19,6 @@ export default {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         // FIXME: add type attribute
         // eslint-disable-next-line vue/require-prop-types

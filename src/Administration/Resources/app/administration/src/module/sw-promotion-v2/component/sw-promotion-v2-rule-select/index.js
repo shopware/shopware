@@ -14,11 +14,6 @@ export default {
         'feature',
     ],
 
-    model: {
-        prop: 'collection',
-        event: 'change',
-    },
-
     props: {
         collection: {
             type: Array,

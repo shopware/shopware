@@ -34,7 +34,7 @@ function getCollection() {
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
         props: {
-            ids: getCollection(),
+            value: getCollection(),
             repository: {
                 search: () => {
                     return Promise.resolve(getCollection());
@@ -71,25 +71,25 @@ describe('components/sw-entity-multi-id-select', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should able to update ids', async () => {
+    it('should able to update value', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds(getCollection());
         await flushPromises();
 
-        expect(wrapper.vm.ids).toHaveLength(fixture.length);
+        expect(wrapper.vm.value).toHaveLength(fixture.length);
         expect(wrapper.vm.collection).toHaveLength(fixture.length);
 
-        await wrapper.setProps({ ids: [] });
-        expect(wrapper.vm.ids).toHaveLength(0);
+        await wrapper.setProps({ value: [] });
+        expect(wrapper.vm.value).toHaveLength(0);
         expect(wrapper.vm.collection).toHaveLength(0);
     });
 
-    it('should reset selected ids if it is invalid value', async () => {
+    it('should reset selected value if it is invalid', async () => {
         const wrapper = await createWrapper();
         wrapper.vm.updateIds = jest.fn();
         await wrapper.setProps(
             {
-                ids: [{ id: '123', name: 'random' }],
+                value: [{ id: '123', name: 'random' }],
                 repository: {
                     search: () => {
                         return Promise.resolve([]);

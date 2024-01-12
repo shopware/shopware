@@ -19,12 +19,12 @@ Component.extend('sw-number-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
-    inject: ['feature'],
+    emits: [
+        'update:value',
+        'input-change',
+    ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
+    inject: ['feature'],
 
     props: {
         numberType: {

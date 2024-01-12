@@ -10,11 +10,6 @@ export default {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: String,

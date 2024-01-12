@@ -21,11 +21,6 @@ Component.register('sw-entity-multi-select', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
-
     props: {
         labelProperty: {
             type: [String, Array],

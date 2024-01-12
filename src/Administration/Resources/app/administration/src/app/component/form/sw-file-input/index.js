@@ -29,11 +29,6 @@ Component.register('sw-file-input', {
         Mixin.getByName('notification'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         maxFileSize: {
             type: Number,

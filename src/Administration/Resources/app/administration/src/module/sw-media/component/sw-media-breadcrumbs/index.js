@@ -15,11 +15,6 @@ export default {
         'feature',
     ],
 
-    model: {
-        prop: 'currentFolderId',
-        event: 'media-folder-change',
-    },
-
     props: {
         currentFolderId: {
             type: String,

@@ -10,11 +10,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: [Object, String, Number, Boolean] as PropType<unknown>,

@@ -14,16 +14,19 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-single-select', {
     template,
 
+    emits: [
+        'update:value',
+        'item-selected',
+        'on-open-change',
+        'before-selection-clear',
+        'search',
+    ],
+
     inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         options: {

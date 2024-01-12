@@ -16,12 +16,9 @@ const { Component } = Shopware;
 Component.register('sw-tagged-field', {
     template,
 
-    inject: ['feature'],
+    emits: ['update:value'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
+    inject: ['feature'],
 
     props: {
         value: {

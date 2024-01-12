@@ -20,11 +20,6 @@ Component.register('sw-meteor-single-select', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         options: {
             required: true,

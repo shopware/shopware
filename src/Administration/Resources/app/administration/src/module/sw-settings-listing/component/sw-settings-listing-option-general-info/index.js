@@ -4,11 +4,6 @@ import template from './sw-settings-listing-option-general-info.html.twig';
 export default {
     template,
 
-    model: {
-        prop: 'sortingOption',
-        event: 'input',
-    },
-
     props: {
         sortingOption: {
             type: Object,

@@ -9,7 +9,7 @@ exports[`components/form/sw-purchase-price-field should renders correctly 1`] = 
   label="true"
   name="sw-purchase-price-field"
   net-label="sw-product.priceForm.labelPurchasePriceNet"
-  price="[object Object]"
   tax-rate="[object Object]"
+  value="[object Object]"
 />
 `;

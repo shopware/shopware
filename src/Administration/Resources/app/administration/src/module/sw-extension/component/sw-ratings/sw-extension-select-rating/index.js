@@ -10,11 +10,6 @@ export default {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     methods: {
         onChange(value) {
             this.$emit('update:value', value);

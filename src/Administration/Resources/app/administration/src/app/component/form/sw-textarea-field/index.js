@@ -17,6 +17,11 @@ Component.register('sw-textarea-field', {
     template,
     inheritAttrs: false,
 
+    emits: [
+        'update:value',
+        'change',
+    ],
+
     inject: ['feature'],
 
     mixins: [

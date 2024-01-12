@@ -46,7 +46,7 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        price: [dollarPrice, euroPrice],
+        value: [dollarPrice, euroPrice],
         taxRate,
         currency,
         defaultPrice,
@@ -115,13 +115,13 @@ describe('components/form/sw-price-field', () => {
     });
 
     it('should be an disabled field', async () => {
-        const wrapper = await setup({ price: [euroPrice] });
+        const wrapper = await setup({ value: [euroPrice] });
 
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
     });
 
     it('should calculate price based on default price', async () => {
-        const wrapper = await setup({ price: [euroPrice] });
+        const wrapper = await setup({ value: [euroPrice] });
 
         const dollarPriceConverted = {
             gross: euroPrice.gross * currency.factor,
@@ -133,10 +133,10 @@ describe('components/form/sw-price-field', () => {
     });
 
     it('should remove the inheritance when matching currency price exists', async () => {
-        const wrapper = await setup({ price: [euroPrice] });
+        const wrapper = await setup({ value: [euroPrice] });
 
         expect(wrapper.vm.isInherited).toBeTruthy();
-        await wrapper.setProps({ price: [dollarPrice, euroPrice] });
+        await wrapper.setProps({ value: [dollarPrice, euroPrice] });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
 
@@ -179,7 +179,7 @@ describe('components/form/sw-price-field', () => {
     it('should calculate values if inherited and price is not set', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
-            price: [euroPrice],
+            value: [euroPrice],
         });
 
         const expectedNetPrice = (euroPrice.net * currency.factor);
@@ -190,7 +190,7 @@ describe('components/form/sw-price-field', () => {
     it('should set values to null if not inherited and price is not set', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
-            price: [euroPrice],
+            value: [euroPrice],
             inherited: false,
         });
 
@@ -211,7 +211,7 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup({ allowEmpty: false });
         const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
         await wrapper.setProps({
-            price: [euroPrice],
+            value: [euroPrice],
             inherited: false,
         });
 
@@ -225,7 +225,7 @@ describe('components/form/sw-price-field', () => {
         const wrapper = await setup({ allowEmpty: false });
         const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
         await wrapper.setProps({
-            price: [euroPrice],
+            value: [euroPrice],
             inherited: false,
         });
 

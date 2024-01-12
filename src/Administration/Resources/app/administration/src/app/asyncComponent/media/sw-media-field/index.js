@@ -18,11 +18,6 @@ export default {
 
     inject: ['repositoryFactory', 'feature'],
 
-    model: {
-        prop: 'mediaId',
-        event: 'media-id-change',
-    },
-
     props: {
         // need to be "value" instead of "modelValue" because of the compat build
         value: {

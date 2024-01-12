@@ -17,11 +17,11 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_settings_listing_default_sales_channel_select %}
         <sw-entity-multi-id-select
-            v-model:ids="configData[null]['core.defaultSalesChannel.salesChannel']"
+            v-model:value="configData[null]['core.defaultSalesChannel.salesChannel']"
             :repository="salesChannelRepository"
             :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
             :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-            @update:ids="updateSalesChannel"
+            @update:value="updateSalesChannel"
         />
         {% endblock %}
 

@@ -16,11 +16,6 @@ export default {
         'feature',
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         order: {
             type: Object,

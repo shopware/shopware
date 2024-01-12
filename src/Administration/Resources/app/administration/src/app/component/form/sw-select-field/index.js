@@ -31,11 +31,6 @@ Component.register('sw-select-field', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: String,

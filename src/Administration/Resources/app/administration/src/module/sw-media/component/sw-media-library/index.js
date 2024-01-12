@@ -22,11 +22,6 @@ export default {
         Mixin.getByName('media-grid-listener'),
     ],
 
-    model: {
-        prop: 'selection',
-        event: 'media-selection-change',
-    },
-
     props: {
         selection: {
             type: Array,

@@ -22,11 +22,6 @@ Component.register('sw-button-process', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'processSuccess',
-        event: 'process-finish',
-    },
-
     props: {
         processSuccess: {
             type: Boolean,

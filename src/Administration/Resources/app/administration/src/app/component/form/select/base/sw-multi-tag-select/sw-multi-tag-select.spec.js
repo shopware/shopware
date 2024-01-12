@@ -185,4 +185,150 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.setProps({ disabled: false });
         expect(wrapper.find('.sw-select input').wrapperElement).toBeEnabled();
     });
+
+    it('should show only five tags of selection list and convert to a object', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        expect(multiDataSelect.vm.visibleValues).toEqual([
+            {
+                value: 'Selection1',
+            },
+            {
+                value: 'Selection2',
+            },
+            {
+                value: 'Selection3',
+            },
+            {
+                value: 'Selection4',
+            },
+            {
+                value: 'Selection5',
+            },
+        ]);
+    });
+
+    it('should count invisiable value', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [],
+        });
+
+        expect(multiDataSelect.vm.invisibleValueCount).toBe(0);
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        expect(multiDataSelect.vm.invisibleValueCount).toBe(1);
+    });
+
+    it('should not remove the last item when value item is empty', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [],
+        });
+
+        multiDataSelect.vm.removeLastItem();
+
+        expect(multiDataSelect.emitted()['update:value']).toBeFalsy();
+    });
+
+    it('should expand value first when use keyboard delete last item', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        multiDataSelect.vm.removeLastItem();
+
+        expect(multiDataSelect.vm.limit).toBe(10);
+        expect(multiDataSelect.emitted()['update:value']).toBeFalsy();
+    });
+
+    it('should emmited a update value when remove item', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+            ],
+        });
+
+        multiDataSelect.vm.$emit('update:value', ['Selection1', 'Selection2', 'Selection3', 'Selection4']);
+        multiDataSelect.vm.remove({ value: 'Selection5' });
+
+        expect(multiDataSelect.emitted()['update:value']).toBeTruthy();
+        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([['Selection1', 'Selection2', 'Selection3', 'Selection4']]);
+    });
+
+    it('should remove the last item', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+            ],
+        });
+
+        multiDataSelect.vm.removeLastItem();
+
+        expect(multiDataSelect.emitted()['update:value']).toBeTruthy();
+        expect(multiDataSelect.emitted()['update:value'][0]).toEqual([['Selection1', 'Selection2', 'Selection3', 'Selection4']]);
+    });
+
+    it('should expand value limit', async () => {
+        const multiDataSelect = await createWrapper();
+
+        await multiDataSelect.setProps({
+            value: [
+                'Selection1',
+                'Selection2',
+                'Selection3',
+                'Selection4',
+                'Selection5',
+                'Selection6',
+            ],
+        });
+
+        multiDataSelect.vm.expandValueLimit();
+
+        expect(multiDataSelect.vm.limit).toBe(10);
+    });
 });

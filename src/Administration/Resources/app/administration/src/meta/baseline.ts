@@ -709,7 +709,6 @@ const missingTests = [
     'src/app/component/modal/sw-confirm-modal/index.js',
     'src/app/component/structure/sw-card-view/index.js',
     'src/app/service/app-cms.service.js',
-    'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal/index.js',

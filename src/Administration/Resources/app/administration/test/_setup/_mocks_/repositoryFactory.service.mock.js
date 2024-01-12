@@ -40,13 +40,14 @@ responses.addResponse({
     response: {
         data: [
             {
-                id: YourId,
+                id: 'YourId',
                 attributes: {
-                    id: YourId
-                }
-            }
-        ]
-    }
+                    id: 'YourId'
+                },
+                relationships: [],
+            },
+        ],
+    },
 });
 
 ############### Example End ###############

@@ -706,7 +706,6 @@ const missingTests = [
     'src/app/component/form/select/entity/sw-entity-multi-select/index.js',
     'src/app/component/form/sw-custom-field-set-renderer/index.js',
     'src/app/component/form/sw-snippet-field-edit-modal/index.js',
-    'src/app/component/modal/sw-confirm-modal/index.js',
     'src/app/component/structure/sw-card-view/index.js',
     'src/app/service/app-cms.service.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js',

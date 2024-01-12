@@ -28,11 +28,6 @@ Component.register('sw-multi-tag-select', {
         Mixin.getByName('remove-api-error'),
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: Array,

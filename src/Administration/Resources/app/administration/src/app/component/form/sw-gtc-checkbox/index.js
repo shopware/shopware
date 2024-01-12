@@ -12,11 +12,6 @@ Shopware.Component.register('sw-gtc-checkbox', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: Boolean,

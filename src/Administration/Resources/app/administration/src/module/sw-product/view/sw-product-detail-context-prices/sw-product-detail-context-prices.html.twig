@@ -206,7 +206,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field %}
                             <sw-price-field
-                                :price="item.price"
+                                :value="item.price"
                                 :default-price="findDefaultPriceOfRule(item)"
                                 :tax-rate="productTaxRate"
                                 :label="false"

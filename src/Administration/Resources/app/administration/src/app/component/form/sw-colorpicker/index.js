@@ -25,6 +25,8 @@ const debounce = Shopware.Utils.debounce;
 Component.register('sw-colorpicker', {
     template,
 
+    emits: ['update:value'],
+
     inject: ['feature'],
 
     mixins: [

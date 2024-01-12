@@ -11,11 +11,6 @@ const { cloneDeep, merge } = Shopware.Utils.object;
 export default Mixin.register('cms-element', defineComponent({
     inject: ['cmsService'],
 
-    model: {
-        prop: 'element',
-        event: 'element-update',
-    },
-
     props: {
         element: {
             type: Object,

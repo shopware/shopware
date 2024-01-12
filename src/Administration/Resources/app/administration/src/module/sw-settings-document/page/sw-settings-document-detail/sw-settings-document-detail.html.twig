@@ -282,7 +282,7 @@
                         {% block sw_settings_document_detail_content_field_delivery_countries %}
                         <sw-entity-multi-id-select
                             v-if="showCountriesSelect"
-                            v-model:ids="documentConfig.config.deliveryCountries"
+                            v-model:value="documentConfig.config.deliveryCountries"
                             name="sw-field--documentConfig-config-deliveryCountries"
                             class="sw-settings-document-detail__field_delivery_countries"
                             :repository="countryRepository"

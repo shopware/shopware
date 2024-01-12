@@ -33,11 +33,6 @@ Component.register('sw-boolean-radio-group', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: Boolean,

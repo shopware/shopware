@@ -28,16 +28,19 @@ Component.register('sw-multi-select', {
     template,
     inheritAttrs: false,
 
+    emits: [
+        'update:value',
+        'item-add',
+        'item-remove',
+        'search-term-change',
+        'display-values-expand',
+    ],
+
     inject: ['feature'],
 
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         options: {

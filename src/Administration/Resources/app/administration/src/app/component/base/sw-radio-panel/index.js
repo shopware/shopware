@@ -27,11 +27,6 @@ Component.register('sw-radio-panel', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'modelValue', // use the variable 'modelValue' instead of 'value' because both are relevant!
-        event: 'input',
-    },
-
     props: {
         // FIXME: add require flag, add default value
         // eslint-disable-next-line vue/require-default-prop

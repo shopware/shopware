@@ -11,6 +11,8 @@ const { Component } = Shopware;
 Component.extend('sw-compact-colorpicker', 'sw-colorpicker', {
     template,
 
+    emits: ['update:value'],
+
     inject: ['feature'],
 
     computed: {

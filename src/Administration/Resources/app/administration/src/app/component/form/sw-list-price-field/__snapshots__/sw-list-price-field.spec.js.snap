@@ -12,9 +12,9 @@ exports[`components/form/sw-list-price-field should be rendered correctly 1`] = 
       currency="[object Object]"
       default-price="[object Object]"
       label="true"
-      price="[object Object],[object Object]"
       required=""
       tax-rate="[object Object]"
+      value="[object Object],[object Object]"
     />
   </div>
    
@@ -26,8 +26,8 @@ exports[`components/form/sw-list-price-field should be rendered correctly 1`] = 
       currency="[object Object]"
       gross-label="sw-product.priceForm.labelPurchasePriceGross"
       net-label="sw-product.priceForm.labelPurchasePriceNet"
-      price="[object Object]"
       tax-rate="[object Object]"
+      value="[object Object]"
     />
   </div>
    
@@ -42,8 +42,8 @@ exports[`components/form/sw-list-price-field should be rendered correctly 1`] = 
       gross-label="global.sw-list-price-field.labelListPriceGross"
       label="true"
       net-label="global.sw-list-price-field.labelListPriceNet"
-      price="[object Object]"
       tax-rate="[object Object]"
+      value="[object Object]"
     />
   </div>
    
@@ -58,8 +58,8 @@ exports[`components/form/sw-list-price-field should be rendered correctly 1`] = 
       gross-label="global.sw-list-price-field.labelRegulationPriceGross"
       label="true"
       net-label="global.sw-list-price-field.labelRegulationPriceNet"
-      price="[object Object]"
       tax-rate="[object Object]"
+      value="[object Object]"
     />
   </div>
 </div>

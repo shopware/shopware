@@ -24,11 +24,6 @@ Component.register('sw-multi-snippet-drag-and-drop', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: Array as PropType<Array<string[]>>,

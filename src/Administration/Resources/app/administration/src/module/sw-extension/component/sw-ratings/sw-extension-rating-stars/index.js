@@ -10,11 +10,6 @@ export default {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'rating',
-        event: 'rating-changed',
-    },
-
     props: {
         editable: {
             type: Boolean,

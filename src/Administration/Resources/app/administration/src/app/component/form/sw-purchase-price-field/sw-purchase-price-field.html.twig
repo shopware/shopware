@@ -2,7 +2,7 @@
 {% block sw_purchase_price_field %}
 <sw-price-field
     name="sw-purchase-price-field"
-    :price="purchasePrice"
+    :value="purchasePrice"
     class="sw-purchase-price-field"
     :tax-rate="taxRate"
     :disabled="disabled"
@@ -12,6 +12,6 @@
     :label="label"
     :error="error"
     :currency="currency"
-    @update:price="purchasePriceChanged"
+    @update:value="purchasePriceChanged"
 />
 {% endblock %}

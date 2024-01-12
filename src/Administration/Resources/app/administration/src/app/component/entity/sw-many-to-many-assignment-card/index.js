@@ -28,11 +28,6 @@ Component.register('sw-many-to-many-assignment-card', {
         'feature',
     ],
 
-    model: {
-        prop: 'entityCollection',
-        event: 'change',
-    },
-
     props: {
         columns: {
             type: Array,

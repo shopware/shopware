@@ -22,11 +22,6 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
 
     inject: ['feature'],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         value: {
             type: Number,

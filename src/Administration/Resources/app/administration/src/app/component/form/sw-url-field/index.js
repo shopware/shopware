@@ -26,6 +26,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
+    emits: [
+        'update:value',
+        'input',
+    ],
+
     inject: ['feature'],
 
     props: {

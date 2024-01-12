@@ -22,11 +22,6 @@ export default Component.wrapComponentConfig({
         'feature',
     ],
 
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
-
     props: {
         customer: {
             type: Object as PropType<Entity<'customer'>>,

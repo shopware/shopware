@@ -11,6 +11,14 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-entity-single-select', {
     template,
 
+    emits: [
+        'update:value',
+        'search',
+        'option-select',
+        'before-selection-clear',
+        'search-term-change',
+    ],
+
     inject: [
         'repositoryFactory',
         'feature',
@@ -20,11 +28,6 @@ Component.register('sw-entity-single-select', {
         Mixin.getByName('remove-api-error'),
         Mixin.getByName('notification'),
     ],
-
-    model: {
-        prop: 'value',
-        event: 'change',
-    },
 
     props: {
         // FIXME: add property type

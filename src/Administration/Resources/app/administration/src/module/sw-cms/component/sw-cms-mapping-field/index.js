@@ -10,11 +10,6 @@ export default {
 
     inject: ['cmsService'],
 
-    model: {
-        prop: 'config',
-        event: 'config-update',
-    },
-
     props: {
         config: {
             type: Object,

@@ -47,6 +47,8 @@ export default {
     template,
     inheritAttrs: false,
 
+    emits: ['update:value'],
+
     inject: ['feature'],
 
     mixins: [

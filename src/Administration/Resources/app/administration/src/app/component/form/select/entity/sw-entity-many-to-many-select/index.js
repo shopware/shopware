@@ -399,7 +399,7 @@ Component.register('sw-entity-many-to-many-select', {
         },
 
         resetActiveItem() {
-            this.$refs.swSelectResultList.setActiveItemIndex(0);
+            this.$refs.swSelectResultList?.setActiveItemIndex(0);
         },
 
         debouncedSearch: debounce(function updateSearchTerm() {

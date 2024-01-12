@@ -704,7 +704,6 @@ const missingTests = [
     'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index.js',
     'src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
-    'src/app/component/form/select/entity/sw-entity-multi-id-select/index.js',
     'src/app/component/form/select/entity/sw-entity-multi-select/index.js',
     'src/app/component/form/sw-colorpicker/index.js',
     'src/app/component/form/sw-custom-field-set-renderer/index.js',

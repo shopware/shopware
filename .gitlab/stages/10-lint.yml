@@ -162,6 +162,7 @@ PHP lint:
         - composer run lint:changelog
         - composer run lint:snippets
         - ./bin/console sync:composer:version --dry-run
+        - 'git tag -l --sort -version:refname | head -n 1'
         - composer run bc-check
 
 NPM CI:

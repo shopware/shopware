@@ -10836,36 +10836,6 @@ parameters:
 			path: tests/unit/Core/Framework/DependencyInjection/ConfigurationTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'cause' given\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'command' given\\.$#"
-			count: 2
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'controller' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'exception' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/Monolog/AnnotatePackageProcessorTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of attribute class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/PackageTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$package of class Shopware\\\\Core\\\\Framework\\\\Log\\\\Package constructor expects 'administration'\\|'business\\-ops'\\|'buyers\\-experience'\\|'checkout'\\|'content'\\|'core'\\|'customer\\-order'\\|'inventory'\\|'merchant\\-services'\\|'sales\\-channel'\\|'services\\-settings'\\|'storefront'\\|'stranger\\-codes'\\|'system\\-settings', 'test' given\\.$#"
-			count: 1
-			path: tests/unit/Core/Framework/Log/PackageTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Composer\\\\\\\\Composer' and Composer\\\\Composer will always evaluate to true\\.$#"
 			count: 2
 			path: tests/unit/Core/Framework/Plugin/Composer/FactoryTest.php
@@ -11109,6 +11079,16 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
+
+		-
+			message: "#^Attribute class PHPUnit\\\\Framework\\\\Attributes\\\\CoversClass does not exist\\.$#"
+			count: 1
+			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
+
+		-
+			message: "#^Test classes must have @covers annotation$#"
+			count: 1
+			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"

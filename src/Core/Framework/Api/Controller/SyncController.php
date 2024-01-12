@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
@@ -51,7 +52,11 @@ class SyncController extends AbstractController
             $indexingSkips
         );
 
-        $payload = $this->serializer->decode($request->getContent(), 'json');
+        try {
+            $payload = $this->serializer->decode($request->getContent(), 'json');
+        } catch (NotEncodableValueException) {
+            throw ApiException::invalidApiType('json');
+        }
 
         $operations = [];
         foreach ($payload as $key => $operation) {

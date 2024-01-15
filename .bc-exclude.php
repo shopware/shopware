@@ -43,5 +43,7 @@ return [
 
         // Removed property, which was unintentionally added
         'Property Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\OrRule#\\$count was removed',
+
+        'An enum expression .* is not supported in .*' // Can not be inspected through reflection https://github.com/Roave/BetterReflection/issues/1376
     ],
 ];

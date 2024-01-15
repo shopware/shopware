@@ -220,8 +220,12 @@ For further details on transports with different priorities, please refer to the
 * Has been removed without replacement.
 ## `Required` flag for `availability_rule_id` in `\Shopware\Core\Checkout\Shipping\ShippingMethodDefinition`:
 * Has been removed.
+
 ## ES Definition's buildTermQuery could return BuilderInterface:
 * In 6.5 we only allow return `BoolQuery` from `AbstractElasticsearchDefinition::buildTermQuery` method which is not always the case. From next major version, we will allow return `BuilderInterface` from this method.
+
+## Removal of Product Export exception
+* Removed `\Shopware\Core\Content\ProductExport\Exception\EmptyExportException` use `\Shopware\Core\Content\ProductExport\ProductExportException::productExportNotFound` instead
 
 ## Introduced in 6.5.6.0
 ## Removal of CacheInvalidatorStorage
@@ -292,6 +296,10 @@ You should use `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteE
 ## sw-field deprecation:
 * Instead of `<sw-field type="url"` use `<sw-url-field`. You can see the component mapping in the `sw-field/index.js`
 
+## Introduced in 6.5.4.0
+## Removal of `ProductLineItemFactory`
+Removed `\Shopware\Core\Content\Product\Cart\ProductLineItemFactory`, use `\Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory` instead.
+
 ## Introduced in 6.5.3.0
 ## Removal of `flow-action-1.0.xsd`
 We removed `Shopware\Core\Framework\App\FlowAction\Schema\flow-action-1.0.xsd`, use `Shopware\Core\Framework\App\Flow\Schema\flow-1.0.xsd` instead.
@@ -306,6 +314,12 @@ The API-Conversion mechanism was not used anymore, therefore, the following clas
 * `\Shopware\Core\Framework\Api\Converter\ApiVersionConverter`
 * `\Shopware\Core\Framework\Api\Converter\ConverterRegistry`
 * `\Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException`
+
+## Removal of separate Product Export exception classes
+Removed the following exception classes:
+* `\Shopware\Core\Content\ProductExport\Exception\RenderFooterException`
+* `\Shopware\Core\Content\ProductExport\Exception\RenderHeaderException`
+* `\Shopware\Core\Content\ProductExport\Exception\RenderProductException`
 
 ## Introduced in 6.5.1.0
 ## `writeAccess` field removed in `integrations`
@@ -448,3 +462,5 @@ The `generateNewPath()` and `saveSeed()` methods  in `\Shopware\Storefront\Theme
 
 For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
 
+## Removal of `blacklistIds` and `whitelistIds` in  `\Shopware\Core\Content\Product\ProductEntity`
+Two properties `blacklistIds` and `whitelistIds` were removed without replacement

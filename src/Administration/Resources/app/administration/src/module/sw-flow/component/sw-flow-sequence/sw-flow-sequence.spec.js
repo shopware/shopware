@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils_v2';
+import { mount } from '@vue/test-utils';
 import swFlowSequence from 'src/module/sw-flow/component/sw-flow-sequence';
 
 const sequenceFixture = {
@@ -12,13 +12,15 @@ const sequenceFixture = {
 };
 
 async function createWrapper(propsData = {}) {
-    return shallowMount(await Shopware.Component.build('sw-flow-sequence'), {
-        stubs: {
-            'sw-flow-sequence-selector': true,
-            'sw-flow-sequence-action': true,
-            'sw-flow-sequence-condition': true,
+    return mount(await wrapTestComponent('sw-flow-sequence', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-flow-sequence-selector': true,
+                'sw-flow-sequence-action': true,
+                'sw-flow-sequence-condition': true,
+            },
         },
-        propsData: {
+        props: {
             sequence: sequenceFixture,
             ...propsData,
         },

@@ -697,7 +697,6 @@ const missingTests = [
     'src/app/component/filter/sw-multi-select-filter/index.js',
     'src/app/component/filter/sw-number-filter/index.js',
     'src/app/component/filter/sw-range-filter/index.js',
-    'src/app/component/form/select/base/sw-grouped-single-select/index.js',
     'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index.js',
     'src/app/component/form/select/entity/sw-entity-advanced-selection-modal/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',

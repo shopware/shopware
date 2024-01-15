@@ -682,7 +682,6 @@ const missingTests = [
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js',
     'src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js',
-    'src/module/sw-flow/component/sw-flow-trigger/index.js',
     'src/module/sw-flow/page/sw-flow-detail/index.js',
     'src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts',
     'src/module/sw-product/page/sw-product-list/index.js',

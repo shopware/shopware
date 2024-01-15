@@ -78,7 +78,7 @@ final class PropertyGroupAdminSearchIndexer extends AbstractAdminIndexer
         $data = $this->connection->fetchAllAssociative(
             '
             SELECT LOWER(HEX(property_group.id)) as id,
-                   GROUP_CONCAT(DISTINCT property_group_translation.name) as name
+                   GROUP_CONCAT(DISTINCT property_group_translation.name SEPARATOR " ") as name
             FROM property_group
                 INNER JOIN property_group_translation
                     ON property_group.id = property_group_translation.property_group_id

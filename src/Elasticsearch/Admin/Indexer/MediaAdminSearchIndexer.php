@@ -79,10 +79,10 @@ final class MediaAdminSearchIndexer extends AbstractAdminIndexer
             '
             SELECT LOWER(HEX(media.id)) as id,
                    media.file_name,
-                   GROUP_CONCAT(DISTINCT media_translation.alt) as alt,
-                   GROUP_CONCAT(DISTINCT media_translation.title) as title,
+                   GROUP_CONCAT(DISTINCT media_translation.alt SEPARATOR " ") as alt,
+                   GROUP_CONCAT(DISTINCT media_translation.title SEPARATOR " ") as title,
                    media_folder.name,
-                   GROUP_CONCAT(tag.name) as tags
+                   GROUP_CONCAT(tag.name SEPARATOR " ") as tags
             FROM media
                 INNER JOIN media_translation
                     ON media.id = media_translation.media_id

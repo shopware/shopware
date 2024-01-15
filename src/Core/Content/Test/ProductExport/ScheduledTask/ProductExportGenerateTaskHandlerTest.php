@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
@@ -261,6 +262,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     {
         return new ProductExportGenerateTaskHandler(
             $this->getContainer()->get('scheduled_task.repository'),
+            $this->createMock(LoggerInterface::class),
             $this->getContainer()->get(SalesChannelContextFactory::class),
             $this->getContainer()->get('sales_channel.repository'),
             $this->getContainer()->get('product_export.repository'),

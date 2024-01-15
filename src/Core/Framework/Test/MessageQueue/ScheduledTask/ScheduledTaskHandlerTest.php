@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,10 +27,13 @@ class ScheduledTaskHandlerTest extends TestCase
 
     private EntityRepository $scheduledTaskRepo;
 
+    private LoggerInterface $logger;
+
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     /**
@@ -58,7 +62,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
 
         static::assertTrue($handler->wasCalled());
@@ -110,7 +114,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
         $nowTime = new \DateTime();
 
@@ -148,7 +152,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId, true);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
 
         $exception = null;
 
@@ -175,7 +179,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());
@@ -204,7 +208,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());

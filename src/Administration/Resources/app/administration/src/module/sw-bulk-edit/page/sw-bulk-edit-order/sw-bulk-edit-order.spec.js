@@ -345,7 +345,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
-        await wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').setChecked();
+        await wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').setValue('checked');
 
         await wrapper.vm.$nextTick();
 
@@ -564,7 +564,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
             field1: 'abc',
         };
 
-        await tagsCard.find('.sw-bulk-edit-change-field__change input').setChecked();
+        await tagsCard.find('.sw-bulk-edit-change-field__change input').setValue('checked');
         await wrapper.vm.$nextTick();
 
         const { syncData } = wrapper.vm.onProcessData();

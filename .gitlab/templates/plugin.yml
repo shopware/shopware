@@ -194,7 +194,7 @@ default:
 build and validate zip:
     stage: build
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.4.0
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.9
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     rules:
         - exists:
@@ -267,17 +267,6 @@ ecs:
               - ecs.php
     script:
         - ${PROJECT_ROOT}/vendor/bin/ecs
-
-validate snippets:
-    stage: test
-    needs: []
-    rules:
-        - if: '$CI_PIPELINE_SOURCE == "pipeline"'
-          when: never
-        - changes:
-              - '**/*.json'
-    script:
-        - ${PROJECT_ROOT}/bin/console snippets:validate
 
 jest (administration):
     stage: test
@@ -408,7 +397,7 @@ upload zip to store:
         name: account.shopware.com
         url: 'https://account.shopware.com'
     image:
-        name: ghcr.io/friendsofshopware/shopware-cli:0.3.16
+        name: ghcr.io/friendsofshopware/shopware-cli:0.4.9
         entrypoint: [ "/usr/local/bin/entrypoint.sh" ]
     variables:
         GIT_STRATEGY: none

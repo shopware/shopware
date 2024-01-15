@@ -16,7 +16,7 @@
                 :error="productMetaTitleError"
                 :disabled="props.isInherited || !allowEdit"
                 :value="props.currentValue"
-                @change="props.updateCurrentValue"
+                @update:value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>
@@ -58,7 +58,7 @@
                 :error="productKeywordsError"
                 :disabled="props.isInherited || !allowEdit"
                 :value="props.currentValue"
-                @change="props.updateCurrentValue"
+                @update:value="props.updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

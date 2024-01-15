@@ -497,6 +497,14 @@ export default {
         },
 
         checkFileType(file) {
+            if (!file?.type) {
+                file.type = file.mimeType;
+            }
+
+            if (!file?.name) {
+                file.name = file.fileName;
+            }
+
             const isValidFile = () => {
                 if (this.extensionAccept) {
                     return this.fileValidationService.checkByExtension(file, this.extensionAccept);
@@ -516,7 +524,7 @@ export default {
             this.createNotificationError({
                 title: this.$tc('global.default.error'),
                 message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
-                    name: file.name || file.fileName,
+                    name: file.name,
                     supportedTypes: this.extensionAccept || this.fileAccept,
                 }),
             });

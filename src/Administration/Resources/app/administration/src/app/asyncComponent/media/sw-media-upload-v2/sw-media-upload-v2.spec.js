@@ -605,5 +605,37 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         const isFileAccepted = wrapper.vm.checkFileType(file);
         expect(isFileAccepted).toBe(false);
     });
+
+    it('should override file when call extension check in case file does not belong to `File`', async () => {
+        const media = new Shopware.Data.EntityCollection(
+            '/media',
+            'media',
+            null,
+            null,
+            [{
+                id: '123',
+                fileName: 'media',
+                mimeType: 'application/pdf',
+            }],
+            1,
+            null,
+        );
+
+        const file = media.first();
+
+        await wrapper.setProps({
+            fileAccept: 'image/*, application/pdf',
+        });
+
+        await wrapper.vm.checkFileType(file);
+
+        expect(file).toEqual({
+            id: '123',
+            fileName: 'media',
+            mimeType: 'application/pdf',
+            type: 'application/pdf',
+            name: 'media',
+        });
+    });
 });
 

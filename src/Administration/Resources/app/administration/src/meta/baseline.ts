@@ -680,7 +680,6 @@ const missingTests = [
     'src/app/asyncComponent/extension/sw-extension-icon/index.ts',
     'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
-    'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js',
     'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js',

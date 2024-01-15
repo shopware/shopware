@@ -1,62 +1,56 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
-import swMailTemplateList from 'src/module/sw-mail-template/component/sw-mail-template-list';
-
-Shopware.Component.register('sw-mail-template-list', swMailTemplateList);
+import { mount } from '@vue/test-utils';
 
 const createWrapper = async (privileges = []) => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
-    return shallowMount(await Shopware.Component.build('sw-mail-template-list'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => {
-                        return Promise.resolve([
-                            {
-                                id: '123',
-                                description: 'Shopware Default Template',
-                                mailTemplateType: {
-                                    id: '1',
-                                    name: 'Enter delivery state: Returned',
-                                },
-                                salesChannels: [
-                                    {
-                                        salesChannel: {
-                                            name: 'Storefront',
-                                        },
+    return mount(await wrapTestComponent('sw-mail-template-list', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => {
+                            return Promise.resolve([
+                                {
+                                    id: '123',
+                                    description: 'Shopware Default Template',
+                                    mailTemplateType: {
+                                        id: '1',
+                                        name: 'Enter delivery state: Returned',
                                     },
-                                ],
-                            },
-                        ]);
-                    },
-                }),
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+                                    salesChannels: [
+                                        {
+                                            salesChannel: {
+                                                name: 'Storefront',
+                                            },
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
+                    }),
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
+                },
+                searchRankingService: {},
+            },
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-            searchRankingService: {},
-        },
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+            stubs: {
+                'sw-card': {
+                    template: '<div><slot name="grid"></slot></div>',
                 },
-            },
-        },
-        stubs: {
-            'sw-card': {
-                template: '<div><slot name="grid"></slot></div>',
-            },
-            'sw-entity-listing': {
-                props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
-                template: `
+                'sw-entity-listing': {
+                    props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
+                    template: `
                     <div id="mailTemplateGrid">
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
@@ -77,8 +71,9 @@ const createWrapper = async (privileges = []) => {
                             </slot>
                         </template>
                     </div>`,
+                },
+                'sw-context-menu-item': true,
             },
-            'sw-context-menu-item': true,
         },
     });
 };
@@ -86,7 +81,7 @@ const createWrapper = async (privileges = []) => {
 describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     it('should not allow to duplicate without create permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const duplicateButton = wrapper.find('.sw-mail-template-list-grid__duplicate-action');
         expect(duplicateButton.attributes().disabled).toBeTruthy();
@@ -94,7 +89,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should allow to duplicate with create permission', async () => {
         const wrapper = await createWrapper(['mail_templates.creator']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const duplicateButton = wrapper.find('.sw-mail-template-list-grid__duplicate-action');
         expect(duplicateButton.attributes().disabled).toBeFalsy();
@@ -102,7 +97,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should not allow to delete without delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteButton = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteButton.attributes().disabled).toBeTruthy();
@@ -110,7 +105,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should allow to delete with delete permission', async () => {
         const wrapper = await createWrapper(['mail_templates.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteButton = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteButton.attributes().disabled).toBeFalsy();
@@ -118,7 +113,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should not allow to edit without edit permission', async () => {
         const wrapper = await createWrapper(['mail_templates.viewer']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editButton.text()).toBe('global.default.view');
@@ -129,7 +124,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
             'mail_templates.viewer',
             'mail_templates.editor',
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editButton.text()).toBe('global.default.edit');
@@ -137,7 +132,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should hide item selection if user does not have delete permission', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
 
@@ -147,7 +142,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
     it('should show item selection if user has delete permission', async () => {
         const wrapper = await createWrapper(['mail_templates.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityList = wrapper.find('.sw-mail-templates-list-grid');
 
@@ -182,7 +177,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         const wrapper = await createWrapper();
 
         // wait for vue to fetch data and render the listing
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const isListingVisible = wrapper.vm.showListing;
         expect(isListingVisible).toBe(true);
@@ -195,12 +190,12 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     it('should hide mail templates when there are no mail templates', async () => {
         const wrapper = await createWrapper();
         // wait for vue to render the listing
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.mailTemplates = [];
 
         // wait for vue to remove the grid
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const isListingVisible = wrapper.vm.showListing;
         expect(isListingVisible).toBe(false);

@@ -60,21 +60,7 @@ class SyncController extends AbstractController
 
         $operations = [];
         foreach ($payload as $key => $operation) {
-            if (isset($operation['key'])) {
-                $key = $operation['key'];
-            }
-            $key = (string) $key;
-            $operations[] = new SyncOperation(
-                $key,
-                $operation['entity'],
-                $operation['action'],
-                $operation['payload'] ?? [],
-                $operation['criteria'] ?? []
-            );
-
-            if (empty($operation['entity'])) {
-                throw ApiException::invalidSyncOperationException(sprintf('Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.', (string) $key));
-            }
+            $operations[] = SyncOperation::createFromArray($operation, (string) $key);
         }
 
         try {

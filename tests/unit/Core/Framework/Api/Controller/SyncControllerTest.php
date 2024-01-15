@@ -71,7 +71,9 @@ class SyncControllerTest extends TestCase
                 'key' => 'some-key',
                 'entity' => 'some-entity',
                 'action' => 'upsert',
-                'payload' => [],
+                'payload' => [
+                    'some-key' => 'some-value',
+                ],
                 'criteria' => [],
             ],
         ], \JSON_THROW_ON_ERROR);

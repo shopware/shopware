@@ -321,30 +321,31 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     {
         return [
             [
-                ['product.name' => FieldSorting::ASCENDING],
+                ['product.name' => FieldSorting::ASCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'name-asc']),
             ],
             [
-                ['product.name' => FieldSorting::DESCENDING],
+                ['product.name' => FieldSorting::DESCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'name-desc']),
             ],
             [
-                ['product.cheapestPrice' => FieldSorting::ASCENDING],
+                ['product.cheapestPrice' => FieldSorting::ASCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-asc']),
             ],
             [
-                ['product.cheapestPrice' => FieldSorting::DESCENDING],
+                ['product.cheapestPrice' => FieldSorting::DESCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-desc']),
             ],
             [
                 [
                     'product.name' => FieldSorting::ASCENDING,
                     'product.cheapestPrice' => FieldSorting::DESCENDING,
+                    'id' => FieldSorting::ASCENDING,
                 ],
                 new Request(['order' => 'test-multiple-sortings']),
             ],
             [
-                ['product.cheapestPrice' => FieldSorting::DESCENDING],
+                ['product.cheapestPrice' => FieldSorting::DESCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
             ],
         ];
@@ -357,34 +358,35 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     {
         return [
             [
-                ['product.name' => FieldSorting::ASCENDING],
+                ['product.name' => FieldSorting::ASCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(),
             ],
             [
-                ['product.name' => FieldSorting::ASCENDING],
+                ['product.name' => FieldSorting::ASCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'name-asc']),
             ],
             [
-                ['product.name' => FieldSorting::DESCENDING],
+                ['product.name' => FieldSorting::DESCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'name-desc']),
             ],
             [
-                ['product.cheapestPrice' => FieldSorting::ASCENDING],
+                ['product.cheapestPrice' => FieldSorting::ASCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-asc']),
             ],
             [
-                ['product.cheapestPrice' => FieldSorting::DESCENDING],
+                ['product.cheapestPrice' => FieldSorting::DESCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-desc']),
             ],
             [
                 [
                     'product.name' => FieldSorting::ASCENDING,
                     'product.cheapestPrice' => FieldSorting::DESCENDING,
+                    'id' => FieldSorting::ASCENDING,
                 ],
                 new Request(['order' => 'test-multiple-sortings']),
             ],
             [
-                ['product.cheapestPrice' => FieldSorting::DESCENDING],
+                ['product.cheapestPrice' => FieldSorting::DESCENDING, 'id' => FieldSorting::ASCENDING],
                 new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
             ],
         ];

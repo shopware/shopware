@@ -1,99 +1,66 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils_v2';
-import swDashboardStatistics from 'src/module/sw-dashboard/component/sw-dashboard-statistics';
-import 'src/app/component/form/sw-select-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/base/sw-chart-card';
-import 'src/app/component/base/sw-card';
+import { mount } from '@vue/test-utils';
 import dictionary from 'src/module/sw-dashboard/snippet/en-GB.json';
-import { currency } from 'src/core/service/utils/format.utils';
 
-Shopware.Component.register('sw-dashboard-statistics', swDashboardStatistics);
+const hasOrderTodayMock = [
+    {},
+];
 
-async function createWrapper(privileges = [], orderSumToday = null) {
-    const localVue = createLocalVue();
-    localVue.filter('asset', v => v);
-    localVue.filter('date', v => v);
-    localVue.filter('currency', currency);
-
-    const responseMock = {
-        aggregations: {
-            order_count_bucket: {
-                buckets: [],
+async function createWrapper(privileges = []) {
+    return mount(await wrapTestComponent('sw-dashboard-statistics', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-card': await wrapTestComponent('sw-card'),
+                'sw-chart-card': await wrapTestComponent('sw-chart-card'),
+                'sw-entity-listing': true,
+                'sw-chart': true,
+                'sw-select-field': await wrapTestComponent('sw-select-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-skeleton': true,
+                'sw-help-text': true,
+                'sw-ignore-class': true,
+                'sw-extension-component-section': true,
+                'sw-icon': true,
+                'sw-field-error': true,
             },
-            order_sum_bucket: {
-                buckets: [],
+            mocks: {
+                $tc: (...args) => JSON.stringify([...args]),
+                $i18n: {
+                    locale: 'en-GB',
+                    messages: {
+                        'en-GB': dictionary,
+                    },
+                },
             },
-        },
-    };
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        search: () => Promise.resolve([]),
+                        buildHeaders: () => {},
+                    }),
+                },
+                stateStyleDataProviderService: {},
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-    const options = {
-        localVue,
-        stubs: {
-            'sw-card': await Shopware.Component.build('sw-card'),
-            'sw-chart-card': await Shopware.Component.build('sw-chart-card'),
-            'sw-entity-listing': true,
-            'sw-chart': true,
-            'sw-select-field': await Shopware.Component.build('sw-select-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-            'sw-skeleton': true,
-            'sw-help-text': true,
-            'sw-ignore-class': true,
-            'sw-extension-component-section': true,
-            'sw-icon': true,
-            'sw-field-error': true,
-        },
-        mocks: {
-            $tc: (...args) => JSON.stringify([...args]),
-            $i18n: {
-                locale: 'en-GB',
-                messages: {
-                    'en-GB': dictionary,
+                        return privileges.includes(identifier);
+                    },
                 },
             },
         },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    search: () => Promise.resolve(responseMock),
-                    buildHeaders: () => {},
-                }),
-            },
-            stateStyleDataProviderService: {},
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                },
-            },
-        },
-        computed: {
-            systemCurrencyISOCode() {
-                return 'EUR';
-            },
-            isSessionLoaded() {
-                return true;
-            },
-        },
-    };
-
-    if (orderSumToday !== null) {
-        options.computed.hasOrderToday = () => true;
-        options.computed.orderSumToday = () => orderSumToday;
-    }
-
-    return shallowMount(await Shopware.Component.build('sw-dashboard-statistics'), options);
+    });
 }
 
 /**
  * @package services-settings
  */
 describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
-    let wrapper = null;
+    let wrapper;
 
     beforeAll(() => {
+        Shopware.Context.app.systemCurrencyISOCode = 'EUR';
+
         if (Shopware.State.get('session')) {
             Shopware.State.unregisterModule('session');
         }
@@ -121,18 +88,8 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
         jest.useFakeTimers('modern');
     });
 
-    afterEach(() => {
-        wrapper.destroy();
-    });
-
     afterAll(() => {
         jest.useRealTimers();
-    });
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not show the stats', async () => {
@@ -162,6 +119,10 @@ describe('module/sw-dashboard/component/sw-dashboard-statistics', () => {
 
     it('should not exceed decimal places of two', async () => {
         wrapper = await createWrapper(['order.viewer'], 43383.13234554);
+        await wrapper.setData({
+            hasOrderToday: hasOrderTodayMock,
+            orderSumToday: 43383.13234554,
+        });
         await flushPromises();
 
         const todaysTotalSum = wrapper.find('.sw-dashboard-statistics__intro-stats-today-single-stat:nth-of-type(2) span:nth-of-type(2)').text();

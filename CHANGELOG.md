@@ -1,6 +1,11 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.7.4
+*  [NEXT-32388 - Update dompdf/dompdf to 2.0.4](./changelog/release-6-5-7-4/2023-12-14-update-dompdf-to-2-0-4.md)
+*  [NEXT-32201 - Add 'innovation as package title'](./changelog/release-6-5-7-4/2023-14-12-add-new-innovation-area.md)
+*  [NEXT-32889 - Fix privileges for state machine](./changelog/release-6-5-7-4/2024-01-05-fix-privileges-for-state-machine.md)
+
 ## 6.5.7.3
 *  [NEXT-32042 - Correct address_format column type](./changelog/release-6-5-7-3/2023-11-30-correct-address_format-column-type.md)
 

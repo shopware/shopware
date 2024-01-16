@@ -10316,11 +10316,6 @@ parameters:
 			path: tests/unit/Core/Content/Flow/Dispatching/Action/ChangeCustomerStatusActionTest.php
 
 		-
-			message: "#^Mocking of Shopware\\\\Core\\\\Content\\\\Flow\\\\Dispatching\\\\StorableFlow is not allowed\\. The object is very basic and can be constructed$#"
-			count: 1
-			path: tests/unit/Core/Content/Flow/Dispatching/Action/GenerateDocumentActionTest.php
-
-		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/Content/Flow/Dispatching/Action/RemoveCustomerTagActionTest.php

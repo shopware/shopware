@@ -728,7 +728,6 @@ const missingTests = [
     'src/module/sw-flow/page/sw-flow-detail/index.js',
     'src/module/sw-flow/view/detail/sw-flow-detail-flow/index.js',
     'src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts',
-    'src/module/sw-mail-template/page/sw-mail-template-index/index.js',
     'src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js',
     'src/module/sw-manufacturer/page/sw-manufacturer-list/index.js',
     'src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/index.js',

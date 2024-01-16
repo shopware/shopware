@@ -9,13 +9,12 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @covers \Shopware\Core\Framework\Log\Package
- *
- * @package core
  */
 class PackageTest extends TestCase
 {
     public function testConstructor(): void
     {
+        // @phpstan-ignore-next-line
         $package = new Package('test');
         static::assertSame('test', $package->package);
     }
@@ -60,6 +59,7 @@ class NoPackage
  *
  * @package core
  */
+// @phpstan-ignore-next-line
 #[Package('test')]
 class WithPackage
 {

@@ -4861,16 +4861,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Command/CreateHydratorCommand.php
 
 		-
-			message: "#^Anonymous variable in a `\\$field\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\FieldAccessorBuilder\\\\JsonFieldAccessorBuilder\\:\\:getField\\(\\) has parameter \\$fields with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\QueryBuilder\\:\\:getStates\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/QueryBuilder.php
@@ -8336,6 +8326,26 @@ parameters:
 			path: src/Core/System/DeliveryTime/Aggregate/DeliveryTimeTranslation/DeliveryTimeTranslationCollection.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:formatData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) has parameter \\$baseDefinitions with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) has parameter \\$salesChannelDefinitions with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\DependencyInjection\\\\CompilerPass\\\\SalesChannelEntityCompilerPass\\:\\:sortData\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Language\\\\LanguageCollection\\:\\:getLocaleIds\\(\\) should return list\\<string\\> but returns array\\.$#"
 			count: 1
 			path: src/Core/System/Language/LanguageCollection.php
@@ -10779,6 +10789,16 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
+
+		-
+			message: "#^Attribute class PHPUnit\\\\Framework\\\\Attributes\\\\CoversClass does not exist\\.$#"
+			count: 1
+			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
+
+		-
+			message: "#^Test classes must have @covers annotation$#"
+			count: 1
+			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"

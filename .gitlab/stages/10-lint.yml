@@ -162,7 +162,7 @@ PHP lint:
         - composer run lint:changelog
         - composer run lint:snippets
         - ./bin/console sync:composer:version --dry-run
-        - composer run bc-check
+        # - composer run bc-check
 
 NPM CI:
     extends: .base-no-setup

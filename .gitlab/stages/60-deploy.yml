@@ -28,16 +28,18 @@ Publish entity-schema-types NPM package:
     name: bitnami/git:2
   needs:
     - job: 'split repository'
-    - job: 'tag split repositories'
+    - job: 'finalize split repos (tag)'
       optional: true
-    - job: 'branch split repositories'
+    - job: 'finalize split repos (protected branch)'
+      optional: true
+    - job: 'finalize split repos (merge request)'
       optional: true
   rules: &rules-push-split-repositories
     - if: '$CI_MERGE_REQUEST_LABELS =~ /.*split::skip.*/'
       when: never # Pushing split repositories is impossible without creating them first
     - !reference [ .rules, skip-in-merge-train ]
     - !reference [ .rules, skip ]
-    - if: '$CI_COMMIT_REF_PROTECTED == "true" && ($CI_PIPELINE_SOURCE == "schedule" || $CI_COMMIT_TAG != null)'
+    - if: !reference [ .rules, split, rule-scheduled-or-tag ]
   variables:
     REMOTE_BASE_URL: "/dev/null"
     GIT_STRATEGY: clone

@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 
@@ -44,7 +43,7 @@ class GenerateDocumentAction extends FlowAction implements DelayableAction
 
     public function handleFlow(StorableFlow $flow): void
     {
-        if (!$flow->hasData(OrderAware::ORDER_ID) || !$flow->hasData(MailAware::SALES_CHANNEL_ID)) {
+        if (!$flow->hasData(OrderAware::ORDER_ID)) {
             return;
         }
 

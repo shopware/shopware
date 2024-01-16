@@ -228,6 +228,10 @@ export default {
                 return this.trueSource.href;
             }
 
+            if (this.isRelativePath) {
+                return this.trueSource;
+            }
+
             return this.trueSource.url;
         },
 
@@ -237,6 +241,10 @@ export default {
 
         isFile() {
             return this.trueSource instanceof File;
+        },
+
+        isRelativePath() {
+            return typeof this.trueSource === 'string';
         },
 
         alt() {
@@ -313,13 +321,16 @@ export default {
                 return;
             }
 
-            if (typeof this.source === 'string') {
+            if (typeof this.source !== 'string') {
+                this.trueSource = this.source[0] ?? this.source;
+
+                return;
+            }
+
+            try {
                 this.trueSource = await this.mediaRepository.get(this.source, Context.api);
-            } else {
+            } catch {
                 this.trueSource = this.source;
-                if (this.source[0]) {
-                    this.trueSource = this.source[0];
-                }
             }
         },
 

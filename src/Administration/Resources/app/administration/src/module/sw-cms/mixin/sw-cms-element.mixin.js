@@ -49,7 +49,7 @@ export default Mixin.register('cms-element', defineComponent({
     methods: {
         initElementConfig(elementName) {
             let defaultConfig = this.defaultConfig;
-            if (!defaultConfig || defaultConfig === null) {
+            if (!defaultConfig) {
                 const elementConfig = this.cmsElements[elementName];
                 defaultConfig = elementConfig.defaultConfig || {};
             }

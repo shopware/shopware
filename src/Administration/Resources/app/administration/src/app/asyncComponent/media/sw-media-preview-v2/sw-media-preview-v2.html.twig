@@ -137,7 +137,7 @@
             {% endblock %}
         </template>
 
-        <template v-else-if="isUrl && !urlPreviewFailed">
+        <template v-else-if="(isUrl || isRelativePath) && !urlPreviewFailed">
             <img
                 :src="previewUrl"
                 class="sw-media-preview-v2__item"

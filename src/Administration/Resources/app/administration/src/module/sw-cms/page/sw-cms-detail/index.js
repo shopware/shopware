@@ -546,9 +546,8 @@ export default {
         },
 
         async loadDemoCategoryMedia(entity) {
-            const media = await this.repositoryFactory.create('media').get(entity.mediaId);
+            entity.media = await this.repositoryFactory.create('media').get(entity.mediaId);
 
-            entity.media = media;
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', entity);
         },
 

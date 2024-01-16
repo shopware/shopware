@@ -2,10 +2,11 @@
  * @package content
  */
 import { mount } from '@vue/test-utils';
+import { deepMergeObject } from 'src/core/service/utils/object.utils';
 
 describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
-    const createWrapper = async () => {
-        return mount(await wrapTestComponent('sw-media-preview-v2', { sync: true }), {
+    const createWrapper = async (componentConfig = {}) => {
+        const config = {
             props: {
                 source: {
                     fileName: 'example',
@@ -32,7 +33,9 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
                     },
                 },
             },
-        });
+        };
+
+        return mount(await wrapTestComponent('sw-media-preview-v2', { sync: true }), deepMergeObject(config, componentConfig));
     };
 
     it('should be a Vue.js component', async () => {
@@ -145,5 +148,73 @@ describe('src/app/asyncComponent/media/sw-media-preview-v2', () => {
 
             expect(`${wrapper.vm.$options.placeholderThumbnailsBasePath}${fileTypes[type]}.svg`).toContain(wrapper.find('.sw-media-preview-v2__item').attributes('src'));
         }));
+    });
+
+    it('should handle relative path sources', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                return Promise.reject();
+                            },
+                        }),
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.trueSource).toEqual(wrapper.vm.source);
+    });
+
+    it('should handle UUID sources', async () => {
+        const expectedFile = {
+            fileName: 'example',
+            fileExtension: 'jpg',
+        };
+
+        const wrapper = await createWrapper({
+            props: {
+                source: '0dbfb95b662a410f9ca134f8f2a60d5e',
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                return Promise.resolve(expectedFile);
+                            },
+                        }),
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.trueSource).toEqual(expectedFile);
+    });
+
+    it('previewUrl function should handle relative paths', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                source: '/bundles/administration/static/img/cms/preview_mountain_large.jpg',
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            get: () => {
+                                return Promise.reject();
+                            },
+                        }),
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.previewUrl).toEqual(wrapper.vm.source);
     });
 });

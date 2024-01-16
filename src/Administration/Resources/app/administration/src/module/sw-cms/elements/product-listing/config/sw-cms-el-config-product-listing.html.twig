@@ -106,7 +106,7 @@
                 {% block sw_cms_element_product_listing_config_available_sortings %}
                 <sw-entity-multi-select
                     v-if="showSortingGrid"
-                    v-model="productSortings"
+                    v-model:entityCollection="productSortings"
                     class="sw-cms-el-config-product-listing-config-sorting-grid__select"
                     :label="$tc('sw-cms.elements.productListing.config.sorting.labelProductSortings')"
                     label-property="label"

@@ -61,7 +61,7 @@ async function createWrapper(props) {
                 'sw-datepicker': await wrapTestComponent('sw-text-field'),
                 'sw-text-editor': {
                     props: ['value'],
-                    template: '<input type="text" :value="value" @change="$emit(\'change\', $event.target.value)"></input>',
+                    template: '<input type="text" :value="value" @change="$emit(\'update:value\', $event.target.value)"></input>',
                 },
                 'sw-skeleton': await wrapTestComponent('sw-skeleton'),
                 'sw-skeleton-bar': await wrapTestComponent('sw-skeleton-bar'),

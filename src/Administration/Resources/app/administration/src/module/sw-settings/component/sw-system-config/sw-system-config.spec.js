@@ -894,6 +894,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
 
             // restore inheritance
             await inheritanceSwitch.find('.sw-icon').trigger('click');
+            await flushPromises();
 
             // check if inheritance switch is not inherit anymore
             field = wrapper.find(`.sw-system-config--field-${kebabCase(name)}`);

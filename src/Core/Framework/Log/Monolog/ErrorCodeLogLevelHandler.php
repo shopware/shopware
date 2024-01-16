@@ -9,6 +9,7 @@ use Monolog\LogRecord;
 use Psr\Log\LogLevel;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 #[Package('core')]
 class ErrorCodeLogLevelHandler extends AbstractHandler
@@ -30,13 +31,22 @@ class ErrorCodeLogLevelHandler extends AbstractHandler
      */
     public function handle(LogRecord $record): bool
     {
-        if (
-            isset($record->context['exception'])
-            && \is_object($record->context['exception'])
-            && $record->context['exception'] instanceof ShopwareHttpException
-            && \array_key_exists($record->context['exception']->getErrorCode(), $this->errorCodesToLogLevel)
-        ) {
-            $level = Level::fromName($this->errorCodesToLogLevel[$record->context['exception']->getErrorCode()]);
+        if (!isset($record->context['exception']) || !\is_object($record->context['exception'])) {
+            return $this->handler->handle($record);
+        }
+
+        $exception = $record->context['exception'];
+
+        if ($exception instanceof HandlerFailedException) {
+            // Symfony wraps the original exception, so we peak into the wrapped,
+            // to see if it was configured to a specific log level,
+            // but we don't want to silence all HandlerFailedExceptions
+            $exception = $exception->getPrevious();
+        }
+
+        if ($exception instanceof ShopwareHttpException
+            && \array_key_exists($exception->getErrorCode(), $this->errorCodesToLogLevel)) {
+            $level = Level::fromName($this->errorCodesToLogLevel[$exception->getErrorCode()]);
 
             $record = new LogRecord(
                 $record->datetime,

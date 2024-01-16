@@ -12,6 +12,8 @@ use Psr\Log\LogLevel;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 /**
  * @internal
@@ -82,6 +84,32 @@ class ErrorCodeLogLevelHandlerTest extends TestCase
                 ProductException::CATEGORY_NOT_FOUND => 'notice',
             ],
             Level::Notice,
+        ];
+
+        $logRecord = new LogRecord(
+            new \DateTimeImmutable(),
+            'foo',
+            Level::Alert,
+            'some message',
+            ['exception' => new HandlerFailedException(
+                new Envelope(new \stdClass()),
+                [ProductException::categoryNotFound(Uuid::randomHex())]
+            )]
+        );
+        yield 'log level is manipulated based on inner exception for HandlerFailedException' => [
+            $logRecord,
+            [
+                ProductException::CATEGORY_NOT_FOUND => 'notice',
+            ],
+            Level::Notice,
+        ];
+
+        yield 'log level is not manipulated when inner HandlerFailedException does not match' => [
+            $logRecord,
+            [
+                ProductException::PRODUCT_INVALID_CHEAPEST_PRICE_FACADE => 'notice',
+            ],
+            Level::Alert,
         ];
     }
 }

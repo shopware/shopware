@@ -712,7 +712,6 @@ const missingTests = [
     'src/module/sw-custom-entity/index.ts',
     'src/module/sw-custom-entity/page/sw-generic-custom-entity-detail/index.ts',
     'src/module/sw-custom-entity/page/sw-generic-custom-entity-list/index.ts',
-    'src/module/sw-customer/view/sw-customer-detail-order/index.js',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js',

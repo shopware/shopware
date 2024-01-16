@@ -101,7 +101,7 @@
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_custom_field_detail_modal_render_component %}
-    <div v-if="currentCustomField.config.customFieldType.length > 0">
+    <div v-if="currentCustomField.config.customFieldType?.length > 0">
         <component
             :is="renderComponentName"
             :current-custom-field="currentCustomField"

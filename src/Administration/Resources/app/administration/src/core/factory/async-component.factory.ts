@@ -923,7 +923,7 @@ interface SuperRegistry {
     [name: string]: {
         [sName: string]: {
             parent: string,
-            func: (args: $TSFixMe[]) => $TSFixMe
+            func: ((args: $TSFixMe[]) => $TSFixMe) | null,
         }
     }
 }
@@ -1016,7 +1016,16 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
 
             const superStack = this._findInSuperRegister(name);
 
-            const superFuncObject = superStack[this._virtualCallStack[name]];
+            let superFuncObject = superStack[this._virtualCallStack[name]];
+
+            /**
+             * Find the next matching function in the super call chain.
+             * This is necessary because the super call chain can be interrupted by empty overrides.
+             */
+            while (superFuncObject && typeof superFuncObject.func !== 'function') {
+                // @ts-expect-error
+                superFuncObject = superStack[superFuncObject.parent];
+            }
 
             // @ts-expect-error
             this._virtualCallStack[name] = superFuncObject.parent;
@@ -1118,11 +1127,6 @@ function findMethodInChain(
     if (extension[methodsOrComputed]?.[methodName]) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return extension[methodsOrComputed][methodName];
-    }
-
-    if (extension.extends) {
-        // @ts-expect-error
-        return findMethodInChain(extension.extends, methodName, methodsOrComputed);
     }
 
     return null;

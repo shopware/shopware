@@ -235,7 +235,7 @@ Component.register('sw-form-field-renderer', {
             }
 
             if (value !== this.value) {
-                this.$emit('input', value);
+                this.$emit('update:value', value);
             }
         },
         value() {
@@ -258,16 +258,8 @@ Component.register('sw-form-field-renderer', {
             }
         },
 
-        emitChange(data) {
-            if (this.type === 'price') {
-                return;
-            }
-            this.$emit('change', data);
-            this.emitUpdate(data);
-        },
-
         emitUpdate(data) {
-            this.$emit('update', data);
+            this.$emit('update:value', data);
         },
 
         getTranslations(componentName, config = this.config, translatableFields = ['label', 'placeholder', 'helpText']) {

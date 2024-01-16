@@ -125,7 +125,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_header_plain_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.headerPlain"
+                        v-model:value="mailHeaderFooter.headerPlain"
                         identifier="header_plain"
                         name="header_plain"
                         completion-mode="entity"
@@ -140,7 +140,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_header_html_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.headerHtml"
+                        v-model:value="mailHeaderFooter.headerHtml"
                         identifier="header_html"
                         name="header_html"
                         completion-mode="entity"
@@ -163,7 +163,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_footer_plain_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.footerPlain"
+                        v-model:value="mailHeaderFooter.footerPlain"
                         identifier="footer_plain"
                         name="footer_plain"
                         completion-mode="entity"
@@ -178,7 +178,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_header_footer_detail_content_footer_html_field %}
                     <sw-code-editor
-                        v-model="mailHeaderFooter.footerHtml"
+                        v-model:value="mailHeaderFooter.footerHtml"
                         identifier="footer_html"
                         name="footer_html"
                         completion-mode="entity"

@@ -121,12 +121,11 @@
                         <dt>{{ $tc('sw-order.detailBase.labelCustomerEmail') }}*</dt>
                         <dd>
                             <sw-order-inline-field
-                                v-model="currentOrder.orderCustomer.email"
+                                v-model:value="currentOrder.orderCustomer.email"
                                 :display-value="currentOrder.orderCustomer.email ? currentOrder.orderCustomer.email : $tc('sw-order.detailBase.labelNoEmail')"
                                 required
-                                :value="currentOrder.orderCustomer.email"
                                 :editable="isEditing"
-                                @input="$emit('order-change')"
+                                @update:value="$emit('order-change')"
                             />
                         </dd>
                         {% endblock %}
@@ -186,12 +185,11 @@
                         </dt>
                         <dd>
                             <sw-order-inline-field
-                                v-model="billingAddress.phoneNumber"
+                                v-model:value="billingAddress.phoneNumber"
                                 :display-value="billingAddress.phoneNumber? billingAddress.phoneNumber : $tc('sw-order.detailBase.labelNoPhoneNumber')"
-                                :value="billingAddress.phoneNumber"
                                 :editable="isEditing"
                                 class="sw-order-inline-field__truncateable"
-                                @input="$emit('order-change')"
+                                @update:value="$emit('order-change')"
                             />
                         </dd>
                         {% endblock %}

@@ -16,7 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_users_permissions_role_listing_toolbar_search_field %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 @search-term-change="onSearch"

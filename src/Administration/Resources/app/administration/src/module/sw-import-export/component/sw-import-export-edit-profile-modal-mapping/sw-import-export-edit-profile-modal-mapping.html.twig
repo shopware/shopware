@@ -8,7 +8,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_import_export_edit_profile_modal_mapping_toolbar_search_field %}
         <sw-simple-search-field
-            v-model="searchTerm"
+            v-model:value="searchTerm"
             size="small"
             variant="form"
             :disabled="!mappingsExist"
@@ -82,7 +82,6 @@
                 class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
                 :value="true"
                 :disabled="true"
-                @change="() => {}"
             />
             <sw-switch-field
                 v-show="!isRequiredBySystem(item)"

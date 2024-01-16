@@ -97,7 +97,7 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_searchable_label %}
-                <sw-data-grid-column-boolean v-model="item.searchable" />
+                <sw-data-grid-column-boolean v-model:value="item.searchable" />
                 {% endblock %}
             </template>
         </template>
@@ -118,7 +118,7 @@
             <template v-else>
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_settings_search_searchable_content_general_tokenize_label %}
-                <sw-data-grid-column-boolean v-model="item.tokenize" />
+                <sw-data-grid-column-boolean v-model:value="item.tokenize" />
                 {% endblock %}
             </template>
         </template>

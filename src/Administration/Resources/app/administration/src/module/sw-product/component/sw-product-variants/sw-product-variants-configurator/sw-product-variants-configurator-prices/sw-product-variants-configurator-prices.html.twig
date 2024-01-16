@@ -42,7 +42,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_product_variants_configurator_prices_search_field %}
                 <sw-simple-search-field
-                    v-model="term"
+                    v-model:value="term"
                     size="small"
                     variant="form"
                     :placeholder="$tc('sw-product.variations.configuratorModal.searchPlaceholder')"

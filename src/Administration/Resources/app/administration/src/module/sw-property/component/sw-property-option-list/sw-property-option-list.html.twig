@@ -21,7 +21,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_property_option_list_toolbar_search %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 @search-term-change="onSearch"

@@ -206,7 +206,7 @@
                     {% block sw_settings_shipping_detail_base_content_tags_field %}
                     <sw-entity-tag-select
                         v-if="!isLoading"
-                        v-model="shippingMethod.tags"
+                        v-model:entityCollection="shippingMethod.tags"
                         :disabled="!acl.can('shipping.editor')"
                         :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
                     />

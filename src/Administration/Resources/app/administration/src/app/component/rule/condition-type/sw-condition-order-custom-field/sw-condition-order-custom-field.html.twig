@@ -52,7 +52,7 @@
         :value="renderedFieldValue"
         :config="renderedField.config"
         :disabled="disabled"
-        @update="renderedFieldValue = $event"
+        @update:value="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

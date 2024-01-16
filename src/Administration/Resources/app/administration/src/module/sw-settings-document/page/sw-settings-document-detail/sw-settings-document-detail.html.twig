@@ -229,7 +229,7 @@
                             {% block sw_settings_document_detail_content_form_field_renderer %}
                             <sw-form-field-renderer
                                 v-if="formField"
-                                v-model="documentConfig.config[formField.name]"
+                                v-model:value="documentConfig.config[formField.name]"
                                 :disabled="!acl.can('document.editor')"
                                 class="sw-settings-document-detail__form-field-renderer"
                                 v-bind="formField"
@@ -318,7 +318,7 @@
                                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                 {% block sw_settings_document_detail_company_form_field_renderer %}
                                 <sw-form-field-renderer
-                                    v-model="documentConfig.config[formField.name]"
+                                    v-model:value="documentConfig.config[formField.name]"
                                     :disabled="!acl.can('document.editor')"
                                     v-bind="formField"
                                 />

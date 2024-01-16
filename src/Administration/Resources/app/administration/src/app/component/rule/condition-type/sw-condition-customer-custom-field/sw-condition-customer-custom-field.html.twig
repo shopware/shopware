@@ -48,7 +48,7 @@
         :config="renderedField.config"
         :disabled="disabled"
         size="medium"
-        @update="renderedFieldValue = $event"
+        @update:value="renderedFieldValue = $event"
     />
     {% endblock %}
 </div>

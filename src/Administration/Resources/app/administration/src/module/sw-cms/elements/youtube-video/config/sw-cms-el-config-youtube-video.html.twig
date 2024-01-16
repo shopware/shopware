@@ -57,7 +57,7 @@
             :value="startValue"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.start')"
             placeholder="0:00"
-            @change="setTimeValue($event, 'start')"
+            @update:value="setTimeValue($event, 'start')"
         />
         {% endblock %}
 
@@ -67,7 +67,7 @@
             :value="endValue"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.end')"
             placeholder="0:00"
-            @change="setTimeValue($event, 'end')"
+            @update:value="setTimeValue($event, 'end')"
         />
         {% endblock %}
     </div>

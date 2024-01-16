@@ -362,7 +362,7 @@
                                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                                     {% block sw_data_grid_columns_boolean %}
                                     <sw-data-grid-column-boolean
-                                        v-model="item[column.property]"
+                                        v-model:value="item[column.property]"
                                         :is-inline-edit="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')"
                                     />
                                     {% endblock %}
@@ -377,7 +377,7 @@
                                             :column="column"
                                             :compact="compact"
                                             :value="item[column.property]"
-                                            @input="item[column.property] = $event"
+                                            @update:value="item[column.property] = $event"
                                         />
                                         {% endblock %}
                                     </template>

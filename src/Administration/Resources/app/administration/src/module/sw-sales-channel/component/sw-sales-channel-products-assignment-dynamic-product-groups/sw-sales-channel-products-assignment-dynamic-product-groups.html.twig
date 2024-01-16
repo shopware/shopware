@@ -31,7 +31,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_search %}
                     <sw-simple-search-field
-                        v-model="term"
+                        v-model:value="term"
                         variant="form"
                         size="small"
                         :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.searchFieldPlaceholder')"

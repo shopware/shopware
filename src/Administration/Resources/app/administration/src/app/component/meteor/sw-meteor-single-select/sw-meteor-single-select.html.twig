@@ -40,7 +40,7 @@
                         :value="searchTerm"
                         size="small"
                         variant="form"
-                        @input="searchTerm = $event"
+                        @update:value="searchTerm = $event"
                         @search-term-change="onInputSearchTerm"
                     />
                 </slot>

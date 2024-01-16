@@ -16,7 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_variants_overview_option_list_toolbar_container_search_field %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 variant="form"
                 size="small"
                 @search-term-change="onSearch"
@@ -357,7 +357,7 @@
         >
             <template v-if="isInlineEdit">
                 <sw-data-grid-column-boolean
-                    v-model="item.active"
+                    v-model:value="item.active"
                     :is-inline-edit="isInlineEdit"
                     :disabled="isActiveFieldInherited(item)"
                 />

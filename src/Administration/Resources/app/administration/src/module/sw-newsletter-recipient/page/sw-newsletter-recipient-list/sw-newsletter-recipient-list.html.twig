@@ -245,7 +245,7 @@
                             id="notSet"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.notSet')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -254,7 +254,7 @@
                             id="direct"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.direct')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -263,7 +263,7 @@
                             id="optIn"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.optIn')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
@@ -272,7 +272,7 @@
                             id="optOut"
                             group="status"
                             :label="$tc('sw-newsletter-recipient.list.optOut')"
-                            @change="onChange"
+                            @update:value="onChange"
                         />
                         {% endblock %}
                     </template>
@@ -296,7 +296,7 @@
                                 :id="item.id"
                                 group="languageId"
                                 :label="item.name"
-                                @change="onChange"
+                                @update:value="onChange"
                             />
                         </div>
                         {% endblock %}
@@ -321,7 +321,7 @@
                                 :id="item.id"
                                 group="salesChannelId"
                                 :label="item.translated.name"
-                                @change="onChange"
+                                @update:value="onChange"
                             />
                         </div>
                         {% endblock %}

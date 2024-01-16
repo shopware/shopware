@@ -15,10 +15,6 @@ Component.register('sw-data-grid-inline-edit', {
         'feature',
     ],
 
-    emits: [
-        'input',
-    ],
-
     props: {
         column: {
             type: Object,
@@ -77,7 +73,7 @@ Component.register('sw-data-grid-inline-edit', {
         },
 
         emitInput() {
-            this.$emit('input', this.currentValue);
+            this.$emit('update:value', this.currentValue);
         },
     },
 });

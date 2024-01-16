@@ -67,7 +67,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                             {% block sw_product_properties_filled_state_header_form_control %}
                             <sw-simple-search-field
-                                v-model="searchTerm"
+                                v-model:value="searchTerm"
                                 variant="form"
                                 size="small"
                                 :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"

@@ -10,9 +10,9 @@ https://sass-guidelin.es/#the-7-1-pattern
 /*
  * Variables, Mixins, Functions
  * ---------------------------- */
+@import 'abstract/functions/feature';
 @import 'variables';
 @import 'abstract/mixins/truncate-multiline';
-@import 'abstract/functions/feature';
 
 /*
  * Skin variables

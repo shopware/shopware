@@ -6,12 +6,18 @@ Custom skin styling for bootstrap alert component.
 https://getbootstrap.com/docs/5.2/components/alerts
 */
 
+/**
+ * @deprecated tag:v6.7.0 - Mixin `sw-skin-alert` will be removed without replacement.
+ * We generate modifier classes for colorizing the alert directly instead, to be more aligned with Bootstrap.
+ *
+ * @see https://getbootstrap.com/docs/5.3/components/alerts/#sass-loops
+ */
 @mixin sw-skin-alert($color, $background) {
     background-color: $color;
 
     .alert-content-container {
         background-color: $background;
-        color: $color;
+        color: $body-color;
     }
 
     .icon {
@@ -21,8 +27,13 @@ https://getbootstrap.com/docs/5.2/components/alerts
 
 .alert {
     .icon {
-        margin: $spacer-sm;
-        flex: 0 0 auto;
+        @if feature('ACCESSIBILITY_TWEAKS') {
+            margin-right: $spacer-sm;
+            flex-shrink: 0;
+        } @else {
+            margin: $spacer-sm;
+            flex: 0 0 auto;
+        }
 
         svg {
             top: 0;
@@ -30,17 +41,35 @@ https://getbootstrap.com/docs/5.2/components/alerts
     }
 }
 
+/**
+ * @deprecated tag:v6.7.0 - Class `alert-has-icon` will be removed. Use helper classes `d-flex align-items-center` directly in the template like documented by Bootstrap.
+ * @see https://getbootstrap.com/docs/5.3/components/alerts/#examples
+ */
 .alert-has-icon {
     align-items: normal;
 }
 
-.alert-content-container {
-    padding: $spacer-sm;
-    flex-grow: 1;
+// @deprecated tag:v6.7.0 - The alert padding will be on the actual Bootstrap `.alert` container instead of the custom `.alert-content-container` class.
+@if not feature('ACCESSIBILITY_TWEAKS') {
+    .alert-content-container {
+        padding: $spacer-sm;
+        flex-grow: 1;
+    }
 }
 
-@each $color, $value in $theme-colors {
-    .alert-#{$color} {
-        @include sw-skin-alert($value, tint-color($value, 80%));
+// @deprecated tag:v6.7.0 - The alert appearance will be altered with Bootstrap variables instead of the `sw-skin-alert` mixin.
+@if feature('ACCESSIBILITY_TWEAKS') {
+    @each $state, $value in $theme-colors {
+        .alert-#{$state} {
+            --#{$prefix}alert-border-color: #{$value};
+            --#{$prefix}alert-bg: #{saturate(tint-color($value, 90%), 40%)};
+            --#{$prefix}alert-color: #{$body-color};
+        }
+    }
+} @else {
+    @each $color, $value in $theme-colors {
+        .alert-#{$color} {
+            @include sw-skin-alert($value, saturate(tint-color($value, 90%), 40%));
+        }
     }
 }

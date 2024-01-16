@@ -218,7 +218,7 @@
                         disabled
                     />
                     <sw-price-preview
-                        :price="item.price ? item.price : []"
+                        :value="item.price ? item.price : []"
                         :default-price="productEntity.price[0]"
                         :tax-rate="productEntity.tax"
                         :currency="currency"
@@ -374,7 +374,7 @@
                 />
 
                 <sw-price-preview
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="productEntity.price[0]"
                     :tax-rate="productEntity.tax"
                     :currency="currency"

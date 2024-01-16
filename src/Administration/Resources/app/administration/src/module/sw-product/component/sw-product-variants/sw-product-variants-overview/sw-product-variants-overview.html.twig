@@ -234,7 +234,7 @@
                 {% block sw_product_variants_overview_data_grid_column_price_preview_price_field %}
                 <sw-price-preview
                     :key="`else-price-field-${currency.isoCode}`"
-                    :price="item.price ? item.price : []"
+                    :value="item.price ? item.price : []"
                     :default-price="getDefaultPriceForVariant(item, currency)"
                     :tax-rate="productTaxRate"
                     :currency="currency"
@@ -521,7 +521,7 @@
                     />
                     <sw-price-preview
                         :key="`else-price-field-${currency.isoCode}`"
-                        :price="item.price ? item.price : []"
+                        :value="item.price ? item.price : []"
                         :default-price="getDefaultPriceForVariant(item, currency)"
                         :tax-rate="productTaxRate"
                         :currency="currency"

@@ -56,6 +56,8 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
             return;
         }
 
+        $context = Context::createDefaultContext();
+
         $result = [];
         $categoriesPaths = explode('|', (string) $row['category_paths']);
         $newCategoriesPayload = [];
@@ -81,14 +83,13 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
                 $criteria->addFilter(new EqualsFilter('name', $categoryName));
                 $criteria->addFilter(new EqualsFilter('parentId', $categoryId));
 
-                $category = $this->categoryRepository->search($criteria, Context::createDefaultContext())->first();
-
-                if ($category === null && $categoryId === null) {
+                $childCategoryId = $this->categoryRepository->searchIds($criteria, $context)->firstId();
+                if ($childCategoryId === null && $categoryId === null) {
                     break;
                 }
 
-                if ($category !== null) {
-                    $categoryId = $category->getId();
+                if ($childCategoryId !== null) {
+                    $categoryId = $childCategoryId;
                     $this->categoryIdCache[$partialPath] = $categoryId;
 
                     continue;
@@ -111,7 +112,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
         }
 
         if (!empty($newCategoriesPayload)) {
-            $this->createNewCategories($newCategoriesPayload);
+            $this->createNewCategories($newCategoriesPayload, $context);
         }
 
         $record = $event->getRecord();
@@ -128,7 +129,7 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
     /**
      * @param list<array<string, mixed>> $payload
      */
-    private function createNewCategories(array $payload): void
+    private function createNewCategories(array $payload, Context $context): void
     {
         $this->syncService->sync([
             new SyncOperation(
@@ -137,6 +138,6 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface, ResetI
                 SyncOperation::ACTION_UPSERT,
                 $payload
             ),
-        ], Context::createDefaultContext(), new SyncBehavior());
+        ], $context, new SyncBehavior());
     }
 }

@@ -36,8 +36,6 @@ export default {
 
     methods: {
         onModalClose() {
-            this.content = null;
-            this.errors = null;
             this.$emit('close');
         },
 

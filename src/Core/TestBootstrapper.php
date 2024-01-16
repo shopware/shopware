@@ -107,7 +107,13 @@ class TestBootstrapper
             return $this->classLoader;
         }
 
-        return $this->classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
+        $classLoader = require $this->getProjectDir() . '/vendor/autoload.php';
+
+        $this->addPluginAutoloadDev($classLoader);
+
+        $this->classLoader = $classLoader;
+
+        return $classLoader;
     }
 
     public function getProjectDir(): string
@@ -297,6 +303,61 @@ class TestBootstrapper
         }
 
         return $this->forceInstall = (bool) ($_SERVER['FORCE_INSTALL'] ?? false);
+    }
+
+    private function addPluginAutoloadDev(ClassLoader $classLoader): void
+    {
+        foreach ($this->activePlugins as $pluginName) {
+            $pathToComposerJson = $this->getProjectDir() . '/custom/plugins/' . $pluginName . '/composer.json';
+
+            if (!\is_file($pathToComposerJson)) {
+                throw new \RuntimeException(sprintf('Could not find plugin: %s at path: %s', $pluginName, $pathToComposerJson));
+            }
+
+            $plugin = json_decode((string) file_get_contents($pathToComposerJson), true, 512, \JSON_THROW_ON_ERROR);
+
+            $psr4 = $plugin['autoload-dev']['psr-4'] ?? [];
+            $psr0 = $plugin['autoload-dev']['psr-0'] ?? [];
+
+            foreach ($psr4 as $namespace => $paths) {
+                if (\is_string($paths)) {
+                    $paths = [$paths];
+                }
+                $mappedPaths = $this->mapPsrPaths($paths, \dirname($pathToComposerJson));
+
+                $classLoader->addPsr4($namespace, $mappedPaths);
+                if ($classLoader->isClassMapAuthoritative()) {
+                    $classLoader->setClassMapAuthoritative(false);
+                }
+            }
+
+            foreach ($psr0 as $namespace => $paths) {
+                if (\is_string($paths)) {
+                    $paths = [$paths];
+                }
+                $mappedPaths = $this->mapPsrPaths($paths, \dirname($pathToComposerJson));
+
+                $classLoader->add($namespace, $mappedPaths);
+                if ($classLoader->isClassMapAuthoritative()) {
+                    $classLoader->setClassMapAuthoritative(false);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param list<string> $psr
+     *
+     * @return list<string>
+     */
+    private function mapPsrPaths(array $psr, string $pluginRootPath): array
+    {
+        $mappedPaths = [];
+        foreach ($psr as $path) {
+            $mappedPaths[] = $pluginRootPath . '/' . $path;
+        }
+
+        return $mappedPaths;
     }
 
     private function getKernel(): KernelInterface

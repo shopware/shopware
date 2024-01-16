@@ -2,11 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import Vuex from 'vuex_v2';
-import swProductDetailSpecifications from 'src/module/sw-product/view/sw-product-detail-specifications';
-import swProductPackagingForm from 'src/module/sw-product/component/sw-product-packaging-form';
-import 'src/app/component/utils/sw-inherit-wrapper';
+import { mount } from '@vue/test-utils';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 
 const { State, Utils } = Shopware;
@@ -19,47 +15,36 @@ const packagingItemClassName = [
     '.sw-product-packaging-form__reference-unit-field',
 ];
 
-Shopware.Component.register('sw-product-detail-specifications', swProductDetailSpecifications);
-Shopware.Component.register('sw-product-packaging-form', swProductPackagingForm);
-
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
+    return mount(await wrapTestComponent('sw-product-detail-specifications', { sync: true }), {
+        global: {
+            provide: {
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) {
+                            return true;
+                        }
 
-    return shallowMount(await Shopware.Component.build('sw-product-detail-specifications'), {
-        localVue,
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-card': true,
-            'sw-product-packaging-form': await Shopware.Component.build('sw-product-packaging-form'),
-            'sw-product-properties': true,
-            'sw-product-feature-set-form': true,
-            'sw-custom-field-set-renderer': true,
-            'sw-container': true,
-            'sw-inherit-wrapper': {
-                template:
-                        `<div class="sw-inherit-wrapper">
-                        <slot name="content" v-bind="{ updateCurrentValue }"></slot>
-                    </div>`,
-                methods: {
-                    updateCurrentValue: () => {},
+            stubs: {
+                'sw-card': {
+                    template: '<div class="sw-card"><slot></slot></div>',
                 },
+                'sw-product-packaging-form': await wrapTestComponent('sw-product-packaging-form', { sync: true }),
+                'sw-product-properties': true,
+                'sw-product-feature-set-form': true,
+                'sw-custom-field-set-renderer': true,
+                'sw-container': await wrapTestComponent('sw-container'),
+                'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
+                'sw-number-field': true,
+                'sw-text-field': true,
+                'sw-text-editor': true,
+                'sw-entity-single-select': true,
+                'sw-skeleton': true,
             },
-            'sw-number-field': true,
-            'sw-text-field': true,
-            'sw-text-editor': true,
-            'sw-entity-single-select': true,
-            'sw-skeleton': true,
         },
     });
 }

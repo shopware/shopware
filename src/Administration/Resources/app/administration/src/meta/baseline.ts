@@ -689,7 +689,6 @@ const missingTests = [
     'src/module/sw-product/page/sw-product-detail/state.js',
     'src/module/sw-product/page/sw-product-list/index.js',
     'src/module/sw-product/view/sw-product-detail-seo/index.js',
-    'src/module/sw-product/view/sw-product-detail-specifications/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
 ];
 

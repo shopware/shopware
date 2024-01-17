@@ -2,7 +2,7 @@
  * @package admin
  */
 import type { Module } from 'vuex';
-import type { uiTabsAddTabItem } from '@shopware-ag/admin-extension-sdk/es/ui/tabs';
+import type { uiTabsAddTabItem } from '@shopware-ag/meteor-admin-sdk/es/ui/tabs';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type TabItemEntry = Omit<uiTabsAddTabItem, 'responseType' | 'positionId'>;

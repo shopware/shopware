@@ -3,7 +3,7 @@
  */
 
 import type { Module } from 'vuex';
-import type { menuItemAdd } from '@shopware-ag/admin-extension-sdk/es/ui/menu';
+import type { menuItemAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/menu';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type MenuItemEntry = Omit<menuItemAdd, 'responseType' | 'locationId' | 'displaySearchBar'> & { moduleId: string };

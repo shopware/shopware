@@ -2,11 +2,11 @@
  * @package admin
  */
 
-import { updateSubscriber, register, handleGet } from '@shopware-ag/admin-extension-sdk/es/data';
+import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
 import { get, debounce } from 'lodash';
 import type { App } from 'vue';
-import { selectData } from '@shopware-ag/admin-extension-sdk/es/data/_internals/selectData';
-import MissingPrivilegesError from '@shopware-ag/admin-extension-sdk/es/privileges/missing-privileges-error';
+import { selectData } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/selectData';
+import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/privileges/missing-privileges-error';
 
 interface scopeInterface {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

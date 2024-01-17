@@ -1,5 +1,5 @@
 import type { PropType } from 'vue';
-import type { Entity } from '@shopware-ag/admin-extension-sdk/es/data/_internals/Entity';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/Entity';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
 

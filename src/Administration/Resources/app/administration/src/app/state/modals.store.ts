@@ -3,7 +3,7 @@
  */
 
 import type { Module } from 'vuex';
-import type { uiModalOpen } from '@shopware-ag/admin-extension-sdk/es/ui/modal';
+import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & { baseUrl: string };

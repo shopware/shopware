@@ -4,7 +4,7 @@
 
 import Vue from 'vue';
 import { mount } from '@vue/test-utils';
-import { location } from '@shopware-ag/admin-extension-sdk';
+import { location } from '@shopware-ag/meteor-admin-sdk';
 
 let $routeMock = {
     query: {},

@@ -3,8 +3,8 @@
  */
 
 import { mount } from '@vue/test-utils';
-import { handleFactory, send } from '@shopware-ag/admin-extension-sdk/es/channel';
-import SerializerFactory from '@shopware-ag/admin-extension-sdk/es/_internals/serializer';
+import { handleFactory, send } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import SerializerFactory from '@shopware-ag/meteor-admin-sdk/es/_internals/serializer';
 import Entity from 'src/core/data/entity.data';
 import { getPublishedDataSets, publishData } from 'src/core/service/extension-api-data.service';
 import EntityCollection from 'src/core/data/entity-collection.data';

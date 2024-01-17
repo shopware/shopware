@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { ui } from '@shopware-ag/admin-extension-sdk';
+import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 // make background color white
 document.body.style.backgroundColor = 'white';

@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import type { privileges } from '@shopware-ag/admin-extension-sdk/es/privileges/privilege-resolver';
+import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/privileges/privilege-resolver';
 import type { Module } from 'vuex';
 
 type ApiAuthToken = {

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { data } from '@shopware-ag/admin-extension-sdk';
+import { data } from '@shopware-ag/meteor-admin-sdk';
 import { SwButton, SwTextField } from "@shopware-ag/meteor-component-library";
 
 

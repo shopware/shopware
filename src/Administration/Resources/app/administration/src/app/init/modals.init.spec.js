@@ -1,5 +1,5 @@
 import initializeModal from 'src/app/init/modals.init';
-import { ui } from '@shopware-ag/admin-extension-sdk';
+import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 let stateDispatchBackup;
 describe('src/app/init/modals.init.ts', () => {

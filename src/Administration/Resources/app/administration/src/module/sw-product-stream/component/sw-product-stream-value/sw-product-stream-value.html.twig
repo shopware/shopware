@@ -69,7 +69,7 @@
             />
         </template>
 
-        <template v-else-if="isCustomField(fieldName) && fieldType === 'entity'">
+        <template v-else-if="isEntityCustomField(fieldName)">
             {% block sw_product_stream_value_entity_single_value_custom_field %}
             <sw-entity-single-select
                 v-if="!isMultiSelectValue"

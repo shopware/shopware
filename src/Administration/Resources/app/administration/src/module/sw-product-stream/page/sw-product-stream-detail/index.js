@@ -357,6 +357,7 @@ export default {
                                         type: customField.type,
                                         value: `customFields.${customField.name}`,
                                         label: this.getCustomFieldLabel(customField),
+                                        config: customField.config,
                                     });
                                     return acc;
                                 }, {});

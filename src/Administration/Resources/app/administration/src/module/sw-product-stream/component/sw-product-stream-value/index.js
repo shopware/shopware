@@ -489,14 +489,22 @@ export default {
             return Object.values(category.breadcrumb).join(' / ');
         },
 
-        isCustomField(fieldName) {
+        isEntityCustomField(fieldName) {
             const strippedFieldName = fieldName.replace(/customFields\./, '');
+            const customField = this.productCustomFields[strippedFieldName];
 
-            return Object.keys(this.productCustomFields).includes(strippedFieldName);
+            if (!customField) {
+                return false;
+            }
+
+            return customField.type === 'entity';
         },
 
         getCustomFieldEntityName(fieldName) {
-            return fieldName.replace(/customFields\./, '');
+            const strippedFieldName = fieldName.replace(/customFields\./, '');
+            const customField = this.productCustomFields[strippedFieldName];
+
+            return customField.config.entity;
         },
     },
 };

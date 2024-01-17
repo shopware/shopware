@@ -28,7 +28,6 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     emits: [
         'update:value',
-        'input',
     ],
 
     inject: ['feature'],
@@ -52,7 +51,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
     data() {
         return {
             sslActive: true,
-            currentValue: this.value || '',
+            currentUrlValue: '',
             errorUrl: null,
             currentDebounce: null,
         };
@@ -76,7 +75,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
         },
 
         url() {
-            const trimmedValue = this.currentValue.trim();
+            const trimmedValue = this.currentUrlValue.trim();
             if (trimmedValue === '') {
                 return '';
             }
@@ -95,9 +94,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     watch: {
         value() {
-            this.$nextTick(() => {
-                this.checkInput(this.value || '');
-            });
+            this.checkInput(this.value || '');
         },
     },
 
@@ -107,7 +104,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
     methods: {
         createdComponent() {
-            this.checkInput(this.currentValue);
+            this.currentUrlValue = this.validateCurrentValue(this.value || '');
+            this.checkInput(this.currentUrlValue || '');
         },
 
         onBlur(event) {
@@ -117,7 +115,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
         checkInput(inputValue) {
             this.errorUrl = null;
 
-            if (!inputValue.length) {
+            if (!inputValue || !inputValue.length) {
                 this.handleEmptyUrl();
 
                 return;
@@ -131,15 +129,15 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
             if (!validated) {
                 this.setInvalidUrlError();
-            } else {
-                this.currentValue = validated;
+            } else if (this.currentUrlValue !== validated) {
+                this.currentUrlValue = validated;
 
                 this.$emit('update:value', this.url);
             }
         },
 
         handleEmptyUrl() {
-            this.currentValue = '';
+            this.currentUrlValue = '';
         },
 
         validateCurrentValue(value) {

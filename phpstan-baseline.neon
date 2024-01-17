@@ -8756,21 +8756,6 @@ parameters:
 			path: src/Core/System/StateMachine/Aggregation/StateMachineState/StateMachineStateTranslationCollection.php
 
 		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
-
-		-
-			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null\\.$#"
-			count: 3
-			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
-
-		-
-			message: "#^Parameter \\#2 \\$entity of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Response\\\\ResponseFactoryInterface\\:\\:createDetailResponse\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity, Shopware\\\\Core\\\\System\\\\StateMachine\\\\Aggregation\\\\StateMachineState\\\\StateMachineStateEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/StateMachine/Api/StateMachineActionController.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\StateMachine\\\\Loader\\\\InitialStateIdLoader\\:\\:load\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/System/StateMachine/Loader/InitialStateIdLoader.php
@@ -10646,6 +10631,11 @@ parameters:
 			path: tests/unit/Core/Maintenance/System/Service/AppUrlVerifierTest.php
 
 		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\CustomEntityConfigurationException' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\CustomEntityConfigurationException will always evaluate to true\\.$#"
+			count: 6
+			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaValidatorTest.php
+
+		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\AdminUi' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\AdminUi will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/AdminUiTest.php
@@ -10664,11 +10654,6 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\AdminUi\\\\\\\\XmlElements\\\\\\\\Card' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\AdminUi\\\\XmlElements\\\\Card will always evaluate to true\\.$#"
 			count: 1
 			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/XmlElements/CardTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Shopware\\\\\\\\Core\\\\\\\\System\\\\\\\\CustomEntity\\\\\\\\Xml\\\\\\\\Config\\\\\\\\CustomEntityConfigurationException' and Shopware\\\\Core\\\\System\\\\CustomEntity\\\\Xml\\\\Config\\\\CustomEntityConfigurationException will always evaluate to true\\.$#"
-			count: 6
-			path: tests/unit/Core/System/CustomEntity/Xml/Config/AdminUi/AdminUiXmlSchemaValidatorTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#"
@@ -10794,6 +10779,16 @@ parameters:
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with array will always evaluate to true\\.$#"
 			count: 4
 			path: tests/unit/Core/System/Snippet/Files/SnippetFileCollectionTest.php
+
+		-
+			message: "#^Attribute class PHPUnit\\\\Framework\\\\Attributes\\\\CoversClass does not exist\\.$#"
+			count: 1
+			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
+
+		-
+			message: "#^Test classes must have @covers annotation$#"
+			count: 1
+			path: tests/unit/Core/System/StateMachine/Api/StateMachineActionControllerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\JsonResponse' and Symfony\\\\Component\\\\HttpFoundation\\\\JsonResponse will always evaluate to true\\.$#"

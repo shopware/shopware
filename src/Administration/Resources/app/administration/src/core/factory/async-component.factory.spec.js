@@ -2,7 +2,7 @@
  * @package admin
  */
 
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, mount } from '@vue/test-utils';
 import ComponentFactory from 'src/core/factory/async-component.factory';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
@@ -2546,5 +2546,120 @@ describe('core/factory/async-component.factory.ts', () => {
 
         const outputConfig = ComponentFactory.wrapComponentConfig(inputConfig);
         expect(inputConfig).toBe(outputConfig);
+    });
+
+    it.each([
+        [1],
+        [3],
+    ])('should call whole super chain with %i empty override', async (numberOfEmptyOverrides) => {
+        const { Criteria } = Shopware.Data;
+
+        // Register sw-order-list with reactive computed orderCriteria changes triggered via template button interactions, similar to the real component
+        ComponentFactory.register('sw-order-list', () => Promise.resolve({
+            template: `
+                <div class="sw-order-list">
+                    <button id="next" @click="page++">Next Page</button>
+                    <button id="previous" @click="page--">Previous Page</button>
+                </div>
+            `,
+            data() {
+                return {
+                    page: 1,
+                };
+            },
+            computed: {
+                orderCriteria() {
+                    const criteria = new Criteria(this.page, 10);
+
+                    return criteria;
+                },
+            },
+        }));
+
+        // Register empty overrides
+        for (let i = 0; i < numberOfEmptyOverrides; i += 1) {
+            ComponentFactory.override('sw-order-list', () => Promise.resolve({}));
+        }
+
+        // Register second override: altering
+        ComponentFactory.override('sw-order-list', {
+            name: '2',
+            data() {
+                return {
+                    two: 2,
+                };
+            },
+            computed: {
+                orderCriteria() {
+                    const criteria = this.$super('orderCriteria');
+
+                    criteria.addAssociation('override2');
+
+                    return criteria;
+                },
+            },
+        });
+
+        // Register third override: altering
+        ComponentFactory.override('sw-order-list', {
+            name: '3',
+            data() {
+                return {
+                    three: 3,
+                };
+            },
+            computed: {
+                orderCriteria() {
+                    const criteria = this.$super('orderCriteria');
+
+                    criteria.addAssociation('override3');
+
+                    return criteria;
+                },
+            },
+        });
+
+        // Register fourth override: altering
+        ComponentFactory.override('sw-order-list', {
+            name: '4',
+            data() {
+                return {
+                    four: 4,
+                };
+            },
+            computed: {
+                orderCriteria() {
+                    const criteria = this.$super('orderCriteria');
+
+                    criteria.addAssociation('override4');
+
+                    return criteria;
+                },
+            },
+        });
+
+        // Helper function to extract all association names from the criteria
+        const getAssociations = (criteria) => {
+            return criteria.associations.map(a => a.association);
+        };
+
+        // Expected behaviour is that on each button change and initial the criteria has all associations
+        const wrapper = mount(await ComponentFactory.build('sw-order-list'));
+        expect(wrapper.vm).toBeTruthy();
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
+
+        // Click next page button
+        const nextButton = wrapper.find('#next');
+        await nextButton.trigger('click');
+        await flushPromises();
+
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
+
+        // Click previous page button
+        const previousButton = wrapper.find('#previous');
+        await previousButton.trigger('click');
+        await flushPromises();
+
+        expect(getAssociations(wrapper.vm.orderCriteria)).toEqual(['override2', 'override3', 'override4']);
     });
 });

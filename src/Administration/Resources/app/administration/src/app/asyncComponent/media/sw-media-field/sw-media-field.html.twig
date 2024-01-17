@@ -120,7 +120,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_media_field_search_field %}
                         <sw-simple-search-field
-                            v-model="searchTerm"
+                            v-model:value="searchTerm"
                             @search-term-change="onSearchTermChange"
                         />
                         {% endblock %}

@@ -43,7 +43,7 @@
             type="url"
             class="sw-url-input-field__input"
             :name="identification"
-            :value="unicodeUriFilter(currentValue)"
+            :value="unicodeUriFilter(currentUrlValue)"
             :placeholder="placeholder"
             :disabled="disabled"
             @focus="setFocusClass"
@@ -58,7 +58,7 @@
         <sw-field-copyable
             v-if="copyable"
             :display-name="identification"
-            :copyable-text="currentValue"
+            :copyable-text="url"
             :tooltip="copyableTooltip"
         />
     </template>

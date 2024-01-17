@@ -72,8 +72,7 @@
                                             :class="'sw-form-field-renderer-input-field__' + customField.name"
                                             :disabled="disabled || props.isInherited"
                                             :value="props.currentValue"
-                                            @input="props.updateCurrentValue"
-                                            @change="props.updateCurrentValue"
+                                            @update:value="props.updateCurrentValue"
                                         />
                                     </template>
                                 </sw-inherit-wrapper>
@@ -108,7 +107,7 @@
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_custom_field_set_renderer_media_form_renderer %}
                             <sw-form-field-renderer
-                                v-model="customFields[customField.name]"
+                                v-model:value="customFields[customField.name]"
                                 v-bind="customField"
                                 :disabled="disabled"
                                 :required="customField.config.validation === 'required'"

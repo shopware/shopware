@@ -63,7 +63,7 @@
                                     v-bind="formField"
                                     :key="`formField-${index}`"
                                     v-model:value="entity[formField.name]"
-                                    @update="onChangeValue($event, formField.name)"
+                                    @update:value="onChangeValue($event, formField.name)"
                                 />
                             </div>
                         </template>
@@ -73,7 +73,7 @@
                                 v-bind="formField"
                                 :key="`formField-${index}`"
                                 v-model:value="entity[formField.name]"
-                                @update="onChangeValue($event, formField.name)"
+                                @update:value="onChangeValue($event, formField.name)"
                             />
                         </template>
                     </slot>
@@ -99,7 +99,7 @@
                                 v-bind="formField"
                                 :key="`formField-${index}`"
                                 v-model:value="entity[formField.name]"
-                                @update="onChangeValue($event, formField.name)"
+                                @update:value="onChangeValue($event, formField.name)"
                             />
                         </div>
                     </template>
@@ -108,7 +108,7 @@
                             v-bind="formField"
                             :key="`formField-${index}`"
                             v-model:value="entity[formField.name]"
-                            @update="onChangeValue($event, formField.name)"
+                            @update:value="onChangeValue($event, formField.name)"
                         />
                     </template>
                 </slot>

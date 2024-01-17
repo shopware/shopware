@@ -242,7 +242,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_cms_element_product_listing_config_filter_property_search %}
                     <sw-simple-search-field
-                        v-model="filterPropertiesTerm"
+                        v-model:value="filterPropertiesTerm"
                         class="sw-cms-element-product-listing-config-filter-property-search"
                         variant="form"
                         :disabled="showFilterGrid"

@@ -20,7 +20,7 @@ async function createWrapper() {
                     </div>`,
                 methods: {
                     onChange(e) {
-                        this.$emit('input', e.target.value);
+                        this.$emit('update:value', e.target.value);
                     },
                 },
             },
@@ -55,6 +55,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         await input.setValue('2021-01-22');
         await input.trigger('input');
+        await flushPromises();
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
@@ -69,6 +70,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         await input.setValue('2021-01-25');
         await input.trigger('input');
+        await flushPromises();
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
@@ -84,6 +86,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         await fromInput.setValue('2021-01-19');
         await fromInput.trigger('input');
+        await flushPromises();
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
@@ -95,6 +98,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
 
         await toInput.setValue('2021-01-25');
         await toInput.trigger('input');
+        await flushPromises();
 
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',

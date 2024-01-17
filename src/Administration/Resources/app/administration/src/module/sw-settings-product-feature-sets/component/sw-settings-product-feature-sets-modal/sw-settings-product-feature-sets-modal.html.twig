@@ -32,7 +32,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_custom_field_list_toolbar_search %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 @search-term-change="onSearchCustomFields"
@@ -97,7 +97,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_product_feature_sets_modal_property_list_toolbar_search %}
             <sw-simple-search-field
-                v-model="term"
+                v-model:value="term"
                 size="small"
                 variant="form"
                 @search-term-change="onSearchPropertyGroups"

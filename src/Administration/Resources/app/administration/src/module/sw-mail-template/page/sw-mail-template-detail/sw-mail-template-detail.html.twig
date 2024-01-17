@@ -254,7 +254,7 @@
                     <sw-code-editor
                         ref="plainEditor"
                         :key="`${mailTemplate.mailTemplateTypeId}plain`"
-                        v-model="mailTemplate.contentPlain"
+                        v-model:value="mailTemplate.contentPlain"
                         name="content_plain"
                         completion-mode="entity"
                         :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
@@ -272,7 +272,7 @@
                     <sw-code-editor
                         ref="htmlEditor"
                         :key="`${mailTemplate.mailTemplateTypeId}html`"
-                        v-model="mailTemplate.contentHtml"
+                        v-model:value="mailTemplate.contentHtml"
                         name="content_html"
                         completion-mode="entity"
                         :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"

@@ -7,7 +7,7 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_card_filter_bar_container_field %}
         <sw-simple-search-field
-            v-model="term"
+            v-model:value="term"
             size="small"
             variant="form"
             :placeholder="placeholder"

@@ -71,7 +71,7 @@
     <sw-code-editor
         ref="plainEditor"
         :key="`${mailTemplate.mailTemplateTypeId}plain`"
-        v-model="mailTemplate.contentPlain"
+        v-model:value="mailTemplate.contentPlain"
         class="sw-flow-create-mail-template-modal__content-plain"
         name="content_plain"
         completion-mode="entity"
@@ -89,7 +89,7 @@
     <sw-code-editor
         ref="htmlEditor"
         :key="`${mailTemplate.mailTemplateTypeId}html`"
-        v-model="mailTemplate.contentHtml"
+        v-model:value="mailTemplate.contentHtml"
         class="sw-flow-create-mail-template-modal__content-html"
         name="content_html"
         completion-mode="entity"

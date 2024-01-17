@@ -16,7 +16,7 @@
         :disabled="!set._isNew || !acl.can('custom_field.editor')"
         :error="technicalNameError"
         required
-        @change="onTechnicalNameChange"
+        @update:value="onTechnicalNameChange"
     />
     {% endblock %}
 

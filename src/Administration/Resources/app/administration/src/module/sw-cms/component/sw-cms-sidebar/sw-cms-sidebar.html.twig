@@ -75,7 +75,7 @@
                     {% block sw_cms_sidebar_page_settings_demo_field %}
                     <sw-entity-single-select
                         v-if="demoEntity !== null"
-                        v-model="demoEntityId"
+                        v-model:value="demoEntityId"
                         :label="$tc('sw-cms.detail.label.demoEntity')"
                         :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
                         :entity="demoEntity"

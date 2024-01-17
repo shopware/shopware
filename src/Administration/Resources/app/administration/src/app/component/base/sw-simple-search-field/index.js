@@ -23,7 +23,7 @@ Component.register('sw-simple-search-field', {
     inheritAttrs: false,
 
     emits: [
-        'input',
+        'update:value',
         'search-term-change',
     ],
 
@@ -45,7 +45,6 @@ Component.register('sw-simple-search-field', {
             type: String,
             default: null,
             required: false,
-
         },
 
         delay: {
@@ -83,7 +82,7 @@ Component.register('sw-simple-search-field', {
 
     methods: {
         onInput(input) {
-            this.$emit('input', input);
+            this.$emit('update:value', input);
             this.onSearchTermChanged(input);
         },
     },

@@ -6,7 +6,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange"
+        @update:value="onChange"
     />
 
     <sw-textarea-field
@@ -16,7 +16,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange"
+        @update:value="onChange"
     />
 
     <sw-number-field
@@ -59,7 +59,7 @@
         :label="label"
         :placeholder="placeholder"
         :help-text="helpText"
-        @change="onChange"
+        @update:value="onChange"
     />
 
     <!-- ToDo NEXT-22874 - Implement email-field verification to entity_schema

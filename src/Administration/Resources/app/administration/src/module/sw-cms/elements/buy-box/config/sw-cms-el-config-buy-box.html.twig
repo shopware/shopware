@@ -55,7 +55,7 @@
                 <sw-entity-single-select
                     v-if="!isProductPage"
                     ref="cmsProductSelection"
-                    v-model="element.config.product.value"
+                    v-model:value="element.config.product.value"
                     entity="product"
                     :label="$tc('sw-cms.elements.buyBox.config.label.selection')"
                     :placeholder="$tc('sw-cms.elements.buyBox.config.placeholder.selection')"

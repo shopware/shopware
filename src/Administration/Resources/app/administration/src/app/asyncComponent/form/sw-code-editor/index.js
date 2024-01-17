@@ -203,7 +203,7 @@ export default {
             const value = this.editor.getValue();
 
             if (this.value !== value) {
-                this.$emit('input', value);
+                this.$emit('update:value', value);
             }
         },
 

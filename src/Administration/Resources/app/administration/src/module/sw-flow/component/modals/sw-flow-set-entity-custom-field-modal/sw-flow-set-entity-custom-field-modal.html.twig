@@ -94,7 +94,7 @@
         {% block sw_flow_set_entity_custom_field_modal_field_value %}
         <sw-form-field-renderer
             v-if="showFieldValue"
-            v-model="customFieldValue"
+            v-model:value="customFieldValue"
             name="sw-field--customFieldValue"
             class="sw-flow-set-entity-custom-field-modal__custom-field-value"
             :config="renderedFieldConfig"

@@ -55,7 +55,7 @@
                 <sw-entity-single-select
                     v-if="!isProductPageType"
                     ref="cmsProductSelection"
-                    v-model="element.config.product.value"
+                    v-model:value="element.config.product.value"
                     entity="product"
                     class="sw-cms-el-config-cross-selling__products"
                     :label="$tc('sw-cms.elements.crossSelling.config.label.selection')"

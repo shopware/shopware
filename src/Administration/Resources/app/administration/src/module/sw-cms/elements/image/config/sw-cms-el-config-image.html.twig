@@ -120,7 +120,7 @@
     {% block sw_cms_element_image_config_link %}
     <div class="sw-cms-el-config-image__link">
         <sw-dynamic-url-field
-            v-model="element.config.url.value"
+            v-model:value="element.config.url.value"
         />
         <sw-switch-field
             v-model:value="element.config.newTab.value"

@@ -17,8 +17,7 @@
             :value="values[field.name]"
             size="medium"
             show-clearable-button
-            @input="updateFieldValue(field.name, $event)"
-            @change="updateFieldValue(field.name, $event)"
+            @update:value="updateFieldValue(field.name, $event)"
         />
     </template>
     {% endblock %}

@@ -25,7 +25,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_sales_channel_detail_products_card_section_secondary_input %}
                     <sw-simple-search-field
-                        v-model="searchTerm"
+                        v-model:value="searchTerm"
                         variant="form"
                         size="small"
                         @search-term-change="onChangeSearchTerm"

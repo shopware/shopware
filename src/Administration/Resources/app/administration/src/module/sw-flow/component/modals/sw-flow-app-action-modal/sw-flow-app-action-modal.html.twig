@@ -48,11 +48,11 @@
     <sw-form-field-renderer
         v-for="field in fields"
         :key="field.name"
-        v-model="config[field.name]"
+        v-model:value="config[field.name]"
         :type="field.type"
         :config="getConfig(field)"
         :error="errors[field.name]"
-        @update="onChange($event, field)"
+        @update:value="onChange($event, field)"
     />
     {% endblock %}
     <template #modal-footer>

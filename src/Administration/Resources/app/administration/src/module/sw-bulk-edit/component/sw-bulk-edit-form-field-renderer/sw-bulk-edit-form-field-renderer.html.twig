@@ -8,12 +8,9 @@
     v-model:value="currentValue"
     v-model:entity-collection="currentValue"
     class="sw-form-field-renderer"
-    @change="$emit('change', $event)"
-    @update:value="emitChange"
-    @update:ids="emitChange"
-    @update:modelValue="emitChange"
-    @update:entity-collection="emitChange"
-    @input="emitUpdate"
+    @update:value="emitUpdate"
+    @update:ids="emitUpdate"
+    @update:entity-collection="emitUpdate"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_form_field_renderer_inner %}

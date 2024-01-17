@@ -182,7 +182,7 @@
                 :value="getPrice(item, currency)"
                 :has-parent="!currency.isSystemDefault"
                 :inherited-value="currency.isSystemDefault ? null : convertDefaultPriceToCurrencyPrice(item, currency)"
-                @input="setPrice(item, currency, $event)"
+                @update:value="setPrice(item, currency, $event)"
             >
                 <template #content="props">
 

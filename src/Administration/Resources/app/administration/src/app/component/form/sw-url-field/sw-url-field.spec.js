@@ -86,19 +86,19 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de');
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/blä');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/blä');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/bl%C3%A4');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/bl%C3%A4');
 
         await wrapper.find('.sw-url-input-field__input').setValue('www.täst-shöp.de/😋');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/😋');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/%F0%9F%98%8B');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/%F0%9F%98%8B');
     });
 
     it('should keep a URL hash', async () => {
@@ -109,7 +109,7 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/#a-hash');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/#a-hash');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/#a-hash');
     });
 
     it('should ignore URL hashes', async () => {
@@ -123,7 +123,7 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.example.org');
-        expect(wrapper.vm.currentValue).toBe('www.example.org');
+        expect(wrapper.vm.currentUrlValue).toBe('www.example.org');
 
         // reset component state
         await wrapper.setProps({ omitUrlHash: false });
@@ -137,7 +137,7 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.täst-shöp.de/?a=search');
-        expect(wrapper.vm.currentValue).toBe('www.täst-shöp.de/?a=search');
+        expect(wrapper.vm.currentUrlValue).toBe('www.täst-shöp.de/?a=search');
     });
 
     it('should ignore a URL search', async () => {
@@ -151,7 +151,7 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
         expect(wrapper.find('.sw-url-input-field__input').element.value).toBe('www.example.org');
-        expect(wrapper.vm.currentValue).toBe('www.example.org');
+        expect(wrapper.vm.currentUrlValue).toBe('www.example.org');
 
         // reset component state
         await wrapper.setProps({ omitUrlSearch: false });
@@ -204,13 +204,13 @@ describe('components/form/sw-url-field', () => {
         await flushPromises();
 
         wrapper.vm.checkInput(HTTP_URL);
-        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toEqual(EXPECTED_URL);
 
         wrapper.vm.checkInput(HTTPS_URL);
-        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toEqual(EXPECTED_URL);
 
         wrapper.vm.checkInput(FILE_URL);
-        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toEqual(EXPECTED_URL);
     });
 
     it('allows empty values', async () => {
@@ -224,13 +224,13 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').setValue(INITIAL_URL);
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
 
-        expect(wrapper.vm.currentValue).toBe(URL_WITHOUT_PROTOCOL);
+        expect(wrapper.vm.currentUrlValue).toBe(URL_WITHOUT_PROTOCOL);
         expect(wrapper.vm.errorUrl).toBeNull();
 
         await wrapper.find('.sw-url-input-field__input').setValue('');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
 
-        expect(wrapper.vm.currentValue).toBe(EXPECTED_URL);
+        expect(wrapper.vm.currentUrlValue).toBe(EXPECTED_URL);
         expect(wrapper.vm.errorUrl).toBeNull();
     });
 });

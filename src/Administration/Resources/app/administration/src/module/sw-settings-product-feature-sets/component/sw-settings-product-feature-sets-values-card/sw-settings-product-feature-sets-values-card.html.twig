@@ -24,7 +24,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_product_feature_set_toolbar_search %}
                     <sw-simple-search-field
-                        v-model="term"
+                        v-model:value="term"
                         size="small"
                         variant="form"
                         :disabled="!allowEdit"
@@ -100,7 +100,7 @@
                 <template #column-position="{ item }">
                     <sw-data-grid-column-position
                         ref="columnPosition"
-                        v-model="values"
+                        v-model:value="values"
                         :show-value="false"
                         :item="item"
                         :disabled="!allowEdit"

@@ -9,7 +9,7 @@
         :placeholder="$tc('sw-settings-mailer.card-smtp.host-placeholder')"
         :error="hostError"
         required
-        @change="$emit('host-changed')"
+        @update:value="$emit('host-changed')"
     />
     {% endblock %}
 

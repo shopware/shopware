@@ -123,7 +123,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
                 placeholderId += '#';
             }
 
-            const dispatchedInputEvents = wrapper.emitted('input').at(1);
+            const dispatchedInputEvents = wrapper.emitted('update:value').at(0);
 
             expect(dispatchedInputEvents).toStrictEqual([link.prefix + placeholderId]);
         });
@@ -172,7 +172,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
         });
         await wrapper.vm.$nextTick();
 
-        const dispatchedInputEvents = wrapper.emitted('input');
+        const dispatchedInputEvents = wrapper.emitted('update:value');
 
         expect(dispatchedInputEvents[0]).toStrictEqual(['124c71d524604ccbad6042edce3ac799/navigation/new-selection#']);
 
@@ -193,7 +193,7 @@ describe('components/form/sw-text-editor/sw-text-editor-link-menu', () => {
 
         expect(wrapper.vm.linkCategory).toBe('email');
 
-        const dispatchedInputEvents = wrapper.emitted('input');
+        const dispatchedInputEvents = wrapper.emitted('update:value');
         expect(dispatchedInputEvents[0]).toStrictEqual(['']);
     });
 

@@ -28,7 +28,6 @@
                 :has-parent="hasParent"
                 :required="customField.config.validation === 'required'"
                 :inherited-value="getInheritedCustomField(customField.name)"
-                @input="updateCustomField(customField)"
                 @update:value="updateCustomField(customField)"
             >
                 <template #content="props">
@@ -38,8 +37,7 @@
                         :class="'sw-form-field-renderer-input-field__' + customField.name"
                         :disabled="disabled || props.isInherited"
                         :value="props.currentValue"
-                        @input="props.updateCurrentValue"
-                        @change="props.updateCurrentValue"
+                        @update:value="props.updateCurrentValue"
                     />
                 </template>
             </sw-inherit-wrapper>

@@ -24,7 +24,7 @@
         :placeholder="$tc('sw-flow.modals.mail.placeholderReplyTo')"
         :error="replyToError"
         required
-        @change="replyToError = null"
+        @update:value="replyToError = null"
     />
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

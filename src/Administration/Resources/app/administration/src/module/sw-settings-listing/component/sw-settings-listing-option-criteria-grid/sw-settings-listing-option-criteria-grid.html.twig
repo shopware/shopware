@@ -51,7 +51,7 @@
             <sw-entity-single-select
                 v-if="item.field === 'customField' || (isItemACustomField(item.field) && isInlineEdit)"
                 ref="customFieldSelection"
-                v-model="item.name"
+                v-model:value="item.name"
                 :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
                 :criteria="customFieldCriteriaSingleSelect(item)"
                 :label-callback="getCustomFieldName"

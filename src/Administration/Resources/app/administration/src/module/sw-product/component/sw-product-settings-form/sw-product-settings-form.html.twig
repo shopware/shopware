@@ -47,7 +47,7 @@
                     :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                     :disabled="props.isInherited || !allowEdit"
                     :value="props.currentValue"
-                    @change="props.updateCurrentValue"
+                    @update:value="props.updateCurrentValue"
                 />
 
             </template>

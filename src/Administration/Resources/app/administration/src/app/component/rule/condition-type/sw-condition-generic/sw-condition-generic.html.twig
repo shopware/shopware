@@ -32,8 +32,7 @@
                     size="medium"
                     show-clearable-button
                     :hide-hint="field.type === 'datetime'"
-                    @input="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
-                    @change="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
+                    @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
                 />
 
                 <sw-condition-unit-menu

@@ -65,8 +65,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         static::expectExceptionMessage('No allowed entity definition found. Skipping dispatching of entity sync message. Entity: non_existing_entity, Operation: create');
 
         $consentService = $this->createMock(ConsentService::class);
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $handler = new DispatchEntityMessageHandler(
             new EntityDefinitionService([], new UsageDataAllowListService()),
@@ -98,8 +96,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(null);
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $definition = new SyncEntityDefinition();
         new StaticDefinitionInstanceRegistry(
@@ -188,8 +184,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService = $this->createMock(ConsentService::class);
         $consentService->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -299,8 +293,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService = $this->createMock(ConsentService::class);
         $consentService->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -433,8 +425,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -511,8 +501,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -563,8 +551,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $handler = new DispatchEntityMessageHandler(
             $entityDefinitionService,
@@ -658,8 +644,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn($createdAndUpdatedAt);
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
         $usageDataAllowListService->method('isEntityAllowed')
@@ -761,36 +745,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         static::assertArrayHasKey('puid', $serialized);
         static::assertSame($puid, $serialized['puid']);
-    }
-
-    public function testIfShouldPushDataIsFalse(): void
-    {
-        $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::never())
-            ->method('dispatch');
-
-        $consentService = $this->createMock(ConsentService::class);
-        $consentService->expects(static::once())
-            ->method('shouldPushData')
-            ->willReturn(false);
-
-        $handler = new DispatchEntityMessageHandler(
-            $this->createMock(EntityDefinitionService::class),
-            $this->createMock(ManyToManyAssociationService::class),
-            $this->createMock(UsageDataAllowListService::class),
-            $this->createMock(Connection::class),
-            $entityDispatcher,
-            $consentService,
-        );
-
-        $message = new DispatchEntityMessage(
-            'non_existing_entity',
-            Operation::CREATE,
-            new \DateTimeImmutable(),
-            []
-        );
-
-        $handler($message);
     }
 
     private function createConnectionMock(): Connection&MockObject

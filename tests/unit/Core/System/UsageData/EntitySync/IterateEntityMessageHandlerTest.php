@@ -62,8 +62,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::exactly(1))
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(null);
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::exactly(1))
@@ -111,8 +109,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -165,8 +161,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects(static::never())
             ->method('getLastConsentIsAcceptedDate');
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -201,8 +195,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -250,8 +242,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())

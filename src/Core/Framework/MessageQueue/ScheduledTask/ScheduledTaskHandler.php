@@ -19,14 +19,14 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
     /**
-     * @deprecated tag:v6.7.0 - logger will be required
+     * @deprecated tag:v6.7.0 - exceptionLogger will be required
      */
     public function __construct(
         protected EntityRepository $scheduledTaskRepository,
-        protected readonly ?LoggerInterface $logger = null
+        protected readonly ?LoggerInterface $exceptionLogger = null
     ) {
-        if ($logger === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument logger is required.');
+        if ($exceptionLogger === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument exceptionLogger is required.');
         }
     }
 
@@ -56,7 +56,7 @@ abstract class ScheduledTaskHandler implements MessageSubscriberInterface
             $this->run();
         } catch (\Throwable $e) {
             if ($task->shouldRescheduleOnFailure()) {
-                $this->logger?->error(
+                $this->exceptionLogger?->error(
                     'Scheduled task failed with: ' . $e->getMessage(),
                     [
                         'error' => $e,

@@ -5836,11 +5836,6 @@ parameters:
 			path: src/Core/Framework/Test/Language/LanguageValidatorTest.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Test/MessageQueue/Api/MessageQueueEndpointTest.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Test\\\\Migration\\\\MigrationCollectionRuntimeTest\\:\\:getMigrations\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Framework/Test/Migration/MigrationCollectionRuntimeTest.php

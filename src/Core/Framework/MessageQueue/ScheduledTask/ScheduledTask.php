@@ -40,4 +40,9 @@ abstract class ScheduledTask implements AsyncMessageInterface
     {
         return true;
     }
+
+    public static function shouldRescheduleOnFailure(): bool
+    {
+        return false;
+    }
 }

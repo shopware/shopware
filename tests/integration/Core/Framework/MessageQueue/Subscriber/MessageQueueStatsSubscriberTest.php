@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\MessageQueue\Subscriber;
+namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
-use Shopware\Core\Framework\Test\MessageQueue\fixtures\BarMessage;
-use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
-use Shopware\Core\Framework\Test\MessageQueue\fixtures\NoHandlerMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
+use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\BarMessage;
+use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\FooMessage;
+use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\NoHandlerMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**

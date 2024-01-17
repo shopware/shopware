@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler;
 use Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask;
@@ -93,7 +94,13 @@ class DeleteCascadeAppsHandlerTest extends TestCase
         $task = new DeleteCascadeAppsTask();
         $task->setTaskId($taskId);
 
-        $handler = new DeleteCascadeAppsHandler($this->scheduledTaskRepo, $this->aclRoleRepo, $this->integrationRepo);
+        $handler = new DeleteCascadeAppsHandler(
+            $this->scheduledTaskRepo,
+            $this->createMock(LoggerInterface::class),
+            $this->aclRoleRepo,
+            $this->integrationRepo
+        );
+
         $handler($task);
 
         $aclRoles = $this->aclRoleRepo->search(new Criteria(), Context::createDefaultContext())->getEntities();

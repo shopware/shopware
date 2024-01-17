@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\MessageQueue\fixtures;
+namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures;
 
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 

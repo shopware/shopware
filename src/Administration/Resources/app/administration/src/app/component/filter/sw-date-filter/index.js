@@ -117,6 +117,12 @@ Component.register('sw-date-filter', {
                 return;
             }
 
+            if (this.dateValue.to) {
+                const to = new Date(this.dateValue.to);
+                to.setHours(23, 59, 59);
+                this.dateValue.to = to.toISOString();
+            }
+
             this.$emit('filter-update', this.filter.name, params, this.dateValue);
         },
 

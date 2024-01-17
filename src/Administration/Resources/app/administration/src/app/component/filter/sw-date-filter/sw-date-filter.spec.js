@@ -73,7 +73,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { lte: '2021-01-25' })],
-            { from: null, to: '2021-01-25', timeframe: 'custom' },
+            { from: null, to: '2021-01-25T23:59:59.000Z', timeframe: 'custom' },
         ]);
     });
 
@@ -99,7 +99,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19', lte: '2021-01-25' })],
-            { from: '2021-01-19', to: '2021-01-25', timeframe: 'custom' },
+            { from: '2021-01-19', to: '2021-01-25T23:59:59.000Z', timeframe: 'custom' },
         ]);
     });
 

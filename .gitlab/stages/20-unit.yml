@@ -337,8 +337,7 @@ PHP unit per area:
     stage: unit
     rules:
       - !reference [.rules, skip]
-      - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      - !reference [.rules, run]
+      - !reference [.rules, scheduled]
     script:
       - composer dump-autoload -o
       - bin/console coverage:classes-per-area -g -q
@@ -366,8 +365,7 @@ Jest Coverage per Area (Storefront):
   stage: unit
   rules:
     - !reference [.rules, skip]
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - !reference [.rules, run]
+    - !reference [.rules, scheduled]
   variables:
     ARTIFACTS_PATH: ${CI_PROJECT_DIR}/coverage/Storefront/$PRODUCT_AREA
   script:
@@ -391,8 +389,7 @@ Jest Coverage per Area (Administration):
   stage: unit
   rules:
     - !reference [.rules, skip]
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - !reference [.rules, run]
+    - !reference [.rules, scheduled]
   script:
     - composer dump-autoload -o
     - echo -e "\e[0Ksection_start:$(date +%s):jest[collapsed=false]\r\e[0Kjest output"
@@ -414,8 +411,7 @@ Coverage per Area summary:
   stage: unit
   rules:
     - !reference [.rules, skip]
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - !reference [.rules, run]
+    - !reference [.rules, scheduled]
   dependencies: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
   needs: [ "PHP unit per area", "Jest Coverage per Area (Administration)", "Jest Coverage per Area (Storefront)" ]
   before_script:

@@ -75,6 +75,7 @@
                     :allow-edit="acl.can('product.editor')"
                     :allow-delete="acl.can('sales_channel.deleter')"
                     :is-record-selectable="isProductRemovable"
+                    @selection-change="onProductSelectionChange"
                 >
                     <template #selection-content="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
                         <slot v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">

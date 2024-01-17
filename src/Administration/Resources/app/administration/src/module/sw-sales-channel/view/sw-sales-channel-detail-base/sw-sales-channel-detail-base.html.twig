@@ -706,8 +706,8 @@
             :is-loading="isLoading"
             :disabled="!acl.can('sales_channel.editor')"
             class="sw-order-user-card__tag-select"
-            :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
-            :help-text="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
+            :label="$tc('sw-sales-channel.detail.ipAddressAllowlist')"
+            :help-text="$tc('sw-sales-channel.detail.ipAddressAllowlistHelpText')"
             :known-ips="knownIps"
         />
         {% endblock %}

@@ -134,11 +134,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
             } else {
                 this.currentValue = validated;
 
-                if (this.value !== this.url) {
-                    this.$emit('update:value', this.url);
-                }
-
-                this.$emit('input', this.url);
+                this.$emit('update:value', this.url);
             }
         },
 

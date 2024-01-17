@@ -79,7 +79,7 @@ Component.register('sw-purchase-price-field', {
                     this.price.push(newPurchasePrice);
                 }
 
-                this.$emit('input', this.price);
+                this.$emit('update:value', this.price);
             },
         },
     },

@@ -47,6 +47,9 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         await wrapper.setProps({
             product: {
                 name: 'shirt',
+                variantListingConfig: {
+                    mainVariantId: '1a2b3c',
+                },
             },
         });
 
@@ -61,6 +64,9 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                 mainVariantId: null,
                 name: 'shirt global.default.copy',
                 productNumber: 250,
+                variantListingConfig: {
+                    mainVariantId: null,
+                },
             },
         }, expect.anything());
     });

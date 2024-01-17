@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
+namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\MessageQueue\Command\RegisterScheduledTasksCommand;

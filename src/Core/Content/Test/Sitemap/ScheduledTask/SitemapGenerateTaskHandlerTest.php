@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\Sitemap\ScheduledTask;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapGenerateTaskHandler;
 use Shopware\Core\Content\Sitemap\ScheduledTask\SitemapMessage;
 use Shopware\Core\Defaults;
@@ -46,6 +47,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->messageBusMock = $this->createMock(MessageBusInterface::class);
         $this->sitemapHandler = new SitemapGenerateTaskHandler(
             $this->getContainer()->get('scheduled_task.repository'),
+            $this->createMock(LoggerInterface::class),
             $this->salesChannelRepository,
             $this->getContainer()->get(SystemConfigService::class),
             $this->messageBusMock,

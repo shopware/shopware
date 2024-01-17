@@ -2,20 +2,27 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('core')]
 abstract class ScheduledTaskHandler
 {
-    protected EntityRepository $scheduledTaskRepository;
-
-    public function __construct(EntityRepository $scheduledTaskRepository)
-    {
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
+    /**
+     * @deprecated tag:v6.7.0 - logger will be required
+     */
+    public function __construct(
+        protected readonly EntityRepository $scheduledTaskRepository,
+        protected readonly ?LoggerInterface $logger = null
+    ) {
+        if ($logger === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument logger is required.');
+        }
     }
 
     public function __invoke(ScheduledTask $task): void
@@ -43,6 +50,20 @@ abstract class ScheduledTaskHandler
         try {
             $this->run();
         } catch (\Throwable $e) {
+            if ($task->shouldRescheduleOnFailure()) {
+                $this->logger?->error(
+                    'Scheduled task failed with: ' . $e->getMessage(),
+                    [
+                        'error' => $e,
+                        'scheduledTask' => $task->getTaskName(),
+                    ]
+                );
+
+                $this->rescheduleTask($task, $taskEntity);
+
+                return;
+            }
+
             $this->markTaskFailed($task);
 
             throw $e;

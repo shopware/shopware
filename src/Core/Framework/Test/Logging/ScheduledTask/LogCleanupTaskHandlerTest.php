@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Logging\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -95,6 +96,7 @@ class LogCleanupTaskHandlerTest extends TestCase
 
         $handler = new LogCleanupTaskHandler(
             $this->scheduledTaskRepository,
+            $this->createMock(LoggerInterface::class),
             $this->systemConfigService,
             $this->connection
         );

@@ -49,14 +49,17 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_notification_center_content_notification_container %}
         <div class="sw-notification-center__notification-container">
-            <sw-notification-center-item
-                v-for="notification in notifications"
-                :key="notification.uuid"
-                :notification="notification"
-                @center-close="changeVisibility(false)"
-            />
+            <div v-show="notifications.length > 0">
+                <sw-notification-center-item
+                    v-for="notification in notifications"
+                    :key="notification.uuid"
+                    :notification="notification"
+                    @center-close="changeVisibility(false)"
+                />
+            </div>
+
             <div
-                v-if="notifications.length === 0"
+                v-show="notifications.length === 0"
                 class="sw-notification-center__empty-text"
             >
                 {{ $tc('global.notification-center.emptyText') }}

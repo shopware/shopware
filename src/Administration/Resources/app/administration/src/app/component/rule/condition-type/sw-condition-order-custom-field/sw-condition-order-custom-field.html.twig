@@ -36,7 +36,6 @@
     {% block sw_condition_order_custom_field_operator %}
     <sw-condition-operator-select
         v-if="renderedField"
-        v-model="operator"
         name="sw-field--operator"
         v-bind="{ operators, condition }"
         :disabled="disabled"

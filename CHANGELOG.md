@@ -2,6 +2,7 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
 ## 6.5.8.0
+*  [NEXT-33138 - Fix $super chain with empty overrides](./changelog/release-6-5-8-0/2024-01-16-fix-super-chain-with-empty-overrides.md)
 *  [NEXT-32889 - Fix privileges for state machine](./changelog/release-6-5-8-0/2024-01-05-fix-privileges-for-state-machine.md)
 *  [NEXT-31821 - Ensure databags convert parameters consistently](./changelog/release-6-5-8-0/2023-06-13-ensure-databags-convert-parameters-consistently.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-23252 - Customer Custom Field Rule evaluates wrong on multiple-selection custom fields](./changelog/release-6-5-8-0/2023-10-17-customer-custom-field-rule-evaluates-wrong-on-multiple-selection-custom-fields.md) ([Jan Emig](https://github.com/Xnaff))

@@ -4,7 +4,7 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan;
 
 use Shopware\Core\DevOps\StaticAnalyze\StaticAnalyzeKernel;
 use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
-use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
 use Symfony\Component\Dotenv\Dotenv;
 
 if (!\defined('TEST_PROJECT_DIR')) {
@@ -40,7 +40,7 @@ if (class_exists(Dotenv::class) && (file_exists(TEST_PROJECT_DIR . '/.env.local.
     (new Dotenv())->usePutenv()->bootEnv(TEST_PROJECT_DIR . '/.env');
 }
 
-$pluginLoader = new StaticKernelPluginLoader($classLoader);
+$pluginLoader = new ComposerPluginLoader($classLoader);
 KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
 
 /** @var StaticAnalyzeKernel $kernel */

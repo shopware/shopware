@@ -6,11 +6,13 @@
     v-bind="bind"
     ref="component"
     v-model:value="currentValue"
+    v-model:entity-collection="currentValue"
     class="sw-form-field-renderer"
     @change="$emit('change', $event)"
     @update:value="emitChange"
     @update:ids="emitChange"
     @update:modelValue="emitChange"
+    @update:entity-collection="emitChange"
     @input="emitUpdate"
 >
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

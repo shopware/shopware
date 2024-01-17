@@ -19,7 +19,7 @@
                 :entity-collection="currentValue"
                 :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
                 :disabled="disabled"
-                @change="updateCurrentValue"
+                @update:entity-collection="updateCurrentValue"
             />
         </template>
     </sw-inherit-wrapper>

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Framework\Adapter\Kernel;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Kernel\HttpKernel;
+use Shopware\Core\Framework\Adapter\Kernel\KernelFactory;
 use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -32,6 +33,35 @@ class HttpKernelTest extends TestCase
             ->willReturn(static function (): Response {
                 return new Response();
             });
+    }
+
+    public function testDoesNothingOnOldKernel(): void
+    {
+        $before = KernelFactory::$active;
+        KernelFactory::$active = false;
+
+        $requestTransformer = $this->createMock(RequestTransformerInterface::class);
+        $requestTransformer
+            ->expects(static::never())
+            ->method('transform');
+
+        $canonicalRedirectService = $this->createMock(CanonicalRedirectService::class);
+        $canonicalRedirectService
+            ->expects(static::never())
+            ->method('getRedirect');
+
+        $kernel = new HttpKernel(
+            new EventDispatcher(),
+            $this->controllerResolver,
+            $this->createMock(RequestStack::class),
+            $this->createMock(ArgumentResolverInterface::class),
+            $requestTransformer,
+            $canonicalRedirectService
+        );
+
+        $kernel->handle(new Request());
+
+        KernelFactory::$active = $before;
     }
 
     public function testNoTransformOnErrorPages(): void

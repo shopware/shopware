@@ -22,7 +22,7 @@ abstract class ScheduledTaskHandler implements MessageSubscriberInterface
      * @deprecated tag:v6.7.0 - logger will be required
      */
     public function __construct(
-        protected readonly EntityRepository $scheduledTaskRepository,
+        protected EntityRepository $scheduledTaskRepository,
         protected readonly ?LoggerInterface $logger = null
     ) {
         if ($logger === null) {

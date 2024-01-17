@@ -1,5 +1,5 @@
 import initializeSettingItems from 'src/app/init/settings-item.init';
-import { ui } from '@shopware-ag/admin-extension-sdk';
+import { ui } from '@shopware-ag/meteor-admin-sdk';
 
 let stateDispatchBackup = null;
 describe('src/app/init/settings-item.init.ts', () => {

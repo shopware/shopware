@@ -1,7 +1,7 @@
 /**
  * @package admin
  */
-import type Criteria from '@shopware-ag/admin-extension-sdk/es/data/Criteria';
+import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import { defineComponent } from 'vue';
 import type RuleConditionService from '../service/rule-condition.service';
 import createCriteriaFromArray from '../service/criteria-helper.service';

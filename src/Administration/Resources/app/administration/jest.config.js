@@ -73,6 +73,7 @@ module.exports = {
     moduleNameMapper: {
         '^test(.*)$': '<rootDir>/test$1',
         '^\@shopware-ag\/admin-extension-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/admin-extension-sdk/umd/$1',
+        '^\@shopware-ag\/meteor-admin-sdk\/es\/(.*)': '<rootDir>/node_modules/@shopware-ag/meteor-admin-sdk/umd/$1',
         '^lodash-es$': 'lodash',
         vue$: '@vue/compat/dist/vue.cjs.js',
     },

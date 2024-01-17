@@ -3,7 +3,7 @@
  */
 
 import type { Module } from 'vuex';
-import type { actionButtonAdd } from '@shopware-ag/admin-extension-sdk/es/ui/actionButton';
+import type { actionButtonAdd } from '@shopware-ag/meteor-admin-sdk/es/ui/actionButton';
 
 type ActionButtonConfig = Omit<actionButtonAdd, 'responseType'>
 

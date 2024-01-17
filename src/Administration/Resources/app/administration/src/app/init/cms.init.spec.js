@@ -1,6 +1,6 @@
 import initCms from 'src/app/init/cms.init';
 import 'src/module/sw-cms/service/cms.service';
-import { registerCmsElement } from '@shopware-ag/admin-extension-sdk/es/ui/cms';
+import { registerCmsElement } from '@shopware-ag/meteor-admin-sdk/es/ui/cms';
 import extensionsStore from '../state/extensions.store';
 
 describe('src/app/init/cms.init.ts', () => {

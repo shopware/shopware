@@ -3,7 +3,7 @@
  */
 
 /* Is covered by E2E tests */
-import { publish } from '@shopware-ag/admin-extension-sdk/es/channel';
+import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {

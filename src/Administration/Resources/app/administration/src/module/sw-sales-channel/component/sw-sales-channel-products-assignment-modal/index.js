@@ -84,7 +84,8 @@ export default {
         },
 
         getProductContainerStyle() {
-            const cardSectionSecondaryHeight = `${this.$refs.product.$refs?.cardSectionSecondary?.$el.offsetHeight}px`;
+            // eslint-disable-next-line max-len
+            const cardSectionSecondaryHeight = `${this.$refs?.product?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.$set(this.productContainerStyle, 'grid-template-rows', `auto calc(
                 ${this.tabContentHeight} - ${cardSectionSecondaryHeight}
@@ -93,8 +94,9 @@ export default {
 
         getCategoryContainerStyle() {
             const tabContentGutter = '20px';
-            const alertHeight = `${this.$refs.category.$refs?.alert?.$el.offsetHeight}px`;
-            const cardSectionSecondaryHeight = `${this.$refs.category.$refs?.cardSectionSecondary?.$el.offsetHeight}px`;
+            const alertHeight = `${this.$refs?.category?.$refs?.alert?.$el?.offsetHeight ?? 0}px`;
+            // eslint-disable-next-line max-len
+            const cardSectionSecondaryHeight = `${this.$refs?.category?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.$set(this.categoryContainerStyle, 'grid-template-rows', `auto calc(
                 ${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight})
@@ -103,8 +105,9 @@ export default {
 
         getProductGroupContainerStyle() {
             const tabContentGutter = '20px';
-            const alertHeight = `${this.$refs.productGroup.$refs?.alert?.$el.offsetHeight}px`;
-            const cardSectionSecondaryHeight = `${this.$refs.productGroup.$refs?.cardSectionSecondary?.$el.offsetHeight}px`;
+            const alertHeight = `${this.$refs?.productGroup?.$refs?.alert?.$el?.offsetHeight ?? 0}px`;
+            // eslint-disable-next-line max-len
+            const cardSectionSecondaryHeight = `${this.$refs?.productGroup?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.$set(this.productGroupContainerStyle, 'grid-template-rows', `auto calc(
                 ${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight})

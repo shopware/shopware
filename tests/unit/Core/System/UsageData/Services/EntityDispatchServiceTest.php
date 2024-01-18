@@ -253,39 +253,6 @@ class EntityDispatchServiceTest extends TestCase
         $entityDispatchService->dispatchIterateEntityMessages();
     }
 
-    public function testReturnsEarlyIfKillSwitchIsActive(): void
-    {
-        $messageBusMock = $this->createMock(MessageBusInterface::class);
-        $messageBusMock->expects(static::never())->method('dispatch');
-
-        $consentService = new ConsentService(
-            new StaticSystemConfigService([
-                ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::ACCEPTED->value,
-                ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED => true,
-            ]),
-            $this->createMock(EntityRepository::class),
-            new CollectingEventDispatcher(),
-            new MockClock(),
-        );
-
-        $entityDispatchService = new EntityDispatchService(
-            new EntityDefinitionService(
-                [
-                    $this->registry->get(ProductDefinition::class),
-                    $this->registry->get(SalesChannelDefinition::class),
-                ],
-                new UsageDataAllowListService(),
-            ),
-            new ArrayKeyValueStorage(),
-            $messageBusMock,
-            new MockClock(),
-            $consentService,
-            $this->createGatewayStatusService(true),
-        );
-
-        $entityDispatchService->dispatchIterateEntityMessages();
-    }
-
     public function testItSchedulesCreateOperationIterateMessagesInTheFirstRun(): void
     {
         $messageBus = new CollectingMessageBus();

@@ -19,7 +19,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ConsentService
 {
     public const SYSTEM_CONFIG_KEY_CONSENT_STATE = 'core.usageData.consentState';
-    public const SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED = 'core.usageData.dataPushDisabled';
 
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
@@ -88,11 +87,6 @@ class ConsentService
         $config = $entitySearchResult->first();
 
         return $config?->getUpdatedAt();
-    }
-
-    public function shouldPushData(): bool
-    {
-        return !$this->systemConfigService->getBool(self::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED);
     }
 
     public function getConsentState(): ?ConsentState

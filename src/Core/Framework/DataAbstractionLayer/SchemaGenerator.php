@@ -46,7 +46,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @deprecated tag:v6.6.0 - Will be removed, use MigrationQueryGenerator instead.
+ * @deprecated tag:v6.7.0 - Will be removed, use MigrationQueryGenerator instead.
  */
 #[Package('core')]
 class SchemaGenerator
@@ -68,7 +68,7 @@ EOL;
     public function generate(EntityDefinition $definition)
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
+            'v6.7.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'generate')
         );
 

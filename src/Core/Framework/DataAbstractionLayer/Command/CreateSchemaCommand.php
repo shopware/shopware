@@ -13,7 +13,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * @deprecated tag:v6.6.0 - Will be removed, use CreateMigrationCommand instead.
+ * @deprecated tag:v6.7.0 - Will be removed, use CreateMigrationCommand instead.
  */
 #[AsCommand(
     name: 'dal:create:schema',
@@ -39,7 +39,7 @@ class CreateSchemaCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.6.0.0',
+            'v6.7.0.0',
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'execute'),
         );
 

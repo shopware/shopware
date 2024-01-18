@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
-use Shopware\Core\System\Currency\CurrencyEntity;
 
 #[Package('core')]
 class PriceSerializer extends FieldSerializer
@@ -37,11 +36,13 @@ class PriceSerializer extends FieldSerializer
             return;
         }
 
+        $context = Context::createDefaultContext();
+
         $isoPrices = [];
         foreach ($prices as $price) {
             $price = $price instanceof Struct ? $price->jsonSerialize() : $price;
             $currencyId = $price['currencyId'];
-            $currency = $this->mapToCurrencyIso($currencyId);
+            $currency = $this->mapToCurrencyIso($currencyId, $context);
 
             if (isset($price['listPrice']) && $price['listPrice'] instanceof Struct) {
                 $price['listPrice'] = $price['listPrice']->jsonSerialize();
@@ -67,8 +68,10 @@ class PriceSerializer extends FieldSerializer
             return null;
         }
 
+        $context = Context::createDefaultContext();
+
         foreach ($record as $currencyIso => $price) {
-            $currency = $this->getCurrencyIdFromIso($currencyIso);
+            $currency = $this->getCurrencyIdFromIso($currencyIso, $context);
 
             if ($currency === null || !$this->isValidPrice($price)) {
                 continue;
@@ -113,17 +116,17 @@ class PriceSerializer extends FieldSerializer
             && filter_var($price['gross'] ?? null, \FILTER_VALIDATE_FLOAT) !== false;
     }
 
-    private function mapToCurrencyIso(string $currencyId): string
+    private function mapToCurrencyIso(string $currencyId, Context $context): string
     {
         $currency = $this->currencyRepository
-            ->search(new Criteria([$currencyId]), Context::createDefaultContext())
+            ->search(new Criteria([$currencyId]), $context)
             ->getEntities()
             ->first();
 
         return $currency ? $currency->getIsoCode() : $currencyId;
     }
 
-    private function getCurrencyIdFromIso(string $iso): ?string
+    private function getCurrencyIdFromIso(string $iso, Context $context): ?string
     {
         if ($iso === 'DEFAULT') {
             return Defaults::CURRENCY;
@@ -135,9 +138,6 @@ class PriceSerializer extends FieldSerializer
             $criteria = (new Criteria())->addFilter(new EqualsFilter('isoCode', $iso));
         }
 
-        /** @var CurrencyEntity|null $currency */
-        $currency = $this->currencyRepository->search($criteria, Context::createDefaultContext())->first();
-
-        return $currency === null ? null : $currency->getId();
+        return $this->currencyRepository->searchIds($criteria, $context)->firstId();
     }
 }

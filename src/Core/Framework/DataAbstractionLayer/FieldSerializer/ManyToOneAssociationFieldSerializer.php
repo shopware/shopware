@@ -46,7 +46,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         }
 
         if (!\is_array($value)) {
-            throw DataAbstractionLayerException::expectedArray($parameters->getPath());
+            throw DataAbstractionLayerException::expectedArray($parameters->getPath() . '/' . $key);
         }
 
         $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());

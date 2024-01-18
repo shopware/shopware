@@ -414,3 +414,26 @@ upload zip to store:
         - export SHOPWARE_CLI_ACCOUNT_PASSWORD=${ACCOUNT_PASSWORD}
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - shopware-cli account producer extension upload $(realpath "$PLUGIN_NAME.zip")
+
+backport:
+  # run after all other stages have succeeded
+  stage: .post
+  variables:
+    GIT_STRATEGY: none
+  before_script: []
+  rules:
+    # automatic creation in merge train
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-.*/ && $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+    # in rare cases it's possible that there are multiple successful runs of the merge train without a merge.
+    # In that case the branch already exists, so we don't want to fail the train
+      allow_failure: true
+    # manual in MR pipelines
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-*/ && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+      when: manual
+      allow_failure: true
+  script:
+    - 'BACKPORT_BRANCH=$(echo $CI_MERGE_REQUEST_LABELS | tr , \\n | grep backport- | sed -e "s/backport-//g" | tr \\n , | sed "s/,\$//")'
+    - 'echo "Backport branches: $BACKPORT_BRANCH"'
+    - npm install -g @kie/git-backporting
+    - 'MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"'
+    - git-backporting -tb ${BACKPORT_BRANCH} -pr $MR_URL -a "${CI_GITLAB_API_TOKEN}" --labels backport --comments "Backport of $MR_URL"

@@ -702,7 +702,6 @@ const missingTests = [
     'src/module/sw-manufacturer/page/sw-manufacturer-detail/index.js',
     'src/module/sw-manufacturer/page/sw-manufacturer-list/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/index.js',
-    'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-media/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js',
     'src/module/sw-product/page/sw-product-detail/index.js',

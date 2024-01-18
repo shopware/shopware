@@ -13,6 +13,7 @@ return [
         '**src/Core/Framework/Script/ServiceStubs.php', // never intended to be extended
         '**/src/Core/DevOps/System/Command/SyncComposerVersionCommand.php', // symfony configure
         '**/src/Core/Framework/Adapter/Asset/AssetInstallCommand.php', // symfony configure
+        '**/src/Core/Framework/MessageQueue/ScheduledTask/ScheduledTaskHandler.php', // TODO remove after
     ],
     'errors' => [
         'Shopware\\\\Core\\\\System\\\\SystemConfig\\\\Util\\\\ConfigReader#\\$xsdFile', // Can not be inspected through reflection (__DIR__ constant)

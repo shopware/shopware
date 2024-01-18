@@ -14,14 +14,14 @@ use Shopware\Core\Framework\Log\Package;
 abstract class ScheduledTaskHandler
 {
     /**
-     * @deprecated tag:v6.7.0 - logger will be required
+     * @deprecated tag:v6.7.0 - exceptionLogger will be required
      */
     public function __construct(
-        protected readonly EntityRepository $scheduledTaskRepository,
-        protected readonly ?LoggerInterface $logger = null
+        protected EntityRepository $scheduledTaskRepository,
+        protected readonly ?LoggerInterface $exceptionLogger = null
     ) {
-        if ($logger === null) {
-            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument logger is required.');
+        if ($exceptionLogger === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument exceptionLogger is required.');
         }
     }
 
@@ -51,7 +51,7 @@ abstract class ScheduledTaskHandler
             $this->run();
         } catch (\Throwable $e) {
             if ($task->shouldRescheduleOnFailure()) {
-                $this->logger?->error(
+                $this->exceptionLogger?->error(
                     'Scheduled task failed with: ' . $e->getMessage(),
                     [
                         'error' => $e,

@@ -159,6 +159,11 @@ class ProductBuilder
     protected array $seoUrls = [];
 
     /**
+     * @var array<array{salesChannelId: string, categoryId: string}>
+     */
+    protected array $mainCategories = [];
+
+    /**
      * @var array<string, array<array<mixed>>>
      */
     private array $dependencies = [];
@@ -627,6 +632,16 @@ class ProductBuilder
     public function createdAt(string|\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt instanceof \DateTimeImmutable ? $createdAt->format(Defaults::STORAGE_DATE_TIME_FORMAT) : $createdAt;
+
+        return $this;
+    }
+
+    public function mainCategory(string $salesChannelId, string $categoryKey): static
+    {
+        $this->mainCategories[] = [
+            'salesChannelId' => $salesChannelId,
+            'categoryId' => $this->ids->get($categoryKey),
+        ];
 
         return $this;
     }

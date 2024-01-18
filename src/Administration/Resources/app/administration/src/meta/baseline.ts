@@ -682,7 +682,6 @@ const missingTests = [
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type/index.js',
     'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js',
-    'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success/index.js',
     'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js',
     'src/module/sw-bulk-edit/state/sw-bulk-edit.state.js',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',

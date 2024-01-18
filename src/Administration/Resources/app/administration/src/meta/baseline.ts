@@ -687,7 +687,6 @@ const missingTests = [
     'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler.js',
     'src/module/sw-bulk-edit/state/sw-bulk-edit.state.js',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',
-    'src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js',
     'src/module/sw-flow/component/modals/sw-flow-change-customer-group-modal/index.js',
     'src/module/sw-flow/component/modals/sw-flow-create-mail-template-modal/index.js',

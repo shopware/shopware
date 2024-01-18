@@ -1,14 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import 'src/app/component/entity/sw-product-stream-grid-preview';
-import 'src/app/component/base/sw-empty-state';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/sw-text-field';
-import 'src/app/component/form/field-base/sw-contextual-field';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/base/sw-simple-search-field';
-import 'src/app/component/data-grid/sw-data-grid';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/field-base/sw-base-field';
+import { mount } from '@vue/test-utils';
 
 const mockProducts = [{
     id: 1,
@@ -47,46 +37,43 @@ const mockCurrency = {
 };
 
 const createWrapper = async () => {
-    const localVue = createLocalVue();
-    localVue.filter('asset', key => key);
-    localVue.filter('currency', key => key);
-
-    return shallowMount(await Shopware.Component.build('sw-product-stream-grid-preview'), {
-        localVue,
-        stubs: {
-            'sw-empty-state': await Shopware.Component.build('sw-empty-state'),
-            'sw-simple-search-field': await Shopware.Component.build('sw-simple-search-field'),
-            'sw-field': await Shopware.Component.build('sw-field'),
-            'sw-text-field': await Shopware.Component.build('sw-text-field'),
-            'sw-contextual-field': await Shopware.Component.build('sw-contextual-field'),
-            'sw-block-field': await Shopware.Component.build('sw-block-field'),
-            'sw-data-grid': await Shopware.Component.build('sw-data-grid'),
-            'sw-data-grid-skeleton': true,
-            'sw-pagination': true,
-            'sw-data-grid-column-boolean': true,
-            'router-link': true,
-            'sw-product-variant-info': true,
-            'sw-checkbox-field': await Shopware.Component.build('sw-checkbox-field'),
-            'sw-icon': true,
-            'sw-field-error': true,
-            'sw-base-field': await Shopware.Component.build('sw-base-field'),
-        },
-        mocks: {
-            $route: { meta: { $module: { icon: 'default' } } },
-        },
-        propsData: {
-            filters: null,
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    get: () => Promise.resolve(mockCurrency),
-                    search: () => Promise.resolve(mockProducts),
-                }),
+    return mount(await wrapTestComponent('sw-product-stream-grid-preview', { sync: true }), {
+        global: {
+            stubs: {
+                'sw-empty-state': await wrapTestComponent('sw-empty-state'),
+                'sw-simple-search-field': await wrapTestComponent('sw-simple-search-field'),
+                'sw-field': true,
+                'sw-text-field': await wrapTestComponent('sw-text-field'),
+                'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-data-grid': await wrapTestComponent('sw-data-grid'),
+                'sw-data-grid-skeleton': true,
+                'sw-pagination': true,
+                'sw-data-grid-column-boolean': true,
+                'router-link': true,
+                'sw-product-variant-info': true,
+                'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field'),
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
             },
-            validationService: {},
+            mocks: {
+                $route: { meta: { $module: { icon: 'default' } } },
+            },
+            propsData: {
+                filters: null,
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        get: () => Promise.resolve(mockCurrency),
+                        search: () => Promise.resolve(mockProducts),
+                    }),
+                },
+                validationService: {},
+            },
+            attachTo: document.body,
         },
-        attachTo: document.body,
     });
 };
 
@@ -96,10 +83,6 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    afterEach(() => {
-        wrapper.destroy();
     });
 
     it('should be a Vue.js component', async () => {
@@ -130,10 +113,10 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         await wrapper.vm.$nextTick();
 
         expect(spyLoadProducts).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.products).toBe(mockProducts);
+        expect(wrapper.vm.products).toStrictEqual(mockProducts);
         expect(wrapper.vm.total).toBe(mockProducts.total);
-        expect(wrapper.vm.systemCurrency).toBe(mockCurrency);
-        expect(wrapper.vm.filters).toBe(mockFilter);
+        expect(wrapper.vm.systemCurrency).toStrictEqual(mockCurrency);
+        expect(wrapper.vm.filters).toStrictEqual(mockFilter);
         expect(wrapper.vm.criteria.filters).toEqual([...wrapper.vm.filters, displayGroupFilter]);
         expect(wrapper.vm.criteria.associations[0].association).toBe('manufacturer');
     });
@@ -143,7 +126,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             filters: mockFilter,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-empty-state').exists()).toBeFalsy();
         expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
@@ -154,7 +137,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             filters: mockFilter,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const columns = wrapper.findAll('.sw-data-grid__cell--header');
         const colName = columns.at(0);
@@ -193,7 +176,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             ],
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const columns = wrapper.findAll('.sw-data-grid__cell--header');
         const colName = columns.at(0);
@@ -212,20 +195,20 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             filters: mockFilter,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(4);
     });
 
     it('should send request with term when updating searchTerm', async () => {
-        // Recreate the wrapper to exchange debounce implementation
-        wrapper.destroy();
         Shopware.Utils.debounce = jest.fn((fn) => fn);
         wrapper = await createWrapper();
 
         await wrapper.setProps({
             filters: mockFilter,
         });
+
+        await flushPromises();
 
         const searchField = wrapper.find('.sw-product-stream-grid-preview__search-field input');
         await searchField.setValue('Desired product');
@@ -241,14 +224,13 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
             showSelection: true,
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        await wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input').trigger('click');
+        const inputEl = wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input');
+        await inputEl.setChecked();
 
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.emitted()['selection-change'].length).toBeTruthy();
-        expect(wrapper.emitted()['selection-change'][0]).toEqual([
+        expect(wrapper.emitted('selection-change')).toBeTruthy();
+        expect(wrapper.emitted('selection-change')[0]).toEqual([
             {
                 1: {
                     id: 1,

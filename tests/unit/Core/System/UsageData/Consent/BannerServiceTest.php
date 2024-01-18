@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Consent;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -21,9 +20,10 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\System\UsageData\Consent\BannerService
  */
 #[Package('data-services')]
-#[CoversClass(BannerService::class)]
 class BannerServiceTest extends TestCase
 {
     public function testHasUserHiddenConsentBannerReturnsFalseIfNotSet(): void

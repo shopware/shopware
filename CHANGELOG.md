@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.1
+*  [NEXT-30261 - Fix redirect loop](./changelog/release-6-5-8-1/2024-01-17-fix-redirect-loop.md)
+
 ## 6.5.8.0
 *  [NEXT-33138 - Fix $super chain with empty overrides](./changelog/release-6-5-8-0/2024-01-16-fix-super-chain-with-empty-overrides.md)
 *  [NEXT-32889 - Fix privileges for state machine](./changelog/release-6-5-8-0/2024-01-05-fix-privileges-for-state-machine.md)

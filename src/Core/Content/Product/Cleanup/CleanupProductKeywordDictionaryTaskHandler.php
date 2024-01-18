@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -21,9 +22,10 @@ final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHand
      */
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly Connection $connection
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void

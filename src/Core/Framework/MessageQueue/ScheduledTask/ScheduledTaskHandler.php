@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
@@ -16,11 +18,16 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 #[Package('core')]
 abstract class ScheduledTaskHandler implements MessageSubscriberInterface
 {
-    protected EntityRepository $scheduledTaskRepository;
-
-    public function __construct(EntityRepository $scheduledTaskRepository)
-    {
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
+    /**
+     * @deprecated tag:v6.7.0 - exceptionLogger will be required
+     */
+    public function __construct(
+        protected EntityRepository $scheduledTaskRepository,
+        protected readonly ?LoggerInterface $exceptionLogger = null
+    ) {
+        if ($exceptionLogger === null) {
+            Feature::triggerDeprecationOrThrow('v6.7.0.0', 'Constructor argument exceptionLogger is required.');
+        }
     }
 
     public function __invoke(ScheduledTask $task): void
@@ -48,6 +55,20 @@ abstract class ScheduledTaskHandler implements MessageSubscriberInterface
         try {
             $this->run();
         } catch (\Throwable $e) {
+            if ($task->shouldRescheduleOnFailure()) {
+                $this->exceptionLogger?->error(
+                    'Scheduled task failed with: ' . $e->getMessage(),
+                    [
+                        'error' => $e,
+                        'scheduledTask' => $task->getTaskName(),
+                    ]
+                );
+
+                $this->rescheduleTask($task, $taskEntity);
+
+                return;
+            }
+
             $this->markTaskFailed($task);
 
             throw $e;

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,9 +24,10 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly EntityRepository $productStreamRepository
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void

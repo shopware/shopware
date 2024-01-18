@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\ScheduledTask;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,9 +22,10 @@ final class CleanupImportExportFileTaskHandler extends ScheduledTaskHandler
      */
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly DeleteExpiredFilesService $deleteExpiredFilesService
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     public function run(): void

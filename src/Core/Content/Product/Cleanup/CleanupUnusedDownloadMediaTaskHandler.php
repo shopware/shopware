@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cleanup;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,9 +17,10 @@ final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
 {
     public function __construct(
         EntityRepository $repository,
+        LoggerInterface $logger,
         private readonly UnusedMediaPurger $unusedMediaPurger
     ) {
-        parent::__construct($repository);
+        parent::__construct($repository, $logger);
     }
 
     /**

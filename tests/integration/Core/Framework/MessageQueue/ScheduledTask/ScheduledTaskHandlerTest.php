@@ -1,9 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\MessageQueue\ScheduledTask;
+namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -11,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\DummyScheduledTaskHandler;
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestRescheduleOnFailureTask;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestTask;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,10 +30,13 @@ class ScheduledTaskHandlerTest extends TestCase
 
     private EntityRepository $scheduledTaskRepo;
 
+    private LoggerInterface&MockObject $logger;
+
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
+        $this->logger = $this->createMock(LoggerInterface::class);
     }
 
     /**
@@ -58,7 +65,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
 
         static::assertTrue($handler->wasCalled());
@@ -110,7 +117,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
         $nowTime = new \DateTime();
 
@@ -148,7 +155,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId, true);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
 
         $exception = null;
 
@@ -167,6 +174,45 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_FAILED, $task->getStatus());
     }
 
+    public function testHandleOnExceptionWithRescheduleOnFailure(): void
+    {
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+
+        $taskId = Uuid::randomHex();
+        $originalNextExecution = (new \DateTime())->modify('-10 seconds');
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => TestRescheduleOnFailureTask::class,
+                'runInterval' => 300,
+                'defaultRunInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+                'nextExecutionTime' => $originalNextExecution,
+            ],
+        ], Context::createDefaultContext());
+
+        $task = new TestRescheduleOnFailureTask();
+        $task->setTaskId($taskId);
+
+        $this->logger->expects(static::once())->method('error');
+
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId, true);
+
+        $exception = null;
+
+        try {
+            $handler($task);
+        } catch (\Exception $exception) {
+        }
+
+        static::assertTrue($handler->wasCalled());
+
+        /** @var ScheduledTaskEntity $task */
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
+    }
+
     public function testHandleIgnoresIfTaskIsNotFound(): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');
@@ -175,7 +221,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());
@@ -204,7 +250,7 @@ class ScheduledTaskHandlerTest extends TestCase
         $task = new TestTask();
         $task->setTaskId($taskId);
 
-        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $taskId);
+        $handler = new DummyScheduledTaskHandler($this->scheduledTaskRepo, $this->logger, $taskId);
         $handler($task);
 
         static::assertFalse($handler->wasCalled());

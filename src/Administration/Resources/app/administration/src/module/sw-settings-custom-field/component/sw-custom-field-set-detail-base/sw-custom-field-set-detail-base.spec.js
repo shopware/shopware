@@ -60,11 +60,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('can edit fields', async () => {
         const wrapper = await createWrapper([
             'custom_field.editor',

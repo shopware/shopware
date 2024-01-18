@@ -60,6 +60,9 @@ class ResolvedCriteriaProductSearchRoute extends AbstractProductSearchRoute
             $context->getContext()
         );
 
+        // will be handled via processor in next line
+        $criteria->setLimit(null);
+
         $this->processor->prepare($request, $criteria, $context);
 
         $this->eventDispatcher->dispatch(

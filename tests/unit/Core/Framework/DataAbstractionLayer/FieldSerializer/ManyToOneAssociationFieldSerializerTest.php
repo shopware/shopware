@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
@@ -73,6 +74,40 @@ class ManyToOneAssociationFieldSerializerTest extends TestCase
         );
 
         iterator_to_array($result);
+    }
+
+    public function testExceptionInNormalizationIsThrownIfDataIsNotArray(): void
+    {
+        $this->expectException(ExpectedArrayException::class);
+        static::expectExceptionMessage('Expected data at /0/customer to be an array.');
+
+        new StaticDefinitionInstanceRegistry(
+            [
+                OrderDefinition::class => $orderDefinition = new OrderDefinition(),
+                CustomerDefinition::class => new CustomerDefinition(),
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $field = $orderDefinition->getField('customer');
+
+        static::assertInstanceOf(ManyToOneAssociationField::class, $field);
+
+        $serializer = new ManyToOneAssociationFieldSerializer($this->createMock(WriteCommandExtractor::class));
+
+        $params = new WriteParameterBag(
+            $orderDefinition,
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            '/0',
+            new WriteCommandQueue()
+        );
+
+        $serializer->normalize(
+            $field,
+            ['customer' => 'foobar'],
+            $params,
+        );
     }
 
     public static function invalidArrayProvider(): \Generator

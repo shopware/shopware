@@ -46,7 +46,7 @@
   stage: downstream
   needs: [ ]
   variables:
-    PLATFORM_BRANCH: 'trunk'
+    PLATFORM_BRANCH: '6.6.0.0'
   inherit:
     default: false
     variables:

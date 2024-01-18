@@ -203,7 +203,6 @@ class ConsentControllerTest extends TestCase
     private function getSystemConfigService(): StaticSystemConfigService
     {
         return new StaticSystemConfigService([
-            ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED => false,
             ConsentService::SYSTEM_CONFIG_KEY_CONSENT_STATE => ConsentState::REQUESTED->value,
         ]);
     }

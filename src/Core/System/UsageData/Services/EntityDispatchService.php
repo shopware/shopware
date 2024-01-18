@@ -46,10 +46,6 @@ class EntityDispatchService
             return;
         }
 
-        if (!$this->consentService->shouldPushData()) {
-            return;
-        }
-
         if (!$this->gatewayStatusService->isGatewayAllowsPush()) {
             return;
         }

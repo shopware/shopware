@@ -310,34 +310,6 @@ class ConsentServiceTest extends TestCase
         static::assertEquals($updatedAt, $consentService->getLastConsentIsAcceptedDate());
     }
 
-    public function testShouldPushDataReturnsFalse(): void
-    {
-        $consentService = new ConsentService(
-            new StaticSystemConfigService([
-                ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED => true,
-            ]),
-            $this->createMock(EntityRepository::class),
-            new CollectingEventDispatcher(),
-            new MockClock(),
-        );
-
-        static::assertFalse($consentService->shouldPushData());
-    }
-
-    public function testShouldPushDataReturnsTrue(): void
-    {
-        $consentService = new ConsentService(
-            new StaticSystemConfigService([
-                ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED => false,
-            ]),
-            $this->createMock(EntityRepository::class),
-            new CollectingEventDispatcher(),
-            new MockClock(),
-        );
-
-        static::assertTrue($consentService->shouldPushData());
-    }
-
     private function assertConsentEventFired(CollectingEventDispatcher $dispatcher, ConsentState $state): void
     {
         $events = $dispatcher->getEvents();

@@ -487,7 +487,6 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('global.sw-media-upload-v2.notification.invalidFileSize.message', 0, {
                     name: file.name || file.fileName,
                     limit: fileSize(this.maxFileSize),
@@ -522,7 +521,6 @@ export default {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('global.sw-media-upload-v2.notification.invalidFileType.message', 0, {
                     name: file.name,
                     supportedTypes: this.extensionAccept || this.fileAccept,
@@ -535,7 +533,6 @@ export default {
             const checkedFiles = files.filter((file) => {
                 return this.checkFileSize(file) && this.checkFileType(file);
             });
-
 
             if (this.useFileData) {
                 this.preview = !this.multiSelect ? checkedFiles[0] : null;

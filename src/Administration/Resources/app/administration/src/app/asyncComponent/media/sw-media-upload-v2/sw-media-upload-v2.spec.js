@@ -406,7 +406,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-upload-v2.notification.invalidFileType.message',
-            title: 'global.default.error',
         });
     });
 
@@ -429,7 +428,6 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'global.sw-media-upload-v2.notification.invalidFileSize.message',
-            title: 'global.default.error',
         });
     });
 

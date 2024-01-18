@@ -528,7 +528,7 @@ parameters:
         -
             message: "#^Expected domain exception class Shopware\\\\Core\\\\Content\\\\Product\\\\ProductException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"
             count: 1
-            path: src/Core/Content/Product/SalesChannel/Suggest/ProductSuggestRoute.php
+            path: src/Core/Content/Product/SalesChannel/Suggest/ResolvedCriteriaProductSuggestRoute.php
 
         -
             message: "#^Expected domain exception class Shopware\\\\Core\\\\Content\\\\Product\\\\ProductException, got Shopware\\\\Core\\\\Framework\\\\Routing\\\\RoutingException$#"

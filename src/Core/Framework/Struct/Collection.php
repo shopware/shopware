@@ -206,7 +206,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
     }
 
     /**
-     * @return \Generator<TElement>
+     * @return \Traversable<TElement>
      */
     public function getIterator(): \Traversable
     {

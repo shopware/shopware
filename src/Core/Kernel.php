@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
@@ -151,11 +150,6 @@ class Kernel extends HttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        // @deprecated tag:v6.6.0 - remove complete IF statement
-        if (!Feature::isActive('v6.6.0.0')) {
-            return parent::handle($request, $type, $catch);
-        }
-
         if (!$this->booted) {
             $this->boot();
         }

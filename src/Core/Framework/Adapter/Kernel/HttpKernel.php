@@ -40,6 +40,10 @@ class HttpKernel extends SymfonyHttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
+        if (!KernelFactory::$active) {
+            return parent::handle($request, $type, $catch);
+        }
+
         if ($request->attributes->get('exception') !== null) {
             return parent::handle($request, $type, $catch);
         }

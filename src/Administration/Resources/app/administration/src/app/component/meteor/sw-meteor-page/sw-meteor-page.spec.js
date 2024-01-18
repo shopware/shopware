@@ -14,7 +14,7 @@ async function createWrapper(slotsData = {}) {
                 'sw-icon': true,
                 'sw-search-bar': true,
                 'sw-notification-center': true,
-                'sw-help-center': true,
+                'sw-help-center-v2': true,
                 'sw-meteor-page-context': true,
                 'sw-meteor-navigation': {
                     props: ['fromLink'],
@@ -201,13 +201,13 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(pageContent.text()).toBe('Lorem Ipsum');
     });
 
-    it('should contain sw-help-center and sw-notification-center', async () => {
+    it('should contain sw-help-center-v2 and sw-notification-center', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         const globalActions = wrapper.get('.sw-meteor-page__head-area-global-actions');
 
-        expect(globalActions.get('sw-help-center-stub').exists()).toBe(true);
+        expect(globalActions.get('sw-help-center-v2-stub').exists()).toBe(true);
         expect(globalActions.get('sw-notification-center-stub').exists()).toBe(true);
     });
 });

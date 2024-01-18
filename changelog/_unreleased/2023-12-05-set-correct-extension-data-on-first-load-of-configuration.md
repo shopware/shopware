@@ -1,6 +1,6 @@
 ---
 title: Set correct extension data on first load of configuration
-issue: NEXT-0000
+issue: NEXT-33255
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

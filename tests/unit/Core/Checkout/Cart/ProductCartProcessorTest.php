@@ -123,4 +123,51 @@ class ProductCartProcessorTest extends TestCase
         $processor->collect($data, $cart, $context, new CartBehavior());
         static::assertSame($lineItem->getPayloadValue('categoryIds'), ['a']);
     }
+
+    public function testPayloadIsTranslated(): void
+    {
+        $cart = new Cart('test');
+        $lineItem = new LineItem('A', 'product', 'A');
+
+        $cart->setLineItems(new LineItemCollection([$lineItem]));
+
+        $product = (new SalesChannelProductEntity())->assign([
+            'id' => 'A',
+            'calculatedPrice' => new EmptyPrice(),
+            'calculatedPrices' => new PriceCollection(),
+            'calculatedMaxPurchase' => 1,
+            'productNumber' => 'A',
+            'stock' => 1,
+            'categoryTree' => ['a', 'b'],
+            'customFields' => [
+                'foo' => 'bar',
+            ],
+            'translated' => [
+                'customFields' => [
+                    'foo' => 'baz',
+                ],
+            ],
+        ]);
+
+        $processor = new ProductCartProcessor(
+            $this->createMock(ProductGateway::class),
+            $this->createMock(QuantityPriceCalculator::class),
+            $this->createMock(ProductFeatureBuilder::class),
+            $this->createMock(ProductPriceCalculator::class),
+            $this->createMock(EntityCacheKeyGenerator::class),
+            $this->createMock(Connection::class)
+        );
+
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $data = new CartDataCollection();
+        $data->set('product-A', $product);
+
+        $processor->collect($data, $cart, $context, new CartBehavior());
+
+        static::assertTrue($lineItem->hasPayloadValue('customFields'));
+        $field = $lineItem->getPayloadValue('customFields');
+        static::assertArrayHasKey('foo', $field);
+        static::assertSame('baz', $field['foo']);
+    }
 }

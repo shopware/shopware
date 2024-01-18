@@ -46,6 +46,10 @@ class HttpCacheKernel extends HttpCache
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
+        if (!KernelFactory::$active) {
+            return $this->getKernel()->handle($request, $type, $catch);
+        }
+
         /**
          * When we have an external reverse proxy which is ESI capable, we can't use the internal HttpCache, as it will resolve the ESI tags
          */

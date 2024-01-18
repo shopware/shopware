@@ -27,6 +27,13 @@ class KernelFactory
      */
     public static string $kernelClass = Kernel::class;
 
+    /**
+     * @deprecated tag:v6.6.0 - Will be removed
+     *
+     * @var bool
+     */
+    public static $active = false;
+
     public static function create(
         string $environment,
         bool $debug,
@@ -34,6 +41,8 @@ class KernelFactory
         ?KernelPluginLoader $pluginLoader = null,
         ?Connection $connection = null
     ): HttpKernelInterface {
+        self::$active = true;
+
         if (InstalledVersions::isInstalled('shopware/platform')) {
             $shopwareVersion = InstalledVersions::getVersion('shopware/platform')
                 . '@' . InstalledVersions::getReference('shopware/platform');

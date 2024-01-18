@@ -96,7 +96,6 @@ export default {
         },
 
         domain: {
-            immediate: true,
             handler() {
                 this.createdComponent();
             },

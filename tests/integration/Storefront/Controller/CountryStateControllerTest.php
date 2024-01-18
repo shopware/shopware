@@ -117,7 +117,7 @@ class CountryStateControllerTest extends TestCase
             'scripts' => [
                 [
                     'name' => 'country-loaded/loaded.script.twig',
-                    'hook' => 'country-sate-data-pagelet-loaded',
+                    'hook' => 'country-state-data-pagelet-loaded',
                     'script' => '{% do debug.dump(hook.getPage.getStates.count) %}',
                     'active' => true,
                 ],
@@ -133,7 +133,7 @@ class CountryStateControllerTest extends TestCase
 
         static::assertArrayHasKey(CountryStateDataPageletLoadedHook::HOOK_NAME, $traces);
 
-        static::assertEquals(['16'], $traces['country-sate-data-pagelet-loaded'][0]['output']);
+        static::assertEquals(['16'], $traces['country-state-data-pagelet-loaded'][0]['output']);
     }
 }
 

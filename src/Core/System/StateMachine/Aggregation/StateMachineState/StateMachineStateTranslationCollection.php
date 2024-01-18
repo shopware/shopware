@@ -12,11 +12,11 @@ use Shopware\Core\Framework\Log\Package;
 class StateMachineStateTranslationCollection extends EntityCollection
 {
     /**
-     * @return list<string>
+     * @return array<string>
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId());
+        return $this->fmap(fn (StateMachineStateTranslationEntity $stateMachineStateTranslation): string => $stateMachineStateTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self

@@ -52,13 +52,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @internal
+ * @deprecated tag:v6.7.0 - Will be removed with \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator
  */
 #[Package('core')]
 #[CoversClass(SchemaGenerator::class)]
@@ -68,6 +69,8 @@ class SchemaGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('v6.7.0.0', $this);
+
         $this->registry = new StaticDefinitionInstanceRegistry(
             [
                 TestEntityWithAllPossibleFieldsDefinition::class,

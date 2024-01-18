@@ -17,6 +17,12 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
+ * Shopware\Core\Framework\Adapter\Kernel\KernelFactory
+ *      Shopware\Core\Kernel
+ *          Shopware\Core\Framework\Adapter\Kernel\HttpCacheKernel (http caching)
+ *              Shopware\Core\Framework\Adapter\Kernel\HttpKernel (runs request transformer)
+ *                  Shopware\Storefront\Controller\Any
+ *
  * @final
  */
 #[Package('core')]

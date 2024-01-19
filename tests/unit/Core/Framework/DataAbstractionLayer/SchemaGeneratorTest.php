@@ -59,6 +59,8 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistr
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.7.0 - Will be removed with \Shopware\Core\Framework\DataAbstractionLayer\SchemaGenerator
  */
 #[Package('core')]

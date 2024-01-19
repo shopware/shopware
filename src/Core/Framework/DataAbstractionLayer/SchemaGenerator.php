@@ -46,6 +46,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
+ * @internal
+ *
  * @deprecated tag:v6.7.0 - Will be removed, use MigrationQueryGenerator instead.
  */
 #[Package('core')]

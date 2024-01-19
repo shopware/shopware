@@ -1,3 +1,334 @@
+# 6.5.8.0
+## Cache rework preparation
+With 6.6 we are marking a lot of HTTP Cache and Reverse Proxy classes as @internal and move them to the core. 
+We are preparing a bigger cache rework in the next releases. The cache rework will be done within the v6.6 version lane and and will be released with 6.7.0 major version. 
+The cache rework will be a breaking change and will be announced in the changelog of 6.7.0. We will provide a migration guide for the cache rework, so that you can prepare your project for the cache rework.
+
+You can find more details about the cache rework in the [shopware/shopware discussions](https://github.com/shopware/shopware/discussions/3299)
+
+Since the cache is a critical component for systems, we have taken the liberty of marking almost all classes as @internal for the time being. However, we have left the important events and interfaces public so that you can prepare your systems for the changes now.
+Even though there were a lot of deprecations in this release, 99% of them involved moving the classes to the core domain.
+
+But there is one big change that affects each project and nearly all repositories outside which are using phpstan. 
+
+### Kernel bootstrapping
+We had to refactor the Kernel bootstrapping and the Kernel itself. 
+When you forked our production template, or you boot the kernel somewhere by your own, you have to change the bootstrapping as follows:
+
+```php
+
+#### Before #####
+
+$kernel = new Kernel(
+    environment: $appEnv, 
+    debug: $debug, 
+    pluginLoader: $pluginLoader
+);
+
+#### After #####
+
+$kernel = KernelFactory::create(
+    environment: $appEnv,
+    debug: $debug,
+    classLoader: $classLoader,
+    pluginLoader: $pluginLoader
+);
+
+
+### In case of static code analysis
+
+KernelFactory::$kernelClass = StaticAnalyzeKernel::class;
+
+/** @var StaticAnalyzeKernel $kernel */
+$kernel = KernelFactory::create(
+    environment: 'phpstan',
+    debug: true,
+    classLoader: $this->getClassLoader(),
+    pluginLoader: $pluginLoader
+);
+
+```
+
+### Session access in phpunit tests
+The way how you can access the session in unit test has changed.
+The session is no more accessible via the request/response.
+You have to use the `session.factory` service to access it or use the `SessionTestBehaviour` for a shortcut
+
+```php
+##### Before
+
+$this->request(....);
+
+$session = $this->getBrowser()->getRequest()->getSession();
+
+##### After
+
+use SessionTestBehaviour;
+
+$this->request(....);
+
+// shortcut via trait 
+$this->getSession();
+
+// code behind the shortcut
+$this->getContainer()->get('session.factory')->getSession();
+
+```
+
+### Manipulate the http cache
+Since we are moving the cache to the core, you have to change the way you can manipulate the http cache. 
+
+1) If you decorated or replaced the `src/Storefront/Framework/Cache/HttpCacheKeyGenerator.php`, this will be no more possible in the upcoming release. You should use the http cache events
+2) You used one of the http cache events --> They will be moved to the core, so you have to adapt the namespace+name of the event class. The signature is also not 100% the same, so please check the new event classes (public properties, etc.)
+
+```php
+
+#### Before
+
+<?php
+
+namespace Foo;
+
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheGenerateKeyEvent;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheHitEvent;
+use Shopware\Storefront\Framework\Cache\Event\HttpCacheItemWrittenEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class Subscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            HttpCacheHitEvent::class => 'onHit',
+            HttpCacheGenerateKeyEvent::class => 'onKey',
+            HttpCacheItemWrittenEvent::class => 'onWrite',
+        ];
+    }
+}
+
+#### After
+<?php
+
+namespace Foo;
+
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheHitEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheStoreEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class Subscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            HttpCacheHitEvent::class => 'onHit',
+            HttpCacheKeyEvent::class => 'onKey',
+            HttpCacheStoreEvent::class => 'onWrite',
+        ];
+    }
+}
+
+
+
+```
+
+### Own reverse proxy gateway
+If you implement an own reverse proxy gateway, you have to change the namespace of the gateway and the event.
+
+```php
+#### Before
+
+class RedisReverseProxyGateway extends \Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway
+{
+    // ...
+}
+
+
+#### After
+
+class RedisReverseProxyGateway extends \Shopware\Core\Framework\Adapter\Cache\ReverseProxy\AbstractReverseProxyGateway
+{
+    // ...
+}
+```
+
+### Http cache warmer
+
+We deprecated all Http cache warmer, because they will be not usable with the new http kernel anymore. 
+They are also not suitable for the new cache rework or for systems which have a reverse proxy or a load balancer in front of the shopware system.
+Therefore, we marked them as deprecated and will remove them in the next major version.
+You should use instead a real website crawler to warmup your desired sites, which is much more suitable and realistic for your system.
+## Storefront async JavaScript and all.js removal
+
+With the upcoming major version v6.6.0 we want to get rid of the `all.js` in the Storefront and also allow async JavaScript with dynamic imports.
+Our current webpack compiling for JavaScript alongside the `all.js` does not consider asynchronous imports.
+
+### New distribution of App/Plugin "dist" JavaScript
+
+The merging of your App/Plugin JavaScript into an `all.js` will no longer take place. Each App/Plugin will get its own JavaScript served by a separate `<script>` tag instead.
+Essentially, all JavaScript inside your "dist" folder (`ExampleApp/src/Resources/app/storefront/dist/storefront/js`) will be distributed into the `public/theme` directory as it is.
+Each App/Plugin will get a separate subdirectory which matches the App/Plugin technical name as snake-case, for example `public/theme/<theme-hash>/js/example-app/`.
+
+This subdirectory will be added automatically during `composer build:js:storefront`. Please remove outdated generated JS files from the old location from your "dist" folder.
+Please also include all additional JS files which might have been generated due to dynamic imports in your release:
+
+Before:
+```
+└── custom/apps/
+    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
+        └── example-app.js
+```
+
+After:
+```
+└── custom/apps/
+    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
+        ├── example-app.js         <-- OLD: Please remove
+        └── example-app/           <-- NEW: Please include everything in this folder in the release
+            ├── example-app.js     
+            ├── async-example-1.js 
+            └── async-example-2.js 
+```
+
+The distributed version in `/public/theme/<theme-hash>/js/` will look like below.
+
+**Just to illustrate, you don't need to change anything manually here!**
+
+Before:
+```
+└── public/theme/
+    └── 6c7abe8363a0dfdd16929ca76c02aa35/
+        ├── css/
+        │   └── all.css
+        └── js/
+            └── all.js  
+```
+
+After:
+```
+└── public/theme/
+    └── 6c7abe8363a0dfdd16929ca76c02aa35/
+        ├── css/
+        │   └── all.css
+        └── js/
+            ├── storefront/
+            │   ├── storefront.js (main bundle of "storefront", generates <script>)
+            │   ├── cross-selling_plugin.js
+            │   └── listing_plugin.js
+            └── example-app/
+                ├── example-app (main bundle of "my-listing", generates <script>)
+                ├── async-example-1.js
+                └── async-example-2.js
+```
+
+### Re-compile your JavaScript
+
+Because of the changes in the JavaScript compiling process and dynamic imports, it is not possible to have pre-compiled JavaScript (`ExampleApp/src/Resources/app/storefront/dist/storefront/js`)
+to be cross-compatible with the current major lane v6.5.0 and v6.6.0 at the same time.
+
+Therefore, we recommend to release a new App/Plugin version which is compatible with v6.6.0 onwards.
+The JavaScript for the Storefront can be compiled as usual using the composer script `composer build:js:storefront`.
+
+**The App/Plugin entry point for JS `main.js` and the general way to compile the JS remains the same!**
+
+Re-compiling your App/Plugin is a good starting point to ensure compatibility.
+If your App/Plugin mainly adds new JS-Plugins and does not override existing JS-Plugins, chances are that this is all you need to do in order to be compatible.
+
+### Registering async JS-plugins (optional)
+
+To prevent all JS-plugins from being present on every page, we will offer the possibility to fetch the JS-plugins on-demand.
+This is done by the `PluginManager` which determines if the selector from `register()` is present in the current document. Only if this is the case the JS-plugin will be fetched.
+
+The majority of the platform Storefront JS-plugin will be changed to async.
+
+**The general API to register JS-plugin remains the same!**
+
+If you pass an arrow function with a dynamic import instead of a normal import,
+your JS-plugin will be async and also generate an additional `.js` file in your `/dist` folder.
+
+Before:
+```js
+import ExamplePlugin from './plugins/example.plugin';
+
+window.PluginManager.register('Example', ExamplePlugin, '[data-example]');
+```
+After:
+```js
+window.PluginManager.register('Example', () => import('./plugins/example.plugin'), '[data-example]');
+```
+
+The "After" example above will generate:
+```
+└── custom/apps/
+    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
+        └── example-app/           
+            ├── example-app.js                 <-- The main app JS-bundle
+            └── src_plugins_example_plugin.js  <-- Auto generated by the dynamic import
+```
+
+### Override async JS-plugins
+
+If a platform Storefront plugin is async, the override class needs to be async as well.
+
+Before:
+```js
+import MyListingExtensionPlugin from './plugin-extensions/listing/my-listing-extension.plugin';
+
+window.PluginManager.override(
+    'Listing', 
+    MyListingExtensionPlugin, 
+    '[data-listing]'
+);
+```
+After:
+```js
+window.PluginManager.override(
+    'Listing', 
+    () => import('./plugin-extensions/listing/my-listing-extension.plugin'),
+    '[data-listing]',
+);
+```
+
+### Avoid import from PluginManager
+
+Because the PluginManager is a singleton class which also assigns itself to the `window` object,
+it should be avoided to import the PluginManager. It can lead to unintended side effects.
+
+Use the existing `window.PluginManager` instead.
+
+Before:
+```js
+import PluginManager from 'src/plugin-system/plugin.manager';
+
+PluginManager.getPluginInstances('SomePluginName');
+```
+After:
+```js
+window.PluginManager.getPluginInstances('SomePluginName');
+```
+
+### Avoid import from Plugin base class
+
+The import of the `Plugin` class can lead to code-duplication of the Plugin class in every App/Plugin.
+
+Use `window.PluginBaseClass` instead.
+
+Before:
+```js
+import Plugin from 'src/plugin-system/plugin.class';
+
+export default class MyPlugin extends Plugin {
+    // Plugin code...
+};
+```
+After:
+```js
+export default class MyPlugin extends window.PluginBaseClass {
+    // Plugin code...
+};
+```
+If you are relying on the `sales_channel.analytics` association, please associate the definition directly with the criteria because we will remove autoload from version 6.6.0.0.
+
 # 6.5.7.0
 ## New context state scoping feature
 You can now simply adding a context state temporarily for an internal process without saving the previous scope and restore it:

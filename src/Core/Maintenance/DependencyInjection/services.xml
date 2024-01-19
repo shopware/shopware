@@ -127,6 +127,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\User\Command\UserListCommand">
+            <argument type="service" id="user.repository"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Maintenance\User\Service\UserProvisioner" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>

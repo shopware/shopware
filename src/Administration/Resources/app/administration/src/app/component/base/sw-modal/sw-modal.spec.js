@@ -34,7 +34,9 @@ describe('src/app/component/base/sw-modal/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({
+            'modal-footer': '<div class="modal-footer-stuff">Some content inside modal footer</div>',
+        });
 
         await flushPromises();
     });
@@ -94,6 +96,23 @@ describe('src/app/component/base/sw-modal/index.js', () => {
         });
 
         expect(wrapper.get('.sw-modal__dialog').classes('has--header')).toBe(false);
+    });
+
+    it('should have sw-modal__footer class if showFooter option is true', async () => {
+        await wrapper.setProps({
+            showFooter: true,
+        });
+
+        expect(wrapper.get('.sw-modal__footer').exists()).toBeTruthy();
+        expect(wrapper.get('.modal-footer-stuff').exists()).toBeTruthy();
+    });
+
+    it('should not have sw-modal__footer class if showFooter option is false', async () => {
+        await wrapper.setProps({
+            showFooter: false,
+        });
+
+        expect(wrapper.get('.sw-modal__dialog').classes('sw-modal__footer')).toBeFalsy();
     });
 
     it('should fire the close event when clicking the close button', async () => {

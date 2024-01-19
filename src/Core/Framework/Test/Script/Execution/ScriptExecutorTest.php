@@ -57,6 +57,14 @@ class ScriptExecutorTest extends TestCase
         }
     }
 
+    public function testExecuteGetShopwareVersion(): void
+    {
+        $this->testExecute(
+            ['shopware-version-case'],
+            ['version' => $this->getContainer()->getParameter('kernel.shopware_version'), 'version_compare' => true]
+        );
+    }
+
     public function testNoneExistingServicesRequired(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
@@ -202,13 +210,6 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
-        ];
-        yield 'Test get shopware version' => [
-            ['shopware-version-case'],
-            [
-                'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
-                'version_compare' => true,
-            ],
         ];
     }
 }

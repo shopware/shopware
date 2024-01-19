@@ -48,7 +48,7 @@ class InfoControllerTest extends TestCase
     public function testGetConfig(): void
     {
         $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
             'versionRevision' => str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
@@ -176,7 +176,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersion(): void
     {
         $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
         ];
 
         $url = '/api/_info/version';
@@ -196,7 +196,7 @@ class InfoControllerTest extends TestCase
     public function testGetShopwareVersionOldVersion(): void
     {
         $expected = [
-            'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
+            'version' => $this->getContainer()->getParameter('kernel.shopware_version'),
         ];
 
         $url = '/api/v1/_info/version';

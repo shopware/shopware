@@ -982,4 +982,17 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find('.sw-system-config__card--0 sw-ai-copilot-badge-stub').exists()).toBe(false);
         expect(wrapper.find('.sw-system-config__card--1 sw-ai-copilot-badge-stub').exists()).toBe(true);
     });
+
+    it('should reinitialize on domain change', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const createdSpy = jest.spyOn(wrapper.vm, 'createdComponent');
+
+        await wrapper.setProps({
+            domain: 'jest.test',
+        });
+
+        expect(createdSpy).toHaveBeenCalled();
+    });
 });

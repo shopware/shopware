@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductCrossSellingSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
@@ -53,7 +54,6 @@ class ProductCrossSellingSerializerTest extends TestCase
     {
         $crossSelling = $this->getProductCrossSelling();
 
-        /** @var EntityRepository $assignedProductsRepository */
         $assignedProductsRepository = $this->getContainer()->get('product_cross_selling_assigned_products.repository');
         $productCrossSellingDefinition = $this->getContainer()->get(ProductCrossSellingDefinition::class);
 
@@ -65,6 +65,7 @@ class ProductCrossSellingSerializerTest extends TestCase
         static::assertNotEmpty($serialized);
 
         $assignedProducts = $crossSelling->getAssignedProducts();
+        static::assertNotNull($assignedProducts);
         $assignedProducts->sort(fn (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) => $a->getPosition() <=> $b->getPosition());
         $productsIds = $assignedProducts->map(fn (ProductCrossSellingAssignedProductsEntity $assignedProductsEntity) => $assignedProductsEntity->getProductId());
 
@@ -74,6 +75,7 @@ class ProductCrossSellingSerializerTest extends TestCase
 
         $deserialized = $serializer->deserialize(new Config([], [], []), $productCrossSellingDefinition, $serialized);
 
+        static::assertIsArray($deserialized);
         static::assertSame($crossSelling->getId(), $deserialized['id']);
         static::assertSame($crossSelling->getProductId(), $deserialized['productId']);
         static::assertSame(array_values($productsIds), array_column($deserialized['assignedProducts'], 'productId'));
@@ -91,7 +93,6 @@ class ProductCrossSellingSerializerTest extends TestCase
             (new ProductBuilder($ids, 'e'))->price(15, 10)->visibility()->build(),
         ];
 
-        /** @var EntityRepository $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
         $productRepository->create($data, Context::createDefaultContext());
 
@@ -119,13 +120,16 @@ class ProductCrossSellingSerializerTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $crossSellingRepository */
+        /** @var EntityRepository<ProductCrossSellingCollection> $crossSellingRepository */
         $crossSellingRepository = $this->getContainer()->get('product_cross_selling.repository');
         $crossSellingRepository->create([$crossSelling], Context::createDefaultContext());
 
         $criteria = new Criteria([$crossSellingId]);
         $criteria->addAssociation('assignedProducts');
 
-        return $crossSellingRepository->search($criteria, Context::createDefaultContext())->first();
+        $crossSellingEntity = $crossSellingRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($crossSellingEntity);
+
+        return $crossSellingEntity;
     }
 }

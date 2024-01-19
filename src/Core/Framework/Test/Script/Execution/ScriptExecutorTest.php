@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Kernel;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,6 +54,14 @@ class ScriptExecutorTest extends TestCase
             static::assertTrue($object->has($key));
             static::assertEquals($value, $object->get($key));
         }
+    }
+
+    public function testExecuteGetShopwareVersion(): void
+    {
+        $this->testExecute(
+            ['shopware-version-case'],
+            ['version' => $this->getContainer()->getParameter('kernel.shopware_version'), 'version_compare' => true]
+        );
     }
 
     public function testNoneExistingServicesRequired(): void
@@ -202,13 +209,6 @@ class ScriptExecutorTest extends TestCase
         yield 'Test include with function call' => [
             ['include-case'],
             ['called' => 1],
-        ];
-        yield 'Test get shopware version' => [
-            ['shopware-version-case'],
-            [
-                'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
-                'version_compare' => true,
-            ],
         ];
     }
 }

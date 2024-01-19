@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Symfony\Component\Cache\Adapter\RedisTagAwareAdapter;
@@ -11,8 +10,9 @@ use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass
  */
-#[CoversClass(RedisPrefixCompilerPass::class)]
 class RedisPrefixCompilerPassTest extends TestCase
 {
     public function testProcess(): void

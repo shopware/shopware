@@ -34,7 +34,7 @@
     "@babel/preset-typescript": "7.23.3",
     "@popperjs/core": "2.11.8",
     "@shopware-ag/webpack-plugin-injector": "1.0.7",
-    "bootstrap": "5.3.2",
+    "bootstrap": "5.2.2",
     "core-js": "3.35.0",
     "deepmerge": "4.3.1",
     "flatpickr": "4.6.13",

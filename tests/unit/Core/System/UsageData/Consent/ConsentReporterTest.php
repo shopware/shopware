@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\System\UsageData\Consent\ConsentReporter;
 use Shopware\Core\System\UsageData\Consent\ConsentState;
+use Shopware\Core\System\UsageData\Consent\ConsentStateChangedEvent;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -21,6 +22,13 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 #[Package('data-services')]
 class ConsentReporterTest extends TestCase
 {
+    public function testSubscribedEvents(): void
+    {
+        static::assertEquals([
+            ConsentStateChangedEvent::class => 'reportConsent',
+        ], ConsentReporter::getSubscribedEvents());
+    }
+
     public function testReportConsentAddsShopIdHeader(): void
     {
         $httpClient = new MockHttpClient([

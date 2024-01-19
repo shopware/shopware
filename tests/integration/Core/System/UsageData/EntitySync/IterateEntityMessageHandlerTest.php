@@ -230,8 +230,6 @@ class IterateEntityMessageHandlerTest extends TestCase
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
             ->willReturn(new \DateTimeImmutable());
-        $consentService->method('shouldPushData')
-            ->willReturn(true);
 
         $entityDefinitionService = $this->createMock(EntityDefinitionService::class);
         $entityDefinitionService->expects(static::once())
@@ -257,30 +255,6 @@ class IterateEntityMessageHandlerTest extends TestCase
             new \DateTimeImmutable('2023-08-16'),
             new \DateTimeImmutable('2023-08-01'),
         ));
-    }
-
-    public function testIfItDoesNotDispatchIfKillSwitchIsActive(): void
-    {
-        $messageBus = new CollectingMessageBus();
-
-        $messageHandler = new IterateEntityMessageHandler(
-            $messageBus,
-            $this->getContainer()->get(IterateEntitiesQueryBuilder::class),
-            $this->getContainer()->get(ConsentService::class),
-            $this->getContainer()->get(EntityDefinitionService::class),
-            $this->getContainer()->get(LoggerInterface::class),
-        );
-
-        $this->getContainer()->get(SystemConfigService::class)->set(ConsentService::SYSTEM_CONFIG_KEY_DATA_PUSH_DISABLED, true);
-
-        $messageHandler(new IterateEntityMessage(
-            'product',
-            Operation::CREATE,
-            new \DateTimeImmutable('2023-08-16'),
-            new \DateTimeImmutable('2023-08-01'),
-        ));
-
-        static::assertEmpty($messageBus->getMessages());
     }
 
     private function setUpProducts(): IdsCollection

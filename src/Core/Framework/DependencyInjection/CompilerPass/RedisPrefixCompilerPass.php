@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\Adapter\Cache\ShopwareRedisAdapter;
-use Shopware\Core\Framework\Adapter\Cache\ShopwareRedisTagAwareAdapter;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Cache\Adapter\RedisTagAwareAdapter;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -16,19 +16,12 @@ class RedisPrefixCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        $ids = [
-            'cache.adapter.redis' => ShopwareRedisAdapter::class,
-            'cache.adapter.redis_tag_aware' => ShopwareRedisTagAwareAdapter::class,
-        ];
+        foreach ($container->getDefinitions() as $definition) {
+            $class = $definition->getClass();
 
-        foreach ($ids as $id => $class) {
-            if (!$container->hasDefinition($id)) {
-                continue;
+            if ($class === RedisAdapter::class || $class === RedisTagAwareAdapter::class) {
+                $definition->replaceArgument(1, '%shopware.cache.redis_prefix%' . $definition->getArgument(1));
             }
-
-            $definition = $container->getDefinition($id);
-            $definition->setClass($class);
-            $definition->addArgument($container->getParameter('shopware.cache.redis_prefix'));
         }
     }
 }

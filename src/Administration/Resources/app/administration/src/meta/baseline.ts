@@ -677,7 +677,7 @@ const missingTests = [
     'src/module/sw-settings-units/page/sw-settings-units-detail/index.ts',
     'src/module/sw-users-permissions/components/sw-users-permissions-detailed-additional-permissions/index.js',
     'src/module/sw-users-permissions/index.js',
-    'src/app/component/form/select/entity/advanced-selection-entities/sw-advanced-selection-rule/index.js',
+
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',
     'src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js',

@@ -12,8 +12,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\System\User\UserCollection;
@@ -163,9 +163,9 @@ trait StoreClientBehaviour
 
     protected function getShopwareVersion(): string
     {
-        $version = $this->getContainer()->getParameter('kernel.shopware_version');
+        $instanceService = $this->getContainer()->get(InstanceService::class);
 
-        return $version === Kernel::SHOPWARE_FALLBACK_VERSION ? '___VERSION___' : $version;
+        return $instanceService->getShopwareVersion();
     }
 
     protected function getUserRepository(): EntityRepository

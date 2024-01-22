@@ -801,46 +801,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:getLanguageSerialized\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\LanguageSerializer\\:\\:\\$cacheLanguages type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/LanguageSerializer.php
-
-		-
 			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
@@ -859,151 +819,6 @@ parameters:
 			message: "#^Anonymous variable in a `\\$entity\\['lineItems'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:findAssignedProductsIds\\(\\) has parameter \\$assignedProducts with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:findAssignedProductsIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializer\\:\\:serialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:convertMediaStringToArray\\(\\) has parameter \\$deserialized with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:convertMediaStringToArray\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:convertMediaStringToArray\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:convertSalesChannelNamesToIds\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:convertSalesChannelNamesToIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:deserialize\\(\\) return type has no value type specified in iterable type array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:findConfiguratorSettings\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:findConfiguratorSettings\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:findCoverProductMediaId\\(\\) has parameter \\$cover with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:findCoverProductMediaId\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:findVisibilityIds\\(\\) has parameter \\$visibilities with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:findVisibilityIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:getMediaUrls\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:getMediaUrls\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductSerializer\\:\\:serialize\\(\\) has parameter \\$entity with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductSerializer.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\PrimaryKeyResolver\\:\\:getValueFromPath\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
@@ -2294,26 +2109,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\Commands\\\\ImportEntityCommandTest\\:\\:\\$profileRepository is never read, only written\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ImportExport/Commands/ImportEntityCommandTest.php
-
-		-
-			message: "#^Cannot access offset 'id' on array\\|Traversable\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
-
-		-
-			message: "#^Cannot call method map\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
-
-		-
-			message: "#^Cannot call method sort\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\Entity\\\\ProductCrossSellingSerializerTest\\:\\:getProductCrossSelling\\(\\) should return Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSelling\\\\ProductCrossSellingEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Test/ImportExport/DataAbstractionLayer/Serializer/Entity/ProductCrossSellingSerializerTest.php
 
 		-
 			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with false and 'outer must be…' will always evaluate to true\\.$#"
@@ -7089,11 +6884,6 @@ parameters:
 			message: "#^Cannot call method getNumberRangeSalesChannels\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 2
 			path: src/Core/System/Test/NumberRange/Aggregate/NumberRangeSalesChannel/NumberRangeSalesChannelDefinitionTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertEmpty\\(\\) with array\\{\\} will always evaluate to true\\.$#"
-			count: 1
-			path: src/Core/System/Test/NumberRange/Command/MigrateIncrementStorageCommandTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

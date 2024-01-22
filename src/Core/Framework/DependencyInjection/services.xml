@@ -391,6 +391,11 @@ base-uri 'self';
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PluginExtension">
+            <tag name="twig.extension"/>
+            <argument>%kernel.active_plugins%</argument>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Twig\Filter\CurrencyFilter">
             <argument type="service" id="Shopware\Core\System\Currency\CurrencyFormatter"/>
             <tag name="twig.extension"/>

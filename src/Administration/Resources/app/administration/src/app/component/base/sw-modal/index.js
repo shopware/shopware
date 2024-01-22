@@ -111,6 +111,12 @@ Component.register('sw-modal', {
             ];
         },
 
+        modalBodyClasses() {
+            return {
+                'has--no-footer': !this.showFooter,
+            };
+        },
+
         hasFooterSlot() {
             return !!this.$slots['modal-footer'];
         },

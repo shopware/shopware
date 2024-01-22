@@ -69,3 +69,4 @@ fi
 
 (cd "${ADMIN_ROOT}"/Resources/app/administration && npm install && npm run build)
 [[ ${SHOPWARE_SKIP_ASSET_COPY-""} ]] ||"${BIN_TOOL}" assets:install
+[[ ${SHOPWARE_SKIP_CACHE_CLEAR-""} ]] || "${BIN_TOOL}" cache:clear

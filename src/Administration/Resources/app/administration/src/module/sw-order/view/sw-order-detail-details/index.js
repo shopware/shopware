@@ -83,13 +83,7 @@ export default {
         },
 
         paymentMethodCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            if (this.order.salesChannelId) {
-                criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
-            }
-
-            return criteria;
+            return new Criteria(1, 25);
         },
 
         taxStatus() {

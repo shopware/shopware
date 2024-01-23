@@ -60,6 +60,8 @@ async function createWrapper() {
             customer: {
                 birthday: '1992-12-22T00:00:00.000+00:00',
                 lastLogin: '2021-10-14T11:23:44.195+00:00',
+                doubleOptInRegistration: false,
+                doubleOptInConfirmDate: null,
                 group: {
                     translated: {
                         name: 'Group test',
@@ -142,7 +144,7 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
 
         expect(
             leftColumn.findAll('.sw-description-list')
-                .filter(w => ['sw-customer.baseInfo.labelCompany', 'sw-customer.baseInfo.labelVatId']
+                .filter(w => ['sw-customer.baseInfo.labelCompany', 'sw-customer.baseInfo.labelVatId', 'sw-customer.baseInfo.labelConfirmed']
                     .includes(w.find('dt').text())),
         ).toEqual([]);
 
@@ -194,10 +196,32 @@ describe('module/sw-customer/page/sw-customer-base-info', () => {
         expect(leftColumn.findAll('.sw-description-list')[7].find('dt').text()).toBe('sw-customer.baseInfo.labelCampaignCode');
         expect(leftColumn.findAll('.sw-description-list')[7].find('dd').text()).toBe('-');
 
+        // Email confirmation shouldn't be displayed
+        expect(leftColumn.findAll('.sw-description-list').map((w) => w.find('dt').text())).not.toContain('sw-customer.baseInfo.labelConfirmed');
+        expect(leftColumn.findAll('.sw-description-list').map((w) => w.find('dd').text())).not.toContain('sw-customer.baseInfo.contentConfirmed');
+
         const rightColumn = wrapper.findAll('.sw-customer-base-info-columns')[1];
 
         // Customer number
         expect(rightColumn.findAll('.sw-description-list')[0].find('dt').text()).toBe('sw-customer.baseInfo.labelCustomerNumber');
         expect(rightColumn.findAll('.sw-description-list')[0].find('dd').text()).toBe('123456789');
+    });
+
+    it('should display email confirmation status in no edit mode', async () => {
+        await wrapper.setProps({
+            customer: {
+                ...wrapper.props().customer,
+                doubleOptInRegistration: true,
+                doubleOptInConfirmDate: null,
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const leftColumn = wrapper.findAll('.sw-customer-base-info-columns')[0];
+
+        // Email confirmation status
+        expect(leftColumn.findAll('.sw-description-list')[3].find('dt').text()).toBe('sw-customer.baseInfo.labelConfirmed');
+        expect(leftColumn.findAll('.sw-description-list')[3].find('dd').text()).toBe('sw-customer.baseInfo.contentConfirmed');
     });
 });

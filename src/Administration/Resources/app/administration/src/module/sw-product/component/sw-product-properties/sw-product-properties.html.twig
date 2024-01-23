@@ -8,7 +8,7 @@
     :disabled="disabled"
     :inherited-value="parentProduct.properties"
 >
-    <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+    <template #content="{ isInherited, updateCurrentValue, isInheritField, restoreInheritance, removeInheritance }">
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_properties_card %}
         <sw-card
@@ -242,7 +242,7 @@
             :new-properties="newProperties"
             :properties-available="propertiesAvailable"
             @modal-cancel="onCancelAddPropertiesModal"
-            @modal-save="onSaveAddPropertiesModal"
+            @modal-save="onSaveAddPropertiesModal($event, updateCurrentValue)"
         />
         {% endblock %}
     </template>

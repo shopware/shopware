@@ -246,14 +246,16 @@ export default {
             this.turnOffAddPropertiesModal();
         },
 
-        onSaveAddPropertiesModal(newProperties) {
+        onSaveAddPropertiesModal(newProperties, callbackUpdateCurrentValues) {
             this.turnOffAddPropertiesModal();
 
             if (newProperties.length <= 0) {
                 return;
             }
 
-            this.productProperties.splice(0, this.productProperties.length, ...newProperties);
+            if (typeof callbackUpdateCurrentValues === 'function') {
+                callbackUpdateCurrentValues.bind(this)(newProperties);
+            }
         },
 
         checkIfPropertiesExists() {

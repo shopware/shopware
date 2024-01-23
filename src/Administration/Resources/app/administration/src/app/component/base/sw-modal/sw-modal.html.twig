@@ -79,7 +79,10 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_modal_body %}
             <slot name="body">
-                <div class="sw-modal__body">
+                <div
+                    class="sw-modal__body"
+                    :class="modalBodyClasses"
+                >
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_modal_loader %}
                     <slot name="modal-loader">

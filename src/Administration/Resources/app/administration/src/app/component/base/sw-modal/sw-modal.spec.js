@@ -165,4 +165,16 @@ describe('src/app/component/base/sw-modal/index.js', () => {
 
         expect(wrapper.get('.sw-modal').classes('sw-modal--has-sidebar')).toBe(true);
     });
+
+    it('should add classes for the modal body correctly', async () => {
+        await wrapper.setProps({
+            showFooter: false,
+        });
+        expect(wrapper.get('.sw-modal__body').classes('has--no-footer')).toBeTruthy();
+
+        await wrapper.setProps({
+            showFooter: true,
+        });
+        expect(wrapper.get('.sw-modal__body').classes('has--no-footer')).toBeFalsy();
+    });
 });

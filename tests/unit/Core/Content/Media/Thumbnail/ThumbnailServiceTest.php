@@ -21,6 +21,7 @@ use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
+use Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -46,6 +47,8 @@ class ThumbnailServiceTest extends TestCase
 
     private Connection&MockObject $connection;
 
+    private ThumbnailSizeCalculator $thumbnailSizeCalculator;
+
     protected function setUp(): void
     {
         $this->filesystemPublic = $this->createMock(FilesystemOperator::class);
@@ -53,7 +56,7 @@ class ThumbnailServiceTest extends TestCase
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->indexer = $this->createMock(EntityIndexer::class);
         $this->connection = $this->createMock(Connection::class);
-
+        $this->thumbnailSizeCalculator = new ThumbnailSizeCalculator();
         $this->context = Context::createDefaultContext();
     }
 
@@ -73,6 +76,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -111,6 +115,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -133,6 +138,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -163,6 +169,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -194,6 +201,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -227,6 +235,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -268,6 +277,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -297,6 +307,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -327,6 +338,7 @@ class ThumbnailServiceTest extends TestCase
             $staticMediaFolderRepository,
             $this->dispatcher,
             $this->indexer,
+            $this->thumbnailSizeCalculator,
             $this->connection
         );
 
@@ -354,7 +366,8 @@ class ThumbnailServiceTest extends TestCase
         return [
             // image size, keep aspect ratio, preferred size, expected size
             [['width' => 800, 'height' => 600], true, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]],
-            [['width' => 800, 'height' => 600], false, ['width' => 400, 'height' => 300], ['width' => 400, 'height' => 300]],
+            [['width' => 800, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 800, 'height' => 300]],
+            [['width' => 200, 'height' => 600], false, ['width' => 800, 'height' => 300], ['width' => 200, 'height' => 600]],
         ];
     }
 

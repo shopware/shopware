@@ -16,6 +16,7 @@ export default function initializeModal(): void {
         Shopware.State.commit('modals/openModal', {
             closable: true,
             showHeader: true,
+            showFooter: true,
             variant: 'default',
             baseUrl: extension.baseUrl,
             ...modalConfig,

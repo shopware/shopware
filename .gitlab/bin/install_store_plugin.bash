@@ -92,7 +92,7 @@ PROJECT_DIR="${PROJECT_DIR:-$PWD}"
 PLATFORM_VERSION="$(jq -r .version < composer.json)"
 # fake version if not set
 if [[ "$PLATFORM_VERSION" = "null" ]]; then
-    LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+    LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | grep 'v6.5' | tail --lines=1 | cut --delimiter='/' --fields=3)"
     PLATFORM_VERSION="${LATEST_TAG#"v"}"
 fi
 

@@ -2,8 +2,7 @@
  * @package inventory
  */
 
-import { createLocalVue, shallowMount } from '@vue/test-utils_v2';
-import Vuex from 'vuex_v2';
+import { mount } from '@vue/test-utils';
 import swProductDetailLayout from 'src/module/sw-product/view/sw-product-detail-layout';
 
 Shopware.Component.register('sw-product-detail-layout', swProductDetailLayout);
@@ -11,56 +10,54 @@ Shopware.Component.register('sw-product-detail-layout', swProductDetailLayout);
 const { State } = Shopware;
 
 async function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.use(Vuex);
-
-    return shallowMount(await Shopware.Component.build('sw-product-detail-layout'), {
-        localVue,
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    get: (id) => {
-                        if (!id) {
-                            return Promise.resolve(null);
-                        }
-                        return Promise.resolve({
-                            id,
-                            sections: [{
-                                blocks: [{
-                                    slots: [{
-                                        id: 'slot1',
-                                        config: {
-                                            content: {
-                                                value: 'product.name',
-                                                source: 'mapped',
+    return mount(await wrapTestComponent('sw-product-detail-layout', { sync: true }), {
+        global: {
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        get: (id) => {
+                            if (!id) {
+                                return Promise.resolve(null);
+                            }
+                            return Promise.resolve({
+                                id,
+                                sections: [{
+                                    blocks: [{
+                                        slots: [{
+                                            id: 'slot1',
+                                            config: {
+                                                content: {
+                                                    value: 'product.name',
+                                                    source: 'mapped',
+                                                },
                                             },
-                                        },
+                                        }],
                                     }],
                                 }],
-                            }],
-                        });
-                    },
-                }),
-            },
-            cmsService: {
-                getEntityMappingTypes: () => {},
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
+                            });
+                        },
+                    }),
+                },
+                cmsService: {
+                    getEntityMappingTypes: () => {},
+                },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
 
-                    return privileges.includes(identifier);
+                        return privileges.includes(identifier);
+                    },
                 },
             },
-        },
-        stubs: {
-            'sw-card': {
-                template: '<div><slot></slot></div>',
+            stubs: {
+                'sw-card': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-product-layout-assignment': true,
+                'sw-cms-layout-modal': true,
+                'sw-cms-page-form': true,
+                'sw-skeleton': true,
             },
-            'sw-product-layout-assignment': true,
-            'sw-cms-layout-modal': true,
-            'sw-cms-page-form': true,
-            'sw-skeleton': true,
         },
     });
 }
@@ -257,9 +254,10 @@ describe('src/module/sw-product/view/sw-product-detail-layout', () => {
     });
 
     it('should not be able to view layout config if cms page is locked', async () => {
-        Shopware.State.commit('cmsPageState/setCurrentPage', { id: 'id', locked: true });
-
         const wrapper = await createWrapper(['product.editor']);
+        await wrapper.vm.onResetLayout();
+        Shopware.State.commit('cmsPageState/setCurrentPage', { id: 'id', locked: true });
+        await flushPromises();
         const cmsForm = wrapper.find('sw-cms-page-form-stub');
         const infoNoConfig = wrapper.find('.sw-product-detail-layout__no-config');
 

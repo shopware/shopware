@@ -247,13 +247,11 @@ export default {
             }
 
             if (this.category) {
-                this.category.slotConfig = null;
                 Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPage);
             }
 
             if (this.landingPage) {
-                this.landingPage.slotConfig = null;
                 Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPageForLandingPage);
             }

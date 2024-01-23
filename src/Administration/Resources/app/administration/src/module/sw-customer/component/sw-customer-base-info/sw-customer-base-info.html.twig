@@ -144,6 +144,42 @@
         {% endblock %}
 
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+        {% block sw_customer_base_metadata_confirmed %}
+        <sw-description-list v-if="customer.doubleOptInRegistration">
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_base_metadata_confirmed_label %}
+            <dt class="sw-customer-base-info__label">
+                {{ $tc('sw-customer.baseInfo.labelConfirmed') }}
+            </dt>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_base_metadata_confirmed_content %}
+            <dd
+                v-if="!customerEditMode"
+                class="sw-customer-base__label-is-confirmed"
+            >
+                {{ $tc('sw-customer.baseInfo.contentConfirmed', customer.doubleOptInConfirmDate ? 1 : 2) }}
+            </dd>
+            {% endblock %}
+
+            <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+            {% block sw_customer_base_metadata_confirmed_editor %}
+            <dd v-else>
+                <sw-checkbox-field
+                    name="sw-field--customer-confirmed"
+                    class="sw-customer-base-info__checkbox-field"
+                    :value="!!customer.doubleOptInConfirmDate"
+                    :label="$tc('sw-customer.baseInfo.contentConfirmed')"
+                    size="small"
+                    @update:value="customer.doubleOptInConfirmDate = $event ? new Date() : null"
+                />
+            </dd>
+            {% endblock %}
+        </sw-description-list>
+        {% endblock %}
+
+        <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_customer_base_metadata_language %}
         <sw-description-list>
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

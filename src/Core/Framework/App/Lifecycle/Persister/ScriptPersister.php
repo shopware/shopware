@@ -76,10 +76,10 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        /** @var array<string> $scripts */
-        $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
+        /** @var array<string> $scriptIds */
+        $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scripts);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => true], $scriptIds);
 
         $this->scriptRepository->update($updateSet, $context);
     }
@@ -91,10 +91,10 @@ class ScriptPersister
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        /** @var array<string> $scripts */
-        $scripts = $this->scriptRepository->searchIds($criteria, $context)->getIds();
+        /** @var array<string> $scriptIds */
+        $scriptIds = $this->scriptRepository->searchIds($criteria, $context)->getIds();
 
-        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scripts);
+        $updateSet = array_map(fn (string $id) => ['id' => $id, 'active' => false], $scriptIds);
 
         $this->scriptRepository->update($updateSet, $context);
     }
@@ -105,10 +105,11 @@ class ScriptPersister
         $criteria->setTitle('app-scripts::refresh');
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $apps = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        /** @var array<string> $appIds */
+        $appIds = $this->appRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
-        foreach ($apps as $app) {
-            $this->updateScripts($app->getId(), Context::createDefaultContext());
+        foreach ($appIds as $appId) {
+            $this->updateScripts($appId, Context::createDefaultContext());
         }
     }
 

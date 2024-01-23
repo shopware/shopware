@@ -130,12 +130,18 @@ export default {
             if (newValue?.id) {
                 utils.debounce(() => {
                     const newElement = this.findTreeItemVNodeById(newValue.id).$el;
-
+                    if (!newElement) {
+                        return;
+                    }
                     let offsetValue = 0;
                     let foundTreeRoot = false;
                     let actualElement = newElement;
 
                     while (!foundTreeRoot) {
+                        if (!actualElement) {
+                            break;
+                        }
+
                         if (actualElement.classList.contains('sw-tree__content')) {
                             foundTreeRoot = true;
                         } else {
@@ -144,7 +150,7 @@ export default {
                         }
                     }
 
-                    actualElement.scrollTo({
+                    actualElement?.scrollTo({
                         top: offsetValue - (actualElement.clientHeight / 2) - 50,
                         behavior: 'smooth',
                     });
@@ -469,8 +475,11 @@ export default {
             return false;
         },
 
-        findTreeItemVNodeById(itemId = this.selectedTreeItem.id, children = this.$refs.flowTriggerTree.$children) {
+        findTreeItemVNodeById(itemId = this.selectedTreeItem.id, children = this.$refs?.flowTriggerTree?.$children) {
             let found = false;
+            if (!children) {
+                return found;
+            }
 
             if (Array.isArray(children)) {
                 found = children.find((child) => {
@@ -492,6 +501,11 @@ export default {
 
             // recursion to find vnode
             for (let i = 0; i < children.length; i += 1) {
+                if (!children[i]) {
+                    // eslint-disable-next-line no-continue
+                    continue;
+                }
+
                 foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
                 // stop when found in children
                 if (foundInChildren) {

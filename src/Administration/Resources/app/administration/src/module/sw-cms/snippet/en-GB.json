@@ -244,7 +244,8 @@
           "label": {
             "minHeight": "Minimum height",
             "minHeightHelpText": "Enter the minimum height with your desired unit. For example: 200px",
-            "linkNewTab": "Open link in new tab"
+            "linkNewTab": "Open link in new tab",
+            "linkTo": "Link target"
           },
           "placeholder": {
             "enterMinHeight": "Enter a minimum height...",

@@ -1,6 +1,6 @@
 ---
 title: Add intra-community delivery label to invoice renderer
-issue: NEXT-0000
+issue: NEXT-33311
 author: Cedric Engler
 author_email: cedric.engler@pickware.de
 author_github: @ceddy610

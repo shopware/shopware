@@ -3,13 +3,12 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\InvoiceOrdersEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
@@ -96,8 +95,8 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
                         'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
                         'documentNumber' => $number,
                         'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
-                            $operation->getConfig(),
-                            $order->getDeliveries()?->first()
+                            $config->jsonSerialize(),
+                            $order,
                         ),
                         'custom' => [
                             'invoiceNumber' => $number,
@@ -170,22 +169,28 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
         );
     }
 
-    private function isAllowIntraCommunityDelivery(array $config, OrderDeliveryEntity|null $orderDelivery = null): bool
+    /**
+     * @param  array<string, mixed> $config
+     */
+    private function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
         if (empty($config['displayAdditionalNoteDelivery']) || empty($config['deliveryCountries'])) {
             return false;
         }
 
+        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
+        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return false;
+        }
+
+        $orderDelivery = $order->getDeliveries()?->first();
         if (!$orderDelivery) {
             return false;
         }
 
-        /** @var OrderAddressEntity $shippingAddress */
         $shippingAddress = $orderDelivery->getShippingOrderAddress();
-
-        $country = $shippingAddress->getCountry();
-
-        if (!$country) {
+        $country = $shippingAddress?->getCountry();
+        if ($country === null) {
             return false;
         }
 

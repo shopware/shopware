@@ -100,7 +100,7 @@ workflow:
         echo "Checking out ${MERGE_REF_PATH::-4}merge"
         git checkout ${MERGE_REF_PATH::-4}merge
       fi
-  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+  - LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | grep 'v6.5' | tail --lines=1 | cut --delimiter='/' --fields=3)"
   - PLATFORM_VERSION="${LATEST_TAG#"v"}"
   - composer config version "$PLATFORM_VERSION"
   - composer update

@@ -699,7 +699,6 @@ const missingTests = [
     'src/module/sw-product/view/sw-product-detail-context-prices/index.js',
     'src/module/sw-product/view/sw-product-detail-cross-selling/index.js',
     'src/module/sw-product/view/sw-product-detail-layout/index.js',
-    'src/module/sw-product/view/sw-product-detail-reviews/index.js',
     'src/module/sw-product/view/sw-product-detail-seo/index.js',
     'src/module/sw-product/view/sw-product-detail-specifications/index.js',
     'src/module/sw-product/view/sw-product-detail-variants/index.js',

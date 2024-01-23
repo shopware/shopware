@@ -42,10 +42,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TreeLevelField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TreePathField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
+ *
+ * @deprecated tag:v6.7.0 - Will be removed, use MigrationQueryGenerator instead.
  */
 #[Package('core')]
 class SchemaGenerator
@@ -66,6 +69,11 @@ EOL;
      */
     public function generate(EntityDefinition $definition)
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.7.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'generate')
+        );
+
         $table = $definition->getEntityName();
 
         $columns = [];

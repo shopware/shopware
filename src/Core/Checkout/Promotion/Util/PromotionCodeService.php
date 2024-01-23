@@ -87,17 +87,26 @@ class PromotionCodeService
         $criteria = (new Criteria([$promotionId]))
             ->addAssociation('individualCodes');
 
-        /** @var PromotionEntity $promotion */
         $promotion = $this->promotionRepository->search($criteria, $context)->first();
 
+        if (!$promotion instanceof PromotionEntity) {
+            throw PromotionException::promotionsNotFound([$promotionId]);
+        }
+
+        $pattern = $promotion->getIndividualCodePattern();
+
+        if (empty($pattern)) {
+            throw PromotionException::patternNotComplexEnough();
+        }
+
         if ($promotion->getIndividualCodes() === null) {
-            $this->replaceIndividualCodes($promotionId, $promotion->getIndividualCodePattern(), $amount, $context);
+            $this->replaceIndividualCodes($promotionId, $pattern, $amount, $context);
 
             return;
         }
 
         $newCodes = $this->generateIndividualCodes(
-            $promotion->getIndividualCodePattern(),
+            $pattern,
             $amount,
             $promotion->getIndividualCodes()->getCodeArray()
         );
@@ -152,7 +161,7 @@ class PromotionCodeService
             ->addFilter(new NotFilter('AND', [new EqualsFilter('id', $promotionId)]))
             ->addFilter(new EqualsFilter('individualCodePattern', $pattern));
 
-        return $this->promotionRepository->search($criteria, $context)->getTotal() > 0;
+        return $this->promotionRepository->searchIds($criteria, $context)->getTotal() > 0;
     }
 
     /**

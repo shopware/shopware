@@ -7,7 +7,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractAccountNewsletterRecipi
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -32,7 +32,7 @@ class NewsletterAccountPageletLoader
         private readonly AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
         private readonly AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
         private readonly AbstractAccountNewsletterRecipientRoute $newsletterRecipientRoute,
-        private readonly Translator $translator,
+        private readonly AbstractTranslator $translator,
         private readonly SystemConfigService $systemConfigService
     ) {
     }

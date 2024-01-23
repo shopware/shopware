@@ -10,7 +10,7 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -43,7 +43,7 @@ final class ProductExportPartialGenerationHandler
         private readonly ProductExportFileHandlerInterface $productExportFileHandler,
         private readonly MessageBusInterface $messageBus,
         private readonly ProductExportRendererInterface $productExportRender,
-        private readonly Translator $translator,
+        private readonly AbstractTranslator $translator,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly SalesChannelContextPersister $contextPersister,
         private readonly Connection $connection,

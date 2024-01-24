@@ -27,6 +27,7 @@ class EntityDispatchService
         private readonly ClockInterface $clock,
         private readonly ConsentService $consentService,
         private readonly GatewayStatusService $gatewayStatusService,
+        private readonly ShopIdProvider $shopIdProvider
     ) {
     }
 
@@ -37,12 +38,17 @@ class EntityDispatchService
 
     public function dispatchCollectEntityDataMessage(): void
     {
-        $this->messageBus->dispatch(new CollectEntityDataMessage());
+        $this->messageBus->dispatch(new CollectEntityDataMessage($this->shopIdProvider->getShopId()));
     }
 
-    public function dispatchIterateEntityMessages(): void
+    public function dispatchIterateEntityMessages(CollectEntityDataMessage $message): void
     {
         if (!$this->consentService->isConsentAccepted()) {
+            return;
+        }
+
+        // don't start iterating if shopId is different; handle old messages without shopId
+        if ($message->shopId !== null && $this->shopIdProvider->getShopId() !== $message->shopId) {
             return;
         }
 
@@ -60,7 +66,14 @@ class EntityDispatchService
             $operationsToDispatch = $this->getOperationsToDispatch($lastRun === null);
 
             foreach ($operationsToDispatch as $operation) {
-                $this->messageBus->dispatch(new IterateEntityMessage($entityName, $operation, $runDate, $lastRun));
+                // dispatch messages for current shopId if it is an old message without shopId
+                $this->messageBus->dispatch(new IterateEntityMessage(
+                    $entityName,
+                    $operation,
+                    $runDate,
+                    $lastRun,
+                    $message->shopId ?? $this->shopIdProvider->getShopId()
+                ));
             }
 
             $this->appConfig->set(

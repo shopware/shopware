@@ -20,8 +20,7 @@ class GatewayClientTest extends TestCase
     public function testGatewayAllowsPush(): void
     {
         $client = new MockHttpClient(function (): MockResponse {
-            $gatewayKillSwitchOff = json_encode(['killswitch' => false]);
-            static::assertIsString($gatewayKillSwitchOff);
+            $gatewayKillSwitchOff = json_encode(['killswitch' => false], \JSON_THROW_ON_ERROR);
 
             return new MockResponse($gatewayKillSwitchOff);
         });
@@ -38,8 +37,7 @@ class GatewayClientTest extends TestCase
     public function testGatewayDoesNotAllowPush(): void
     {
         $client = new MockHttpClient(function (): MockResponse {
-            $gatewayKillSwitchOn = json_encode(['killswitch' => true]);
-            static::assertIsString($gatewayKillSwitchOn);
+            $gatewayKillSwitchOn = json_encode(['killswitch' => true], \JSON_THROW_ON_ERROR);
 
             return new MockResponse($gatewayKillSwitchOn);
         });
@@ -56,8 +54,7 @@ class GatewayClientTest extends TestCase
     public function testGatewayDoesNotAllowPushInDevEnvironment(): void
     {
         $client = new MockHttpClient(function (): MockResponse {
-            $gatewayKillSwitchOn = json_encode(['killswitch' => false]);
-            static::assertIsString($gatewayKillSwitchOn);
+            $gatewayKillSwitchOn = json_encode(['killswitch' => false], \JSON_THROW_ON_ERROR);
 
             return new MockResponse($gatewayKillSwitchOn);
         });

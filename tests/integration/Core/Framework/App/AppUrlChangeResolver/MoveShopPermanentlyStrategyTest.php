@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Tests\Integration\Core\Framework\App\AppSystemTestBehaviour;
 
 /**
@@ -27,15 +26,12 @@ class MoveShopPermanentlyStrategyTest extends TestCase
     use EnvTestBehaviour;
     use IntegrationTestBehaviour;
 
-    private SystemConfigService $systemConfigService;
-
     private ShopIdProvider $shopIdProvider;
 
     private Context $context;
 
     protected function setUp(): void
     {
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->context = Context::createDefaultContext();
     }
@@ -74,7 +70,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $this->getAppLoader($appDir),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
-            $this->systemConfigService
+            $this->shopIdProvider
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);
@@ -107,7 +103,7 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             $this->getAppLoader($appDir),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
-            $this->systemConfigService
+            $this->shopIdProvider
         );
 
         $moveShopPermanentlyResolver->resolve($this->context);

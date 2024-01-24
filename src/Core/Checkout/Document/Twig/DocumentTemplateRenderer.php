@@ -4,7 +4,7 @@ namespace Shopware\Core\Checkout\Document\Twig;
 
 use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -26,7 +26,7 @@ class DocumentTemplateRenderer
     public function __construct(
         private readonly TemplateFinder $templateFinder,
         private readonly Environment $twig,
-        private readonly Translator $translator,
+        private readonly AbstractTranslator $translator,
         private readonly AbstractSalesChannelContextFactory $contextFactory,
         private readonly EventDispatcherInterface $eventDispatcher
     ) {

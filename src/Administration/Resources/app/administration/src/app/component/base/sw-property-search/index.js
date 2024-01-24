@@ -88,9 +88,9 @@ Component.register('sw-property-search', {
 
         propertyGroupOptionCriteria() {
             const criteria = new Criteria(this.optionPage, 10);
+            criteria.addFilter(Criteria.contains('name', this.searchTerm.trim()));
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
             criteria.setTotalCountMode(1);
-            criteria.setTerm(this.searchTerm);
             criteria.addAssociation('group');
 
             return criteria;
@@ -179,7 +179,7 @@ Component.register('sw-property-search', {
             const validInput = input || '';
 
             this.optionPage = 1;
-            this.searchTerm = validInput.trim();
+            this.searchTerm = validInput;
             this.onFocusSearch();
         }, 400),
 

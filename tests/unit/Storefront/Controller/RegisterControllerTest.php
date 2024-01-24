@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\RegisterController;
+use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPage;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
@@ -224,6 +225,26 @@ class RegisterControllerTest extends TestCase
         $response = $this->controller->register($request, $dataBag, $context);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testRegisterWithAffiliateTracking(): void
+    {
+        $context = Generator::createSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        $request = new Request();
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
+        $session = new Session(new MockArraySessionStorage());
+        $session->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, 'affiliate-code');
+        $session->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, 'affiliate-campaign');
+        $request->setSession($session);
+
+        $dataBag = new RequestDataBag();
+
+        $this->controller->register($request, $dataBag, $context);
+
+        static::assertSame('affiliate-code', $dataBag->get('affiliateCode'));
+        static::assertSame('affiliate-campaign', $dataBag->get('campaignCode'));
     }
 
     private function createRegisterRequest(): Request

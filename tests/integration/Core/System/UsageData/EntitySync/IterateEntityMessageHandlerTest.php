@@ -103,13 +103,13 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->getEntityName());
+        static::assertEquals('product', $entitySyncMessage->entityName);
         static::assertEquals([
             ['id' => $productIds->get('product-from-the-past')],
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
             ['id' => $productIds->get('product-updated-today')],
-        ], array_values($entitySyncMessage->getPrimaryKeys()));
+        ], array_values($entitySyncMessage->primaryKeys));
     }
 
     public function testItFetchesOnlyNewChangesIfLastRunIsSet(): void
@@ -157,11 +157,11 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('product', $entitySyncMessage->getEntityName());
+        static::assertEquals('product', $entitySyncMessage->entityName);
         static::assertEquals([
             ['id' => $productIds->get('product-created-on-last-run-date')],
             ['id' => $productIds->get('product-created-today')],
-        ], array_values($entitySyncMessage->getPrimaryKeys()));
+        ], array_values($entitySyncMessage->primaryKeys));
     }
 
     public function testItFetchesOnlyDeletionsUpToTheCurrentRunDate(): void
@@ -217,7 +217,7 @@ class IterateEntityMessageHandlerTest extends TestCase
             [
                 ['id' => $ids->get('product-from-the-past')],
             ],
-            $entitySyncMessage->getPrimaryKeys(),
+            $entitySyncMessage->primaryKeys,
         );
     }
 

@@ -29,14 +29,14 @@ final class IterateEntityMessageHandler
 
     public function __invoke(IterateEntityMessage $message): void
     {
-        if ($message->getLastRun() === null && $message->getOperation() !== Operation::CREATE) {
+        if ($message->lastRun === null && $message->operation !== Operation::CREATE) {
             return;
         }
 
-        if ($this->entityDefinitionService->getAllowedEntityDefinition($message->getEntityName()) === null) {
+        if ($this->entityDefinitionService->getAllowedEntityDefinition($message->entityName) === null) {
             throw new UnrecoverableMessageHandlingException(sprintf(
                 'Entity definition for entity %s not found.',
-                $message->getEntityName(),
+                $message->entityName,
             ));
         }
 
@@ -44,27 +44,28 @@ final class IterateEntityMessageHandler
         if ($lastApprovalDate === null) {
             throw new UnrecoverableMessageHandlingException(sprintf(
                 'No approval date found. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
-                $message->getEntityName(),
-                $message->getOperation()->value,
+                $message->entityName,
+                $message->operation->value,
             ));
         }
 
         try {
             $iterator = $this->iteratorFactory->create(
-                $message->getEntityName(),
-                $message->getOperation(),
-                $message->getRunDate(),
+                $message->entityName,
+                $message->operation,
+                $message->runDate,
                 $lastApprovalDate,
-                $message->getLastRun()
+                $message->lastRun
             );
 
             while ($primaryKeys = $iterator->fetchAllAssociative()) {
                 $this->bus->dispatch(
                     new DispatchEntityMessage(
-                        $message->getEntityName(),
-                        $message->getOperation(),
-                        $message->getRunDate(),
-                        $primaryKeys
+                        $message->entityName,
+                        $message->operation,
+                        $message->runDate,
+                        $primaryKeys,
+                        $message->shopId
                     )
                 );
 
@@ -77,8 +78,8 @@ final class IterateEntityMessageHandler
                 'Could not iterate over entity: ' . $e->getMessage(),
                 [
                     'exception' => $e,
-                    'entity' => $message->getEntityName(),
-                    'operation' => $message->getOperation()->value,
+                    'entity' => $message->entityName,
+                    'operation' => $message->operation->value,
                 ]
             );
         }

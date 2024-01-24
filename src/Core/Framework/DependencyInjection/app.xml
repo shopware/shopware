@@ -25,6 +25,7 @@
         <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="app.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">
@@ -462,7 +463,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
 
             <tag name="shopware.app_url_changed_resolver"/>
         </service>
@@ -471,7 +472,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.app_url_changed_resolver"/>
@@ -479,7 +480,7 @@
 
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\UninstallAppsStrategy">
             <argument type="service" id="app.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler" on-invalid="null"/>
 
             <tag name="shopware.app_url_changed_resolver"/>

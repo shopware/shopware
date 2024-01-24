@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\System\UsageData\Subscriber;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ShopId\ShopIdChangedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdDeletedEvent;
@@ -17,9 +16,10 @@ use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 
 /**
  * @internal
+ *
+ * @covers \Shopware\Core\System\UsageData\Subscriber\ShopIdChangedSubscriber
  */
 #[Package('data-services')]
-#[CoversClass(ShopIdChangedSubscriber::class)]
 class ShopIdChangedSubscriberTest extends TestCase
 {
     public function testSubscribedEvents(): void

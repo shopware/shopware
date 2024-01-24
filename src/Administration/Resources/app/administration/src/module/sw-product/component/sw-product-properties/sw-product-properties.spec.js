@@ -596,4 +596,18 @@ describe('src/module/sw-product/component/sw-product-properties', () => {
 
         expect(wrapper.find('.sw-inheritance-switch').exists()).toBeFalsy();
     });
+
+    it('should close properties modal and call a callback', async () => {
+        global.activeAclRoles = [];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.turnOffAddPropertiesModal = jest.fn();
+        const callbackUpdateCurrentValuesMock = jest.fn();
+
+        wrapper.vm.onSaveAddPropertiesModal(propertiesMock, callbackUpdateCurrentValuesMock);
+
+        expect(wrapper.vm.turnOffAddPropertiesModal).toHaveBeenCalledTimes(1);
+        expect(callbackUpdateCurrentValuesMock).toHaveBeenCalledTimes(1);
+    });
 });

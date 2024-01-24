@@ -61,7 +61,8 @@
       "placeholderAvailabilityRule": "Choose availability rule...",
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
-      "helpTextTechnicalName": "The technical name is used to reference the payment method. It is unique and required for all payment and shipping methods from version 6.7.0.0 onwards. Changing the technical name can break existing payment integrations."
+      "helpTextTechnicalName": "The technical name is used to uniquely reference the payment method. A subsequent change to the technical name can cause payment integrations that rely on it to no longer work.",
+      "hintTextTechnicalName": "Will be required from version 6.7.0 onwards"
     }
   },
   "sw-plugin-box": {

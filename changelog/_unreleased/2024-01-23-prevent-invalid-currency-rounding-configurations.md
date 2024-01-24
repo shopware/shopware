@@ -7,6 +7,6 @@ author_github: schneider-felix
 ---
 # Core
 * Added `Required` flag to values in `CashRoundingConfigField.php`
-
+___
 # Administration
 * Removed `show-clearable-button` attribute from currency rounding interval setting 

@@ -441,8 +441,14 @@ class ApplicationBootstrapper {
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-        if (firstRunWizard && !router?.history?.current?.name?.startsWith('sw.first.run.wizard.')) {
+
+        const loginService = this.getContainer('service').loginService;
+        if (
+            firstRunWizard &&
+            loginService.isLoggedIn() &&
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+            !router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')
+        ) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             router.push({
                 name: 'sw.first.run.wizard.index',

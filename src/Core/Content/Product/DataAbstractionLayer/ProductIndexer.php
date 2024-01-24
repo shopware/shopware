@@ -58,7 +58,7 @@ class ProductIndexer extends EntityIndexer
         private readonly AbstractStockStorage $stockStorage,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CheapestPriceUpdater $cheapestPriceUpdater,
-        private readonly ProductStreamUpdater $streamUpdater,
+        private readonly AbstractProductStreamUpdater $streamUpdater,
         private readonly StatesUpdater $statesUpdater,
         private readonly MessageBusInterface $messageBus
     ) {

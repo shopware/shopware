@@ -13,6 +13,7 @@ use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
@@ -49,6 +50,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -74,6 +76,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -95,6 +98,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -120,6 +124,7 @@ class ConsentReporterTest extends TestCase
             new StaticSystemConfigService(),
             $instanceService,
             'APP_URL',
+            true
         );
 
         $reporter->reportConsent(ConsentState::REQUESTED);
@@ -143,7 +148,27 @@ class ConsentReporterTest extends TestCase
             ]),
             $this->createMock(InstanceService::class),
             'APP_URL',
+            true
         );
+
+        $reporter->reportConsent(ConsentState::REQUESTED);
+    }
+
+    public function testReportConsentDoesNotSendRequestInDevEnvironment(): void
+    {
+        $httpClient = $this->createMock(HttpClientInterface::class);
+
+        $reporter = new ConsentReporter(
+            $httpClient,
+            $this->createMock(ShopIdProvider::class),
+            new StaticSystemConfigService(),
+            $this->createMock(InstanceService::class),
+            'APP_URL',
+            false
+        );
+
+        $httpClient->expects(static::never())
+            ->method('request');
 
         $reporter->reportConsent(ConsentState::REQUESTED);
     }

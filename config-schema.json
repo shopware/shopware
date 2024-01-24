@@ -135,6 +135,9 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "enable_dispatch": {
+                            "type": "boolean"
+                        },
                         "base_uri": {
                             "type": "string"
                         },

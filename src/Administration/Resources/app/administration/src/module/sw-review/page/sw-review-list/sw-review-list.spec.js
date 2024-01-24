@@ -1,63 +1,62 @@
 /**
  * @package inventory
  */
-import { shallowMount } from '@vue/test-utils_v2';
-import swReviewList from 'src/module/sw-review/page/sw-review-list';
-
-Shopware.Component.register('sw-review-list', swReviewList);
+import { mount } from '@vue/test-utils';
 
 async function createWrapper() {
-    return shallowMount(await Shopware.Component.build('sw-review-list'), {
-        mocks: {
-            $route: {
-                query: {
-                    page: 1,
-                    limit: 25,
+    return mount(await await wrapTestComponent('sw-review-list', { sync: true }), {
+        global: {
+            mocks: {
+                $route: {
+                    query: {
+                        page: 1,
+                        limit: 25,
+                    },
                 },
             },
-        },
-        provide: {
-            repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return Promise.resolve([{
-                            id: '1a2b3c',
-                            entity: 'review',
-                            customerId: 'd4c3b2a1',
-                            productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1',
-                        }]);
-                    },
-                    search: () => {
-                        return Promise.resolve([{
-                            id: '1a2b3c',
-                            entity: 'review',
-                            customerId: 'd4c3b2a1',
-                            productId: 'd4c3b2a1',
-                            salesChannelId: 'd4c3b2a1',
-                            sourceEntitiy: 'product-review',
-                        }]);
-                    },
-                }),
+            provide: {
+                repositoryFactory: {
+                    create: () => ({
+                        create: () => {
+                            return Promise.resolve([{
+                                id: '1a2b3c',
+                                entity: 'review',
+                                customerId: 'd4c3b2a1',
+                                productId: 'd4c3b2a1',
+                                salesChannelId: 'd4c3b2a1',
+                            }]);
+                        },
+                        search: () => {
+                            return Promise.resolve([{
+                                id: '1a2b3c',
+                                entity: 'review',
+                                customerId: 'd4c3b2a1',
+                                productId: 'd4c3b2a1',
+                                salesChannelId: 'd4c3b2a1',
+                                sourceEntitiy: 'product-review',
+                            }]);
+                        },
+                    }),
+                },
+                searchRankingService: {},
             },
-            searchRankingService: {},
-        },
-        stubs: {
-            'sw-page': {
-                template: `
+            stubs: {
+                'sw-page': {
+                    template: `
                     <div class="sw-page">
                         <slot name="smart-bar-actions"></slot>
                         <slot name="content">CONTENT</slot>
                         <slot></slot>
                     </div>`,
+                },
+                'sw-button': true,
+                'sw-icon': true,
+                'sw-search-bar': true,
+                'sw-entity-listing': true,
+                'sw-language-switch': true,
+                'sw-empty-state': true,
+                'sw-context-menu-item': true,
             },
-            'sw-button': true,
-            'sw-icon': true,
-            'sw-search-bar': true,
-            'sw-entity-listing': true,
-            'sw-language-switch': true,
-            'sw-empty-state': true,
-            'sw-context-menu-item': true,
         },
     });
 }

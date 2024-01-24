@@ -692,7 +692,6 @@ const missingTests = [
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-delivery/sw-product-variants-delivery-order/index.js',
     'src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/index.js',
     'src/module/sw-product/page/sw-product-list/index.js',
-    'src/module/sw-product/view/sw-product-detail-context-prices/index.js',
     'src/module/sw-product/view/sw-product-detail-cross-selling/index.js',
     'src/module/sw-profile/view/sw-profile-index-general/index.js',
     'src/module/sw-review/page/sw-review-list/index.js',

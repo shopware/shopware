@@ -127,7 +127,13 @@
                                 :placeholder="placeholder(paymentMethod, 'technicalName', $tc('sw-settings-payment.detail.placeholderTechnicalName'))"
                                 :error="paymentMethodTechnicalNameError"
                                 :help-text="$tc('sw-settings-payment.detail.helpTextTechnicalName')"
-                            />
+                                :class="!paymentMethod.technicalName ? 'has--warning' : ''"
+                            >
+                                {# @deprecated tag:v6.7.0 - Hint can be removed: with technical names now required, the hint is no longer needed. Also remove the snippet and dynamic class has--warning #}
+                                <template #hint>
+                                    <span v-if="!paymentMethod.technicalName">{{ $tc('sw-settings-payment.detail.hintTextTechnicalName') }}</span>
+                                </template>
+                            </sw-text-field>
                             {% endblock %}
 
                             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

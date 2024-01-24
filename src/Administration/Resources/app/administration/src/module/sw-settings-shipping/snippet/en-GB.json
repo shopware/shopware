@@ -55,6 +55,7 @@
             "placeholderTrackingUrl": "Enter URL...",
             "helpTextTrackingUrl": "Enter the tracking URL of the shipping provider and insert \"%s\" as a placeholder where the actual tracking code would be. The tracking code is automatically inserted from the individual orders.",
             "helpTextTechnicalName": "The technical name is used to uniquely identify the shipping method. A subsequent change to the technical name can cause shipping integrations that rely on it to no longer work.",
+            "hintTextTechnicalName": "Will be required from version 6.7.0 onwards",
             "tax": {
                 "fieldName": "Tax calculation",
                 "labelTaxType": "Type",

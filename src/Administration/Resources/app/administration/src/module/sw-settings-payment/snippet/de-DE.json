@@ -61,7 +61,8 @@
       "placeholderAvailabilityRule": "Verfügbarkeitsregel auswählen ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "helpTextTechnicalName": "Der technische Name wird für die Identifikation der Zahlungsart verwendet. Er ist einzigartig und wird ab Version 6.7.0.0 für alle Zahlungs- und Versandarten erforderlich sein. Das Ändern des technischen Namens kann bestehende Zahlungsintegrationen brechen."
+      "helpTextTechnicalName": "Der technische Name wird für die einzigartige Identifikation der Zahlungsart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Zahlungsintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
+      "hintTextTechnicalName": "Wird ab Version 6.7.0 erforderlich sein"
     }
   },
   "sw-plugin-box": {

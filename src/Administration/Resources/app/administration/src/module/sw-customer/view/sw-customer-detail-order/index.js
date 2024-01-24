@@ -57,6 +57,12 @@ export default {
         },
     },
 
+    watch: {
+        customer() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -64,6 +70,10 @@ export default {
     methods: {
         createdComponent() {
             this.isLoading = true;
+
+            if (this.orders?.criteria) {
+                this.orders.criteria = null;
+            }
 
             this.refreshList();
         },

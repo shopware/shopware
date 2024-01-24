@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\InstanceService;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\UsageData\EntitySync\EntityDispatcher;
 use Shopware\Core\System\UsageData\EntitySync\Operation;
 use Shopware\Core\System\UsageData\Services\ShopIdProvider;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * @internal
@@ -55,6 +57,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
@@ -76,7 +79,8 @@ class EntityDispatcherTest extends TestCase
             $this->createMock(InstanceService::class),
             new StaticSystemConfigService(),
             $this->clock,
-            'prod'
+            'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
@@ -106,6 +110,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
@@ -127,7 +132,8 @@ class EntityDispatcherTest extends TestCase
             $this->createMock(InstanceService::class),
             new StaticSystemConfigService(),
             $this->clock,
-            'prod'
+            'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::DELETE, new \DateTimeImmutable());
@@ -165,6 +171,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', $entities, Operation::CREATE, new \DateTimeImmutable());
@@ -193,6 +200,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::CREATE, new \DateTimeImmutable());
@@ -222,6 +230,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $httpClient->dispatch('product', [], Operation::CREATE, new \DateTimeImmutable());
@@ -247,6 +256,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::CREATE, new \DateTimeImmutable());
@@ -274,6 +284,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
@@ -299,6 +310,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -326,6 +338,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(['core.store.licenseHost' => 'license-host']),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -353,6 +366,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(['core.store.licenseHost' => 'license-host']),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -373,6 +387,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -397,6 +412,7 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
@@ -421,12 +437,37 @@ class EntityDispatcherTest extends TestCase
             new StaticSystemConfigService(),
             $this->clock,
             'prod',
+            true,
         );
 
         $runDate = new \DateTimeImmutable();
 
         static::expectException(UnrecoverableMessageHandlingException::class);
         $entityDispatcher->dispatch('product', [], Operation::CREATE, $runDate);
+    }
+
+    public function testDispatchDoesNotSendRequestInDevEnvironment(): void
+    {
+        $client = $this->createMock(HttpClientInterface::class);
+        $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
+        $instanceServiceMock = $this->createMock(InstanceService::class);
+        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+
+        $entityDispatcher = new EntityDispatcher(
+            $client,
+            $shopIdProviderMock,
+            $instanceServiceMock,
+            $systemConfigServiceMock,
+            $this->clock,
+            'dev',
+            false,
+        );
+
+        $client->expects(static::never())->method('request');
+
+        $runDate = new \DateTimeImmutable();
+
+        $entityDispatcher->dispatch('product', [['field' => 'value']], Operation::CREATE, $runDate);
     }
 
     /**

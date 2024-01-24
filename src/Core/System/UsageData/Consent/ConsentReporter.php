@@ -23,6 +23,7 @@ class ConsentReporter implements EventSubscriberInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly InstanceService $instanceService,
         private readonly string $appUrl,
+        private readonly bool $dispatchEnabled,
     ) {
     }
 
@@ -35,6 +36,10 @@ class ConsentReporter implements EventSubscriberInterface
 
     public function reportConsent(ConsentState $consentState): void
     {
+        if (!$this->dispatchEnabled) {
+            return;
+        }
+
         $payload = [
             'app_url' => $this->appUrl,
             'consent_state' => $consentState->value,

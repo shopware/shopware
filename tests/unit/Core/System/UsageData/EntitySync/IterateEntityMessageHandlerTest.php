@@ -139,11 +139,11 @@ class IterateEntityMessageHandlerTest extends TestCase
 
         static::assertInstanceOf(DispatchEntityMessage::class, $entitySyncMessage);
 
-        static::assertEquals('test-entity', $entitySyncMessage->getEntityName());
+        static::assertEquals('test-entity', $entitySyncMessage->entityName);
         static::assertEquals([
             ['id' => 'first-id'],
             ['id' => 'second-id'],
-        ], $entitySyncMessage->getPrimaryKeys());
+        ], $entitySyncMessage->primaryKeys);
     }
 
     public function testSkipEntityIfDefinitionIsNotFound(): void

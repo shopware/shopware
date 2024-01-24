@@ -20,6 +20,6 @@ final class CollectEntityDataMessageHandler
 
     public function __invoke(CollectEntityDataMessage $message): void
     {
-        $this->entityDispatchService->dispatchIterateEntityMessages();
+        $this->entityDispatchService->dispatchIterateEntityMessages($message);
     }
 }

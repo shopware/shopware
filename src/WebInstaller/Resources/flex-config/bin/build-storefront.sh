@@ -10,7 +10,7 @@ STOREFRONT_ROOT="${STOREFRONT_ROOT:-"${PROJECT_ROOT}/vendor/shopware/storefront"
 
 BIN_TOOL="${CWD}/console"
 
-if [[ ${CI-""} ]]; then
+if [[ ${CI:-""} ]]; then
     BIN_TOOL="${CWD}/ci"
 
     if [[ ! -x "$BIN_TOOL" ]]; then

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\UsageData\Consent\ConsentService;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\ManyToManyAssociationService;
+use Shopware\Core\System\UsageData\Services\ShopIdProvider;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -34,22 +35,29 @@ final class DispatchEntityMessageHandler
         private readonly Connection $connection,
         private readonly EntityDispatcher $entityDispatcher,
         private readonly ConsentService $consentService,
+        private readonly ShopIdProvider $shopIdProvider
     ) {
     }
 
     public function __invoke(DispatchEntityMessage $message): void
     {
-        $definition = $this->entityDefinitionService->getAllowedEntityDefinition($message->getEntityName());
+        $definition = $this->entityDefinitionService->getAllowedEntityDefinition($message->entityName);
         if ($definition === null) {
             self::throwUnrecoverableMessageHandlingException($message, 'No allowed entity definition found');
         }
+
         /** @var EntityDefinition $definition */
+        // don't dispatch entity data if shopId is different; handle old messages without shopId
+        if ($message->shopId !== null && $this->shopIdProvider->getShopId() !== $message->shopId) {
+            self::throwUnrecoverableMessageHandlingException($message, 'Message dispatched for old shopId');
+        }
+
         $lastApprovalDate = $this->consentService->getLastConsentIsAcceptedDate();
         if ($lastApprovalDate === null) {
             self::throwUnrecoverableMessageHandlingException($message, 'No approval date found');
         }
         /** @var \DateTimeInterface $lastApprovalDate */
-        if ($message->getOperation() === Operation::DELETE) {
+        if ($message->operation === Operation::DELETE) {
             $this->handleDelete($message, $definition);
 
             return;
@@ -101,15 +109,15 @@ final class DispatchEntityMessageHandler
         throw new UnrecoverableMessageHandlingException(sprintf(
             '%s. Skipping dispatching of entity sync message. Entity: %s, Operation: %s',
             $errorMessage,
-            $message->getEntityName(),
-            $message->getOperation()->value,
+            $message->entityName,
+            $message->operation->value,
         ));
     }
 
     private function handleDelete(DispatchEntityMessage $message, EntityDefinition $definition): void
     {
         $rowIds = [];
-        foreach ($message->getPrimaryKeys() as $pks) {
+        foreach ($message->primaryKeys as $pks) {
             $rowIds[] = Uuid::fromHexToBytes($pks['id']);
         }
 
@@ -130,10 +138,11 @@ final class DispatchEntityMessageHandler
         }
 
         $this->entityDispatcher->dispatch(
-            $message->getEntityName(),
+            $message->entityName,
             $entityIds,
-            $message->getOperation(),
-            $message->getRunDate()
+            $message->operation,
+            $message->runDate,
+            $message->shopId ?? $this->shopIdProvider->getShopId()
         );
 
         $qb = new QueryBuilder($this->connection);
@@ -162,7 +171,7 @@ final class DispatchEntityMessageHandler
             }
         }
 
-        $primaryKeys = $message->getPrimaryKeys();
+        $primaryKeys = $message->primaryKeys;
         $primaryKeyColumns = array_keys($primaryKeys[0]);
         if (!empty($missingIdFields) && \count($primaryKeyColumns) > 1) {
             self::throwUnrecoverableMessageHandlingException($message, 'Entity sync does not support composite primary keys');
@@ -208,8 +217,9 @@ final class DispatchEntityMessageHandler
         $this->entityDispatcher->dispatch(
             $definition->getEntityName(),
             $serializedEntities,
-            $message->getOperation(),
-            $message->getRunDate()
+            $message->operation,
+            $message->runDate,
+            $message->shopId ?? $this->shopIdProvider->getShopId()
         );
     }
 }

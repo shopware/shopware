@@ -10,9 +10,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-type ShopId array{value: string, app_url: ?string}
  */
 #[Package('core')]
 class ShopIdProvider
@@ -22,6 +25,7 @@ class ShopIdProvider
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly EntityRepository $appRepository,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -34,10 +38,7 @@ class ShopIdProvider
 
         if (!\is_array($shopId)) {
             $newShopId = $this->generateShopId();
-            $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, [
-                'app_url' => EnvironmentHelper::getVariable('APP_URL'),
-                'value' => $newShopId,
-            ]);
+            $this->setShopId($newShopId, (string) EnvironmentHelper::getVariable('APP_URL'));
 
             return $newShopId;
         }
@@ -50,13 +51,31 @@ class ShopIdProvider
 
             // if the shop does not have any apps we can update the existing shop id value
             // with the new APP_URL as no app knows the shop id
-            $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, [
-                'app_url' => $appUrl,
-                'value' => $shopId['value'],
-            ]);
+            $this->setShopId($shopId['value'], $appUrl);
         }
 
         return $shopId['value'];
+    }
+
+    public function setShopId(string $shopId, string $appUrl): void
+    {
+        /** @var ShopId|null $oldShopId */
+        $oldShopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+        $newShopId = [
+            'app_url' => $appUrl,
+            'value' => $shopId,
+        ];
+
+        $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, $newShopId);
+
+        $this->eventDispatcher->dispatch(new ShopIdChangedEvent($newShopId, $oldShopId));
+    }
+
+    public function deleteShopId(): void
+    {
+        $this->systemConfigService->delete(self::SHOP_ID_SYSTEM_CONFIG_KEY);
+
+        $this->eventDispatcher->dispatch(new ShopIdDeletedEvent());
     }
 
     private function generateShopId(): string

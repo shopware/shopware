@@ -17,33 +17,11 @@ class DispatchEntityMessage implements LowPriorityMessageInterface
      * @param PrimaryKeyList $primaryKeys
      */
     public function __construct(
-        private readonly string $entityName,
-        private readonly Operation $operation,
-        private readonly \DateTimeImmutable $runDate,
-        private readonly array $primaryKeys,
+        public readonly string $entityName,
+        public readonly Operation $operation,
+        public readonly \DateTimeImmutable $runDate,
+        public readonly array $primaryKeys,
+        public readonly ?string $shopId = null
     ) {
-    }
-
-    public function getEntityName(): string
-    {
-        return $this->entityName;
-    }
-
-    public function getOperation(): Operation
-    {
-        return $this->operation;
-    }
-
-    public function getRunDate(): \DateTimeImmutable
-    {
-        return $this->runDate;
-    }
-
-    /**
-     * @return PrimaryKeyList
-     */
-    public function getPrimaryKeys(): array
-    {
-        return $this->primaryKeys;
     }
 }

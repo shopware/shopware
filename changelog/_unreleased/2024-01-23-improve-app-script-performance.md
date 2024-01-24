@@ -1,6 +1,6 @@
 ---
 title: Improve app script performance
-issue: NEXT-00000
+issue: NEXT-33336
 author: Benjamin Wittwer
 author_email: dev@a-k-f.de
 author_github: akf-bw

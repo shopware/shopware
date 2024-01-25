@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;

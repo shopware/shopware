@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileNameProvider;
@@ -16,10 +16,7 @@ class FileNameProviderTest extends TestCase
     use IntegrationTestBehaviour;
     use MediaFixtures;
 
-    /**
-     * @var FileNameProvider
-     */
-    private $nameProvider;
+    private FileNameProvider $nameProvider;
 
     private Context $context;
 
@@ -39,52 +36,65 @@ class FileNameProviderTest extends TestCase
 
         $new = $this->nameProvider->provide($original, 'png', $media->getId(), $this->context);
 
-        static::assertEquals($original, $new);
+        static::assertSame($original, $new);
     }
 
     public function testItGeneratesNewName(): void
     {
         $existing = $this->getJpg();
 
+        $existingFileName = $existing->getFileName();
+        static::assertIsString($existingFileName);
+
+        $existingFileExtension = $existing->getFileExtension();
+        static::assertIsString($existingFileExtension);
+
         $media = $this->getEmptyMedia();
 
         $new = $this->nameProvider->provide(
-            $existing->getFileName(),
-            $existing->getFileExtension(),
+            $existingFileName,
+            $existingFileExtension,
             $media->getId(),
             $this->context
         );
 
-        static::assertEquals($existing->getFileName() . '_(1)', $new);
+        static::assertSame($existingFileName . '_(1)', $new);
     }
 
     public function testItReturnsOriginalNameOnNewExtension(): void
     {
-        $existing = $this->getJpg();
+        $existingFileName = $this->getJpg()->getFileName();
+        static::assertIsString($existingFileName);
 
         $media = $this->getEmptyMedia();
 
         $new = $this->nameProvider->provide(
-            $existing->getFileName(),
+            $existingFileName,
             'png',
             $media->getId(),
             $this->context
         );
 
-        static::assertEquals($existing->getFileName(), $new);
+        static::assertSame($existingFileName, $new);
     }
 
     public function testItGeneratesNewNameWithoutMediaEntity(): void
     {
         $existing = $this->getJpg();
 
+        $existingFileName = $existing->getFileName();
+        static::assertIsString($existingFileName);
+
+        $existingFileExtension = $existing->getFileExtension();
+        static::assertIsString($existingFileExtension);
+
         $new = $this->nameProvider->provide(
-            $existing->getFileName(),
-            $existing->getFileExtension(),
+            $existingFileName,
+            $existingFileExtension,
             null,
             $this->context
         );
 
-        static::assertEquals($existing->getFileName() . '_(1)', $new);
+        static::assertSame($existingFileName . '_(1)', $new);
     }
 }

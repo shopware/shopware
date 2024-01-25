@@ -101,6 +101,13 @@ class FileFetcher
         );
     }
 
+    public function cleanUpTempFile(MediaFile $mediaFile): void
+    {
+        if ($mediaFile->getFileName() !== '') {
+            unlink($mediaFile->getFileName());
+        }
+    }
+
     /**
      * @throws MediaException
      */

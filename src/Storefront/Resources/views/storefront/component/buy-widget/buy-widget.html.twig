@@ -145,8 +145,7 @@
                                     class="product-detail-reviews-link"
                                     data-off-canvas-tabs="true"
                                     data-remote-click="true"
-                                    {# ludtwig-ignore html-string-quotation #}
-                                    data-remote-click-options='{{ remoteClickOptions|json_encode }}'
+                                    data-remote-click-options="{{ remoteClickOptions|json_encode }}"
                                     href="{{ reviewTabHref }}"
                                     aria-controls="review-tab-pane"
                                 >

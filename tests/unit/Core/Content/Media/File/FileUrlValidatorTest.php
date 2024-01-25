@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Unit\Core\Content\Media\File;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
@@ -9,6 +10,7 @@ use Shopware\Core\Content\Media\File\FileUrlValidator;
 /**
  * @internal
  */
+#[CoversClass(FileUrlValidator::class)]
 class FileUrlValidatorTest extends TestCase
 {
     #[DataProvider('fileSourceProvider')]
@@ -16,9 +18,12 @@ class FileUrlValidatorTest extends TestCase
     {
         $validator = new FileUrlValidator();
 
-        static::assertEquals($expectedResult, $validator->isValid($source));
+        static::assertSame($expectedResult, $validator->isValid($source));
     }
 
+    /**
+     * @return array<string, array<int, string|bool>>
+     */
     public static function fileSourceProvider(): array
     {
         return [

@@ -47,8 +47,10 @@ final class FileLoaderTest extends TestCase
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->create([['id' => $mediaId]], $context);
         $this->fileSaver->persistFileToMedia($mediaFile, $mediaId . '.png', $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
 
         static::assertSame($blob, $this->fileLoader->loadMediaFile($mediaId, $context));
+        static::assertFileDoesNotExist($mediaFile->getFileName());
 
         $this->mediaRepository->delete([['id' => $mediaId]], $context);
     }
@@ -62,8 +64,10 @@ final class FileLoaderTest extends TestCase
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->create([['id' => $mediaId]], $context);
         $this->fileSaver->persistFileToMedia($mediaFile, $mediaId . '.png', $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
 
         static::assertSame($blob, (string) $this->fileLoader->loadMediaFileStream($mediaId, $context));
+        static::assertFileDoesNotExist($mediaFile->getFileName());
 
         $this->mediaRepository->delete([['id' => $mediaId]], $context);
     }

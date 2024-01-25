@@ -169,6 +169,16 @@ class FileFetcherTest extends TestCase
         }
     }
 
+    public function testCleanUpFileAfterFetching(): void
+    {
+        $fileFetcher = new FileFetcher(new FileUrlValidator(), true, false);
+        $mediaFile = $fileFetcher->fetchBlob('myBlob', 'png', 'image/png');
+        static::assertFileExists($mediaFile->getFileName());
+
+        $fileFetcher->cleanUpTempFile($mediaFile);
+        static::assertFileDoesNotExist($mediaFile->getFileName());
+    }
+
     public function testFetchFileFromUrlWithNoUrlGiven(): void
     {
         $this->expectException(MediaException::class);

@@ -55,6 +55,11 @@ export default {
         },
 
         async cloneParent(number) {
+            const variantListingConfigOverwrite = this.product.variantListingConfig;
+            if (variantListingConfigOverwrite && variantListingConfigOverwrite.mainVariantId) {
+                variantListingConfigOverwrite.mainVariantId = null;
+            }
+
             const behavior = {
                 cloneChildren: false,
                 overwrites: {
@@ -62,6 +67,7 @@ export default {
                     name: `${this.product.name} ${this.$tc('global.default.copy')}`,
                     active: false,
                     mainVariantId: null,
+                    variantListingConfig: variantListingConfigOverwrite,
                 },
             };
 

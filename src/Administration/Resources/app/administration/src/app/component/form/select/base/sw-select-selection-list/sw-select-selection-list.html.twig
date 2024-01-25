@@ -5,7 +5,7 @@
     {% block sw_select_selection_list_item %}
     <template v-if="!hideLabels">
         <li
-            v-for="(selection, index) in visibleTags"
+            v-for="(selection, index) in selections"
             :key="selection[valueProperty]"
             class="sw-select-selection-list__item-holder"
             :class="'sw-select-selection-list__item-holder--' + index"
@@ -40,21 +40,6 @@
         </li>
     </template>
     {% endblock %}
-
-    <li
-        v-if="numberOfHiddenTags > 0"
-        class="sw-select-selection-list__item-more"
-    >
-        <sw-label
-            :dismiss-able="true"
-            class="sw-select-selection-list__item-more--label"
-            @selected="removeTagLimit"
-        >
-            <span class="sw-select-selection-list__item-more--property">
-                <slot name="labelProperty">+{{ numberOfHiddenTags }}</slot>
-            </span>
-        </sw-label>
-    </li>
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_select_selection_list_load_more %}

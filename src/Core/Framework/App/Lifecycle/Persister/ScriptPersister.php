@@ -101,15 +101,17 @@ class ScriptPersister
 
     public function refresh(): void
     {
+        $context = Context::createDefaultContext();
+
         $criteria = new Criteria();
         $criteria->setTitle('app-scripts::refresh');
         $criteria->addFilter(new EqualsFilter('active', true));
 
         /** @var array<string> $appIds */
-        $appIds = $this->appRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
+        $appIds = $this->appRepository->searchIds($criteria, $context)->getIds();
 
         foreach ($appIds as $appId) {
-            $this->updateScripts($appId, Context::createDefaultContext());
+            $this->updateScripts($appId, $context);
         }
     }
 

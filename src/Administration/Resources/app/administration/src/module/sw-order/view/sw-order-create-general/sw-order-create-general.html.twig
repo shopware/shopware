@@ -48,7 +48,7 @@
                         grid="1fr 1fr"
                     >
                         <dt>{{ $tc('sw-order.createBase.summaryLabelAmount') }}</dt>
-                        <dd>{{ currencyFilter(cart.price ? cart.price.positionPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</dd>
+                        <dd>{{ currencyFilter(cart.price ? cart.price.positionPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</dd>
 
                         <template v-if="cartDelivery">
                             <dt>{{ $tc('sw-order.createBase.summaryLabelShippingCosts') }}</dt>
@@ -64,7 +64,7 @@
                                     :value="cartDelivery.shippingCosts.totalPrice"
                                     @value-change="onShippingChargeEdited"
                                 >
-                                    {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.shortName, currency.totalRounding.decimals) }}
+                                    {{ currencyFilter(cartDelivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
                                 </sw-order-saveable-field>
                             </dd>
                         </template>
@@ -79,14 +79,14 @@
                             </dt>
                             <dd
                             >
-                                {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.shortName, currency.totalRounding.decimals) }}
+                                {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, currency.totalRounding.decimals) }}
                             </dd>
                         </template>
 
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
                             <dd>
-                                <strong>{{ currencyFilter(cart.price ? cart.price.netPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                <strong>{{ currencyFilter(cart.price ? cart.price.netPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
                             </dd>
                         </template>
 
@@ -101,7 +101,7 @@
                                 </dt>
                                 <dd
                                 >
-                                    {{ currencyFilter(calculatedTax.tax, currency.shortName, currency.totalRounding.decimals) }}
+                                    {{ currencyFilter(calculatedTax.tax, currency.isoCode, currency.totalRounding.decimals) }}
                                 </dd>
                             </template>
                         </template>
@@ -109,13 +109,13 @@
                         <template v-if="taxStatus !== 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
                             <dd>
-                                <strong>{{ currencyFilter(orderTotal, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                <strong>{{ currencyFilter(orderTotal, currency.isoCode, currency.totalRounding.decimals) }}</strong>
                             </dd>
                             <template v-if="displayRounded">
                                 <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotalRounded') }}</strong>
                                 </dt>
                                 <dd>
-                                    <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                    <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
                                 </dd>
                             </template>
                         </template>
@@ -123,7 +123,7 @@
                         <template v-if="taxStatus === 'tax-free'">
                             <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
                             <dd>
-                                <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.shortName, currency.totalRounding.decimals) }}</strong>
+                                <strong>{{ currencyFilter(cart.price ? cart.price.totalPrice : 0, currency.isoCode, currency.totalRounding.decimals) }}</strong>
                             </dd>
                         </template>
                     </sw-description-list>

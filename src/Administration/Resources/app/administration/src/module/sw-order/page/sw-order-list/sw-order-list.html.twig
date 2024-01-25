@@ -187,7 +187,7 @@
                 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                 {% block sw_order_list_grid_columns_amount %}
                 <template #column-amountTotal="{ item }">
-                    {{ currencyFilter(item.amountTotal, item.currency.translated.shortName) }}
+                    {{ currencyFilter(item.amountTotal, item.currency.translated.isoCode) }}
                 </template>
                 {% endblock %}
 
@@ -423,7 +423,7 @@
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                         {% block sw_order_list_bulk_edit_grid_columns_amount %}
                         <template #column-amountTotal="{ item }">
-                            {{ currencyFilter(item.amountTotal, item.currency.translated.shortName) }}
+                            {{ currencyFilter(item.amountTotal, item.currency.translated.isoCode) }}
                         </template>
                         {% endblock %}
 

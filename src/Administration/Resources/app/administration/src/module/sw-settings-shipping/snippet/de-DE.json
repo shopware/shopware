@@ -55,6 +55,7 @@
       "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
       "helpTextTrackingUrl": "Hier kannst Du die Tracking-URL des Versandanbieters eingeben und \"%s\" als Platzhalter an der Stelle einfügen, an der die eigentliche Sendungsnummer stehen würde. Die Sendungsnummer wird automatisch aus den einzelnen Bestellungen eingefügt.",
       "helpTextTechnicalName": "Der technische Name wird für die eindeutigen Identifikation der Versandart verwendet. Eine nachträgliche Änderung des technischen Namens kann dazu führen, dass Versandintegrationen, die sich auf diesen Namen verlassen, nicht mehr funktionieren.",
+      "hintTextTechnicalName": "Wird ab Version 6.7.0 erforderlich sein",
       "tax": {
         "fieldName": "Steuerberechnung",
         "labelTaxType": "Steuertyp",

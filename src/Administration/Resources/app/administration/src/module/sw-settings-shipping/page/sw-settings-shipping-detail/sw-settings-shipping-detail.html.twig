@@ -119,7 +119,13 @@
                             :placeholder="placeholder(shippingMethod, 'technicalName', $tc('sw-settings-shipping.detail.placeholderTechnicalName'))"
                             :error="shippingMethodTechnicalNameError"
                             :help-text="$tc('sw-settings-shipping.detail.helpTextTechnicalName')"
-                        />
+                            :class="!shippingMethod.technicalName ? 'has--warning' : ''"
+                        >
+                            {# @deprecated tag:v6.7.0 - Hint can be removed: with technical names now required, the hint is no longer needed. Also remove the snippet and dynamic class has--warning #}
+                            <template #hint>
+                                <span v-if="!shippingMethod.technicalName">{{ $tc('sw-settings-shipping.detail.hintTextTechnicalName') }}</span>
+                            </template>
+                        </sw-text-field>
                         {% endblock %}
 
                         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

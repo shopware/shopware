@@ -680,7 +680,6 @@ const missingTests = [
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',
     'src/module/sw-flow/page/sw-flow-detail/index.js',
-    'src/module/sw-product/page/sw-product-list/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
 ];
 

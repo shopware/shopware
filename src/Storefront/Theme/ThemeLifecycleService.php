@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\MimeType;
-use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -171,19 +170,12 @@ class ThemeLifecycleService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', 'theme'));
-        $criteria->addAssociation('defaultFolder');
         $criteria->setLimit(1);
-        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
-        $defaultFolderId = null;
-        if ($defaultFolder->count() === 1) {
-            $defaultFolder = $defaultFolder->first();
 
-            if ($defaultFolder instanceof MediaFolderEntity) {
-                $defaultFolderId = $defaultFolder->getId();
-            }
-        }
+        /** @var array<string> $defaultFolderIds */
+        $defaultFolderIds = $this->mediaFolderRepository->searchIds($criteria, $context)->getIds();
 
-        return $defaultFolderId;
+        return \count($defaultFolderIds) === 1 ? $defaultFolderIds[0] : null;
     }
 
     /**
@@ -563,10 +555,11 @@ class ThemeLifecycleService
         if ($lastNotSameTheme !== null) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('technicalName', $lastNotSameTheme));
-            /** @var ThemeEntity|null $parentTheme */
-            $parentTheme = $this->themeRepository->search($criteria, $context)->first();
-            if ($parentTheme) {
-                $themeData['parentThemeId'] = $parentTheme->getId();
+
+            $parentThemeId = $this->themeRepository->searchIds($criteria, $context)->firstId();
+
+            if ($parentThemeId) {
+                $themeData['parentThemeId'] = $parentThemeId;
             }
         }
 

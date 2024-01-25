@@ -49,7 +49,7 @@ export default {
             return this.currentCustomField.config.customFieldType;
         },
         renderComponentName() {
-            return this.fieldTypes[this.currentCustomField.config.customFieldType].configRenderComponent;
+            return this.fieldTypes[this.currentCustomField.config.customFieldType]?.configRenderComponent;
         },
         modalTitle() {
             if (this.currentCustomField._isNew) {

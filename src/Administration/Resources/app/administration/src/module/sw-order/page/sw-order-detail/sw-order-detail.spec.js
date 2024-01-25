@@ -91,9 +91,13 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
 
+        const oldVersionContext = wrapper.vm.versionContext;
+
         window.dispatchEvent(new Event('beforeunload'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, wrapper.vm.versionContext.versionId, wrapper.vm.versionContext);
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionContext.versionId, oldVersionContext);
+        expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
+        expect(wrapper.vm.hasNewVersionId).toBe(false);
     });
 
     it('should not contain manual label', async () => {

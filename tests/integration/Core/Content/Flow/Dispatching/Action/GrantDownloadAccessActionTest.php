@@ -397,6 +397,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $media = $download['media'];
                 $mediaFile = $this->fileFetcher->fetchBlob($media['id'], $media['fileExtension'], '');
                 $this->fileSaver->persistFileToMedia($mediaFile, $media['fileName'], $media['id'], $context);
+                $this->fileFetcher->cleanUpTempFile($mediaFile);
             }
         });
 

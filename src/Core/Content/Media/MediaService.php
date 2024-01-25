@@ -81,6 +81,7 @@ class MediaService
         }
 
         $this->fileSaver->persistFileToMedia($mediaFile, $filename, $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
 
         return $mediaId;
     }
@@ -134,12 +135,7 @@ class MediaService
         $criteria->addFilter(new EqualsFilter('media_folder.defaultFolder.entity', $folder));
         $criteria->addAssociation('defaultFolder');
         $criteria->setLimit(1);
-        $defaultFolder = $this->mediaFolderRepository->search($criteria, $context);
-        $defaultFolderId = null;
-        if ($defaultFolder->count() === 1) {
-            $defaultFolderId = $defaultFolder->first()->getId();
-        }
 
-        return $defaultFolderId;
+        return $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
     }
 }

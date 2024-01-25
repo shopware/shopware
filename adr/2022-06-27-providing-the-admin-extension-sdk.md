@@ -6,7 +6,7 @@ tags: [meteor-extension-sdk, vue]
 ---
 
 ::: warning
-The Admin Extension SDK has been renamed to Meteor Admin SDK.
+The Admin Extension SDK has been renamed to Meteor Extension SDK.
 :::
 
 ## Context

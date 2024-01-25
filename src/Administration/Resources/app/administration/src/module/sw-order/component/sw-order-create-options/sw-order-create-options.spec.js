@@ -62,7 +62,7 @@ const context = {
         ...customerData,
     },
     currency: {
-        shortName: 'EUR',
+        isoCode: 'EUR',
         symbol: '€',
         totalRounding: {
             decimals: 2,
@@ -85,7 +85,7 @@ const contextResponse = {
         ...context,
         currency: {
             id: '1',
-            shortName: 'USD',
+            isoCode: 'USD',
             symbol: '$',
             totalRounding: {
                 decimals: 2,

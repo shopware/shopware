@@ -31,7 +31,7 @@ const context = {
             decimals: 2,
         },
         translated: {
-            shortName: 'EUR',
+            isoCode: 'EUR',
         },
     },
 };

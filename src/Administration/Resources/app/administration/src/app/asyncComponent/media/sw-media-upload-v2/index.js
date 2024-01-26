@@ -496,11 +496,12 @@ export default {
         },
 
         checkFileType(file) {
-            if (!file?.type) {
+            // Set file type and file name if file is a media entity item
+            if (!file?.type && file.id) {
                 file.type = file.mimeType;
             }
 
-            if (!file?.name) {
+            if (!file?.name && file.id) {
                 file.name = file.fileName;
             }
 
@@ -526,6 +527,7 @@ export default {
                     supportedTypes: this.extensionAccept || this.fileAccept,
                 }),
             });
+
             return false;
         },
 

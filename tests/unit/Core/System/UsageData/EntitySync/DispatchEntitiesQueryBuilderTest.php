@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\UsageData\EntitySync;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Result;
@@ -46,7 +47,7 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-
+        $this->connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
         $this->connection->expects(static::never())
             ->method('createQueryBuilder');
         $this->connection->expects(static::any())

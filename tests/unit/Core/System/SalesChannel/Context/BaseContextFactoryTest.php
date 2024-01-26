@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\TestCase;
@@ -77,6 +78,7 @@ class BaseContextFactoryTest extends TestCase
 
         $connection = $this->createMock(Connection::class);
         $connection->expects(static::once())->method('fetchAssociative')->willReturn($fetchDataResult);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
 
         if ($fetchDataResult === false) {
             $connection->expects(static::never())->method('createQueryBuilder');

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Rule\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -58,6 +59,7 @@ class RuleAreaUpdaterTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->conditionRegistry = $this->createMock(RuleConditionRegistry::class);
+        $this->connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
 
         $registry = new StaticDefinitionInstanceRegistry(
             [

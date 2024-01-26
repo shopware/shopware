@@ -157,6 +157,15 @@ export default {
                 this.getLiveOrder();
             }
         },
+
+        $route(newRoute, oldRoute) {
+            if (newRoute.params.id === oldRoute.params.id) {
+                return;
+            }
+
+            this.order.id = newRoute.params.id;
+            this.createdComponent();
+        },
     },
 
     created() {

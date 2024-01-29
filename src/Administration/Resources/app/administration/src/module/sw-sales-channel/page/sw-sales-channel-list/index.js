@@ -45,12 +45,6 @@ export default {
                 label: 'sw-sales-channel.list.columnName',
                 primary: true,
             }, {
-                property: 'product_visibilities',
-                dataIndex: 'product_visibilities',
-                allowResize: true,
-                sortable: false,
-                label: 'sw-sales-channel.list.productsLabel',
-            }, {
                 property: 'status',
                 dataIndex: 'status',
                 allowResize: true,
@@ -92,16 +86,6 @@ export default {
             salesChannelCriteria.addAssociation('type');
             salesChannelCriteria.addAssociation('domains');
 
-            salesChannelCriteria.addAggregation(
-                Criteria.terms(
-                    'sales_channel',
-                    'id',
-                    null,
-                    null,
-                    Criteria.count('visible_products', 'sales_channel.productVisibilities.id'),
-                ),
-            );
-
             return salesChannelCriteria;
         },
 
@@ -137,12 +121,12 @@ export default {
             return this.salesChannelRepository.search(criteria)
                 .then(searchResult => {
                     this.salesChannels = searchResult;
-                    this.setProductAggregations(searchResult.aggregations?.sales_channel?.buckets);
                     this.total = searchResult.total;
                     this.isLoading = false;
                 });
         },
 
+        /** @deprecated tag:v6.7.0 - Will be removed. */
         setProductAggregations(buckets) {
             this.productsForSalesChannel = buckets.reduce((productsForSalesChannel, bucket) => ({
                 ...productsForSalesChannel,
@@ -150,6 +134,7 @@ export default {
             }), {});
         },
 
+        /** @deprecated tag:v6.7.0 - Will be removed. */
         getCountForSalesChannel(salesChannelId) {
             return this.productsForSalesChannel[salesChannelId] ?? 0;
         },

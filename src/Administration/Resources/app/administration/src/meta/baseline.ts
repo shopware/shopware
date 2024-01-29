@@ -679,7 +679,6 @@ const missingTests = [
     'src/module/sw-users-permissions/index.js',
     'src/app/component/form/select/entity/sw-entity-many-to-many-select/index.js',
     'src/module/sw-first-run-wizard/component/sw-first-run-wizard-modal/index.js',
-    'src/module/sw-flow/component/modals/sw-flow-mail-send-modal/index.js',
     'src/module/sw-flow/page/sw-flow-detail/index.js',
     'src/module/sw-product/page/sw-product-list/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',

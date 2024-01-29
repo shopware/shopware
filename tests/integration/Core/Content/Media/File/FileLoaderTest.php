@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Content\Test\Media\File;
+namespace Shopware\Tests\Integration\Core\Content\Media\File;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -47,8 +47,10 @@ final class FileLoaderTest extends TestCase
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->create([['id' => $mediaId]], $context);
         $this->fileSaver->persistFileToMedia($mediaFile, $mediaId . '.png', $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
 
         static::assertSame($blob, $this->fileLoader->loadMediaFile($mediaId, $context));
+        static::assertFileDoesNotExist($mediaFile->getFileName());
 
         $this->mediaRepository->delete([['id' => $mediaId]], $context);
     }
@@ -62,8 +64,10 @@ final class FileLoaderTest extends TestCase
         $mediaId = Uuid::randomHex();
         $this->mediaRepository->create([['id' => $mediaId]], $context);
         $this->fileSaver->persistFileToMedia($mediaFile, $mediaId . '.png', $mediaId, $context);
+        $this->fileFetcher->cleanUpTempFile($mediaFile);
 
         static::assertSame($blob, (string) $this->fileLoader->loadMediaFileStream($mediaId, $context));
+        static::assertFileDoesNotExist($mediaFile->getFileName());
 
         $this->mediaRepository->delete([['id' => $mediaId]], $context);
     }

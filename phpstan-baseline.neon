@@ -1406,11 +1406,6 @@ parameters:
 			path: src/Core/Content/Media/Event/MediaIndexerEvent.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/Media/MediaService.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\MediaType\\\\MediaType\\:\\:addFlags\\(\\) has parameter \\$flags with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaType/MediaType.php
@@ -2384,21 +2379,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\DataAbstractionLayer\\\\Indexing\\\\MediaFolderIndexerTest\\:\\:getMediaFolderEntityFromId\\(\\) should return Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolder\\\\MediaFolderEntity but returns Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Test/Media/DataAbstractionLayer/Indexing/MediaFolderIndexerTest.php
-
-		-
-			message: "#^Parameter \\#1 \\$preferredFileName of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
-			count: 3
-			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$fileExtension of method Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\FileNameProvider\\:\\:provide\\(\\) expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Content/Test/Media/File/FileNameProviderTest.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Test\\\\Media\\\\File\\\\FileUrlValidatorTest\\:\\:fileSourceProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Test/Media/File/FileUrlValidatorTest.php
 
 		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"

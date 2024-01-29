@@ -5,70 +5,114 @@ import { unknownOptionError } from 'src/../test/_helper_/allowedErrors';
 
 global.allowedErrors = [unknownOptionError];
 
-let config = [];
+const defaultSalesChannel = {
+    name: 'Headless',
+    translated: { name: 'Headless' },
+    id: '123',
+};
+
+const defaultProps = {
+    config: [],
+    salesChannels: [defaultSalesChannel],
+};
 
 function createEntityCollection(entities = []) {
-    return new Shopware.Data.EntityCollection('sales_channel', 'sales_channel', {}, null, entities);
+    return new Shopware.Data.EntityCollection(
+        'sales_channel',
+        'sales_channel',
+        {},
+        null,
+        entities,
+    );
 }
 
-async function createWrapper() {
-    return mount(await wrapTestComponent('sw-settings-listing-visibility-detail', {
-        sync: true,
-    }), {
-        props: {
-            config,
-        },
-        global: {
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => {
-                            return Promise.resolve(createEntityCollection([
-                                {
-                                    name: 'Headless',
-                                    translated: { name: 'Headless' },
-                                    id: '123',
-                                },
-                            ]));
-                        },
-                    }),
+async function createWrapper(props = defaultProps) {
+    return mount(
+        await wrapTestComponent('sw-settings-listing-visibility-detail', {
+            sync: true,
+        }),
+        {
+            props: {
+                config: props.config,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => {
+                                return Promise.resolve(
+                                    createEntityCollection([...props.salesChannels]),
+                                );
+                            },
+                        }),
+                    },
+                },
+                stubs: {
+                    'sw-base-field': await wrapTestComponent('sw-base-field'),
+                    'sw-radio-field': await wrapTestComponent('sw-radio-field'),
+                    'sw-field-error': {
+                        template: '<div></div>',
+                    },
+                    'sw-grid': await wrapTestComponent('sw-grid'),
+                    'sw-pagination': await wrapTestComponent('sw-pagination'),
+                    'sw-grid-row': await wrapTestComponent('sw-grid-row'),
+                    'sw-grid-column': await wrapTestComponent('sw-grid-column'),
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-icon': {
+                        template: '<div></div>',
+                    },
                 },
             },
-            stubs: {
-                'sw-base-field': await wrapTestComponent('sw-base-field'),
-                'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                'sw-field-error': {
-                    template: '<div></div>',
-                },
-                'sw-grid': await wrapTestComponent('sw-grid'),
-                'sw-pagination': await wrapTestComponent('sw-pagination'),
-                'sw-grid-row': await wrapTestComponent('sw-grid-row'),
-                'sw-grid-column': await wrapTestComponent('sw-grid-column'),
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-icon': {
-                    template: '<div></div>',
-                },
-            },
         },
-    });
+    );
 }
 
 describe('src/module/sw-settings-listing/component/sw-settings-listing-visibility-detail', () => {
     it('should set selected option by config data', async () => {
-        config = [
-            {
-                id: '123',
-                name: 'Headless',
-                visibility: 10,
-            },
-        ];
-
-        const wrapper = await createWrapper();
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            config: [
+                ...defaultProps.config,
+                {
+                    id: '123',
+                    name: 'Headless',
+                    visibility: 10,
+                },
+            ],
+        });
         await flushPromises();
 
         const options = wrapper.findAll('.sw-field__radio-option input');
 
         expect(options[2].element.checked).toBe(true);
     });
-});
 
+    it('should display name tooltip if name is truncated', async () => {
+        const name = 'WayTooLongNameThatWillBeTruncated';
+
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            salesChannels: [
+                {
+                    ...defaultSalesChannel,
+                    name,
+                },
+            ],
+            config: [
+                ...defaultProps.config,
+                {
+                    id: '123',
+                    name,
+                    visibility: 10,
+                },
+            ],
+        });
+        await flushPromises();
+
+        const nameElement = wrapper.find('.sw-product-visibility-detail__name');
+
+        expect(nameElement.exists()).toBe(true);
+        expect(nameElement.text()).toBe(name);
+        expect(nameElement.attributes()['tooltip-mock-message']).toBe(name);
+    });
+});

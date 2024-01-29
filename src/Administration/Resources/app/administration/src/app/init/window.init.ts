@@ -29,7 +29,7 @@ export default function initializeWindow(): void {
         path,
         replace,
     }) => {
-        const $router = Shopware.Application.view?.root?.$router as unknown as Router;
+        const $router = Shopware.Application.view?.router as unknown as Router;
 
         if (!$router) {
             return;
@@ -38,7 +38,7 @@ export default function initializeWindow(): void {
         void $router.push({
             name: name && name.length > 0 ? name : undefined,
             params,
-            path: path && path.length > 0 ? path : undefined,
+            path: path && path.length > 0 ? path : '',
             replace: replace ?? false,
         });
     });

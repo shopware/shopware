@@ -524,7 +524,7 @@
     "commentLabel": "Kommentar",
     "commentPlaceholder": "Kommentar eingeben ...",
     "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne sie an.",
-    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
+    "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
   },

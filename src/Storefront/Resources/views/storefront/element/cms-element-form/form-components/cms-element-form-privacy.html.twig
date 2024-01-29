@@ -1,5 +1,12 @@
 {% block cms_form_privacy_opt_in %}
     {% set identifierTemplate = 'form-privacy-opt-in-%s' %}
+
+    {# The previous url can be set if the privacy notice link is opened from within an already opened AjaxModal. #}
+    {# The url is then used to render a back button to return to the previous modal. #}
+    {% if prevUrl is not defined %}
+        {% set prevUrl = '' %}
+    {% endif %}
+
     {% if requiresTermsOfService is not defined %}
         {% set requiresTermsOfService = true %}
     {% endif %}
@@ -26,7 +33,8 @@
                     })|raw }}
                 {% else %}
                     {{ 'contact.privacyNoticeText'|trans({
-                        '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') })
+                        '%privacyUrl%': path('frontend.cms.page', { id: config('core.basicInformation.privacyPage') }),
+                        '%prevUrl%': prevUrl,
                     })|raw }}
                 {% endif %}
             </label>

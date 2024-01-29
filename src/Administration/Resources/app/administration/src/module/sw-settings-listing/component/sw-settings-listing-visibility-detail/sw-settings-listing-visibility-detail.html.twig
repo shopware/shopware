@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_visibility_detail %}
 <sw-grid
+    class="sw-product-visibility-detail"
     table
     :items="items"
     :selectable="false"
@@ -13,7 +14,7 @@
         <sw-grid-column flex="minmax(100px, auto)">
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_settings_listing_visibility_detail_columns_sales_channel_label %}
-            <span>{{ item.name }}</span>
+            <span v-tooltip="{ message: item.name, disabled: item.name.length < 10 }" class="sw-product-visibility-detail__name">{{ item.name }}</span>
             {% endblock %}
         </sw-grid-column>
         {% endblock %}

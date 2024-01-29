@@ -56,7 +56,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     public function testIgnoresMessageIfEntityDefinitionIsNotFound(): void
     {
         $connection = $this->createConnectionMock();
-
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
         $entityDispatcher = $this->createMock(EntityDispatcher::class);
         $entityDispatcher->expects(static::never())
             ->method('dispatch');
@@ -556,6 +556,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $expressionBuilder = $this->createMock(ExpressionBuilder::class);
 
         $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
         $connection->method('getExpressionBuilder')
             ->willReturn($expressionBuilder);
         $connection->method('executeQuery')
@@ -629,12 +630,14 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         $shopIdProvider = $this->createMock(ShopIdProvider::class);
         $shopIdProvider->method('getShopId')->willReturn('current-shop-id');
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
 
         $handler = new DispatchEntityMessageHandler(
             $entityDefinitionService,
             $this->createMock(ManyToManyAssociationService::class),
             new UsageDataAllowListService(),
-            $this->createMock(Connection::class),
+            $connection,
             $this->createMock(EntityDispatcher::class),
             $consentService,
             $shopIdProvider,
@@ -685,6 +688,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->method('getExpressionBuilder')
             ->willReturn($expressionBuilder);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
 
         $queryResult = new Result(
             new ArrayResult(
@@ -834,7 +838,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
     private function createConnectionMock(): Connection&MockObject
     {
         $connection = $this->createMock(Connection::class);
-
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
         $connection->expects(static::never())
             ->method('createQueryBuilder');
         $connection->expects(static::any())

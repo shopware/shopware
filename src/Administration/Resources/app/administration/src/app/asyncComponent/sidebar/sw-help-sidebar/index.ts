@@ -35,6 +35,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
+    watch: {
+        $route(): void {
+            this.closeHelpSidebar();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

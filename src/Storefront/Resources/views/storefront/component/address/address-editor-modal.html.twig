@@ -154,7 +154,6 @@
 
                         <div id="{{ typePrefix }}address-create-edit"
                              class="collapse"
-                             data-parent="#{{ typePrefix }}addressEditorAccordion"
                              data-bs-parent="#{{ typePrefix }}addressEditorAccordion">
                             {% block component_address_editor_modal_accordion_edit_include %}
                                 {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
@@ -169,7 +168,6 @@
                         {% if not page.address %}
                             <div id="{{ typePrefix }}address-create-new"
                                  class="collapse"
-                                 data-parent="#{{ typePrefix }}addressEditorAccordion"
                                  data-bs-parent="#{{ typePrefix }}addressEditorAccordion">
                                 {% block component_address_editor_modal_accordion_create_include %}
                                     {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
@@ -278,7 +276,7 @@
                 {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_actions` instead. #}
                 {% block component_address_address_editor_modal_accordion_actions %}
                     {% if not page.address %}
-                        <div class="row">
+                        <div class="row pt-2">
 
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_action_edit` instead. #}
                             {% block component_address_address_editor_modal_accordion_action_edit %}

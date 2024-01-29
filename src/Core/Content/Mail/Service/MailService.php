@@ -77,8 +77,9 @@ class MailService extends AbstractMailService
         $recipients = $data['recipients'];
         $salesChannelId = $data['salesChannelId'];
         $salesChannel = null;
+        $containsValidSalesChannel = $this->templateDataContainsSalesChannel($templateData);
 
-        if (($salesChannelId !== null && !isset($templateData['salesChannel'])) || $this->isTestMode($data)) {
+        if (($salesChannelId !== null && !$containsValidSalesChannel) || $this->isTestMode($data)) {
             $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
 
             $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->get($salesChannelId);
@@ -87,7 +88,7 @@ class MailService extends AbstractMailService
             }
 
             $templateData['salesChannel'] = $salesChannel;
-        } elseif ($this->templateDataContainsSalesChannel($templateData)) {
+        } elseif ($containsValidSalesChannel) {
             $salesChannel = $templateData['salesChannel'];
         }
 

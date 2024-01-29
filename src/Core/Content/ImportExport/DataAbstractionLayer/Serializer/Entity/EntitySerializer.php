@@ -10,11 +10,6 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('core')]
 class EntitySerializer extends AbstractEntitySerializer
 {
-    /**
-     * @param array<mixed>|Struct|null $entity
-     *
-     * @return \Generator
-     */
     public function serialize(Config $config, EntityDefinition $definition, $entity): iterable
     {
         if ($entity === null) {
@@ -52,11 +47,6 @@ class EntitySerializer extends AbstractEntitySerializer
         }
     }
 
-    /**
-     * @param array<mixed>|\Traversable<mixed> $entity
-     *
-     * @return array<mixed>|\Traversable<mixed>
-     */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {
         $entity = \is_array($entity) ? $entity : iterator_to_array($entity);

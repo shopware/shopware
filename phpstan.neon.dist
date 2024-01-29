@@ -265,6 +265,18 @@ parameters:
             count: 2
             path: src/Core/Framework/Validation/HappyPathValidator.php
 
+        # NEXT-33380 - Add support for dbal/doctrine 3.8.0, add profiling to get sql query parts from query builder without using deprecated methods getQueryPart or getQueryParts https://github.com/doctrine/dbal/pull/6179
+        - """
+            #^Call to deprecated method getQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
+            The query parts are implementation details and should not be relied upon\\.$#
+        """
+
+        # NEXT-33380 - Add support for dbal/doctrine 3.8.0
+        - """
+            #^Call to deprecated method resetQueryPart\\(\\) of class Doctrine\\\\DBAL\\\\Query\\\\QueryBuilder\\:
+            Use the dedicated reset\\*\\(\\) methods instead\\.$#
+        """
+
 services:
     - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
         class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule

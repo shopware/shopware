@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SearchKeyword;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQL80Platform;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
@@ -24,6 +25,7 @@ class KeywordLoaderTest extends TestCase
         ]];
 
         $connection = static::createMock(Connection::class);
+        $connection->method('getDatabasePlatform')->willReturn(new MySQL80Platform());
         $connection->expects(static::once())
             ->method('executeQuery')
             ->with(static::anything(), static::callback(function (array $params) use ($slops) {

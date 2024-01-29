@@ -186,23 +186,6 @@ export default {
 
         onSave() {
             this.isSaveSuccessful = false;
-
-            /**
-             * @deprecated tag:v6.7.0 - Can be removed: technical names are now required
-             */
-            if (!this.paymentMethod.technicalName) {
-                Shopware.State.dispatch('error/addApiError', {
-                    expression: `payment_method.${this.paymentMethod.id}.technicalName`,
-                    error: new Shopware.Classes.ShopwareError(
-                        {
-                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                        },
-                    ),
-                });
-
-                return Promise.reject();
-            }
-
             this.isLoading = true;
 
             return this.paymentMethodRepository.save(this.paymentMethod)

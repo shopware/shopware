@@ -42,6 +42,14 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\System\UsageData\Subscriber\ShopIdChangedSubscriber">
+            <argument type="service" id="Shopware\Core\System\UsageData\Consent\BannerService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\EntityDispatchService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\System\UsageData\EntitySync\IterateEntityMessageHandler">
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Shopware\Core\System\UsageData\EntitySync\IterateEntitiesQueryBuilder"/>
@@ -59,6 +67,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\System\UsageData\EntitySync\EntityDispatcher"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -71,7 +80,6 @@
 
         <service id="Shopware\Core\System\UsageData\EntitySync\EntityDispatcher">
             <argument type="service" id="shopware.usage_data.gateway.client"/>
-            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="clock"/>
@@ -93,6 +101,7 @@
             <argument type="service" id="clock"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Consent\ConsentService"/>
             <argument type="service" id="Shopware\Core\System\UsageData\Services\GatewayStatusService"/>
+            <argument type="service" id="Shopware\Core\System\UsageData\Services\ShopIdProvider"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\ManyToManyAssociationService">
@@ -119,6 +128,7 @@
 
         <service id="Shopware\Core\System\UsageData\Services\ShopIdProvider">
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Core\System\UsageData\Services\GatewayStatusService">

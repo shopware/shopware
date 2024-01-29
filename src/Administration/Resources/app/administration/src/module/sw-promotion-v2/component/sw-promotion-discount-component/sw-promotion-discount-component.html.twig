@@ -37,6 +37,7 @@
             validation="required"
             :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
             :disabled="isEditingDisabled"
+            :is-loading="isLoading"
             @update:value="onDiscountScopeChanged"
         >
             <option

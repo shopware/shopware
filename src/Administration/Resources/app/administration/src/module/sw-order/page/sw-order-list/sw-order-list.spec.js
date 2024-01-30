@@ -330,7 +330,7 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         });
 
         const firstRow = wrapper.findAll('.sw-data-grid__cell .sw-data-grid__cell-content');
-        expect(firstRow.at(23).text()).toBe('Paid');
+        expect(firstRow.at(21).text()).toBe('Paid');
     });
 
     it('should push to a new route when editing items', async () => {

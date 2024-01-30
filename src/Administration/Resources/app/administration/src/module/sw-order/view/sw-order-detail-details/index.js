@@ -7,7 +7,7 @@ import './sw-order-detail-details.scss';
 
 const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapGetters, mapState } = Component.getComponentHelper();
+const { mapGetters, mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -47,6 +47,8 @@ export default {
             'versionContext',
             'orderAddressIds',
         ]),
+
+        ...mapPropertyErrors('order', ['orderCustomer.email']),
 
         delivery() {
             return this.order.deliveries.length > 0 && this.order.deliveries[0];

@@ -80,7 +80,7 @@ export default {
 
             const discountValue = discountType === 'percentage'
                 ? value
-                : format.currency(Number(value), this.currency.shortName);
+                : format.currency(Number(value), this.currency.isoCode);
 
             return this.$tc(
                 `sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`,

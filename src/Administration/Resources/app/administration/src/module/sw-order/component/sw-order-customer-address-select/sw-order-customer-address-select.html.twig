@@ -4,10 +4,10 @@
     class="sw-order-customer-address-select"
     value-property="id"
     required
-    disable-search-function
     :is-loading="isLoading"
     :options="customerAddresses"
     :disabled="disabled"
+    :search-function="searchAddressResults"
     @search="searchAddress"
 >
     <template #selection-label-property="{ item }">

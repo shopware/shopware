@@ -35,10 +35,11 @@
                 {% block sw_product_stream_modal_preview_sales_channel_field %}
                 <sw-entity-single-select
                     v-model:value="selectedSalesChannel"
-                    name="sw-field--selectedSalesChannel"
-                    :disabled="isLoading"
                     entity="sales_channel"
                     class="sw-product-stream-modal-preview__sales-channel-field"
+                    name="sw-field--selectedSalesChannel"
+                    :criteria="previewSelectionCriteria"
+                    :disabled="isLoading"
                     :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
                     @update:value="onSalesChannelChange"
                 />

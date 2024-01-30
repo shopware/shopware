@@ -364,7 +364,13 @@ export default function createLoginService(
                 }
                 // @ts-expect-error - The app element exists
                 void html2canvas(document.querySelector('#app'), { scale: 0.1 }).then(canvas => {
-                    window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+                    try {
+                        window.localStorage.setItem(`inactivityBackground_${id}`, canvas.toDataURL('image/jpeg'));
+                    } catch (e) {
+                        // empty catch intended
+                        // Calling toDataURL on a canvas with images from a different origin or css rules
+                        // that contain urls to images from a different origin will throw a security error in Safari.
+                    }
 
                     window.sessionStorage.setItem('lastKnownUser', Shopware.State.get('session').currentUser.username);
 

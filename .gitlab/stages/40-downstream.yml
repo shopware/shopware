@@ -190,7 +190,6 @@ plugins:
         - shopware/6/enterprise/publisher
         - shopware/6/services/customized-product
         - shopware/6/services/cms-extensions
-        - shopware/6/services/swaglanguagepack
         - shopware/6/services/swagsocialshopping
   trigger:
     project: $PLUGIN_PROJECT

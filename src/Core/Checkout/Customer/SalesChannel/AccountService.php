@@ -175,7 +175,6 @@ class AccountService
             [
                 'id' => $customer->getId(),
                 'lastLogin' => new \DateTimeImmutable(),
-                'languageId' => $context->getLanguageId(),
             ],
         ], $context->getContext());
 

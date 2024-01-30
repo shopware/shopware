@@ -103,17 +103,5 @@
                 ]
             }
         }
-    },
-    "components": {
-        "schemas": {
-            "NavigationType": {
-                "type": "string",
-                "enum": [
-                    "main-navigation",
-                    "footer-navigation",
-                    "service-navigation"
-                ]
-            }
-        }
     }
 }

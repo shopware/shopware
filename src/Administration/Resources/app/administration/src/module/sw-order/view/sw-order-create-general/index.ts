@@ -78,7 +78,7 @@ export default Component.wrapComponentConfig({
                     taxRate: item.taxRate,
                     tax: format.currency(
                         item.tax,
-                        this.currency.shortName,
+                        this.currency.isoCode,
                         // eslint-disable-next-line max-len
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-explicit-any
                         (this.currency.totalRounding as any)?.decimals,

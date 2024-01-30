@@ -155,7 +155,7 @@
         {% block sw_order_create_details_header_profile_summary %}
         <div class="sw-order-user-card__info-summary">
             <div class="sw-order-user-card__metadata-price">
-                {{ currencyFilter(cartPrice ? cartPrice.totalPrice : 0, currency.shortName) }}
+                {{ currencyFilter(cartPrice ? cartPrice.totalPrice : 0, currency.isoCode) }}
             </div>
             <div class="sw-order-user-card__metadata-item">
                 {{ orderDate }}

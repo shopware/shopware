@@ -367,7 +367,7 @@ export default {
             const decorateTaxes = sortTaxes.map((taxItem) => {
                 return this.$tc('sw-order.detailBase.taxDetail', 0, {
                     taxRate: taxItem.taxRate,
-                    tax: format.currency(taxItem.tax, this.order.currency.shortName),
+                    tax: format.currency(taxItem.tax, this.order.currency.isoCode),
                 });
             });
 

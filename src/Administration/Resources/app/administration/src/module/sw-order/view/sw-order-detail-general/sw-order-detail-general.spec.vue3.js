@@ -19,9 +19,9 @@ const orderMock = {
         totalPrice: 10,
     },
     currency: {
-        shortName: 'EUR',
+        isoCode: 'EUR',
         translated: {
-            shortName: 'EUR',
+            isoCode: 'EUR',
         },
     },
     deliveries: [

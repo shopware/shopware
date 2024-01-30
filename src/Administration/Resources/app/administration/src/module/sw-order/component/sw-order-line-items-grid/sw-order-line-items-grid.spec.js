@@ -158,7 +158,7 @@ async function createWrapper({ privileges = [] }) {
                     taxStatus: '',
                 },
                 currency: {
-                    shortName: 'EUR',
+                    isoCode: 'EUR',
                 },
                 lineItems: [],
                 taxStatus: '',

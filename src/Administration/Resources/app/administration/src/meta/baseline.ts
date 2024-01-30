@@ -688,7 +688,6 @@ const missingTests = [
     'src/module/sw-flow/component/sw-flow-trigger/index.js',
     'src/module/sw-flow/page/sw-flow-detail/index.js',
     'src/module/sw-flow/view/listing/sw-flow-list-flow-templates/index.ts',
-    'src/module/sw-product/page/sw-product-list/index.js',
     'src/module/sw-profile/view/sw-profile-index-general/index.js',
     'src/module/sw-sales-channel/component/sw-sales-channel-modal/index.js',
 ];

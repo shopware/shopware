@@ -11,7 +11,7 @@ const orderMock = {
     },
     currency: {
         translated: {
-            shortName: 'EUR',
+            isoCode: 'EUR',
         },
     },
     transactions: [

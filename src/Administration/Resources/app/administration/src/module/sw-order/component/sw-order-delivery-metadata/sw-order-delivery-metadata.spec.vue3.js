@@ -21,7 +21,7 @@ async function createWrapper() {
             },
             order: {
                 currency: {
-                    shortName: 'EUR',
+                    isoCode: 'EUR',
                     symbol: '€',
                 },
             },

@@ -57,7 +57,7 @@ const orderFixture = {
         },
     ],
     currency: {
-        shortName: 'EUR',
+        isoCode: 'EUR',
     },
     taxStatus: 'gross',
     orderNumber: '10000',

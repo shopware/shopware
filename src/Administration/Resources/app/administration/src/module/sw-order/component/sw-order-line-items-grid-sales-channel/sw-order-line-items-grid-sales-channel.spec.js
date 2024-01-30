@@ -156,7 +156,7 @@ async function createWrapper() {
                 },
             },
             currency: {
-                shortName: 'EUR',
+                isoCode: 'EUR',
                 symbol: '€',
             },
             salesChannelId: '',

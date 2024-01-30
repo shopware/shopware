@@ -18,7 +18,7 @@ const mockItem = {
         },
     ],
     currency: {
-        translated: { shortName: 'EUR' },
+        translated: { isoCode: 'EUR' },
     },
     stateMachineState: {
         translated: { name: 'Open' },

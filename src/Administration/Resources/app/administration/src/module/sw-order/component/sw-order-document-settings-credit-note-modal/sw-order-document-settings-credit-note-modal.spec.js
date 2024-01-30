@@ -67,7 +67,7 @@ const orderFixture = {
         },
     ],
     currency: {
-        shortName: 'EUR',
+        isoCode: 'EUR',
     },
     taxStatus: 'gross',
     orderNumber: '10000',
@@ -165,7 +165,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'EUR',
+                    isoCode: 'EUR',
                 },
                 lineItems: [
                     {
@@ -203,7 +203,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'EUR',
+                    isoCode: 'EUR',
                 },
                 lineItems: [
                     {
@@ -233,7 +233,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'USD',
+                    isoCode: 'USD',
                 },
                 lineItems: [],
                 documents: [
@@ -302,7 +302,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.setProps({
             order: {
                 currency: {
-                    shortName: 'USD',
+                    isoCode: 'USD',
                 },
                 lineItems: [],
                 documents: [],
@@ -325,7 +325,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
             order: {
                 salesChannelId: 'Headless',
                 currency: {
-                    shortName: 'USD',
+                    isoCode: 'USD',
                 },
                 lineItems: [],
                 documents: [],

@@ -74,7 +74,7 @@ async function createWrapper() {
         propsData: {
             order: {
                 currency: {
-                    shortName: localCurrency,
+                    isoCode: localCurrency,
                 },
             },
             lineItem: mockParent,

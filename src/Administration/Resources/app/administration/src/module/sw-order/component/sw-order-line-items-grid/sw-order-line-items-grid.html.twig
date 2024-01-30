@@ -231,7 +231,7 @@
 
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
-            <span v-else>{{ currencyFilter(item.unitPrice, order.currency.shortName, order.itemRounding.decimals) }}</span>
+            <span v-else>{{ currencyFilter(item.unitPrice, order.currency.isoCode, order.itemRounding.decimals) }}</span>
             {% endblock %}
 
         </template>
@@ -244,7 +244,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_line_items_grid_grid_columns_total_price_content %}
             <span>
-                {{ currencyFilter(item.totalPrice, order.currency.shortName, order.itemRounding.decimals) }}
+                {{ currencyFilter(item.totalPrice, order.currency.isoCode, order.itemRounding.decimals) }}
             </span>
             {% endblock %}
 

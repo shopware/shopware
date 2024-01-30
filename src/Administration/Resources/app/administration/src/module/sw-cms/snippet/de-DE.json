@@ -459,14 +459,14 @@
         },
         "element": {
           "label": {
-            "action": "Aktion",
+            "action": "Aktion*",
             "email": "E-Mail-Adresse*",
             "firstName": "Vorname*",
             "lastName": "Nachname*",
             "message": "Ihre Nachricht*",
             "newsletterSubmit": "Weiter",
-            "phone": "Telefonnummer",
-            "privacy": "Datenschutz",
+            "phone": "Telefonnummer*",
+            "privacy": "Datenschutz*",
             "salutation": "Anrede*",
             "salutationUndisclosed": "Keine Angabe",
             "send": "Senden",
@@ -484,6 +484,13 @@
           "helpText": {
             "privacy": "Ich habe die Datenschutzinformationen gelesen.",
             "requiredFields": "Felder, die mit * markiert sind, werden benötigt"
+          },
+          "newsletter": {
+            "label": {
+              "firstName": "Vorname",
+              "lastName": "Nachname",
+              "salutation": "Anrede"
+            }
           }
         },
         "preview": {

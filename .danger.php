@@ -26,6 +26,11 @@ const COMPOSER_PACKAGE_EXCEPTIONS = [
     ],
 ];
 
+const BaseTestClasses = [
+    'RuleTestCase',
+    'TestCase'
+];
+
 return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(new DisallowRepeatedCommits())
@@ -399,7 +404,9 @@ return (new Config())
         foreach ($addedUnitTests as $file) {
             $content = $file->getContent();
 
-            if (str_contains($content, 'extends TestCase')) {
+            preg_match('/\s+extends\s+(?<class>\w+)/', $content, $matches);
+
+            if (isset($matches['class']) && in_array($matches['class'], BaseTestClasses)) {
                 $fqcn = str_replace('.php', '', $file->name);
                 $className = explode('/', $fqcn);
                 $testClass = end($className);

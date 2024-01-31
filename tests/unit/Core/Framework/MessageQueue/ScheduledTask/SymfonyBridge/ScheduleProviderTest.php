@@ -14,34 +14,14 @@ use Symfony\Component\Scheduler\Generator\MessageGenerator;
 /**
  * @internal
  */
-#[CoversClass(\Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider::class)]
+#[CoversClass(ScheduleProvider::class)]
 class ScheduleProviderTest extends TestCase
 {
     public function testScheduleIsBuildFromScheduledTasks(): void
     {
         $tasks = [
-            new class() extends ScheduledTask {
-                public static function getTaskName(): string
-                {
-                    return 'test_task_1';
-                }
-
-                public static function getDefaultInterval(): int
-                {
-                    return 10;
-                }
-            },
-            new class() extends ScheduledTask {
-                public static function getTaskName(): string
-                {
-                    return 'test_task_2';
-                }
-
-                public static function getDefaultInterval(): int
-                {
-                    return 20;
-                }
-            },
+            new TestTask1(),
+            new TestTask2(),
         ];
 
         $scheduleProvider = new ScheduleProvider($tasks, $this->createMock(Connection::class));
@@ -70,39 +50,9 @@ class ScheduleProviderTest extends TestCase
     public function testScheduleIsOverwrittenByDatabase(): void
     {
         $tasks = [
-            new class() extends ScheduledTask {
-                public static function getTaskName(): string
-                {
-                    return 'test_task_1';
-                }
-
-                public static function getDefaultInterval(): int
-                {
-                    return 10;
-                }
-            },
-            new class() extends ScheduledTask {
-                public static function getTaskName(): string
-                {
-                    return 'test_task_2';
-                }
-
-                public static function getDefaultInterval(): int
-                {
-                    return 20;
-                }
-            },
-            new class() extends ScheduledTask {
-                public static function getTaskName(): string
-                {
-                    return 'test_task_3';
-                }
-
-                public static function getDefaultInterval(): int
-                {
-                    return 1;
-                }
-            },
+            new TestTask1(),
+            new TestTask2(),
+            new TestTask3(),
         ];
 
         $connection = $this->createMock(Connection::class);
@@ -137,5 +87,53 @@ class ScheduleProviderTest extends TestCase
 
         static::assertInstanceOf(ScheduledTask::class, $messages[1]);
         static::assertSame('test_task_2', $messages[1]->getTaskName());
+    }
+}
+
+/**
+ * @internal
+ */
+class TestTask1 extends ScheduledTask
+{
+    public static function getTaskName(): string
+    {
+        return 'test_task_1';
+    }
+
+    public static function getDefaultInterval(): int
+    {
+        return 10;
+    }
+}
+
+/**
+ * @internal
+ */
+class TestTask2 extends ScheduledTask
+{
+    public static function getTaskName(): string
+    {
+        return 'test_task_2';
+    }
+
+    public static function getDefaultInterval(): int
+    {
+        return 20;
+    }
+}
+
+/**
+ * @internal
+ */
+class TestTask3 extends ScheduledTask
+{
+    public static function getTaskName(): string
+    {
+        return 'test_task_3';
+    }
+
+    public static function getDefaultInterval(): int
+    {
+        return 30;
     }
 }

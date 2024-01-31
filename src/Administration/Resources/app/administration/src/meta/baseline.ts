@@ -257,7 +257,6 @@ const missingTests = [
     'src/module/sw-category/index.js',
     'src/module/sw-category/view/sw-category-detail-cms/index.js',
     'src/module/sw-category/view/sw-category-detail-seo/index.js',
-    'src/module/sw-category/view/sw-landing-page-detail-base/index.js',
     'src/module/sw-category/view/sw-landing-page-detail-cms/index.js',
     'src/module/sw-cms/blocks/commerce/cross-selling/component/index.js',
     'src/module/sw-cms/blocks/commerce/cross-selling/index.js',

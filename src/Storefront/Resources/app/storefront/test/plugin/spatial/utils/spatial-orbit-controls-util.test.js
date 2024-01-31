@@ -84,6 +84,42 @@ describe('SpatialOrbitControlsUtil', () => {
         });
     });
 
+    describe('.enableZoom', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        test('should define a function', () => {
+            expect(typeof SpatialOrbitControlsUtilObject.enableZoom).toBe('function');
+        });
+
+        test('should set zoom enable to true', () => {
+            SpatialOrbitControlsUtilObject.controls.enableZoom = false;
+
+            SpatialOrbitControlsUtilObject.enableZoom();
+
+            expect(SpatialOrbitControlsUtilObject.controls.enableZoom).toBe(true);
+        });
+    });
+
+    describe('.disableZoom', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        test('should define a function', () => {
+            expect(typeof SpatialOrbitControlsUtilObject.disableZoom).toBe('function');
+        });
+
+        test('should set zoom enable to false', () => {
+            SpatialOrbitControlsUtilObject.controls.enableZoom = true;
+
+            SpatialOrbitControlsUtilObject.disableZoom();
+
+            expect(SpatialOrbitControlsUtilObject.controls.enableZoom).toBe(false);
+        });
+    });
+
     describe('.dispose', () => {
         beforeEach(() => {
             jest.clearAllMocks();

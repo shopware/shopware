@@ -94,6 +94,10 @@ class CheckoutCartPageLoader
 
     private function getCountries(SalesChannelContext $context): CountryCollection
     {
+        if ($context->getCustomer()) {
+            return new CountryCollection();
+        }
+
         $countries = $this->countryRoute->load(new Request(), new Criteria(), $context)->getCountries();
         $countries->sortByPositionAndName();
 

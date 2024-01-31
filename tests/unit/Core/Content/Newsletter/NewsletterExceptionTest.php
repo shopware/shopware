@@ -60,5 +60,12 @@ class NewsletterExceptionTest extends TestCase
             'errorCode' => NewsletterException::NEWSLETTER_RECIPIENT_THROTTLED,
             'message' => 'Too many requests, try again in 2 seconds.',
         ];
+
+        yield NewsletterException::MISSING_EMAIL_PARAMETER => [
+            'exception' => NewsletterException::missingEmailParameter(),
+            'statusCode' => Response::HTTP_BAD_REQUEST,
+            'errorCode' => NewsletterException::MISSING_EMAIL_PARAMETER,
+            'message' => 'The email parameter is missing.',
+        ];
     }
 }

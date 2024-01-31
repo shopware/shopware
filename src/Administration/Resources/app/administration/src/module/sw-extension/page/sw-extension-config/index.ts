@@ -86,10 +86,9 @@ export default Shopware.Component.wrapComponentConfig({
         async createdComponent(): Promise<void> {
             if (!this.myExtensions.length) {
                 await this.shopwareExtensionService.updateExtensionData();
-                this.refreshExtension();
-            } else {
-                this.refreshExtension();
             }
+
+            this.refreshExtension();
         },
 
         refreshExtension(): void {

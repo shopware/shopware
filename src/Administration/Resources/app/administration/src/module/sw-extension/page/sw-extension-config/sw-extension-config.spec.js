@@ -58,8 +58,14 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
         }
 
         Shopware.State.registerModule('shopwareExtensions', {
+            namespaced: true,
             state: {
-                myExtensions: { data: { length: 0, find: () => null } },
+                myExtensions: { data: [] },
+            },
+            mutations: {
+                setMyExtensions(state, extensions) {
+                    state.myExtensions = extensions;
+                },
             },
         });
     });
@@ -68,6 +74,19 @@ describe('src/module/sw-extension/page/sw-extension-config-spec', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.domain).toBe('MyExtension.config');
+    });
+
+    it('should reload extensions on createdComponent', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.shopwareExtensionService.updateExtensionData).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not reload extensions on createdComponent if extensions are loaded', async () => {
+        Shopware.State.commit('shopwareExtensions/setMyExtensions', { data: [{ name: 'test-extension' }] });
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.shopwareExtensionService.updateExtensionData).toHaveBeenCalledTimes(0);
     });
 
     it('Save click success', async () => {

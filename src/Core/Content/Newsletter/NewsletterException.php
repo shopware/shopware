@@ -12,6 +12,17 @@ class NewsletterException extends HttpException
     public const NEWSLETTER_RECIPIENT_NOT_FOUND_CODE = 'CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND';
     public const NEWSLETTER_RECIPIENT_THROTTLED = 'CONTENT__NEWSLETTER_RECIPIENT_THROTTLED';
 
+    public const MISSING_EMAIL_PARAMETER = 'CONTENT__MISSING_EMAIL_PARAMETER';
+
+    public static function missingEmailParameter(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MISSING_EMAIL_PARAMETER,
+            'The email parameter is missing.'
+        );
+    }
+
     public static function recipientNotFound(
         string $identifier,
         string $value

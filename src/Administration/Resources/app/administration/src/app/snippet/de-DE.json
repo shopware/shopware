@@ -849,7 +849,7 @@
         }
       },
       "promotionCodeOfType": {
-        "promotionCodeOfType": {
+        "promotionCodeType": {
           "options": {
             "global": "@:global.sw-condition.condition.promotionCodeOfTypeRule.global",
             "fixed": "@:global.sw-condition.condition.promotionCodeOfTypeRule.fixed",

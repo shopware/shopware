@@ -139,6 +139,7 @@
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
             :error="userPasswordError"
+            autocomplete="off"
         />
         {% endblock %}
 
@@ -151,6 +152,7 @@
             :disabled="!acl.can('user.update_profile')"
             :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
             :validation="computedNewPassword === computedNewPasswordConfirm"
+            autocomplete="off"
         />
         {% endblock %}
     </sw-card>

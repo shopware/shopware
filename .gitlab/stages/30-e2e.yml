@@ -40,10 +40,12 @@ include:
     - mkdir -p config/jwt custom/plugins || true
     - npm --prefix tests/e2e ci
     - >
-      if [[ -r var/database.sql ]]; then
+      if [[ -r context.tar.gz ]]; then
+          tar -xzf context.tar.gz
           mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
           mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
           bin/console system:generate-jwt || true
+          touch install.lock
       else
           composer run setup
           composer run e2e:sdk-plugin:fixture-to-plugin
@@ -294,6 +296,7 @@ build image:
   extends:
     - .long-running
   needs: [Build]
+  dependencies: [Build]
   variables:
     GIT_STRATEGY: none
 

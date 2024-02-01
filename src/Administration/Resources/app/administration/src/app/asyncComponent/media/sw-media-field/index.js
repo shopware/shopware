@@ -83,6 +83,9 @@ export default {
             isLoadingSuggestions: false,
             pickerClasses: {},
             uploadTag: Utils.createId(),
+            page: 1,
+            limit: 5,
+            total: 0,
         };
     },
 
@@ -119,7 +122,7 @@ export default {
         },
 
         suggestionCriteria() {
-            const criteria = new Criteria(1, 5);
+            const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.not(
                 'AND',
@@ -166,6 +169,7 @@ export default {
 
         onSearchTermChange(searchTerm) {
             this.searchTerm = searchTerm;
+            this.page = 1;
             this.fetchSuggestions();
         },
 
@@ -182,6 +186,7 @@ export default {
 
             try {
                 this.suggestedItems = await this.mediaRepository.search(this.suggestionCriteria, Context.api);
+                this.total = this.suggestedItems.total;
             } catch (e) {
                 throw new Error(e);
             } finally {
@@ -190,6 +195,9 @@ export default {
         },
 
         onTogglePicker() {
+            this.page = 1;
+            this.limit = 5;
+            this.total = 0;
             this.showPicker = !this.showPicker;
 
             if (this.showPicker) {
@@ -244,6 +252,13 @@ export default {
 
         showLabel() {
             return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
+
+            this.fetchSuggestions();
         },
     },
 };

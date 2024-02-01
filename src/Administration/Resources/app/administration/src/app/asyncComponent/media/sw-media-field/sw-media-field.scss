@@ -140,6 +140,10 @@ $sw-media-field-color-unlink: $color-crimson-500;
     .sw-media-field__picker-loader {
         position: static;
     }
+
+    .sw-pagination {
+        border: none;
+    }
 }
 
 .sw-popover__wrapper.sw-media-field__expanded-content.--placement-bottom-outside {

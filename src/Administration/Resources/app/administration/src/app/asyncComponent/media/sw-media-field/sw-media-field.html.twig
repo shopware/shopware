@@ -154,6 +154,13 @@
                             </li>
                         </ul>
                         {% endblock %}
+
+                        <sw-pagination
+                            v-bind="{ page, limit, total }"
+                            :total-visible="4"
+                            :steps="[5]"
+                            @page-change="onPageChange"
+                        />
                     </div>
                 </div>
             </sw-popover>

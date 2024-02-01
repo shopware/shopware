@@ -45,7 +45,7 @@ export default {
     data() {
         return {
             language: null,
-            usedLocales: [],
+            usedTranslationIds: [],
             showAlertForChangeParentLanguage: false,
             isLoading: false,
             isSaveSuccessful: false,
@@ -86,7 +86,7 @@ export default {
 
         usedLocaleCriteria() {
             return (new Criteria(1, 1)).addAggregation(
-                Criteria.terms('usedLocales', 'language.locale.code', null, null, null),
+                Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null),
             );
         },
 
@@ -152,8 +152,27 @@ export default {
                 this.createdComponent();
             }
         },
-        'language.translationCodeId'() {
+        'language.translationCodeId'(newId, oldId) {
             this.translationCodeError = null;
+
+            if (newId === null) {
+                return;
+            }
+
+            // if no previous value, just set this translation iso as used
+            if (oldId === null) {
+                this.usedTranslationIds.push(newId);
+                return;
+            }
+
+            // if the translation iso code was changed, remove the original from the used list and replace
+            // with the newly selected code
+            const index = this.usedTranslationIds.findIndex((id) => id === oldId);
+            this.usedTranslationIds.splice(
+                index,
+                1,
+                newId,
+            );
         },
     },
 
@@ -171,8 +190,8 @@ export default {
                 this.loadCustomFieldSets();
             }
 
-            this.languageRepository.search(this.usedLocaleCriteria).then(({ aggregations }) => {
-                this.usedLocales = aggregations.usedLocales.buckets;
+            this.languageRepository.search(this.usedLocaleCriteria).then((data) => {
+                this.usedTranslationIds = data.aggregations.usedTranslationIds.buckets.map((item) => item.key);
             });
         },
 
@@ -222,8 +241,8 @@ export default {
         },
 
         isLocaleAlreadyUsed(item) {
-            const usedByAnotherLanguage = this.usedLocales.some((locale) => {
-                return item.code === locale.key;
+            const usedByAnotherLanguage = this.usedTranslationIds.some((localeId) => {
+                return item.id === localeId;
             });
 
             if (usedByAnotherLanguage) {

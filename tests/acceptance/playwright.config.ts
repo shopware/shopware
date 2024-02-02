@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { AdminApiContext } from '@fixtures/AdminApiContext';
 
 // Read from default ".env" file.
 dotenv.config();
@@ -40,9 +41,25 @@ interface PluginInfo {
 
 function getPluginProjects() {
     if (!fs.existsSync(pluginFile)) {
-        console.warn('No plugins.json file found. Skipping plugin tests.');
-        return [];
-    } 
+        // look for plugins in custom/plugins and test if acceptance tests exist
+        const customPlugins = path.resolve(projectRoot, 'custom/plugins');
+        const pluginFolders = fs.readdirSync(customPlugins);
+        const pluginProjects = pluginFolders.map((pluginFolder) => {
+            const pluginPath = path.resolve(customPlugins, pluginFolder);
+            const acceptanceTestsPath = path.resolve(pluginPath, 'tests/acceptance/tests');
+            if (fs.existsSync(acceptanceTestsPath)) {
+                return {
+                    name: pluginFolder,
+                    use: {
+                        ...devices['Desktop Chrome'],
+                    },
+                    testDir: acceptanceTestsPath,
+                };
+            }
+        }).filter((plugin) => plugin !== undefined);
+
+        return pluginProjects;
+    }
 
     const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8')) as Record<string, PluginInfo>;
 

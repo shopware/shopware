@@ -1,14 +1,3 @@
-include:
-  - component: gitlab.shopware.com/infrastructure/ci-component-library/kaniko-amd64@trunk
-    inputs:
-      job-suffix: ""
-      stage: E2E
-      context: tar://${CI_PROJECT_DIR}/context.tar.gz
-      destination-image: "${CI_REGISTRY_IMAGE}/foo/ci-test"
-      destination-tag: "$CI_PIPELINE_ID"
-      dockerfile: .gitlab/Dockerfile
-      enable-scan: "false"
-      cache: "false"
 
 # yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 # requires /.gitlab/base.yml
@@ -292,14 +281,6 @@ E2E auto update:
       --spec "cypress/e2e/recovery/updater/auto-update.cy.js"
       --headless
 
-build image:
-  extends:
-    - .long-running
-  needs: [Build]
-  dependencies: [Build]
-  variables:
-    GIT_STRATEGY: none
-
 acceptance:
   extends:
     - .long-running
@@ -312,7 +293,7 @@ acceptance:
       entrypoint: [ "sh", "-c", "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON" ]
     - name: redis:7.0
       alias: redis
-    - name: "${CI_REGISTRY_IMAGE}/foo/ci-test:$CI_PIPELINE_ID"
+    - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
       alias: shopware
   variables:
     APP_ENV: prod

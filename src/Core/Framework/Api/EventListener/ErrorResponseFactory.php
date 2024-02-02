@@ -118,7 +118,7 @@ class ErrorResponseFactory
                 $array[$key] = $this->convert($value);
             }
 
-            /** @var list<string> $encodings */
+            /** @var list<non-falsy-string> $encodings */
             $encodings = mb_detect_order();
             // NEXT-21735 - This is covered randomly
             // @codeCoverageIgnoreStart

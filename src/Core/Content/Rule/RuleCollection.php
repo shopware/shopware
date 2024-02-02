@@ -17,9 +17,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class RuleCollection extends EntityCollection
 {
     /**
-     * @deprecated tag:v6.6.0 return type will be native
-     *
-     * @phpstan-ignore-next-line
+     * @deprecated tag:v6.6.0 - reason:return-type-change - return type will be native
      *
      * @return RuleCollection
      */

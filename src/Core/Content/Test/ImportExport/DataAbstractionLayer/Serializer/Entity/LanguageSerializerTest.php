@@ -48,9 +48,11 @@ class LanguageSerializerTest extends TestCase
             ],
         ];
 
-        $serialized = iterator_to_array($this->serializer->serialize($config, $this->languageRepository->getDefinition(), $language));
+        $serialized = $this->serializer->serialize($config, $this->languageRepository->getDefinition(), $language);
+        $serialized = \is_array($serialized) ? $serialized : iterator_to_array($serialized);
 
-        $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->languageRepository->getDefinition(), $serialized));
+        $deserialized = $this->serializer->deserialize($config, $this->languageRepository->getDefinition(), $serialized);
+        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
         static::assertSame($this->languageId, $deserialized['id']);
     }

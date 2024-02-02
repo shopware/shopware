@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\System\CustomEntity\Exception\CustomEntityXmlParsingException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\AdminUiXmlSchema;
-use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\AdminUi;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Card;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
@@ -198,7 +197,6 @@ class AdminUiXmlSchemaTest extends TestCase
     private function getEntities(AdminUiXmlSchema $adminUiXmlSchema): array
     {
         $adminUi = $adminUiXmlSchema->getAdminUi();
-        static::assertInstanceOf(AdminUi::class, $adminUi);
 
         return $adminUi->getEntities();
     }

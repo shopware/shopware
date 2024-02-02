@@ -33,6 +33,9 @@ class CompiledFieldCollection extends FieldCollection
      */
     private array $extensionFields = [];
 
+    /**
+     * @param iterable<Field> $elements
+     */
     public function __construct(
         private readonly DefinitionInstanceRegistry $registry,
         iterable $elements = []
@@ -168,6 +171,9 @@ class CompiledFieldCollection extends FieldCollection
         return Field::class;
     }
 
+    /**
+     * @param iterable<Field> $elements
+     */
     protected function createNew(iterable $elements = []): CompiledFieldCollection
     {
         return new self($this->registry, $elements);

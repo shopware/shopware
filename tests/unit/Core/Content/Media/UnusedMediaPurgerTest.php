@@ -1328,7 +1328,7 @@ class UnusedMediaPurgerTest extends TestCase
                 return 'media_thumbnail';
             }
 
-            protected function getParentDefinitionClass(): ?string
+            protected function getParentDefinitionClass(): string
             {
                 return 'Media';
             }

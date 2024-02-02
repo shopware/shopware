@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('core')]
 class InsertCommand extends WriteCommand
 {
-    public function getPrivilege(): ?string
+    public function getPrivilege(): string
     {
         return AclRoleDefinition::PRIVILEGE_CREATE;
     }

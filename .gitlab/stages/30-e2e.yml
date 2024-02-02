@@ -21,6 +21,13 @@
   before_script:
     - echo -e "\e[0Ksection_start:$(date +%s):init[collapsed=true]\r\e[0Ke2e preparation"
     - cp public/.htaccess.dist public/.htaccess
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - |
+        LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | grep 'v6.5' | tail --lines=1 | cut -d '/' -f 3)";
+        PLATFORM_VERSION="${LATEST_TAG#"v"}";
+        echo "$PLATFORM_VERSION";
+        composer config version "$PLATFORM_VERSION";
+        composer update;
     - !reference [ .scripts, init, composer ]
     - touch install.lock
     - mkdir -p config/jwt custom/plugins || true
@@ -259,6 +266,7 @@ E2E Changed install NL scenarios:
     - composer install
     - composer run init:e2e
     - curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/bin
+    - git config --global --add safe.directory $CI_PROJECT_DIR
     - composer e2e:web-update:prepare
     - symfony local:server:start --dir=shop --port=8050 -d
     - symfony local:server:start --dir=tests/e2e/update-api-mock --port=8060 -d

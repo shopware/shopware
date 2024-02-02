@@ -73,7 +73,7 @@ class AclController extends AbstractController
     }
 
     /**
-     * @return list<string>
+     * @return array<string>
      */
     private function getFromRoutes(): array
     {

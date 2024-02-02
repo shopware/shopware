@@ -133,7 +133,7 @@ class EntitySearchResult extends EntityCollection
         return 'dal_entity_search_result';
     }
 
-    public function getPage(): ?int
+    public function getPage(): int
     {
         return $this->page;
     }

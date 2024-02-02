@@ -23,15 +23,15 @@
                             {% if page.product.manufacturer.media %}
                                 {% block page_product_detail_manufacturer_logo %}
                                     {% set attributes = {
-                                        'class': 'product-detail-manufacturer-logo',
-                                        'alt': page.product.manufacturer.translated.name,
-                                        'title': page.product.manufacturer.translated.name
+                                        class: 'product-detail-manufacturer-logo',
+                                        alt: page.product.manufacturer.translated.name,
+                                        title: page.product.manufacturer.translated.name
                                     } %}
 
                                     {% sw_thumbnails 'product-detail-manufacturer-image-thumbnails' with {
                                         media: page.product.manufacturer.media,
                                         sizes: {
-                                            'default': '200px'
+                                            default: '200px'
                                         }
                                     } %}
                                 {% endblock %}

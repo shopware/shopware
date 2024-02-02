@@ -16,13 +16,13 @@
                         <div class="card-body">
                             {% block page_checkout_finish_address_shipping_title %}
                                 <div class="card-title">
-                                    {{ "checkout.shippingAddressHeader"|trans|sw_sanitize }}
+                                    {{ 'checkout.shippingAddressHeader'|trans|sw_sanitize }}
                                 </div>
                             {% endblock %}
 
                             {% block page_checkout_finish_address_shipping_data %}
                                 <div class="finish-address-shipping">
-                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': shippingAddress} %}
+                                    {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: shippingAddress} %}
                                 </div>
                             {% endblock %}
                         </div>
@@ -37,13 +37,13 @@
                     <div class="card-body">
                         {% block page_checkout_finish_address_billing_title %}
                             <div class="card-title">
-                                {{ "checkout.billingAddressHeader"|trans|sw_sanitize }}
+                                {{ 'checkout.billingAddressHeader'|trans|sw_sanitize }}
                             </div>
                         {% endblock %}
 
                         {% block page_checkout_finish_address_billing_data %}
                             <div class="finish-address-billing">
-                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {'address': billingAddress} %}
+                                {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {address: billingAddress} %}
                             </div>
                         {% endblock %}
                     </div>

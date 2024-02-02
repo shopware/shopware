@@ -18,8 +18,8 @@
 
             {% block page_checkout_change_payment_form_fields %}
                 {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-                    'visiblePaymentMethodsLimit': 5,
-                    'selectedPaymentMethodId': context.paymentMethod.id
+                    visiblePaymentMethodsLimit: 5,
+                    selectedPaymentMethodId: context.paymentMethod.id
                 } %}
             {% endblock %}
         </form>

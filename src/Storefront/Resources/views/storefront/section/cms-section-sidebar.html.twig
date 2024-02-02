@@ -1,6 +1,6 @@
 {% block page_content_section_sidebar %}
     {% set sectionMobileBehaviorClass = 'cms-section-sidebar-mobile-' ~ section.mobileBehavior %}
-    {% set layout = section.sizingMode ? section.sizingMode|replace({"_": "-"}) : "container" %}
+    {% set layout = section.sizingMode ? section.sizingMode|replace({_: '-'}) : 'container' %}
 
     <div class="cms-section-sidebar {{ sectionMobileBehaviorClass }} {{ layout }} row">
 
@@ -12,7 +12,7 @@
 
                 {% for block in sidebarBlocks %}
                     {% block section_sidebar_content_block %}
-                        {% sw_include "@Storefront/storefront/section/cms-section-block-container.html.twig" %}
+                        {% sw_include '@Storefront/storefront/section/cms-section-block-container.html.twig' %}
                     {% endblock %}
                 {% endfor %}
             </div>
@@ -23,7 +23,7 @@
 
                 {% for block in mainContentBlocks %}
                     {% block section_main_content_block %}
-                        {% sw_include "@Storefront/storefront/section/cms-section-block-container.html.twig" %}
+                        {% sw_include '@Storefront/storefront/section/cms-section-block-container.html.twig' %}
                     {% endblock %}
                 {% endfor %}
             </div>

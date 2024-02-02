@@ -57,8 +57,8 @@
                         {% block page_product_detail_product_buy_button %}
                             <div class="d-grid">
                                 <button class="btn btn-buy"
-                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                    {{ "listing.boxAddProduct"|trans|sw_sanitize }}
+                                        title="{{ 'listing.boxAddProduct'|trans|striptags }}">
+                                    {{ 'listing.boxAddProduct'|trans|sw_sanitize }}
                                 </button>
                             </div>
                         {% endblock %}
@@ -68,10 +68,10 @@
         {% else %}
             {% block component_product_box_action_detail %}
                 <div class="d-grid">
-                    <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+                    <a href="{{ seoUrl('frontend.detail.page', {productId: id}) }}"
                        class="btn btn-light"
-                       title="{{ "listing.boxProductDetails"|trans|striptags }}">
-                        {{ "listing.boxProductDetails"|trans|sw_sanitize }}
+                       title="{{ 'listing.boxProductDetails'|trans|striptags }}">
+                        {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
                     </a>
                 </div>
             {% endblock %}

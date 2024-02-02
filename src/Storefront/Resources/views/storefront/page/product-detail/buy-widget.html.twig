@@ -100,10 +100,10 @@
 
                     {% block page_product_detail_tax %}
                         <div class="product-detail-tax-container">
-                            {% if context.taxState == "gross" %}
-                                {% set taxText = "general.grossTaxInformation"|trans|sw_sanitize %}
+                            {% if context.taxState == 'gross' %}
+                                {% set taxText = 'general.grossTaxInformation'|trans|sw_sanitize %}
                             {% else %}
-                                {% set taxText = "general.netTaxInformation"|trans|sw_sanitize %}
+                                {% set taxText = 'general.netTaxInformation'|trans|sw_sanitize %}
                             {% endif %}
 
                             <p class="product-detail-tax">
@@ -121,7 +121,7 @@
                     {% endblock %}
 
                     {% set remoteClickOptions = {
-                        selector: "#review-tab",
+                        selector: '#review-tab',
                         scrollToElement: true
                     } %}
 
@@ -143,7 +143,7 @@
                                     aria-controls="review-tab-pane"
                                 >
                                     {{ page.reviews.totalReviews }}
-                                    {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.totalReviews})|sw_sanitize }}
+                                    {{ 'detail.reviewLinkText'|trans({'%count%': page.reviews.totalReviews})|sw_sanitize }}
                                 </a>
                             </div>
                         {% endif %}
@@ -189,7 +189,7 @@
                 <div class="product-detail-ordernumber-container">
                     {% block page_product_detail_ordernumber_label %}
                         <span class="product-detail-ordernumber-label">
-                            {{ "detail.productNumberLabel"|trans|sw_sanitize }}
+                            {{ 'detail.productNumberLabel'|trans|sw_sanitize }}
                         </span>
                     {% endblock %}
 

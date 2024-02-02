@@ -6,7 +6,7 @@
             {% block page_search_headline %}
                 <h1 class="search-headline text-center mb-4">
                     {% block page_search_headline_text %}
-                        {{ "search.headline"|trans({
+                        {{ 'search.headline'|trans({
                             '%count%': page.listing.total,
                             '%searchTerm%': page.searchTerm,
                         }) }}

@@ -35,7 +35,7 @@
                                             <div class="form-group col-md-8">
                                                 {% block page_account_guest_auth_mail_label %}
                                                     <label class="form-label" for="mail">
-                                                        {{ 'account.profileCurrentMail'|trans }}{{ "general.required"|trans|sw_sanitize }}
+                                                        {{ 'account.profileCurrentMail'|trans }}{{ 'general.required'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -45,7 +45,7 @@
                                                            autocomplete="section-personal email"
                                                            id="mail"
                                                            name="email"
-                                                           placeholder="{{ "account.loginMailPlaceholder"|trans|striptags }}"
+                                                           placeholder="{{ 'account.loginMailPlaceholder'|trans|striptags }}"
                                                            required="required">
                                                 {% endblock %}
                                             </div>
@@ -55,7 +55,7 @@
                                             {% block page_account_guest_auth_postcode %}
                                                 {% block page_account_guest_auth_postcode_label %}
                                                     <label class="form-label" for="recoverMail2">
-                                                        {{ 'address.zipcodeLabel'|trans }}{{ "general.required"|trans|sw_sanitize }}
+                                                        {{ 'address.zipcodeLabel'|trans }}{{ 'general.required'|trans|sw_sanitize }}
                                                     </label>
                                                 {% endblock %}
 
@@ -65,7 +65,7 @@
                                                        autocomplete="section-personal zipcode"
                                                        id="zipcode"
                                                        name="zipcode"
-                                                       placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
+                                                       placeholder="{{ 'address.zipcodePlaceholder'|trans|striptags }}"
                                                        required="required">
                                                 {% endblock %}
                                             {% endblock %}

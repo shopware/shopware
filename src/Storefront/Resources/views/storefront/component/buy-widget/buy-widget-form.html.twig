@@ -21,8 +21,8 @@
                                 {% set selectQuantityThreshold = 100 %}
                                 {% block buy_widget_buy_quantity_input_group %}
                                     <div class="input-group product-detail-quantity-group quantity-selector-group" data-quantity-selector="true">
-                                        <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ "component.product.quantitySelect.decrease"|trans|striptags }}">
-                                            {% sw_icon 'minus' style {'size': 'xs'} %}
+                                        <button type="button" class="btn btn-outline-light btn-minus js-btn-minus" aria-label="{{ 'component.product.quantitySelect.decrease'|trans|striptags }}">
+                                            {% sw_icon 'minus' style {size: 'xs'} %}
                                         </button>
                                         <input
                                             type="number"
@@ -32,10 +32,10 @@
                                             max="{{ product.calculatedMaxPurchase }}"
                                             step="{{ product.purchaseSteps }}"
                                             value="{{ product.minPurchase }}"
-                                            aria-label="{{ "component.product.quantitySelect.label"|trans|striptags }}"
+                                            aria-label="{{ 'component.product.quantitySelect.label'|trans|striptags }}"
                                         />
-                                        <button type="button" class="btn btn-outline-light btn-plus js-btn-plus" aria-label="{{ "component.product.quantitySelect.increase"|trans|striptags }}">
-                                            {% sw_icon 'plus' style {'size': 'xs'} %}
+                                        <button type="button" class="btn btn-outline-light btn-plus js-btn-plus" aria-label="{{ 'component.product.quantitySelect.increase'|trans|striptags }}">
+                                            {% sw_icon 'plus' style {size: 'xs'} %}
                                         </button>
                                         {% if product.translated.packUnit %}
                                             <span class="input-group-text">
@@ -96,9 +96,9 @@
                             {% block buy_widget_buy_button %}
                                 <div class="d-grid">
                                     <button class="btn btn-primary btn-buy"
-                                            title="{{ "detail.addProduct"|trans|striptags }}"
-                                            aria-label="{{ "detail.addProduct"|trans|striptags }}">
-                                        {{ "detail.addProduct"|trans|sw_sanitize }}
+                                            title="{{ 'detail.addProduct'|trans|striptags }}"
+                                            aria-label="{{ 'detail.addProduct'|trans|striptags }}">
+                                        {{ 'detail.addProduct'|trans|sw_sanitize }}
                                     </button>
                                 </div>
                             {% endblock %}

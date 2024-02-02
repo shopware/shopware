@@ -250,7 +250,7 @@ Changed E2E:
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
     DISABLE_ADMIN_COMPILATION_TYPECHECK: 'true'
   before_script:
-    - composer install
+    - tar -xzf context.tar.gz
     - composer run init:e2e
     - curl -sS https://get.symfony.com/cli/installer | bash -s -- --install-dir=/usr/bin
     - git config --global --add safe.directory $CI_PROJECT_DIR

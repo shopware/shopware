@@ -46,9 +46,14 @@
         :criteria="mailTemplateCriteria"
         label-property="mailTemplateType.name"
         :label="$tc('sw-order.documentSendModal.labelMailTemplate')"
+        description-position="bottom"
         required
         @update:value="onMailTemplateChange"
-    />
+    >
+        <template #result-description-property="{ item }">
+            {{ truncateFilter(item.description, 160) }}
+        </template>
+    </sw-entity-single-select>
     {% endblock %}
 
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->

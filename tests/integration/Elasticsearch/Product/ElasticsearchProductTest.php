@@ -3348,6 +3348,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(50, 50, 'default', 150, 150)
                 ->releaseDate('2019-01-01 10:11:00')
                 ->purchasePrice(0)
+                ->shippingFree(true)
                 ->stock(2)
                 ->createdAt('2019-01-01 10:11:00')
                 ->category('c1')

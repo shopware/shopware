@@ -66,6 +66,8 @@ class ProductBuilder
      */
     protected array $price = [];
 
+    protected bool $shippingFree = false;
+
     /**
      * @var array<array<mixed>>
      */
@@ -351,6 +353,13 @@ class ProductBuilder
                 $this->buildCurrencyPrice($currencyKey, $price),
             ],
         ];
+
+        return $this;
+    }
+
+    public function shippingFree(bool $shippingFree = true): self
+    {
+        $this->shippingFree = $shippingFree;
 
         return $this;
     }

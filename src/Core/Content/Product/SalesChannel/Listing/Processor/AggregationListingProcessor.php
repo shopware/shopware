@@ -8,6 +8,9 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\FilterCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\MaxResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\StatsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -59,6 +62,35 @@ class AggregationListingProcessor extends AbstractListingProcessor
 
         foreach ($this->factories as $factory) {
             $factory->process($request, $result, $context);
+        }
+
+        $this->filterAggregations($result);
+    }
+
+    private function filterAggregations(ProductListingResult $result): void
+    {
+        $aggregations = $result->getAggregations();
+        foreach ($aggregations as $aggregationName => $aggregation) {
+            if ($aggregation instanceof MaxResult
+                && $aggregation->getMax() === null) {
+                $aggregations->remove($aggregationName);
+
+                continue;
+            }
+
+            if ($aggregation instanceof EntityResult
+                && $aggregation->getEntities()->count() === 0) {
+                $aggregations->remove($aggregationName);
+
+                continue;
+            }
+
+            if ($aggregation instanceof StatsResult
+                && $aggregation->getMin() === null && $aggregation->getMax() === null) {
+                $aggregations->remove($aggregationName);
+
+                continue;
+            }
         }
     }
 

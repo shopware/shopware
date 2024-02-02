@@ -1,6 +1,7 @@
 {% block page_content_section_sidebar %}
     {% set sectionMobileBehaviorClass = 'cms-section-sidebar-mobile-' ~ section.mobileBehavior %}
-    {% set layout = section.sizingMode ? section.sizingMode|replace({_: '-'}) : 'container' %}
+    {# ludtwig-ignore twig-hash-key-no-quotes #}
+    {% set layout = section.sizingMode ? section.sizingMode|replace({'_': '-'}) : 'container' %}
 
     <div class="cms-section-sidebar {{ sectionMobileBehaviorClass }} {{ layout }} row">
 

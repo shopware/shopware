@@ -1,5 +1,6 @@
 {% block page_content_section_default %}
-    {% set layout = section.sizingMode ? section.sizingMode|replace({_: '-'}) : 'container' %}
+    {# ludtwig-ignore twig-hash-key-no-quotes #}
+    {% set layout = section.sizingMode ? section.sizingMode|replace({'_': '-'}) : 'container' %}
     <div class="cms-section-default {{ layout }}">
         {% for block in section.blocks %}
 

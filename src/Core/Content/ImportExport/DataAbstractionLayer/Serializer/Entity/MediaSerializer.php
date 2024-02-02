@@ -49,7 +49,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
     /**
      * @param array<mixed>|\Traversable<mixed> $entity
      *
-     * @return array<mixed>|\Traversable<mixed>
+     * @return array<mixed>
      */
     public function deserialize(Config $config, EntityDefinition $definition, $entity)
     {

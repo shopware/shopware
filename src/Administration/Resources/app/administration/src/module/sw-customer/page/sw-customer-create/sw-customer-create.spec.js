@@ -202,4 +202,43 @@ describe('module/sw-customer/page/sw-customer-create', () => {
         expect(wrapper.find('sw-customer-base-form-stub').exists()).toBeFalsy();
         expect(wrapper.find('sw-customer-address-form-stub').exists()).toBeFalsy();
     });
+
+    it('should throw exception when the customer creation fails', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({
+            customer: {
+                id: '1',
+                email: 'ytn@shopware.com',
+                boundSalesChannelId: null,
+            },
+        });
+
+        // eslint-disable-next-line prefer-promise-reject-errors
+        wrapper.vm.customerRepository.save = jest.fn(() => Promise.reject({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                            detail: 'This value should not be blank.',
+                            status: '400',
+                            template: 'This value should not be blank.',
+                        },
+                    ],
+                },
+            },
+        }));
+
+        try {
+            await wrapper.vm.onSave();
+        } catch (e) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(e.response.data.errors[0]).toEqual({
+                code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                detail: 'This value should not be blank.',
+                status: '400',
+                template: 'This value should not be blank.',
+            });
+        }
+    });
 });

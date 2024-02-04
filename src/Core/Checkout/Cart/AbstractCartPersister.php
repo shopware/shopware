@@ -20,6 +20,14 @@ abstract class AbstractCartPersister
 
     abstract public function replace(string $oldToken, string $newToken, SalesChannelContext $context): void;
 
+    /**
+     * This method is called by the cleanup task handler to remove old carts from the database.
+     * The cart persisted should implement this method to remove carts that are older than the given amount of days.
+     */
+    public function prune(int $days): void
+    {
+    }
+
     protected function shouldPersist(Cart $cart): bool
     {
         return $cart->getLineItems()->count() > 0

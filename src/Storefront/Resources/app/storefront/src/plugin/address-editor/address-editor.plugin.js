@@ -147,7 +147,7 @@ export default class AddressEditorPlugin extends Plugin {
             Iterator.iterate(collapseTriggers, collapseTrigger => {
                 const targetSelector = DomAccess.getDataAttribute(collapseTrigger, 'data-bs-target');
                 const target = DomAccess.querySelector(modal, targetSelector);
-                const parentSelector = DomAccess.getDataAttribute(target, 'data-parent');
+                const parentSelector = DomAccess.getDataAttribute(target, 'data-bs-parent');
                 const parent = DomAccess.querySelector(modal, parentSelector);
 
                 parent.addEventListener('hidden.bs.collapse', () => {

@@ -216,4 +216,112 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(convertedProductLineItems).toHaveLength(1);
         expect(convertedProductLineItems).toContainEqual(previouslyConvertedLineItem);
     });
+
+    it('should apply promotions on save and recalculate', async () => {
+        const lineItemWithExistingProduct = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+
+        const promotionLineItem = {
+            type: 'promotion',
+            referencedId: null,
+        };
+
+
+        wrapper = await createWrapper({
+            lineItems: [
+                lineItemWithExistingProduct,
+                promotionLineItem,
+            ],
+        });
+
+        wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
+
+        await flushPromises();
+
+        expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+        expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+
+        await wrapper.vm.onSaveAndRecalculate();
+        expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
+        expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
+    });
+
+    it('should apply promotions on recalculate and reload', async () => {
+        const lineItemWithExistingProduct = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+
+        const promotionLineItem = {
+            type: 'promotion',
+            referencedId: null,
+        };
+
+
+        wrapper = await createWrapper({
+            lineItems: [
+                lineItemWithExistingProduct,
+                promotionLineItem,
+            ],
+        });
+
+        wrapper.vm.orderService.recalculateOrder = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderService.toggleAutomaticPromotions = jest.fn(() => Promise.resolve());
+
+        await flushPromises();
+
+        expect(wrapper.vm.automaticPromotions).toHaveLength(1);
+        expect(wrapper.vm.automaticPromotions).toContainEqual(promotionLineItem);
+
+        await wrapper.vm.onRecalculateAndReload();
+
+        expect(wrapper.vm.promotionsToDelete).toHaveLength(1);
+        expect(wrapper.vm.orderService.recalculateOrder).toHaveBeenCalled();
+        expect(wrapper.vm.orderService.toggleAutomaticPromotions).toHaveBeenCalled();
+    });
+
+    it('should delete promotions on save edits', async () => {
+        const lineItemWithExistingProduct = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+
+        const promotionLineItem = {
+            id: 'promotionLineItemId',
+            type: 'promotion',
+            referencedId: null,
+        };
+
+
+        wrapper = await createWrapper({
+            lineItems: [
+                lineItemWithExistingProduct,
+                promotionLineItem,
+            ],
+        });
+
+        await flushPromises();
+
+        wrapper.vm.promotionsToDelete = ['promotionLineItemId'];
+
+        await wrapper.vm.onSaveEdits();
+
+        expect(wrapper.vm.order.lineItems).toHaveLength(1);
+        expect(wrapper.vm.promotionsToDelete).toHaveLength(0);
+    });
 });

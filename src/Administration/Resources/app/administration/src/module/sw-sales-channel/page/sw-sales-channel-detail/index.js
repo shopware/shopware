@@ -219,6 +219,7 @@ export default {
             criteria.addAssociation('domains.language');
             criteria.addAssociation('domains.snippetSet');
             criteria.addAssociation('domains.currency');
+            criteria.addAssociation('domains.productExports');
 
             return criteria;
         },

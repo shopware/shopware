@@ -9,23 +9,28 @@ use Shopware\Core\Content\ProductExport\Event\ProductExportRenderHeaderContextEv
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('inventory')]
 class ProductExportRenderer implements ProductExportRendererInterface
 {
     /**
+     * @param array<mixed> $fileSystemConfig
+     *
      * @internal
      */
     public function __construct(
         private readonly StringTemplateRenderer $templateRenderer,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        private readonly array $fileSystemConfig
     ) {
     }
 
@@ -115,6 +120,8 @@ class ProductExportRenderer implements ProductExportRendererInterface
                 $salesChannelContext->getContext()
             ) . \PHP_EOL;
 
+            $content = $this->replaceSalesChannelDomainUrl($content, $productExport->getSalesChannelDomain()->getUrl());
+
             return $this->replaceSeoUrlPlaceholder($content, $productExport, $salesChannelContext);
         } catch (StringTemplateRenderingException $exception) {
             $renderProductException = ProductExportException::renderProductException($exception->getMessage());
@@ -148,5 +155,33 @@ class ProductExportRenderer implements ProductExportRendererInterface
             $productExportEntity->getSalesChannelDomain()->getUrl(),
             $salesChannelContext
         );
+    }
+
+    private function replaceSalesChannelDomainUrl(
+        string $content,
+        string $salesChannelDomainUrl
+    ): string {
+        $defaultUrl = $this->fileSystemConfig['url'] ?? $this->getFallbackUrl();
+        $defaultUrl = rtrim($defaultUrl, '/');
+
+        $salesChannelDomainUrl = rtrim($salesChannelDomainUrl, '/');
+
+        if ($defaultUrl === $salesChannelDomainUrl) {
+            return $content;
+        }
+
+        return str_replace($defaultUrl, $salesChannelDomainUrl, $content);
+    }
+
+    private function getFallbackUrl(): string
+    {
+        $request = Request::createFromGlobals();
+        $requestUrl = $request->getSchemeAndHttpHost() . $request->getBasePath();
+
+        if ($request->getHost() === '' && EnvironmentHelper::getVariable('APP_URL')) {
+            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
+        }
+
+        return $requestUrl;
     }
 }

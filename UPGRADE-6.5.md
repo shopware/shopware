@@ -502,7 +502,7 @@ shopware:
 ```
 
 # 6.5.5.0
-Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](../../adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
+Shopware 6.5 introduces a new more flexible stock management system. Please see the [ADR](adr/2023-05-15-stock-api.md) for a more detailed description of the why & how.
 
 It is disabled by default, but you can opt in to the new system by enabling the `STOCK_HANDLING` feature flag.
 
@@ -1229,7 +1229,7 @@ Since v6.6.0.0, `ContextTokenResponse` class won't return the contextToken value
 ## Changed `HttpCache`, `Entity` and `NoStore` configurations for routes
 
 The Route-level configurations for `HttpCache`, `Entity` and `NoStore` where changed from custom annotations to `@Route` defaults.
-The reasons for those changes are outlined in this [ADR](../../adr/api/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
+The reasons for those changes are outlined in this [ADR](/adr/2022-02-09-controller-configuration-route-defaults.md) and for a lot of former annotations this change was already done previously.
 Now we also change the handling for the last three annotations to be consistent and to allow the removal of the abandoned `sensio/framework-extra-bundle`.
 
 This means the `@HttpCache`, `@Entity`, `@NoStore` annotations are deprecated and have no effect anymore, the configuration no needs to be done as `defaults` in the `@Route` annotation.
@@ -2155,7 +2155,7 @@ Additionally, the default implementation for `\Shopware\Storefront\Theme\Abstrac
 Obsolete compiled theme files are now deleted with a delay, whenever a new theme compilation created new files.
 The delay time can be configured in the `shopware.yaml` file with the new `storefront.theme.file_delete_delay` option, by default it is set to 900 seconds (15 min), if the old theme files should be deleted immediately you can set the value to 0.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Selector to open an ajax modal
 The JavaScript plugin `AjaxModal` is able to open a Bootstrap modal and fetching content via ajax.

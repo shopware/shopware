@@ -239,6 +239,8 @@ const missingTests = [
     'src/core/service/validation.service.js',
     'src/core/worker/admin-notification-worker.js',
     'src/core/worker/worker-notification-listener.js',
+    'src/core/worker/admin-worker.worker.js',
+    'src/core/worker/admin-worker.shared-worker.js',
     'src/global.types.ts',
     'src/module/index.js',
     'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js',

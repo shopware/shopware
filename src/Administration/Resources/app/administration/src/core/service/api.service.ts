@@ -63,7 +63,8 @@ class ApiService {
      */
     getBasicHeaders(additionalHeaders = {}): BasicHeaders {
         let languageIdHeader = {};
-        if (typeof Shopware.Context?.api?.languageId === 'string') {
+        // eslint-disable-next-line no-restricted-globals
+        if (self?.Shopware && typeof Shopware.Context?.api?.languageId === 'string') {
             languageIdHeader = {
                 'sw-language-id': Shopware.Context.api.languageId,
             };

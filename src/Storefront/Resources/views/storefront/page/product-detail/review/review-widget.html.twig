@@ -7,7 +7,7 @@
 
                     {% block page_product_detail_review_title %}
                         <p class="product-detail-review-title h5">
-                            {{ "detail.reviewTitle"|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
+                            {{ 'detail.reviewTitle'|trans({'%count%': reviews.total, '%total%':reviews.totalReviews })|sw_sanitize }}
                         </p>
                     {% endblock %}
 
@@ -30,7 +30,7 @@
 
                             {% if productReviewCount > 0 %}
                                 <p class="h6">
-                                    {{ productAvgRating }} {{ "detail.reviewAvgRate"|trans|sw_sanitize }} {{ reviews.matrix.maxPoints }} {{ "detail.reviewAvgRateElements"|trans }}
+                                    {{ productAvgRating }} {{ 'detail.reviewAvgRate'|trans|sw_sanitize }} {{ reviews.matrix.maxPoints }} {{ 'detail.reviewAvgRateElements'|trans }}
                                 </p>
                             {% endif %}
                         </div>
@@ -43,7 +43,7 @@
             {% endif %}
 
             {% set formAjaxSubmitOptions = {
-                replaceSelectors: [".js-review-container"],
+                replaceSelectors: ['.js-review-container'],
                 submitOnChange: true
             } %}
 
@@ -139,9 +139,9 @@
                 {% block page_product_detail_review_form_teaser_header %}
                     <p class="h4">
                         {% if not reviews.customerReview %}
-                            {{ "detail.reviewTeaserTitle"|trans|sw_sanitize }}
+                            {{ 'detail.reviewTeaserTitle'|trans|sw_sanitize }}
                         {% else %}
-                            {{ "detail.reviewExistsTeaserTitle"|trans|sw_sanitize }}
+                            {{ 'detail.reviewExistsTeaserTitle'|trans|sw_sanitize }}
                         {% endif %}
                     </p>
                 {% endblock %}
@@ -149,9 +149,9 @@
                 {% block page_product_detail_review_form_teaser_text %}
                     <p>
                         {% if not reviews.customerReview %}
-                            {{ "detail.reviewTeaserText"|trans|sw_sanitize }}
+                            {{ 'detail.reviewTeaserText'|trans|sw_sanitize }}
                         {% else %}
-                            {{ "detail.reviewExistsTeaserText"|trans|sw_sanitize }}
+                            {{ 'detail.reviewExistsTeaserText'|trans|sw_sanitize }}
                         {% endif %}
                     </p>
                 {% endblock %}
@@ -165,13 +165,13 @@
                             aria-controls="review-form review-list">
                         <span class="product-detail-review-teaser-show">
 							{% if not reviews.customerReview %}
-                                {{ "detail.reviewTeaserButton"|trans|sw_sanitize }}
+                                {{ 'detail.reviewTeaserButton'|trans|sw_sanitize }}
                             {% else %}
-                                {{ "detail.reviewExistsTeaserButton"|trans|sw_sanitize }}
+                                {{ 'detail.reviewExistsTeaserButton'|trans|sw_sanitize }}
                             {% endif %}
 						</span>
                         <span class="product-detail-review-teaser-hide">
-							{{ "detail.reviewTeaserButtonHide"|trans|sw_sanitize }}
+							{{ 'detail.reviewTeaserButtonHide'|trans|sw_sanitize }}
 						</span>
                     </button>
                 {% endblock %}

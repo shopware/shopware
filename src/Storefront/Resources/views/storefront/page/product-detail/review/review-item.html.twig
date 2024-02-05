@@ -25,8 +25,8 @@
                     {% if review.status == false %}
                         <div class="col-12 product-detail-review-item-hint">
                             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                type: "info",
-                                content: "detail.reviewNotPublicYetAlert"|trans|sw_sanitize
+                                type: 'info',
+                                content: 'detail.reviewNotPublicYetAlert'|trans|sw_sanitize
                                 } %}
                         </div>
                     {% endif %}
@@ -59,10 +59,10 @@
                         {% if reviewVerifcation == 1 %}
                             <a data-bs-toggle="tooltip"
                                data-placement="bottom"
-                               title="{{ "detail.reviewVerifiedItemTooltip"|trans|striptags }}">
+                               title="{{ 'detail.reviewVerifiedItemTooltip'|trans|striptags }}">
                                 {% sw_icon 'checkmark-circle' style {
-                                    'color': 'primary',
-                                    'size': 'sm'
+                                    color: 'primary',
+                                    size: 'sm'
                                 } %}
                             </a>
                         {% endif %}
@@ -82,7 +82,7 @@
                 <div class="product-detail-review-item-comment">
                     <blockquote class="blockquote">
                         <footer class="blockquote-footer">
-                            {{ "detail.reviewCommentLabel"|trans|sw_sanitize }}{{ review.comment }}
+                            {{ 'detail.reviewCommentLabel'|trans|sw_sanitize }}{{ review.comment }}
                         </footer>
                     </blockquote>
                 </div>

@@ -18,7 +18,7 @@
 
             {% block page_checkout_change_shipping_form_fields %}
                 {% sw_include '@Storefront/storefront/component/shipping/shipping-fields.html.twig' with {
-                    'visibleShippingMethodsLimit': 5
+                    visibleShippingMethodsLimit: 5
                 } %}
             {% endblock %}
         </form>

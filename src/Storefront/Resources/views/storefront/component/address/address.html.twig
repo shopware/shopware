@@ -2,8 +2,8 @@
     <div class="address">
         {% if showShippingWarning and not address.country.shippingAvailable %}
             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                type: "warning",
-                content: "address.countryNoShippingAlert"|trans|sw_sanitize
+                type: 'warning',
+                content: 'address.countryNoShippingAlert'|trans|sw_sanitize
             } %}
         {% endif %}
 

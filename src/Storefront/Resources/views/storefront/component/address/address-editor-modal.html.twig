@@ -24,9 +24,9 @@
             {% block component_address_editor_modal_title %}
                 <div class="address-editor-title h2 mb-4">
                     {% if changeBilling %}
-                        {{ "account.addressTitleChangeBillingAddress"|trans|sw_sanitize }}
+                        {{ 'account.addressTitleChangeBillingAddress'|trans|sw_sanitize }}
                     {% else %}
-                        {{ "account.addressTitleChangeShippingAddress"|trans|sw_sanitize }}
+                        {{ 'account.addressTitleChangeShippingAddress'|trans|sw_sanitize }}
                     {% endif %}
                 </div>
             {% endblock %}
@@ -49,7 +49,7 @@
                                                             {% block component_address_editor_modal_accordion_overview_billing_card_title %}
                                                                 <div class="card-title border-0">
                                                                     {% block component_address_editor_modal_accordion_overview_billing_card_title_text %}
-                                                                        {{ "account.addressesTitleCurrentBillingAddress"|trans|sw_sanitize }}
+                                                                        {{ 'account.addressesTitleCurrentBillingAddress'|trans|sw_sanitize }}
                                                                     {% endblock %}
                                                                 </div>
                                                             {% endblock %}
@@ -57,7 +57,7 @@
                                                             {% block component_address_editor_modal_accordion_overview_billing_card_address %}
                                                                 <div class="p-3 border">
                                                                     {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                                                        'address': context.customer.defaultBillingAddress
+                                                                        address: context.customer.defaultBillingAddress
                                                                     } %}
                                                                 </div>
                                                             {% endblock %}
@@ -77,7 +77,7 @@
                                                             {% block component_address_editor_modal_accordion_overview_shipping_card_title %}
                                                                 <div class="card-title border-0">
                                                                     {% block component_address_editor_modal_accordion_overview_shipping_card_title_text %}
-                                                                        {{ "account.addressesTitleCurrentShippingAddress"|trans|sw_sanitize }}
+                                                                        {{ 'account.addressesTitleCurrentShippingAddress'|trans|sw_sanitize }}
                                                                     {% endblock %}
                                                                 </div>
                                                             {% endblock %}
@@ -96,7 +96,7 @@
                                                             {% block component_address_editor_modal_accordion_overview_shipping_card_address %}
                                                                 <div class="p-3 border">
                                                                     {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                                                        'address': context.customer.defaultShippingAddress
+                                                                        address: context.customer.defaultShippingAddress
                                                                     } %}
                                                                 </div>
                                                             {% endblock %}
@@ -117,9 +117,9 @@
                                                data-bs-toggle="collapse"
                                                data-bs-target="#{{ typePrefix }}address-create-edit"
                                             >
-                                                {% sw_icon 'paper-pencil' style {'size': 'xs'} %}
+                                                {% sw_icon 'paper-pencil' style {size: 'xs'} %}
 
-                                                {{ "account.addressEditBtn"|trans|sw_sanitize }}
+                                                {{ 'account.addressEditBtn'|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
 
@@ -128,9 +128,9 @@
                                                data-bs-toggle="collapse"
                                                data-bs-target="#{{ typePrefix }}address-create-new"
                                             >
-                                                {% sw_icon 'plus' style {'size': 'xs', 'pack': 'solid'} %}
+                                                {% sw_icon 'plus' style {size: 'xs', pack: 'solid'} %}
 
-                                                {{ "account.addressCreateBtn"|trans|sw_sanitize }}
+                                                {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
                                             </a>
                                         {% endblock %}
                                     </div>
@@ -140,13 +140,13 @@
                             {% block component_address_editor_modal_accordion_list_include %}
                                 {% if not page.address and AvailableAddressCount > 0 %}
                                     {% sw_include '@Storefront/storefront/component/address/address-editor-modal-list.html.twig' with {
-                                        'address': page.address,
-                                        'addresses': page.addresses,
-                                        'defaultBillingAddress': defaultBillingAddressId,
-                                        'defaultShippingAddress': defaultShippingAddressId,
-                                        'changeShipping': changeShipping,
-                                        'changeBilling': changeBilling,
-                                        'typePrefix': typePrefix
+                                        address: page.address,
+                                        addresses: page.addresses,
+                                        defaultBillingAddress: defaultBillingAddressId,
+                                        defaultShippingAddress: defaultShippingAddressId,
+                                        changeShipping: changeShipping,
+                                        changeBilling: changeBilling,
+                                        typePrefix: typePrefix
                                     } %}
                                 {% endif %}
                             {% endblock %}
@@ -158,10 +158,10 @@
                              data-bs-parent="#{{ typePrefix }}addressEditorAccordion">
                             {% block component_address_editor_modal_accordion_edit_include %}
                                 {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
-                                    'address': address,
-                                    'addresses': page.addresses,
-                                    'typePrefix': typePrefix,
-                                    'postedData': postedData,
+                                    address: address,
+                                    addresses: page.addresses,
+                                    typePrefix: typePrefix,
+                                    postedData: postedData,
                                 } %}
                             {% endblock %}
                         </div>
@@ -173,10 +173,10 @@
                                  data-bs-parent="#{{ typePrefix }}addressEditorAccordion">
                                 {% block component_address_editor_modal_accordion_create_include %}
                                     {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
-                                        'address': page.address,
-                                        'addresses': page.addresses,
-                                        'typePrefix': typePrefix,
-                                        'postedData': postedData,
+                                        address: page.address,
+                                        addresses: page.addresses,
+                                        typePrefix: typePrefix,
+                                        postedData: postedData,
                                     } %}
                                 {% endblock %}
                             </div>
@@ -211,7 +211,7 @@
                                                     <div class="card-title">
                                                         {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_overview_billing_card_title_text` instead. #}
                                                         {% block component_address_address_editor_modal_accordion_overview_billing_card_title_text %}
-                                                            {{ "account.addressesTitleCurrentBillingAddress"|trans|sw_sanitize }}
+                                                            {{ 'account.addressesTitleCurrentBillingAddress'|trans|sw_sanitize }}
                                                         {% endblock %}
                                                     </div>
                                                 {% endblock %}
@@ -219,7 +219,7 @@
                                                 {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_overview_billing_card_address` instead. #}
                                                 {% block component_address_address_editor_modal_accordion_overview_billing_card_address %}
                                                     {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                                        'address': context.customer.defaultBillingAddress
+                                                        address: context.customer.defaultBillingAddress
                                                     } %}
                                                 {% endblock %}
                                             </div>
@@ -243,7 +243,7 @@
                                                     <div class="card-title">
                                                         {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_overview_shipping_card_title_text` instead. #}
                                                         {% block component_address_address_editor_modal_accordion_overview_shipping_card_title_text %}
-                                                            {{ "account.addressesTitleCurrentShippingAddress"|trans|sw_sanitize }}
+                                                            {{ 'account.addressesTitleCurrentShippingAddress'|trans|sw_sanitize }}
                                                         {% endblock %}
                                                     </div>
                                                 {% endblock %}
@@ -263,7 +263,7 @@
                                                 {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_overview_shipping_card_address` instead. #}
                                                 {% block component_address_address_editor_modal_accordion_overview_shipping_card_address %}
                                                     {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
-                                                        'address': context.customer.defaultShippingAddress
+                                                        address: context.customer.defaultShippingAddress
                                                     } %}
                                                 {% endblock %}
                                             </div>
@@ -286,7 +286,7 @@
                                     <div class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
                                          data-bs-toggle="collapse"
                                          data-bs-target="#{{ typePrefix }}address-create-edit">
-                                        {{ "account.addressEditBtn"|trans|sw_sanitize }}
+                                        {{ 'account.addressEditBtn'|trans|sw_sanitize }}
                                     </div>
                                 </div>
                             {% endblock %}
@@ -298,7 +298,7 @@
                                         <div class="btn btn-outline-primary btn-block address-editor-select"
                                              data-bs-toggle="collapse"
                                              data-bs-target="#{{ typePrefix }}address-list">
-                                            {{ "account.selectAddress"|trans|sw_sanitize }}
+                                            {{ 'account.selectAddress'|trans|sw_sanitize }}
                                         </div>
                                     </div>
                                 {% endif %}
@@ -310,7 +310,7 @@
                                     <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
                                          data-bs-toggle="collapse"
                                          data-bs-target="#{{ typePrefix }}address-create-new">
-                                        {{ "account.addressCreateBtn"|trans|sw_sanitize }}
+                                        {{ 'account.addressCreateBtn'|trans|sw_sanitize }}
                                     </div>
                                 </div>
                             {% endblock %}
@@ -329,13 +329,13 @@
                             {% block component_address_address_editor_modal_accordion_list_include %}
                                 {% if not page.address and AvailableAddressCount > 0 %}
                                     {% sw_include '@Storefront/storefront/component/address/address-editor-modal-list.html.twig' with {
-                                        'address': page.address,
-                                        'addresses': page.addresses,
-                                        'defaultBillingAddress': defaultBillingAddressId,
-                                        'defaultShippingAddress': defaultShippingAddressId,
-                                        'changeShipping': changeShipping,
-                                        'changeBilling': changeBilling,
-                                        'typePrefix': typePrefix
+                                        address: page.address,
+                                        addresses: page.addresses,
+                                        defaultBillingAddress: defaultBillingAddressId,
+                                        defaultShippingAddress: defaultShippingAddressId,
+                                        changeShipping: changeShipping,
+                                        changeBilling: changeBilling,
+                                        typePrefix: typePrefix
                                     } %}
                                 {% endif %}
                             {% endblock %}
@@ -343,10 +343,10 @@
                             {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_edit_include` instead. #}
                             {% block component_address_address_editor_modal_accordion_edit_include %}
                                 {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
-                                    'address': address,
-                                    'addresses': page.addresses,
-                                    'typePrefix': typePrefix,
-                                    'postedData': postedData,
+                                    address: address,
+                                    addresses: page.addresses,
+                                    typePrefix: typePrefix,
+                                    postedData: postedData,
                                 } %}
                             {% endblock %}
 
@@ -354,10 +354,10 @@
                                 {# @deprecated tag:v6.7.0 - Block will be removed. Use `component_address_editor_modal_accordion_create_include` instead. #}
                                 {% block component_address_address_editor_modal_accordion_create_include %}
                                     {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
-                                        'address': page.address,
-                                        'addresses': page.addresses,
-                                        'typePrefix': typePrefix,
-                                        'postedData': postedData,
+                                        address: page.address,
+                                        addresses: page.addresses,
+                                        typePrefix: typePrefix,
+                                        postedData: postedData,
                                     } %}
                                 {% endblock %}
                             {% endif %}

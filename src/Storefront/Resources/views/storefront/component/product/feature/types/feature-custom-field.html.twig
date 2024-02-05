@@ -1,6 +1,6 @@
 {% sw_extends '@Storefront/storefront/component/product/feature/base.html.twig' %}
 
-{% set product = page.cart.data.elements["product-%s"|format(lineItem.referencedId)] %}
+{% set product = page.cart.data.elements['product-%s'|format(lineItem.referencedId)] %}
 {% set supportedFieldTypes = [
     constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::BOOL'),
     constant('\\Shopware\\Core\\System\\CustomField\\CustomFieldTypes::DATETIME'),

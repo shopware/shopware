@@ -35,18 +35,18 @@
 							{% block component_review_alert %}
 								{% if ratingSuccess == 1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-										type: "success",
-										content: "detail.reviewFormSuccessAlert"|trans|sw_sanitize
+										type: 'success',
+										content: 'detail.reviewFormSuccessAlert'|trans|sw_sanitize
 									} %}
                                 {% elseif ratingSuccess == 2 %}
                                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                        type: "success",
-                                        content: "detail.reviewFormSuccessUpdateAlert"|trans|sw_sanitize
+                                        type: 'success',
+                                        content: 'detail.reviewFormSuccessUpdateAlert'|trans|sw_sanitize
                                     } %}
 								{% elseif ratingSuccess == -1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-										type: "danger",
-										content: "detail.reviewFormErrorAlert"|trans|sw_sanitize
+										type: 'danger',
+										content: 'detail.reviewFormErrorAlert'|trans|sw_sanitize
 									} %}
 								{% endif %}
 							{% endblock %}
@@ -75,7 +75,7 @@
                                         {% block component_review_list_actions %}
                                             <div class="row align-items-center product-detail-review-actions">
                                                 {% set formAjaxSubmitOptions = {
-                                                    replaceSelectors: [".js-review-container"],
+                                                    replaceSelectors: ['.js-review-container'],
                                                     submitOnChange: true
                                                 } %}
 
@@ -106,7 +106,7 @@
                                                                            {% if app.request.get('language') %}checked="checked"{% endif %}>
                                                                     <label class="custom-control-label form-label"
                                                                            for="showForeignReviews">
-                                                                        <small>{{ "detail.reviewLanguageFilterLabel"|trans|sw_sanitize }}</small>
+                                                                        <small>{{ 'detail.reviewLanguageFilterLabel'|trans|sw_sanitize }}</small>
                                                                     </label>
                                                                 </div>
                                                             </form>
@@ -119,9 +119,9 @@
                                                         <div class="col-12 col-md-auto product-detail-review-sortby">
                                                             {% set formAjaxSubmitOptions = {
                                                                 replaceSelectors: [
-                                                                    ".js-review-info",
-                                                                    ".js-review-teaser",
-                                                                    ".js-review-content"
+                                                                    '.js-review-info',
+                                                                    '.js-review-teaser',
+                                                                    '.js-review-content'
                                                                 ],
                                                                 submitOnChange: true
                                                             } %}
@@ -150,7 +150,7 @@
                                                                     {% block component_review_list_action_sortby_label %}
                                                                         <label class="form-label product-detail-review-sortby-label"
                                                                                for="reviewsSortby">
-                                                                            <small>{{ "detail.reviewSortLabel"|trans|sw_sanitize }}</small>
+                                                                            <small>{{ 'detail.reviewSortLabel'|trans|sw_sanitize }}</small>
                                                                         </label>
                                                                     {% endblock %}
 
@@ -159,10 +159,10 @@
                                                                                 name="sort"
                                                                                 id="reviewsSortby">
                                                                             <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
-                                                                                {{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
+                                                                                {{ 'detail.reviewSortNewLabel'|trans|sw_sanitize }}
                                                                             </option>
                                                                             <option value="points"{% if reviews.criteria.sorting.0.field == 'points' %} selected{% endif %}>
-                                                                                {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
+                                                                                {{ 'detail.reviewSortTopRatedLabel'|trans|sw_sanitize }}
                                                                             </option>
                                                                         </select>
                                                                     {% endblock %}
@@ -184,9 +184,9 @@
 
                                             <p class="text-right product-detail-review-counter">
                                                 {% if (listReviewsCount > 1 and listReviewsCount > reviewsPerListPage) %}
-                                                    <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ "detail.reviewCountBefore"|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
+                                                    <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ 'detail.reviewCountBefore'|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
                                                 {% elseif listReviewsCount > 0 %} {# TODO NEXT-16994 - fix detail.reviewCountAfter snippet for listReviewsCount = 0 #}
-                                                    <small><strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
+                                                    <small><strong>{{ listReviewsCount }}</strong> {{ 'detail.reviewCountAfter'|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
                                                 {% endif %}
                                             </p>
                                         {% endblock %}
@@ -209,7 +209,7 @@
 
                                             {% if totalPages > 1 %}
                                                 {% set formAjaxSubmitOptions = {
-                                                    replaceSelectors: ".js-review-container",
+                                                    replaceSelectors: '.js-review-container',
                                                     submitOnChange: true
                                                 } %}
 
@@ -259,8 +259,8 @@
                                     {% if productReviewCount <= 0 %}
                                         {% block component_review_list_empty %}
                                             {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
-                                                type: "info",
-                                                content: "detail.reviewListEmpty"|trans|sw_sanitize
+                                                type: 'info',
+                                                content: 'detail.reviewListEmpty'|trans|sw_sanitize
                                             } %}
                                         {% endblock %}
                                     {% endif %}

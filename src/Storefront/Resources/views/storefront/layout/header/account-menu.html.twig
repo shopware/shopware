@@ -5,7 +5,7 @@
         {% block layout_header_actions_account_widget_dropdown_header %}
             {% if not context.customer.guest %}
                 <div class="dropdown-header account-menu-header">
-                    {{ "account.myAccount"|trans|sw_sanitize }}
+                    {{ 'account.myAccount'|trans|sw_sanitize }}
                 </div>
             {% endif %}
         {% endblock %}
@@ -15,16 +15,16 @@
                 <div class="account-menu-login">
                     {% block layout_header_actions_account_widget_dropdown_login_login %}
                         <a href="{{ path('frontend.account.login.page') }}"
-                           title="{{ "account.loginSubmit"|trans|striptags }}"
+                           title="{{ 'account.loginSubmit'|trans|striptags }}"
                            class="btn btn-primary account-menu-login-button">
-                            {{ "account.loginSubmit"|trans|sw_sanitize }}
+                            {{ 'account.loginSubmit'|trans|sw_sanitize }}
                         </a>
                     {% endblock %}
 
                     {% block layout_header_actions_account_widget_dropdown_login_register %}
                         <div class="account-menu-register">
-                            {{ "account.orRegister"|trans|sw_sanitize }} <a href="{{ path('frontend.account.login.page') }}"
-                                                                            title="{{ "account.orRegisterLink"|trans|striptags }}">{{ "account.orRegisterLink"|trans|striptags|lower }}</a>
+                            {{ 'account.orRegister'|trans|sw_sanitize }} <a href="{{ path('frontend.account.login.page') }}"
+                                                                            title="{{ 'account.orRegisterLink'|trans|striptags }}">{{ 'account.orRegisterLink'|trans|striptags|lower }}</a>
                         </div>
                     {% endblock %}
                 </div>
@@ -33,7 +33,7 @@
 
         {% block layout_header_actions_account_widget_dropdown_links %}
             <div class="account-menu-links">
-                {% sw_include '@Storefront/storefront/page/account/sidebar.html.twig' with {'headerWidget': true} %}
+                {% sw_include '@Storefront/storefront/page/account/sidebar.html.twig' with {headerWidget: true} %}
             </div>
         {% endblock %}
     </div>

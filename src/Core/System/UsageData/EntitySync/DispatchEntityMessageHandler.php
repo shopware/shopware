@@ -214,6 +214,10 @@ final class DispatchEntityMessageHandler
             $serializedEntities[] = $serializedEntity;
         }
 
+        if (empty($serializedEntities)) {
+            return;
+        }
+
         $this->entityDispatcher->dispatch(
             $definition->getEntityName(),
             $serializedEntities,

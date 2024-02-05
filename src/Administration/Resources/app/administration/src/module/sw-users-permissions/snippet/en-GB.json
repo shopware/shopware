@@ -48,7 +48,7 @@
       },
       "view": {
         "detailed": {
-          "alertText": "Configure privileges in detail. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab and are not not configurable. This configuration is only necessary if e.g. extensions are used that add new datasets but do not have privileges, these can be configured here."
+          "alertText": "Configure privileges in detail. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab and are not configurable. This configuration is only necessary if e.g. extensions are used that add new datasets but do not have privileges, these can be configured here."
         }
       },
       "tabs": {

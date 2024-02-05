@@ -17,6 +17,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         editor: {
             privileges: [
+                'api_send_email',
                 'mail_template:update',
                 'mail_header_footer:update',
                 'mail_template_media:create',

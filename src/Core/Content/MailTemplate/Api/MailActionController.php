@@ -28,7 +28,12 @@ class MailActionController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/mail-template/send', name: 'api.action.mail_template.send', methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/mail-template/send',
+        name: 'api.action.mail_template.send',
+        methods: ['POST'],
+        defaults: ['_acl' => ['api_send_email']]
+    )]
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
         /** @var array{id: string} $data */

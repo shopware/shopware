@@ -5,6 +5,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-32201 - Add 'innovation as package title'](./changelog/release-6-5-7-4/2023-14-12-add-new-innovation-area.md)
 *  [NEXT-32889 - Fix privileges for state machine](./changelog/release-6-5-7-4/2024-01-05-fix-privileges-for-state-machine.md)
 
+## 6.5.8.2
+*  [NEXT-31820 - Revert Update NPM packages](./changelog/release-6-5-8-2/2024-01-19-revert-update-npm-packages.md)
+
 ## 6.5.8.1
 *  [NEXT-30261 - Fix redirect loop](./changelog/release-6-5-8-1/2024-01-17-fix-redirect-loop.md)
 

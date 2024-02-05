@@ -79,7 +79,7 @@ const createStateMapper = (customOrder = {}) => {
     });
 };
 
-const createWrapper = async () => {
+async function createWrapper(privileges = []) {
     const notificationMixin = {
         methods: {
             createNotificationError() {},
@@ -138,32 +138,31 @@ const createWrapper = async () => {
                         return Promise.resolve(successResponseForNotification);
                     },
                 },
+                acl: {
+                    can: (identifier) => {
+                        if (!identifier) { return true; }
+
+                        return privileges.includes(identifier);
+                    },
+                },
             },
         },
         mixins: [
             notificationMixin,
         ],
     });
-};
+}
 
 describe('src/module/sw-order/component/sw-order-promotion-field', () => {
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        createStateMapper();
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should filter manual Promotions', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
+
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.manualPromotions).toStrictEqual(manualPromotions);
     });
 
     it('should filter automatic Promotions', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
 
@@ -172,8 +171,8 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should disable automatic promotion on toggle with saved changes', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             hasOrderUnsavedChanges: false,
@@ -189,8 +188,8 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should skip disable automatic promotion on toggle with unsaved changes', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             hasOrderUnsavedChanges: true,
@@ -213,8 +212,8 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should skip adding promotion code with unsaved changes', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
+
         const wrapper = await createWrapper();
         await wrapper.setData({
             hasOrderUnsavedChanges: true,
@@ -230,7 +229,6 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should adding promotion code with saved changes', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
         const wrapper = await createWrapper();
         await wrapper.setData({
@@ -245,7 +243,6 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should skip remove promotion code with unsaved changes', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
 
         const wrapper = await createWrapper();
@@ -261,7 +258,6 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
     });
 
     it('should remove promotion code with saved changes', async () => {
-        global.activeAclRoles = [];
         createStateMapper();
 
         const wrapper = await createWrapper();
@@ -274,5 +270,23 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem23' }]);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
+    });
+
+    it('should disable the fields with missing roles', async () => {
+        createStateMapper();
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBe(String(true));
+        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBe(String(true));
+    });
+
+    it('should enable the fields with roles', async () => {
+        createStateMapper();
+
+        const wrapper = await createWrapper(['order.editor']);
+
+        expect(wrapper.find('sw-order-promotion-tag-field-stub').attributes('disabled')).toBeUndefined();
+        expect(wrapper.find('sw-switch-field-stub').attributes('disabled')).toBeUndefined();
     });
 });

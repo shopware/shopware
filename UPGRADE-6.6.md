@@ -1,5 +1,88 @@
 # 6.6.0.0
 
+## Introduced in 6.6.0.0
+* In the previous implementation, each system language has its own index, but with the new implementation, every languages share the same index. This leads to the following changes in the next major: 
+  * Old ES indexes is deprecated and will be removed since the next major. 
+  * If you have custom elasticsearch definitions, you also need to write your own SearchQueryBuilder (Reference: \Shopware\Elasticsearch\Product\EsProductDefinition::buildTermQuery)
+## sw-text-field default event:
+* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
+## sw-boolean-radio-groups default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-bulk-edit-change-type default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-custom-entity-input-field default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-entity-many-to-many-select default event:
+* Change event listeners from `@change="onChange"` to `@update:entityCollection="onChange"`
+## sw-entity-multi-id-select default event:
+* Change event listeners from `@change="onChange"` to `@update:ids="onChange"`
+## sw-extension-rating-stars default event:
+* Change event listeners from `@rating-changed="onChange"` to `@update:rating="onChange"`
+## sw-extension-select-rating default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-file-input default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-gtc-checkbox default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-many-to-many-assignment-card default event:
+* Change event listeners from `@change="onChange"` to `@update:entityCollection="onChange"`
+## sw-meteor-single-select default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-multi-select default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-multi-tag-select default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-price-field default event:
+* Change event listeners from `@change="onChange"` to `@update:price="onChange"`
+## sw-radio-panel default event:
+* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
+## Breaking Change 1:
+* Change `sw-select-field` change listeners `@change="onChange"` to `@update:value="onChange"`
+## sw-select-number-field default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-single-select default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-tagged-field default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-textarea-field default event:
+* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
+## Breaking Change 1:
+* Change `sw-url-field` input listeners `@input="onIput"` to `@update:value="onInput"`
+## sw-button-process default event:
+* Change event listeners from `@process-finish="onFinish"` to `@update:processSuccess="onFinish"`
+## sw-import-export-entity-path-select default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-inherit-wrapper default event:
+* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
+## sw-media-breadcrumbs default event:
+* Change event listeners from `@media-folder-change="onChange"` to `@update:currentFolderId="onChange"`
+## sw-media-library default event:
+* Change event listeners from `@media-selection-change="onChange"` to `@update:selection="onChange"`
+## sw-multi-snippet-drag-and-drop default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-order-customer-address-select default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-order-select-document-type-modal default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## sw-password-field default event:
+* Change event listeners from `@input="onInput"` to `@update:value="onInput"`
+## sw-promotion-v2-rule-select default event:
+* Change event listeners from `@change="onChange"` to `@update:collection="onChange"`
+## sw-radio-field default event:
+* Change event listeners from `@change="onChange"` to `@update:value="onChange"`
+## Removal of vue-meta:
+* `vue-meta` will be removed. We use our own implementation which only supports the `title` inside `metaInfo`.
+* If you use other properties than title they will no longer work.
+* If your `metaInfo` option is a object, rewrite it to a function returning an object.
+
+## Main categories are now available in seo url templates
+We added the `mainCategories` association in the `\Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute::prepareCriteria` method. 
+This association is filtered by the current sales channel id. You can now use the main categories in your seo url templates for product detail pages. 
+
+```
+{{ product.mainCategories.first.category.translated.name }}
+```
+
 # New System Requirements and Configuration Changes
 ## New System requirements
 We upgraded some system requirements according to this [proposal](https://github.com/shopware/shopware/discussions/3359).
@@ -722,6 +805,215 @@ $processor->process($criteria, $request);
 // $criteria->getLimit() === 10 (if no limit is set in the request)
 ```
 
+## Introduced in 6.5.8.0
+
+## Storefront async JavaScript and all.js removal
+
+With the upcoming major version v6.6.0 we want to get rid of the `all.js` in the Storefront and also allow async JavaScript with dynamic imports.
+Our current webpack compiling for JavaScript alongside the `all.js` does not consider asynchronous imports.
+
+### New distribution of App/Plugin "dist" JavaScript
+
+The merging of your App/Plugin JavaScript into an `all.js` will no longer take place. Each App/Plugin will get its own JavaScript served by a separate `<script>` tag instead.
+Essentially, all JavaScript inside your "dist" folder (`ExampleApp/src/Resources/app/storefront/dist/storefront/js`) will be distributed into the `public/theme` directory as it is.
+Each App/Plugin will get a separate subdirectory which matches the App/Plugin technical name as snake-case, for example `public/theme/<theme-hash>/js/example-app/`.
+
+This subdirectory will be added automatically during `composer build:js:storefront`. Please remove outdated generated JS files from the old location from your "dist" folder.
+Please also include all additional JS files which might have been generated due to dynamic imports in your release:
+
+Before:
+```
+└── custom/apps/
+    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
+        └── example-app.js
+```
+
+After:
+```
+└── custom/apps/
+    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
+        ├── example-app.js         <-- OLD: Please remove
+        └── example-app/           <-- NEW: Please include everything in this folder in the release
+            ├── example-app.js     
+            ├── async-example-1.js 
+            └── async-example-2.js 
+```
+
+The distributed version in `/public/theme/<theme-hash>/js/` will look like below.
+
+**Just to illustrate, you don't need to change anything manually here!**
+
+Before:
+```
+└── public/theme/
+    └── 6c7abe8363a0dfdd16929ca76c02aa35/
+        ├── css/
+        │   └── all.css
+        └── js/
+            └── all.js  
+```
+
+After:
+```
+└── public/theme/
+    └── 6c7abe8363a0dfdd16929ca76c02aa35/
+        ├── css/
+        │   └── all.css
+        └── js/
+            ├── storefront/
+            │   ├── storefront.js (main bundle of "storefront", generates <script>)
+            │   ├── cross-selling_plugin.js
+            │   └── listing_plugin.js
+            └── example-app/
+                ├── example-app (main bundle of "my-listing", generates <script>)
+                ├── async-example-1.js
+                └── async-example-2.js
+```
+
+### Re-compile your JavaScript
+
+Because of the changes in the JavaScript compiling process and dynamic imports, it is not possible to have pre-compiled JavaScript (`ExampleApp/src/Resources/app/storefront/dist/storefront/js`)
+to be cross-compatible with the current major lane v6.5.0 and v6.6.0 at the same time.
+
+Therefore, we recommend to release a new App/Plugin version which is compatible with v6.6.0 onwards.
+The JavaScript for the Storefront can be compiled as usual using the composer script `composer build:js:storefront`.
+
+**The App/Plugin entry point for JS `main.js` and the general way to compile the JS remains the same!**
+
+Re-compiling your App/Plugin is a good starting point to ensure compatibility.
+If your App/Plugin mainly adds new JS-Plugins and does not override existing JS-Plugins, chances are that this is all you need to do in order to be compatible.
+
+### Registering async JS-plugins (optional)
+
+To prevent all JS-plugins from being present on every page, we will offer the possibility to fetch the JS-plugins on-demand.
+This is done by the `PluginManager` which determines if the selector from `register()` is present in the current document. Only if this is the case the JS-plugin will be fetched.
+
+The majority of the platform Storefront JS-plugin will be changed to async.
+
+**The general API to register JS-plugin remains the same!**
+
+If you pass an arrow function with a dynamic import instead of a normal import,
+your JS-plugin will be async and also generate an additional `.js` file in your `/dist` folder.
+
+Before:
+```js
+import ExamplePlugin from './plugins/example.plugin';
+
+window.PluginManager.register('Example', ExamplePlugin, '[data-example]');
+```
+After:
+```js
+window.PluginManager.register('Example', () => import('./plugins/example.plugin'), '[data-example]');
+```
+
+The "After" example above will generate:
+```
+└── custom/apps/
+    └── ExampleApp/src/Resources/app/storefront/dist/storefront/js/
+        └── example-app/           
+            ├── example-app.js                 <-- The main app JS-bundle
+            └── src_plugins_example_plugin.js  <-- Auto generated by the dynamic import
+```
+
+### Override async JS-plugins
+
+If a platform Storefront plugin is async, the override class needs to be async as well.
+
+Before:
+```js
+import MyListingExtensionPlugin from './plugin-extensions/listing/my-listing-extension.plugin';
+
+window.PluginManager.override(
+    'Listing', 
+    MyListingExtensionPlugin, 
+    '[data-listing]'
+);
+```
+After:
+```js
+window.PluginManager.override(
+    'Listing', 
+    () => import('./plugin-extensions/listing/my-listing-extension.plugin'),
+    '[data-listing]',
+);
+```
+
+### Async plugin initialization with `PluginManager.initializePlugins()`
+
+The method `PluginManager.initializePlugins()` is now async and will return a Promise because it also downloads all async JS-plugins before their initialization.
+If you need access to newly created JS-Plugin instances (for example after a dynamic DOM-update with new JS-Plugin selectors), you need to wait for the Promise to resolve.
+
+Before:
+```js
+/**
+ * Example scenario:
+ * 1. A dynamic DOM update via JavaScript (e.g. Ajax) adds selector "[data-form-ajax-submit]"
+ * 2. PluginManager.initializePlugins() intializes Plugin "FormAjaxSubmit" because a new selector is present.
+ * 3. You need access to the Plugin instance of "FormAjaxSubmit" directly after PluginManager.initializePlugins().
+ */
+window.PluginManager.initializePlugins();
+
+const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(someElement, 'FormAjaxSubmit');
+// ... does something with "FormAjaxSubmitInstance"
+```
+
+After:
+```js
+/**
+ * Example scenario:
+ * 1. A dynamic DOM update via JavaScript (e.g. Ajax) adds selector "[data-form-ajax-submit]"
+ * 2. PluginManager.initializePlugins() intializes Plugin "FormAjaxSubmit" because a new selector is present.
+ * 3. You need access to the Plugin instance of "FormAjaxSubmit" directly after PluginManager.initializePlugins().
+ */
+window.PluginManager.initializePlugins().then(() => {
+    const FormAjaxSubmitInstance = window.PluginManager.getPluginInstanceFromElement(someElement, 'FormAjaxSubmit');
+    // ... does something with "FormAjaxSubmitInstance"
+});
+```
+
+If you don't need direct access to newly created JS-plugin instances via `getPluginInstanceFromElement()`, and you only want to "re-init" all JS-plugins,
+you do not need to wait for the Promise of `initializePlugins()` because `initializePlugins()` already downloads and initializes the JS-plugins.
+
+### Avoid import from PluginManager
+
+Because the PluginManager is a singleton class which also assigns itself to the `window` object,
+it should be avoided to import the PluginManager. It can lead to unintended side effects.
+
+Use the existing `window.PluginManager` instead.
+
+Before:
+```js
+import PluginManager from 'src/plugin-system/plugin.manager';
+
+PluginManager.getPluginInstances('SomePluginName');
+```
+After:
+```js
+window.PluginManager.getPluginInstances('SomePluginName');
+```
+
+### Avoid import from Plugin base class
+
+The import of the `Plugin` class can lead to code-duplication of the Plugin class in every App/Plugin.
+
+Use `window.PluginBaseClass` instead.
+
+Before:
+```js
+import Plugin from 'src/plugin-system/plugin.class';
+
+export default class MyPlugin extends Plugin {
+    // Plugin code...
+};
+```
+After:
+```js
+export default class MyPlugin extends window.PluginBaseClass {
+    // Plugin code...
+};
+```
+
+## Introduced in 6.5.7.0
 ## New media url generator and path strategy
 * Removed deprecated `UrlGeneratorInterface` interface, use `AbstractMediaUrlGenerator` instead to generate the urls for media entities
 * Removed deprecated `AbstractPathNameStrategy` abstract class, use `AbstractMediaPathStrategy` instead to implement own strategies
@@ -1036,6 +1328,91 @@ $offset->selectNextLanguage($languageId);
 $offset->selectNextDefinition($definition);
 ```
 
+## Changes to data-attribute selector names
+
+We want to change several data-attribute selector names to be more aligned with the JavaScript plugin name which is initialized on the data-attribute selector.
+When you use one of the selectors listed below inside HTML/Twig, JavaScript or CSS, please change the selector to the new selector.
+
+## HTML/Twig example
+
+### Before
+
+```twig
+<div 
+    data-offcanvas-menu="true" {# <<< Did not match options attr #}
+    data-off-canvas-menu-options='{ ... }'
+>
+</div>
+```
+
+### After
+
+```twig
+<div 
+    data-off-canvas-menu="true" {# <<< Now matches options attr #}
+    data-off-canvas-menu-options='{ ... }'
+>
+</div>
+```
+
+_The options attribute is automatically generated using the camelCase JavaScript plugin name._
+
+## Full list of selectors
+
+| old                             | new                              |
+|:--------------------------------|:---------------------------------|
+| `data-search-form`              | `data-search-widget`             |
+| `data-offcanvas-cart`           | `data-off-canvas-cart`           |
+| `data-collapse-footer`          | `data-collapse-footer-columns`   |
+| `data-offcanvas-menu`           | `data-off-canvas-menu`           |
+| `data-offcanvas-account-menu`   | `data-account-menu`              |
+| `data-offcanvas-tabs`           | `data-off-canvas-tabs`           |
+| `data-offcanvas-filter`         | `data-off-canvas-filter`         |
+| `data-offcanvas-filter-content` | `data-off-canvas-filter-content` |
+
+## Changes to data-attribute selector names
+
+We want to change several data-attribute selector names to be more aligned with the JavaScript plugin name which is initialized on the data-attribute selector.
+When you use one of the selectors listed below inside HTML/Twig, JavaScript or CSS, please change the selector to the new selector.
+
+## HTML/Twig example
+
+### Before
+
+```twig
+<div 
+    data-offcanvas-menu="true" {# <<< Did not match options attr #}
+    data-off-canvas-menu-options='{ ... }'
+>
+</div>
+```
+
+### After
+
+```twig
+<div 
+    data-off-canvas-menu="true" {# <<< Now matches options attr #}
+    data-off-canvas-menu-options='{ ... }'
+>
+</div>
+```
+
+_The options attribute is automatically generated using the camelCase JavaScript plugin name._
+
+## Full list of selectors
+
+| old                             | new                              |
+|:--------------------------------|:---------------------------------|
+| `data-search-form`              | `data-search-widget`             |
+| `data-offcanvas-cart`           | `data-off-canvas-cart`           |
+| `data-collapse-footer`          | `data-collapse-footer-columns`   |
+| `data-offcanvas-menu`           | `data-off-canvas-menu`           |
+| `data-offcanvas-account-menu`   | `data-account-menu`              |
+| `data-offcanvas-tabs`           | `data-off-canvas-tabs`           |
+| `data-offcanvas-filter`         | `data-off-canvas-filter`         |
+| `data-offcanvas-filter-content` | `data-off-canvas-filter-content` |
+
+## Introduced in 6.5.0.0
 ## Removed `SyncOperationResult`
 The `\Shopware\Core\Framework\Api\Sync\SyncOperationResult` class was removed without replacement, as it was unused.
 

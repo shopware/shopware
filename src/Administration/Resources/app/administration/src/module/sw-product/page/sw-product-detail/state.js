@@ -55,7 +55,7 @@ export default {
         },
 
         defaultCurrency(state) {
-            if (!state.currencies) {
+            if (!state.currencies || !state.currencies.length) {
                 return {};
             }
 

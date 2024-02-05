@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.2
+*  [NEXT-31820 - Revert Update NPM packages](./changelog/release-6-5-8-2/2024-01-19-revert-update-npm-packages.md)
+
 ## 6.5.8.1
 *  [NEXT-30261 - Fix redirect loop](./changelog/release-6-5-8-1/2024-01-17-fix-redirect-loop.md)
 

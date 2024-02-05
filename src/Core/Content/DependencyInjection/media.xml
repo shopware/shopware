@@ -221,7 +221,11 @@
             <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer"/>
+            <argument type="service" id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Thumbnail\ThumbnailSizeCalculator">
         </service>
 
         <service id="Shopware\Core\Content\Media\MediaService">

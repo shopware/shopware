@@ -15,12 +15,18 @@
         }
     }
 } @else {
+    .account-address {
+        .btn .icon > svg {
+            top: 0.25rem;
+        }
+    }
+
     .address-card-title {
         margin-bottom: $spacer-lg;
     }
 
     .address-actions-defaults {
-        margin-bottom: $spacer-sm;
+        margin-top: $spacer-sm;
     }
 
     .address-list {

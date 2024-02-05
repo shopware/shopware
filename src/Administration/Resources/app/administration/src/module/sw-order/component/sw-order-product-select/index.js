@@ -72,15 +72,14 @@ export default {
                 Criteria.multi(
                     'OR',
                     [
-                        Criteria.equals('product.childCount', 0),
-                        Criteria.equals('product.childCount', null),
+                        Criteria.equals('childCount', 0),
+                        Criteria.equals('childCount', null),
                     ],
                 ),
             );
 
-            criteria.addFilter(
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannelId),
-            );
+            criteria.addFilter(Criteria.equals('visibilities.salesChannelId', this.salesChannelId));
+            criteria.addFilter(Criteria.equals('active', true));
 
             return criteria;
         },

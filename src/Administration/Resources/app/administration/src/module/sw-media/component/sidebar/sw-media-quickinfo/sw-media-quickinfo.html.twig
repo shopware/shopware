@@ -380,6 +380,7 @@
     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
     {% block sw_media_quickinfo_custom_field_sets %}
     <sw-custom-field-set-renderer
+        :key="item.id"
         :disabled="!acl.can('media.editor')"
         :entity="item"
         variant="media-collapse"

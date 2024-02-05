@@ -498,9 +498,9 @@ The `product.stock` should be used to read the current stock level. When buildin
 
 ## Removed `\Shopware\Core\Framework\DataAbstractionLayer\Event\BeforeDeleteEvent`
 
-It is replaced by `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent` with the same API.
+It is replaced by `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent` with the same API.
 
-You should use `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWriteEvent` instead, only the class name changed.
+You should use `\Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent` instead, only the class name changed.
 ## sw-field deprecation:
 * Instead of `<sw-field type="url"` use `<sw-url-field`. You can see the component mapping in the `sw-field/index.js`
 

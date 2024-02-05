@@ -143,12 +143,26 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
     });
 
     it('should filter entries correctly', async () => {
+        jest.useFakeTimers();
+
         const wrapper = await createWrapper();
         await flushPromises();
 
-        await wrapper.vm.searchAddress('test');
+        const singleSelect = wrapper.findComponent('.sw-single-select');
+        await singleSelect.find('.sw-select__selection').trigger('click');
 
-        expect(wrapper.vm.addressCriteria.term).toBe('test');
+        const initialResultItems = singleSelect.findAll('.sw-select-result');
+        expect(initialResultItems).toHaveLength(2);
+
+        const input = wrapper.find('.sw-single-select__selection-input');
+        await input.setValue('Eb');
+        await input.trigger('input');
+
+        jest.advanceTimersByTime(100);
+
+        await flushPromises();
+        await wrapper.vm.$nextTick();
+
         expect(addresses[0].hidden).toBe(false);
         expect(addresses[1].hidden).toBe(true);
     });

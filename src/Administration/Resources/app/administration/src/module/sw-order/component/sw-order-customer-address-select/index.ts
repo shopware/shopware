@@ -199,5 +199,9 @@ export default Component.wrapComponentConfig({
                     this.isLoading = false;
                 });
         },
+
+        searchAddressResults() {
+            return this.customerAddresses;
+        },
     },
 });

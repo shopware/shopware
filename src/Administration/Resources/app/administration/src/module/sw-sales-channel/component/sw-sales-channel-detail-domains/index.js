@@ -5,7 +5,7 @@
 import template from './sw-sales-channel-detail-domains.html.twig';
 import './sw-sales-channel-detail-domains.scss';
 
-const { Context } = Shopware;
+const { Mixin, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 const { ShopwareError } = Shopware.Classes;
 
@@ -15,6 +15,10 @@ export default {
 
     inject: [
         'repositoryFactory',
+    ],
+
+    mixins: [
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -300,6 +304,18 @@ export default {
         },
 
         onConfirmDeleteDomain(domain) {
+            if (domain.productExports.length > 0) {
+                this.createNotificationError({
+                    message: this.$tc('sw-sales-channel.detail.messageDeleteDomainError', 0, {
+                        url: this.unicodeUriFilter(domain.url),
+                    }),
+                });
+
+                this.deleteDomain = null;
+
+                return;
+            }
+
             this.deleteDomain = null;
 
             this.$nextTick(() => {

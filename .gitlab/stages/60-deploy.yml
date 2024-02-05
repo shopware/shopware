@@ -153,6 +153,7 @@ Post Slack Release message:
 
 Update Release schedule:
   stage: deploy
+  needs: []
   rules:
     - !reference [ .rules, scheduled ]
   variables:

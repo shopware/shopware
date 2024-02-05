@@ -209,11 +209,12 @@ export default {
                     this.isSaveSuccessful = true;
 
                     return response;
-                }).catch(() => {
+                }).catch((exception) => {
                     this.createNotificationError({
                         message: this.$tc('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
+                    throw exception;
                 });
             });
         },

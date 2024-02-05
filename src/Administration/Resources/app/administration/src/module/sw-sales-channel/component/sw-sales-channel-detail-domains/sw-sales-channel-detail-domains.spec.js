@@ -292,4 +292,94 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
 
         expect(wrapper.vm.verifyUrl).not.toHaveBeenCalled();
     });
+
+    it('should delete a domain when onConfirmDeleteDomain is called', async () => {
+        const domains = new EntityCollection(
+            '/sales-channel-domain',
+            'sales_channel_domain',
+            Context.api,
+            null,
+            [
+                {
+                    id: 'domain-1',
+                    url: 'http://firstExample.com',
+                    productExports: [],
+                    language: {
+                        name: 'Deutsch',
+                    },
+                    currency: {
+                        name: 'Euro',
+                        translated: {
+                            name: 'Euro',
+                        },
+                    },
+                    snippetSet: {
+                        name: 'BASE de-DE',
+                    },
+                    isNew: () => false,
+                },
+            ],
+        );
+
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: [],
+                currencies: [],
+                domains: domains,
+            },
+        }, []);
+
+        const domainToDelete = domains.first();
+
+        await wrapper.vm.onConfirmDeleteDomain(domainToDelete);
+
+        const domainExists = wrapper.vm.salesChannel.domains.some(domain => domain.id === domainToDelete.id);
+
+        expect(domainExists).toBe(false);
+    });
+
+    it('should not delete a domain when onConfirmDeleteDomain is called and domain.productExports.length > 0', async () => {
+        const domains = new EntityCollection(
+            '/sales-channel-domain',
+            'sales_channel_domain',
+            Context.api,
+            null,
+            [
+                {
+                    id: 'domain-1',
+                    url: 'http://firstExample.com',
+                    productExports: [{}],
+                    language: {
+                        name: 'Deutsch',
+                    },
+                    currency: {
+                        name: 'Euro',
+                        translated: {
+                            name: 'Euro',
+                        },
+                    },
+                    snippetSet: {
+                        name: 'BASE de-DE',
+                    },
+                    isNew: () => false,
+                },
+            ],
+        );
+
+        const wrapper = await createWrapper({
+            salesChannel: {
+                languages: [],
+                currencies: [],
+                domains: domains,
+            },
+        }, []);
+
+        const domainToDelete = domains.first();
+
+        await wrapper.vm.onConfirmDeleteDomain(domainToDelete);
+
+        const domainExists = wrapper.vm.salesChannel.domains.some(domain => domain.id === domainToDelete.id);
+
+        expect(domainExists).toBe(true);
+    });
 });

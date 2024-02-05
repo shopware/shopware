@@ -41,6 +41,7 @@
             validation="required"
             :label="$tc('sw-promotion.detail.main.discounts.labelScope')"
             :disabled="isEditingDisabled"
+            :is-loading="isLoading"
             {% if VUE3 %}
             @update:value="onDiscountScopeChanged"
             {% else %}

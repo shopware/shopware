@@ -2155,7 +2155,7 @@ Additionally, the default implementation for `\Shopware\Storefront\Theme\Abstrac
 Obsolete compiled theme files are now deleted with a delay, whenever a new theme compilation created new files.
 The delay time can be configured in the `shopware.yaml` file with the new `storefront.theme.file_delete_delay` option, by default it is set to 900 seconds (15 min), if the old theme files should be deleted immediately you can set the value to 0.
 
-For more details refer to the corresponding [ADR](../../adr/storefront/2023-01-10-atomic-theme-compilation.md).
+For more details refer to the corresponding [ADR](adr/2023-01-10-atomic-theme-compilation.md).
 
 ## Selector to open an ajax modal
 The JavaScript plugin `AjaxModal` is able to open a Bootstrap modal and fetching content via ajax.

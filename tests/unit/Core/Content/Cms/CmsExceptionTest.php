@@ -41,14 +41,14 @@ class CmsExceptionTest extends TestCase
     {
         yield CmsException::DELETION_OF_DEFAULT_CODE => [
             'exception' => CmsException::deletionOfDefault(['id1', 'id2', 'id3']),
-            'statusCode' => Response::HTTP_CONFLICT,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CmsException::DELETION_OF_DEFAULT_CODE,
             'message' => 'The cms pages with ids "id1, id2, id3" are assigned as a default and therefore can not be deleted.',
         ];
 
         yield CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE => [
             'exception' => CmsException::overallDefaultSystemConfigDeletion('cmsPageId'),
-            'statusCode' => Response::HTTP_CONFLICT,
+            'statusCode' => Response::HTTP_BAD_REQUEST,
             'errorCode' => CmsException::OVERALL_DEFAULT_SYSTEM_CONFIG_DELETION_CODE,
             'message' => 'The cms page with id "cmsPageId" is assigned as a default to all sales channels and therefore can not be deleted.',
         ];

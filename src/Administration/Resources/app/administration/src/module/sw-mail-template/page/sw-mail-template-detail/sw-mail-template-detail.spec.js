@@ -379,7 +379,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to send test mails when values are filled', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -410,7 +410,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should be able to send test mails when only inherited values are filled', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -534,7 +534,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should replace variables in html content when send mail test', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['api_send_email']);
 
         const spyMailPreviewContent = jest.spyOn(wrapper.vm, 'mailPreviewContent');
 
@@ -642,7 +642,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     });
 
     it('should get error notification if using test mail function with invalid template', async () => {
-        wrapper = await createWrapper();
+        wrapper = await createWrapper(['api_send_email']);
 
         await wrapper.setData({
             mailTemplate: {
@@ -691,5 +691,34 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(wrapper.find('sw-language-info-stub').exists()).toBe(true);
         expect(wrapper.find('sw-language-info-stub').attributes('entity-description')).toBe(mailTemplateTypeMock.name);
+    });
+
+    it('should disable send test mail button when acl permission not set', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: undefined,
+                contentPlain: undefined,
+                // eslint-disable-next-line max-len
+                contentHtml: undefined,
+                senderName: undefined,
+                translated: {
+                    subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                    contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                    // eslint-disable-next-line max-len
+                    contentHtml: '{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/><br/>',
+                    senderName: '{{ salesChannel.name }}',
+                },
+            },
+            testerMail: 'foo@bar.com',
+            isLoading: false,
+            testMailSalesChannelId: '1a2b3c',
+        });
+
+        const sendTestMail = wrapper.findComponent('.sw-mail-template-detail__send-test-mail');
+
+        expect(sendTestMail.props().disabled).toBe(true);
     });
 });

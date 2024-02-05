@@ -361,7 +361,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_mail_template_mail_text_form_test_mail_button %}
                     <sw-button
-                        :disabled="isLoading || !testMailRequirementsMet"
+                        :disabled="isSendButtonDisabled"
                         class="sw-mail-template-detail__send-test-mail"
                         @click="onClickTestMailTemplate"
                     >

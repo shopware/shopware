@@ -133,7 +133,7 @@
 
         <service id="Monolog\Handler\NullHandler"/>
 
-        <service id="Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestMessageHandler">
+        <service id="Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessageHandler">
             <tag name="messenger.message_handler"/>
         </service>
 

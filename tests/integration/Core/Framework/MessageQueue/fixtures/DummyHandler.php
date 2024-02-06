@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures;
 
+use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**

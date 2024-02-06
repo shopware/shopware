@@ -263,6 +263,8 @@ cypress:
         - *base_install
         - *theme_install
         - *install_dependencies
+        - composer init:js
+        - composer build:js
         - SERVICE_PHPFPM_OPTS=--allow-to-run-as-root CONTAINER_UID=root /entrypoint supervisord > /dev/null 2>&1 &
         - bin/console e2e:dump-db
         - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}

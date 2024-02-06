@@ -79,6 +79,8 @@ const mockUnknownDocument = {
 const mockMailTemplates = [
     {
         id: uuid.get('cancellation_mail'),
+        name: 'Test email 1',
+        description: 'Test email description 1',
         mailTemplateType: {
             name: 'Cancellation invoice',
             technicalName: 'cancellation_mail',
@@ -88,6 +90,8 @@ const mockMailTemplates = [
     },
     {
         id: uuid.get('delivery_mail'),
+        name: 'Test email 2',
+        description: 'Test email description 2',
         mailTemplateType: {
             name: 'Delivery note',
             technicalName: 'delivery_mail',
@@ -97,6 +101,8 @@ const mockMailTemplates = [
     },
     {
         id: null,
+        name: 'Test email 3',
+        description: 'Test email description 3',
         mailTemplateType: {
             name: 'Invoice note',
             technicalName: 'invoice',
@@ -111,7 +117,7 @@ const mockMailHeaderFooter = {
     footerHtml: '<div>Footer</div>\n',
 };
 
-const mockRepositoryFactory = (entity) => {
+const mockRepositoryFactory = (entity, mailTemplates) => {
     if (entity === 'mail_template') {
         return {
             search: jest.fn(() => Promise.resolve(
@@ -120,11 +126,11 @@ const mockRepositoryFactory = (entity) => {
                     '',
                     Shopware.Context.api,
                     null,
-                    mockMailTemplates,
+                    mailTemplates,
                     2,
                 ),
             )),
-            get: jest.fn((value) => Promise.resolve(mockMailTemplates.filter(mailTemplate => mailTemplate.id === value)[0])),
+            get: jest.fn((value) => Promise.resolve(mailTemplates.filter(mailTemplate => mailTemplate.id === value)[0])),
         };
     }
     if (entity === 'mail_header_footer') {
@@ -151,11 +157,12 @@ const mockRepositoryFactory = (entity) => {
     return {};
 };
 
-async function createWrapper(
-    order = mockOrderWithMailHeaderFooter,
-    document = mockDocuments[0],
-    sendingSucceds = true,
-) {
+const defaultProps = {
+    order: mockOrderWithMailHeaderFooter,
+    document: mockDocuments[0],
+};
+
+async function createWrapper(props = defaultProps, sendingSucceds = true, mailTemplates = mockMailTemplates) {
     return mount(await wrapTestComponent('sw-order-send-document-modal', { sync: true }), {
         global: {
             stubs: {
@@ -172,19 +179,16 @@ async function createWrapper(
             provide: {
                 repositoryFactory: {
                     create(entity) {
-                        return mockRepositoryFactory(entity);
+                        return mockRepositoryFactory(entity, mailTemplates);
                     },
                 },
                 mailService: {
-                    buildRenderPreview: (mailTemplateType, mailTemplate) => Promise.resolve(mailTemplate.contentHtml),
+                    buildRenderPreview: (_, mailTemplate) => Promise.resolve(mailTemplate.contentHtml),
                     sendMailTemplate: jest.fn(sendingSucceds ? () => Promise.resolve() : () => Promise.reject()),
                 },
             },
         },
-        props: {
-            document,
-            order,
-        },
+        props,
     });
 }
 
@@ -205,6 +209,40 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
         expect(textFields[1].attributes('value')).toBe(mockMailTemplates[0].subject);
     });
 
+    it('should display mail template select', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mailTemplateSelect = wrapper.find('.sw-order-send-document-modal__mail-template-select');
+        expect(mailTemplateSelect.exists()).toBe(true);
+
+        await mailTemplateSelect.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-select-result__result-item-description').text()).toBe(mockMailTemplates[0].description);
+    });
+
+    it('should truncate mail template description', async () => {
+        const wrapper = await createWrapper(
+            defaultProps,
+            true,
+            [
+                {
+                    ...mockMailTemplates[0],
+                    description: 'swag'.repeat(50),
+                },
+            ],
+        );
+        await flushPromises();
+
+        await wrapper.find('.sw-entity-single-select__selection').trigger('click');
+        await flushPromises();
+
+        const text = wrapper.find('.sw-select-result__result-item-description').text();
+        expect(text).toHaveLength(160);
+        expect(text.endsWith('...')).toBe(true);
+    });
+
     it('should display the email content preview between a header and footer with existing mailHeaderFooterId', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -214,7 +252,10 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     });
 
     it('should not display the email content preview between a header and footer with missing mailHeaderFooterId', async () => {
-        const wrapper = await createWrapper(mockOrderWithoutMailHeaderFooter);
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            order: mockOrderWithoutMailHeaderFooter,
+        });
         await flushPromises();
 
         const previewContent = wrapper.find('.sw-order-send-document-modal__email-content');
@@ -251,14 +292,22 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     });
 
     it('should not search the mailTemplateRepository for a not configured document type on loading', async () => {
-        const wrapper = await createWrapper(mockOrderWithMailHeaderFooter, mockUnknownDocument);
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            order: mockOrderWithMailHeaderFooter,
+            document: mockUnknownDocument,
+        });
         await flushPromises();
 
         expect(wrapper.vm.mailTemplateRepository.search).toHaveBeenCalledTimes(0);
     });
 
     it('should not try to set the mailTemplateId, subject and content, when not finding a mail template', async () => {
-        const wrapper = await createWrapper(mockOrderWithMailHeaderFooter, mockDocuments[1]);
+        const wrapper = await createWrapper({
+            ...defaultProps,
+            order: mockOrderWithMailHeaderFooter,
+            document: mockDocuments[1],
+        });
         await flushPromises();
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('');
@@ -314,7 +363,14 @@ describe('src/module/sw-order/component/sw-order-send-document-modal', () => {
     });
 
     it('should show an error when the email sending fails', async () => {
-        const wrapper = await createWrapper(mockOrderWithMailHeaderFooter, mockDocuments[0], false);
+        const wrapper = await createWrapper(
+            {
+                ...defaultProps,
+                order: mockOrderWithMailHeaderFooter,
+                document: mockDocuments[0],
+            },
+            false,
+        );
         wrapper.vm.createNotificationError = jest.fn();
         await flushPromises();
 

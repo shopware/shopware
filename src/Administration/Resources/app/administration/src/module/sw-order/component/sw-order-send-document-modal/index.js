@@ -8,6 +8,9 @@ import './sw-order-send-document-modal.scss';
 const { Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,

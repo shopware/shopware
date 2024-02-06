@@ -42,6 +42,7 @@
     {% block sw_order_send_document_modal_mail_template_select %}
     <sw-entity-single-select
         v-model:value="mailTemplateId"
+        class="sw-order-send-document-modal__mail-template-select"
         entity="mail_template"
         :criteria="mailTemplateCriteria"
         label-property="mailTemplateType.name"
@@ -69,6 +70,7 @@
     {% block sw_order_send_document_modal_subject %}
     <sw-text-field
         v-model:value="subject"
+        class="sw-order-send-document-modal__subject"
         :label="$tc('sw-order.documentSendModal.labelSubject')"
         required
     />

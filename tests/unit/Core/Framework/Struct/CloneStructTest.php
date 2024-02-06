@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Struct;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Struct\CloneTrait;
 
 /**
  * @internal
  */
+#[CoversClass(CloneTrait::class)]
 class CloneStructTest extends TestCase
 {
     public function testClone(): void
@@ -26,7 +28,7 @@ class CloneStructTest extends TestCase
 
         static::assertEquals($original, $clone);
         static::assertNotSame($original, $clone);
-        
+
         static::assertNotSame($original->arrayOfStructs[0], $clone->arrayOfStructs[0]);
         static::assertNotSame($original->nestedStruct, $clone->nestedStruct);
     }
@@ -43,22 +45,26 @@ class CloneStruct
      * @var array<array-key, CloneStruct>
      */
     public array $arrayOfStructs;
+
     public CloneStructBackedEnum $backedEnum;
+
     public CloneStructUnitEnum $unitEnum;
+
     public CloneStruct $nestedStruct;
 }
-
 
 /**
  * @internal
  */
-enum CloneStructBackedEnum: int {
+enum CloneStructBackedEnum: int
+{
     case Case = 1;
 }
 
 /**
  * @internal
  */
-enum CloneStructUnitEnum {
+enum CloneStructUnitEnum
+{
     case Case;
 }

@@ -43,7 +43,7 @@
                             {% if not feature('v6.7.0.0') %}
                                 {% set criteria = page.orders.criteria %}
                             {% endif %}
-                            {% set totalPages = (page.orders.total/page.orders.limit)|round(0,'ceil') %}
+                            {% set totalPages = (page.orders.total/(page.orders.limit ?: 1))|round(0,'ceil') %}
 
                             {% if totalPages > 1 %}
                                 {% set formAjaxSubmitOptions = {

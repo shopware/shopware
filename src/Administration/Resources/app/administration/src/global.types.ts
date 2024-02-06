@@ -86,6 +86,7 @@ import type PrivilegesService from './app/service/privileges.service';
 import type { UsageDataModuleState } from './app/state/usage-data.store';
 import type { FileValidationService } from './app/service/file-validation.service';
 import type { AdminHelpCenterState } from './app/state/admin-help-center.store';
+import type { DevtoolComponent } from './app/adapter/view/sw-vue-devtools';
 
 // trick to make it an "external module" to support global type extension
 
@@ -147,6 +148,7 @@ declare global {
             [featureName: string]: boolean
         };
         processingInactivityLogout?: boolean;
+        _sw_extension_component_collection: DevtoolComponent[];
     }
 
     const _features_: {

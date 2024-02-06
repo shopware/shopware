@@ -8,9 +8,10 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Contracts\Cache\CacheTrait;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[Package('core')]
-class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
+class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface, ResetInterface
 {
     use CacheTrait;
 
@@ -97,6 +98,13 @@ class CacheDecorator implements TagAwareAdapterInterface, TagAwareCacheInterface
     public function invalidateTags(array $tags): bool
     {
         return $this->decorated->invalidateTags($tags);
+    }
+
+    public function reset(): void
+    {
+        if ($this->decorated instanceof ResetInterface) {
+            $this->decorated->reset();
+        }
     }
 
     /**

@@ -330,8 +330,7 @@
                     <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_data_grid_body_columns %}
                     <td
-                        v-for="(column, columnIndex) in currentColumns"
-                        v-show="column.visible"
+                        v-for="(column, columnIndex) in currentVisibleColumns"
                         :key="`${item.id}-${columnIndex}`"
                         class="sw-data-grid__cell"
                         :class="getCellClasses(column)"

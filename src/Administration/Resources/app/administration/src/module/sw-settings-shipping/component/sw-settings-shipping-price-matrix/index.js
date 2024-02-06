@@ -111,49 +111,14 @@ export default {
             );
         },
 
-        ruleColumns() {
-            const columns = [];
-
-            if (this.isRuleMatrix) {
-                columns.push({
-                    property: 'calculationRule',
-                    label: 'sw-settings-shipping.priceMatrix.columnCalculationRule',
-                    allowResize: true,
-                    primary: true,
-                    rawData: true,
-                    width: '250px',
-                });
-            } else {
-                columns.push({
-                    property: 'quantityStart',
-                    label: this.labelQuantityStart,
-                    allowResize: true,
-                    primary: true,
-                    rawData: true,
-                });
-                columns.push({
-                    property: 'quantityEnd',
-                    label: this.labelQuantityEnd,
-                    allowResize: true,
-                    rawData: true,
-                    primary: true,
-                    width: '130px',
-                });
-            }
-
-            columns.push(...this.currencyColumns);
-
-            return columns;
-        },
-
         currencyColumns() {
-            return this.currencies.map((currency) => {
+            return this.currencies.map((currency, index) => {
                 let label = currency.translated.name || currency.name;
                 label = `${label} ${this.$tc('sw-settings-shipping.priceMatrix.labelGrossNet')}`;
                 return {
                     property: `price-${currency.isoCode}`,
                     label: label,
-                    visible: true,
+                    visible: index === 0,
                     allowResize: true,
                     primary: !!currency.isSystemDefault,
                     rawData: false,
@@ -236,6 +201,40 @@ export default {
 
             return this.priceGroup.rule ? this.priceGroup.rule.name : this.$tc('sw-settings-shipping.priceMatrix.titleCard');
         },
+    },
+
+    created() {
+        this.ruleColumns = [];
+
+        if (this.isRuleMatrix) {
+            this.ruleColumns.push({
+                property: 'calculationRule',
+                label: 'sw-settings-shipping.priceMatrix.columnCalculationRule',
+                allowResize: true,
+                primary: true,
+                rawData: true,
+                width: '250px',
+            });
+        } else {
+            this.ruleColumns.push({
+                property: 'quantityStart',
+                label: this.labelQuantityStart,
+                allowResize: true,
+                primary: true,
+                rawData: true,
+                width: '130px',
+            });
+            this.ruleColumns.push({
+                property: 'quantityEnd',
+                label: this.labelQuantityEnd,
+                allowResize: true,
+                rawData: true,
+                primary: true,
+                width: '130px',
+            });
+        }
+
+        this.ruleColumns.push(...this.currencyColumns);
     },
 
     methods: {

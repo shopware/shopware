@@ -1,0 +1,30 @@
+{
+    "openapi": "3.0.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CmsBlock": {
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "cms_block"
+                        ]
+                    },
+                    "slots": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CmsSlot"
+                        }
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "slots"
+                ]
+            }
+        }
+    }
+}

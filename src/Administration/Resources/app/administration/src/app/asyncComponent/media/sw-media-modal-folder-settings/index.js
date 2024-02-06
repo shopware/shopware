@@ -33,6 +33,7 @@ export default {
     data() {
         return {
             modalClass: 'sw-media-modal-folder-settings--shows-overflow',
+            unusedThumbnailSizes: [],
             thumbnailSizes: [],
             isEditThumbnails: false,
             parent: null,
@@ -56,6 +57,21 @@ export default {
         mediaFolderConfigurationRepository() {
             return this.repositoryFactory.create('media_folder_configuration');
         },
+
+        unusedMediaThumbnailSizeCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFilter(Criteria.equals('mediaFolderConfigurations.mediaFolders.id', null));
+
+            return criteria;
+        },
+
+        mediaThumbnailSizeCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addSorting(Criteria.sort('width'));
+
+            return criteria;
+        },
+
         notEditable() {
             return this.mediaFolder.useParentConfiguration
                 || !this.configuration.createThumbnails
@@ -89,6 +105,7 @@ export default {
         async createdComponent() {
             this.mediaFolder = await this.loadMediaFolder();
 
+            await this.getUnusedThumbnailSizes();
             await this.getThumbnailSizes();
             this.configuration = await this.mediaFolderConfigurationRepository.get(
                 this.mediaFolder.configurationId,
@@ -116,11 +133,23 @@ export default {
             return `${item.entity} (${this.$tc(entityNameIdentifier)})`;
         },
 
-        async getThumbnailSizes() {
-            const criteria = new Criteria(1, 50)
-                .addSorting(Criteria.sort('width'));
+        async getUnusedThumbnailSizes() {
+            const response = await this.mediaThumbnailSizeRepository.searchIds(
+                this.unusedMediaThumbnailSizeCriteria,
+            );
+            this.unusedThumbnailSizes = response.data;
+        },
 
-            this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(criteria, Context.api);
+        async getThumbnailSizes() {
+            this.thumbnailSizes = await this.mediaThumbnailSizeRepository.search(
+                this.mediaThumbnailSizeCriteria,
+            );
+
+            this.thumbnailSizes.forEach((thumbnailSize) => {
+                thumbnailSize.deletable = Boolean(this.unusedThumbnailSizes.find((unusedThumbnailSize) => {
+                    return unusedThumbnailSize === thumbnailSize.id;
+                }));
+            });
         },
 
         toggleEditThumbnails() {

@@ -564,10 +564,6 @@ class DispatchEntityMessageHandlerTest extends TestCase
                 return str_contains($query, EntityDefinitionQueryHelper::escape($idFieldStorageName));
             }));
 
-        $entityDispatcher = $this->createMock(EntityDispatcher::class);
-        $entityDispatcher->expects(static::once())
-            ->method('dispatch');
-
         $consentService = $this->createMock(ConsentService::class);
         $consentService->expects(static::once())
             ->method('getLastConsentIsAcceptedDate')
@@ -589,7 +585,7 @@ class DispatchEntityMessageHandlerTest extends TestCase
             $this->createMock(ManyToManyAssociationService::class),
             $usageDataAllowListService,
             $connection,
-            $entityDispatcher,
+            $this->createMock(EntityDispatcher::class),
             $consentService,
             $shopIdProvider
         );
@@ -833,6 +829,77 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
         static::assertArrayHasKey('puid', $serialized);
         static::assertSame($puid, $serialized['puid']);
+    }
+
+    public function testDoesNotDispatchIfNoEntitiesAreGiven(): void
+    {
+        $definition = new SyncEntityDefinition();
+        new StaticDefinitionInstanceRegistry(
+            [$definition],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGateway::class),
+        );
+
+        $doctrineResult = $this->createMock(Result::class);
+        $doctrineResult->expects(static::once())
+            ->method('iterateAssociative')
+            ->willReturn(new \ArrayIterator([])); // could be empty if the entities were deleted in the meantime
+
+        $connectionMock = $this->createConnectionMock();
+        $connectionMock->expects(static::once())
+            ->method('executeQuery')
+            ->willReturn($doctrineResult);
+
+        $entityDispatcher = $this->createMock(EntityDispatcher::class);
+        $entityDispatcher->expects(static::never())
+            ->method('dispatch');
+
+        $consentService = $this->createMock(ConsentService::class);
+        $consentService->method('getLastConsentIsAcceptedDate')
+            ->willReturn(new \DateTimeImmutable());
+
+        $usageDataAllowListService = $this->createMock(UsageDataAllowListService::class);
+        $usageDataAllowListService->method('isEntityAllowed')
+            ->willReturn(true);
+        $usageDataAllowListService->method('getFieldsToSelectFromDefinition')
+            ->willReturnCallback(function (EntityDefinition $definition) {
+                $fields = $definition->getFields()->getElements();
+
+                // filter out all VersionFields
+                $fields = array_filter($fields, function (Field $field) {
+                    return !($field instanceof VersionField);
+                });
+
+                return new FieldCollection($fields);
+            });
+
+        $shopIdProvider = $this->createMock(ShopIdProvider::class);
+        $shopIdProvider->method('getShopId')->willReturn('current-shop-id');
+
+        $handler = new DispatchEntityMessageHandler(
+            new EntityDefinitionService(
+                [$definition],
+                $usageDataAllowListService,
+            ),
+            new ManyToManyAssociationService($connectionMock),
+            $usageDataAllowListService,
+            $connectionMock,
+            $entityDispatcher,
+            $consentService,
+            $shopIdProvider
+        );
+
+        $handler(new DispatchEntityMessage(
+            SyncEntityDefinition::ENTITY_NAME,
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            [
+                ['id' => '0189e3c51ce6732e9339ac7664f5d966'],
+                ['id' => '0189e3c51ce6732e9339ac766535f1ab'],
+                ['id' => '0189e3c51ce6732e9339ac7665587c0e'],
+            ],
+            'current-shop-id',
+        ));
     }
 
     private function createConnectionMock(): Connection&MockObject

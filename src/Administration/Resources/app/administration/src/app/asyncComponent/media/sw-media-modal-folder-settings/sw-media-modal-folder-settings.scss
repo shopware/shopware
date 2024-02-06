@@ -70,5 +70,10 @@ $sw-media-modal-folder-settings-delete-color: $color-crimson-500;
             cursor: pointer;
             outline: none;
         }
+
+        .sw-media-modal-folder-settings__delete-thumbnail[disabled] {
+            color: $color-gray-300;
+            cursor: not-allowed;
+        }
     }
 }

@@ -116,4 +116,20 @@ class StoreApiGeneratorTest extends TestCase
         static::assertArrayHasKey('post', $paths['/search/guided-shopping-presentation']);
         static::assertArrayNotHasKey('/_action/order_delivery/{orderDeliveryId}/state/{transition}', $paths);
     }
+
+    public function testMergeComponentsSchemaRequiredFieldsRecursive(): void
+    {
+        $schema = $this->customApiGenerator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::STORE_API,
+            DefinitionService::TYPE_JSON_API,
+            $this->customBundleSchemas->getName()
+        );
+
+        $entities = $schema['components']['schemas'];
+
+        static::assertArrayHasKey('Simple', $entities);
+        static::assertArrayHasKey('required', $entities['Simple']);
+        static::assertCount(3, $entities['Simple']['required']);
+    }
 }

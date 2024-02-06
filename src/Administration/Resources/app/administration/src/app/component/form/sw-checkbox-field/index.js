@@ -31,7 +31,7 @@ Component.register('sw-checkbox-field', {
         id: {
             type: String,
             required: false,
-            default: utils.createId(),
+            default: () => utils.createId(),
         },
 
         disabled: {

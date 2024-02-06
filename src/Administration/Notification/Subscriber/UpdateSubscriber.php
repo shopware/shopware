@@ -40,7 +40,7 @@ class UpdateSubscriber implements EventSubscriberInterface
      */
     public function updateFinishedDone(UpdatePostFinishEvent $event): void
     {
-        if ($event->getPostUpdateMessage() === '') {
+        if ($event->getPostUpdateMessage() === '' || $event->getOldVersion() === $event->getNewVersion()) {
             return;
         }
 

@@ -200,7 +200,7 @@
 
                                         {% block page_product_detail_review_list_paging %}
                                             {% set criteria = reviews.criteria %}
-                                            {% set totalPages = (productReviewCount/criteria.limit)|round(0,'ceil') %}
+                                            {% set totalPages = (productReviewCount/(criteria.limit ?: 1))|round(0,'ceil') %}
 
                                             {% if totalPages > 1 %}
                                                 {% set formAjaxSubmitOptions = {

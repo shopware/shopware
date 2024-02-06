@@ -15,12 +15,11 @@ class HealthCheckEventDispatcher implements EventDispatcherInterface
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly HealthCheckEventSubscriber $healthCheckEventSubscriber
     ) {
+        $this->eventDispatcher->addSubscriber($this->healthCheckEventSubscriber);
     }
 
     public function dispatch(object $event, string $eventName = null): object
     {
-        $this->eventDispatcher->addSubscriber($this->healthCheckEventSubscriber);
-
         return $this->eventDispatcher->dispatch($event, $eventName);
     }
 }

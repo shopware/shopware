@@ -152,6 +152,7 @@
                             :label="$tc('sw-users-permissions.users.user-detail.labelPassword')"
                             :copy-able="false"
                             :error="userPasswordError"
+                            autocomplete="off"
                             @update:value="setPassword"
                         />
                         {% endblock %}
@@ -407,6 +408,7 @@
                 :password-toggle-able="false"
                 :copy-able="showSecretAccessKey"
                 :copy-able-tooltip="true"
+                autocomplete="off"
             />
             {% endblock %}
 

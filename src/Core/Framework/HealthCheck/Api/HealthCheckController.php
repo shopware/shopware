@@ -1,24 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Api\Controller;
+namespace Shopware\Core\Framework\HealthCheck\Api;
 
-use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\HealthCheck\EventDispatcher\HealthCheckEventDispatcher;
+use Shopware\Core\Framework\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('core')]
-class HealthCheckController
+class HealthCheckController extends AbstractController
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly HealthCheckEventDispatcher $eventDispatcher,
     ) {
     }
 
@@ -41,10 +42,29 @@ class HealthCheckController
         $context ??= Context::createDefaultContext();
 
         $event = new HealthCheckEvent($context);
-        $this->eventDispatcher->dispatch($event);
+        $event = $this->eventDispatcher->dispatch($event);
 
+        return $this->getResponseBody($event);
+    }
+
+    /**
+     * @param HealthCheckEvent $event
+     *
+     * @return Response
+     */
+    private function getResponseBody(HealthCheckEvent $event): Response
+    {
         $response = new Response('');
         $response->setPrivate();
+
+        $data = $event->getServiceDataList();
+
+        if ($data === []) {
+            return $response;
+        }
+
+        $response->setContent(json_encode($data, JSON_PRETTY_PRINT));
+        $response->headers->set('Content-Type', 'application/json');
 
         return $response;
     }

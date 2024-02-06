@@ -37,5 +37,17 @@
         <service id="Shopware\Core\Framework\MessageQueue\SendEmailMessageJsonSerializer">
             <tag name="serializer.normalizer"/>
         </service>
+
+
+        <!--Plugins-->
+        <service id="Shopware\Core\Framework\MessageQueue\Plugin\MessageQueuePlugin" public="true">
+            <argument type="service" id="messenger.receiver_locator"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\HealthCheck\Subscriber\HealthCheckEventSubscriber" public="true">
+            <call method="addPlugin">
+                <argument type="service" id="Shopware\Core\Framework\MessageQueue\Plugin\MessageQueuePlugin"/>
+            </call>
+        </service>
     </services>
 </container>

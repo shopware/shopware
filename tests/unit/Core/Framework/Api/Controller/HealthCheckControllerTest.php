@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Controller\HealthCheckController;
-use Shopware\Core\Framework\Api\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\HealthCheck\Api\HealthCheckController;
+use Shopware\Core\Framework\HealthCheck\Event\HealthCheckEvent;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;

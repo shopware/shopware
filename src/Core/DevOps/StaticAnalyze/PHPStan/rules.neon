@@ -11,3 +11,4 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\NoDALAutoload
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DALFieldsMustBeRegisteredWithSchemaBuilder
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\RouteScopeRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\MessagesShouldNotUsePHPStanTypes

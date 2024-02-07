@@ -1,3 +1,23 @@
+# 6.5.8.3
+## Paging processor now accepts preset limit
+The `PagingListingProcessor` now also considers the preset `limit` value when processing the request. This means that the `limit` value from the request will be used if it is set, otherwise the preset `limit` value, of the provided criteria, will be used.
+If the criteria does not have a preset `limit` value, the default `limit` from the system configuration will be used.
+
+```
+$criteria = new Criteria();
+$criteria->setLimit(10);
+
+$request = new Request();
+$request->query->set('limit', 5);
+
+$processor = new PagingListingProcessor();
+
+$processor->process($criteria, $request);
+
+// $criteria->getLimit() === 5
+// $criteria->getLimit() === 10 (if no limit is set in the request)
+```
+
 # 6.5.8.0
 ## Cache rework preparation
 With 6.6 we are marking a lot of HTTP Cache and Reverse Proxy classes as @internal and move them to the core. 

@@ -1,9 +1,36 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
-## 6.5.7.4
-*  [NEXT-32388 - Update dompdf/dompdf to 2.0.4](./changelog/release-6-5-7-4/2023-12-14-update-dompdf-to-2-0-4.md)
-*  [NEXT-32201 - Add 'innovation as package title'](./changelog/release-6-5-7-4/2023-14-12-add-new-innovation-area.md)
-*  [NEXT-32889 - Fix privileges for state machine](./changelog/release-6-5-7-4/2024-01-05-fix-privileges-for-state-machine.md)
+
+## 6.5.8.3
+*  [NEXT-32814 - Add separator to admin ES search indexer queries](./changelog/release-6-5-8-3/2023-12-23-add-separator-to-admin-es-search-indexer.md) ([Marcus Müller](https://github.com/M-arcus))
+*  [NEXT-29439 - Enforce id sorting](./changelog/release-6-5-8-3/2023-12-29-enforce-id-sorting.md)
+*  [NEXT-26217 - Reset `variantListingConfig.mainVariantId` when clone the product](./changelog/release-6-5-8-3/2024-01-03-remove-mainvariantid-in-the-products-dont-have-variant.md)
+*  [NEXT-30649 - Fix error on disabled products](./changelog/release-6-5-8-3/2024-01-07-fix-error-on-disabled-products.md)
+*  [NEXT-32919 - Trigger MediaIndexer after MediaPathPostUpdater](./changelog/release-6-5-8-3/2024-01-08-trigger-media-indexer-after-media-path-indexer.md)
+*  [NEXT-33030 - Multi select field with multiple collapsed values can not be expanded anymore](./changelog/release-6-5-8-3/2024-01-10-multi-select-field-with-multiple-collapsed-values-can-not-be-expanded-anymore.md)
+*  [NEXT-0000 - Do not require sales channel id for the GenerateDocumentAction](./changelog/release-6-5-8-3/2024-01-11-do-not-require-sales-channel-id-for-the-generatedocumentaction.md) ([Max](https://github.com/aragon999))
+*  [NEXT-33079 - Fix error handling for message handlers](./changelog/release-6-5-8-3/2024-01-15-fix-error-handling-for-message-handlers.md)
+*  [NEXT-32238 - Reschedule some scheduled tasks on failure](./changelog/release-6-5-8-3/2024-01-15-reschedule-some-scheduled-tasks-on-failure.md)
+*  [NEXT-30573 - Fix suggest paging](./changelog/release-6-5-8-3/2024-01-16-fix-suggest-paging.md)
+*  [NEXT-33138 - Fix $super chain with empty overrides](./changelog/release-6-5-8-3/2024-01-16-fix-super-chain-with-empty-overrides.md)
+*  [NEXT-30261 - Fix redirect loop](./changelog/release-6-5-8-3/2024-01-17-fix-redirect-loop.md)
+*  [NEXT-33151 - Merge plugin autoload-dev to classloader for PHPUnit](./changelog/release-6-5-8-3/2024-01-17-merge-plugin-autoload-dev-to-classloader-for-phpunit.md)
+*  [NEXT-33235 - Use searchIds for import id resolving](./changelog/release-6-5-8-3/2024-01-17-use-searchids-for-import-id-resolving.md) ([Max](https://github.com/aragon999))
+*  [NEXT-30089 - Correcting the defaults entity in TreeBuildingNavigationRoute](./changelog/release-6-5-8-3/2024-01-19-correcting-the-defaults-entity-in-treebuildingnavigationroute.md)
+*  [NEXT-33260 - Downgrade bootstrap version](./changelog/release-6-5-8-3/2024-01-19-downgrade-bootstrap-version.md)
+*  [NEXT-33354 - Fix for Thumbnail generation Edge Cases](./changelog/release-6-5-8-3/2024-01-23-fix-thumbnail-generation-edge-cases.md)
+*  [NEXT-33328 - Promotion individual code pattern should be nullable](./changelog/release-6-5-8-3/2024-01-23-promotion-individual-code-should-be-nullable.md)
+*  [NEXT-29424 - Add check for empty productId for wishlist](./changelog/release-6-5-8-3/2024-01-24-add-check-for-empty-productid-for-wishlist.md)
+*  [NEXT-32932 - Changed technical name errors for payment and shipping methods to a hint](./changelog/release-6-5-8-3/2024-01-24-changed-technical-name-errors-for-payment-and-shipping-methods-to-a-hint.md)
+*  [NEXT-31763 - Change shortName to isoCode property for order module](./changelog/release-6-5-8-3/2024-01-25-change-shortname-to-isocode-property-for-order-module.md)
+*  [NEXT-30640 - Remove product count from sales channel list](./changelog/release-6-5-8-3/2024-01-25-remove-product-count-from-sales-channel-list.md)
+*  [NEXT-32776 - Admin order - Number of entries in selection field "Delivery address" / "Billing address" limited to 25](./changelog/release-6-5-8-3/2024-01-26-admin-order-address-search-field.md)
+*  [NEXT-31225 - Fix empty content after saving a layout has missing components](./changelog/release-6-5-8-3/2024-01-29-fix-empty-content-after-saving-a-layout-has-missing-components.md)
+*  [NEXT-32989 - Fix HTML entities in the SEO fields](./changelog/release-6-5-8-3/2024-01-29-fix-html-entities-in-the-seo-fields.md)
+*  [NEXT-30059 - Added delete restriction to sales channel domain](./changelog/release-6-5-8-3/2024-01-30-added-delete-restriction-to-sales-channel-domain.md)
+*  [NEXT-31770 - Fix product comparison use APP_URL instead of assigned sales channel domain](./changelog/release-6-5-8-3/2024-01-30-fix-product-comparison-use-app_url-instead-of-assigned-sales-channel-domain.md)
+*  [NEXT-33395 - Fix content should be replaced which click on other tab in address modal](./changelog/release-6-5-8-3/2024-02-01-fix-content-should-be-replaced-when-click-on-other-tab-in-address-modal.md)
+*  [NEXT-33440 - Support HTML5 tags](./changelog/release-6-5-8-3/2024-02-06-support-html5-tags.md)
 
 ## 6.5.8.2
 *  [NEXT-31820 - Revert Update NPM packages](./changelog/release-6-5-8-2/2024-01-19-revert-update-npm-packages.md)
@@ -60,6 +87,11 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-32898 - Update Belgian VAT ID Validation Regex](./changelog/release-6-5-8-0/2024-01-03-update-belgian-vat-id-validation-regex.md)
 *  [NEXT-31820 - Update NPM packages](./changelog/release-6-5-8-0/2024-01-05-update-npm-packages.md)
 *  [NEXT-32919 - Trigger MediaIndexer after MediaPathPostUpdater](./changelog/release-6-5-8-0/2024-01-08-trigger-media-indexer-after-media-path-indexer.md)
+
+## 6.5.7.4
+*  [NEXT-32388 - Update dompdf/dompdf to 2.0.4](./changelog/release-6-5-7-4/2023-12-14-update-dompdf-to-2-0-4.md)
+*  [NEXT-32201 - Add 'innovation as package title'](./changelog/release-6-5-7-4/2023-14-12-add-new-innovation-area.md)
+*  [NEXT-32889 - Fix privileges for state machine](./changelog/release-6-5-7-4/2024-01-05-fix-privileges-for-state-machine.md)
 
 ## 6.5.7.3
 *  [NEXT-32042 - Correct address_format column type](./changelog/release-6-5-7-3/2023-11-30-correct-address_format-column-type.md)

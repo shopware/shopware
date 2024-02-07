@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Service;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -238,6 +239,26 @@ class ImportExportServiceTest extends TestCase
             $this->importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
         } else {
             $this->importExportService->prepareExport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable());
+        }
+    }
+
+    #[DataProvider('profileProvider')]
+    public function testExportProfileShouldNotThrowExceptionWhenExportingErrorLog($profile, $task): void
+    {
+        $this->profileRepository->create([$profile], Context::createDefaultContext());
+        $path = tempnam(sys_get_temp_dir(), '');
+        static::assertIsString($path);
+
+        if ($task === 'import') {
+            $this->importExportService->prepareExport(
+                Context::createDefaultContext(),
+                $profile['id'],
+                new \DateTimeImmutable(),
+                null,
+                [],
+                null,
+                ImportExportLogEntity::ACTIVITY_INVALID_RECORDS_EXPORT
+            );
         }
     }
 

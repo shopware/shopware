@@ -35,6 +35,9 @@
             </template>
 
         </sw-alert>
+
+        {% block sw_extension_my_extensions_list_empty_state %}
+
         <sw-meteor-card
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
@@ -65,6 +68,8 @@
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.btnOpenStore') }}
             </sw-button>
         </sw-meteor-card>
+
+        {% endblock %}
 
         <template v-else>
             <div class="sw-extension-my-extensions-listing__container">

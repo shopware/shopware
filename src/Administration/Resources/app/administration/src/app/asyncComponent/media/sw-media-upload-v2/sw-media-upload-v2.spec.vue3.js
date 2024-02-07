@@ -96,7 +96,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     });
 
     it('should contain the default accept value', async () => {
-        expect(fileInput.attributes().accept).toBe('image/*');
+        expect(fileInput.attributes().accept).toBe('*/*');
     });
 
     it('should contain "application/pdf" value', async () => {

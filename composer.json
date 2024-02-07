@@ -415,7 +415,7 @@
         "eslint:admin:fix": "@npm:admin run lint:fix",
         "eslint:e2e": "@npm:e2e run lint",
         "eslint:e2e:fix": "@npm:e2e run lint:fix",
-        "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
+        "eslint:storefront": "@npm:storefront run lint:js",
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig --version; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "framework:schema:dump": "@php bin/console -e prod framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json",

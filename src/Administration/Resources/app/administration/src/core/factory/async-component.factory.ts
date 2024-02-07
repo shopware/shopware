@@ -934,7 +934,7 @@ interface SuperBehavior {
     _findInSuperRegister(name: string): SuperRegistry,
     _superRegistry(): SuperRegistry,
     _inheritedFrom(): string,
-    _virtualCallStack: { [name: string]: string }
+    _virtualCallStack: { [name: string]: string|undefined }
 }
 
 /**
@@ -1016,7 +1016,7 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
 
             const superStack = this._findInSuperRegister(name);
 
-            let superFuncObject = superStack[this._virtualCallStack[name]];
+            let superFuncObject = superStack[this._virtualCallStack[name]!];
 
             /**
              * Find the next matching function in the super call chain.
@@ -1025,6 +1025,16 @@ function addSuperBehaviour(inheritedFrom: string, superRegistry: SuperRegistry):
             while (superFuncObject && typeof superFuncObject.func !== 'function') {
                 // @ts-expect-error
                 superFuncObject = superStack[superFuncObject.parent];
+            }
+
+            /**
+             * If there is no super function in the super call chain, then go to the next override.
+             */
+            if (!superFuncObject) {
+                this._virtualCallStack[name] = undefined;
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument
+                return this.$super(name, ...args);
             }
 
             // @ts-expect-error

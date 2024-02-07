@@ -10,6 +10,7 @@ export class ProductDetailPage implements PageObject {
     public readonly quantitySelect: Locator;
     public readonly offCanvasStockReachedAlert: Locator;
     public readonly offCanvasSummaryTotalPrice: Locator;
+    public readonly offCanvas: Locator;
 
     private readonly product;
 
@@ -19,6 +20,7 @@ export class ProductDetailPage implements PageObject {
         this.offCanvasCart = page.getByRole('dialog');
         this.offCanvasCartGoToCheckoutButton = page.getByRole('link', { name: 'Go to checkout' });
         this.quantitySelect = page.getByLabel('Quantity', { exact: true });
+        this.offCanvas = page.locator('offcanvas-body');
         this.offCanvasStockReachedAlert = page.getByText('only available 1 times')
         this.offCanvasSummaryTotalPrice = page.locator('dt:has-text("Subtotal") + dd')
 

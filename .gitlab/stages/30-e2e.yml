@@ -287,6 +287,7 @@ acceptance:
   image: mcr.microsoft.com/playwright:v1.41.1-jammy
   needs: [build image]
   stage: E2E
+  parallel: 20
   services:
     - name: mysql:8
       alias: database
@@ -294,14 +295,14 @@ acceptance:
     - name: redis:7.0
       alias: redis
     - name: "${CI_REGISTRY_IMAGE}/ci-e2e:$CI_PIPELINE_ID"
-      alias: shopware
+      alias: shopware.test
   variables:
     APP_ENV: prod
     SHOPWARE_HTTP_CACHE_ENABLED: 0
     SHOPWARE_DISABLE_UPDATE_CHECK: 'true'
     PROJECT_ROOT: /var/www/html
     DATABASE_URL: mysql://root:app@database:3306/root
-    APP_URL: http://shopware:8000
+    APP_URL: http://shopware.test:8000
   before_script:
     - cd tests/acceptance
     - npm ci

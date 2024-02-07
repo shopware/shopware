@@ -32,5 +32,14 @@ export async function loadThreeJs(): Promise<void> {
         const { GLTFLoader } = await import(/* webpackIgnore: true */`${window.themeAssetsPublicPath}js/three-js/examples/jsm/loaders/GLTFLoader.js`);
         window.threeJsAddons.GLTFLoader = GLTFLoader;
     }
+
+    if (!window.threeJsAddons?.DRACOLoader) {
+        const { DRACOLoader } = await import(/* webpackIgnore: true */`${window.themeAssetsPublicPath}js/three-js/examples/jsm/loaders/DRACOLoader.js`);
+        window.threeJsAddons.DRACOLoader = DRACOLoader;
+    }
+
+    if (!window.threeJsAddons?.DRACOLibPath) {
+        window.threeJsAddons.DRACOLibPath = `${window.themeAssetsPublicPath}js/three-js/examples/jsm/libs/draco/`;
+    }
     /* eslint-enable */
 }

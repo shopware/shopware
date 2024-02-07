@@ -145,6 +145,8 @@ class HtmlSanitizer
             return $config;
         }
 
+        $this->addHTML5Tags($definition);
+
         foreach ($customAttributes as $tag => $attributes) {
             foreach ($attributes as $attribute) {
                 $definition->addAttribute($tag, $attribute, 'Text');
@@ -152,5 +154,155 @@ class HtmlSanitizer
         }
 
         return $config;
+    }
+
+    private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): \HTMLPurifier_HTMLDefinition
+    {
+        $definition->addElement('section', 'Block', 'Flow', 'Common');
+        $definition->addElement('nav', 'Block', 'Flow', 'Common');
+        $definition->addElement('article', 'Block', 'Flow', 'Common');
+        $definition->addElement('aside', 'Block', 'Flow', 'Common');
+        $definition->addElement('header', 'Block', 'Flow', 'Common');
+        $definition->addElement('footer', 'Block', 'Flow', 'Common');
+        $definition->addElement('canvas', 'Block', 'Flow', 'Common', [
+            'width' => 'Length',
+            'height' => 'Length',
+        ]);
+        $definition->addElement('bdi', 'Block', 'Flow', 'Common');
+        $definition->addElement('audio', 'Block', 'Flow', 'Common', [
+            'src' => 'URI',
+            'preload' => 'Enum#auto,metadata,none',
+            'autoplay' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'loop' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'muted' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'controls' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+        ]);
+        $definition->addElement('datalist', 'Block', 'Flow', 'Common', [
+            'id' => 'ID',
+        ]);
+        $definition->addElement('dialog', 'Block', 'Flow', 'Common', [
+            'open' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+        ]);
+        $definition->addElement('embed', 'Block', 'Flow', 'Common', [
+            'src' => 'URI',
+            'type' => 'Text',
+            'width' => 'Length',
+            'height' => 'Length',
+        ]);
+        $definition->addElement('main', 'Block', 'Flow', 'Common');
+        $definition->addElement('menu', 'Block', 'Flow', 'Common');
+        $definition->addElement('meter', 'Block', 'Flow', 'Common', [
+            'form' => 'ID',
+            'value' => 'Text',
+            'min' => 'Length',
+            'max' => 'Length',
+            'low' => 'Text',
+            'high' => 'Text',
+            'optimum' => 'Text',
+        ]);
+        $definition->addElement('progress', 'Block', 'Flow', 'Common', [
+            'value' => 'Number',
+            'max' => 'Number',
+        ]);
+        $definition->addElement('rp', 'Block', 'Flow', 'Common');
+        $definition->addElement('rt', 'Block', 'Flow', 'Common');
+        $definition->addElement('ruby', 'Block', 'Flow', 'Common');
+        $definition->addElement('summary', 'Block', 'Flow', 'Common');
+        $definition->addElement('time', 'Block', 'Flow', 'Common', [
+            'datetime' => 'Text',
+        ]);
+        $definition->addElement('output', 'Block', 'Flow', 'Common', [
+            'for' => 'ID',
+            'form' => 'ID',
+            'name' => 'CDATA',
+        ]);
+        $definition->addElement('svg', 'Block', 'Flow', 'Common', [
+            'width' => 'Length',
+            'height' => 'Length',
+        ]);
+        $definition->addElement('track', 'Block', 'Flow', 'Common', [
+            'default' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'kind' => 'Enum#subtitles,captions,descriptions,chapters,metadata',
+            'label' => 'Text',
+            'src' => 'URI',
+            'srclang' => 'LanguageCode',
+        ]);
+        $definition->addElement(
+            'details',
+            'Block',
+            'Flow',
+            'Common',
+            [
+                'open' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            ]
+        );
+
+        $definition->addElement('figure', 'Block', 'Optional: (figcaption, Flow) | (Flow, figcaption) | Flow', 'Common');
+        $definition->addElement('figcaption', 'Inline', 'Flow', 'Common');
+        $definition->addElement('video', 'Block', 'Optional: (source, Flow) | (Flow, source) | Flow', 'Common', [
+            'src' => 'URI',
+            'width' => 'Length',
+            'height' => 'Length',
+            'poster' => 'URI',
+            'preload' => 'Enum#auto,metadata,none',
+            'controls' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'autoplay' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'loop' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+            'muted' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+        ]);
+        $definition->addElement('source', 'Block', 'Flow', 'Common', [
+            'src' => 'URI',
+            'type' => 'Text',
+            'media' => 'Text',
+            'sizes' => 'Text',
+            'srcset' => 'Text',
+            'crossorigin' => 'Enum#anonymous,use-credentials',
+        ]);
+
+        $definition->addElement('mark', 'Inline', 'Inline', 'Common');
+        $definition->addElement('wbr', 'Inline', 'Empty', 'Core');
+
+        // Add new HTML5 input types
+        $definition->addElement(
+            'input',
+            'Form',
+            'Empty',
+            'Common',
+            [
+                'accept' => 'Text',
+                'alt' => 'Text',
+                'autocomplete' => 'Enum#on,off',
+                'autofocus' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'checked' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'dirname' => 'Text',
+                'disabled' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'form' => 'ID',
+                'formaction' => 'URI',
+                'formenctype' => 'Enum#application/x-www-form-urlencoded,multipart/form-data,text/plain',
+                'formmethod' => 'Enum#get,post',
+                'formnovalidate' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'formtarget' => 'Enum#_blank,_self,_parent,_top',
+                'height' => 'Length',
+                'list' => 'ID',
+                'max' => 'Text',
+                'maxlength' => 'Number',
+                'min' => 'Text',
+                'minlength' => 'Number',
+                'multiple' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'name' => 'CDATA',
+                'pattern' => 'Text',
+                'placeholder' => 'Text',
+                'readonly' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'required' => new \HTMLPurifier_AttrDef_HTML_Bool(true),
+                'size' => 'Number',
+                'src' => 'URI',
+                'step' => 'Text',
+                'type' => 'Enum#text,password,checkbox,radio,submit,reset,file,hidden,image,button,date,time,datetime-local,week,month,number,email,url,search,tel,color,range',
+                'value' => 'Text',
+                'width' => 'Length',
+            ]
+        );
+
+        return $definition;
     }
 }

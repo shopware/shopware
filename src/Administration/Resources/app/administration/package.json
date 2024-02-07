@@ -40,7 +40,7 @@
     "safari >= 7"
   ],
   "dependencies": {
-    "@shopware-ag/meteor-admin-sdk": "^3.0.17",
+    "@shopware-ag/meteor-admin-sdk": "4.0.0",
     "@shopware-ag/meteor-icon-kit": "5.2.0",
     "@shopware-ag/webpack-copy-after-build": "1.0.1",
     "@shopware-ag/webpack-kill-process-on-failed-build": "1.0.0",

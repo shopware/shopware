@@ -40,9 +40,10 @@
                             </div>
                         {% endblock %}
                         {% block page_account_orders_paging %}
-                            {% set criteria = page.orders.criteria %}
-
-                            {% set totalPages = (page.orders.total/criteria.limit)|round(0,'ceil') %}
+                            {% if not feature('v6.7.0.0') %}
+                                {% set criteria = page.orders.criteria %}
+                            {% endif %}
+                            {% set totalPages = (page.orders.total/(page.orders.limit ?: 1))|round(0,'ceil') %}
 
                             {% if totalPages > 1 %}
                                 {% set formAjaxSubmitOptions = {

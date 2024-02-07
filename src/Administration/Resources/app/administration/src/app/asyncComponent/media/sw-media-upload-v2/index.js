@@ -117,7 +117,7 @@ export default {
         fileAccept: {
             type: String,
             required: false,
-            default: 'image/*',
+            default: '*/*',
         },
 
         extensionAccept: {

@@ -53,6 +53,7 @@ class CartException extends HttpException
     private const INVALID_COMPRESSION_METHOD = 'CHECKOUT__CART_INVALID_COMPRESSION_METHOD';
     public const VALUE_NOT_SUPPORTED = 'CONTENT__RULE_VALUE_NOT_SUPPORTED';
     public const CART_HASH_MISMATCH = 'CHECKOUT__CART_HASH_MISMATCH';
+    public const CART_WRONG_DATA_TYPE = 'CHECKOUT__CART_WRONG_DATA_TYPE';
 
     public static function deserializeFailed(): self
     {
@@ -429,6 +430,16 @@ class CartException extends HttpException
             self::CART_HASH_MISMATCH,
             'Content hash mismatch for cart token: {{ token }}',
             ['token' => $token]
+        );
+    }
+
+    public static function wrongCartDataType(string $fieldKey, string $expectedType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CART_WRONG_DATA_TYPE,
+            'Cart data {{ fieldKey }} does not match expected type "{{ expectedType }}"',
+            ['fieldKey' => $fieldKey, 'expectedType' => $expectedType]
         );
     }
 }

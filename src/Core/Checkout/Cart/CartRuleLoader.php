@@ -98,19 +98,14 @@ class CartRuleLoader implements ResetInterface
             $context->setRuleIds($rules->getIds());
             $context->setAreaRuleIds($rules->getIdsByArea());
 
-            $iteration = 1;
-
             $timestamps = $cart->getLineItems()->fmap(function (LineItem $lineItem) {
-                if ($lineItem->getDataTimestamp() === null) {
-                    return null;
-                }
-
-                return $lineItem->getDataTimestamp()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                return $lineItem->getDataTimestamp()?->format(Defaults::STORAGE_DATE_TIME_FORMAT);
             });
 
             // start first cart calculation to have all objects enriched
             $cart = $this->processor->process($cart, $context, $behaviorContext);
 
+            $iteration = 1;
             do {
                 $compare = $cart;
 

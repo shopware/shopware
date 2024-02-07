@@ -1,21 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\UserConfigController\\:\\:getOwnUserConfig\\(\\) has parameter \\$keys with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Controller/UserConfigController.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\UserConfigController\\:\\:getOwnUserConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Controller/UserConfigController.php
-
-		-
-			message: "#^Method Shopware\\\\Administration\\\\Controller\\\\UserConfigController\\:\\:massUpsert\\(\\) has parameter \\$postUpdateConfigs with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Administration/Controller/UserConfigController.php
-
-		-
 			message: "#^Method Shopware\\\\Administration\\\\Notification\\\\NotificationService\\:\\:createNotification\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Administration/Notification/NotificationService.php
@@ -369,26 +354,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\DataAbstractionLayer\\\\PromotionExclusionUpdater\\:\\:update\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Checkout/Promotion/DataAbstractionLayer/PromotionExclusionUpdater.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:__construct\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:__construct\\(\\) has parameter \\$skip with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:getIds\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Promotion\\\\Event\\\\PromotionIndexerEvent\\:\\:getSkip\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Checkout/Promotion/Event/PromotionIndexerEvent.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Cms\\\\Aggregate\\\\CmsSlot\\\\CmsSlotEntity\\:\\:getConfig\\(\\) return type has no value type specified in iterable type array\\.$#"
@@ -1174,71 +1139,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductTranslation\\\\ProductTranslationEntity\\:\\:\\$slotConfig type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductTranslation/ProductTranslationEntity.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:add\\(\\) has parameter \\$lineItems with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:buildFeatures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:getAttribute\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:getCustomField\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:getProperty\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:getReferencePrice\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:loadCustomFields\\(\\) has parameter \\$lineItems with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:prepare\\(\\) has parameter \\$lineItems with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Mixed variable in a `\\$customField\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 2
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Mixed variable in a `\\$lineItem\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 2
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Mixed variable in a `\\$product\\-\\>\\.\\.\\.\\(\\)` can skip important errors\\. Make sure the type is known$#"
-			count: 2
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$name of method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductFeatureBuilder\\:\\:isRequiredCustomField\\(\\) expects string, int\\|string given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductFeatureBuilder.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductGateway\\:\\:get\\(\\) has parameter \\$ids with no value type specified in iterable type array\\.$#"
@@ -2264,11 +2164,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Test\\\\ProductExport\\\\Service\\\\ProductExportValidatorTest\\:\\:\\$service \\(Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExporterInterface\\) does not accept Shopware\\\\Core\\\\Content\\\\ProductExport\\\\Service\\\\ProductExportGenerator\\.$#"
 			count: 1
 			path: src/Core/Content/Test/ProductExport/Service/ProductExportValidatorTest.php
-
-		-
-			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#"
-			count: 2
-			path: src/Core/Content/Test/ProductExport/Service/ProductExporterTest.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\|null\\.$#"

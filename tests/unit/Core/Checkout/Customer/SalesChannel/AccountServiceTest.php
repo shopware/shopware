@@ -47,6 +47,7 @@ class AccountServiceTest extends TestCase
         $customer->setEmail('foo@bar.de');
         $customer->setDoubleOptInRegistration(false);
 
+        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 CustomerDefinition::ENTITY_NAME,

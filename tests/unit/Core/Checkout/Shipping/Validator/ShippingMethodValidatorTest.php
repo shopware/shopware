@@ -95,7 +95,7 @@ class ShippingMethodValidatorTest extends TestCase
                 'tax_type' => $taxType,
                 'tax_id' => $taxId,
                 'availability_rule' => [
-                    'id' => Uuid::randomHex(),
+                    'id' => Uuid::randomBytes(),
                     'name' => 'asd',
                     'priority' => 2,
                 ],
@@ -134,6 +134,6 @@ class ShippingMethodValidatorTest extends TestCase
         yield 'Test tax type is auto' => ['auto', null, true];
         yield 'Test tax type is highest' => ['highest', null, true];
         yield 'Test tax type is fixed without tax ID' => ['fixed', null, false];
-        yield 'Test tax type is fixed with tax ID' => ['fixed', Uuid::randomHex(), true];
+        yield 'Test tax type is fixed with tax ID' => ['fixed', Uuid::randomBytes(), true];
     }
 }

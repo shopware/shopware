@@ -502,7 +502,8 @@
         }
       },
       "labelDefaultFolder": "Medien-Standardspeicherort für",
-      "placeholderDefaultFolder": "Entität auswählen ..."
+      "placeholderDefaultFolder": "Entität auswählen ...",
+      "tooltipCanNotDeleteThumbnailSize": "This thumbnail size cannot be deleted because it is currently in use."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"

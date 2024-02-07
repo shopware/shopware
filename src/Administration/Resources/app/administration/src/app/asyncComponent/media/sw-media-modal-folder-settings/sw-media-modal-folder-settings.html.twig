@@ -215,9 +215,15 @@
                                 {% block sw_media_modal_folder_settings_thumbnail_size_delete_button %}
                                 <button
                                     v-if="isEditThumbnails"
+                                    v-tooltip="{
+                                        message: $tc('global.sw-media-modal-folder-settings.tooltipCanNotDeleteThumbnailSize'),
+                                        disabled: size.deletable,
+                                        showOnDisabledElements: true
+                                    }"
                                     class="sw-media-modal-folder-settings__delete-thumbnail"
                                     :title="$tc('global.default.delete')"
                                     :aria-label="$tc('global.default.delete')"
+                                    :disabled="!size.deletable"
                                     @click="deleteThumbnail(size)"
                                 >
                                     <sw-icon

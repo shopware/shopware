@@ -77,19 +77,16 @@ class LineItemPurchasePriceRule extends Rule
     private function getPurchasePriceAmount(LineItem $lineItem): ?float
     {
         $purchasePricePayload = $lineItem->getPayloadValue('purchasePrices');
-        if (!$purchasePricePayload) {
+        if (!\is_string($purchasePricePayload)) {
             return null;
         }
-        $purchasePrice = json_decode((string) $purchasePricePayload, true, 512, \JSON_THROW_ON_ERROR);
+
+        $purchasePrice = json_decode($purchasePricePayload, true, 512, \JSON_THROW_ON_ERROR);
 
         if ($this->isNet && \array_key_exists('net', $purchasePrice)) {
             return $purchasePrice['net'];
         }
 
-        if (\array_key_exists('gross', $purchasePrice)) {
-            return $purchasePrice['gross'];
-        }
-
-        return null;
+        return $purchasePrice['gross'] ?? null;
     }
 }

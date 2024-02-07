@@ -116,7 +116,7 @@ class DeliveryPositionCollection extends Collection
     public function getWithoutDeliveryFree(): DeliveryPositionCollection
     {
         return $this->filter(function (DeliveryPosition $position) {
-            if ($position->getLineItem()->getDeliveryInformation() !== null && !$position->getLineItem()->getDeliveryInformation()->getFreeDelivery()) {
+            if ($position->getLineItem()->getDeliveryInformation()?->getFreeDelivery() === false) {
                 return $position;
             }
 

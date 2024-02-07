@@ -38,7 +38,7 @@
   when: on_success
 
 .rule_branch_commercial_match_rufus_trunk:
-  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/ && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "$CI_DEFAULT_BRANCH"'
+  if: '$CI_MERGE_REQUEST_LABELS =~ /.*branch::commercial::match.*/ && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
   variables:
     COMMERCIAL_BRANCH: '${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}'
 

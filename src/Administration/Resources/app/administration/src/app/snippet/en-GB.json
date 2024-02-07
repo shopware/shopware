@@ -490,15 +490,14 @@
       "labelGenerateThumbnails": "Generate thumbnails for this folder",
       "labelThumbnailQuality": "Thumbnail quality",
       "labelThumbnailSize": "Thumbnail size",
-      "labelEditList": "Edit list",
-      "labelStopEdit": "Stop editing",
       "labelKeepProportions": "Keep aspect ratio",
       "notification": {
         "success": {
           "message": "Settings have been saved."
         },
         "error": {
-          "message": "Error while saving settings."
+          "message": "Error while saving settings.",
+          "messageThumbnailSizeExisted": "The thumbnail size already exists."
         }
       },
       "labelDefaultFolder": "Default media location for",

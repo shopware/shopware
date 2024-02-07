@@ -59,7 +59,8 @@ class ImportExportService
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
 
-        if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
+        if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)
+            && $activity !== ImportExportLogEntity::ACTIVITY_INVALID_RECORDS_EXPORT) {
             throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
         }
 

@@ -287,9 +287,8 @@ class RequestTransformer implements RequestTransformerInterface
         foreach ($domains as $baseUrl => $urlConfig) {
             if (mb_strlen($baseUrl) > mb_strlen($lastBaseUrl)) {
                 $bestMatch = $urlConfig;
+                $lastBaseUrl = $baseUrl;
             }
-
-            $lastBaseUrl = $baseUrl;
         }
 
         $bestMatch['url'] = rtrim($bestMatch['url'], '/');

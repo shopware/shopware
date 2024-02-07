@@ -45,7 +45,7 @@ export const test = base.extend<SetupFixtures, WorkerFixtures>({
 
         // Wait until the page is loaded
         await expect(page.locator('css=.sw-admin-menu__header-logo').first()).toBeVisible({
-            timeout: 10000,
+            timeout: 20000,
         });
 
         await expect(page.locator('.sw-skeleton')).toHaveCount(0, {

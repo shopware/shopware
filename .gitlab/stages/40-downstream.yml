@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json
 ---
 
 .rule_branch_rufus_match:
@@ -184,6 +185,7 @@ commercial tag:
         - shopware/6/product/SwagExtensionStore
         - shopware/6/services/swagdynamicaccess
         - shopware/6/services/swagguidedshopping
+        - shopware/6/services/paypal
       - PLUGIN_BRANCH: master
         PLUGIN_PROJECT:
         - shopware/6/services/migration-assistant

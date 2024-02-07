@@ -297,6 +297,9 @@ shopware:
         cache_dir: '%kernel.cache_dir%'
         cache_enabled: true
         sets:
+            - name: HTML5
+              tags: ["article", "aside", "audio", "bdi", "canvas", "datalist", "details", "dialog", "embed", "figcaption", "figure", "footer", "header", "main", "mark", "meter", "nav", "progress", "rp", "rt", "ruby", "section", "summary", "time", "wbr", "output", "canvas", "svg", "track", "video", "source", "input"]
+              attributes: ["controls", "open", "min", "max", "datetime", "for", "type", "kind", "srclang", "label", "value", "placeholder", "autoplay", "loop", "muted", "preload", "low", "high", "optimum", "default", "poster", "media", "maxlength", "minlength", "pattern", "required", "autocomplete", "autofocus", "disabled", "readonly", "multiple", "formaction", "formenctype", "formmethod", "formnovalidate", "formtarget", "list", "step", "checked", "accept"]
             - name: basic
               tags: ["a", "abbr", "acronym", "address", "b", "bdo", "big", "blockquote", "br", "caption", "center", "cite", "code", "col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "li", "menu", "ol", "p", "pre", "q", "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u", "ul", "var", "img"]
               attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width", "target", "src", "alt"]
@@ -334,11 +337,11 @@ shopware:
 
         fields:
             - name: product_translation.description
-              sets: ["basic", "media"]
+              sets: ["basic", "media", "HTML5"]
             - name: app_cms_block.template
-              sets: ["basic", "media", "tidy"]
+              sets: ["basic", "media", "tidy", "HTML5"]
             - name: snippet.value
-              sets: ["basic", "media", "bootstrap", "snippet"]
+              sets: ["basic", "media", "bootstrap", "snippet", "HTML5"]
 
     logger:
         file_rotation_count: 14

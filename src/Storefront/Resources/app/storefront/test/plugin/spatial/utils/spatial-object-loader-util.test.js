@@ -36,9 +36,16 @@ describe("SpatialObjectLoaderUtil", () => {
         window.threeJsAddons = {};
         window.threeJsAddons.GLTFLoader = function () {
             return {
-                load: jest.fn()
+                load: jest.fn(),
+                setDRACOLoader: jest.fn()
             }
         };
+        window.threeJsAddons.DRACOLoader = function () {
+            return {
+                setDecoderPath: jest.fn()
+            }
+        };
+        window.threeJsAddons.DRACOLibPath = `three-js/examples/jsm/libs/draco/`;
         SpatialObjectLoaderUtilObject = new SpatialObjectLoaderUtil();
     });
 

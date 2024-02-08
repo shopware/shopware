@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(TriggerFlowController::class)]
 class TriggerFlowControllerTest extends TestCase
 {

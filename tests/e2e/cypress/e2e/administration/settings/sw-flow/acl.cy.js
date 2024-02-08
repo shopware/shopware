@@ -7,7 +7,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: can view flow builder', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: can view flow builder', { tags: ['pa-services-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -29,7 +29,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.contains(`${page.elements.dataGridRow}`, 'Order placed').click();
     });
 
-    it('@settings: can edit flow builder', {tags: ['pa-business-ops', 'quarantined']}, () => {
+    it('@settings: can edit flow builder', {tags: ['pa-services-settings', 'quarantined']}, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -107,7 +107,7 @@ describe('Flow builder: Test acl privilege', () => {
         });
     });
 
-    it('@settings: can create flow builder', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: can create flow builder', { tags: ['pa-services-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -162,7 +162,7 @@ describe('Flow builder: Test acl privilege', () => {
         cy.contains(`${page.elements.dataGridRow}`, 'Order placed v1').should('be.visible');
     });
 
-    it('@settings: can delete flow', { tags: ['pa-business-ops'] }, () => {
+    it('@settings: can delete flow', { tags: ['pa-services-settings'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

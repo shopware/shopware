@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(OrderDocumentTypeRule::class)]
 #[Group('rules')]
 class OrderDocumentTypeRuleTest extends TestCase

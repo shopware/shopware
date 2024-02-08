@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
@@ -18,10 +19,9 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(OrderCreatedByAdminRule::class)]
 #[Group('rules')]
 class OrderCreatedByAdminRuleTest extends TestCase
@@ -112,7 +112,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
     private function createScope(OrderEntity $order): CheckoutRuleScope
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('token');
 
         return new FlowRuleScope($order, $cart, $context);
     }

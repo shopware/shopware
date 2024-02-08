@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemDimensionWeightRule::class)]
 #[Group('rules')]
 class LineItemDimensionWeightRuleTest extends TestCase

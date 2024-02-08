@@ -1,7 +1,7 @@
 ---
 title: Integrate an app into the flow event
 date: 2022-10-11
-area: business-ops
+area: services-settings
 tags: [flow, app]
 ---
 

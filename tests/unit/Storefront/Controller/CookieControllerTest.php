@@ -86,9 +86,9 @@ class CookieControllerTest extends TestCase
     private function assertGoogleAnalyticsCookie(bool $expected, array $cookieGroups = []): void
     {
         $googleAnalyticsCookie = array_filter($cookieGroups, static function (array $cookieGroup) {
-            return array_filter($cookieGroup['entries'], static function (array $cookie) {
+            return \count(array_filter($cookieGroup['entries'], static function (array $cookie) {
                 return $cookie['cookie'] === 'google-analytics-enabled';
-            });
+            })) > 0;
         });
 
         if ($expected) {

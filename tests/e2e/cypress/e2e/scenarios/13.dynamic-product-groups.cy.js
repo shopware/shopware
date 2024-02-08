@@ -17,7 +17,7 @@ describe('Dynamic Product Groups in categories', () => {
         });
     });
 
-    it('@package: should create a dynamic product groups and assign it to a category and check at the storefront', { tags: ['pa-business-ops', 'quarantined'] }, () => {
+    it('@package: should create a dynamic product groups and assign it to a category and check at the storefront', { tags: ['pa-services-settings', 'quarantined'] }, () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
             method: 'POST',

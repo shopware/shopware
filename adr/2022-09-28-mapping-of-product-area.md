@@ -23,12 +23,10 @@ The areas are:
 - core
 - inventory
 - checkout
-- sales-channel
 - content
-- business-ops
-- merchant-services
 - customer-order
-- system-settings
+- services-settings
+- buyers-experience
 
 ## Consequences
 

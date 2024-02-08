@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderTagRule;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,10 +22,9 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * @package business-ops
- *
  * @internal
  */
+#[Package('services-settings')]
 #[CoversClass(OrderTagRule::class)]
 #[Group('rules')]
 class OrderTagRuleTest extends TestCase
@@ -133,7 +133,7 @@ class OrderTagRuleTest extends TestCase
     private function createScope(OrderEntity $order): CheckoutRuleScope
     {
         $context = $this->createMock(SalesChannelContext::class);
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('token');
 
         return new FlowRuleScope($order, $cart, $context);
     }

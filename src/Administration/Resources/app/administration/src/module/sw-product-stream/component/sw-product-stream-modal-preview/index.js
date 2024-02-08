@@ -1,5 +1,5 @@
 /*
- * @package business-ops
+ * @package services-settings
  */
 
 import template from './sw-product-stream-modal-preview.html.twig';

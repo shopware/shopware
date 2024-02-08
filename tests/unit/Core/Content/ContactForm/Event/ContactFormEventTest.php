@@ -24,7 +24,7 @@ class ContactFormEventTest extends TestCase
         $event = new ContactFormEvent(
             Context::createDefaultContext(),
             'sales-channel-id',
-            new MailRecipientStruct(['foo', 'bar']),
+            new MailRecipientStruct(['foo' => 'bar']),
             new DataBag(['foo' => 'bar', 'bar' => 'baz'])
         );
 

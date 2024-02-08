@@ -15,7 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(BillingZipCodeRule::class)]
 class BillingZipCodeRuleTest extends TestCase
 {

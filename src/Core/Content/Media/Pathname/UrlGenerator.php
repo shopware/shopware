@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\Pathname;
 
+use League\Flysystem\CorruptedPathDetected;
 use League\Flysystem\FilesystemOperator;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -56,7 +57,11 @@ class UrlGenerator implements UrlGeneratorInterface, ResetInterface
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.6.0.0', 'Use AbstractUrlGenerator instead')
         );
 
-        return $this->filesystem->publicUrl($media->getPath());
+        try {
+            return $this->filesystem->publicUrl($media->getPath());
+        } catch (CorruptedPathDetected) {
+            throw MediaException::illegalFileName($media->getPath(), 'Filename must not contain funky whitespace');
+        }
     }
 
     /**

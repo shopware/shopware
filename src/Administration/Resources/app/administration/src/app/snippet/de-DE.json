@@ -800,6 +800,21 @@
       }
     },
     "sw-condition-generic": {
+      "customerDaysSinceLastLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceFirstLogin": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
+      "customerDaysSinceLastOrder": {
+        "daysPassed": {
+          "placeholder": "@:sw-product.settingsForm.placeholderTime"
+        }
+      },
       "customerEmail": {
         "email": {
           "placeholder": "@:global.sw-condition.condition.emailRule.placeholder"

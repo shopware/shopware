@@ -44,9 +44,9 @@ variables:
       - shopware
     before_script:
         - echo -e "\e[0Ksection_start:$(date +%s):base_init[collapsed=true]\r\e[0Kbase initialization"
-        - !reference [ .scripts, init, composer ]
         - >
-          if [[ -r var/database.sql ]]; then
+          if [[ -r context.tar.gz ]]; then
+              tar -xzf context.tar.gz
               mysql -uroot -papp -hdatabase -e 'CREATE database `root`';
               mysql -uroot -papp -hdatabase root -e 'source var/database.sql';
               bin/console system:generate-jwt || true

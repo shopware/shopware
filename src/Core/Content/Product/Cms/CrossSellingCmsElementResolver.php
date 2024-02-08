@@ -8,6 +8,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\CrossSellingStruct;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('inventory')]
 class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
+    final public const TYPE = 'cross-selling';
+
     /**
      * @internal
      */
@@ -24,7 +27,7 @@ class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementReso
 
     public function getType(): string
     {
-        return 'cross-selling';
+        return self::TYPE;
     }
 
     public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
@@ -50,7 +53,7 @@ class CrossSellingCmsElementResolver extends AbstractProductDetailCmsElementReso
             $product = $this->getSlotProduct($slot, $result, $productConfig->getStringValue());
         }
 
-        if ($product === null) {
+        if (!$product instanceof SalesChannelProductEntity) {
             return;
         }
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Controller;
+namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,6 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
+use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -53,7 +54,7 @@ class ProductControllerTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'currencyId' => Defaults::CURRENCY,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'http://test.to',
+                    'url' => 'https://test.to',
                 ],
             ],
         ]);
@@ -76,7 +77,7 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->checkStatusCode($response);
     }
 
     public function testSwitchOptionsToLoadOptionDefault(): void
@@ -92,9 +93,9 @@ class ProductControllerTest extends TestCase
         );
 
         $responseContent = (string) $response->getContent();
-        $content = (array) json_decode($responseContent);
+        $content = json_decode($responseContent, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->checkStatusCode($response);
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertEquals($productId, $content['productId']);
         static::assertStringContainsString($productId, $content['url']);
@@ -113,7 +114,7 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->checkStatusCode($response);
     }
 
     #[DataProvider('variantProvider')]
@@ -219,18 +220,18 @@ class ProductControllerTest extends TestCase
             )
             ->build();
 
-        $this->getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
+        static::getContainer()->get('product.repository')->create([$products], Context::createDefaultContext());
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
-        $controller = $this->getContainer()->get(ProductController::class);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $controller = static::getContainer()->get(ProductController::class);
 
         if ($shouldThrowException) {
-            static::expectException(ProductNotFoundException::class);
+            $this->expectException(ProductNotFoundException::class);
         }
 
         $response = $controller->index($context, $this->createDetailRequest($context, $this->ids->get($requestVariant)));
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->checkStatusCode($response);
 
         $crawler = new Crawler();
         $crawler->addHtmlContent((string) $response->getContent());
@@ -308,9 +309,9 @@ class ProductControllerTest extends TestCase
             []
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
+        $this->checkStatusCode($response);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
@@ -325,9 +326,9 @@ class ProductControllerTest extends TestCase
             []
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->checkStatusCode($response);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
     }
@@ -342,9 +343,9 @@ class ProductControllerTest extends TestCase
             []
         );
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $this->checkStatusCode($response);
 
-        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('product-reviews-loaded', $traces);
     }
@@ -357,7 +358,7 @@ class ProductControllerTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $context->getSalesChannelId());
         $request->attributes->set('productId', $productId);
 
-        $this->getContainer()->get('request_stack')->push($request);
+        static::getContainer()->get('request_stack')->push($request);
 
         return $request;
     }
@@ -366,7 +367,7 @@ class ProductControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        $ids = $this->getContainer()->get(Connection::class)
+        $ids = static::getContainer()->get(Connection::class)
             ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
 
         $product = [
@@ -381,7 +382,7 @@ class ProductControllerTest extends TestCase
             'visibilities' => array_map(static fn ($id) => ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL], $ids),
         ];
 
-        $repository = $this->getContainer()->get('product.repository');
+        $repository = static::getContainer()->get('product.repository');
 
         $repository->create([$product], Context::createDefaultContext());
 
@@ -419,7 +420,7 @@ class ProductControllerTest extends TestCase
             ],
         ];
 
-        $repo = $this->getContainer()->get('customer.repository');
+        $repo = static::getContainer()->get('customer.repository');
 
         $repo->create($data, Context::createDefaultContext());
 
@@ -434,7 +435,7 @@ class ProductControllerTest extends TestCase
     {
         $customer = $this->createCustomer();
 
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = KernelLifecycleManager::createBrowser(static::getKernel());
         $browser->request(
             'POST',
             $_SERVER['APP_URL'] . '/account/login',
@@ -444,8 +445,13 @@ class ProductControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        $this->checkStatusCode($response);
 
         return $browser;
+    }
+
+    private function checkStatusCode(Response $response): void
+    {
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
     }
 }

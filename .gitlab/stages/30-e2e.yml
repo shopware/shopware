@@ -287,7 +287,6 @@ acceptance:
   image: mcr.microsoft.com/playwright:v1.41.1-jammy
   needs: [build image]
   stage: E2E
-  parallel: 20
   services:
     - name: mysql:8
       alias: database

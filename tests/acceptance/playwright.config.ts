@@ -109,8 +109,8 @@ export default defineConfig({
         baseURL: process.env['APP_URL'],
 
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-        trace:  process.env.CI ? 'on-first-retry' : 'retain-on-failure',
-        video: 'on-first-retry',
+        trace:  process.env.CI ? 'on-all-retries' : 'retain-on-failure',
+        video: 'off',
         screenshot: 'only-on-failure',
     },
 

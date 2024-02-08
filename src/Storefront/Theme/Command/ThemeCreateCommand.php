@@ -183,6 +183,11 @@ EOL;
 
     private function getThemeConfigTemplate(): string
     {
+        $scriptPath = 'app/storefront/dist/storefront/js/#snake-case#.js';
+        if (Feature::isActive('v6.6.0.0')) {
+            $scriptPath = 'app/storefront/dist/storefront/js/#snake-case#/#snake-case#.js';
+        }
+
         return <<<EOL
 {
   "name": "#name#",
@@ -199,7 +204,7 @@ EOL;
   ],
   "script": [
     "@Storefront",
-    "app/storefront/dist/storefront/js/#snake-case#/#snake-case#.js"
+    "$scriptPath"
   ],
   "asset": [
     "@Storefront",

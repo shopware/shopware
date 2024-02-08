@@ -3,9 +3,10 @@
     "visibility": {
       "textHeadline": "Product display modes per Sales Channel",
       "placeholderVisibility": "Select Sales Channels...",
+      "columnSalesChannel": "Sales Channel",
       "columnAll": "Visible",
-      "columnSearchOnly": "Hide in Listings",
-      "columnLinkOnly": "Hide in Listings and search",
+      "columnSearchOnly": "Hide in listings",
+      "columnLinkOnly": "Hide in listings and search",
       "visibilityModalDescription": "“Hide in listing” will exclude the product from product overview listings but also from product sliders and cross selling lists. Selecting the option “Hide in listing and search” will also exclude the product from search actions. Products can still be reached via URL.",
       "linkAdvancedVisibility": "Set visibility for selected Sales Channels",
       "labelVisibility": "Sales Channels",

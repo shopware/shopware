@@ -29,6 +29,7 @@ Make sure to add the required environment variables to your `.env` file in the a
 
 ```
 APP_URL="<shop base url>"
+# optional with default dev setup
 SHOPWARE_ACCESS_KEY_ID="<your-api-client-id>"
 SHOPWARE_SECRET_ACCESS_KEY="<your-api-secret>"
 ```
@@ -36,7 +37,7 @@ SHOPWARE_SECRET_ACCESS_KEY="<your-api-secret>"
 To generate the access key you can use the following symfony command:
 
 ```
-bin/console framework:integration:create AcceptanceTest --admin
+bin/console integration:create AcceptanceTest --admin
 ```
 
 ## Running Tests

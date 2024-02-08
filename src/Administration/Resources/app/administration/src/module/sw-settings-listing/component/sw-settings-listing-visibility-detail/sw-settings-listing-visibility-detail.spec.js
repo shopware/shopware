@@ -112,7 +112,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-visibilit
         const nameElement = wrapper.find('.sw-product-visibility-detail__name');
 
         expect(nameElement.exists()).toBe(true);
-        expect(nameElement.text()).toBe(name);
+        expect(nameElement.text().endsWith('...')).toBe(true);
         expect(nameElement.attributes()['tooltip-mock-message']).toBe(name);
     });
 });

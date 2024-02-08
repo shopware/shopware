@@ -3,9 +3,10 @@
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
       "placeholderVisibility": "Verkaufskanäle zuweisen ...",
+      "columnSalesChannel": "Verkaufskanäl",
       "columnAll": "Sichtbar",
       "columnSearchOnly": "In Produktlisten ausblenden",
-      "columnLinkOnly": "In Produktlisten und der Suche ausblenden",
+      "columnLinkOnly": "In Produktlisten und Suche ausblenden",
       "visibilityModalDescription": "Mit der Option “In Produktlisten ausblenden” wird das Produkt von Übersichtslisten, sowie Produkt-Slidern und Cross Sellings ausgeblendet. Mit der Option “In Produktlisten und der Suche ausblenden” wird das Produkt auch über die Suche nicht mehr angezeigt. Augeblendete Produkte können immer noch über die URL erreicht werden.",
       "linkAdvancedVisibility": "Sichtbarkeit für ausgewählte Verkaufskanäle einstellen",
       "labelVisibility": "Sichtbarkeit",

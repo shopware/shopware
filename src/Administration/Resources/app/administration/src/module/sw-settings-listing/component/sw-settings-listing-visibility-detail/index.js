@@ -1,7 +1,7 @@
 import template from './sw-settings-listing-visibility-detail.html.twig';
-import './sw-settings-listing-visibility-detail.scss';
 
 const { Criteria } = Shopware.Data;
+const { Filter } = Shopware;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -34,6 +34,10 @@ export default {
     computed: {
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
+        },
+
+        truncateFilter() {
+            return Filter.getByName('truncate');
         },
     },
 

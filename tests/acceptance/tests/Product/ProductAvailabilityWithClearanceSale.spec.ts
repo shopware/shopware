@@ -119,6 +119,8 @@ test('Stock reached message should be displayed if stock is changed to 1 and cle
     productData,
     adminApiContext,
     productDetailPage,
+    checkoutCartPage,
+    AddProductToCart,
 }) => {
 
     const productId = productData.id;
@@ -133,8 +135,7 @@ test('Stock reached message should be displayed if stock is changed to 1 and cle
     });
 
     await shopCustomer.goesTo(productDetailPage);
-    await productDetailPage.quantitySelect.fill('2');
-    await productDetailPage.addToCartButton.click();
+    await shopCustomer.attemptsTo(AddProductToCart(productData, '2'));
 
     await test.step('Set the stock of the product to 1.', async () => {
         const changeStockResponse = await adminApiContext.patch(`./product/${productId}`, {
@@ -144,10 +145,10 @@ test('Stock reached message should be displayed if stock is changed to 1 and cle
         });
 
         await expect(changeStockResponse.ok()).toBeTruthy();
-
     });
 
-    await shopCustomer.expects(productDetailPage.offCanvasStockReachedAlert).toContainText(productData.name);
-    await shopCustomer.expects(productDetailPage.offCanvasSummaryTotalPrice).toHaveText('€10.00*')
+    await shopCustomer.goesTo(checkoutCartPage);
 
+    await shopCustomer.expects(checkoutCartPage.stockReachedAlert).toContainText(productData.name);
+    await shopCustomer.expects(checkoutCartPage.grandTotalPrice).toHaveText('€10.00*');
 });

@@ -8,7 +8,6 @@ export class ProductDetailPage implements PageObject {
     public readonly offCanvasCart: Locator;
     public readonly offCanvasCartGoToCheckoutButton: Locator;
     public readonly quantitySelect: Locator;
-    public readonly offCanvasStockReachedAlert: Locator;
     public readonly offCanvasSummaryTotalPrice: Locator;
     public readonly offCanvas: Locator;
 
@@ -21,8 +20,7 @@ export class ProductDetailPage implements PageObject {
         this.offCanvasCartGoToCheckoutButton = page.getByRole('link', { name: 'Go to checkout' });
         this.quantitySelect = page.getByLabel('Quantity', { exact: true });
         this.offCanvas = page.locator('offcanvas-body');
-        this.offCanvasStockReachedAlert = page.getByText('only available 1 times')
-        this.offCanvasSummaryTotalPrice = page.locator('dt:has-text("Subtotal") + dd')
+        this.offCanvasSummaryTotalPrice = page.locator('dt:has-text("Subtotal") + dd');
 
         this.product = product;
     }

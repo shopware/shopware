@@ -46,6 +46,10 @@ export default {
             return this.repositoryFactory.create('mail_template');
         },
 
+        mailHeaderFooterRepository() {
+            return this.repositoryFactory.create('mail_header_footer');
+        },
+
         mailTemplateCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('mailTemplateType');
@@ -124,11 +128,36 @@ export default {
                 this.subject = '';
                 this.content = '';
 
-                return;
+                return Promise.resolve();
             }
 
             this.subject = mailTemplate.subject;
-            this.mailService.buildRenderPreview(mailTemplate.mailTemplateType, mailTemplate).then((result) => {
+
+            if (!this.order.salesChannel || !this.order.salesChannel.mailHeaderFooterId) {
+                return this.mailService.buildRenderPreview(mailTemplate.mailTemplateType, mailTemplate).then((result) => {
+                    this.content = result;
+                });
+            }
+
+            const mailTemplateWithHeaderFooter = { ...mailTemplate };
+            return this.mailHeaderFooterRepository.search(
+                new Criteria(1, 1)
+                    .addFilter(Criteria.equals('id', this.order.salesChannel.mailHeaderFooterId)),
+            ).then((mailHeaderFooter) => {
+                if (mailHeaderFooter[0].headerHtml) {
+                    mailTemplateWithHeaderFooter.contentHtml =
+                        mailHeaderFooter[0].headerHtml + mailTemplateWithHeaderFooter.contentHtml;
+                }
+
+                if (mailHeaderFooter[0].footerHtml) {
+                    mailTemplateWithHeaderFooter.contentHtml += mailHeaderFooter[0].footerHtml;
+                }
+
+                return this.mailService.buildRenderPreview(
+                    mailTemplateWithHeaderFooter.mailTemplateType,
+                    mailTemplateWithHeaderFooter,
+                );
+            }).then((result) => {
                 this.content = result;
             });
         },

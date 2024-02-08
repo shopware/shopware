@@ -532,7 +532,6 @@ const missingTests = [
     'src/module/sw-order/component/sw-order-nested-line-items-row/index.js',
     'src/module/sw-order/component/sw-order-promotion-tag-field/index.js',
     'src/module/sw-order/component/sw-order-saveable-field/index.js',
-    'src/module/sw-order/component/sw-order-send-document-modal/index.js',
     'src/module/sw-order/component/sw-order-state-change-modal/index.js',
     'src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents/index.js',
     'src/module/sw-order/component/sw-order-state-history-card-entry/index.js',

@@ -1,5 +1,6 @@
 import type { Object3D } from 'three';
 import type { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import type { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import NativeEventEmitter from 'src/helper/emitter.helper';
 
 /**
@@ -20,6 +21,14 @@ export default class SpatialObjectLoaderUtil {
     constructor(plugin?: { $emitter: NativeEventEmitter }) {
         // eslint-disable-next-line
         this.gltfLoader = new window.threeJsAddons.GLTFLoader();
+        
+        // create and bind draco loader for decompression of mesh data
+        // eslint-disable-next-line
+        const dracoLoader: DRACOLoader = new window.threeJsAddons.DRACOLoader();
+        // eslint-disable-next-line
+        dracoLoader.setDecoderPath(window.threeJsAddons.DRACOLibPath);
+        this.gltfLoader.setDRACOLoader(dracoLoader);
+
         this.loadStatus = new Map<string, number>();
         if (plugin?.$emitter instanceof NativeEventEmitter) {
             this.$emitter = plugin?.$emitter;

@@ -32,5 +32,14 @@ export async function loadThreeJs(): Promise<void> {
         const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
         window.threeJsAddons.GLTFLoader = GLTFLoader;
     }
+
+    if (!window.threeJsAddons?.DRACOLoader) {
+        const { DRACOLoader } = await import('three/examples/jsm/loaders/DRACOLoader.js');
+        window.threeJsAddons.DRACOLoader = DRACOLoader;
+    }
+
+    if (!window.threeJsAddons?.DRACOLibPath) {
+        window.threeJsAddons.DRACOLibPath = 'three/examples/jsm/libs/draco/';
+    }
     /* eslint-enable */
 }

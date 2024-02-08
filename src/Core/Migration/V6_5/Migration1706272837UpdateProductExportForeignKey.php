@@ -19,7 +19,7 @@ class Migration1706272837UpdateProductExportForeignKey extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeStatement('ALTER TABLE `product_export` DROP CONSTRAINT `fk.product_export.sales_channel_domain_id`;');
+        $connection->executeStatement('ALTER TABLE `product_export` DROP FOREIGN KEY `fk.product_export.sales_channel_domain_id`;');
 
         $connection->executeStatement(
             <<<'SQL'

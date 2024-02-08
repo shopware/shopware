@@ -86,6 +86,9 @@ You can point playwright to a different admin url by setting `ADMIN_URL`. The de
 ADMIN_URL=http://localhost:8080
 ```
 
+## Debugging with Traces
+Debugging failing tests within the pipeline is very easy now. Simply open the failed job within the pipeline of your merge request. In the right sidebar you will find a section called "Job artifacts". Click on the "Browse" button and navigate to the artifacts of the test you want to debug. Download the `trace.zip` file. You can open the trace in your local Playwright UI mode or simply go to [trace.playwright.dev](https://trace.playwright.dev/) and drop your trace there to get a debug mode within your browser.
+
 ## Test Strategy
 
 The acceptance test suite is an essential part of the overall test strategy of Shopware. Within this test suite we will especially focus on user-centric testing to validate specific business requirements. This is performed in the fashion of end-to-end tests to cover the whole application within each scenario.

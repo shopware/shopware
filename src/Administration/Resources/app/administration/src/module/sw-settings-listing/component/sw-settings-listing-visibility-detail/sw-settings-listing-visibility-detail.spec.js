@@ -50,15 +50,15 @@ async function createWrapper(props = defaultProps) {
                 stubs: {
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-radio-field': await wrapTestComponent('sw-radio-field'),
-                    'sw-field-error': {
-                        template: '<div></div>',
-                    },
                     'sw-grid': await wrapTestComponent('sw-grid'),
                     'sw-pagination': await wrapTestComponent('sw-pagination'),
                     'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                     'sw-grid-column': await wrapTestComponent('sw-grid-column'),
                     'sw-button': await wrapTestComponent('sw-button'),
                     'sw-icon': {
+                        template: '<div></div>',
+                    },
+                    'sw-field-error': {
                         template: '<div></div>',
                     },
                 },

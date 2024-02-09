@@ -27,6 +27,7 @@ export default {
     data() {
         return {
             crossSelling: null,
+            isInherited: false,
         };
     },
 
@@ -37,6 +38,7 @@ export default {
 
         ...mapGetters('swProductDetail', [
             'isLoading',
+            'isChild',
         ]),
 
         ...mapGetters('context', [
@@ -70,9 +72,27 @@ export default {
                 this.loadAssignedProducts(item);
             });
         },
+        'product.crossSellings': {
+            handler(value) {
+                if (!value) {
+                    return;
+                }
+
+                this.isInherited = this.isChild && !this.product.crossSellings.total;
+            },
+            immediate: true,
+        },
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
+        mountedComponent() {
+            this.isInherited = this.isChild && !this.product.crossSellings.total;
+        },
+
         loadAssignedProducts(crossSelling) {
             const repository = this.repositoryFactory.create(
                 crossSelling.assignedProducts.entity,
@@ -108,6 +128,14 @@ export default {
             this.crossSelling.limit = 24;
 
             this.product.crossSellings.push(this.crossSelling);
+        },
+
+        restoreInheritance() {
+            this.isInherited = true;
+        },
+
+        removeInheritance() {
+            this.isInherited = false;
         },
     },
 };

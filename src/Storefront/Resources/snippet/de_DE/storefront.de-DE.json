@@ -37,7 +37,6 @@
     "required": "*",
     "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
     "privacyTitle": "Datenschutz",
-    "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-ajax-modal=\"true\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyLink": "Datenschutz",
     "imprintLink": "Impressum",
@@ -210,7 +209,6 @@
     "profileRecoverPasswordInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
     "profileRecoverPasswordSubmit": "E-Mail anfordern",
     "profileSaveChanges": "Änderungen speichern",
-    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-target=\"%target%\" data-bs-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen",
     "profileDeleteText": "<a href=\"%target%\" data-bs-toggle=\"modal\" data-bs-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen.",
     "profileDeleteAlert": "Nach dem Löschen der persönlichen Daten Ihres Kundenkontos sind Newsletter-Einträge und Bewertungen für Sie nicht mehr zugänglich. Beachten Sie jedoch, dass weiterhin Aufzeichnungen über alle Bestellungen gespeichert bleiben, um die gesetzlichen Bestimmungen zu erfüllen.",
     "profileDeleteConfirm": "Möchten Sie Ihr Kundenkonto wirklich löschen?",
@@ -404,9 +402,7 @@
     "confirmSubmit": "Zahlungspflichtig bestellen",
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
     "confirmRevocationNotice": "Bitte beachten Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Widerrufsbelehrung\">Widerrufsbelehrung</a>.",
-    "confirmTerms": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "confirmTermsText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
-    "confirmTermsReminder": "<br>Sie haben die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> bereits akzeptiert.",
     "confirmTermsReminderText": "Sie haben bereits die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> akzeptiert.",
     "confirmRevocationTerms": "Ja, ich möchte sofort Zugang zu dem digitalen Inhalt und weiß, dass mein Widerrufsrecht mit dem Zugang erlischt.",
     "confirmRevocationReminder": "Sie haben bereits erklärt, dass Sie auf das Widerrufsrecht verzichten.",
@@ -523,7 +519,6 @@
     "subjectPlaceholder": "Betreff eingeben ...",
     "commentLabel": "Kommentar",
     "commentPlaceholder": "Kommentar eingeben ...",
-    "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne sie an.",
     "privacyNoticeText": "Ich habe die <a data-ajax-modal=\"true\" data-url=\"%privacyUrl%\" data-prev-url=\"%prevUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und erkenne diese an.",
     "formSubmit": "Abschicken",
     "success": "Wir haben Ihre Kontaktanfrage erhalten und werden sie schnellstmöglich bearbeiten."
@@ -622,13 +617,10 @@
     "informationHeadline": "Informationen",
     "newsletterHeadline": "Newsletter",
     "serviceHotline": "Unterstützung und Beratung unter: <a href=\"tel:+49180000000\">0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
-    "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "serviceContactText": "Oder über unser <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt unseren regelmäßig erscheinenden Newsletter, um rechtzeitig über neue Produkte und Angebote informiert zu werden.",
-    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\" title=\"Versanddetails\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "includeVatText": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
-    "excludeVat": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\" title=\"Versanddetails\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "excludeVatText": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-ajax-modal=\"true\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "copyrightInfo": "Realisiert mit Shopware"
   },
@@ -639,7 +631,6 @@
     "basicCaptchaLabel" : "Um weiterzugehen, geben Sie die oben abgebildeten Zeichen ein*"
   },
   "cookie": {
-    "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
     "messageText": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
     "deny": "Nur technisch notwendige",
     "configure": "Konfigurieren",
@@ -690,7 +681,6 @@
     },
     "cms": {
       "vimeo": {
-        "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "privacyNoticeText": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-ajax-modal=\"true\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren"
       },

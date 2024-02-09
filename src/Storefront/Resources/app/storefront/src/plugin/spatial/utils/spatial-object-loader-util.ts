@@ -25,8 +25,7 @@ export default class SpatialObjectLoaderUtil {
         // create and bind draco loader for decompression of mesh data
         // eslint-disable-next-line
         const dracoLoader: DRACOLoader = new window.threeJsAddons.DRACOLoader();
-        // eslint-disable-next-line
-        dracoLoader.setDecoderPath(window.threeJsAddons.DRACOLibPath);
+        dracoLoader.setDecoderPath('../draco/');
         this.gltfLoader.setDRACOLoader(dracoLoader);
 
         this.loadStatus = new Map<string, number>();
@@ -83,10 +82,10 @@ export default class SpatialObjectLoaderUtil {
         /* eslint-disable */
         const box = new window.threeJs.Box3().setFromObject(object);
         const cent = box.getCenter(new window.threeJs.Vector3());
-
+        
         object.position.copy(cent);
         object.position.multiplyScalar(-1);
-
+        
         const group = new window.threeJs.Group();
         group.name = 'centered';
         group.add(object);

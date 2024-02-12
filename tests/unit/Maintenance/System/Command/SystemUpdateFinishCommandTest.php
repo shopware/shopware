@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Maintenance\System\Command;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Api\UpdateController;
@@ -30,8 +29,6 @@ class SystemUpdateFinishCommandTest extends TestCase
 
     private StaticSystemConfigService $systemConfigService;
 
-    private Application&MockObject $application;
-
     protected function setUp(): void
     {
         $this->container = new ContainerBuilder();
@@ -41,20 +38,21 @@ class SystemUpdateFinishCommandTest extends TestCase
         $this->systemConfigService->set(UpdateController::UPDATE_PREVIOUS_VERSION_KEY, '6.4.0.0');
 
         $this->container->set(SystemConfigService::class, $this->systemConfigService);
-
-        $this->application = $this->createMock(Application::class);
-        $this->application
-            ->expects(static::exactly(2))
-            ->method('find')
-            ->willReturn($this->createMock(Command::class));
-        $this->application->method('doRun')->willReturn(Command::SUCCESS);
     }
 
     public function testRunCommand(): void
     {
         $command = new SystemUpdateFinishCommand($this->container, '6.5.0.0');
 
-        $command->setApplication($this->application);
+        $application = $this->createMock(Application::class);
+        $application
+            ->expects(static::exactly(2))
+            ->method('find')
+            ->willReturn($this->createMock(Command::class));
+
+        $application->method('doRun')->willReturn(Command::SUCCESS);
+
+        $command->setApplication($application);
         $tester = new CommandTester($command);
 
         $tester->execute([]);
@@ -82,7 +80,18 @@ class SystemUpdateFinishCommandTest extends TestCase
     {
         $command = new SystemUpdateFinishCommand($this->container, '6.5.0.0');
 
-        $command->setApplication($this->application);
+        $application = $this->createMock(Application::class);
+        $migrationCommand = $this->createMock(Command::class);
+        $migrationCommand->method('run')->willReturn(Command::SUCCESS);
+
+        $application
+            ->expects(static::once())
+            ->method('find')
+            ->willReturn($migrationCommand);
+
+        $application->method('doRun')->willReturn(Command::SUCCESS);
+
+        $command->setApplication($application);
         $tester = new CommandTester($command);
 
         $tester->execute(['--skip-asset-build' => true]);
@@ -97,5 +106,21 @@ class SystemUpdateFinishCommandTest extends TestCase
         static::assertInstanceOf(UpdatePreFinishEvent::class, $event);
 
         static::assertTrue($event->getContext()->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));
+    }
+
+    public function testSkipAll(): void
+    {
+        $command = new SystemUpdateFinishCommand($this->container, '6.5.0.0');
+        $application = $this->createMock(Application::class);
+        $application
+            ->expects(static::never())
+            ->method('find');
+
+        $command->setApplication($application);
+
+        $tester = new CommandTester($command);
+
+        $tester->execute(['--skip-migrations' => true, '--skip-asset-build' => true]);
+        $tester->assertCommandIsSuccessful();
     }
 }

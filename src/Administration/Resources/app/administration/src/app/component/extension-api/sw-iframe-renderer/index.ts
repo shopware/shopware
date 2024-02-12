@@ -112,9 +112,11 @@ Shopware.Component.register('sw-iframe-renderer', {
 
         extension(): Extension | undefined {
             const extensions = Shopware.State.get('extensions');
+            const srcWithoutSearchParameters = new URL(this.src).origin + new URL(this.src).pathname;
 
             return Object.values(extensions).find((ext) => {
-                return ext.baseUrl === this.src;
+                const extensionBaseUrlWithoutSearchParameters = new URL(ext.baseUrl).origin + new URL(ext.baseUrl).pathname;
+                return extensionBaseUrlWithoutSearchParameters === srcWithoutSearchParameters;
             });
         },
 

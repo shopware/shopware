@@ -1573,13 +1573,23 @@
   "sw-ai-copilot-warning": {
     "text": "AI responses can be inaccurate or misleading."
   },
-  "sw-usage-data": {
-    "sw-settings-usage-data-intro": {
-      "title": "Usage data",
-      "headline": "Improving Shopware collectively",
-      "description": "Help us build better products and services by allowing us to collect usage data from your Shopware Administration. Using the latest privacy preserving techniques, we make sure that the collected data cannot be associated with you or your shop. We do not collect any customer information.",
-      "learnMore": "Learn more",
-      "learnMoreUrl": "https://shopware.com/en/privacy/"
+  "help-center": {
+    "sidebar": {
+      "title": "Help",
+      "ariaLabelButtonOpen": "Open help",
+      "ariaLabelButtonClose": "Close help",
+      "ariaLabelButtonShortcut": "Open keyboard shortcuts",
+      "support": {
+        "title": "Support",
+        "documentation": {
+          "text": "Documentation",
+          "href": "https://docs.shopware.com/en"
+        },
+        "createSupportRequest": {
+          "text": "Create support request",
+          "href": "https://account.shopware.com/"
+        }
+      }
     }
   }
 }

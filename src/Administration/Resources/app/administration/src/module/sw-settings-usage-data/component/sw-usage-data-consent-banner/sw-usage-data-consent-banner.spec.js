@@ -75,7 +75,7 @@ describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner',
         const hideBannerSpy = jest.spyOn(usageDataService, 'hideBanner');
 
         wrapper = await createWrapper(true);
-        const declineButton = wrapper.get('.sw-usage-data-consent-banner__decline-button');
+        const declineButton = wrapper.get('.sw-usage-data-consent-banner__footer-decline-button');
 
         await declineButton.trigger('click');
 
@@ -92,7 +92,7 @@ describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner',
         const acceptConsentSpy = jest.spyOn(usageDataService, 'acceptConsent');
 
         wrapper = await createWrapper(true);
-        const declineButton = wrapper.get('.sw-usage-data-consent-banner__accept-button');
+        const declineButton = wrapper.get('.sw-usage-data-consent-banner__footer-accept-button');
 
         await declineButton.trigger('click');
 
@@ -111,7 +111,7 @@ describe('module/sw-settings-usage-data/component/sw-usage-data-consent-banner',
         const revokeConsentSpy = jest.spyOn(usageDataService, 'revokeConsent');
 
         wrapper = await createWrapper();
-        const declineButton = wrapper.get('.sw-usage-data-consent-banner__reject-button');
+        const declineButton = wrapper.get('.sw-usage-data-consent-banner__footer-reject-button');
 
         await declineButton.trigger('click');
 

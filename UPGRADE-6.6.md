@@ -207,6 +207,32 @@ export default class MyPlugin extends window.PluginBaseClass {
 };
 ```
 
+## Removal of static product detail page templates
+
+The deprecated template `src/Storefront/Resources/views/storefront/page/product-detail/index.html.twig` was removed and replaced by configurable product detail CMS pages.
+Please use the template `src/Storefront/Resources/views/storefront/page/content/product-detail.html.twig` instead.
+
+This also applies to the sub-templates of the product detail page. From now on, CMS components are used instead.
+The old templates from `/page/product-detail` will no longer be used when a product detail page is rendered. 
+The default product detail page CMS layout will be used, if no other layout is configured in the administration.
+
+| Old                                                                           | New                                                                                  |
+|-------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| Resources/views/storefront/page/product-detail/tabs.html.twig                 | Resources/views/storefront/element/cms-element-product-description-reviews.html.twig |
+| Resources/views/storefront/page/product-detail/description.html.twig          | Resources/views/storefront/component/product/description.html.twig                   |
+| Resources/views/storefront/page/product-detail/properties.html.twig           | Resources/views/storefront/component/product/properties.html.twig                    |
+| Resources/views/storefront/page/product-detail/headline.html.twig             | Resources/views/storefront/element/cms-element-product-name.html.twig                |
+| Resources/views/storefront/page/product-detail/configurator.html.twig         | Resources/views/storefront/component/buy-widget/configurator.html.twig               |
+| Resources/views/storefront/page/product-detail/buy-widget.html.twig           | Resources/views/storefront/component/buy-widget/buy-widget.html.twig                 |
+| Resources/views/storefront/page/product-detail/buy-widget-price.html.twig     | Resources/views/storefront/component/buy-widget/buy-widget-price.html.twig           |
+| Resources/views/storefront/page/product-detail/buy-widget-form.html.twig      | Resources/views/storefront/component/buy-widget/buy-widget-form.html.twig            |
+| Resources/views/storefront/page/product-detail/review/review.html.twig        | Resources/views/storefront/component/review/review.html.twig                         |
+| Resources/views/storefront/page/product-detail/review/review-form.html.twig   | Resources/views/storefront/component/review/review-form.html.twig                    |
+| Resources/views/storefront/page/product-detail/review/review-item.html.twig   | Resources/views/storefront/component/review/review-item.html.twig                    |
+| Resources/views/storefront/page/product-detail/review/review-login.html.twig  | Resources/views/storefront/component/review/review-login.html.twig                   |
+| Resources/views/storefront/page/product-detail/review/review-widget.html.twig | Resources/views/storefront/component/review/review-widget.html.twig                  |
+| Resources/views/storefront/page/product-detail/cross-selling/tabs.html.twig   | Resources/views/storefront/element/cms-element-cross-selling.html.twig               |
+
 ## Introduced in 6.5.7.0
 ## New media url generator and path strategy
 * Removed deprecated `UrlGeneratorInterface` interface, use `AbstractMediaUrlGenerator` instead to generate the urls for media entities

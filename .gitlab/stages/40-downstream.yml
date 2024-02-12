@@ -95,7 +95,6 @@ rufus target branch:
     UPSTREAM_MERGE_REQUEST_LABELS: '${CI_MERGE_REQUEST_LABELS}'
     PLUGIN_DEPENDENCIES: >
         [
-          { "name": "SwagExtensionStore", "package": "swag/swag-extension-store", "url": "gitlab.shopware.com/shopware/6/product/SwagExtensionStore", "branch": "6.5.x-dev" },
           { "name": "SwagCommercial", "package": "shopware/commercial", "url": "gitlab.shopware.com/shopware/6/product/commercial", "branch": "${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" }
         ]
   trigger:
@@ -182,7 +181,6 @@ commercial tag:
     matrix:
       - PLUGIN_BRANCH: trunk
         PLUGIN_PROJECT:
-        - shopware/6/product/SwagExtensionStore
         - shopware/6/services/swagdynamicaccess
         - shopware/6/services/swagguidedshopping
         - shopware/6/services/paypal

@@ -31,29 +31,31 @@
             {% endblock %}
 
             {% block layout_head_meta_tags_opengraph %}
-                <meta property="og:url"
-                      content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}">
-                <meta property="og:type"
-                      content="{% block layout_head_meta_tags_type_og %}website{% endblock %}">
-                <meta property="og:site_name"
-                      content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}">
-                <meta property="og:title"
-                      content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}">
-                <meta property="og:description"
-                      content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}">
-                <meta property="og:image"
-                      content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+                {% if not page.isErrorPage() is defined or page.isErrorPage() === false %}
+                    <meta property="og:url"
+                          content="{% block layout_head_meta_tags_url_og %}{{ (page.metaInformation.canonical is defined) ? page.metaInformation.canonical : app.request.uri }}{% endblock %}">
+                    <meta property="og:type"
+                          content="{% block layout_head_meta_tags_type_og %}website{% endblock %}">
+                    <meta property="og:site_name"
+                          content="{% block layout_head_meta_tags_sitename_og %}{{ basicConfig.shopName }}{% endblock %}">
+                    <meta property="og:title"
+                          content="{% block layout_head_meta_tags_title_og %}{{ metaTitle }}{% endblock %}">
+                    <meta property="og:description"
+                          content="{% block layout_head_meta_tags_description_og %}{{ metaDescription }}{% endblock %}">
+                    <meta property="og:image"
+                          content="{% block layout_head_meta_tags_image_og %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
 
-                <meta name="twitter:card"
-                      content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}">
-                <meta name="twitter:site"
-                      content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}">
-                <meta name="twitter:title"
-                      content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}">
-                <meta name="twitter:description"
-                      content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}">
-                <meta name="twitter:image"
-                      content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+                    <meta name="twitter:card"
+                          content="{% block layout_head_meta_tags_card_twitter %}summary{% endblock %}">
+                    <meta name="twitter:site"
+                          content="{% block layout_head_meta_tags_sitename_twitter %}{{ basicConfig.shopName }}{% endblock %}">
+                    <meta name="twitter:title"
+                          content="{% block layout_head_meta_tags_title_twitter %}{{ metaTitle }}{% endblock %}">
+                    <meta name="twitter:description"
+                          content="{% block layout_head_meta_tags_description_twitter %}{{ metaDescription }}{% endblock %}">
+                    <meta name="twitter:image"
+                          content="{% block layout_head_meta_tags_image_twitter %}{{ theme_config('sw-logo-desktop') }}{% endblock %}">
+                {% endif %}
             {% endblock %}
 
             {% block layout_head_meta_tags_schema_webpage %}

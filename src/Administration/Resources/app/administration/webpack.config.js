@@ -109,8 +109,12 @@ const cssUrlMatcher = (url) => {
  */
 const injectPluginLoaderGenerator = (bundleName) => {
     return () => {
+        // This code will be executed in the entry file of the bundle
+        // set the webpack public path dynamically for every file in the main window
         const importContent = btoa(`
-            __webpack_public_path__ = window.__sw__.assetPath + '/bundles/${bundleName}/';
+            if (window?.__sw__?.assetPath) {
+                __webpack_public_path__ = window.__sw__.assetPath + '/bundles/${bundleName}/';
+            }
         `);
 
         return `import 'data:text/javascript;charset=utf-8;base64,${importContent}';`;
@@ -798,7 +802,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                     // to be able to access all files in multi-compiler-mode
                     ? path.resolve(__dirname, `v_dist/bundles/${plugin.technicalFolderName}/administration/`)
                     : path.resolve(plugin.path, '../../../public/'),
-                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `/bundles/${plugin.technicalFolderName}/`,
+                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `bundles/${plugin.technicalFolderName}/`,
                 // filenames aren´t in static folder when using watcher to match the build environment
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[name].js' : 'static/js/[name].js',
@@ -831,7 +835,7 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                 }),
 
                 ...(() => {
-                    if (isProd && !hasHtmlFile) {
+                    if (isProd) {
                         return [
                             // needed to set paths for chunks dynamically (e.g. needed for S3 asset bucket)
                             new InjectPlugin(injectPluginLoaderGenerator(plugin.technicalFolderName), { entryOrder: ENTRY_ORDER.First }),
@@ -909,7 +913,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                             new HtmlWebpackPlugin({
                                 filename: isDev ? '../administration/index.html' : 'administration/index.html',
                                 template: htmlFilePath,
-                                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `/bundles/${plugin.technicalFolderName}/administration/`,
+                                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `bundles/${plugin.technicalFolderName}/administration/`,
+                                base: isDev ? undefined : '__$ASSET_BASE_PATH$__', // This is replaced by symfony to fix sub folder and cloud installations
                             })
                         ];
                     }

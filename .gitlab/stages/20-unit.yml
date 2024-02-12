@@ -311,6 +311,7 @@ PHP Full:
                 sed -i '/Shopware\\Administration/d' ./config/bundles.php
                 sed -i '/Shopware\\Storefront/d' ./config/bundles.php
                 sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
+                rm -rf src/Administration/Controller
                 rm -rf tests/integration/Administration
                 rm -rf tests/integration/Elasticsearch
                 rm -rf tests/integration/Storefront

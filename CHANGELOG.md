@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.4
+*  [NEXT-33622 - Fix migration compatiblity with older MySQL 8](./changelog/release-6-5-8-4/2024-02-09-fix-migration-compatiblity-with-older-mysql-8.md)
+
 ## 6.5.8.3
 *  [NEXT-32814 - Add separator to admin ES search indexer queries](./changelog/release-6-5-8-3/2023-12-23-add-separator-to-admin-es-search-indexer.md) ([Marcus Müller](https://github.com/M-arcus))
 *  [NEXT-29439 - Enforce id sorting](./changelog/release-6-5-8-3/2023-12-29-enforce-id-sorting.md)

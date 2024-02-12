@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
+use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -625,7 +626,7 @@ class ThemeService implements ResetInterface
      */
     private function isAsyncCompilation(Context $context): bool
     {
-        if (!Feature::isActive('ASYNC_THEME_COMPILATION')) {
+        if ($this->configLoader instanceof StaticFileConfigLoader) {
             return false;
         }
 

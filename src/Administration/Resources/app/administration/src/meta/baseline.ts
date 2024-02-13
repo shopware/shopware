@@ -601,7 +601,6 @@ const missingTests = [
     'src/module/sw-settings-basic-information/page/sw-settings-basic-information/index.js',
     'src/module/sw-settings-cache/component/sw-settings-cache-modal/index.js',
     'src/module/sw-settings-cache/index.js',
-    'src/module/sw-settings-cache/page/sw-settings-cache-index/index.js',
     'src/module/sw-settings-cart/index.js',
     'src/module/sw-settings-cart/page/sw-settings-cart/index.js',
     'src/module/sw-settings-country/index.js',

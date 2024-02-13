@@ -605,6 +605,13 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         group: 'order',
     });
 
+    ruleConditionService.addCondition('orderDocumentTypeSent', {
+        component: 'sw-condition-generic',
+        label: 'global.sw-condition.condition.orderDocumentTypeSentRule',
+        scopes: ['order'],
+        group: 'order',
+    });
+
     ruleConditionService.addCondition('cartLineItemPropertyValue', {
         component: 'sw-condition-line-item-property',
         label: 'global.sw-condition.condition.lineItemPropertyValueRule',

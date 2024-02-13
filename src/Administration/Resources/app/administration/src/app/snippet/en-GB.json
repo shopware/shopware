@@ -708,6 +708,7 @@
         "orderStatusRule": "Order status",
         "orderCustomFieldRule": "Order with custom field",
         "orderDocumentTypeRule": "Order with document",
+        "orderDocumentTypeSentRule": "Order with sent document",
         "yes": "Yes",
         "no": "No",
         "withTime": "Including timestamp",

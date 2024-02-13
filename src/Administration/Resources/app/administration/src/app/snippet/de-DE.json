@@ -708,6 +708,7 @@
         "orderStatusRule": "Bestellstatus",
         "orderCustomFieldRule": "Bestellung mit Zusatzfeld",
         "orderDocumentTypeRule": "Bestellung mit Dokument",
+        "orderDocumentTypeSentRule": "Bestellung mit gesendetem Dokument",
         "yes": "Ja",
         "no": "Nein",
         "withTime": "Mit Zeitabfrage",

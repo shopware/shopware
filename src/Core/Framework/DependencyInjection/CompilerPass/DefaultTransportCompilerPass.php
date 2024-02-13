@@ -29,7 +29,7 @@ class DefaultTransportCompilerPass implements CompilerPassInterface
 
         $mapped = [];
         foreach ($config['messenger']['routing'] as $message => $transports) {
-            if (!array_key_exists('senders', $transports)) {
+            if (!\array_key_exists('senders', $transports)) {
                 continue;
             }
             $mapped[$message] = $transports['senders'][0];

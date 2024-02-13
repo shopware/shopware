@@ -40,8 +40,14 @@ class DefaultTransportCompilerPassTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ */
 class StubContainer extends ContainerBuilder
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(private array $config)
     {
         parent::__construct();

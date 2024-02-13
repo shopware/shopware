@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Notification\NotificationService;
@@ -16,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
+use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -713,6 +716,44 @@ class ThemeServiceTest extends TestCase
         static::assertArrayHasKey('default', $config['tabs']);
         static::assertArrayHasKey('blocks', $config['tabs']['default']);
         static::assertEquals($expectedStructured, $config);
+    }
+
+    public function testAsyncCompilationIsSkippedWhenUsingStaticConfigLoader(): void
+    {
+        $themeId = Uuid::randomHex();
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
+        $fs->write(sprintf('theme-config/%s.json', $themeId), (string) json_encode([
+            'styleFiles' => [],
+            'scriptFiles' => [],
+        ]));
+        $configLoader = new StaticFileConfigLoader($fs);
+
+        $themeService = new ThemeService(
+            $this->storefrontPluginRegistryMock,
+            $this->themeRepositoryMock,
+            $this->themeSalesChannelRepositoryMock,
+            $this->themeCompilerMock,
+            $this->eventDispatcherMock,
+            $configLoader,
+            $this->connectionMock,
+            $this->systemConfigMock,
+            $this->messageBusMock,
+            $this->createMock(NotificationService::class)
+        );
+
+        $this->systemConfigMock->expects(static::never())->method('get');
+        $this->messageBusMock->expects(static::never())->method('dispatch');
+
+        $this->themeCompilerMock->expects(static::once())->method('compileTheme')->with(
+            TestDefaults::SALES_CHANNEL,
+            $themeId,
+            static::anything(),
+            static::anything(),
+            true,
+            $this->context
+        );
+
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $themeId, $this->context);
     }
 
     /**

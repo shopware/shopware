@@ -161,8 +161,12 @@ class ProductExportRenderer implements ProductExportRendererInterface
         string $content,
         string $salesChannelDomainUrl
     ): string {
-        $defaultUrl = $this->fileSystemConfig['url'] ?? $this->getFallbackUrl();
-        $defaultUrl = rtrim($defaultUrl, '/');
+        if (!empty($this->fileSystemConfig['url'])) {
+            // if cdn url is set, we don't need to replace the domain
+            return $content;
+        }
+
+        $defaultUrl = rtrim($this->getFallbackUrl(), '/');
 
         $salesChannelDomainUrl = rtrim($salesChannelDomainUrl, '/');
 

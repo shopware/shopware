@@ -49,6 +49,7 @@ export default {
             nextRoute: null,
             isDisplayingSaveChangesWarning: false,
             forceDiscardChanges: false,
+            entityCount: null,
         };
     },
 
@@ -69,19 +70,32 @@ export default {
 
         ruleCriteria() {
             const criteria = new Criteria();
-            criteria.addAssociation('tags');
 
-            criteria.addAssociation('personaPromotions');
-            criteria.addAssociation('orderPromotions');
-            criteria.addAssociation('cartPromotions');
-            criteria.addAssociation('promotionDiscounts');
-            criteria.addAssociation('promotionSetGroups');
+            criteria.addAssociation('tags');
             criteria.addAssociation('flowSequences.flow');
-            criteria.addAssociation('shippingMethodPriceCalculations');
-            criteria.addAssociation('shippingMethodPrices');
-            criteria.addAssociation('productPrices');
-            criteria.addAssociation('shippingMethods');
-            criteria.addAssociation('paymentMethods');
+
+            const aggregationEntities = [
+                'personaPromotions',
+                'orderPromotions',
+                'cartPromotions',
+                'promotionDiscounts',
+                'promotionSetGroups',
+                'shippingMethodPriceCalculations',
+                'shippingMethodPrices',
+                'productPrices',
+                'shippingMethods',
+                'paymentMethods',
+            ];
+
+            aggregationEntities.forEach((entity) => {
+                criteria.addAggregation(Criteria.terms(
+                    entity,
+                    'id',
+                    null,
+                    null,
+                    Criteria.count(entity, `rule.${entity}.id`),
+                ));
+            });
 
             return criteria;
         },
@@ -219,10 +233,24 @@ export default {
             this.isLoading = true;
             this.conditions = null;
 
-            return this.ruleRepository.get(ruleId, Context.api, this.ruleCriteria).then((rule) => {
-                this.rule = rule;
+            this.ruleCriteria.addFilter(Criteria.equals('id', ruleId));
+
+            return this.ruleRepository.search(this.ruleCriteria).then((response) => {
+                this.entityCount = this.extractEntityCount(response.aggregations);
+
+                this.rule = response.first();
                 return this.loadConditions();
             });
+        },
+
+        extractEntityCount(aggregations) {
+            const entityCount = {};
+
+            Object.keys(aggregations).forEach((key) => {
+                entityCount[key] = aggregations[key].buckets.at(0)[key].count;
+            });
+
+            return entityCount;
         },
 
         unsavedDataLeaveHandler(to, from, next) {
@@ -320,50 +348,54 @@ export default {
 
         validateRuleAwareness() {
             const equalsAnyConfigurations = this.ruleConditionDataProviderService.getAwarenessKeysWithEqualsAnyConfig();
-            if (equalsAnyConfigurations.length <= 0) {
+
+            if (equalsAnyConfigurations.length <= 0 || !this.entityCount) {
                 return true;
             }
 
             let isValid = true;
             equalsAnyConfigurations.forEach((key) => {
-                if (this.rule[key].length > 0) {
-                    const conditions = [];
-                    this.conditionTree.forEach((condition) => {
-                        conditions.push(condition);
+                if (this.entityCount[key] <= 0) {
+                    return;
+                }
 
-                        if (condition.children) {
-                            const children = this.getChildrenConditions(condition);
-                            conditions.push(...children);
-                        }
-                    });
+                const conditions = [];
 
-                    const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
-                        new EntityCollection(
-                            this.conditionRepository.route,
-                            this.conditionRepository.entityName,
-                            Context.api,
-                            null,
-                            conditions,
-                        ),
-                        key,
+                this.conditionTree.forEach((condition) => {
+                    conditions.push(condition);
+
+                    if (condition.children) {
+                        const children = this.getChildrenConditions(condition);
+                        conditions.push(...children);
+                    }
+                });
+
+                const restrictions = this.ruleConditionDataProviderService.getRestrictionsByAssociation(
+                    new EntityCollection(
+                        this.conditionRepository.route,
+                        this.conditionRepository.entityName,
+                        Context.api,
+                        null,
+                        conditions,
+                    ),
+                    key,
+                );
+
+                if (restrictions.isRestricted) {
+                    const message = this.$tc(
+                        'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
+                        0,
+                        {
+                            conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
+                                restrictions.equalsAnyNotMatched,
+                                'sw-restricted-rules.or',
+                            ),
+                            entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
+                        },
                     );
 
-                    if (restrictions.isRestricted) {
-                        const message = this.$tc(
-                            'sw-restricted-rules.restrictedAssignment.equalsAnyViolationTooltip',
-                            0,
-                            {
-                                conditions: this.ruleConditionDataProviderService.getTranslatedConditionViolationList(
-                                    restrictions.equalsAnyNotMatched,
-                                    'sw-restricted-rules.or',
-                                ),
-                                entityLabel: this.$tc(restrictions.assignmentSnippet, 2),
-                            },
-                        );
-
-                        this.createNotificationError({ message });
-                        isValid = false;
-                    }
+                    this.createNotificationError({ message });
+                    isValid = false;
                 }
             });
 

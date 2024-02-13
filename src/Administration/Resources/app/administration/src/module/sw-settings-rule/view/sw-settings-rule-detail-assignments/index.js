@@ -10,7 +10,6 @@ const { Criteria } = Shopware.Data;
  * @package services-settings
  */
 export default {
-    // eslint-disable-next-line max-len
     template,
 
     inject: [

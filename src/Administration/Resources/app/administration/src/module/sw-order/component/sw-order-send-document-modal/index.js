@@ -5,8 +5,12 @@ import './sw-order-send-document-modal.scss';
  * @package checkout
  */
 
+const { Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/**
+ * @package checkout
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -42,6 +46,10 @@ export default {
     },
 
     computed: {
+        truncateFilter() {
+            return Filter.getByName('truncate');
+        },
+
         mailTemplateRepository() {
             return this.repositoryFactory.create('mail_template');
         },

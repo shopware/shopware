@@ -425,20 +425,22 @@ class ProductExportRendererTest extends TestCase
         ];
 
         yield 'with default url in template' => [
-            'this is a with http://en.test in template',
-            'this is a with http://de.test in template' . \PHP_EOL,
+            'this is a with https://cdn.example/media/abc in template',
+            'this is a with https://cdn.example/media/abc in template' . \PHP_EOL,
             [],
+            'https://cdn.example',
         ];
 
         yield 'with multiple default url in template' => [
-            'this is a with http://en.test/abc/xyz in template' . \PHP_EOL . 'another http://en.test/media/xyz',
-            'this is a with http://de.test/abc/xyz in template' . \PHP_EOL . 'another http://de.test/media/xyz' . \PHP_EOL,
+            'this is a with https://cdn.example/media/abc in template' . \PHP_EOL . 'another https://cdn.example/media/xyz',
+            'this is a with https://cdn.example/media/abc in template' . \PHP_EOL . 'another https://cdn.example/media/xyz' . \PHP_EOL,
             [],
+            'https://cdn.example',
         ];
 
         yield 'with data' => [
             'this is a {{ foo.baz }} that has URL: {{ foo.bar }}' . \PHP_EOL . 'Also another URL: {{ url }}',
-            'this is a Baz that has URL: http://de.test/abc/xyz' . \PHP_EOL . 'Also another URL: http://de.test/media/xyz' . \PHP_EOL,
+            'this is a Baz that has URL: http://en.test/abc/xyz' . \PHP_EOL . 'Also another URL: http://en.test/media/xyz' . \PHP_EOL,
             [
                 'foo' => [
                     'baz' => 'Baz',

@@ -626,7 +626,7 @@ class ThemeService implements ResetInterface
      */
     private function isAsyncCompilation(Context $context): bool
     {
-        if ($this->configLoader instanceof StaticFileConfigLoader) {
+        if ($this->configLoader instanceof StaticFileConfigLoader || !Feature::isActive('ASYNC_THEME_COMPILATION')) {
             return false;
         }
 

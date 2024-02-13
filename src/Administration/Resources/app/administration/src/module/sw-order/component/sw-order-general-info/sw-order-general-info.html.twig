@@ -16,7 +16,7 @@
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_order_detail_base_general_info_summary_main_total %}
             <div class="sw-order-general-info__summary-main-total">
-                {{ currencyFilter(order.amountTotal, order.currency.translated.isoCode, order.totalRounding.decimals) }}
+                {{ currencyFilter(order.amountTotal, order.currency.isoCode, order.totalRounding.decimals) }}
             </div>
             {% endblock %}
         </div>

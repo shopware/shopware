@@ -211,8 +211,6 @@ class ElasticsearchProductTest extends TestCase
         try {
             $this->connection->executeStatement('DELETE FROM product');
 
-            $context = $this->context;
-
             $this->clearElasticsearch();
 
             $this->resetStopWords();
@@ -2553,6 +2551,31 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
+    public function testNestedSorting(): void
+    {
+        $ids = $this->testIndexing();
+
+        $criteria = new Criteria($ids->prefixed('sort.'));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('tags.name'));
+
+        $searcher = $this->createEntitySearcher();
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertSame($ids->get('sort.amazon'), $result->getIds()[0]);
+        static::assertSame($ids->get('sort.shopware'), $result->getIds()[1]);
+        static::assertSame($ids->get('sort.zalando'), $result->getIds()[2]);
+
+        $criteria = new Criteria($ids->prefixed('sort.'));
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addSorting(new FieldSorting('tags.name', FieldSorting::DESCENDING));
+        $result = $searcher->search($this->productDefinition, $criteria, $this->context);
+
+        static::assertSame($ids->get('sort.zalando'), $result->getIds()[0]);
+        static::assertSame($ids->get('sort.shopware'), $result->getIds()[1]);
+        static::assertSame($ids->get('sort.amazon'), $result->getIds()[2]);
+    }
+
     #[Depends('testIndexing')]
     public function testCheapestPricePercentageAggregation(IdsCollection $ids): void
     {
@@ -3950,6 +3973,21 @@ class ElasticsearchProductTest extends TestCase
                         ->customField('random', 1)
                         ->build()
                 )
+                ->build(),
+            (new ProductBuilder($this->ids, 'sort.shopware'))
+                ->tag('shopware')
+                ->price(1)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($this->ids, 'sort.amazon'))
+                ->tag('amazon')
+                ->price(1)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($this->ids, 'sort.zalando'))
+                ->tag('zalando')
+                ->price(1)
+                ->visibility()
                 ->build(),
         ];
 

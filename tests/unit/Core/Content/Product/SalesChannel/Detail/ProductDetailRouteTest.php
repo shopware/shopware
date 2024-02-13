@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -46,6 +49,8 @@ class ProductDetailRouteTest extends TestCase
      */
     private SystemConfigService $systemConfig;
 
+    private MockObject&Connection $connection;
+
     private ProductDetailRoute $route;
 
     /**
@@ -64,6 +69,7 @@ class ProductDetailRouteTest extends TestCase
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
+        $this->connection = $this->createMock(Connection::class);
         $configuratorLoader = $this->createMock(ProductConfiguratorLoader::class);
         $breadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
         $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoader::class);
@@ -72,6 +78,7 @@ class ProductDetailRouteTest extends TestCase
         $this->route = new ProductDetailRoute(
             $this->productRepository,
             $this->systemConfig,
+            $this->connection,
             $configuratorLoader,
             $breadcrumbBuilder,
             $cmsPageLoader,
@@ -98,7 +105,7 @@ class ProductDetailRouteTest extends TestCase
                 )
             );
 
-        $result = $this->route->load('1', new Request(), $this->context, new Criteria());
+        $result = $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
 
         static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
         static::assertEquals('4', $result->getProduct()->getCmsPageId());
@@ -143,6 +150,36 @@ class ProductDetailRouteTest extends TestCase
         static::assertTrue($result->getProduct()->getAvailable());
     }
 
+    public function testLoadVariantListingConfig(): void
+    {
+        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
+            'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
+            'parentId' => '2',
+        ]);
+
+        $productEntity = new SalesChannelProductEntity();
+        $productEntity->setCmsPageId('4');
+        $productEntity->setUniqueIdentifier('2');
+        $this->productRepository->expects(static::exactly(2))
+            ->method('search')
+            ->willReturn(
+                new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$productEntity]),
+                    null,
+                    new Criteria(),
+                    $this->context->getContext()
+                )
+            );
+
+        $result = $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
+
+        static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
+        static::assertEquals('2', $result->getProduct()->getUniqueIdentifier());
+        static::assertTrue($result->getProduct()->getAvailable());
+    }
+
     public function testConfigHideCloseoutProductsWhenOutOfStockFiltersResults(): void
     {
         $productEntity = new SalesChannelProductEntity();
@@ -181,6 +218,13 @@ class ProductDetailRouteTest extends TestCase
     public function testLoadProductNotFound(): void
     {
         $this->expectException(ProductNotFoundException::class);
+
+        $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
+    }
+
+    public function testLoadProductIdInvalid(): void
+    {
+        $this->expectException(InvalidUuidException::class);
 
         $this->route->load('1', new Request(), $this->context, new Criteria());
     }

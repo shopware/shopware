@@ -130,7 +130,7 @@ class StockStorage extends AbstractStockStorage
         $updated = [];
         foreach ($before as $id => $available) {
             if ($available !== $after[$id]) {
-                $updated[] = $id;
+                $updated[] = (string) $id;
             }
         }
 

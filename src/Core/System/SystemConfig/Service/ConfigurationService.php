@@ -84,27 +84,14 @@ class ConfigurationService
                 $card['elements'][$j] = $newField;
             }
 
-            if (is_array($card['elements'])) {
-                $card['elements'] = $this->enforceSequentialIndexes($card['elements']);
+            if (isset($card['elements']) && \is_array($card['elements'])) {
+                $card['elements'] = array_values($card['elements']);
             }
 
             $config[$i] = $card;
         }
 
-        return $this->enforceSequentialIndexes($config);
-    }
-
-    /**
-     * This ensures that json_encode will use an Array not an Object.
-     *
-     * It prevents JavaScript errors in the Administration if an element inside the array were unset.
-     *
-     * @param  array  $array
-     * @return array
-     */
-    private function enforceSequentialIndexes(array $array): array
-    {
-        return array_values($array);
+        return array_values($config);
     }
 
     /**

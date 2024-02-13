@@ -22,7 +22,7 @@ const mockItem = {
         },
     ],
     currency: {
-        translated: { isoCode: 'EUR' },
+        isoCode: 'EUR',
     },
     stateMachineState: {
         translated: { name: 'Open' },

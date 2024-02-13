@@ -37,6 +37,7 @@ php.ini
 .eslintcache
 .stylelintcache
 .jestcache
+/.phpunit.cache
 
 /public/*
 !/public/index.php

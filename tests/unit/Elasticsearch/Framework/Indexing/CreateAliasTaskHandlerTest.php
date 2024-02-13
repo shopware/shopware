@@ -186,14 +186,14 @@ class CreateAliasTaskHandlerTest extends TestCase
                 'body' => [
                     'actions' => [
                         [
-                            'add' => [
-                                'index' => 'index',
+                            'remove' => [
+                                'index' => 'old_index',
                                 'alias' => 'alias',
                             ],
                         ],
                         [
-                            'remove' => [
-                                'index' => 'old_index',
+                            'add' => [
+                                'index' => 'index',
                                 'alias' => 'alias',
                             ],
                         ],

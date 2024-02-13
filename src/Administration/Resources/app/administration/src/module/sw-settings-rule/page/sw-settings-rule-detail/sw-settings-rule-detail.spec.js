@@ -17,96 +17,112 @@ function createRuleMock(isNew) {
     };
 }
 
-function getCollection(repository) {
+const defaultAggregations = {
+    testRelation: {
+        buckets: [
+            {
+                testRelation: {
+                    count: 0,
+                },
+            },
+        ],
+    },
+};
+
+function getCollection(repository, entities = [], aggregations = defaultAggregations) {
     return new EntityCollection(
         `/${kebabCase(repository)}`,
         repository,
         null,
         { isShopwareContext: true },
-        [],
+        entities,
         0,
-        null,
+        aggregations,
     );
 }
 
 async function createWrapper(isNewRule = false, provide = {}) {
-    return mount(await wrapTestComponent('sw-settings-rule-detail', { sync: true }), {
-        props: {
-            ruleId: isNewRule ? null : 'uuid1',
+    return mount(
+        await wrapTestComponent('sw-settings-rule-detail', { sync: true }),
+        {
+            props: {
+                ruleId: isNewRule ? null : 'uuid1',
+            },
+            global: {
+                renderStubDefaultSlot: true,
+                stubs: {
+                    'sw-page': {
+                        template: `
+                        <div>
+                            <slot name="smart-bar-actions"></slot>
+                            <slot name="content"></slot>
+                        </div>
+                    `,
+                    },
+                    'sw-button': await wrapTestComponent('sw-button'),
+                    'sw-button-process': await wrapTestComponent('sw-button-process'),
+                    'sw-card': true,
+                    'sw-card-view': true,
+                    'sw-container': true,
+                    'sw-field': true,
+                    'sw-multi-select': true,
+                    'sw-condition-tree': true,
+                    'sw-tabs': true,
+                    'sw-tabs-item': true,
+                    'router-view': {
+                        template:
+                            '<div><slot v-bind="{ Component: \'router-test-view\'}"></slot></div>',
+                    },
+                    'router-test-view': true,
+                    'sw-skeleton': true,
+                    'sw-context-menu-item': true,
+                    'sw-context-button': true,
+                    'sw-button-group': true,
+                    'sw-icon': true,
+                    'sw-loader': true,
+                    'sw-discard-changes-modal': {
+                        template: `
+                        <div>
+                            Iam here
+                        </div>
+                    `,
+                    },
+                },
+                provide: {
+                    ruleConditionDataProviderService: {
+                        getModuleTypes: () => [],
+                        addScriptConditions: () => {},
+                    },
+                    ruleConditionsConfigApiService: {
+                        load: () => Promise.resolve(),
+                    },
+                    repositoryFactory: {
+                        create: (repository) => {
+                            return {
+                                create: () => {
+                                    return createRuleMock(true);
+                                },
+                                search: () => Promise.resolve(getCollection(repository, [createRuleMock(false)])),
+                                hasChanges: (rule, hasChanges) => {
+                                    return hasChanges ?? false;
+                                },
+                                save: () => Promise.resolve(),
+                            };
+                        },
+                    },
+                    ...provide,
+                },
+                mocks: {
+                    $route: {
+                        meta: {},
+                        params: {
+                            id: isNewRule ? null : 'uuid1',
+                        },
+                    },
+                },
+            },
         },
-        global: {
-            renderStubDefaultSlot: true,
-            stubs: {
-                'sw-page': {
-                    template: `
-    <div>
-        <slot name="smart-bar-actions"></slot>
-        <slot name="content"></slot>
-    </div>`,
-                },
-                'sw-button': await wrapTestComponent('sw-button'),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
-                'sw-card': true,
-                'sw-card-view': true,
-                'sw-container': true,
-                'sw-field': true,
-                'sw-multi-select': true,
-                'sw-condition-tree': true,
-                'sw-tabs': true,
-                'sw-tabs-item': true,
-                'router-view': {
-                    template: '<div><slot v-bind="{ Component: \'router-test-view\'}"></slot></div>',
-                },
-                'router-test-view': true,
-                'sw-skeleton': true,
-                'sw-context-menu-item': true,
-                'sw-context-button': true,
-                'sw-button-group': true,
-                'sw-icon': true,
-                'sw-loader': true,
-                'sw-discard-changes-modal': {
-                    template: `
-    <div>
-        Iam here
-    </div>`,
-                },
-            },
-            provide: {
-                ruleConditionDataProviderService: {
-                    getModuleTypes: () => [],
-                    addScriptConditions: () => {
-                    },
-                },
-                ruleConditionsConfigApiService: {
-                    load: () => Promise.resolve(),
-                },
-                repositoryFactory: {
-                    create: (repository) => {
-                        return {
-                            create: () => {
-                                return createRuleMock(true);
-                            },
-                            get: () => Promise.resolve(createRuleMock(false)),
-                            search: () => Promise.resolve(getCollection(repository)),
-                            hasChanges: (rule, hasChanges) => {
-                                return hasChanges ?? false;
-                            },
-                            save: () => Promise.resolve(),
-                        };
-                    },
-                },
-                ...provide,
-            },
-            mocks: {
-                $route: {
-                    meta: {},
-                    params: {
-                        id: isNewRule ? null : 'uuid1',
-                    },
-                },
-            },
-        },
-    });
+    );
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
@@ -329,5 +345,131 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         await saveButton.trigger('click');
 
         expect(wrapper.vm.ruleRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should trigger rule awareness by association count', async () => {
+        global.activeAclRoles = ['rule.editor'];
+        defaultAggregations.testRelation.buckets[0].testRelation.count = 1;
+
+        const awarenessFunc = jest.fn(() => ({
+            isRestricted: false,
+        }));
+
+        const wrapper = await createWrapper(
+            false,
+            {
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {},
+                    getRestrictionsByAssociation: awarenessFunc,
+                    getAwarenessKeysWithEqualsAnyConfig: () => [
+                        'testRelation',
+                    ],
+                },
+            },
+        );
+
+        await wrapper.setData({
+            conditionTree: [{
+                id: 'some-condition',
+                children: [{
+                    id: 'some-child-condition',
+                    children: [{
+                        id: 'some-grand-child-condition',
+                    }],
+                }],
+            }],
+        });
+
+        await flushPromises();
+
+        const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
+        await saveButton.trigger('click');
+
+        expect(awarenessFunc).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not trigger rule awareness by association count when no associations exist', async () => {
+        global.activeAclRoles = ['rule.editor'];
+        defaultAggregations.testRelation.buckets[0].testRelation.count = 0;
+
+        const awarenessFunc = jest.fn(() => ({
+            isRestricted: false,
+        }));
+
+        const wrapper = await createWrapper(
+            false,
+            {
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {},
+                    getRestrictionsByAssociation: awarenessFunc,
+                    getAwarenessKeysWithEqualsAnyConfig: () => [
+                        'testRelation',
+                    ],
+                },
+            },
+        );
+
+        await wrapper.setData({
+            conditionTree: [{
+                id: 'some-condition',
+                children: [{
+                    id: 'some-child-condition',
+                    children: [{
+                        id: 'some-grand-child-condition',
+                    }],
+                }],
+            }],
+        });
+
+        await flushPromises();
+
+        const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
+        await saveButton.trigger('click');
+
+        expect(awarenessFunc).toHaveBeenCalledTimes(0);
+    });
+
+    it('should not trigger rule awareness when rule is new and the entityCount was not generated', async () => {
+        global.activeAclRoles = ['rule.editor'];
+
+        const wrapper = await createWrapper(
+            false,
+            {
+                ruleConditionDataProviderService: {
+                    getModuleTypes: () => [],
+                    addScriptConditions: () => {},
+                    getRestrictionsByAssociation: jest.fn(),
+                    getAwarenessKeysWithEqualsAnyConfig: () => [
+                        'testRelation',
+                    ],
+                },
+            },
+        );
+        await flushPromises();
+
+        await wrapper.setData({
+            entityCount: null,
+            conditionTree: [{
+                id: 'some-condition',
+                children: [{
+                    id: 'some-child-condition',
+                    children: [{
+                        id: 'some-grand-child-condition',
+                    }],
+                }],
+            }],
+        });
+
+        await flushPromises();
+        expect(wrapper.vm.entityCount).toBeNull();
+
+        wrapper.vm.getChildrenConditions = jest.fn(() => []);
+
+        const saveButton = wrapper.get('.sw-settings-rule-detail__save-action');
+        await saveButton.trigger('click');
+
+        expect(wrapper.vm.getChildrenConditions).toHaveBeenCalledTimes(0);
     });
 });

@@ -15,7 +15,6 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
-use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
@@ -26,9 +25,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -51,9 +52,6 @@ class ProductDetailRouteTest extends TestCase
 
     private ProductDetailRoute $route;
 
-    /**
-     * @var MockObject&SalesChannelContext
-     */
     private SalesChannelContext $context;
 
     private IdsCollection $idsCollection;
@@ -63,7 +61,7 @@ class ProductDetailRouteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->context = $this->createMock(SalesChannelContext::class);
+        $this->context = Generator::createSalesChannelContext();
         $this->idsCollection = new IdsCollection();
         $this->productRepository = $this->createMock(SalesChannelRepository::class);
         $this->systemConfig = $this->createMock(SystemConfigService::class);
@@ -90,7 +88,7 @@ class ProductDetailRouteTest extends TestCase
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('mainVariant');
-        $this->productRepository->expects(static::exactly(2))
+        $this->productRepository->expects(static::exactly(1))
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -105,7 +103,6 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load('1', new Request(), $this->context, new Criteria());
 
-        static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
         static::assertEquals('4', $result->getProduct()->getCmsPageId());
         static::assertEquals('mainVariant', $result->getProduct()->getUniqueIdentifier());
     }
@@ -133,16 +130,14 @@ class ProductDetailRouteTest extends TestCase
             ->willReturn(
                 $idsSearchResult
             );
-        $this->productRepository->expects(static::exactly(2))
+        $this->productRepository->expects(static::once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult('product', 0, new ProductCollection(), null, new Criteria(), $this->context->getContext()),
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
         $result = $this->route->load($this->idsCollection->get('product1'), new Request(), $this->context, new Criteria());
 
-        static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
         static::assertEquals(4, $result->getProduct()->getCmsPageId());
         static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
@@ -150,15 +145,19 @@ class ProductDetailRouteTest extends TestCase
 
     public function testLoadVariantListingConfig(): void
     {
-        $this->connection->expects(static::once())->method('fetchAssociative')->willReturn([
-            'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
-            'parentId' => '2',
-        ]);
+        $this->connection
+            ->expects(static::once())
+            ->method('fetchAssociative')
+            ->willReturn([
+                'variantListingConfig' => '{"displayParent": true, "mainVariantId": "2"}',
+                'parentId' => '2',
+            ]);
 
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('2');
-        $this->productRepository->expects(static::exactly(2))
+        $productEntity->setAvailable(true);
+        $this->productRepository->expects(static::once())
             ->method('search')
             ->willReturn(
                 new EntitySearchResult(
@@ -171,9 +170,8 @@ class ProductDetailRouteTest extends TestCase
                 )
             );
 
-        $result = $this->route->load('1', new Request(), $this->context, new Criteria());
+        $result = $this->route->load(Uuid::randomHex(), new Request(), $this->context, new Criteria());
 
-        static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
         static::assertEquals('2', $result->getProduct()->getUniqueIdentifier());
         static::assertTrue($result->getProduct()->getAvailable());
     }
@@ -183,8 +181,6 @@ class ProductDetailRouteTest extends TestCase
         $productEntity = new SalesChannelProductEntity();
         $productEntity->setCmsPageId('4');
         $productEntity->setUniqueIdentifier('BestVariant');
-
-        $criteria = new Criteria([$this->idsCollection->get('product2')]);
 
         $criteria2 = new Criteria([$this->idsCollection->get('product2')]);
         $criteria2->setTitle('product-detail-route');
@@ -197,10 +193,9 @@ class ProductDetailRouteTest extends TestCase
         $criteria2->addFilter($filter);
 
         $this->productRepository
-            ->expects(static::exactly(2))
+            ->expects(static::once())
             ->method('search')
             ->willReturnOnConsecutiveCalls(
-                new EntitySearchResult('product', 0, new ProductCollection([]), null, new Criteria(), $this->context->getContext()),
                 new EntitySearchResult('product', 4, new ProductCollection([$productEntity]), null, new Criteria(), $this->context->getContext())
             );
 
@@ -208,7 +203,6 @@ class ProductDetailRouteTest extends TestCase
 
         $result = $this->route->load($this->idsCollection->get('product2'), new Request(), $this->context, new Criteria());
 
-        static::assertInstanceOf(ProductDetailRouteResponse::class, $result);
         static::assertEquals('4', $result->getProduct()->getCmsPageId());
         static::assertEquals('BestVariant', $result->getProduct()->getUniqueIdentifier());
     }

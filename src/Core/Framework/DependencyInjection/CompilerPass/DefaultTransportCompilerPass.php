@@ -32,7 +32,7 @@ class DefaultTransportCompilerPass implements CompilerPassInterface
             if (!\array_key_exists('senders', $transports)) {
                 continue;
             }
-            $mapped[$message] = $transports['senders'][0];
+            $mapped[$message] = array_shift($transports['senders']);
         }
 
         $container

@@ -11,11 +11,12 @@ export default class ProductStreamPreviewService extends ApiService {
     }
 
     /**
-     * @param salesChannelId: String
-     * @param criteria: Criteria
-     * @param filter: Array
-     * @param additionalHeaders: Object
-     * @returns {*} - ApiService.handleResponse(response)
+     * @param {string} salesChannelId
+     * @param {Criteria} criteria
+     * @param {Array} filter
+     * @param {Object} additionalHeaders
+     *
+     * @returns Object
      */
     preview(salesChannelId, criteria, filter, additionalHeaders = {}) {
         return this.httpClient.post(

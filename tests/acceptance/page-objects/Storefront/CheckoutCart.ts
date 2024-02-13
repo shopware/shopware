@@ -13,7 +13,7 @@ export class CheckoutCartPage implements PageObject {
         this.headline = page.getByRole('heading', { name: 'Shopping cart' });
         this.goToCheckoutButton = page.getByRole('link', { name: 'Go to checkout' });
         this.enterDiscountInput = page.getByLabel('Discount code');
-        this.grandTotalPrice = page.locator('dt:has-text("Grand total") + dd');
+        this.grandTotalPrice = page.locator('dt:has-text("Grand total") + dd:visible');
         this.emptyCartAlert = page.getByText('Your shopping cart is empty.');
         this.stockReachedAlert = page.getByText('only available 1 times');
     }

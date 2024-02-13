@@ -186,4 +186,23 @@ describe('components/rule/sw-condition-unit-menu', () => {
         expect(wrapper.vm.unitOptions).toEqual([]);
         expect(wrapper.vm.unitSnippet).toBe('global.sw-condition-generic.units.age');
     });
+
+    it('should render current value if conversion returns invalid response', async () => {
+        const wrapper = await createWrapper({
+            type: 'time',
+            value: undefined,
+            visibleValue: undefined,
+        });
+
+        await wrapper.find('.sw-condition-unit-menu').trigger('click');
+        await wrapper.findAll('.sw-condition-unit-menu__menu-item').at(0).trigger('click');
+
+        const changeUnitEvents = wrapper.emitted('change-unit');
+
+        expect(changeUnitEvents).toHaveLength(1);
+        expect(changeUnitEvents[0]).toStrictEqual([{
+            unit: 'min',
+            value: undefined,
+        }]);
+    });
 });

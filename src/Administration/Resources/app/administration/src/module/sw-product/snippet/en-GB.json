@@ -127,6 +127,7 @@
       "placeholderHeight": "e.g. 200...",
       "placeholderLength": "e.g. 100...",
       "placeholderWeight": "e.g. 0.4...",
+      "placeholderTime": "e.g. 31...",
       "placeholderStock": "Enter quantity in stock...",
       "placeholderMinPurchase": "Min. amount purchaseable...",
       "placeholderMaxPurchase": "Max. amount purchaseable...",

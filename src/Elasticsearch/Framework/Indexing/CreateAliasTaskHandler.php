@@ -65,16 +65,17 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $actions = [
-            ['add' => ['index' => $index, 'alias' => $alias]],
-        ];
-
         $current = $this->client->indices()->getAlias(['name' => $alias]);
         $current = array_keys($current);
 
+        $actions = [];
         foreach ($current as $value) {
+            if ($value === $index) {
+                continue;
+            }
             $actions[] = ['remove' => ['index' => $value, 'alias' => $alias]];
         }
+        $actions[] = ['add' => ['index' => $index, 'alias' => $alias]];
 
         $this->client->indices()->updateAliases(['body' => ['actions' => $actions]]);
     }

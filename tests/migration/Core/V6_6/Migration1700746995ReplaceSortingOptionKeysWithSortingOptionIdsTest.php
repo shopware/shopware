@@ -3,8 +3,6 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\After;
-use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -79,6 +77,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
                 'langId' => $language[0],
             ]
         );
+        static::assertNotFalse($categoryConfigs0);
 
         $categoryConfigs1 = $this->connection->fetchAssociative(
             <<<'SQL'
@@ -93,6 +92,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
                 'langId' => $language[1],
             ]
         );
+        static::assertNotFalse($categoryConfigs1);
 
         $categoryConfig0 = json_decode($categoryConfigs0['slot_config'], true);
         static::assertSame(
@@ -170,6 +170,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
                 'langId' => $language[0],
             ]
         );
+        static::assertNotFalse($categoryConfigs0);
 
         $categoryConfigs1 = $this->connection->fetchAssociative(
             <<<'SQL'
@@ -184,6 +185,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
                 'langId' => $language[1],
             ]
         );
+        static::assertNotFalse($categoryConfigs1);
 
         $categoryConfig0 = json_decode($categoryConfigs0['slot_config'], true);
         static::assertSame(
@@ -260,6 +262,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
                 'langId' => $language[0],
             ]
         );
+        static::assertNotFalse($categoryConfigs0);
 
         $categoryConfigs1 = $this->connection->fetchAssociative(
             <<<'SQL'
@@ -274,6 +277,7 @@ class Migration1700746995ReplaceSortingOptionKeysWithSortingOptionIdsTest extend
                 'langId' => $language[1],
             ]
         );
+        static::assertNotFalse($categoryConfigs1);
 
         $categoryConfig0 = json_decode($categoryConfigs0['slot_config'], true);
         static::assertNull(

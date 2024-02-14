@@ -128,6 +128,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 // delay is configured in seconds, symfony expects milliseconds
                 $stamps[] = new DelayStamp($this->themeFileDeleteDelay * 1000);
             }
+
             $this->messageBus->dispatch(
                 new DeleteThemeFilesMessage($oldThemePrefix, $salesChannelId, $themeId),
                 $stamps

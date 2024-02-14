@@ -1,6 +1,6 @@
 ---
 title: Allow `association_fields` of `media_default_folder` to be nullable
-issue: NEXT-0000
+issue: NEXT-33504
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

@@ -62,7 +62,7 @@ class EntityRepository
             return $this->_search($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle() . '::search', fn () => $this->_search($criteria, $context), 'repository');
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_search($criteria, $context), 'repository');
     }
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
@@ -71,7 +71,7 @@ class EntityRepository
             return $this->_aggregate($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle() . '::aggregate', fn () => $this->_aggregate($criteria, $context), 'repository');
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_aggregate($criteria, $context), 'repository');
     }
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
@@ -80,7 +80,7 @@ class EntityRepository
             return $this->_searchIds($criteria, $context);
         }
 
-        return Profiler::trace($criteria->getTitle() . '::searchIds', fn () => $this->_searchIds($criteria, $context), 'repository');
+        return Profiler::trace($criteria->getTitle(), fn () => $this->_searchIds($criteria, $context), 'repository');
     }
 
     /**

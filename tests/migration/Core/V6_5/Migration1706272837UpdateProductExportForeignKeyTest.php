@@ -34,6 +34,16 @@ class Migration1706272837UpdateProductExportForeignKeyTest extends TestCase
         $this->validateForeignKey();
     }
 
+    public function testUpdatesEvenWhenForeignKeyMissing(): void
+    {
+        $migration = new Migration1706272837UpdateProductExportForeignKey();
+        $this->connection->executeStatement('ALTER TABLE `product_export` DROP FOREIGN KEY `fk.product_export.sales_channel_domain_id`;');
+
+        $migration->update($this->connection);
+
+        $this->validateForeignKey();
+    }
+
     public function testMultipleExecution(): void
     {
         $migration = new Migration1706272837UpdateProductExportForeignKey();

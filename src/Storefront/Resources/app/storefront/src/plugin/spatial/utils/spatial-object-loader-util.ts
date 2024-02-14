@@ -26,7 +26,7 @@ export default class SpatialObjectLoaderUtil {
         // eslint-disable-next-line
         const dracoLoader: DRACOLoader = new window.threeJsAddons.DRACOLoader();
         // eslint-disable-next-line
-        dracoLoader.setDecoderPath(window.threeJsAddons.DRACOLibPath);
+        dracoLoader.setDecoderPath(`${window.themeAssetsPublicPath}draco/`);
         this.gltfLoader.setDRACOLoader(dracoLoader);
 
         this.loadStatus = new Map<string, number>();

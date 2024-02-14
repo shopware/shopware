@@ -115,7 +115,7 @@ in {
   # Environment variables
 
   env.APP_URL = lib.mkDefault "http://localhost:8000";
-  env.APP_SECRET = lib.mkDefault "devsecret";
+  env.APP_SECRET = lib.mkDefault "def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48";
   env.DATABASE_URL = lib.mkDefault "mysql://root@localhost:3306/shopware";
   env.MAILER_DSN = lib.mkDefault "smtp://localhost:1025";
 

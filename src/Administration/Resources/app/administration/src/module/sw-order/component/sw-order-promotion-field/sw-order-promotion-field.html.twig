@@ -6,7 +6,7 @@
     {% block sw_order_promotion_field_codes %}
     <sw-order-promotion-tag-field
         v-model:value="promotionCodeTags"
-        :disabled="!hasLineItem || isLoading || !acl.can('order_line_item.editor')"
+        :disabled="!hasLineItem || isLoading || !acl.can('order.editor')"
         :currency="currency"
         :label="$tc('sw-order.detailsTab.promotionsField.labelPromotions')"
         :placeholder="$tc('sw-order.detailsTab.promotionsField.placeholderPromotions')"
@@ -19,7 +19,7 @@
     {% block sw_order_promotion_field_switch %}
     <sw-switch-field
         v-model:value="disabledAutoPromotions"
-        :disabled="isLoading || !acl.can('order_line_item.editor')"
+        :disabled="isLoading || !acl.can('order.editor')"
         :label="$tc('sw-order.detailsTab.promotionsField.labelToggleAutomaticPromotions')"
     />
     {% endblock %}

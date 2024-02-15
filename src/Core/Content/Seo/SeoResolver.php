@@ -83,9 +83,9 @@ class SeoResolver extends AbstractSeoResolver
                     ->setParameter('id', $seoPath['id']);
             }
 
-            $canonical = $query->executeQuery()->fetchAssociative();
-            if ($canonical) {
-                $seoPath['canonicalPathInfo'] = '/' . ltrim((string) $canonical['seoPathInfo'], '/');
+            $canonicalQueryResult = $query->executeQuery()->fetchAssociative();
+            if ($canonicalQueryResult) {
+                $seoPath['canonicalPathInfo'] = '/' . ltrim((string) $canonicalQueryResult['seoPathInfo'], '/');
             }
         }
 

@@ -1,6 +1,6 @@
 ---
 title:          allow-trailing-slash-in-seo-url
-issue:          null
+issue:          NEXT-33751
 author:         Jan Emig
 author_email:   j.emig@one-dot.de
 author_github:  Xnaff

@@ -12,6 +12,15 @@
                 "operationId": "readProductListing",
                 "parameters": [
                     {
+                        "name": "sw-include-seo-urls",
+                        "in": "header",
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given product-listing item",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
                         "name": "categoryId",
                         "in": "path",
                         "description": "Identifier of a category.",

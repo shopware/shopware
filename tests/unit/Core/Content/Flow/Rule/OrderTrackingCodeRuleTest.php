@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(OrderTrackingCodeRule::class)]
 #[Group('rules')]
 class OrderTrackingCodeRuleTest extends TestCase
@@ -52,7 +52,7 @@ class OrderTrackingCodeRuleTest extends TestCase
         $order = new OrderEntity();
         $order->setDeliveries($orderDeliveryCollection);
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('token');
         $context = $this->createMock(SalesChannelContext::class);
 
         $match = $rule->match(new FlowRuleScope(
@@ -109,7 +109,7 @@ class OrderTrackingCodeRuleTest extends TestCase
     {
         $order = new OrderEntity();
 
-        $cart = $this->createMock(Cart::class);
+        $cart = new Cart('token');
         $context = $this->createMock(SalesChannelContext::class);
         $scope = new FlowRuleScope($order, $cart, $context);
 

@@ -3,7 +3,7 @@ import type RuleConditionService from '../service/rule-condition.service';
 const { Application } = Shopware;
 
 /**
- * @package business-ops
+ * @package services-settings
  */
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService: RuleConditionService) => {
     ruleConditionService.addCondition('dateRange', {

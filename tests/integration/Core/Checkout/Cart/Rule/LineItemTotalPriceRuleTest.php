@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class LineItemTotalPriceRuleTest extends TestCase
 {
     use CartRuleHelperTrait;

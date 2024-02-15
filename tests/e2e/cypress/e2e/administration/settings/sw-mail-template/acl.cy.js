@@ -7,7 +7,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
     });
 
-    it('@settings: read email template', { tags: ['pa-business-ops', 'VUE3'] }, () => {
+    it('@settings: read email template', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -68,7 +68,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get('#sw-field--mailHeaderFooter-description').should('have.value', 'Default email footer derived from basic information');
     });
 
-    it('@settings: edit email template', { tags: ['pa-business-ops', 'VUE3'] }, () => {
+    it('@settings: edit email template', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -175,7 +175,7 @@ describe('Mail templates: Test acl privileges', () => {
             'Edited description');
     });
 
-    it('@settings: create email template', { tags: ['pa-business-ops', 'VUE3'] }, () => {
+    it('@settings: create email template', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -252,7 +252,7 @@ describe('Mail templates: Test acl privileges', () => {
         // TODO: verify fields will do when NEXT-7072 search function is fixed
     });
 
-    it('@settings: delete email template', { tags: ['pa-business-ops', 'VUE3'] }, () => {
+    it('@settings: delete email template', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -330,7 +330,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`).should('not.exist');
     });
 
-    it('@settings: duplicate email template', { tags: ['pa-business-ops', 'VUE3'] }, () => {
+    it('@settings: duplicate email template', { tags: ['pa-services-settings', 'VUE3'] }, () => {
         const page = new SettingsPageObject();
 
         cy.loginAsUserWithPermissions([

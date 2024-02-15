@@ -398,7 +398,7 @@ Jest Coverage per Area (Administration):
   coverage: '//' # Do NOT include this jobs coverage in the aggregated pipeline report
   parallel:
     matrix:
-      - PRODUCT_AREA: [ "admin", "business-ops", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
+      - PRODUCT_AREA: [ "admin", "checkout", "content", "inventory", "data-services", "buyers-experience", "services-settings", "system-settings", "unknown" ]
   artifacts:
     when: always
     paths:

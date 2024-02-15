@@ -68,7 +68,7 @@ type awarenessConfiguration = {
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  * @memberOf module:app/service/rule-condition
  * @constructor
  * @method createConditionService

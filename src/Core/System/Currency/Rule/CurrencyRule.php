@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 
-#[Package('business-ops')]
+#[Package('services-settings')]
 class CurrencyRule extends Rule
 {
     final public const RULE_NAME = 'currency';

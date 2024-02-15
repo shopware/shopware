@@ -10,7 +10,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 class Migration1690874168FixPaymentStatusUnconfirmedMail extends MigrationStep
 {
     use UpdateMailTrait;

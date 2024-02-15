@@ -6,7 +6,7 @@ const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
- * @package business-ops
+ * @package services-settings
  */
 Component.register('sw-condition-tree', {
     template,

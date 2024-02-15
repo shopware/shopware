@@ -17,7 +17,7 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(CartAmountRule::class)]
 class CartAmountRuleTest extends TestCase
 {

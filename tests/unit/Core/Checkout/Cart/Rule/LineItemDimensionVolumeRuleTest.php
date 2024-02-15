@@ -21,7 +21,7 @@ use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemDimensionVolumeRule::class)]
 #[Group('rules')]
 class LineItemDimensionVolumeRuleTest extends TestCase

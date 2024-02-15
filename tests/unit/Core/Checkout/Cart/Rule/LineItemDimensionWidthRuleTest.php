@@ -25,7 +25,7 @@ use Symfony\Component\Validator\Constraints\Type;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(LineItemDimensionWidthRule::class)]
 #[Group('rules')]
 class LineItemDimensionWidthRuleTest extends TestCase

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(BeforeLoadStorableFlowDataEvent::class)]
 class BeforeLoadStorableFlowDataEventTest extends TestCase
 {
@@ -24,11 +24,7 @@ class BeforeLoadStorableFlowDataEventTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertIsString($event->getName());
         static::assertSame('entity_name', $event->getEntityName());
         static::assertSame('flow.storer.entity_name.criteria.event', $event->getName());
-
-        static::assertInstanceOf(Criteria::class, $event->getCriteria());
-        static::assertInstanceOf(Context::class, $event->getContext());
     }
 }

@@ -1,14 +1,11 @@
-{# @deprecated tag:v6.7.0 - File will be removed as it will no longer be loaded by default. #}
-{# Extend `src/Storefront/Resources/views/storefront/component/buy-widget/select.html.twig` instead #}
-
-{% block page_product_detail_configurator_group_select %}
-    {% block page_product_detail_configurator_group_select_title %}
+{% block buy_widget_configurator_group_select %}
+    {% block buy_widget_configurator_group_select_title %}
         <label class="product-detail-configurator-group-title" for="{{ group.id }}">
-            {% block page_product_detail_configurator_group_title_text %}
+            {% block buy_widget_configurator_group_title_text %}
                 {{ group.translated.name }}
             {% endblock %}
         </label>
-        {% block page_product_detail_configurator_select %}
+        {% block buy_widget_configurator_select %}
             <select name="{{ group.id }}" id="{{ group.id }}" class="form-select product-detail-configurator-select-input">
                 {% for option in group.options %}
 
@@ -18,7 +15,7 @@
                         {% set selected = true %}
                     {% endif %}
 
-                    {% block page_product_detail_configurator_select_option %}
+                    {% block buy_widget_configurator_select_option %}
                         <option value="{{ option.id }}"{% if selected %} selected="selected"{% endif %}>
                             {{ option.translated.name }}
                         </option>

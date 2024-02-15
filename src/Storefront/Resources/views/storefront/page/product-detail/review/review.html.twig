@@ -1,9 +1,12 @@
+{# @deprecated tag:v6.7.0 - File will be removed as it is no longer loaded by default. #}
+{# Extend `src/Storefront/Resources/views/storefront/component/review/review.html.twig` instead #}
+
 {% sw_extends '@Storefront/storefront/utilities/offcanvas.html.twig' %}
 
 {% block utilities_offcanvas_content %}
 	{% block page_product_detail_review_container %}
 
-		{# TODO NEXT-16993 - replace items per list config value #}
+		{# TODO NEXT-16994 - replace items per list config value #}
 		{% set reviewsPerListPage = 10 %}
 
 		{# TODO NEXT-16994 - replace current list page value #}

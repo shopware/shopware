@@ -21,6 +21,7 @@ async function createWrapper(
             template: '<div class="sw-arrow-field"><slot></slot></div>',
         },
         'sw-entity-single-select': true,
+        'sw-entity-multi-id-select': true,
     };
 
     if (render) {
@@ -309,6 +310,34 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         await flushPromises();
 
         expect(wrapper.vm.fieldType).toBe('empty');
+    });
+
+    it('should able to show variant name if condition type is equalsAll and definition entity is product', async () => {
+        const wrapper = await createWrapper(
+            [],
+            'uuid',
+            'equalsAll',
+            'product',
+        );
+
+        const entityMultiIdSelect = wrapper.find('sw-entity-multi-id-select-stub');
+        expect(entityMultiIdSelect.exists()).toBe(true);
+        expect(entityMultiIdSelect.attributes().criteria).toBeDefined();
+        expect(entityMultiIdSelect.attributes()['advanced-selection-component']).toBe('sw-advanced-selection-product');
+    });
+
+    it('should able to show variant name if condition type is equalsAll and definition entity is property value', async () => {
+        const wrapper = await createWrapper(
+            [],
+            'uuid',
+            'equalsAll',
+            'property_group_option',
+        );
+
+        const entityMultiIdSelect = wrapper.find('sw-entity-multi-id-select-stub');
+        expect(entityMultiIdSelect.exists()).toBe(true);
+        expect(entityMultiIdSelect.attributes().criteria).toBeDefined();
+        expect(entityMultiIdSelect.attributes()['advanced-selection-component']).toBeUndefined();
     });
 });
 

@@ -728,6 +728,10 @@ PHP_EOL;
         );
         $testTheme = $configurationFactory->createFromBundle($themePluginBundle);
         $asyncPlugin = $configurationFactory->createFromBundle($asyncPluginBundle);
+        $app = $configurationFactory->createFromApp('ThemeApp', 'ThemeApp');
+
+        $appWrongPath = $projectDir . '/tmp/207973030/1_0_0/Resources'; // missing ThemeApp in path
+        $app->setBasePath($appWrongPath);
 
         $notFoundPlugin = $configurationFactory->createFromBundle($notFoundPluginBundle);
         $scripts = new FileCollection();
@@ -740,6 +744,7 @@ PHP_EOL;
         $configCollection->add($testTheme);
         $configCollection->add($asyncPlugin);
         $configCollection->add($notFoundPlugin);
+        $configCollection->add($app);
 
         $compiler->compileTheme(
             TestDefaults::SALES_CHANNEL,
@@ -754,12 +759,14 @@ PHP_EOL;
         $asyncMainJsInTheme = $themeBasePath . '/js/async-plugin/async-plugin.js';
         $asyncAnotherJsFileInTheme = $themeBasePath . '/js/async-plugin/custom_plugins_AsyncPlugin_src_Resources_app_storefront_src_plugins_lorem-ipsum_plugin_js.js';
         $themeMainJsInTheme = $themeBasePath . '/js/test-theme/test-theme.js';
+        $appJsFile = $themeBasePath . '/js/theme-app/theme-app.js';
 
         static::assertTrue($fs->directoryExists($distLocation));
         static::assertTrue($fs->fileExists($distLocation . '/test-theme.js'));
         static::assertTrue($fs->fileExists($asyncMainJsInTheme));
         static::assertTrue($fs->fileExists($asyncAnotherJsFileInTheme));
         static::assertTrue($fs->fileExists($themeMainJsInTheme));
+        static::assertTrue($fs->fileExists($appJsFile));
     }
 
     /**

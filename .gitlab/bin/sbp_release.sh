@@ -45,7 +45,7 @@ create_version_payload() {
 publish_version_payload() {
   local version_name; export version_name="${PLATFORM_VERSION}"
   local parent_id; export parent_id=$(fetch_sbp_version_id "${PLATFORM_MAJOR_VERSION}")
-  local release_date; export release_date="$(date '+%Y-%m-%d'))"
+  local release_date; export release_date="$(date '+%Y-%m-%d')"
 
   jq -nc '{
     name: env.version_name,

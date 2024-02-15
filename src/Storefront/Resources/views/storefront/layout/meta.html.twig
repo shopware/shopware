@@ -196,6 +196,13 @@
         {% block layout_head_javascript_jquery %}
         {% endblock %}
 
+        {# @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES #}
+        {% block layout_head_javascript_assets_public_path %}
+            <script>
+                window.themeAssetsPublicPath = '{{ asset('assets/', 'theme') }}';
+            </script>
+        {% endblock %}
+
         {% block layout_head_javascript_hmr_mode %}
             {% if isHMRMode %}
                 {% block layout_head_javascript_hmr_dev %}

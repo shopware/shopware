@@ -25,7 +25,8 @@ export default class SpatialObjectLoaderUtil {
         // create and bind draco loader for decompression of mesh data
         // eslint-disable-next-line
         const dracoLoader: DRACOLoader = new window.threeJsAddons.DRACOLoader();
-        dracoLoader.setDecoderPath('../draco/');
+        // eslint-disable-next-line
+        dracoLoader.setDecoderPath(`${window.themeAssetsPublicPath}draco/`);
         this.gltfLoader.setDRACOLoader(dracoLoader);
 
         this.loadStatus = new Map<string, number>();

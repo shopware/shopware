@@ -3,7 +3,7 @@
 {% block utilities_offcanvas_content %}
 	{% block component_review_container %}
 
-        {# TODO NEXT-16993 - replace items per list config value #}
+        {# TODO NEXT-16994 - replace items per list config value #}
 		{% set reviewsPerListPage = 10 %}
 
 		{% set currentListPage = reviews.page + 1 %}
@@ -202,7 +202,7 @@
                                         {% endblock %}
 
                                         {% block component_review_list_paging %}
-                                            {# @deprecated tag:v6.7.0 - unused variable `criteria` will be removed, use reviews.criteria instead #} 
+                                            {# @deprecated tag:v6.7.0 - unused variable `criteria` will be removed, use reviews.criteria instead #}
                                             {% if not feature('v6.7.0.0') %}
                                                 {% set criteria = reviews.criteria %}
                                             {% endif %}

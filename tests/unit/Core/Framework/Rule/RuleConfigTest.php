@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 /**
  * @internal
  */
-#[Package('business-ops')]
+#[Package('services-settings')]
 #[CoversClass(RuleConfig::class)]
 #[Group('rules')]
 class RuleConfigTest extends TestCase

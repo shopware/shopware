@@ -419,17 +419,19 @@ backport:
     GIT_STRATEGY: none
   before_script: []
   rules:
-    # automatic creation in merge train
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-.*/ && $CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
-    # in rare cases it's possible that there are multiple successful runs of the merge train without a merge.
-    # In that case the branch already exists, so we don't want to fail the train
-      allow_failure: true
-    # manual in MR pipelines
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-*/ && $CI_MERGE_REQUEST_EVENT_TYPE != "merge_train"'
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /.*backport-.*/'
+      # the backport does not work for multiple commits if the MR is not merged yet, so we enforce this by making it manual and non-blocking
       when: manual
       allow_failure: true
   script:
     - 'BACKPORT_BRANCH=$(echo $CI_MERGE_REQUEST_LABELS | tr , \\n | grep backport- | sed -e "s/backport-//g" | tr \\n , | sed "s/,\$//")'
+    - |
+      MR_STATE=$(curl --header "Private-Token: $CI_GITLAB_API_TOKEN" $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID | jq .state -r)
+      if [[ $MR_STATE != "merged" ]]; then
+        echo "MR not merged yet. Status=$MR_STATE"
+        echo "Please try again after merge"
+        exit 1
+      fi
     - 'echo "Backport branches: $BACKPORT_BRANCH"'
     - npm install -g @kie/git-backporting
     - 'MR_URL="${CI_MERGE_REQUEST_PROJECT_URL}/-/merge_requests/${CI_MERGE_REQUEST_IID}"'

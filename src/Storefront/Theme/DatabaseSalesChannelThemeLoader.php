@@ -3,43 +3,71 @@
 namespace Shopware\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Contracts\Service\ResetInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
-/**
- * @deprecated tag:v6.7.0 - will be removed. Use DatabaseSalesChannelThemeLoader instead
- */
 #[Package('storefront')]
-class SalesChannelThemeLoader implements ResetInterface
+/**
+ * @internal
+ */
+final class DatabaseSalesChannelThemeLoader
 {
+    final public const CACHE_KEY = 'sales-channel-themes';
+
     /**
-     * @var array<string, array{themeId?: string, themeName?: string, parentThemeName?: string}>
+     * @var array<string, array<int, string>>
      */
     private array $themes = [];
 
     /**
      * @internal
      */
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly ?CacheInterface $cache = null
+    ) {
     }
 
     /**
-     * @return array{themeId?: string, themeName?: string, parentThemeName?: string, grandParentNames?: array<string, mixed>}
+     * @return array<int, string>
      */
     public function load(string $salesChannelId): array
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.7.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.7.0.0')
-        );
-
         if (!empty($this->themes[$salesChannelId])) {
             return $this->themes[$salesChannelId];
         }
 
+        if ($this->cache === null) {
+            return $this->readFromDB($salesChannelId);
+        }
+
+        $value = $this->cache->get(
+            self::CACHE_KEY,
+            fn (ItemInterface $item) => CacheValueCompressor::compress(
+                $this->readFromDB($salesChannelId)
+            )
+        );
+
+        /** @var array<int, string> $value */
+        $value = CacheValueCompressor::uncompress($value);
+
+        return $value ?? [];
+    }
+
+    public function reset(): void
+    {
+        $this->themes = [];
+        $this->cache?->delete(self::CACHE_KEY);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function readFromDB(string $salesChannelId): array
+    {
         $themes = $this->connection->fetchAssociative('
             SELECT LOWER(HEX(theme.id)) themeId, theme.technical_name as themeName, parentTheme.technical_name as parentThemeName, LOWER(HEX(parentTheme.parent_theme_id)) as grandParentThemeId
             FROM sales_channel
@@ -52,28 +80,25 @@ class SalesChannelThemeLoader implements ResetInterface
         ]);
 
         if (\is_array($themes) && isset($themes['grandParentThemeId']) && \is_string($themes['grandParentThemeId'])) {
-            $themes['grandParentNames'] = $this->getGrandParents($themes['grandParentThemeId']);
+            $themes['grandParentNames'] = $this->getGrantParents($themes['grandParentThemeId']);
         }
 
-        return $this->themes[$salesChannelId] = $themes ?: [];
-    }
+        $usedThemes = array_filter([
+            $themes['themeName'] ?? null,
+            $themes['parentThemeName'] ?? null,
+        ]);
 
-    public function reset(): void
-    {
-        if (!Feature::isActive('v6.7.0.0')) { // reset interface does not work with triggerDeprecation
-            Feature::triggerDeprecationOrThrow(
-                'v6.7.0.0',
-                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.7.0.0')
-            );
+        if (isset($themes['grandParentNames'])) {
+            $usedThemes = array_merge($usedThemes, $themes['grandParentNames']);
         }
 
-        $this->themes = [];
+        return $this->themes[$salesChannelId] = $usedThemes ?: [];
     }
 
     /**
      * @return array<int, string>
      */
-    private function getGrandParents(mixed $grandParentThemeId): array
+    private function getGrantParents(mixed $grandParentThemeId): array
     {
         $grandParents = $this->connection->fetchAssociative('
             SELECT theme.technical_name as themeName, parentTheme.technical_name as parentThemeName, LOWER(HEX(parentTheme.parent_theme_id)) as grandParentThemeId
@@ -90,7 +115,7 @@ class SalesChannelThemeLoader implements ResetInterface
         ]);
 
         if (\is_array($grandParents) && isset($grandParents['grandParentThemeId']) && \is_string($grandParents['grandParentThemeId'])) {
-            $filtered = array_merge($filtered, $this->getGrandParents($grandParents['grandParentThemeId']));
+            $filtered = array_merge($filtered, $this->getGrantParents($grandParents['grandParentThemeId']));
         }
 
         return $filtered;

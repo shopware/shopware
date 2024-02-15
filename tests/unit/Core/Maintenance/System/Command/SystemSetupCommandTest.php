@@ -68,6 +68,7 @@ class SystemSetupCommandTest extends TestCase
         static::assertArrayHasKey('APP_SECRET', $env);
         static::assertArrayHasKey('INSTANCE_ID', $env);
         unset($env['APP_SECRET'], $env['INSTANCE_ID']);
+        unset($env['DATABASE_SSL_DONT_VERIFY_SERVER_CERT']);
         static::assertEquals([
             'APP_ENV' => 'test',
             'APP_URL' => 'https://example.com',

@@ -49,6 +49,10 @@ class CartOrderRouteTest extends TestCase
 
     private EntityRepository $taxProviderRepository;
 
+    private string $validSalutationId;
+
+    private string $validCountryId;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -61,6 +65,8 @@ class CartOrderRouteTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->taxProviderRepository = $this->getContainer()->get('tax_provider.repository');
+        $this->validSalutationId = $this->getValidSalutationId();
+        $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
 
         PreparedTestPaymentHandler::$preOrderPaymentStruct = null;
         PreparedTestPaymentHandler::$fail = false;
@@ -717,7 +723,14 @@ class CartOrderRouteTest extends TestCase
     ): void {
         $email ??= Uuid::randomHex() . '@example.com';
         $password ??= 'shopware';
-        $this->createCustomer($password, $email, $paymentHandler, $invalidSalutationId);
+        $this->createCustomer(
+            $password,
+            $email,
+            $paymentHandler,
+            $invalidSalutationId,
+            $this->validSalutationId,
+            $this->validCountryId
+        );
 
         $this->login($email, $password);
     }
@@ -750,7 +763,9 @@ class CartOrderRouteTest extends TestCase
         string $password,
         ?string $email = null,
         string $paymentHandler = SyncTestPaymentHandler::class,
-        bool $invalidSalutaionId = false
+        bool $invalidSalutaionId = false,
+        ?string $validSalutationId = null,
+        ?string $validCountryId = null
     ): string {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
@@ -766,8 +781,8 @@ class CartOrderRouteTest extends TestCase
                     'street' => 'Musterstraße 1',
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
+                    'salutationId' => $validSalutationId ?? $this->getValidSalutationId(),
+                    'countryId' => $validCountryId ?? $this->getValidCountryId($this->ids->get('sales-channel')),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
@@ -787,7 +802,7 @@ class CartOrderRouteTest extends TestCase
                 'password' => $password,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
-                'salutationId' => ($invalidSalutaionId ? null : $this->getValidSalutationId()),
+                'salutationId' => ($invalidSalutaionId ? null : $validSalutationId ?? $this->getValidSalutationId()),
                 'customerNumber' => '12345',
             ],
         ], Context::createDefaultContext());

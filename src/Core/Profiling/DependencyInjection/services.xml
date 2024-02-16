@@ -42,5 +42,12 @@
             <tag name="kernel.event_subscriber"/>
             <tag name="data_collector"/>
         </service>
+
+        <service id="Shopware\Core\Profiling\FeatureFlag\FeatureFlagProfiler">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+
+            <tag name="data_collector" template="@Profiling/Collector/flags.html.twig" id="feature_flag" priority="-5" />
+        </service>
+
     </services>
 </container>

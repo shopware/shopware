@@ -4,7 +4,29 @@
  * @experimental stableVersion:v6.7.0 feature:SPATIAL_BASES
  */
 export async function loadThreeJs(): Promise<void> {
+
+    if (!window.loadThreeJsUtil) {
+        window.loadThreeJsUtil = {
+            isLoaded: false,
+            promise: null,
+            promiseResolve: null,
+        }
+    }
+
     /* eslint-disable */
+    if (window.loadThreeJsUtil.isLoaded) {
+        return;
+    }
+
+    if (window.loadThreeJsUtil.promise) {
+        await window.loadThreeJsUtil.promise;
+        return;
+    }
+
+    window.loadThreeJsUtil.promise = new Promise((resolve) => {
+        window.loadThreeJsUtil.promiseResolve = resolve;
+    });
+
     if (!window.threeJs) {
         window.threeJs = await import(/* webpackIgnore: true */`${window.themeAssetsPublicPath}js/three-js/build/three.module.min.js`);
     }
@@ -41,5 +63,8 @@ export async function loadThreeJs(): Promise<void> {
     if (!window.threeJsAddons?.DRACOLibPath) {
         window.threeJsAddons.DRACOLibPath = `${window.themeAssetsPublicPath}js/three-js/examples/jsm/libs/draco/`;
     }
+
+    window.loadThreeJsUtil.promiseResolve();
+    window.loadThreeJsUtil.isLoaded = true;
     /* eslint-enable */
 }

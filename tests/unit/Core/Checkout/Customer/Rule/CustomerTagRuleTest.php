@@ -42,7 +42,7 @@ class CustomerTagRuleTest extends TestCase
                 'isMatchAny' => 1,
             ],
             'fields' => [
-                [
+                'identifiers' => [
                     'name' => 'identifiers',
                     'type' => 'multi-entity-id-select',
                     'config' => [

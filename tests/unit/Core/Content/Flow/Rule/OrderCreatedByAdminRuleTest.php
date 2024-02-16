@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule;
@@ -43,7 +42,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
         $config = $this->rule->getConfig();
         static::assertEquals([
             'fields' => [
-                [
+                'shouldOrderBeCreatedByAdmin' => [
                     'name' => 'shouldOrderBeCreatedByAdmin',
                     'type' => 'bool',
                     'config' => [],
@@ -77,7 +76,12 @@ class OrderCreatedByAdminRuleTest extends TestCase
     #[DataProvider('getCaseTestMatchValues')]
     public function testMatch(OrderCreatedByAdminRule $rule, OrderEntity $order, bool $isMatching): void
     {
-        $scope = $this->createScope($order);
+        $scope = new FlowRuleScope(
+            $order,
+            new Cart('test'),
+            $this->createMock(SalesChannelContext::class)
+        );
+
         $match = $rule->match($scope);
         static::assertEquals($match, $isMatching);
     }
@@ -107,13 +111,5 @@ class OrderCreatedByAdminRuleTest extends TestCase
             (new OrderEntity())->assign(['createdById' => Uuid::randomHex()]),
             true,
         ];
-    }
-
-    private function createScope(OrderEntity $order): CheckoutRuleScope
-    {
-        $context = $this->createMock(SalesChannelContext::class);
-        $cart = new Cart('token');
-
-        return new FlowRuleScope($order, $cart, $context);
     }
 }

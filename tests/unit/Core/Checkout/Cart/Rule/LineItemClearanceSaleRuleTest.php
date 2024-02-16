@@ -139,7 +139,7 @@ class LineItemClearanceSaleRuleTest extends TestCase
 
         $result = $cartVolumeRule->getConfig()->getData();
 
-        static::assertSame('clearanceSale', $result['fields'][0]['name']);
+        static::assertSame('clearanceSale', $result['fields']['clearanceSale']['name']);
     }
 
     private function createLineItemWithClearance(bool $clearanceSaleEnabled): LineItem

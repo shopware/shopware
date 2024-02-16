@@ -57,6 +57,6 @@ class DaysSinceRuleTest extends TestCase
             'config' => [
                 'unit' => 'time',
             ],
-        ], $config['fields'][0]);
+        ], $config['fields']['daysPassed']);
     }
 }

@@ -129,7 +129,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
         static::assertArrayHasKey('fields', $configData);
         static::assertCount(2, $configData['fields']);
         static::assertEquals([
-            [
+            'type' => [
                 'name' => 'type',
                 'type' => 'single-select',
                 'config' => [
@@ -137,7 +137,7 @@ class CartTotalPurchasePriceRuleTest extends TestCase
                     'class' => 'is--max-content',
                 ],
             ],
-            [
+            'amount' => [
                 'name' => 'amount',
                 'type' => 'float',
                 'config' => [],

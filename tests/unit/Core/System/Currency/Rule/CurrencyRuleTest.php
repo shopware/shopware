@@ -53,7 +53,7 @@ class CurrencyRuleTest extends TestCase
                 'isMatchAny' => true,
             ],
             'fields' => [
-                [
+                'currencyIds' => [
                     'name' => 'currencyIds',
                     'type' => 'multi-entity-id-select',
                     'config' => [

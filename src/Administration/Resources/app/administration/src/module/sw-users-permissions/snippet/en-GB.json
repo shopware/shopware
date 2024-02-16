@@ -222,7 +222,8 @@
         "api_info_me": "Read own api user info",
         "api_info_ping": "Refresh auth token",
         "system:clear:cache": "Clear cache",
-        "api_proxy_switch-customer": "Act on behalf of a customer"
+        "api_proxy_switch-customer": "Act on behalf of a customer",
+        "api_feature_flag_toggle": "Toggle feature flags"
       },
       "app": {
         "label": "Apps",

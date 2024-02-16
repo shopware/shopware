@@ -588,6 +588,24 @@ base-uri 'self';
             <tag name="console.command" command="administration:dump:features"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureDisableCommand">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureEnableCommand">
+            <argument type="service" id="Shopware\Core\Framework\Feature\FeatureFlagRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureListCommand">
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand">
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="shopware.filesystem.public"/>
@@ -632,7 +650,7 @@ base-uri 'self';
             <argument type="service" id="request_stack"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage">
+        <service id="Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage" class="Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

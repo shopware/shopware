@@ -527,3 +527,6 @@ shopware:
             dispatch_enabled: true
             base_uri: 'https://data.shopware.io'
             batch_size: 50
+
+    feature_toggle:
+        enable: true

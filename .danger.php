@@ -471,6 +471,7 @@ return (new Config())
             $context->warning(
                 'Please be kind and add unit tests for your new code in these files: <br/>'
                 . implode('<br/>', $missingUnitTests)
+                . '<br/>' . 'If you are sure everything is fine with your changes, you can resolve this warning. <br /> You can run `composer make:coverage` to generate dummy unit tests for files that are not covered'
             );
         }
     })

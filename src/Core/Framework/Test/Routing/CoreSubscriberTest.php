@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Controller\ProductController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,7 +26,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', '/api/category');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
@@ -40,7 +41,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', '/api/category');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
@@ -60,7 +61,7 @@ class CoreSubscriberTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertFalse($response->headers->has('Content-Security-Policy'));
     }
@@ -75,7 +76,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', $_SERVER['APP_URL'] . '/admin');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 
@@ -97,7 +98,7 @@ class CoreSubscriberTest extends TestCase
         $browser->request('GET', '/api/_info/swagger.html');
         $response = $browser->getResponse();
 
-        static::assertTrue($response->headers->has('X-Frame-Options'));
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_FRAME_OPTIONS));
         static::assertTrue($response->headers->has('X-Content-Type-Options'));
         static::assertTrue($response->headers->has('Content-Security-Policy'));
 

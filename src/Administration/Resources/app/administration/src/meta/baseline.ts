@@ -636,7 +636,6 @@ const missingTests = [
     'src/module/sw-settings-payment/state/overview-cards.store.ts',
     'src/module/sw-settings-product-feature-sets/index.js',
     'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service.js',
-    'src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing/index.js',
     'src/module/sw-settings-rule/service/rule-assignment-configuration.service.js',
     'src/module/sw-settings-salutation/index.js',
     'src/module/sw-settings-search/index.js',

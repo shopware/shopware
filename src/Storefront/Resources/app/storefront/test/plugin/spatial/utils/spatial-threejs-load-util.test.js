@@ -22,6 +22,7 @@ describe('loadThreeJs', () => {
     test('should load threeJs', async () => {
         expect(typeof window.threeJs).toBe('undefined');
         expect(typeof window.threeJsAddons).toBe('undefined');
+        expect(typeof window.loadThreeJsUtil).toBe('undefined');
 
         await loadThreeJs();
 
@@ -31,5 +32,27 @@ describe('loadThreeJs', () => {
         expect(typeof window.threeJsAddons.XREstimatedLight).toBe('object');
         expect(typeof window.threeJsAddons.GLTFLoader).toBe('object');
         expect(typeof window.threeJsAddons.DRACOLoader).toBe('object');
+        expect(typeof window.loadThreeJsUtil.promise).toBe('object');
+        expect(window.loadThreeJsUtil.isLoaded).toBe(true);
+    });
+
+    test('should not load threeJs if already loaded', async () => {
+        window.threeJs = 'threeJs';
+        window.threeJsAddons = 'threeJsAddons';
+        window.loadThreeJsUtil = {
+            isLoaded: true
+        };
+        await loadThreeJs();
+        expect(window.threeJs).toBe('threeJs');
+        expect(window.threeJsAddons).toBe('threeJsAddons');
+    });
+
+    test('should not run import when threeJs is already loading', async () => {
+        window.loadThreeJsUtil = {
+            promise: new Promise((resolve) => { resolve(); }),
+            isLoaded: false
+        }
+        await loadThreeJs();
+        expect(window.loadThreeJsUtil.isLoaded).toBe(false);
     });
 });

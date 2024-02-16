@@ -1,6 +1,7 @@
 <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
 {% block sw_product_visibility_detail %}
 <sw-grid
+    class="sw-product-visibility-detail"
     table
     :items="items"
     :selectable="false"
@@ -12,17 +13,19 @@
     >
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_visibility_detail_columns_sales_channel %}
-        <sw-grid-column flex="minmax(100px, auto)">
+        <sw-grid-column
+            :label="$tc('sw-product.visibility.columnSalesChannel')"
+            class="sw-product-visibility-detail__column-sales-channel"
+            flex="0.5fr"
+            align="left"
+        >
             <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
             {% block sw_product_visibility_detail_columns_sales_channel_label %}
             <span
-                v-if="item.salesChannelInternal"
-                class="sw-select__selection-item"
+                v-tooltip="{ message: names[item.id], disabled: names[item.id].length < 10 }"
+                class="sw-product-visibility-detail__name"
             >
-                {{ item.salesChannelInternal.translated.name }}
-            </span>
-            <span v-else>
-                {{ item.salesChannel.translated.name }}
+                {{ truncateFilter(names[item.id], 30) }}
             </span>
             {% endblock %}
         </sw-grid-column>
@@ -31,9 +34,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_visibility_detail_columns_all %}
         <sw-grid-column
-            flex="0.5fr"
             :label="$tc('sw-product.visibility.columnAll')"
-            align="center"
+            class="sw-product-visibility-detail__column-all"
+            flex="0.3fr"
+            align="left"
         >
             <sw-radio-field
                 :disabled="disabled"
@@ -48,9 +52,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_visibility_detail_columns_search_only %}
         <sw-grid-column
-            flex="1fr"
             :label="$tc('sw-product.visibility.columnSearchOnly')"
-            align="center"
+            class="sw-product-visibility-detail__search-only"
+            flex="0.7fr"
+            align="left"
         >
             <sw-radio-field
                 :disabled="disabled"
@@ -65,9 +70,10 @@
         <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
         {% block sw_product_visibility_detail_columns_link_only %}
         <sw-grid-column
-            flex="1fr"
             :label="$tc('sw-product.visibility.columnLinkOnly')"
-            align="center"
+            class="sw-product-visibility-detail__link-only"
+            flex="1fr"
+            align="left"
         >
             <sw-radio-field
                 :disabled="disabled"

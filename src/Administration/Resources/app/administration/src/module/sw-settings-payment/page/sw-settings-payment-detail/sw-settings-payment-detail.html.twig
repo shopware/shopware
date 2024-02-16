@@ -247,6 +247,72 @@
                     />
                 </sw-card>
                 {% endblock %}
+
+                <!-- eslint-disable-next-line sw-deprecation-rules/no-twigjs-blocks -->
+                {% block sw_settings_payment_detail_delete_payment_method %}
+                <sw-card
+                    v-if="!isNewPaymentMethod && acl.can('payment.deleter')"
+                    position-identifier="sw-settings-payment-detail-delete"
+                    class="sw-settings-payment-detail-delete"
+                    :title="$tc('sw-settings-payment.detail.delete.textHeadline')"
+                    :is-loading="isLoading"
+                >
+                    <sw-alert
+                        v-if="forbidDelete"
+                        variant="info">
+                        {{ $tc('sw-settings-payment.detail.delete.textAlert') }}
+                    </sw-alert>
+
+                    <div class="sw-settings-payment-detail-delete__container">
+                        <sw-button
+                            variant="ghost-danger"
+                            :disabled="forbidDelete || !acl.can('payment.deleter')"
+                            @click="showDeleteModal = true"
+                        >
+                            {{ $tc('sw-settings-payment.detail.delete.textButton') }}
+                        </sw-button>
+                    </div>
+                </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_payment_detail_delete_modal %}
+                <sw-modal
+                    v-if="showDeleteModal && acl.can('payment.deleter')"
+                    :title="$tc('global.default.warning')"
+                    variant="default"
+                    @modal-close="showDeleteModal = false">
+
+                    {% block sw_settings_payment_detail_delete_modal_info %}
+                    <div class="sw_theme_manager__confirm-delete-text">
+                        <p class="text-secondary">
+                            {{ $tc('sw-settings-payment.detail.delete.modal.textConfirmation') }}
+                        </p>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_payment_detail_delete_modal_footer %}
+                    <template #modal-footer>
+                        {% block sw_settings_payment_detail_reset_modal_cancel %}
+                        <sw-button
+                            size="small"
+                            @click="showDeleteModal = false">
+                            {{ $tc('sw-settings-payment.detail.delete.modal.buttonCancel') }}
+                        </sw-button>
+                        {% endblock %}
+
+                        {% block sw_settings_payment_detail_reset_modal_confirm %}
+                        <sw-button
+                            :disabled="deletionInProcess"
+                            variant="danger"
+                            size="small"
+                            @click="deletePaymentMethod">
+                            {{ $tc('sw-settings-payment.detail.delete.modal.buttonDelete') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                    {% endblock %}
+                </sw-modal>
+                {% endblock %}
             </template>
         </sw-card-view>
     </template>

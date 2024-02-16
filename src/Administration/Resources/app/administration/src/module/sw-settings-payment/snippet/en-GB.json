@@ -62,7 +62,17 @@
       "buttonCancel": "Cancel",
       "buttonSave": "Save",
       "helpTextTechnicalName": "The technical name is used to uniquely reference the payment method. A subsequent change to the technical name can cause payment integrations that rely on it to no longer work.",
-      "hintTextTechnicalName": "Will be required from version 6.7.0 onwards"
+      "hintTextTechnicalName": "Will be required from version 6.7.0 onwards",
+      "delete": {
+        "textHeadline": "Delete payment method",
+        "textAlert": "This payment method is used in rules, Sales Channels or orders and can therefore not be deleted.",
+        "textButton": "Delete payment method",
+        "modal": {
+          "textConfirmation": "Do you really want to delete this payment method?",
+          "buttonCancel": "Cancel",
+          "buttonDelete": "Delete"
+        }
+      }
     }
   },
   "sw-plugin-box": {

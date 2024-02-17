@@ -5,5 +5,5 @@ author: Cuong Huynh
 author_email: cuong.huynh@pluszwei.io
 author_github: cuonghuynh
 ---
-# Administration
-* Fixed the export to work with Google Bucket adapter
+# Core
+* Changed the export `\Shopware\Core\Content\ImportExport\Processing\Writer\AbstractFileWriter::flush` to work with Google Bucket adapter

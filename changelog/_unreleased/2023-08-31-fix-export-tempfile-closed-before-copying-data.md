@@ -1,6 +1,6 @@
 ---
 title: Fix export temporary file closed before copying data
-issue:
+issue: NEXT-30327
 author: Cuong Huynh
 author_email: cuong.huynh@pluszwei.io
 author_github: cuonghuynh

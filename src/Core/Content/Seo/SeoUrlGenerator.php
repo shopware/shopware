@@ -52,7 +52,7 @@ class SeoUrlGenerator
     /**
      * @param array<string|array<string, string>> $ids
      *
-     * @return iterable<SeoUrlEntity>
+     * @return \Traversable<SeoUrlEntity>
      */
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, SalesChannelEntity $salesChannel): iterable
     {

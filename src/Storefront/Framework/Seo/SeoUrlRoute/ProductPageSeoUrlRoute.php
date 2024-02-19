@@ -8,6 +8,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -47,6 +48,15 @@ class ProductPageSeoUrlRoute implements SeoUrlRouteInterface
     {
         if (!$product instanceof ProductEntity && !$product instanceof PartialEntity) {
             throw new \InvalidArgumentException('Expected ProductEntity');
+        }
+
+        $categories = $product->get('mainCategories') ?? null;
+        if ($categories instanceof EntityCollection && $salesChannel !== null) {
+            $filtered = $categories->filter(
+                fn (Entity $category) => $category->get('salesChannelId') === $salesChannel->getId()
+            );
+
+            $product->assign(['mainCategories' => $filtered]);
         }
 
         $productJson = $product->jsonSerialize();

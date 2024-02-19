@@ -1,6 +1,21 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.5.8.5
+*  [NEXT-33516 - Moved DRACO loader to correct assets folder.](./changelog/release-6-5-8-5/2024-02-14-moved-draco-loader-to-correct-assets-folder.md)
+*  [NEXT-25538 - Replace media to any file type](./changelog/release-6-5-8-5/2023-06-16-replace-to-any-media.md) ([Ivan Ananev](https://github.com/DrUlysses))
+*  [NEXT-33504 - Allow `association_fields` of `media_default_folder` to be nullable](./changelog/release-6-5-8-5/2023-12-15-allow-association_fields-of-media_default_folder-to-be-nullable.md) ([Max](https://github.com/aragon999))
+*  [NEXT-32997 - Configureable system update finish](./changelog/release-6-5-8-5/2024-01-08-configureable-system-update-finish.md)
+*  [NEXT-29687 - Add possibility to disable zoom for spatial](./changelog/release-6-5-8-5/2024-01-31-add-possibility-to-disable-zoom-for-spatial.md)
+*  [NEXT-33465 - Update data consent](./changelog/release-6-5-8-5/2024-02-05-update-data-consent.md)
+*  [NEXT-33431 - Fix async-component factory edge case](./changelog/release-6-5-8-5/2024-02-07-fix-async-component-factory-edge-case.md)
+*  [NEXT-33516 - Implemented mesh data decompression via DRACO loader.](./changelog/release-6-5-8-5/2024-02-07-implemented-mesh-data-decompression-via-draco-loader.md)
+*  [NEXT-33622 - Fix migration compatiblity with older MySQL 8](./changelog/release-6-5-8-5/2024-02-09-fix-migration-compatiblity-with-older-mysql-8.md)
+*  [NEXT-33699 - Fix static theme compilation](./changelog/release-6-5-8-5/2024-02-13-fix-static-theme-compilation.md)
+*  [NEXT-33724 - Fix wrong order currency](./changelog/release-6-5-8-5/2024-02-13-fix-wrong-order-currency.md)
+*  [NEXT-33642 - Product Export Renderer use cdn url when set](./changelog/release-6-5-8-5/2024-02-13-product-export-renderer-use-cdn-url-when-set.md)
+*  [NEXT-33746 - Make migration more stable](./changelog/release-6-5-8-5/2024-02-14-make-migration-more-stable.md)
+
 ## 6.5.8.4
 *  [NEXT-33622 - Fix migration compatiblity with older MySQL 8](./changelog/release-6-5-8-4/2024-02-09-fix-migration-compatiblity-with-older-mysql-8.md)
 

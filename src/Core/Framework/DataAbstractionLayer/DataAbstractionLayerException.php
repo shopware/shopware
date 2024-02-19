@@ -33,6 +33,7 @@ class DataAbstractionLayerException extends HttpException
     final public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
     public const VERSION_NO_COMMITS_FOUND = 'FRAMEWORK__VERSION_NO_COMMITS_FOUND';
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
+    public const INVALID_WRITE_INPUT = 'FRAMEWORK__INVALID_WRITE_INPUT';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -160,6 +161,15 @@ class DataAbstractionLayerException extends HttpException
             self::VERSION_NOT_EXISTS,
             'Version {{ versionId }} does not exist. Version was probably deleted or already merged.',
             ['versionId' => $versionId]
+        );
+    }
+
+    public static function invalidWriteInput(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_WRITE_INPUT,
+            $message,
         );
     }
 }

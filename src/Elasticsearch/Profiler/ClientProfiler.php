@@ -88,6 +88,58 @@ class ClientProfiler extends Client
     }
 
     /**
+     * @param array<mixed> $params
+     *
+     * @return array<mixed>
+     */
+    public function bulk(array $params = [])
+    {
+        $time = microtime(true);
+        $response = parent::bulk($params);
+
+        $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+        $connection = $this->transport->getConnection();
+
+        $this->requests[] = [
+            'url' => sprintf('%s://%s:%d/_bulk', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort()),
+            'client' => $this->transport->getConnection()->getHost(),
+            'request' => $params,
+            'response' => $response,
+            'time' => microtime(true) - $time,
+            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+        ];
+
+        return $response;
+    }
+
+    /**
+     * @param array<mixed> $params
+     *
+     * @return array<mixed>
+     */
+    public function putScript(array $params = [])
+    {
+        $time = microtime(true);
+        $response = parent::putScript($params);
+
+        $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+
+        $connection = $this->transport->getConnection();
+
+        $this->requests[] = [
+            'url' => sprintf('%s://%s:%d/_scripts/%s', $connection->getTransportSchema(), $connection->getHost(), $connection->getPort(), $params['id']),
+            'client' => $this->transport->getConnection()->getHost(),
+            'request' => $params,
+            'response' => $response,
+            'time' => microtime(true) - $time,
+            'backtrace' => sprintf('%s:%s', $backtrace[1]['class'] ?? '', $backtrace[1]['function']),
+        ];
+
+        return $response;
+    }
+
+    /**
      * @param array{index?: string, body?: array<mixed>} $request
      */
     private function assembleElasticsearchUrl(ConnectionInterface $connection, array $request): string

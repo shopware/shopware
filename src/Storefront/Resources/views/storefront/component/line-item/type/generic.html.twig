@@ -122,7 +122,9 @@
 
             {% block component_line_item_type_generic_col_total_price %}
                 <div class="line-item-total-price">
-                    {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' %}
+                    {% sw_include '@Storefront/storefront/component/line-item/element/total-price.html.twig' with {
+                        currency: lineItem.order.currency.isoCode
+                    } %}
                 </div>
             {% endblock %}
 

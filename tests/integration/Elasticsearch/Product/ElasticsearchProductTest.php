@@ -2625,6 +2625,9 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
+    /**
+     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: int|null, direction: FieldSorting::*}>
+     */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
         yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [

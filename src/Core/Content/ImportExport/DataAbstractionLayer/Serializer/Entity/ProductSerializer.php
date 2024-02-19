@@ -97,6 +97,8 @@ class ProductSerializer extends EntitySerializer
 
         $visibilities = [];
 
+        $context = Context::createDefaultContext();
+
         foreach ($mapping as $key => $type) {
             if (!isset($entity['visibilities'][$key])) {
                 continue;
@@ -104,7 +106,7 @@ class ProductSerializer extends EntitySerializer
 
             $ids = array_filter(explode('|', (string) $entity['visibilities'][$key]));
 
-            $ids = $this->convertSalesChannelNamesToIds($ids);
+            $ids = $this->convertSalesChannelNamesToIds($ids, $context);
 
             foreach ($ids as $salesChannelId) {
                 $visibility = [
@@ -120,21 +122,21 @@ class ProductSerializer extends EntitySerializer
         }
 
         if ($visibilities !== []) {
-            yield 'visibilities' => $this->findVisibilityIds($visibilities);
+            yield 'visibilities' => $this->findVisibilityIds($visibilities, $context);
         }
 
         try {
-            yield 'media' => $this->convertMediaStringToArray($config, $definition, $entity, $deserialized);
+            yield 'media' => $this->convertMediaStringToArray($config, $definition, $entity, $deserialized, $context);
         } catch (\Throwable $exception) {
             yield '_error' => $exception;
         }
 
         if (isset($deserialized['id'], $deserialized['cover']['media']['id'])) {
-            yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover']);
+            yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover'], $context);
         }
 
         if (!empty($deserialized['parentId']) && !empty($deserialized['options'])) {
-            yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options']);
+            yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options'], $context);
         }
     }
 
@@ -148,7 +150,7 @@ class ProductSerializer extends EntitySerializer
      *
      * @return array<array<string, mixed>>
      */
-    private function findVisibilityIds(array $visibilities): array
+    private function findVisibilityIds(array $visibilities, Context $context): array
     {
         foreach ($visibilities as $i => $visibility) {
             if (!isset($visibility['productId'])) {
@@ -159,7 +161,7 @@ class ProductSerializer extends EntitySerializer
             $criteria->addFilter(new EqualsFilter('productId', $visibility['productId']));
             $criteria->addFilter(new EqualsFilter('salesChannelId', $visibility['salesChannelId']));
 
-            $id = $this->visibilityRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+            $id = $this->visibilityRepository->searchIds($criteria, $context)->firstId();
 
             if ($id) {
                 $visibility['id'] = $id;
@@ -176,7 +178,7 @@ class ProductSerializer extends EntitySerializer
      *
      * @return array<string>
      */
-    private function convertSalesChannelNamesToIds(array $ids): array
+    private function convertSalesChannelNamesToIds(array $ids, Context $context): array
     {
         $salesChannelNames = [];
 
@@ -204,7 +206,7 @@ class ProductSerializer extends EntitySerializer
         /** @var list<string> $additionalIds */
         $additionalIds = $this->salesChannelRepository->searchIds(
             $criteria,
-            Context::createDefaultContext()
+            $context
         )->getIds();
 
         return array_unique(array_merge($ids, $additionalIds));
@@ -215,13 +217,13 @@ class ProductSerializer extends EntitySerializer
      *
      * @return array<string, mixed>
      */
-    private function findCoverProductMediaId(string $productId, array $cover): array
+    private function findCoverProductMediaId(string $productId, array $cover, Context $context): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('productId', $productId));
         $criteria->addFilter(new EqualsFilter('mediaId', $cover['media']['id']));
 
-        $id = $this->productMediaRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $id = $this->productMediaRepository->searchIds($criteria, $context)->firstId();
 
         if ($id) {
             $cover['id'] = $id;
@@ -235,7 +237,7 @@ class ProductSerializer extends EntitySerializer
      *
      * @return list<array{optionId: string, product: array{id: string}, id?: string}>
      */
-    private function findConfiguratorSettings(string $parentId, array $options): array
+    private function findConfiguratorSettings(string $parentId, array $options, Context $context): array
     {
         $configuratorSettings = [];
 
@@ -255,7 +257,7 @@ class ProductSerializer extends EntitySerializer
             $criteria->addFilter(new EqualsFilter('productId', $parentId));
             $criteria->addFilter(new EqualsFilter('optionId', $option['id']));
 
-            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, $context)->firstId();
 
             if ($id) {
                 $configuratorSetting['id'] = $id;
@@ -277,7 +279,8 @@ class ProductSerializer extends EntitySerializer
         Config $config,
         EntityDefinition $definition,
         array $entity,
-        array $deserialized
+        array $deserialized,
+        Context $context
     ): array {
         if (empty($entity['media'])) {
             return [];
@@ -325,7 +328,7 @@ class ProductSerializer extends EntitySerializer
             $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
             $criteria->addFilter(new EqualsFilter('media.id', $deserializedMedia['id']));
 
-            $productMediaId = $this->productMediaRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+            $productMediaId = $this->productMediaRepository->searchIds($criteria, $context)->firstId();
 
             if ($productMediaId) {
                 $productMedia['id'] = $productMediaId;

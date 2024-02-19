@@ -238,7 +238,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Address\AddressValidator">
-            <argument type="service" id="country.repository"/>
+            <argument type="service" id="sales_channel_country.repository"/>
             <tag name="shopware.cart.validator"/>
             <tag name="kernel.reset" method="reset"/>
         </service>

@@ -49,7 +49,7 @@ class TaskRegistry
             ->search(new Criteria(), $context)
             ->getEntities();
 
-        $this->upsertTasks($alreadyRegisteredTasks);
+        $this->upsertTasks($alreadyRegisteredTasks, $context);
 
         $deletionPayload = $this->getDeletionPayload($alreadyRegisteredTasks);
 
@@ -58,7 +58,7 @@ class TaskRegistry
         }
     }
 
-    private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks): void
+    private function upsertTasks(ScheduledTaskCollection $alreadyRegisteredTasks, Context $context): void
     {
         $updates = [];
         foreach ($this->tasks as $task) {
@@ -76,12 +76,12 @@ class TaskRegistry
                 continue;
             }
 
-            $this->insertTask($task);
+            $this->insertTask($task, $context);
         }
 
         $updates = array_values(array_filter($updates));
         if (\count($updates) > 0) {
-            $this->scheduledTaskRepository->update($updates, Context::createDefaultContext());
+            $this->scheduledTaskRepository->update($updates, $context);
         }
     }
 
@@ -140,7 +140,7 @@ class TaskRegistry
         return $newNextExecutionTime;
     }
 
-    private function insertTask(ScheduledTask $task): void
+    private function insertTask(ScheduledTask $task, Context $context): void
     {
         $validTask = $task->shouldRun($this->parameterBag);
 
@@ -153,7 +153,7 @@ class TaskRegistry
                     'defaultRunInterval' => $task->getDefaultInterval(),
                     'status' => $validTask ? ScheduledTaskDefinition::STATUS_SCHEDULED : ScheduledTaskDefinition::STATUS_SKIPPED,
                 ],
-            ], Context::createDefaultContext());
+            ], $context);
         } catch (UniqueConstraintViolationException) {
             // this can happen if the function runs multiple times simultaneously
             // we just care that the task is registered afterward so we can safely ignore the error

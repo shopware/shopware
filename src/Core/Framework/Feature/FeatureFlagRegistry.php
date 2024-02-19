@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Feature;
 
-use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception as DBALException;
 use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Feature\Event\BeforeFeatureFlagToggleEvent;
@@ -55,7 +55,7 @@ class FeatureFlagRegistry
             });
 
             $flags = array_merge($static, $stored);
-        } catch (ConnectionException) {
+        } catch (DBALException) {
             // We don't have a database connection
             $flags = $static;
         }

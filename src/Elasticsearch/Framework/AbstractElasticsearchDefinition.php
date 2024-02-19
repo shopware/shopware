@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework;
 
 use OpenSearchDSL\Query\Compound\BoolQuery;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -35,6 +36,14 @@ abstract class AbstractElasticsearchDefinition
      * @return array{_source?: array{includes: string[]}, properties: array<mixed>}
      */
     abstract public function getMapping(Context $context): array;
+
+    /**
+     * Can be used to define custom queries to define the data to be indexed.
+     */
+    public function getIterator(): ?IterableQuery
+    {
+        return null;
+    }
 
     /**
      * @param array<string> $ids

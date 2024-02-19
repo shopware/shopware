@@ -7,6 +7,7 @@
     <import resource="../../Cms/SalesChannel/**/*Controller.php" type="attribute" />
     <import resource="../../Product/**/*Controller.php" type="attribute" />
     <import resource="../../Media/**/*Controller.php" type="attribute" />
+    <import resource="../../Media/SalesChannel/**/*Route.php" type="attribute" />
     <import resource="../../MailTemplate/**/*Controller.php" type="attribute" />
     <import resource="../../ImportExport/**/*Controller.php" type="attribute" />
     <import resource="../../Newsletter/**/*Controller.php" type="attribute" />

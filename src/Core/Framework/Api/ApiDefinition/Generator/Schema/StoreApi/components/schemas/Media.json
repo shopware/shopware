@@ -5,7 +5,36 @@
     "components": {
         "schemas": {
             "Media": {
-                "required": ["fileExtension", "fileName", "url"]
+                "type": "object",
+                "properties": {
+                    "apiAlias": {
+                        "type": "string",
+                        "enum": [
+                            "media"
+                        ]
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "hasFile": {
+                        "type": "boolean"
+                    },
+                    "private": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "apiAlias",
+                    "fileExtension",
+                    "fileName",
+                    "hasFile",
+                    "path",
+                    "private",
+                    "url"
+                ]
             }
         }
     }

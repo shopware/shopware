@@ -134,7 +134,6 @@ class CartTotalPurchasePriceRuleTest extends TestCase
                 'type' => 'single-select',
                 'config' => [
                     'options' => ['gross', 'net'],
-                    'class' => 'is--max-content',
                 ],
             ],
             'amount' => [

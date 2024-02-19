@@ -490,20 +490,19 @@
       "labelGenerateThumbnails": "Thumbnails für diesen Ordner generieren",
       "labelThumbnailQuality": "Thumbnail-Qualität",
       "labelThumbnailSize": "Thumbnail-Größe",
-      "labelEditList": "Liste bearbeiten",
-      "labelStopEdit": "Bearbeiten beenden",
       "labelKeepProportions": "Seitenverhältnis beibehalten",
       "notification": {
         "success": {
           "message": "Einstellungen erfolgreich gespeichert."
         },
         "error": {
-          "message": "Fehler beim Speichern der Einstellungen."
+          "message": "Fehler beim Speichern der Einstellungen.",
+          "messageThumbnailSizeExisted": "Thumbnail-Größe existiert bereits."
         }
       },
       "labelDefaultFolder": "Medien-Standardspeicherort für",
       "placeholderDefaultFolder": "Entität auswählen ...",
-      "tooltipCanNotDeleteThumbnailSize": "This thumbnail size cannot be deleted because it is currently in use."
+      "tooltipCanNotDeleteThumbnailSize": "Thumbnail-Größe kann nicht gelöscht werden, weil diese verwendet wird."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"

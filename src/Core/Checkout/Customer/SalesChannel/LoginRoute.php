@@ -94,7 +94,6 @@ class LoginRoute extends AbstractLoginRoute
             [
                 'id' => $customer->getId(),
                 'lastLogin' => new \DateTimeImmutable(),
-                'languageId' => $context->getLanguageId(),
             ],
         ], $context->getContext());
 

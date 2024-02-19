@@ -87,7 +87,7 @@ async function createWrapper(props = defaultProps) {
     });
 }
 
-describe('src/module/sw-settings-rule/view/sw-settings-rule-add-assignment-listing', () => {
+describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-listing', () => {
     afterEach(() => {
         jest.clearAllMocks();
         jest.clearAllTimers();

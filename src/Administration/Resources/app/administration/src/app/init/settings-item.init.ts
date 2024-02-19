@@ -44,6 +44,7 @@ export default function initializeSettingItems(): void {
                     name: 'sw.extension.sdk.index',
                     params: {
                         id: moduleId,
+                        back: `sw.settings.index.${group}`,
                     },
                 },
             });

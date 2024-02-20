@@ -624,7 +624,6 @@ const missingTests = [
     'src/module/sw-settings-logging/component/sw-settings-logging-entry-info/index.js',
     'src/module/sw-settings-logging/component/sw-settings-logging-mail-sent-info/index.js',
     'src/module/sw-settings-logging/index.js',
-    'src/module/sw-settings-logging/page/sw-settings-logging-list/index.js',
     'src/module/sw-settings-login-registration/index.js',
     'src/module/sw-settings-mailer/index.js',
     'src/module/sw-settings-newsletter/index.js',

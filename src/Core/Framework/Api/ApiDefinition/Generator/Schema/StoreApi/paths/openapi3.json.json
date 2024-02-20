@@ -8,7 +8,7 @@
                     "System Info & Healthcheck"
                 ],
                 "summary": "Get OpenAPI Specification",
-                "description": "Get information about the admin API in OpenAPI format.",
+                "description": "Get information about the store API in OpenAPI format.",
                 "operationId": "api-info",
                 "parameters": [
                     {

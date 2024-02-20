@@ -165,7 +165,7 @@ class AuthController extends StorefrontController
                 new SalesChannelContextServiceParameters(
                     $context->getSalesChannelId(),
                     $token,
-                    $context->getLanguageIdChain()[0],
+                    $context->getLanguageId(),
                     $context->getCurrencyId(),
                     $context->getDomainId(),
                     $context->getContext()

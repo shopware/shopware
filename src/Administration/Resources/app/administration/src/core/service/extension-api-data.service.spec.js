@@ -6,7 +6,7 @@ import { mount } from '@vue/test-utils';
 import { handleFactory, send } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import SerializerFactory from '@shopware-ag/meteor-admin-sdk/es/_internals/serializer';
 import Entity from 'src/core/data/entity.data';
-import { getPublishedDataSets, publishData } from 'src/core/service/extension-api-data.service';
+import { getPublishedDataSets, publishData, deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import lodash from 'lodash';
 
@@ -479,5 +479,73 @@ describe('core/service/extension-api-data.service.ts', () => {
         expect(collection[1].name).toBe('jest2');
         expect(typeof collection[1].getDraft).toBe('function');
         expect(collection[2].name).toBe('jest3');
+    });
+
+    it('should deepClone with Entities', async () => {
+        const originalValue = {
+            name: 'Shopware',
+            age: 21,
+            product: new Entity('foo', 'product', {
+                name: 'T-Shirt',
+                price: 10,
+                description: 'A T-Shirt',
+            }),
+            mediaCollection: new EntityCollection(
+                'demo/media',
+                'media',
+                {
+                    auth: {
+                        token: 'mySecretToken',
+                    },
+                },
+                null,
+                [
+                    new Entity('image1', 'media', {
+                        url: 'https://shopware.com/image1.jpg',
+                        tags: new EntityCollection('image1/tags', 'tag', {}, null, [
+                            new Entity('tag1', 'tag', {
+                                name: 'Shopware',
+                            }),
+                            new Entity('tag2', 'tag', {
+                                name: 'Shopware AG',
+                            }),
+                            new Entity('tag3', 'tag', {
+                                name: 'Shopware Community',
+                            }),
+                        ]),
+                    }),
+                    new Entity('image2', 'media', {
+                        url: 'https://shopware.com/image2.jpg',
+                        tags: new EntityCollection('image2/tags', 'tag', {}, null, [
+                            new Entity('tag4', 'tag', {
+                                name: 'Shopware',
+                            }),
+                            new Entity('tag5', 'tag', {
+                                name: 'Shopware AG',
+                            }),
+                            new Entity('tag6', 'tag', {
+                                name: 'Shopware Community',
+                            }),
+                        ]),
+                    }),
+                ],
+            ),
+        };
+
+        const clonedValue = deepCloneWithEntity(originalValue);
+
+        // Should serialize to the same values
+        expect(JSON.stringify(clonedValue)).toEqual(JSON.stringify(originalValue));
+        // Should have different EntityCollections and Entities
+        expect(clonedValue.product).not.toBe(originalValue.product);
+        expect(clonedValue.mediaCollection).not.toBe(originalValue.mediaCollection);
+        expect(clonedValue.mediaCollection[0]).not.toBe(originalValue.mediaCollection[0]);
+        expect(clonedValue.mediaCollection[0].tags).not.toBe(originalValue.mediaCollection[0].tags);
+        expect(clonedValue.mediaCollection[0].tags[0]).not.toBe(originalValue.mediaCollection[0].tags[0]);
+        // Should not contain the context from the cloned EntityCollection
+        expect(originalValue.mediaCollection.context.auth).toEqual({
+            token: 'mySecretToken',
+        });
+        expect(clonedValue.mediaCollection.context.auth).toBeUndefined();
     });
 });

@@ -3,10 +3,13 @@
  */
 
 import { updateSubscriber, register, handleGet } from '@shopware-ag/meteor-admin-sdk/es/data';
-import { get, debounce } from 'lodash';
+import { get, debounce, cloneDeepWith } from 'lodash';
 import type { App } from 'vue';
 import { selectData } from '@shopware-ag/meteor-admin-sdk/es/data/_internals/selectData';
 import MissingPrivilegesError from '@shopware-ag/meteor-admin-sdk/es/privileges/missing-privileges-error';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
+import Entity from 'src/core/data/entity.data';
 
 interface scopeInterface {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,6 +44,72 @@ type vueWithUid = Partial<App<Element>> & { _uid: number };
 // This is used by the Vue devtool extension plugin
 let publishedDataSets: dataset[] = [];
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Deep clone with custom handling for entities and entity collections
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export function deepCloneWithEntity(data: any): any {
+    return cloneDeepWith(data, (value: {
+        __identifier__?: () => string;
+        source?: string;
+        entity?: keyof EntitySchema.Entities;
+        criteria?: Criteria;
+        total?: number;
+        aggregations?: unknown;
+        id?: string;
+        _entityName?: keyof EntitySchema.Entities;
+        _draft?: unknown;
+        _origin?: unknown;
+        _isDirty?: boolean;
+        _isNew?: boolean;
+    }) => {
+        // If value is a entity collection, we need to clone it custom
+        if (
+            value?.__identifier__ &&
+            typeof value.__identifier__ === 'function' &&
+            value.__identifier__() === 'EntityCollection'
+        ) {
+            return new EntityCollection(
+                value.source!,
+                value.entity!,
+                // @ts-expect-error - we don't want to provide a context
+                {},
+                value.criteria === null ? value.criteria : Criteria.fromCriteria(value.criteria!),
+                // @ts-expect-error - value is an array inside a entity collection
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                deepCloneWithEntity(Array.from(value)),
+                value.total,
+                value.aggregations,
+            );
+        }
+
+        // If value is a entity, we need to clone it custom
+        if (
+            value?.__identifier__ &&
+            typeof value.__identifier__ === 'function' &&
+            value.__identifier__() === 'Entity'
+        ) {
+            return new Entity(
+                value.id!,
+                value._entityName!,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                deepCloneWithEntity(value._draft),
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    originData: deepCloneWithEntity(value._origin),
+                    isDirty: value._isDirty,
+                    isNew: value._isNew,
+                },
+            );
+        }
+
+        return undefined;
+    });
+}
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 handleGet((data, additionalOptions) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const origin = additionalOptions?._event_?.origin;
@@ -56,7 +125,10 @@ handleGet((data, additionalOptions) => {
         return registeredDataSet.data;
     }
 
-    const selectedData = selectData(registeredDataSet.data, selectors, 'datasetGet', origin);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const clonedData = deepCloneWithEntity(registeredDataSet.data);
+
+    const selectedData = selectData(clonedData, selectors, 'datasetGet', origin);
 
     if (selectedData instanceof MissingPrivilegesError) {
         console.error(selectedData);
@@ -199,10 +271,11 @@ export function publishData({ id, path, scope }: publishOptions): void {
 
     // Watch for Changes on the Reactive Vue property and automatically publish them
     const unwatch = scope.$watch(path, debounce((value: App<Element>) => {
-        // const preparedValue = prepareValue(value);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const clonedValue = deepCloneWithEntity(value);
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        register({ id: id, data: value }).catch(() => {});
+        register({ id: id, data: clonedValue }).catch(() => {});
 
         const dataSet = publishedDataSets.find(set => set.id === id);
         if (dataSet) {
@@ -213,7 +286,7 @@ export function publishData({ id, path, scope }: publishOptions): void {
 
         publishedDataSets.push({
             id,
-            data: value,
+            data: clonedValue,
             // @ts-expect-error
             scope: (scope as vueWithUid)._uid,
         });

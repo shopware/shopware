@@ -14,8 +14,9 @@ class ReverseProxyCacheClearer implements CacheClearerInterface
     /**
      * @internal
      */
-    public function __construct(protected AbstractReverseProxyGateway $gateway)
-    {
+    public function __construct(
+        protected AbstractReverseProxyGateway $gateway
+    ) {
     }
 
     public function clear(string $cacheDir): void

@@ -519,10 +519,12 @@
             <argument>%storefront.reverse_proxy.fastly.tag_prefix%</argument>
             <argument>%storefront.reverse_proxy.fastly.instance_tag%</argument>
             <argument>%env(APP_URL)%</argument>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\ReverseProxy\ReverseProxyCacheClearer">
             <argument type="service" id="Shopware\Storefront\Framework\Cache\ReverseProxy\AbstractReverseProxyGateway"/>
+
             <tag name="kernel.cache_clearer"/>
         </service>
 

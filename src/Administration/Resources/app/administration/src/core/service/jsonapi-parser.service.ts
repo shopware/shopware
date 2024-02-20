@@ -6,6 +6,46 @@
 import types from 'src/core/service/utils/types.utils';
 import { hasOwnProperty } from 'src/core/service/utils/object.utils';
 
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type Item = {
+    id?: unknown;
+    type?: unknown;
+    links?: unknown;
+    meta?: unknown;
+    attributes?: Record<string, unknown>;
+    relationships?: Record<string, {
+        data?: Item | Item[];
+        links?: {
+            related: string;
+        };
+    }>;
+    associationLinks?: Record<string, unknown>;
+};
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type Data = {
+    parsed?: true;
+
+    errors: unknown;
+    data: Item[] | Item | null;
+    links: unknown;
+    associations: object | null;
+    aggregations: unknown;
+    meta: Record<string, unknown> | null;
+};
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export type Json = {
+    parsed?: boolean;
+
+    errors?: unknown;
+    data?: Item[];
+    links?: unknown;
+    aggregations?: unknown;
+    meta?: Record<string, unknown>;
+    included?: Item[];
+};
+
 /**
  * Converts a JSONApi compliant data structure into a nested object structure which suits the data entry management
  * of the application much better.
@@ -17,13 +57,13 @@ import { hasOwnProperty } from 'src/core/service/utils/object.utils';
  *     const parsedResponse = jsonApiParserService(response.data);
  * });
  *
- * @param {String|Object} data Data structure
- * @returns {Object|null} Parsed data structure or `null` if the `data` parameter isn't an object or string.
+ * @param data Data structure
+ * @returns Parsed data structure or `null` if the `data` parameter isn't an object or string.
  * @method jsonApiParserService
  * @memberOf module:core/helper/jsonapi-parser
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export default function jsonApiParserService(data) {
+export default function jsonApiParserService(data: string | object): Data | Json | null {
     const json = convertRawDataToJson(data);
 
     if (!json) {
@@ -32,7 +72,7 @@ export default function jsonApiParserService(data) {
 
     // Provided data was parsed before or doesn't follows the JSONApi spec, so we're returning data structure untouched
     if (json.parsed === true || !areTopMemberPropertiesPresent(json)) {
-        return json;
+        return json as Data | Json;
     }
 
     const convertedStructure = parseDataStructure(json);
@@ -46,14 +86,14 @@ export default function jsonApiParserService(data) {
 /**
  * Tries to convert the raw data input into a JSON format.
  *
- * @param {String|Object} [data={}] Data structure to parse
- * @returns {Boolean|Object} Converted data structure or false when the data type wasn't an object or string.
+ * @param data Data structure to parse
+ * @returns Converted data structure or false when the data type wasn't an object or string.
  */
-function convertRawDataToJson(data) {
+function convertRawDataToJson(data: string | object): false | Json {
     let jsonData;
     if (types.isString(data)) {
         try {
-            jsonData = JSON.parse(data);
+            jsonData = JSON.parse(data) as Json;
         } catch (err) {
             return false;
         }
@@ -68,10 +108,8 @@ function convertRawDataToJson(data) {
 
 /**
  * Basic check if we're dealing with a data structure which follows the JSONApi spec.
- * @param {Object} json
- * @returns {Boolean}
  */
-function areTopMemberPropertiesPresent(json) {
+function areTopMemberPropertiesPresent(json: Json): boolean {
     return (json.data !== undefined
         || json.errors !== undefined
         || json.links !== undefined
@@ -80,19 +118,16 @@ function areTopMemberPropertiesPresent(json) {
 
 /**
  * Iterates over the `included` property of the JSONApi spec and creates a new map with unique identifiers.
- *
- * @param {Array} included
- * @returns {Map<any, any>}
  */
-function createIncludeMap(included) {
-    const includedMap = new Map();
+function createIncludeMap(included?: Item[]): Map<string, Item> {
+    const includedMap = new Map<string, Item>();
 
     if (!included || !included.length) {
         return includedMap;
     }
 
     included.forEach((item) => {
-        const key = `${item.type}-${item.id}`;
+        const key = `${String(item.type)}-${String(item.id)}`;
         includedMap.set(key, item);
     });
 
@@ -103,16 +138,16 @@ function createIncludeMap(included) {
  * Parses the data structure and converts it from JSONApi spec to a nested object structure to work with our data
  * management and handling.
  *
- * @param {Object} json
- * @returns {Object} parsed data structure
+ * @returns parsed data structure
  */
-function parseDataStructure(json) {
-    const data = {
+function parseDataStructure(json: Json): Data {
+    const data: Data = {
         links: null,
         errors: null,
         data: null,
         associations: null,
         aggregations: null,
+        meta: null,
     };
 
     // Errors will be returned right away, we don't need to convert anything
@@ -132,12 +167,12 @@ function parseDataStructure(json) {
                 delete dataItem.associationLinks;
             }
 
-            return dataItem;
+            return dataItem as Remove<typeof dataItem, 'associationLinks'>;
         });
     } else if (types.isObject(json.data)) {
         const dataItem = createItem(json.data, includedMap);
 
-        if (Object.prototype.hasOwnProperty.call(dataItem, 'associationLinks')) {
+        if (hasOwnProperty(dataItem, 'associationLinks')) {
             data.associations = { ...data.associations, ...dataItem.associationLinks };
             delete dataItem.associationLinks;
         }
@@ -163,12 +198,8 @@ function parseDataStructure(json) {
 
 /**
  * Creates a new object item for the nested object structure.
- *
- * @param {Object} record
- * @param {Map} includedMap
- * @returns {{id, type, links: {}, meta: {}}}
  */
-function createItem(record, includedMap) {
+function createItem(record: Item, includedMap: Map<string, Item>): Require<Item, 'links' | 'meta'> {
     let item = {
         id: record.id,
         type: record.type,
@@ -191,17 +222,12 @@ function createItem(record, includedMap) {
 
 /**
  * Renames the attributes which can be kebab-case to camel-case.
- *
- * @param {Object} attributesCollection
- * @returns {Object}
  */
-function renameObjectPropertiesToCamelCase(attributesCollection) {
-    const attributes = {};
+function renameObjectPropertiesToCamelCase(attributesCollection: Record<string, unknown>): Record<string, unknown> {
+    const attributes: Record<string, unknown> = {};
     Object.keys(attributesCollection).forEach((attributeKey) => {
         const attribute = attributesCollection[attributeKey];
-        const key = attributeKey.replace(/-([a-z])/g, (match, item) => {
-            return item.toUpperCase();
-        });
+        const key = String(attributeKey).replace(/-([a-z])/g, (_, item: string) => item.toUpperCase());
         attributes[key] = attribute;
     });
 
@@ -210,30 +236,23 @@ function renameObjectPropertiesToCamelCase(attributesCollection) {
 
 /**
  * Maps the included entries and creates new items out of it including dependency resolving
- * @param {Object} item
- * @param {Map} includedMap
- * @returns {Object}
  */
-function mapIncluded(item, includedMap) {
-    const includedKey = `${item.type}-${item.id}`;
+function mapIncluded(item: Item, includedMap: Map<string, Item>): Item {
+    const includedKey = `${String(item.type)}-${String(item.id)}`;
     if (!includedMap.has(includedKey)) {
         return item;
     }
 
-    const included = includedMap.get(includedKey);
+    const included = includedMap.get(includedKey)!;
     return createItem(included, includedMap);
 }
 
 /**
  * Resolve the dependencies between entries in `includedMap` and the relations of the item.
- *
- * @param {Object} relationships
- * @param {Map} includedMap
- * @returns {Object}
  */
-function createRelationships(relationships, includedMap) {
-    const mappedRelations = {};
-    const associationLinks = {};
+function createRelationships(relationships: Exclude<Item['relationships'], undefined>, includedMap: Map<string, Item>) {
+    const mappedRelations: Record<string, Item | Item[] | null> = {};
+    const associationLinks: Record<string, string> = {};
 
     Object.keys(relationships).forEach((prop) => {
         const relationship = relationships[prop];

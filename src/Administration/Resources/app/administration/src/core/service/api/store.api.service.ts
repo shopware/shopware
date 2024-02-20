@@ -64,21 +64,21 @@ export default class StoreApiService extends ApiService {
         );
     }
 
-    public async getUpdateList() {
+    public async getUpdateList(): Promise<unknown> {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        return ApiService.handleResponse(await this.httpClient.get(
+        return ApiService.handleResponse(await this.httpClient.get<unknown>(
             `/_action/${this.getApiBasePath()}/updates`,
             { params, headers },
         ));
     }
 
-    public async getLicenseViolationList() {
+    public async getLicenseViolationList(): Promise<unknown> {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();
 
-        return ApiService.handleResponse(await this.httpClient.post(
+        return ApiService.handleResponse(await this.httpClient.post<unknown>(
             `/_action/${this.getApiBasePath()}/plugin/search`,
             null,
             { params, headers },

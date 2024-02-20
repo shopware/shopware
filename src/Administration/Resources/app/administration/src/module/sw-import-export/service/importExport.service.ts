@@ -166,11 +166,13 @@ export default class ImportExportService extends ApiService {
 
     /**
      * @param logId {String} log id
-     * @returns {*} - ApiService.handleResponse(response)
+     * @returns {Promise<*>} - ApiService.handleResponse(response)
      */
-    cancel(logId: string) {
-        return this.httpClient.post(`/_action/${this.getApiBasePath()}/cancel`, {
-            logId: logId,
-        }, { headers: this.getBasicHeaders() }).then(response => ApiService.handleResponse(response));
+    cancel(logId: string): Promise<unknown> {
+        return this.httpClient.post<unknown>(
+            `/_action/${this.getApiBasePath()}/cancel`,
+            { logId },
+            { headers: this.getBasicHeaders() },
+        ).then(ApiService.handleResponse.bind(this));
     }
 }

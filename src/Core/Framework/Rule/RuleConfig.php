@@ -21,6 +21,8 @@ final class RuleConfig extends Struct
         Rule::OPERATOR_NEQ,
     ];
 
+    public const DEFAULT_DIGITS = 10;
+
     public const UNIT_DIMENSION = 'dimension';
 
     public const UNIT_WEIGHT = 'weight';
@@ -98,6 +100,8 @@ final class RuleConfig extends Struct
      */
     public function numberField(string $name, array $config = []): self
     {
+        $config['digits'] = $config['digits'] ?? self::DEFAULT_DIGITS;
+
         return $this->field($name, 'float', $config);
     }
 

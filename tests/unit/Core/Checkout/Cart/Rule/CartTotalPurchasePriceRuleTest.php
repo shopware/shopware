@@ -139,7 +139,9 @@ class CartTotalPurchasePriceRuleTest extends TestCase
             'amount' => [
                 'name' => 'amount',
                 'type' => 'float',
-                'config' => [],
+                'config' => [
+                    'digits' => RuleConfig::DEFAULT_DIGITS,
+                ],
             ],
         ], $configData['fields']);
     }

@@ -56,6 +56,7 @@ class DaysSinceRuleTest extends TestCase
             'type' => 'float',
             'config' => [
                 'unit' => 'time',
+                'digits' => RuleConfig::DEFAULT_DIGITS,
             ],
         ], $config['fields']['daysPassed']);
     }

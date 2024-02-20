@@ -4,6 +4,17 @@
     "paths": [],
     "components": {
         "schemas": {
+            "LineItemType": {
+                "type": "string",
+                "enum": [
+                    "product",
+                    "credit",
+                    "custom",
+                    "promotion",
+                    "discount",
+                    "container"
+                ]
+            },
             "LineItem": {
                 "type": "object",
                 "properties": {
@@ -17,11 +28,10 @@
                         "type": "string"
                     },
                     "quantity": {
-                        "type": "integer",
-                        "format": "int32"
+                        "type": "number"
                     },
                     "type": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/LineItemType"
                     },
                     "good": {
                         "type": "boolean"
@@ -38,7 +48,8 @@
                     "modified": {
                         "type": "boolean"
                     }
-                }
+                },
+                "required": ["id", "type"]
             }
         }
     }

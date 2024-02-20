@@ -79,10 +79,10 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
 const overrideRegistry = new Map<string, AwaitedComponentConfig[]>();
 
 /**
- * Registry for globally registered helper functions like src/app/service/map-error.service.js
+ * Registry for globally registered helper functions like src/app/service/map-error.service.ts
  * @private
  */
-const componentHelper: { [helperName: string]: unknown } = {};
+const componentHelper: ComponentHelper = {} as ComponentHelper;
 
 /**
  * Contains all components which should be created as a async component
@@ -127,7 +127,7 @@ function getOverrideRegistry(): Map<string, AwaitedComponentConfig[]> {
  * Returns the map of component helper functions
  * @public
  */
-function getComponentHelper(): { [helperName: string]: unknown } {
+function getComponentHelper(): ComponentHelper {
     return componentHelper;
 }
 
@@ -136,7 +136,7 @@ function getComponentHelper(): { [helperName: string]: unknown } {
  */
 function _clearComponentHelper(): void {
     Object.keys(componentHelper).forEach((key) => {
-        delete componentHelper[key];
+        delete componentHelper[key as keyof ComponentHelper];
     });
 }
 
@@ -144,7 +144,7 @@ function _clearComponentHelper(): void {
  * Register a new component helper function
  * @public
  */
-function registerComponentHelper(name: string, helperFunction: unknown): boolean {
+function registerComponentHelper<T extends keyof ComponentHelper>(name: T, helperFunction: ComponentHelper[T]): boolean {
     if (!name || !name.length) {
         warn('ComponentFactory/ComponentHelper', 'A ComponentHelper always needs a name.', helperFunction);
         return false;
@@ -966,7 +966,7 @@ function buildSuperRegistry(config: ComponentConfig): SuperRegistry {
             // is computed getter/setter definition
             if (methodOrComputed === 'computed' && typeof method === 'object') {
                 Object.entries(method as object).forEach(([cmd, func]) => {
-                    const path = `${name}.${cmd}`;
+                    const path = `${String(name)}.${String(cmd)}`;
 
                     superRegistry = updateSuperRegistry(superRegistry, path, func, methodOrComputed, config);
                 });

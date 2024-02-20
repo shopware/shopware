@@ -102,7 +102,7 @@ application
         return WorkerNotificationFactory;
     });
 
-class ShopwareClass {
+class ShopwareClass implements CustomShopwareProperties {
     public Module = {
         register: ModuleFactory.registerModule,
         getModuleRegistry: ModuleFactory.getModuleRegistry,

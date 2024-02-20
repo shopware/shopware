@@ -647,7 +647,10 @@
     "groupStatisticalGoogleAnalytics": "Google Analytics",
     "groupComfortFeatures": "Comfort features",
     "groupComfortFeaturesWishlist": "Wishlist",
-    "groupComfortFeaturesYoutubeVideo": "YouTube video"
+    "groupComfortFeaturesYoutubeVideo": "YouTube video",
+    "groupMarketing": "Marketing",
+    "groupMarketingDescription": "Allows Google to collect personal data for online advertising and marketing.",
+    "groupMarketingAdConsent": "Google Advertising"
   },
   "ellipsis": {
     "expandLabel": "show more",

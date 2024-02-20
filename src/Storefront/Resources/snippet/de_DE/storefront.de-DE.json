@@ -648,7 +648,10 @@
     "groupStatisticalGoogleAnalytics": "Google Analytics",
     "groupComfortFeatures": "Komfortfunktionen",
     "groupComfortFeaturesWishlist": "Merkzettel",
-    "groupComfortFeaturesYoutubeVideo": "YouTube-Video"
+    "groupComfortFeaturesYoutubeVideo": "YouTube-Video",
+    "groupMarketing": "Marketing",
+    "groupMarketingDescription": "Erlaubt es Google, personenbezogene Daten für Online-Werbung und Marketing zu sammeln.",
+    "groupMarketingAdConsent": "Google Werbung und Marketing"
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

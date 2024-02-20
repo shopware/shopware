@@ -23,7 +23,7 @@ class Migration1688927492AddTaxActiveFromField extends MigrationStep
             return;
         }
 
-        $connection->executeStatement('ALTER TABLE `tax_rule` ADD `active_from` DATETIME(3) NULL AFTER `data`;');
+        $connection->executeStatement('ALTER TABLE `tax_rule` ADD `active_from` DATETIME(3) NULL;');
     }
 
     public function updateDestructive(Connection $connection): void

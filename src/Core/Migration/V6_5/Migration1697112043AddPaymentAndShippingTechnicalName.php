@@ -31,9 +31,13 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
         $manager = $connection->createSchemaManager();
         $columns = $manager->listTableColumns(PaymentMethodDefinition::ENTITY_NAME);
 
-        if (!\array_key_exists('technical_name', $columns)) {
-            $connection->executeStatement('ALTER TABLE `payment_method` ADD COLUMN `technical_name` VARCHAR(255) NULL');
-        }
+        $this->addColum(
+            connection: $connection,
+            table: 'payment_method',
+            column: 'technical_name',
+            type: 'VARCHAR(255)',
+            nullable: true,
+        );
 
         if (!$this->indexExists($connection, PaymentMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
             $connection->executeStatement('ALTER TABLE `payment_method` ADD  CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');
@@ -41,9 +45,13 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
 
         $columns = $manager->listTableColumns(ShippingMethodDefinition::ENTITY_NAME);
 
-        if (!\array_key_exists('technical_name', $columns)) {
-            $connection->executeStatement('ALTER TABLE `shipping_method` ADD COLUMN `technical_name` VARCHAR(255) NULL');
-        }
+        $this->addColum(
+            connection: $connection,
+            table: 'shipping_method',
+            column: 'technical_name',
+            type: 'VARCHAR(255)',
+            nullable: true,
+        );
 
         if (!$this->indexExists($connection, ShippingMethodDefinition::ENTITY_NAME, 'uniq.technical_name')) {
             $connection->executeStatement('ALTER TABLE `shipping_method` ADD  CONSTRAINT `uniq.technical_name` UNIQUE (`technical_name`)');

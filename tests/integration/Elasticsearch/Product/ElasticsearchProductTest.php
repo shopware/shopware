@@ -2551,10 +2551,9 @@ class ElasticsearchProductTest extends TestCase
         ];
     }
 
-    public function testNestedSorting(): void
+    #[Depends('testIndexing')]
+    public function testNestedSorting(IdsCollection $ids): void
     {
-        $ids = $this->testIndexing();
-
         $criteria = new Criteria($ids->prefixed('sort.'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addSorting(new FieldSorting('tags.name'));
@@ -2562,18 +2561,18 @@ class ElasticsearchProductTest extends TestCase
         $searcher = $this->createEntitySearcher();
         $result = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-        static::assertSame($ids->get('sort.amazon'), $result->getIds()[0]);
-        static::assertSame($ids->get('sort.shopware'), $result->getIds()[1]);
-        static::assertSame($ids->get('sort.zalando'), $result->getIds()[2]);
+        static::assertSame($ids->get('sort.bisasam'), $result->getIds()[0]);
+        static::assertSame($ids->get('sort.glumanda'), $result->getIds()[1]);
+        static::assertSame($ids->get('sort.pikachu'), $result->getIds()[2]);
 
         $criteria = new Criteria($ids->prefixed('sort.'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addSorting(new FieldSorting('tags.name', FieldSorting::DESCENDING));
         $result = $searcher->search($this->productDefinition, $criteria, $this->context);
 
-        static::assertSame($ids->get('sort.zalando'), $result->getIds()[0]);
-        static::assertSame($ids->get('sort.shopware'), $result->getIds()[1]);
-        static::assertSame($ids->get('sort.amazon'), $result->getIds()[2]);
+        static::assertSame($ids->get('sort.pikachu'), $result->getIds()[0]);
+        static::assertSame($ids->get('sort.glumanda'), $result->getIds()[1]);
+        static::assertSame($ids->get('sort.bisasam'), $result->getIds()[2]);
     }
 
     #[Depends('testIndexing')]
@@ -3974,17 +3973,17 @@ class ElasticsearchProductTest extends TestCase
                         ->build()
                 )
                 ->build(),
-            (new ProductBuilder($this->ids, 'sort.shopware'))
+            (new ProductBuilder($this->ids, 'sort.glumanda'))
                 ->tag('shopware')
                 ->price(1)
                 ->visibility()
                 ->build(),
-            (new ProductBuilder($this->ids, 'sort.amazon'))
+            (new ProductBuilder($this->ids, 'sort.bisasam'))
                 ->tag('amazon')
                 ->price(1)
                 ->visibility()
                 ->build(),
-            (new ProductBuilder($this->ids, 'sort.zalando'))
+            (new ProductBuilder($this->ids, 'sort.pikachu'))
                 ->tag('zalando')
                 ->price(1)
                 ->visibility()

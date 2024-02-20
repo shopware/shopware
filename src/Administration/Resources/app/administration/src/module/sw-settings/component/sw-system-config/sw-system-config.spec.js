@@ -115,6 +115,7 @@ async function createWrapper(defaultValues = {}) {
             'sw-text-editor': await Shopware.Component.build('sw-text-field'),
             'sw-extension-component-section': true,
             'sw-ai-copilot-badge': true,
+            'sw-pagination': true,
         },
         provide: {
             systemConfigApiService: {

@@ -102,6 +102,7 @@ async function createWrapper(props) {
             },
             'sw-skeleton': await Shopware.Component.build('sw-skeleton'),
             'sw-skeleton-bar': await Shopware.Component.build('sw-skeleton-bar'),
+            'sw-pagination': true,
         },
         provide: {
             repositoryFactory: {

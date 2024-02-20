@@ -16,7 +16,7 @@ describe('src/app/component/media/sw-media-field', () => {
                     'sw-button': true,
                     'sw-popover': {
                         template: `
-                         <div>
+                        <div>
                             <slot />
                         </div>
                     `,
@@ -26,6 +26,7 @@ describe('src/app/component/media/sw-media-field', () => {
                     'sw-simple-search-field': true,
                     'sw-loader': true,
                     'sw-icon': true,
+                    'sw-pagination': true,
                 },
                 mocks: {
                     $route: {
@@ -67,6 +68,9 @@ describe('src/app/component/media/sw-media-field', () => {
             field: 'mediaFolder.defaultFolder.entity',
             value: 'product',
         });
+
+        expect(criteria.page).toBe(1);
+        expect(criteria.limit).toBe(5);
     });
 
     it('should contain a property props fileAccept', async () => {
@@ -88,5 +92,34 @@ describe('src/app/component/media/sw-media-field', () => {
         });
 
         expect(stopPropagation).toHaveBeenCalled();
+
+        expect(wrapper.vm.page).toBe(1);
+        expect(wrapper.vm.limit).toBe(5);
+        expect(wrapper.vm.total).toBe(0);
+    });
+
+    it('should be able to change search term', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.fetchSuggestions = jest.fn();
+
+        wrapper.vm.onSearchTermChange('test');
+
+        expect(wrapper.vm.searchTerm).toBe('test');
+        expect(wrapper.vm.page).toBe(1);
+        expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
+    });
+
+    it('should be able to change page', async () => {
+        const wrapper = await createWrapper();
+        wrapper.vm.fetchSuggestions = jest.fn();
+
+        wrapper.vm.onPageChange({
+            page: 2,
+            limit: 5,
+        });
+
+        expect(wrapper.vm.page).toBe(2);
+        expect(wrapper.vm.limit).toBe(5);
+        expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
     });
 });

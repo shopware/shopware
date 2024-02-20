@@ -638,7 +638,6 @@ const missingTests = [
     'src/module/sw-settings-product-feature-sets/index.js',
     'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service.js',
     'src/module/sw-settings-rule/component/sw-settings-rule-assignment-listing/index.js',
-    'src/module/sw-settings-rule/component/sw-settings-rule-tree/index.js',
     'src/module/sw-settings-rule/component/sw-settings-rule-tree-item/index.js',
     'src/module/sw-settings-rule/index.js',
     'src/module/sw-settings-rule/service/rule-assignment-configuration.service.js',

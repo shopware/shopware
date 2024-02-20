@@ -36,6 +36,11 @@ function rejectRepositoryCreation(entityName: string): unknown {
     return Promise.reject(`Could not create repository for entity "${entityName}"`);
 }
 
+/**
+ * This method mutates the result object and removes the filter properties
+ * @param result
+ * @param customContext
+ */
 // eslint-disable-next-line max-len
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
 function filterContext(result: any, customContext: any) {

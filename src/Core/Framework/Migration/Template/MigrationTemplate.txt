@@ -21,9 +21,4 @@ class Migration%%timestamp%%%%name%% extends MigrationStep
     {
         // implement update
     }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
-    }
 }

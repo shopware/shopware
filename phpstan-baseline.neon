@@ -791,26 +791,6 @@ parameters:
 			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
 
 		-
-			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\-\\>first\\(\\)\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['deliveries'\\]\\['shippingOrderAddress'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
-			message: "#^Anonymous variable in a `\\$entity\\['lineItems'\\]\\-\\>\\.\\.\\.\\(\\)` method call can lead to false dead methods\\. Make sure the variable type is known$#"
-			count: 1
-			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/Entity/OrderSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\DataAbstractionLayer\\\\Serializer\\\\PrimaryKeyResolver\\:\\:getValueFromPath\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/DataAbstractionLayer/Serializer/PrimaryKeyResolver.php

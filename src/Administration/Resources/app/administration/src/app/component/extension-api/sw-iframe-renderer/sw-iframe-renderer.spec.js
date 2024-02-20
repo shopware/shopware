@@ -116,7 +116,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.signedIframeSrc).toBe('https://example.com/?location-id=foo&privileges=%5B%5D&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+        expect(wrapper.vm.signedIframeSrc).toBe('https://example.com/?location-id=foo&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
     });
 
     it('should render correct iFrame src when parameters are given', async () => {
@@ -141,7 +141,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         const iframe = wrapper.find('iframe');
         const iframeSrc = iframe.attributes('src');
 
-        expect(iframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&privileges=%5B%5D&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
+        expect(iframeSrc).toBe('http://localhost:8888/index.html?elementId=018d83de67d471d69a03e4742767f1d7&location-id=ex-dailymotion-element&shop-id=__SHOP_ID&shop-signature=__SIGNED__');
     });
 
     it('should render iFrame', async () => {
@@ -218,7 +218,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
         });
         await flushPromises();
 
-        expect(wrapper.vm.signedIframeSrc).toBe('https://my-great-extension.com/app/?location-id=my-great-extension-main-module&privileges=%5B%5D&shop-id=__SHOP_ID&shop-signature=__SIGNED__&search=T-Shirt#/detail/1');
+        expect(wrapper.vm.signedIframeSrc).toBe('https://my-great-extension.com/app/?location-id=my-great-extension-main-module&shop-id=__SHOP_ID&shop-signature=__SIGNED__&search=T-Shirt#/detail/1');
     });
 
     it('should handle location url updates', async () => {
@@ -311,7 +311,7 @@ describe('src/app/component/extension-api/sw-iframe-renderer', () => {
 
     it('should add full screen class to iframe', async () => {
         const wrapper = await createWrapper({
-            propsData: {
+            props: {
                 fullScreen: true,
             },
         });

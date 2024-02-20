@@ -131,11 +131,7 @@ Shopware.Component.register('sw-iframe-renderer', {
 
         iFrameSrc(): string {
             const urlObject = new URL(this.src, window.location.origin);
-
             urlObject.searchParams.append('location-id', this.locationId);
-            if (this.extension) {
-                urlObject.searchParams.append('privileges', JSON.stringify(this.extension.permissions));
-            }
 
             return urlObject.toString();
         },

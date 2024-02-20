@@ -7,22 +7,38 @@ const swConditionTree = {
     template: '<div class="sw-condition-tree"></div>',
 };
 
-async function createWrapper(privileges = []) {
-    // localVue.directive('tooltip', {});
+const defaultProps = {
+    conditionRepository: {},
+    isLoading: false,
+    ruleId: 'uuid1',
+    rule: {
+        name: 'Test rule',
+        id: 'rule-id',
+        priority: 7,
+        description: 'Foo, bar',
+        moduleTypes: {
+            types: [],
+        },
+    },
+};
 
+async function createWrapper(props = defaultProps, privileges = ['rule.editor']) {
     return mount(await wrapTestComponent('sw-settings-rule-detail-base', { sync: true }), {
+        props,
         global: {
             stubs: {
                 'sw-card': await wrapTestComponent('sw-card'),
-                'sw-loader': true,
+                'sw-multi-select': await wrapTestComponent('sw-multi-select'),
+                'sw-select-base': await wrapTestComponent('sw-select-base'),
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
-                'sw-container': true,
-                'sw-textarea-field': true,
-                'sw-number-field': true,
-                'sw-text-field': true,
-                'sw-multi-select': true,
-                'sw-entity-tag-select': true,
-                'sw-custom-field-set-renderer': true,
+                'sw-popover': {
+                    template: '<div class="sw-popover"><slot></slot></div>',
+                },
             },
             provide: {
                 ruleConditionDataProviderService: new RuleConditionService(),
@@ -49,78 +65,91 @@ async function createWrapper(privileges = []) {
                     ]),
                 },
             },
-            directive: {
-                tooltip: {},
-            },
-        },
-        props: {
-            conditionRepository: {},
-            ruleId: 'uuid1',
-            rule: {
-                name: 'Test rule',
-                id: 'rule-id',
-                priority: 7,
-                description: 'Foo, bar',
-                moduleTypes: {
-                    types: [],
-                },
-            },
-            isLoading: false,
         },
     });
 }
 
 describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     describe('sw-settings-rule-detail-base-content', () => {
         it('should have disabled fields', async () => {
-            const wrapper = await createWrapper();
+            const wrapper = await createWrapper(defaultProps, []);
+            await flushPromises();
 
-            const ruleNameField = wrapper.get('sw-text-field-stub[label="sw-settings-rule.detail.labelName"]');
-            const rulePriorityField = wrapper.get('sw-number-field-stub[label="sw-settings-rule.detail.labelPriority"]');
-            const ruleDescriptionField = wrapper.get('sw-textarea-field-stub[label="sw-settings-rule.detail.labelDescription"]');
-            const moduleTypesField = wrapper.get('sw-multi-select-stub[label="sw-settings-rule.detail.labelType"]');
+            const ruleNameField = wrapper.find('sw-text-field[name=sw-field--rule-name]');
+            const rulePriorityField = wrapper.find('sw-number-field[name=sw-field--rule-priority]');
+            const ruleDescriptionField = wrapper.find('sw-textarea-field[name=sw-field--rule-description]');
 
             [
                 ruleNameField,
                 rulePriorityField,
                 ruleDescriptionField,
-                moduleTypesField,
             ].forEach((element) => {
                 expect(element.attributes().disabled).toBe('true');
             });
+
+            expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).toContain('is--disabled');
         });
 
         it('should have enabled fields', async () => {
-            const wrapper = await createWrapper([
-                'rule.editor',
-            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-            const ruleNameField = wrapper.get('sw-text-field-stub[label="sw-settings-rule.detail.labelName"]');
-            const rulePriorityField = wrapper.get('sw-number-field-stub[label="sw-settings-rule.detail.labelPriority"]');
-            const ruleDescriptionField = wrapper.get('sw-textarea-field-stub[label="sw-settings-rule.detail.labelDescription"]');
-            const moduleTypesField = wrapper.get('sw-multi-select-stub[label="sw-settings-rule.detail.labelType"]');
+            const ruleNameField = wrapper.find('sw-text-field[name=sw-field--rule-name]');
+            const rulePriorityField = wrapper.find('sw-number-field[name=sw-field--rule-priority]');
+            const ruleDescriptionField = wrapper.find('sw-textarea-field[name=sw-field--rule-description]');
+
             [
                 ruleNameField,
                 rulePriorityField,
                 ruleDescriptionField,
-                moduleTypesField,
             ].forEach((element) => {
                 expect(element.attributes().disabled).toBeUndefined();
             });
+
+            expect(wrapper.find('.sw-settings-rule-detail__type-field').classes()).not.toContain('is--disabled');
+        });
+
+        it('should set module types', async () => {
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-rule-detail__type-field').exists()).toBe(true);
+            await wrapper.find('.sw-select__selection-indicators').trigger('click');
+            await flushPromises();
+
+            await wrapper.find('.sw-select-result').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.vm.rule.moduleTypes).toEqual({ types: ['shipping'] });
+        });
+
+        it('should set module types to null if value is empty', async () => {
+            const wrapper = await createWrapper({
+                ...defaultProps,
+                rule: {
+                    ...defaultProps.rule,
+                    moduleTypes: {
+                        types: ['shipping'],
+                    },
+                },
+            });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-settings-rule-detail__type-field').exists()).toBe(true);
+            await wrapper.find('.sw-select__selection-indicators').trigger('click');
+            await flushPromises();
+
+            await wrapper.find('.sw-select-result').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.vm.rule.moduleTypes).toBeNull();
         });
     });
 
     describe('sw-settings-rule-detail__condition_container', () => {
         it('renders condition tree', async () => {
-            const wrapper = await createWrapper([
-                'rule.editor',
-            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
 
             const conditionTree = wrapper.get('.sw-condition-tree');
 
@@ -128,9 +157,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
         });
 
         it('emits changed conditions from sub component', async () => {
-            const wrapper = await createWrapper([
-                'rule.editor',
-            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
 
             const conditionTree = wrapper.getComponent(swConditionTree);
 
@@ -148,9 +176,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
         });
 
         it('emits initial loading', async () => {
-            const wrapper = await createWrapper([
-                'rule.editor',
-            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
 
             const conditionTree = wrapper.getComponent(swConditionTree);
 
@@ -162,11 +189,10 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
 
     describe('sw-settings-rule-detail-base-custom-field-sets', () => {
         it('should render custom fields', async () => {
-            const wrapper = await createWrapper([
-                'rule.editor',
-            ]);
+            const wrapper = await createWrapper();
+            await flushPromises();
 
-            const customFieldSetRenderer = wrapper.get('sw-custom-field-set-renderer-stub');
+            const customFieldSetRenderer = wrapper.get('sw-custom-field-set-renderer');
 
             expect(customFieldSetRenderer.exists()).toBe(true);
         });

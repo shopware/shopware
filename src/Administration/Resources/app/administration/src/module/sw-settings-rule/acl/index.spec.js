@@ -4,19 +4,26 @@
 
 const addPrivilegeMappingEntryMock = jest.fn();
 
-Shopware.Service = () => {
-    return {
-        addPrivilegeMappingEntry: addPrivilegeMappingEntryMock,
-    };
-};
+const originalShopwareService = Shopware.Service;
 
 describe('src/module/sw-settings-rule/acl/index.js', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
+    beforeAll(() => {
+        Shopware.Service = () => {
+            return {
+                addPrivilegeMappingEntry: addPrivilegeMappingEntryMock,
+            };
+        };
+    });
+
+    beforeEach(async () => {
+        jest.resetAllMocks();
         jest.resetModules();
 
-        // eslint-disable-next-line global-require, import/extensions
-        require('src/module/sw-settings-rule/acl/index.js');
+        await import('./index');
+    });
+
+    afterAll(() => {
+        Shopware.Service = originalShopwareService;
     });
 
     it('should register privilege mapping entry', () => {

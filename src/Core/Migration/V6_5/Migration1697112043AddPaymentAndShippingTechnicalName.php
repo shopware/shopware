@@ -31,7 +31,7 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
         $manager = $connection->createSchemaManager();
         $columns = $manager->listTableColumns(PaymentMethodDefinition::ENTITY_NAME);
 
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'payment_method',
             column: 'technical_name',
@@ -45,7 +45,7 @@ class Migration1697112043AddPaymentAndShippingTechnicalName extends MigrationSte
 
         $columns = $manager->listTableColumns(ShippingMethodDefinition::ENTITY_NAME);
 
-        $this->addColum(
+        $this->addColumn(
             connection: $connection,
             table: 'shipping_method',
             column: 'technical_name',

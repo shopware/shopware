@@ -36,7 +36,7 @@ class Migration1655697288AppFlowEvent extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $created = $this->addColum(
+        $created = $this->addColumn(
             connection: $connection,
             table: 'flow',
             column: 'app_flow_event_id',

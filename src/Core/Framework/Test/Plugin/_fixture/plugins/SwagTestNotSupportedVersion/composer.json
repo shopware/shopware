@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "shopware/core": "<6.0"
+        "shopware/core": "<7.0"
     },
     "extra": {
         "shopware-plugin-class": "SwagTestNotSupportedVersion\\SwagTestNotSupportedVersion",

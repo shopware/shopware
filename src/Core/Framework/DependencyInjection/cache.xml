@@ -201,6 +201,7 @@
             <argument>%shopware.http_cache.reverse_proxy.hosts%</argument>
             <argument>%shopware.http_cache.reverse_proxy.max_parallel_invalidations%</argument>
             <argument type="service" id="shopware.reverse_proxy.http_client"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway">
@@ -212,6 +213,7 @@
             <argument>%shopware.http_cache.reverse_proxy.fastly.tag_prefix%</argument>
             <argument>%shopware.http_cache.reverse_proxy.fastly.instance_tag%</argument>
             <argument>%env(APP_URL)%</argument>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCacheClearer">

@@ -60,6 +60,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
                     if ($reason instanceof ServerException) {
                         throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                     }
+
                     throw $reason;
                 },
             ]);
@@ -114,6 +115,7 @@ class VarnishReverseProxyGateway extends AbstractReverseProxyGateway
                 if ($reason instanceof ServerException) {
                     throw ReverseProxyException::cannotBanRequest($reason->getRequest()->getUri()->__toString(), $reason->getMessage(), $reason);
                 }
+
                 throw $reason;
             },
         ]);

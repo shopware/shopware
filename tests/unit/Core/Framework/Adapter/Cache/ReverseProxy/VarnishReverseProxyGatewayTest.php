@@ -10,6 +10,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -71,9 +72,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         static::assertEquals('tag-1 tag-2', $request->getHeader('xkey')[0]);
     }
 
-    /**
-     * @dataProvider providerExceptions
-     */
+    #[DataProvider('providerExceptions')]
     public function testInvalidateFails(\Throwable $e, string $message): void
     {
         $logger = $this->createMock(LoggerInterface::class);
@@ -107,9 +106,7 @@ class VarnishReverseProxyGatewayTest extends TestCase
         static::assertEquals('http://localhost/', $request->getUri()->__toString());
     }
 
-    /**
-     * @dataProvider providerExceptions
-     */
+    #[DataProvider('providerExceptions')]
     public function testBanFails(\Throwable $e, string $message): void
     {
         $logger = $this->createMock(LoggerInterface::class);

@@ -9,17 +9,19 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[CoversClass(FastlyReverseProxyGateway::class)]
 class FastlyReverseProxyGatewayTest extends TestCase
 {
     private Client $client;
@@ -40,16 +42,6 @@ class FastlyReverseProxyGatewayTest extends TestCase
 
         static::expectException(DecorationPatternException::class);
         $gateway->getDecorated();
-    }
-
-    public function testTagDeprecated(): void
-    {
-        static::expectException(\ArgumentCountError::class);
-        static::expectExceptionMessage('Too few arguments to function Shopware\Storefront\Framework\Cache\ReverseProxy\FastlyReverseProxyGateway::tag()');
-
-        $gateway = new FastlyReverseProxyGateway($this->client, 'test', 'test', '0', 3, '', '', 'http://localhost', new NullLogger());
-        /** @phpstan-ignore-next-line  */
-        $gateway->tag(['foo', 'bla'], '');
     }
 
     public function testTag(): void
@@ -170,9 +162,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
         static::assertSame(['key'], $lastRequest->getHeader('Fastly-Key'));
     }
 
-    /**
-     * @dataProvider providerExceptions
-     */
+    #[DataProvider('providerExceptions')]
     public function testFastlyNotAvailable(\Throwable $e, string $message): void
     {
         $this->mockHandler->append($e);

@@ -30,6 +30,9 @@ async function createWrapper() {
                         searchIds: () => {
                             return Promise.resolve([]);
                         },
+                        save: () => {
+                            return Promise.resolve();
+                        },
                         get: () => {
                             switch (entity) {
                                 case 'media_folder_configuration':
@@ -140,5 +143,72 @@ describe('src/app/asyncComponent/media/sw-media-modal-folder-settings', () => {
                 deletable: false,
             },
         ]);
+    });
+
+    it('should be able to add a new thumbnail size', async () => {
+        const create = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'create').mockImplementation(() => {
+            return { _isNew: true };
+        });
+        const save = jest.spyOn(wrapper.vm.mediaThumbnailSizeRepository, 'save').mockImplementation(() => {
+            return Promise.resolve();
+        });
+
+        await wrapper.setData({
+            thumbnailSizes: [
+                {
+                    width: 10,
+                    height: 10,
+                    deletable: true,
+                },
+                {
+                    width: 20,
+                    height: 20,
+                    deletable: false,
+                },
+            ],
+
+        });
+        await wrapper.vm.addThumbnail({
+            width: 30,
+            height: 30,
+        });
+
+        expect(create).toHaveBeenCalled();
+        expect(save).toHaveBeenCalledWith(
+            expect.objectContaining({
+                _isNew: true,
+                width: 30,
+                height: 30,
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('should not be able to add a new thumbnail size if the size already exists', async () => {
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({
+            thumbnailSizes: [
+                {
+                    width: 10,
+                    height: 10,
+                    deletable: true,
+                },
+                {
+                    width: 20,
+                    height: 20,
+                    deletable: false,
+                },
+            ],
+
+        });
+        await wrapper.vm.addThumbnail({
+            width: 10,
+            height: 10,
+        });
+
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'global.sw-media-modal-folder-settings.notification.error.messageThumbnailSizeExisted',
+        });
     });
 });

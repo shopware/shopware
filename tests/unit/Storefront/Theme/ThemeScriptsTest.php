@@ -82,7 +82,7 @@ class ThemeScriptsTest extends TestCase
             ->method('resolveFiles')
             ->willReturn([
                 ThemeFileResolver::SCRIPT_FILES => new FileCollection([
-                    new StorefrontPluginConfigurationFile('foo.js', [], 'foo'),
+                    new StorefrontPluginConfigurationFile('foo/foo.js', [], 'foo'),
                 ]),
             ]);
 
@@ -114,7 +114,7 @@ class ThemeScriptsTest extends TestCase
             ->method('resolveFiles')
             ->willReturn([
                 ThemeFileResolver::SCRIPT_FILES => new FileCollection([
-                    new StorefrontPluginConfigurationFile('foo.js', [], 'foo'),
+                    new StorefrontPluginConfigurationFile('foo/foo.js', [], 'foo'),
                 ]),
             ]);
 

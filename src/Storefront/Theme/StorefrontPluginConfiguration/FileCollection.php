@@ -44,6 +44,10 @@ class FileCollection extends Collection
                 return null;
             }
 
+            if (!str_ends_with($element->getFilepath(), $element->assetName . '/' . basename($element->getFilepath()))) {
+                return null;
+            }
+
             return $prefix . '/' . $element->assetName . '/' . basename($element->getFilepath());
         })));
     }

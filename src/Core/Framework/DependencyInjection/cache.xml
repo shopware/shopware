@@ -169,7 +169,8 @@
 
         <service id="shopware.cache.reverse_proxy.redis" class="Redis">
             <factory service="Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory" method="create"/>
-            <argument>%storefront.reverse_proxy.redis_url%</argument>
+            <argument>%shopware.http_cache.reverse_proxy.redis_url%</argument>
+            <deprecated package="shopware/core" version="6.7.0.0">tag:v6.7.0 - The %service_id% service will be removed in v6.7.0.0 without replacement.</deprecated>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCache">
